@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Middleware\ForceJsonResponse;
+use App\Http\Middleware\RequireRole;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Application;
@@ -21,6 +22,10 @@ return Application::configure(basePath: dirname(__DIR__))
             ForceJsonResponse::class,
             SecurityHeaders::class,
             SetLocale::class,
+        ]);
+
+        $middleware->alias([
+            'role' => RequireRole::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

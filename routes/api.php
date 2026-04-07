@@ -29,4 +29,14 @@ Route::prefix('v1')->group(function () {
         Route::post('logout', [AuthController::class, 'logout']);
         Route::get('user', [AuthController::class, 'user']);
     });
+
+    // --- Profile (customer) ---
+    Route::prefix('profile')->middleware(['auth:api', 'role:customer,admin'])->group(function () {
+        // Will be filled in later steps
+    });
+
+    // --- Admin ---
+    Route::prefix('admin')->middleware(['auth:api', 'role:admin'])->group(function () {
+        // Will be filled in later steps
+    });
 });

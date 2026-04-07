@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\Auth;
 
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\Auth\OtpService;
@@ -59,6 +60,7 @@ class AuthController extends Controller
         if ($user->wasRecentlyCreated) {
             $user->email_verified_at = now()->toDateTimeString();
             $user->save();
+            $user->assignRole(UserRole::Customer->value);
         }
 
         /** @var string $token */
