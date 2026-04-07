@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Middleware\ForceJsonResponse;
+use App\Http\Middleware\LogApiRequests;
 use App\Http\Middleware\RequireRole;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocale;
@@ -22,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
             ForceJsonResponse::class,
             SecurityHeaders::class,
             SetLocale::class,
+            LogApiRequests::class,
         ]);
 
         $middleware->alias([

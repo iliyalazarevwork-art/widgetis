@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\V1\Auth;
 use App\Enums\UserRole;
 use App\Http\Controllers\Api\V1\BaseController;
 use App\Http\Requests\Api\V1\Auth\SendOtpRequest;
+use App\Http\Traits\LogsActivity;
 use App\Models\User;
 use App\Services\Auth\OtpService;
 use Illuminate\Http\JsonResponse;
@@ -15,6 +16,7 @@ use Tymon\JWTAuth\JWTGuard;
 
 class AuthController extends BaseController
 {
+    use LogsActivity;
     public function __construct(
         private readonly OtpService $otpService,
     ) {
@@ -23,6 +25,7 @@ class AuthController extends BaseController
     public function sendOtp(SendOtpRequest $request): JsonResponse
     {
         $this->otpService->send($request->validated('email'));
+        $this->logAuth('otp.sent', ['email' => $request->validated('email')]);
 
         return $this->success(['message' => 'OTP sent', 'expires_in' => 600]);
     }
@@ -38,6 +41,8 @@ class AuthController extends BaseController
         $code = $request->input('code');
 
         if (!$this->otpService->verify($email, $code)) {
+            $this->logAuth('otp.failed', ['email' => $email]);
+
             return $this->error('INVALID_OTP', 'Invalid or expired code.', 401);
         }
 
@@ -51,6 +56,8 @@ class AuthController extends BaseController
             $user->save();
             $user->assignRole(UserRole::Customer->value);
         }
+
+        $this->logAuth('otp.verified', ['email' => $email, 'user_id' => $user->id, 'new_user' => $user->wasRecentlyCreated]);
 
         /** @var string $token */
         $token = $this->guard()->login($user);
@@ -77,6 +84,7 @@ class AuthController extends BaseController
 
     public function logout(): JsonResponse
     {
+        $this->logAuth('logout', ['user_id' => $this->currentUser()->id]);
         $this->guard()->logout();
 
         return $this->noContent();
