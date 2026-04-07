@@ -48,9 +48,26 @@ docker compose -f docker-compose.dev.yml exec backend composer <command>
 - `declare(strict_types=1);` in every PHP file
 - PHP 8.3 features: enums, readonly, match, named arguments
 - Type hints on all parameters, return types, and properties
-- PSR-12 formatting
+- PSR-12 formatting (enforce with `./vendor/bin/pint`)
 - Use PHP enums for all status/type columns — never compare against raw strings
 - Use `$model->status === StatusEnum::Active` not `$model->status === 'active'`
+
+### Self-check after writing code
+
+After writing any PHP code, run these checks before committing:
+
+```bash
+# 1. Code style (auto-fix)
+docker compose -f docker-compose.dev.yml exec backend ./vendor/bin/pint
+
+# 2. Static analysis (catch type errors, missing imports, wrong method calls)
+docker compose -f docker-compose.dev.yml exec backend ./vendor/bin/phpstan analyse --memory-limit=512M
+
+# 3. Tests
+docker compose -f docker-compose.dev.yml exec backend php artisan test
+```
+
+Fix any issues found before committing. Do NOT commit code that fails phpstan or tests.
 
 ### API conventions
 

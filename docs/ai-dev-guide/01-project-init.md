@@ -226,6 +226,51 @@ docker compose -f docker-compose.dev.yml exec backend php artisan key:generate
 docker compose -f docker-compose.dev.yml exec backend php artisan migrate
 ```
 
+### 9.1. Install dev quality tools
+
+```bash
+docker compose -f docker-compose.dev.yml exec backend composer require --dev \
+  larastan/larastan:^3.0 \
+  laravel/pint:^1.13
+```
+
+Create `phpstan.neon` in project root:
+
+```neon
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app/
+    level: 6
+    checkMissingIterableValueType: false
+```
+
+Create `pint.json` in project root:
+
+```json
+{
+    "preset": "psr12",
+    "rules": {
+        "declare_strict_types": true,
+        "ordered_imports": {
+            "sort_algorithm": "alpha"
+        },
+        "no_unused_imports": true,
+        "single_quote": true,
+        "trailing_comma_in_multiline": true
+    }
+}
+```
+
+Verify they work:
+
+```bash
+docker compose -f docker-compose.dev.yml exec backend ./vendor/bin/pint --test
+docker compose -f docker-compose.dev.yml exec backend ./vendor/bin/phpstan analyse --memory-limit=512M
+```
+
 ### 10. Initial commit and push
 
 ```bash
