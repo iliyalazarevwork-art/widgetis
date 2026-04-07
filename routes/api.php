@@ -13,6 +13,15 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
 
+    // --- Health check ---
+    Route::get('health', function () {
+        return response()->json([
+            'status' => 'ok',
+            'version' => app()->version(),
+            'timestamp' => now()->toIso8601String(),
+        ]);
+    });
+
     // --- Auth (public) ---
     Route::prefix('auth')->group(function () {
         Route::post('otp', [AuthController::class, 'sendOtp'])

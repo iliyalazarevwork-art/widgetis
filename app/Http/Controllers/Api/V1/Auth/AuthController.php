@@ -5,32 +5,26 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Enums\UserRole;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\V1\BaseController;
+use App\Http\Requests\Api\V1\Auth\SendOtpRequest;
 use App\Models\User;
 use App\Services\Auth\OtpService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\JWTGuard;
 
-class AuthController extends Controller
+class AuthController extends BaseController
 {
     public function __construct(
         private readonly OtpService $otpService,
     ) {
     }
 
-    public function sendOtp(Request $request): JsonResponse
+    public function sendOtp(SendOtpRequest $request): JsonResponse
     {
-        $request->validate([
-            'email' => ['required', 'email', 'max:255'],
-        ]);
+        $this->otpService->send($request->validated('email'));
 
-        $this->otpService->send($request->input('email'));
-
-        return response()->json([
-            'message' => 'OTP sent',
-            'expires_in' => 600,
-        ]);
+        return $this->success(['message' => 'OTP sent', 'expires_in' => 600]);
     }
 
     public function verifyOtp(Request $request): JsonResponse
@@ -44,12 +38,7 @@ class AuthController extends Controller
         $code = $request->input('code');
 
         if (!$this->otpService->verify($email, $code)) {
-            return response()->json([
-                'error' => [
-                    'code' => 'INVALID_OTP',
-                    'message' => 'Invalid or expired code.',
-                ],
-            ], 401);
+            return $this->error('INVALID_OTP', 'Invalid or expired code.', 401);
         }
 
         $user = User::firstOrCreate(
@@ -69,18 +58,11 @@ class AuthController extends Controller
         return $this->respondWithToken($token, $user);
     }
 
-    public function resendOtp(Request $request): JsonResponse
+    public function resendOtp(SendOtpRequest $request): JsonResponse
     {
-        $request->validate([
-            'email' => ['required', 'email', 'max:255'],
-        ]);
+        $this->otpService->send($request->validated('email'));
 
-        $this->otpService->send($request->input('email'));
-
-        return response()->json([
-            'message' => 'OTP resent',
-            'expires_in' => 600,
-        ]);
+        return $this->success(['message' => 'OTP resent', 'expires_in' => 600]);
     }
 
     public function refresh(): JsonResponse
@@ -97,14 +79,12 @@ class AuthController extends Controller
     {
         $this->guard()->logout();
 
-        return response()->json(status: 204);
+        return $this->noContent();
     }
 
     public function user(): JsonResponse
     {
-        $user = $this->guard()->user();
-
-        return response()->json(['data' => $user]);
+        return $this->success(['data' => $this->guard()->user()]);
     }
 
     private function guard(): JWTGuard
@@ -117,7 +97,7 @@ class AuthController extends Controller
 
     private function respondWithToken(string $token, User $user): JsonResponse
     {
-        return response()->json([
+        return $this->success([
             'token' => $token,
             'token_type' => 'bearer',
             'expires_in' => (int) config('jwt.ttl') * 60,
