@@ -45267,7 +45267,8 @@
               "content": "6 магазинів вже використовують Widgetis.\nОсь що вийшло.",
               "lineHeight": 1.5,
               "fontFamily": "Inter",
-              "fontSize": 14
+              "fontSize": 14,
+              "fontWeight": "normal"
             }
           ]
         },
