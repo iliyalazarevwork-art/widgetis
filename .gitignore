@@ -1,8 +1,8 @@
 /vendor/
 /node_modules/
-.env
-.env.backup
-.env.production
+/.env
+/.env.backup
+/.env.production
 /storage/*.key
 /storage/logs/*
 !/storage/logs/.gitkeep
@@ -12,9 +12,9 @@
 /public/storage
 /bootstrap/cache/*
 !/bootstrap/cache/.gitkeep
-.phpunit.result.cache
-.idea/
-.vscode/
+/.phpunit.result.cache
+/.idea/
+/.vscode/
 *.swp
 *.swo
 .DS_Store

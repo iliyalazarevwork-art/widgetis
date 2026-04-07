@@ -1,0 +1,50 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "9002:9000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      APP_ENV: local
+    networks:
+      - widgetis
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: widgetis
+      POSTGRES_USER: widgetis
+      POSTGRES_PASSWORD: widgetis_secret
+    ports:
+      - "5435:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U widgetis"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - widgetis
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6381:6379"
+    networks:
+      - widgetis
+
+volumes:
+  pgdata:
+
+networks:
+  widgetis:
+    driver: bridge
