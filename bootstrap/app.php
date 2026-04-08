@@ -31,6 +31,15 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->render(function (\Illuminate\Auth\AuthenticationException $e) {
+            return response()->json([
+                'error' => [
+                    'code' => 'UNAUTHENTICATED',
+                    'message' => 'Authentication required.',
+                ],
+            ], 401);
+        });
+
         $exceptions->render(function (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'error' => [
