@@ -1,4 +1,4 @@
-const BASE = '/api/v1'
+const BASE = (import.meta.env.VITE_API_BASE_URL || '/api/v1').replace(/\/+$/, '')
 
 let accessToken: string | null = localStorage.getItem('wty_token')
 
@@ -68,7 +68,17 @@ export async function api<T>(path: string, opts: RequestOptions = {}): Promise<T
   const json = await res.json()
 
   if (!res.ok) {
-    const msg = json?.error?.message || `HTTP ${res.status}`
+    const validationMessage = Array.isArray(json?.errors)
+      ? json.errors[0]
+      : (json?.errors && typeof json.errors === 'object'
+        ? Object.values(json.errors)[0]
+        : null)
+
+    const firstValidationMessage = Array.isArray(validationMessage)
+      ? validationMessage[0]
+      : validationMessage
+
+    const msg = json?.error?.message || json?.message || firstValidationMessage || `HTTP ${res.status}`
     const err = new Error(msg) as Error & { code?: string; status?: number }
     err.code = json?.error?.code
     err.status = res.status

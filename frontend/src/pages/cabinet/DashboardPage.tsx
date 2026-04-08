@@ -21,7 +21,7 @@ export default function DashboardPage() {
 
   if (loading) return <div className="page-loader">Завантаження…</div>
   if (!data) return <div className="page-loader">Не вдалося завантажити дані</div>
-  if (!data.plan && !data.subscription_status) return <Navigate to="/choose-plan" replace />
+  if (!data.plan && !data.subscription_status) return <Navigate to="/cabinet/choose-plan" replace />
 
   const planSlug = data.plan?.slug
   const planName = data.plan?.name || 'Free'

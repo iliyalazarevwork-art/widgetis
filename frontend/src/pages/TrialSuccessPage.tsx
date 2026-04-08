@@ -12,6 +12,7 @@ import {
   Check,
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { post, put } from '../api/client'
 import './TrialSuccessPage.css'
 
 interface SignupData {
@@ -21,11 +22,22 @@ interface SignupData {
   plan: 'basic' | 'pro' | 'max'
   billing: string
   phone?: string
+  trialEndsAt?: string | null
+  siteId?: number | null
+  scriptTag?: string | null
 }
 
 const PLAN_NAMES = { basic: 'Basic', pro: 'Pro', max: 'Max' }
 
 type NextChoice = 'self' | 'concierge' | null
+
+function siteDisplayHost(site: string): string {
+  try {
+    return new URL(site).host
+  } catch {
+    return site.replace(/^https?:\/\//i, '')
+  }
+}
 
 export function TrialSuccessPage() {
   const navigate = useNavigate()
@@ -61,7 +73,8 @@ export function TrialSuccessPage() {
 
   if (!data) return null
 
-  const scriptTag = '<script src="https://widgetis.com/w/loading.js"></script>'
+  const scriptTag = data.scriptTag || '<script src="https://widgetis.com/w/loading.js"></script>'
+  const siteHost = siteDisplayHost(data.site)
 
   async function handleCopy() {
     try {
@@ -74,7 +87,7 @@ export function TrialSuccessPage() {
     }
   }
 
-  function handleSavePhone() {
+  async function handleSavePhone() {
     const normalizedPhone = phone.trim()
     if (!/^[+\d\s\-()]{7,20}$/.test(normalizedPhone)) {
       setPhoneError('Вкажіть коректний номер телефону')
@@ -83,12 +96,25 @@ export function TrialSuccessPage() {
 
     if (!data) return
 
-    const nextData: SignupData = { ...data, phone: normalizedPhone }
-    setData(nextData)
-    setPhone(normalizedPhone)
-    setPhoneError('')
-    setPhoneSaved(true)
-    sessionStorage.setItem('wty_trial_signup', JSON.stringify(nextData))
+    try {
+      await put('/profile', { phone: normalizedPhone })
+      await post('/profile/support-requests', {
+        type: 'install_help',
+        site_id: data.siteId ?? null,
+        messenger: 'telegram',
+        message: `Клієнт обрав допомогу з підключенням після trial signup. Телефон: ${normalizedPhone}`,
+      })
+
+      const nextData: SignupData = { ...data, phone: normalizedPhone }
+      setData(nextData)
+      setPhone(normalizedPhone)
+      setPhoneError('')
+      setPhoneSaved(true)
+      sessionStorage.setItem('wty_trial_signup', JSON.stringify(nextData))
+      toast.success('Дякуємо, менеджер отримає заявку')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Не вдалося зберегти номер')
+    }
   }
 
   return (
@@ -110,6 +136,11 @@ export function TrialSuccessPage() {
             <p className="tsuccess__plan">
               План <strong>{PLAN_NAMES[data.plan]}</strong> · 7 днів безкоштовно
             </p>
+            {data.trialEndsAt && (
+              <p className="tsuccess__email-note">
+                Діє до <strong>{new Date(data.trialEndsAt).toLocaleDateString('uk-UA')}</strong>
+              </p>
+            )}
             <p className="tsuccess__email-note">
               Деталі надіслали на <strong>{data.email}</strong>
             </p>
@@ -262,11 +293,11 @@ export function TrialSuccessPage() {
                     <li>
                       Перейдіть до адмін-панелі вашого сайту:{' '}
                       <a
-                        href={`https://${data.site}/edit/settings/general`}
+                        href={`https://${siteHost}/edit/settings/general`}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        {data.site}/edit/settings/general
+                        {siteHost}/edit/settings/general
                       </a>
                     </li>
                     <li>
@@ -300,7 +331,7 @@ export function TrialSuccessPage() {
               >
                 Змінити варіант
               </button>
-              <Link to="/admin" className="tsuccess__confirm-cta">
+              <Link to="/cabinet" className="tsuccess__confirm-cta">
                 До кабінету
                 <ArrowRight size={14} strokeWidth={2.5} />
               </Link>

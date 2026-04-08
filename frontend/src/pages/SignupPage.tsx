@@ -18,6 +18,10 @@ import {
 } from 'lucide-react'
 import { platformConfig } from '../data/widgets'
 import type { Platform } from '../data/widgets'
+import { post } from '../api/client'
+import type { SiteCreateResponse, User } from '../types'
+import { useAuth } from '../context/AuthContext'
+import { toast } from 'sonner'
 import './SignupPage.css'
 
 // ─── Plan data ────────────────────────────────────────────────────────────────
@@ -152,11 +156,26 @@ interface SignupDraft {
   resendAvailableAt: number | null
 }
 
+interface TrialStartResponse {
+  data: {
+    trial_ends_at: string | null
+  }
+}
+
+function normalizeSiteUrl(value: string): string {
+  const raw = value.trim()
+  if (!raw) return ''
+  if (/^https?:\/\//i.test(raw)) return raw
+
+  return `https://${raw}`
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export function SignupPage() {
   const navigate = useNavigate()
   const [params] = useSearchParams()
+  const { login } = useAuth()
 
   const rawPlan = params.get('plan') ?? 'pro'
   const billing = params.get('billing') === 'monthly' ? 'monthly' : 'yearly'
@@ -248,11 +267,16 @@ export function SignupPage() {
     }
     setEmailError('')
     setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-      setStep('otp')
-      startCooldown()
-    }, 900)
+    post('/auth/otp', { email: email.trim() })
+      .then(() => {
+        setStep('otp')
+        startCooldown()
+        toast.success('Код підтвердження надіслано на email')
+      })
+      .catch((err) => {
+        toast.error(err instanceof Error ? err.message : 'Не вдалося надіслати код')
+      })
+      .finally(() => setLoading(false))
   }
 
   function startCooldown() {
@@ -261,11 +285,16 @@ export function SignupPage() {
 
   function handleResend() {
     setResending(true)
-    setTimeout(() => {
-      setResending(false)
-      setOtp('')
-      startCooldown()
-    }, 700)
+    post('/auth/otp/resend', { email: email.trim() })
+      .then(() => {
+        setOtp('')
+        startCooldown()
+        toast.success('Код надіслано повторно')
+      })
+      .catch((err) => {
+        toast.error(err instanceof Error ? err.message : 'Не вдалося надіслати код повторно')
+      })
+      .finally(() => setResending(false))
   }
 
   // ── Step 2: verify OTP ──
@@ -278,29 +307,78 @@ export function SignupPage() {
     }
     setOtpError('')
     setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-      setStep('store')
-    }, 800)
+    post<{ token: string; user: User }>('/auth/otp/verify', { email: email.trim(), code: clean })
+      .then((res) => {
+        login(res.token, res.user)
+        setStep('store')
+        toast.success('Email підтверджено')
+      })
+      .catch((err) => {
+        setOtpError(err instanceof Error ? err.message : 'Невірний або прострочений код')
+      })
+      .finally(() => setLoading(false))
   }
 
   // ── Step 3: store + start trial ──
   function handleStartTrial(e: React.FormEvent) {
     e.preventDefault()
-    if (!site.trim() || site.trim().length < 4) {
+    const normalizedUrl = normalizeSiteUrl(site)
+    if (!normalizedUrl || normalizedUrl.length < 10) {
       setSiteError('Вкажіть адресу магазину')
       return
     }
     setSiteError('')
     setLoading(true)
-    setTimeout(() => {
-      sessionStorage.removeItem(SIGNUP_DRAFT_KEY)
-      sessionStorage.setItem(
-        'wty_trial_signup',
-        JSON.stringify({ email, site, platform, plan: planKey, billing }),
-      )
-      navigate('/signup/success', { replace: true })
-    }, 1200)
+
+    const finishSignup = (trialEndsAt: string | null, siteResponse: SiteCreateResponse | null) => {
+        sessionStorage.removeItem(SIGNUP_DRAFT_KEY)
+        sessionStorage.setItem(
+          'wty_trial_signup',
+          JSON.stringify({
+            email: email.trim(),
+            site: normalizedUrl,
+            platform,
+            plan: planKey,
+            billing,
+            trialEndsAt,
+            siteId: siteResponse?.id ?? null,
+            scriptTag: siteResponse?.script?.script_tag ?? null,
+          }),
+        )
+        navigate('/signup/success', { replace: true })
+    }
+
+    const createSite = () => post<{ data: SiteCreateResponse }>('/profile/sites', {
+      url: normalizedUrl,
+      platform,
+    })
+
+    let trialEndsAt: string | null = null
+
+    post<TrialStartResponse>('/profile/subscription/start-trial', { plan_slug: planKey })
+      .then((trialRes) => {
+        trialEndsAt = trialRes.data?.trial_ends_at ?? null
+        return createSite()
+      })
+      .then((siteRes) => {
+        finishSignup(trialEndsAt, siteRes.data)
+      })
+      .catch((err: unknown) => {
+        const error = err as Error & { code?: string }
+        if (error.code === 'ALREADY_SUBSCRIBED') {
+          createSite()
+            .then((siteRes) => {
+              toast.success('Ви вже авторизовані. Продовжуємо оформлення.')
+              finishSignup(null, siteRes.data)
+            })
+            .catch((siteErr) => {
+              toast.error(siteErr instanceof Error ? siteErr.message : 'Не вдалося додати сайт')
+            })
+        } else {
+          toast.error(error.message || 'Не вдалося активувати trial')
+        }
+      })
+      .finally(() => setLoading(false))
   }
 
   return (

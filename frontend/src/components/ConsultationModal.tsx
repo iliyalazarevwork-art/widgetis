@@ -4,6 +4,7 @@ import { useSwipeDismiss } from '../hooks/useSwipeDismiss'
 import DatePicker, { registerLocale } from 'react-datepicker'
 import { uk } from 'date-fns/locale/uk'
 import { PhoneInput, defaultCountries, parseCountry } from 'react-international-phone'
+import { post } from '../api/client'
 import 'react-datepicker/dist/react-datepicker.css'
 import 'react-international-phone/style.css'
 import './ConsultationModal.css'
@@ -46,21 +47,18 @@ export function ConsultationModal({ isOpen, onClose }: ConsultationModalProps) {
 
     setStep('sending')
     try {
-      const res = await fetch('/api/consultations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: name.trim(),
-          phone,
-          date: date.toISOString().split('T')[0],
-          time,
-        }),
-      })
+      const [hours, minutes] = time.split(':').map(Number)
+      const preferredAt = new Date(date)
+      preferredAt.setHours(hours || 0, minutes || 0, 0, 0)
 
-      if (!res.ok) throw new Error('Помилка сервера')
+      await post('/consultations', {
+        name: name.trim(),
+        phone,
+        preferred_at: preferredAt.toISOString(),
+      })
       setStep('success')
-    } catch {
-      setErrorMsg('Не вдалося відправити. Спробуйте ще раз або напишіть нам у Telegram.')
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : 'Не вдалося відправити. Спробуйте ще раз або напишіть нам у Telegram.')
       setStep('error')
     }
   }

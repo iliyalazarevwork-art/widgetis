@@ -7,12 +7,12 @@ export default defineConfig({
     include: ['react-fast-marquee'],
   },
   server: {
-    port: 8000,
+    port: 5173,
     host: '0.0.0.0',
     allowedHosts: true,
     proxy: {
       '/api': {
-        target: process.env.BACKEND_URL || 'http://backend:80',
+        target: process.env.BACKEND_URL || 'http://127.0.0.1:9001',
         changeOrigin: true,
       },
     },
