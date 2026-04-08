@@ -123,4 +123,36 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasManyThrough(SiteWidget::class, Site::class);
     }
+
+    /**
+     * @return HasMany<Order, $this>
+     */
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    /**
+     * @return HasMany<Payment, $this>
+     */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * @return HasMany<ManagerRequest, $this>
+     */
+    public function managerRequests(): HasMany
+    {
+        return $this->hasMany(ManagerRequest::class);
+    }
+
+    /**
+     * @return HasMany<AppNotification, $this>
+     */
+    public function appNotifications(): HasMany
+    {
+        return $this->hasMany(AppNotification::class);
+    }
 }

@@ -1,0 +1,33 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Services\Activity;
+
+use App\Models\ActivityLog;
+
+class ActivityLogService
+{
+    /**
+     * @param array<string, mixed>|null $description
+     * @param array<string, mixed>|null $metadata
+     */
+    public function log(
+        ?int $userId,
+        string $action,
+        ?string $entityType = null,
+        ?int $entityId = null,
+        ?array $description = null,
+        ?array $metadata = null,
+    ): ActivityLog {
+        return ActivityLog::create([
+            'user_id' => $userId,
+            'action' => $action,
+            'entity_type' => $entityType,
+            'entity_id' => $entityId,
+            'description' => $description,
+            'metadata' => $metadata,
+            'created_at' => now(),
+        ]);
+    }
+}
