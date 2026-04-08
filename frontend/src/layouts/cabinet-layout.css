@@ -13,3 +13,7 @@
   padding-bottom: var(--bottomnav-h);
   overflow-y: auto;
 }
+
+.cabinet__content--embedded-header {
+  padding-top: 0;
+}

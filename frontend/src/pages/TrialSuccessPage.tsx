@@ -2,14 +2,15 @@ import { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { Link, useNavigate } from 'react-router-dom'
 import {
-  CheckCircle2,
+  Check,
   Code2,
-  MessageCircle,
+  Users,
   ArrowRight,
-  Sparkles,
+  Menu,
+  X,
+  MessageCircle,
   Mail,
   Copy,
-  Check,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { post, put } from '../api/client'
@@ -26,8 +27,6 @@ interface SignupData {
   siteId?: number | null
   scriptTag?: string | null
 }
-
-const PLAN_NAMES = { basic: 'Basic', pro: 'Pro', max: 'Max' }
 
 type NextChoice = 'self' | 'concierge' | null
 
@@ -118,90 +117,61 @@ export function TrialSuccessPage() {
   }
 
   return (
-    <div className="tsuccess">
+    <div className="tsuccess tsuccess--mobile">
       <Helmet>
         <title>Тріал активовано — Widgetis</title>
       </Helmet>
 
-      <div className="tsuccess__container">
+      {!choice && (
+        <header className="tsuccessm__header">
+          <div className="tsuccessm__brand">
+            <span className="tsuccessm__mark">W</span>
+            <span>WIDGETIS</span>
+          </div>
+          <button type="button" className="tsuccessm__menu" aria-label="menu">
+            <Menu size={16} strokeWidth={2.25} />
+          </button>
+        </header>
+      )}
 
+      <div className="tsuccess__container">
         {!choice && (
-          <div className="tsuccess__hero">
-            <div className="tsuccess__icon">
-              <CheckCircle2 size={44} strokeWidth={1.75} />
+          <div className="tsuccessm__hero">
+            <div className="tsuccessm__icon-wrap">
+              <Check size={36} strokeWidth={2.5} />
             </div>
-            <h1 className="tsuccess__title">
-              Тріал <span className="tsuccess__accent">активовано</span>
-            </h1>
-            <p className="tsuccess__plan">
-              План <strong>{PLAN_NAMES[data.plan]}</strong> · 7 днів безкоштовно
+            <h1 className="tsuccessm__title">Оплата пройшла успішно!</h1>
+            <p className="tsuccessm__subtitle">
+              Оберіть, як ви хочете встановити віджети на {siteHost}
             </p>
-            {data.trialEndsAt && (
-              <p className="tsuccess__email-note">
-                Діє до <strong>{new Date(data.trialEndsAt).toLocaleDateString('uk-UA')}</strong>
-              </p>
-            )}
-            <p className="tsuccess__email-note">
-              Деталі надіслали на <strong>{data.email}</strong>
-            </p>
+            <p className="tsuccessm__label">Ключовий блок: спосіб підключення</p>
           </div>
         )}
 
         {!choice ? (
-          <>
-            <h2 className="tsuccess__choice-title">Як підключимо магазин?</h2>
-            <p className="tsuccess__choice-sub">
-              Оберіть варіант — налаштуємо під Вас
-            </p>
-
-            <div className="tsuccess__options">
-
-              <button className="tsuccess__option" onClick={() => setChoice('self')} type="button">
-                <div className="tsuccess__option-icon">
-                  <Code2 size={24} strokeWidth={2} />
+          <div className="tsuccessm__options">
+            <button className="tsuccessm__option" onClick={() => setChoice('self')} type="button">
+              <div className="tsuccessm__option-left">
+                <Code2 size={21} strokeWidth={1.95} className="tsuccessm__option-icon" />
+                <div className="tsuccessm__option-copy">
+                  <h3>Встановлю сам</h3>
+                  <p>Покрокова інструкція — займе 2 хвилини</p>
                 </div>
-                <h3 className="tsuccess__option-title">Встановлю сам</h3>
-                <p className="tsuccess__option-desc">
-                  Отримаєте на пошту JS-скрипт і покрокову інструкцію під {data.platform}. 3 хвилини — і готово.
-                </p>
-                <ul className="tsuccess__option-list">
-                  <li><Mail size={12} strokeWidth={2.25} /><span>Скрипт прийде на пошту за 5 хвилин</span></li>
-                  <li><Code2 size={12} strokeWidth={2.25} /><span>Інструкція зі скріншотами</span></li>
-                </ul>
-                <span className="tsuccess__option-cta">
-                  Обрати
-                  <ArrowRight size={13} strokeWidth={2.5} />
-                </span>
-              </button>
+              </div>
+              <ArrowRight size={17} strokeWidth={2.4} className="tsuccessm__option-arrow" />
+            </button>
 
-              <button
-                className="tsuccess__option tsuccess__option--featured"
-                onClick={() => setChoice('concierge')}
-                type="button"
-              >
-                <div className="tsuccess__option-badge">
-                  <Sparkles size={10} strokeWidth={2.5} />
-                  Рекомендовано
+            <button className="tsuccessm__option" onClick={() => setChoice('concierge')} type="button">
+              <div className="tsuccessm__option-left">
+                <Users size={21} strokeWidth={1.95} className="tsuccessm__option-icon" />
+                <div className="tsuccessm__option-copy">
+                  <h3>З допомогою менеджера</h3>
+                  <p>Ми все зробимо за вас</p>
                 </div>
-                <div className="tsuccess__option-icon tsuccess__option-icon--accent">
-                  <MessageCircle size={24} strokeWidth={2} />
-                </div>
-                <h3 className="tsuccess__option-title">Хочу допомогу</h3>
-                <p className="tsuccess__option-desc">
-                  Наш менеджер напише у Telegram або Viber і разом налаштуємо за 15 хвилин.
-                </p>
-                <ul className="tsuccess__option-list">
-                  <li><MessageCircle size={12} strokeWidth={2.25} /><span>Telegram або Viber — як зручно</span></li>
-                  <li><CheckCircle2 size={12} strokeWidth={2.25} /><span>Перевіримо, що все працює</span></li>
-                </ul>
-                <span className="tsuccess__option-cta">
-                  Обрати
-                  <ArrowRight size={13} strokeWidth={2.5} />
-                </span>
-              </button>
-
-            </div>
-          </>
+              </div>
+              <ArrowRight size={17} strokeWidth={2.4} className="tsuccessm__option-arrow" />
+            </button>
+          </div>
         ) : (
           <div className="tsuccess__confirm">
             <div className="tsuccess__confirm-icon">
@@ -223,7 +193,7 @@ export function TrialSuccessPage() {
             <p className="tsuccess__confirm-text">
               {choice === 'self' ? (
                 <>
-                  Ми вже надіслали лист на <strong>{data.email}</strong>. Перевірте пошту і папку «Спам».
+                  Ми вже надіслали лист на <strong>{data.email}</strong>. Нижче скрипт та інструкція.
                 </>
               ) : (
                 phoneSaved ? (
@@ -329,6 +299,7 @@ export function TrialSuccessPage() {
                 onClick={() => setChoice(null)}
                 type="button"
               >
+                <X size={14} strokeWidth={2} />
                 Змінити варіант
               </button>
               <Link to="/cabinet" className="tsuccess__confirm-cta">
@@ -340,6 +311,34 @@ export function TrialSuccessPage() {
         )}
 
       </div>
+
+      {!choice && (
+        <footer className="tsuccessm__footer">
+          <div className="tsuccessm__footer-brand">
+            <div className="tsuccessm__footer-logo">
+              <span>W</span>
+              <span>WIDGETIS</span>
+            </div>
+            <p>Готові віджети для e-commerce. Збільшуйте конверсію без розробників.</p>
+          </div>
+
+          <div className="tsuccessm__footer-cols">
+            <div>
+              <h4>НАВІГАЦІЯ</h4>
+              <a href="/widgets">Віджети</a>
+              <a href="/cases">Кейси</a>
+              <a href="/contacts">Контакти</a>
+            </div>
+            <div>
+              <h4>ЗВ'ЯЗОК</h4>
+              <a href="mailto:hello@widgetis.com">hello@widgetis.com</a>
+              <a href="https://t.me/widgetis_support" target="_blank" rel="noreferrer">Telegram</a>
+            </div>
+          </div>
+
+          <div className="tsuccessm__footer-copy">© 2026 Widgetis. Всі права захищені.</div>
+        </footer>
+      )}
     </div>
   )
 }

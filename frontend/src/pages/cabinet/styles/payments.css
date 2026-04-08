@@ -1,16 +1,223 @@
-.pay-page { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-.pay-page__title { font-size: 16px; font-weight: 700; color: var(--text-primary); }
-.pay-page__empty { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+.pay-page {
+  padding: 0 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
-.pay-page__list { display: flex; flex-direction: column; gap: 6px; }
+.pay-page__header {
+  height: 60px;
+  margin: 0 -16px;
+  padding: 0 20px;
+  border-bottom: 1px solid #ffffff0a;
+  background: #0e0e0e;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
-.pay-page__item { display: flex; align-items: center; justify-content: space-between; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: var(--radius-xl); padding: 14px; }
-.pay-page__item-left { display: flex; flex-direction: column; gap: 2px; }
-.pay-page__item-type { font-size: 14px; font-weight: 600; color: var(--text-primary); }
-.pay-page__item-date { font-size: 11px; color: var(--text-muted); }
-.pay-page__item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
-.pay-page__item-amount { font-size: 14px; font-weight: 700; color: var(--text-primary); }
-.pay-page__item-status { font-size: 11px; font-weight: 600; }
-.pay-page__item-status--success { color: var(--green); }
-.pay-page__item-status--pending { color: var(--yellow); }
-.pay-page__item-status--failed { color: var(--red); }
+.pay-page__back {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 0;
+  background: #ffffff08;
+  color: #aaaaaa;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pay-page__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #f0f0f0;
+}
+
+.pay-page__header-spacer {
+  width: 36px;
+  height: 36px;
+}
+
+.pay-page__summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.pay-page__summary-card {
+  border-radius: 12px;
+  background: #141414;
+  border: 1px solid #ffffff08;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pay-page__summary-label {
+  font-size: 10px;
+  color: #666666;
+}
+
+.pay-page__summary-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #f0f0f0;
+  line-height: 1.2;
+}
+
+.pay-page__summary-value--accent {
+  color: #3b82f6;
+}
+
+.pay-page__section-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #888888;
+}
+
+.pay-page__empty-card {
+  text-align: center;
+  padding: 26px 12px;
+  border-radius: 12px;
+  border: 1px solid #ffffff08;
+  background: #141414;
+  color: #666666;
+  font-size: 12px;
+}
+
+.pay-page__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pay-page__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+  background: #141414;
+  border: 1px solid #ffffff08;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.pay-page__icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pay-page__icon-wrap--ok {
+  color: #10b981;
+  background: #10b98120;
+}
+
+.pay-page__icon-wrap--trial {
+  color: #a855f7;
+  background: #a855f720;
+}
+
+.pay-page__item-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.pay-page__item-type {
+  font-size: 12px;
+  font-weight: 600;
+  color: #f0f0f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pay-page__item-date {
+  font-size: 10px;
+  color: #555555;
+}
+
+.pay-page__item-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.pay-page__item-amount {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f0f0f0;
+}
+
+.pay-page__item-amount--trial {
+  color: #a855f7;
+}
+
+.pay-page__item-status {
+  font-size: 10px;
+}
+
+.pay-page__item-status--success {
+  color: #10b981;
+}
+
+.pay-page__item-status--pending {
+  color: #f59e0b;
+}
+
+.pay-page__item-status--failed {
+  color: #ef4444;
+}
+
+.pay-page__item-status--trial {
+  color: #a855f780;
+}
+
+.pay-page__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 4px 0 8px;
+}
+
+.pay-page__page-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid #ffffff14;
+  background: #ffffff0a;
+  color: #888888;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pay-page__page-btn--active {
+  background: #3b82f6;
+  border-color: transparent;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.pay-page__dots {
+  color: #555555;
+  font-size: 14px;
+}
+
+.pay-page__page-btn:disabled {
+  opacity: 0.45;
+}

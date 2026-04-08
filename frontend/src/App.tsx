@@ -131,9 +131,9 @@ function App() {
             <Route path="/widgets/:slug" element={<WidgetDetailPage />} />
             <Route path="/demo" element={<DemoPage />} />
             <Route path="/signup" element={<SignupPage />} />
-            <Route path="/signup/success" element={<TrialSuccessPage />} />
           </Route>
 
+          <Route path="/signup/success" element={<TrialSuccessPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/login/otp" element={<LoginOtpPage />} />
 

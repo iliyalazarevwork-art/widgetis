@@ -22,7 +22,7 @@ class DashboardController extends BaseController
             ->get()
             ->map(fn (ActivityLog $a) => [
                 'action' => $a->action,
-                'description' => $a->description,
+                'description' => $this->resolveDescription($a->description),
                 'entity_type' => $a->entity_type,
                 'created_at' => $a->created_at?->toIso8601String(),
             ]);
@@ -42,5 +42,20 @@ class DashboardController extends BaseController
                 'recent_activity' => $recentActivity,
             ],
         ]);
+    }
+
+    private function resolveDescription(mixed $description): string
+    {
+        if (is_string($description)) {
+            return $description;
+        }
+
+        if (is_array($description)) {
+            $locale = $this->locale();
+
+            return (string) ($description[$locale] ?? $description['uk'] ?? $description['en'] ?? '');
+        }
+
+        return '';
     }
 }

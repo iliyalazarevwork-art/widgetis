@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             WidgetTagSeeder::class,
             ProductSeeder::class,
             ProductPlanAccessSeeder::class,
+            DemoDataSeeder::class,
         ]);
     }
 }

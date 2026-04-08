@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Mail, ArrowRight } from 'lucide-react'
+import { Mail, Send, Lock } from 'lucide-react'
 import { post } from '../../api/client'
 import { toast } from 'sonner'
-import './auth.css'
+import './login-mobile.css'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -28,27 +28,29 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="auth-page">
-      <header className="auth-page__header">
-        <span className="auth-page__logo">W</span>
+    <div className="loginm">
+      <header className="loginm__header">
+        <span className="loginm__brand">Widgetis</span>
       </header>
 
-      <div className="auth-page__body">
-        <div className="auth-page__hero">
-          <h1 className="auth-page__title">Вхід до кабінету</h1>
-          <p className="auth-page__subtitle">
+      <div className="loginm__body">
+        <div className="loginm__hero">
+          <Lock size={40} strokeWidth={1.75} className="loginm__lock" />
+          <h1 className="loginm__title">Увійти до кабінету</h1>
+          <p className="loginm__subtitle">
             Введіть email — ми надішлемо код підтвердження
           </p>
+          <p className="loginm__label">ВХІД</p>
         </div>
 
-        <form className="auth-page__form" onSubmit={handleSubmit}>
-          <label className="auth-field">
-            <span className="auth-field__label">Email</span>
-            <div className="auth-field__input-wrap">
-              <Mail size={18} className="auth-field__icon" />
+        <form className="loginm__card" onSubmit={handleSubmit}>
+          <label className="loginm__field">
+            <span className="loginm__field-label">Email</span>
+            <div className="loginm__input-wrap">
+              <Mail size={16} strokeWidth={1.85} className="loginm__field-icon" />
               <input
                 type="email"
-                className="auth-field__input"
+                className="loginm__input"
                 placeholder="your@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -60,36 +62,40 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="auth-btn auth-btn--primary"
+            className="loginm__otp-btn"
             disabled={!isValid || loading}
           >
-            <span>{loading ? 'Надсилаємо…' : 'Отримати код'}</span>
-            {!loading && <ArrowRight size={18} />}
+            {loading ? (
+              <span>Надсилаємо…</span>
+            ) : (
+              <>
+                <Send size={15} strokeWidth={2.2} />
+                <span>Отримати код</span>
+              </>
+            )}
+          </button>
+
+          <div className="loginm__divider">
+            <span>або</span>
+          </div>
+
+          <button type="button" className="loginm__google-btn" disabled>
+            <span className="loginm__google-g">G</span>
+            <span>Увійти через Google</span>
           </button>
         </form>
 
-        <div className="auth-page__divider">
-          <span>або</span>
+        <div className="loginm__split" />
+
+        <p className="loginm__label">СТВОРЕННЯ АКАУНТА</p>
+        <div className="loginm__signup-card">
+          <p className="loginm__signup-title">Новий користувач?</p>
+          <p className="loginm__signup-subtitle">Створіть акаунт через вибір плану та почніть trial.</p>
+          <a href="/signup" className="loginm__signup-link">
+            <span>Створити акаунт</span>
+            <span className="loginm__signup-arrow">→</span>
+          </a>
         </div>
-
-        <button className="auth-btn auth-btn--google" disabled>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
-            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-          </svg>
-          <span>Увійти через Google</span>
-        </button>
-
-        <p className="auth-page__footer-text">
-          Ще немає акаунту?{' '}
-          <a href="/signup" className="auth-page__link">Зареєструватися</a>
-        </p>
-
-        <a href="/admin" className="auth-page__admin-link">
-          Вхід для адміністратора →
-        </a>
       </div>
     </div>
   )

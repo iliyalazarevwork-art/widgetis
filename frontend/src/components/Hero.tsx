@@ -102,7 +102,7 @@ export function Hero() {
 
       {/* ── Bottom: CTA + social proof ── */}
       <div className="hero__bottom">
-        <Link to="/signup" className="hero__cta">
+        <Link to="/pricing" className="hero__cta">
           Спробувати 7 днів безкоштовно
           <ArrowRight size={16} strokeWidth={2.5} />
         </Link>

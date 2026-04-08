@@ -1,7 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import {
-  X, LayoutDashboard, Globe, Wand2, CreditCard, Package,
-  Receipt, Bell, Settings, HelpCircle, User, Monitor, LogOut,
+  X, LayoutDashboard, Globe, Wand2, Receipt, Settings, LogOut, ExternalLink,
 } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
 import { useAuth } from '../context/AuthContext'
@@ -14,20 +13,14 @@ interface Props {
 
 const navItems = [
   { to: '/cabinet', icon: LayoutDashboard, label: 'Дашборд', end: true },
-  { to: '/cabinet/sites', icon: Globe, label: 'Мої сайти' },
   { to: '/cabinet/sites/configure', icon: Wand2, label: 'Конфігуратор' },
-  { to: '/cabinet/plan', icon: CreditCard, label: 'Мій план' },
-  { to: '/cabinet/widgets', icon: Package, label: 'Мої віджети' },
-  { to: '/cabinet/payments', icon: Receipt, label: 'Історія платежів' },
-  { to: '/cabinet/notifications', icon: Bell, label: 'Сповіщення' },
-  { to: '/cabinet/demo', icon: Monitor, label: 'Демо-сесія' },
-  { to: '/cabinet/support', icon: HelpCircle, label: 'Підтримка' },
-  { to: '/cabinet/profile', icon: User, label: 'Профіль' },
+  { to: '/cabinet/sites', icon: Globe, label: 'Сайти' },
+  { to: '/cabinet/payments', icon: Receipt, label: 'Замовлення' },
   { to: '/cabinet/settings', icon: Settings, label: 'Налаштування' },
 ]
 
 export default function Sidebar({ open, onClose }: Props) {
-  const { user, logout } = useAuth()
+  const { logout } = useAuth()
 
   const handleLogout = async () => {
     onClose()
@@ -55,13 +48,11 @@ export default function Sidebar({ open, onClose }: Props) {
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
           >
             <div className="sidebar__header">
-              <div className="sidebar__user">
-                <div className="sidebar__avatar">
-                  {user?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || '?'}
-                </div>
-                <div className="sidebar__user-info">
-                  <span className="sidebar__user-name">{user?.name || 'Користувач'}</span>
-                  <span className="sidebar__user-email">{user?.email}</span>
+              <div className="sidebar__brand">
+                <div className="sidebar__brand-mark">W</div>
+                <div className="sidebar__brand-copy">
+                  <span className="sidebar__brand-name">WIDGETIS</span>
+                  <span className="sidebar__brand-role">КАБІНЕТ</span>
                 </div>
               </div>
               <button className="sidebar__close" onClick={onClose} aria-label="Закрити">
@@ -86,10 +77,16 @@ export default function Sidebar({ open, onClose }: Props) {
               ))}
             </nav>
 
-            <button className="sidebar__logout" onClick={handleLogout}>
-              <LogOut size={18} />
-              <span>Вийти</span>
-            </button>
+            <div className="sidebar__bottom">
+              <a href="/" className="sidebar__bottom-btn" onClick={onClose}>
+                <ExternalLink size={14} />
+                <span>Сайт</span>
+              </a>
+              <button className="sidebar__bottom-btn" onClick={handleLogout}>
+                <LogOut size={14} />
+                <span>Вийти</span>
+              </button>
+            </div>
           </motion.aside>
         </>
       )}
