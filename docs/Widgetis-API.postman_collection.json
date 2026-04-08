@@ -1,313 +1,85 @@
 {
 	"info": {
 		"name": "Widgetis API v1",
-		"description": "Widgetis backend API — Laravel 12 + JWT Auth\n\nВсе эндпоинты префиксированы /api/v1/\n\nПорядок работы:\n1. Отправьте OTP на email (Send OTP)\n2. Скопируйте код из логов Docker\n3. Проверьте OTP (Verify OTP) — токен автоматически сохранится\n4. Теперь все protected endpoints работают",
+		"description": "Widgetis backend API — Laravel 12 + JWT Auth\n\nПорядок работы:\n1. Send OTP → 2. Скопируй код из Docker logs → 3. Verify OTP (токен сохранится) → 4. Protected endpoints работают\n\nДля dev-сервера: docker compose -f docker-compose.dev.yml exec -d backend php artisan serve --host=0.0.0.0 --port=8000",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"variable": [
-		{
-			"key": "base_url",
-			"value": "http://localhost:8000/api/v1",
-			"type": "string"
-		},
-		{
-			"key": "token",
-			"value": "",
-			"type": "string"
-		}
+		{"key": "base_url", "value": "http://localhost:8000/api/v1"},
+		{"key": "token", "value": ""},
+		{"key": "site_id", "value": "1"}
 	],
 	"item": [
 		{
 			"name": "Public",
 			"item": [
-				{
-					"name": "Health Check",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/health",
-							"host": ["{{base_url}}"],
-							"path": ["health"]
-						}
-					}
-				},
-				{
-					"name": "List Plans (UK)",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept-Language",
-								"value": "uk"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/plans",
-							"host": ["{{base_url}}"],
-							"path": ["plans"]
-						}
-					}
-				},
-				{
-					"name": "List Plans (EN)",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept-Language",
-								"value": "en"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/plans",
-							"host": ["{{base_url}}"],
-							"path": ["plans"]
-						}
-					}
-				}
+				{"name": "Health Check", "request": {"method": "GET", "url": {"raw": "{{base_url}}/health"}}},
+				{"name": "List Plans", "request": {"method": "GET", "url": {"raw": "{{base_url}}/plans"}}},
+				{"name": "Plans Features Matrix", "request": {"method": "GET", "url": {"raw": "{{base_url}}/plans/features"}}},
+				{"name": "List Products", "request": {"method": "GET", "url": {"raw": "{{base_url}}/products"}}},
+				{"name": "Products by Tag", "request": {"method": "GET", "url": {"raw": "{{base_url}}/products?tag=social-proof"}}},
+				{"name": "Search Products (EN)", "request": {"method": "GET", "header": [{"key": "Accept-Language", "value": "en"}], "url": {"raw": "{{base_url}}/products?search=ticker"}}},
+				{"name": "Product Detail", "request": {"method": "GET", "url": {"raw": "{{base_url}}/products/marquee"}}},
+				{"name": "List Tags", "request": {"method": "GET", "url": {"raw": "{{base_url}}/tags"}}},
+				{"name": "Settings", "request": {"method": "GET", "url": {"raw": "{{base_url}}/settings"}}}
 			]
 		},
 		{
 			"name": "Auth",
 			"item": [
-				{
-					"name": "Send OTP",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"test@example.com\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/auth/otp",
-							"host": ["{{base_url}}"],
-							"path": ["auth", "otp"]
-						}
-					}
-				},
-				{
-					"name": "Resend OTP",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"test@example.com\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/auth/otp/resend",
-							"host": ["{{base_url}}"],
-							"path": ["auth", "otp", "resend"]
-						}
-					}
-				},
+				{"name": "Send OTP", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"email\": \"admin@widgetis.com\"}"}, "url": {"raw": "{{base_url}}/auth/otp"}}},
+				{"name": "Resend OTP", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"email\": \"admin@widgetis.com\"}"}, "url": {"raw": "{{base_url}}/auth/otp/resend"}}},
 				{
 					"name": "Verify OTP",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var jsonData = pm.response.json();",
-									"if (jsonData.token) {",
-									"    pm.collectionVariables.set('token', jsonData.token);",
-									"    console.log('Token saved automatically!');",
-									"}"
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"test@example.com\",\n    \"code\": \"PASTE_CODE_HERE\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/auth/otp/verify",
-							"host": ["{{base_url}}"],
-							"path": ["auth", "otp", "verify"]
-						}
-					}
+					"event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["var d = pm.response.json();", "if (d.token) { pm.collectionVariables.set('token', d.token); console.log('Token saved!'); }"]}}],
+					"request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"email\": \"admin@widgetis.com\", \"code\": \"PASTE_CODE_HERE\"}"}, "url": {"raw": "{{base_url}}/auth/otp/verify"}}
 				},
-				{
-					"name": "Verify OTP (wrong code)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"test@example.com\",\n    \"code\": \"000000\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/auth/otp/verify",
-							"host": ["{{base_url}}"],
-							"path": ["auth", "otp", "verify"]
-						}
-					}
-				},
-				{
-					"name": "Validation Error (empty body)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{}"
-						},
-						"url": {
-							"raw": "{{base_url}}/auth/otp",
-							"host": ["{{base_url}}"],
-							"path": ["auth", "otp"]
-						}
-					}
-				}
+				{"name": "Validation Error", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{}"}, "url": {"raw": "{{base_url}}/auth/otp"}}}
 			]
 		},
 		{
 			"name": "Auth (Protected)",
 			"item": [
-				{
-					"name": "Get Current User",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/auth/user",
-							"host": ["{{base_url}}"],
-							"path": ["auth", "user"]
-						}
-					}
-				},
+				{"name": "Get Current User", "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{token}}"}], "url": {"raw": "{{base_url}}/auth/user"}}},
 				{
 					"name": "Refresh Token",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var jsonData = pm.response.json();",
-									"if (jsonData.token) {",
-									"    pm.collectionVariables.set('token', jsonData.token);",
-									"    console.log('Token refreshed and saved!');",
-									"}"
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/auth/refresh",
-							"host": ["{{base_url}}"],
-							"path": ["auth", "refresh"]
-						}
-					}
+					"event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["var d = pm.response.json();", "if (d.token) { pm.collectionVariables.set('token', d.token); console.log('Token refreshed!'); }"]}}],
+					"request": {"method": "POST", "header": [{"key": "Authorization", "value": "Bearer {{token}}"}], "url": {"raw": "{{base_url}}/auth/refresh"}}
 				},
+				{"name": "Logout", "request": {"method": "POST", "header": [{"key": "Authorization", "value": "Bearer {{token}}"}], "url": {"raw": "{{base_url}}/auth/logout"}}}
+			]
+		},
+		{
+			"name": "Profile — Subscription",
+			"item": [
+				{"name": "Get Subscription", "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{token}}"}], "url": {"raw": "{{base_url}}/profile/subscription"}}},
+				{"name": "Prorate (upgrade to max)", "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{token}}"}], "url": {"raw": "{{base_url}}/profile/subscription/prorate?target_plan_slug=max"}}},
+				{"name": "Change Plan", "request": {"method": "POST", "header": [{"key": "Authorization", "value": "Bearer {{token}}"}, {"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"plan_slug\": \"max\"}"}, "url": {"raw": "{{base_url}}/profile/subscription/change"}}},
+				{"name": "Cancel Subscription", "request": {"method": "POST", "header": [{"key": "Authorization", "value": "Bearer {{token}}"}, {"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"reason\": \"testing\"}"}, "url": {"raw": "{{base_url}}/profile/subscription/cancel"}}}
+			]
+		},
+		{
+			"name": "Profile — Sites",
+			"item": [
 				{
-					"name": "Logout",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/auth/logout",
-							"host": ["{{base_url}}"],
-							"path": ["auth", "logout"]
-						}
-					}
-				}
+					"name": "Create Site",
+					"event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["var d = pm.response.json();", "if (d.data && d.data.id) { pm.collectionVariables.set('site_id', d.data.id); console.log('site_id saved: ' + d.data.id); }"]}}],
+					"request": {"method": "POST", "header": [{"key": "Authorization", "value": "Bearer {{token}}"}, {"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"url\": \"https://myshop.horoshop.ua\", \"platform\": \"horoshop\"}"}, "url": {"raw": "{{base_url}}/profile/sites"}}
+				},
+				{"name": "List Sites", "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{token}}"}], "url": {"raw": "{{base_url}}/profile/sites"}}},
+				{"name": "Get Site", "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{token}}"}], "url": {"raw": "{{base_url}}/profile/sites/{{site_id}}"}}},
+				{"name": "Get Script", "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{token}}"}], "url": {"raw": "{{base_url}}/profile/sites/{{site_id}}/script"}}},
+				{"name": "Verify Script", "request": {"method": "POST", "header": [{"key": "Authorization", "value": "Bearer {{token}}"}], "url": {"raw": "{{base_url}}/profile/sites/{{site_id}}/verify"}}},
+				{"name": "Enable Widget", "request": {"method": "PUT", "header": [{"key": "Authorization", "value": "Bearer {{token}}"}, {"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"is_enabled\": true, \"config\": {\"color\": \"#3B82F6\", \"position\": \"top\"}}"}, "url": {"raw": "{{base_url}}/profile/sites/{{site_id}}/widgets/1"}}},
+				{"name": "Delete Site", "request": {"method": "DELETE", "header": [{"key": "Authorization", "value": "Bearer {{token}}"}], "url": {"raw": "{{base_url}}/profile/sites/{{site_id}}"}}}
 			]
 		},
 		{
 			"name": "Error Cases",
 			"item": [
-				{
-					"name": "401 — No Token",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/auth/user",
-							"host": ["{{base_url}}"],
-							"path": ["auth", "user"]
-						}
-					}
-				},
-				{
-					"name": "401 — Invalid Token",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer invalid.token.here"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/auth/user",
-							"host": ["{{base_url}}"],
-							"path": ["auth", "user"]
-						}
-					}
-				},
-				{
-					"name": "404 — Not Found",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/nonexistent",
-							"host": ["{{base_url}}"],
-							"path": ["nonexistent"]
-						}
-					}
-				}
+				{"name": "401 — No Token", "request": {"method": "GET", "url": {"raw": "{{base_url}}/auth/user"}}},
+				{"name": "404 — Not Found", "request": {"method": "GET", "url": {"raw": "{{base_url}}/nonexistent"}}},
+				{"name": "422 — Validation", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{}"}, "url": {"raw": "{{base_url}}/auth/otp"}}}
 			]
 		}
 	]
