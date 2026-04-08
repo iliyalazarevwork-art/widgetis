@@ -1,0 +1,13 @@
+{
+  "name": "widgetis-visual-check",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node mobile-visual-check.mjs"
+  },
+  "dependencies": {
+    "pixelmatch": "^7.1.0",
+    "playwright": "^1.59.1",
+    "pngjs": "^7.0.0"
+  }
+}

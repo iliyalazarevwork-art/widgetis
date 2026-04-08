@@ -42,6 +42,18 @@ services:
     networks:
       - widgetis
 
+  visual-check:
+    image: mcr.microsoft.com/playwright:v1.59.1-noble
+    working_dir: /work/tools/visual-check
+    volumes:
+      - .:/work
+    command: >
+      bash -lc "npm install --no-fund --no-audit && node mobile-visual-check.mjs --help"
+    profiles:
+      - tools
+    networks:
+      - widgetis
+
 volumes:
   pgdata:
 
