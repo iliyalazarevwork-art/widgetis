@@ -1,13 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
-import { promisify } from 'node:util';
-import { pipeline as pipelineCb } from 'node:stream';
 import { chromium } from 'playwright';
 import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
-
-const pipeline = promisify(pipelineCb);
 
 function printHelp() {
   console.log(`Mobile visual check
@@ -91,9 +87,8 @@ function parseArgs(argv) {
 }
 
 async function readPng(filePath) {
-  const png = new PNG();
-  await pipeline(fs.createReadStream(filePath), png);
-  return png;
+  const data = fs.readFileSync(filePath);
+  return PNG.sync.read(data);
 }
 
 function cropToSharedSize(img, width, height) {
@@ -239,13 +234,7 @@ async function main() {
     },
   );
 
-  await new Promise((resolve, reject) => {
-    diff
-      .pack()
-      .pipe(fs.createWriteStream(diffPngPath))
-      .on('finish', resolve)
-      .on('error', reject);
-  });
+  fs.writeFileSync(diffPngPath, PNG.sync.write(diff));
 
   const comparedPixels = width * height;
   const diffPercent = (diffPixels / comparedPixels) * 100;
