@@ -37,4 +37,8 @@ return [
         ],
     ],
 
+    'r2' => [
+        'public_url' => env('R2_PUBLIC_URL', 'https://cdn.widgetis.com'),
+    ],
+
 ];

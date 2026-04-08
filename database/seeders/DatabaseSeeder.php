@@ -14,6 +14,9 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             AdminSeeder::class,
             PlanSeeder::class,
+            WidgetTagSeeder::class,
+            ProductSeeder::class,
+            ProductPlanAccessSeeder::class,
         ]);
     }
 }

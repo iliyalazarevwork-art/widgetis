@@ -12,6 +12,7 @@
         "laravel/tinker": "^2.10.1",
         "predis/predis": "^3.4",
         "spatie/laravel-permission": "^7.0",
+        "spatie/laravel-settings": "^3.7",
         "spatie/laravel-translatable": "^6.0",
         "tymon/jwt-auth": "^2.3"
     },

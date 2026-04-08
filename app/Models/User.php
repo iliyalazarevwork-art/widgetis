@@ -7,6 +7,9 @@ namespace App\Models;
 use App\Enums\UserRole;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -85,5 +88,39 @@ class User extends Authenticatable implements JWTSubject
     public function isCustomer(): bool
     {
         return $this->hasRole(UserRole::Customer->value);
+    }
+
+    /**
+     * @return HasOne<Subscription, $this>
+     */
+    public function subscription(): HasOne
+    {
+        return $this->hasOne(Subscription::class);
+    }
+
+    public function currentPlan(): ?Plan
+    {
+        return $this->subscription?->plan;
+    }
+
+    public function hasActivePlan(): bool
+    {
+        return $this->subscription?->isActive() ?? false;
+    }
+
+    /**
+     * @return HasMany<Site, $this>
+     */
+    public function sites(): HasMany
+    {
+        return $this->hasMany(Site::class);
+    }
+
+    /**
+     * @return HasManyThrough<SiteWidget, Site, $this>
+     */
+    public function siteWidgets(): HasManyThrough
+    {
+        return $this->hasManyThrough(SiteWidget::class, Site::class);
     }
 }

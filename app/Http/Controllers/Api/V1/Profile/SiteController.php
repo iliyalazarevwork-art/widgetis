@@ -1,0 +1,189 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Controllers\Api\V1\Profile;
+
+use App\Http\Controllers\Api\V1\BaseController;
+use App\Models\Site;
+use App\Services\Site\SiteService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+
+class SiteController extends BaseController
+{
+    public function __construct(
+        private readonly SiteService $siteService,
+    ) {
+    }
+
+    public function index(): JsonResponse
+    {
+        $user = $this->currentUser();
+        $sites = $user->sites()->with('script')->orderByDesc('created_at')->get();
+        $plan = $user->currentPlan();
+
+        return $this->success([
+            'data' => $sites->map(fn (Site $site) => [
+                'id' => $site->id,
+                'name' => $site->name,
+                'domain' => $site->domain,
+                'url' => $site->url,
+                'platform' => $site->platform,
+                'status' => $site->status->value,
+                'script_installed' => $site->script_installed,
+                'widgets_count' => $site->widgets()->where('is_enabled', true)->count(),
+                'connected_at' => $site->connected_at?->toIso8601String(),
+                'created_at' => $site->created_at->toIso8601String(),
+            ]),
+            'limits' => [
+                'used' => $sites->count(),
+                'max' => $plan?->max_sites ?? 1,
+                'plan' => $plan?->slug ?? 'free',
+            ],
+        ]);
+    }
+
+    public function store(Request $request): JsonResponse
+    {
+        $request->validate([
+            'url' => ['required', 'url', 'max:500'],
+            'platform' => ['required', 'string', 'in:horoshop,shopify,woocommerce,opencart,wordpress,other'],
+            'name' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $site = $this->siteService->create(
+            $this->currentUser(),
+            $request->input('url'),
+            $request->input('platform'),
+            $request->input('name'),
+        );
+
+        return $this->created([
+            'data' => [
+                'id' => $site->id,
+                'domain' => $site->domain,
+                'status' => $site->status->value,
+                'script' => [
+                    'token' => $site->script->token,
+                    'script_tag' => $site->script->script_tag,
+                    'script_url' => $site->script->script_url,
+                ],
+                'install_instructions' => $this->siteService->getInstallInstructions($site->platform),
+            ],
+        ]);
+    }
+
+    public function show(int $id): JsonResponse
+    {
+        $site = $this->currentUser()->sites()
+            ->with(['script', 'widgets.product'])
+            ->findOrFail($id);
+
+        return $this->success([
+            'data' => [
+                'id' => $site->id,
+                'name' => $site->name,
+                'domain' => $site->domain,
+                'url' => $site->url,
+                'platform' => $site->platform,
+                'status' => $site->status->value,
+                'script_installed' => $site->script_installed,
+                'connected_at' => $site->connected_at?->toIso8601String(),
+                'script' => $site->script ? [
+                    'token' => $site->script->token,
+                    'script_tag' => $site->script->script_tag,
+                    'is_active' => $site->script->is_active,
+                ] : null,
+                'widgets' => $site->widgets->map(fn ($w) => [
+                    'product_id' => $w->product_id,
+                    'name' => $w->product?->translated('name'),
+                    'icon' => $w->product?->icon,
+                    'is_enabled' => $w->is_enabled,
+                    'config' => $w->config,
+                ]),
+            ],
+        ]);
+    }
+
+    public function destroy(int $id): JsonResponse
+    {
+        $site = $this->currentUser()->sites()->findOrFail($id);
+        $site->delete();
+
+        return $this->noContent();
+    }
+
+    public function verify(int $id): JsonResponse
+    {
+        $site = $this->currentUser()->sites()->with('script')->findOrFail($id);
+
+        $verified = $site->script !== null;
+
+        if ($verified && !$site->script_installed) {
+            $site->update([
+                'script_installed' => true,
+                'script_installed_at' => now(),
+                'status' => 'active',
+                'connected_at' => now(),
+            ]);
+        }
+
+        return $this->success([
+            'verified' => $verified,
+            'message' => $verified
+                ? 'Script verified. Site is now active.'
+                : 'Script not found. Please install the script and try again.',
+        ]);
+    }
+
+    public function script(int $id): JsonResponse
+    {
+        $site = $this->currentUser()->sites()->with('script')->findOrFail($id);
+
+        if (!$site->script) {
+            return $this->error('NO_SCRIPT', 'No script generated for this site.', 404);
+        }
+
+        return $this->success([
+            'data' => [
+                'token' => $site->script->token,
+                'script_tag' => $site->script->script_tag,
+                'script_url' => $site->script->script_url,
+                'install_instructions' => $this->siteService->getInstallInstructions($site->platform),
+            ],
+        ]);
+    }
+
+    public function updateWidget(Request $request, int $siteId, int $productId): JsonResponse
+    {
+        $request->validate([
+            'is_enabled' => ['sometimes', 'boolean'],
+            'config' => ['sometimes', 'array'],
+        ]);
+
+        $site = $this->currentUser()->sites()->findOrFail($siteId);
+
+        if ($request->boolean('is_enabled')) {
+            $this->siteService->checkWidgetLimit($this->currentUser());
+        }
+
+        $siteWidget = $site->widgets()->updateOrCreate(
+            ['product_id' => $productId],
+            array_filter([
+                'is_enabled' => $request->input('is_enabled'),
+                'config' => $request->input('config'),
+                'enabled_at' => $request->boolean('is_enabled') ? now() : null,
+                'disabled_at' => $request->input('is_enabled') === false ? now() : null,
+            ], fn ($v) => $v !== null),
+        );
+
+        return $this->success([
+            'data' => [
+                'product_id' => $siteWidget->product_id,
+                'is_enabled' => $siteWidget->is_enabled,
+                'config' => $siteWidget->config,
+            ],
+        ]);
+    }
+}
