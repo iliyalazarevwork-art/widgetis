@@ -9,11 +9,13 @@ function printHelp() {
   console.log(`Mobile visual check
 
 Usage:
-  node mobile-visual-check.mjs --baseline-url <url> --candidate-url <url> [options]
+  node mobile-visual-check.mjs [--baseline-url <url> | --baseline-image <path>] [--candidate-url <url> | --candidate-image <path>] [options]
 
 Required:
-  --baseline-url <url>         Reference URL (usually local page).
-  --candidate-url <url>        URL to compare against the baseline.
+  --baseline-url <url>         Baseline URL.
+  --baseline-image <path>      Baseline PNG file path.
+  --candidate-url <url>        Candidate URL.
+  --candidate-image <path>     Candidate PNG file path.
 
 Options:
   --name <id>                  Report name. Default: home
@@ -71,7 +73,9 @@ function parseArgs(argv) {
     i += 1;
 
     if (field === 'baseline-url') args.baselineUrl = next;
+    else if (field === 'baseline-image') args.baselineImage = next;
     else if (field === 'candidate-url') args.candidateUrl = next;
+    else if (field === 'candidate-image') args.candidateImage = next;
     else if (field === 'name') args.name = next;
     else if (field === 'out-dir') args.outDir = next;
     else if (field === 'width') args.width = Number(next);
@@ -178,9 +182,17 @@ async function main() {
     return;
   }
 
-  if (!args.baselineUrl || !args.candidateUrl) {
+  const hasBaseline = Boolean(args.baselineUrl || args.baselineImage);
+  const hasCandidate = Boolean(args.candidateUrl || args.candidateImage);
+  const baselineMany = Number(Boolean(args.baselineUrl)) + Number(Boolean(args.baselineImage)) > 1;
+  const candidateMany =
+    Number(Boolean(args.candidateUrl)) + Number(Boolean(args.candidateImage)) > 1;
+
+  if (!hasBaseline || !hasCandidate || baselineMany || candidateMany) {
     printHelp();
-    throw new Error('Both --baseline-url and --candidate-url are required.');
+    throw new Error(
+      'Provide exactly one baseline source (--baseline-url or --baseline-image) and one candidate source (--candidate-url or --candidate-image).',
+    );
   }
 
   const outDir = path.resolve(args.outDir);
@@ -191,25 +203,33 @@ async function main() {
   const diffPngPath = path.join(outDir, `${args.name}-diff.png`);
   const reportPath = path.join(outDir, `${args.name}-report.json`);
 
-  await capture({
-    url: args.baselineUrl,
-    filePath: baselinePngPath,
-    width: args.width,
-    height: args.height,
-    waitMs: args.waitMs,
-    fullPage: args.fullPage,
-    selector: args.baselineSelector,
-  });
+  if (args.baselineImage) {
+    fs.copyFileSync(path.resolve(args.baselineImage), baselinePngPath);
+  } else {
+    await capture({
+      url: args.baselineUrl,
+      filePath: baselinePngPath,
+      width: args.width,
+      height: args.height,
+      waitMs: args.waitMs,
+      fullPage: args.fullPage,
+      selector: args.baselineSelector,
+    });
+  }
 
-  await capture({
-    url: args.candidateUrl,
-    filePath: candidatePngPath,
-    width: args.width,
-    height: args.height,
-    waitMs: args.waitMs,
-    fullPage: args.fullPage,
-    selector: args.candidateSelector,
-  });
+  if (args.candidateImage) {
+    fs.copyFileSync(path.resolve(args.candidateImage), candidatePngPath);
+  } else {
+    await capture({
+      url: args.candidateUrl,
+      filePath: candidatePngPath,
+      width: args.width,
+      height: args.height,
+      waitMs: args.waitMs,
+      fullPage: args.fullPage,
+      selector: args.candidateSelector,
+    });
+  }
 
   const baselineRaw = await readPng(baselinePngPath);
   const candidateRaw = await readPng(candidatePngPath);
@@ -242,8 +262,8 @@ async function main() {
 
   const report = {
     timestamp: new Date().toISOString(),
-    baselineUrl: args.baselineUrl,
-    candidateUrl: args.candidateUrl,
+    baselineSource: args.baselineUrl || path.resolve(args.baselineImage),
+    candidateSource: args.candidateUrl || path.resolve(args.candidateImage),
     comparedImage: { width, height },
     sourceImageSizes: {
       baseline: { width: baselineRaw.width, height: baselineRaw.height },

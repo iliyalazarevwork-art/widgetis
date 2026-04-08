@@ -5,13 +5,13 @@ Compare two URLs in a mobile viewport and produce baseline/candidate screenshots
 ## Run
 
 ```bash
-docker compose -f docker-compose.dev.yml run --rm --profile tools visual-check \
-  "npm install --no-fund --no-audit && \
-   node mobile-visual-check.mjs \
-     --baseline-url http://host.docker.internal:3000/ \
-     --candidate-url https://example.com/ \
-     --name home \
-     --max-diff-percent 3"
+docker compose --profile tools -f docker-compose.dev.yml run --rm visual-check \
+  bash -lc "npm install --no-fund --no-audit && \
+    node mobile-visual-check.mjs \
+      --baseline-url http://host.docker.internal:3000/ \
+      --candidate-url https://example.com/ \
+      --name home \
+      --max-diff-percent 3"
 ```
 
 Artifacts are written to `tools/visual-check/results/`.
