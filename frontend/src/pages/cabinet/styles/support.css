@@ -1,5 +1,7 @@
-.sup-page { padding: 20px 16px; display: flex; flex-direction: column; gap: 14px; }
-.sup-page__title { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+.sup-page { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 14px; }
+
+.sup-page__header { display: flex; align-items: center; justify-content: space-between; padding: 12px 4px; }
+.sup-page__title { font-size: 15px; font-weight: 700; color: var(--text-primary); }
 
 .sup-page__contacts { display: flex; flex-direction: column; gap: 8px; }
 .sup-page__contact { display: flex; align-items: center; gap: 14px; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: var(--radius-xl); padding: 14px; text-decoration: none; }
