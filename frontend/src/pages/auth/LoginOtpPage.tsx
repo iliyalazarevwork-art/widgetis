@@ -39,7 +39,13 @@ export default function LoginOtpPage() {
     try {
       const res = await post<{ token: string; user: User }>('/auth/otp/verify', { email, code })
       login(res.token, res.user)
-      navigate('/cabinet', { replace: true })
+
+      if (res.user.role === 'admin') {
+        // Admin → Filament panel (session auth, separate login)
+        window.location.href = '/admin'
+      } else {
+        navigate('/cabinet', { replace: true })
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Невірний код')
       setDigits(Array(OTP_LENGTH).fill(''))

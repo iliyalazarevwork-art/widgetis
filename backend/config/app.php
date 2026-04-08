@@ -125,4 +125,7 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'admin_email' => env('FILAMENT_ADMIN_EMAIL', 'admin@widgetis.com'),
+    'admin_password' => env('FILAMENT_ADMIN_PASSWORD', 'admin123'),
+
 ];

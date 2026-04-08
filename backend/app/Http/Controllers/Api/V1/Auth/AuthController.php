@@ -92,7 +92,13 @@ class AuthController extends BaseController
 
     public function user(): JsonResponse
     {
-        return $this->success(['data' => $this->guard()->user()]);
+        /** @var User $user */
+        $user = $this->guard()->user();
+
+        return $this->success(['data' => [
+            ...$user->toArray(),
+            'role' => $user->roles->first()?->name ?? 'customer',
+        ]]);
     }
 
     private function guard(): JWTGuard
@@ -114,6 +120,7 @@ class AuthController extends BaseController
                 'name' => $user->name,
                 'email' => $user->email,
                 'locale' => $user->locale,
+                'role' => $user->roles->first()?->name ?? 'customer',
             ],
         ]);
     }

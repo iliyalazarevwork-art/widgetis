@@ -7,15 +7,20 @@ namespace Database\Seeders;
 use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class AdminSeeder extends Seeder
 {
     public function run(): void
     {
-        $admin = User::firstOrCreate(
-            ['email' => 'admin@widgetis.com'],
+        $email = config('app.admin_email', 'admin@widgetis.com');
+        $password = config('app.admin_password', 'admin123');
+
+        $admin = User::updateOrCreate(
+            ['email' => $email],
             [
                 'name' => 'Admin',
+                'password' => Hash::make($password),
                 'email_verified_at' => now(),
                 'locale' => 'uk',
             ],

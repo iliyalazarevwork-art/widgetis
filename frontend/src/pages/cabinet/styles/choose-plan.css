@@ -1,182 +1,291 @@
-.choose-plan {
-  padding: 32px 16px 40px;
+.pricing {
   display: flex;
   flex-direction: column;
-  gap: 20px;
   max-width: 480px;
   margin: 0 auto;
   min-height: 100dvh;
+  background: var(--bg-page);
 }
 
-.choose-plan__hero {
+/* ── Hero ── */
+.pricing__hero {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  padding: 32px 20px 24px;
   text-align: center;
 }
 
-.choose-plan__hero-icon {
-  color: var(--blue);
-  margin-bottom: 4px;
+.pricing__title {
+  font-size: 28px;
+  font-weight: 900;
+  color: #fff;
 }
 
-.choose-plan__title {
-  font-size: 24px;
-  font-weight: 800;
-  color: var(--text-primary);
-}
-
-.choose-plan__subtitle {
+.pricing__subtitle {
   font-size: 14px;
   color: var(--text-secondary);
-  line-height: 1.5;
-  max-width: 320px;
 }
 
 /* ── Toggle ── */
-.choose-plan__toggle-wrap {
+.pricing__toggle-wrap {
   display: flex;
   justify-content: center;
+  padding-bottom: 20px;
 }
 
-.choose-plan__toggle {
+.pricing__toggle {
   display: flex;
-  background: var(--bg-card);
+  background: #161616;
   border-radius: var(--radius-lg);
   padding: 4px;
 }
 
-.choose-plan__toggle-btn {
-  padding: 8px 16px;
-  border-radius: var(--radius-md);
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-muted);
-  transition: all var(--t-fast);
-}
-.choose-plan__toggle-btn--active {
-  background: var(--blue);
-  color: #fff;
-}
-
-.choose-plan__save-badge {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--green);
-  margin-left: 4px;
-}
-.choose-plan__toggle-btn--active .choose-plan__save-badge {
-  color: #9EFFC8;
-}
-
-/* ── Cards ── */
-.choose-plan__cards {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.choose-plan__card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-card);
-  border-radius: var(--radius-xl);
-  padding: 16px;
-  text-align: left;
-  transition: all var(--t-fast);
-}
-.choose-plan__card--selected {
-  background: rgba(59, 130, 246, 0.04);
-}
-
-.choose-plan__card-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.choose-plan__card-name {
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.choose-plan__rec {
-  padding: 3px 10px;
-  border-radius: var(--radius-full);
-  background: var(--blue-dim);
-  color: var(--blue);
-  font-size: 10px;
-  font-weight: 700;
-}
-
-.choose-plan__card-price {
-  display: flex;
-  align-items: baseline;
-  gap: 2px;
-}
-
-.choose-plan__card-amount {
-  font-size: 28px;
-  font-weight: 800;
-  color: var(--text-primary);
-}
-
-.choose-plan__card-period {
-  font-size: 14px;
-  color: var(--text-muted);
-}
-
-.choose-plan__card-features {
-  display: flex;
-  gap: 16px;
-}
-
-.choose-plan__card-feature {
+.pricing__toggle-btn {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  padding: 8px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
   color: var(--text-secondary);
+  transition: all var(--t-fast);
+}
+.pricing__toggle-btn--active {
+  background: #1E3A5F;
+  color: #fff;
+  font-weight: 700;
 }
 
-.choose-plan__card-check {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--blue);
+.pricing__toggle-save {
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+  background: var(--green);
+  font-size: 11px;
+  font-weight: 700;
   color: #fff;
+}
+
+/* ── Plans ── */
+.pricing__plans {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 16px;
+}
+
+/* ── Card ── */
+.pricing__card {
+  background: var(--bg-card);
+  border: 1.5px solid;
+  border-radius: 24px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+}
+
+.pricing__card--pro {
+  background: linear-gradient(160deg, #0D1F3C 0%, #0F0F1A 100%);
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.19);
+  padding-top: 22px;
+  padding-bottom: 20px;
+}
+
+/* ── Pro badge (floating) ── */
+.pricing__badge-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: -33px;
+  margin-bottom: 4px;
+}
+
+.pricing__badge {
+  padding: 5px 16px;
+  border-radius: var(--radius-full);
+  background: var(--blue);
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.3px;
+}
+
+/* ── Card top ── */
+.pricing__card-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pricing__card-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+}
+
+.pricing__card-name-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.pricing__card-name {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.pricing__card-pitch {
+  font-size: 12px;
+}
+
+/* ── Price ── */
+.pricing__card-price-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pricing__card-price-line {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.pricing__card-old-price {
+  position: relative;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding-bottom: 4px;
+}
+
+.pricing__card-strike {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 1.5px;
+  background: var(--text-secondary);
+}
+
+.pricing__card-amount {
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.pricing__card-unit {
+  font-size: 13px;
+  padding-bottom: 4px;
+}
+
+.pricing__card-annual-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pricing__card-annual-text {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.pricing__card-savings {
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: rgba(16, 185, 129, 0.12);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--green);
+}
+
+/* ── Count ── */
+.pricing__card-count {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ── Divider ── */
+.pricing__card-divider {
+  height: 1px;
+}
+
+/* ── Features ── */
+.pricing__card-feats {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.pricing__card-feat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
 }
 
 /* ── CTA ── */
-.choose-plan__cta {
+.pricing__card-btn {
+  height: 52px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--t-fast);
+}
+.pricing__card-btn:disabled {
+  opacity: 0.5;
+}
+
+/* ── Trial note ── */
+.pricing__card-trial {
+  font-size: 11px;
+  text-align: center;
+}
+
+/* ── Final CTA ── */
+.pricing__final {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 28px 20px 36px;
+}
+
+.pricing__final-title {
+  font-size: 24px;
+  font-weight: 900;
+  color: #fff;
+}
+
+.pricing__final-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
   height: 52px;
   background: var(--blue);
   border-radius: var(--radius-xl);
   font-size: 16px;
   font-weight: 700;
   color: #fff;
-  transition: background var(--t-fast);
 }
-.choose-plan__cta:not(:disabled):hover {
-  background: var(--blue-hover);
-}
-.choose-plan__cta:disabled {
+.pricing__final-btn:disabled {
   opacity: 0.5;
 }
 
-.choose-plan__note {
-  text-align: center;
-  font-size: 12px;
+.pricing__final-note {
+  font-size: 13px;
   color: var(--text-muted);
-  line-height: 1.5;
 }

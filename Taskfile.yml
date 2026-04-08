@@ -8,60 +8,56 @@ vars:
 tasks:
   # ── OTP ────────────────────────────────────────────────
   otp:login:
-    desc: Отправить OTP и сразу получить код
+    desc: "Отправить OTP и получить код  ·  task otp:login -- admin@widgetis.com"
     cmds:
       - '{{.EXEC}} php artisan otp:login {{.CLI_ARGS}}'
-    requires:
-      vars: [CLI_ARGS]
 
   otp:get:
-    desc: Получить уже отправленный OTP-код
+    desc: "Получить уже отправленный OTP  ·  task otp:get -- admin@widgetis.com"
     cmds:
       - '{{.EXEC}} php artisan otp:get {{.CLI_ARGS}}'
-    requires:
-      vars: [CLI_ARGS]
 
   # ── Artisan ────────────────────────────────────────────
   artisan:
-    desc: Любая artisan-команда
+    desc: "Любая artisan-команда  ·  task artisan -- migrate:status"
     cmds:
       - '{{.EXEC}} php artisan {{.CLI_ARGS}}'
 
   tinker:
-    desc: Laravel Tinker
+    desc: "Laravel Tinker  ·  task tinker"
     interactive: true
     cmds:
       - '{{.EXEC}} php artisan tinker'
 
   # ── Composer ───────────────────────────────────────────
   composer:
-    desc: Любая composer-команда
+    desc: "Любая composer-команда  ·  task composer -- require spatie/laravel-data"
     cmds:
       - '{{.EXEC}} composer {{.CLI_ARGS}}'
 
   install:
-    desc: composer install
+    desc: "composer install  ·  task install"
     cmds:
       - '{{.EXEC}} composer install'
 
   # ── Качество кода ─────────────────────────────────────
   pint:
-    desc: Автоформатирование (Laravel Pint)
+    desc: "Автоформатирование (Pint)  ·  task pint"
     cmds:
       - '{{.EXEC}} ./vendor/bin/pint'
 
   stan:
-    desc: Статический анализ (PHPStan)
+    desc: "Статический анализ (PHPStan)  ·  task stan"
     cmds:
       - '{{.EXEC}} ./vendor/bin/phpstan analyse --memory-limit=512M'
 
   test:
-    desc: Запуск тестов
+    desc: "Запуск тестов  ·  task test -- --filter=UserTest"
     cmds:
       - '{{.EXEC}} php artisan test {{.CLI_ARGS}}'
 
   check:
-    desc: Полная проверка — pint + phpstan + tests
+    desc: "Полная проверка — pint + stan + tests  ·  task check"
     cmds:
       - task: pint
       - task: stan
@@ -69,49 +65,74 @@ tasks:
 
   # ── База данных ────────────────────────────────────────
   migrate:
-    desc: Запуск миграций
+    desc: "Запуск миграций  ·  task migrate"
     cmds:
       - '{{.EXEC}} php artisan migrate'
 
   migrate:fresh:
-    desc: Пересоздать БД и накатить миграции
+    desc: "Пересоздать БД + seed  ·  task migrate:fresh"
     cmds:
       - '{{.EXEC}} php artisan migrate:fresh --seed'
 
   seed:
-    desc: Запуск сидеров
+    desc: "Запуск сидеров  ·  task seed"
     cmds:
       - '{{.EXEC}} php artisan db:seed'
 
   # ── Docker ─────────────────────────────────────────────
   up:
-    desc: Поднять контейнеры
+    desc: "Поднять контейнеры  ·  task up"
     cmds:
       - '{{.DC}} up -d'
 
   down:
-    desc: Остановить контейнеры
+    desc: "Остановить контейнеры  ·  task down"
     cmds:
       - '{{.DC}} down'
 
   restart:
-    desc: Перезапустить контейнеры
+    desc: "Перезапустить контейнеры  ·  task restart"
     cmds:
       - '{{.DC}} restart'
 
   logs:
-    desc: Логи backend-контейнера
+    desc: "Логи backend  ·  task logs"
     cmds:
       - '{{.DC}} logs -f backend'
 
   sh:
-    desc: Shell в backend-контейнере
+    desc: "Shell в контейнере  ·  task sh"
     interactive: true
     cmds:
       - '{{.EXEC}} sh'
 
+  # ── Frontend ───────────────────────────────────────────
+  front:dev:
+    desc: "Запустить Vite dev server  ·  task front:dev"
+    dir: frontend
+    cmds:
+      - npx vite --host 0.0.0.0 --port 5173
+
+  front:build:
+    desc: "Собрать фронт для продакшена  ·  task front:build"
+    dir: frontend
+    cmds:
+      - npm run build
+
+  front:install:
+    desc: "npm install для фронта  ·  task front:install"
+    dir: frontend
+    cmds:
+      - npm install
+
+  front:check:
+    desc: "TypeScript проверка фронта  ·  task front:check"
+    dir: frontend
+    cmds:
+      - npx tsc --noEmit
+
   # ── Кэш ────────────────────────────────────────────────
   cache:clear:
-    desc: Очистить весь кэш Laravel
+    desc: "Очистить весь кэш Laravel  ·  task cache:clear"
     cmds:
       - '{{.EXEC}} php artisan optimize:clear'

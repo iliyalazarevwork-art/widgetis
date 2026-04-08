@@ -86,6 +86,10 @@ export default function LoginPage() {
           Ще немає акаунту?{' '}
           <a href="/signup" className="auth-page__link">Зареєструватися</a>
         </p>
+
+        <a href="/admin" className="auth-page__admin-link">
+          Вхід для адміністратора →
+        </a>
       </div>
     </div>
   )

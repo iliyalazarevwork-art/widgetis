@@ -31,13 +31,17 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (\Illuminate\Auth\AuthenticationException $e) {
-            return response()->json([
-                'error' => [
-                    'code' => 'UNAUTHENTICATED',
-                    'message' => 'Authentication required.',
-                ],
-            ], 401);
+        $exceptions->render(function (\Illuminate\Auth\AuthenticationException $e, \Illuminate\Http\Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return response()->json([
+                    'error' => [
+                        'code' => 'UNAUTHENTICATED',
+                        'message' => 'Authentication required.',
+                    ],
+                ], 401);
+            }
+
+            return null; // Let Laravel handle web redirects (Filament login)
         });
 
         $exceptions->render(function (\Illuminate\Validation\ValidationException $e) {
@@ -50,22 +54,30 @@ return Application::configure(basePath: dirname(__DIR__))
             ], 422);
         });
 
-        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e) {
-            return response()->json([
-                'error' => [
-                    'code' => 'NOT_FOUND',
-                    'message' => $e->getMessage() ?: 'Resource not found.',
-                ],
-            ], 404);
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, \Illuminate\Http\Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return response()->json([
+                    'error' => [
+                        'code' => 'NOT_FOUND',
+                        'message' => $e->getMessage() ?: 'Resource not found.',
+                    ],
+                ], 404);
+            }
+
+            return null;
         });
 
-        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
-            return response()->json([
-                'error' => [
-                    'code' => 'HTTP_ERROR',
-                    'message' => $e->getMessage(),
-                ],
-            ], $e->getStatusCode());
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpException $e, \Illuminate\Http\Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return response()->json([
+                    'error' => [
+                        'code' => 'HTTP_ERROR',
+                        'message' => $e->getMessage(),
+                    ],
+                ], $e->getStatusCode());
+            }
+
+            return null;
         });
 
         $exceptions->render(function (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {

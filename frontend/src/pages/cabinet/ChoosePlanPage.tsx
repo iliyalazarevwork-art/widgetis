@@ -1,144 +1,238 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Crown, Check, Globe, Package } from 'lucide-react'
+import { Check, ArrowRight, Sprout, Zap, Crown } from 'lucide-react'
 import { get, post } from '../../api/client'
 import { toast } from 'sonner'
 import type { Plan } from '../../types'
 import './styles/choose-plan.css'
 
+const PLAN_CONFIG: Record<string, {
+  color: string
+  icon: typeof Sprout
+  pitch: string
+  order: number
+  features: string[]
+}> = {
+  basic: {
+    color: '#10B981',
+    icon: Sprout,
+    pitch: 'Для початку',
+    order: 0,
+    features: [
+      'Дата доставки',
+      'Безкоштовна доставка',
+      'Бігуча стрічка',
+      'Хто зараз дивиться',
+      '1 сайт',
+      'Email + Telegram підтримка',
+    ],
+  },
+  pro: {
+    color: '#3B82F6',
+    icon: Zap,
+    pitch: 'Оптимально',
+    order: 1,
+    features: [
+      'Всі 8 віджетів',
+      'Лічильник залишків',
+      'Прогрес кошика',
+      'Фотовідгуки',
+      '3 сайти',
+      'Self-service кастомізація',
+    ],
+  },
+  max: {
+    color: '#8B5CF6',
+    icon: Crown,
+    pitch: 'Все включено',
+    order: 2,
+    features: [
+      'Всі 17 віджетів',
+      'Кешбек-калькулятор',
+      'Таймер терміновості',
+      '5 сайтів',
+      'VIP підтримка',
+      'Повна кастомізація',
+    ],
+  },
+}
+
 export default function ChoosePlanPage() {
   const navigate = useNavigate()
   const [plans, setPlans] = useState<Plan[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedSlug, setSelectedSlug] = useState<string | null>(null)
-  const [starting, setStarting] = useState(false)
-  const [yearly, setYearly] = useState(false)
+  const [yearly, setYearly] = useState(true)
+  const [starting, setStarting] = useState<string | null>(null)
 
   useEffect(() => {
     get<{ data: Plan[] }>('/plans')
-      .then((res) => {
-        setPlans(res.data)
-        const recommended = res.data.find((p) => p.is_recommended)
-        if (recommended) setSelectedSlug(recommended.slug)
-      })
+      .then((res) => setPlans(res.data))
       .finally(() => setLoading(false))
   }, [])
 
-  const handleStartTrial = async () => {
-    if (!selectedSlug || starting) return
-    setStarting(true)
+  const handleStart = async (slug: string) => {
+    if (starting) return
+    setStarting(slug)
     try {
-      await post('/profile/subscription/start-trial', { plan_slug: selectedSlug })
+      await post('/profile/subscription/start-trial', { plan_slug: slug })
       toast.success('Trial активовано! 7 днів безкоштовно')
       navigate('/cabinet', { replace: true })
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Помилка')
     } finally {
-      setStarting(false)
+      setStarting(null)
     }
   }
 
-  if (loading) {
-    return <div className="page-loader">Завантаження…</div>
-  }
+  if (loading) return <div className="page-loader">Завантаження…</div>
+
+  const sorted = [...plans].sort((a, b) =>
+    (PLAN_CONFIG[a.slug]?.order ?? 9) - (PLAN_CONFIG[b.slug]?.order ?? 9)
+  )
 
   return (
-    <div className="choose-plan">
-      <div className="choose-plan__hero">
-        <Crown size={32} className="choose-plan__hero-icon" />
-        <h1 className="choose-plan__title">Оберіть план</h1>
-        <p className="choose-plan__subtitle">
-          Почніть з 7 днів безкоштовного trial. Оплата — після закінчення пробного періоду.
-        </p>
+    <div className="pricing">
+      {/* Hero */}
+      <div className="pricing__hero">
+        <h1 className="pricing__title">Обери свій план</h1>
+        <p className="pricing__subtitle">7 днів безкоштовно. Скасуєш коли захочеш.</p>
       </div>
 
-      {/* Period toggle */}
-      <div className="choose-plan__toggle-wrap">
-        <div className="choose-plan__toggle">
+      {/* Toggle */}
+      <div className="pricing__toggle-wrap">
+        <div className="pricing__toggle">
           <button
-            className={`choose-plan__toggle-btn ${!yearly ? 'choose-plan__toggle-btn--active' : ''}`}
+            className={`pricing__toggle-btn ${!yearly ? 'pricing__toggle-btn--active' : ''}`}
             onClick={() => setYearly(false)}
           >
-            Щомісяця
+            Місяць
           </button>
           <button
-            className={`choose-plan__toggle-btn ${yearly ? 'choose-plan__toggle-btn--active' : ''}`}
+            className={`pricing__toggle-btn ${yearly ? 'pricing__toggle-btn--active' : ''}`}
             onClick={() => setYearly(true)}
           >
-            Щорічно <span className="choose-plan__save-badge">-2 міс</span>
+            Рік
+            <span className="pricing__toggle-save">−17%</span>
           </button>
         </div>
       </div>
 
       {/* Plan cards */}
-      <div className="choose-plan__cards">
-        {plans.map((plan) => {
-          const color = getPlanColor(plan.slug)
-          const isSelected = selectedSlug === plan.slug
-          const price = yearly ? plan.price_yearly : plan.price_monthly
-          const period = yearly ? '/рік' : '/міс'
+      <div className="pricing__plans">
+        {sorted.map((plan) => {
+          const cfg = PLAN_CONFIG[plan.slug]
+          if (!cfg) return null
+          const { color, icon: Icon, pitch, features } = cfg
+          const isPro = plan.slug === 'pro'
+          const monthlyPrice = plan.price_monthly
+          const yearlyTotal = plan.price_yearly
+          const yearlyMonthly = Math.round(yearlyTotal / 12)
+          const savings = monthlyPrice * 12 - yearlyTotal
 
           return (
-            <button
+            <div
               key={plan.id}
-              className={`choose-plan__card ${isSelected ? 'choose-plan__card--selected' : ''}`}
-              style={{ borderColor: isSelected ? `${color}60` : undefined }}
-              onClick={() => setSelectedSlug(plan.slug)}
+              className={`pricing__card ${isPro ? 'pricing__card--pro' : ''}`}
+              style={{ borderColor: `${color}${isPro ? '' : '70'}` }}
             >
-              <div className="choose-plan__card-top">
-                <span className="choose-plan__card-name" style={{ color }}>{plan.name}</span>
-                {plan.is_recommended && (
-                  <span className="choose-plan__rec">Оптимально</span>
+              {isPro && (
+                <div className="pricing__badge-wrap">
+                  <span className="pricing__badge">Обирає 73% клієнтів</span>
+                </div>
+              )}
+
+              {/* Top: icon + name + pitch */}
+              <div className="pricing__card-top">
+                <div className="pricing__card-icon-wrap" style={{ background: `${color}18` }}>
+                  <Icon size={16} style={{ color }} />
+                </div>
+                <div className="pricing__card-name-col">
+                  <span className="pricing__card-name" style={{ color: isPro ? '#FFF' : '#F0F0F0' }}>
+                    {plan.name}
+                  </span>
+                  <span className="pricing__card-pitch" style={{ color: isPro ? '#9BB3D4' : '#666' }}>
+                    {pitch}
+                  </span>
+                </div>
+              </div>
+
+              {/* Price block */}
+              <div className="pricing__card-price-block">
+                <div className="pricing__card-price-line">
+                  {yearly && (
+                    <span className="pricing__card-old-price">
+                      {monthlyPrice.toLocaleString('uk-UA')}
+                      <span className="pricing__card-strike" />
+                    </span>
+                  )}
+                  <span className="pricing__card-amount" style={{ color: isPro ? '#FFF' : '#F0F0F0' }}>
+                    {yearly ? yearlyMonthly.toLocaleString('uk-UA') : monthlyPrice.toLocaleString('uk-UA')}
+                  </span>
+                  <span className="pricing__card-unit" style={{ color: isPro ? '#9BB3D4' : '#666' }}>
+                    грн/міс
+                  </span>
+                </div>
+                {yearly && (
+                  <div className="pricing__card-annual-line">
+                    <span className="pricing__card-annual-text">
+                      {yearlyTotal.toLocaleString('uk-UA')} грн/рік
+                    </span>
+                    <span className="pricing__card-savings">
+                      Економія {savings.toLocaleString('uk-UA')} грн
+                    </span>
+                  </div>
                 )}
               </div>
 
-              <div className="choose-plan__card-price">
-                <span className="choose-plan__card-amount">{price}</span>
-                <span className="choose-plan__card-period">₴{period}</span>
+              {/* Widget/site count */}
+              <span className="pricing__card-count" style={{ color: isPro ? '#D0DCF0' : '#DDD' }}>
+                {plan.max_widgets} віджетів · {plan.max_sites} {plan.max_sites === 1 ? 'сайт' : plan.max_sites < 5 ? 'сайти' : 'сайтів'}
+              </span>
+
+              {/* Divider */}
+              <div className="pricing__card-divider" style={{ background: isPro ? `${color}20` : 'rgba(255,255,255,0.08)' }} />
+
+              {/* Feature list */}
+              <div className="pricing__card-feats">
+                {features.map((feat) => (
+                  <div key={feat} className="pricing__card-feat">
+                    <Check size={12} style={{ color }} />
+                    <span style={{ color: isPro ? '#D0DCF0' : '#AAA' }}>{feat}</span>
+                  </div>
+                ))}
               </div>
 
-              <div className="choose-plan__card-features">
-                <div className="choose-plan__card-feature">
-                  <Globe size={14} />
-                  <span>До {plan.max_sites} сайтів</span>
-                </div>
-                <div className="choose-plan__card-feature">
-                  <Package size={14} />
-                  <span>До {plan.max_widgets} віджетів</span>
-                </div>
-              </div>
+              {/* CTA */}
+              <button
+                className="pricing__card-btn"
+                style={{ background: `${color}22`, borderColor: `${color}55`, color }}
+                onClick={() => handleStart(plan.slug)}
+                disabled={starting !== null}
+              >
+                {starting === plan.slug ? 'Активуємо…' : 'Почати безкоштовно'}
+              </button>
 
-              {isSelected && (
-                <div className="choose-plan__card-check">
-                  <Check size={16} />
-                </div>
-              )}
-            </button>
+              <span className="pricing__card-trial" style={{ color: isPro ? `${color}80` : 'rgba(255,255,255,0.32)' }}>
+                {isPro ? '7 днів безкоштовно · без зобов\'язань' : '7 днів безкоштовно'}
+              </span>
+            </div>
           )
         })}
       </div>
 
-      {/* CTA */}
-      <button
-        className="choose-plan__cta"
-        disabled={!selectedSlug || starting}
-        onClick={handleStartTrial}
-      >
-        {starting ? 'Активуємо…' : 'Почати 7 днів безкоштовно'}
-      </button>
-
-      <p className="choose-plan__note">
-        Після trial підписка автоматично продовжиться. Ви можете скасувати в будь-який момент.
-      </p>
+      {/* Final CTA */}
+      <div className="pricing__final">
+        <h2 className="pricing__final-title">Готові почати?</h2>
+        <button
+          className="pricing__final-btn"
+          onClick={() => handleStart('pro')}
+          disabled={starting !== null}
+        >
+          Почати безкоштовно
+          <ArrowRight size={16} />
+        </button>
+        <span className="pricing__final-note">7 днів безкоштовно, без зобов'язань</span>
+      </div>
     </div>
   )
-}
-
-function getPlanColor(slug: string): string {
-  switch (slug) {
-    case 'basic': return '#10B981'
-    case 'pro': return '#3B82F6'
-    case 'max': return '#A855F7'
-    default: return '#888888'
-  }
 }

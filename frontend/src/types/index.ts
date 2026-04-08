@@ -9,6 +9,7 @@ export interface User {
   company: string | null
   avatar_url: string | null
   locale: 'uk' | 'en'
+  role: 'admin' | 'customer'
   two_factor_enabled: boolean
   two_factor_method: string | null
   notification_enabled: boolean
