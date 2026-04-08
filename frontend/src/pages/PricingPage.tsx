@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Check, Sprout, Zap, Crown, ChevronDown, MessageCircle, Minus } from 'lucide-react'
+import { Check, Sprout, Zap, Crown, ChevronDown, Send, Minus } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import './PricingPage.css'
@@ -297,9 +297,9 @@ export function PricingPage() {
 
         {/* ── A-la-carte teaser ── */}
         <div className="pricing__alacarte">
-          <p>Хочете тільки 1–2 віджети? Напишіть нам — обговоримо окремо.</p>
+          <p>Потрібні тільки 1–2 віджети?<br />Напишіть — обговоримо окремо.</p>
           <a href="https://t.me/widgetis" target="_blank" rel="noopener noreferrer" className="pricing__alacarte-btn">
-            <MessageCircle size={16} strokeWidth={2} />
+            <Send size={14} strokeWidth={2} />
             Telegram @widgetis
           </a>
         </div>

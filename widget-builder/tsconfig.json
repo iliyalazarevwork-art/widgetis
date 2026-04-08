@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "paths": {
+      "@laxarevii/core": ["./packages/core/index.ts"],
+      "@laxarevii/vite-plugin-widgetality": ["./packages/vite-plugin-widgetality/index.ts"]
+    }
+  },
+  "include": ["*.ts", "packages/**/*.ts", "modules/**/*.ts"],
+  "exclude": ["node_modules"]
+}

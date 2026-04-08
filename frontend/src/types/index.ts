@@ -54,6 +54,7 @@ export interface Site {
   widgets_count: number
   connected_at: string | null
   created_at: string
+  user?: { id: number; email: string; name: string | null }
 }
 
 export interface SiteDetail extends Site {

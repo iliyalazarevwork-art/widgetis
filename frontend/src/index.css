@@ -47,12 +47,12 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outlin
   --accent-glow: rgba(59, 130, 246, 0.3);
 
   /* Plan colors */
-  --plan-basic: #22c55e;
-  --plan-basic-dim: rgba(34, 197, 94, 0.12);
+  --plan-basic: #10b981;
+  --plan-basic-dim: rgba(16, 185, 129, 0.12);
   --plan-pro: #3b82f6;
   --plan-pro-dim: rgba(59, 130, 246, 0.12);
-  --plan-max: #eab308;
-  --plan-max-dim: rgba(234, 179, 8, 0.12);
+  --plan-max: #8b5cf6;
+  --plan-max-dim: rgba(139, 92, 246, 0.12);
 
   /* Borders */
   --border-subtle: rgba(255, 255, 255, 0.06);

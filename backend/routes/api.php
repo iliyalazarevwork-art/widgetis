@@ -91,5 +91,8 @@ Route::prefix('v1')->group(function () {
         Route::get('users', [Admin\UserController::class, 'index']);
         Route::get('users/{id}', [Admin\UserController::class, 'show']);
         Route::get('subscriptions', [Admin\SubscriptionController::class, 'index']);
+        Route::get('sites', [Admin\SiteController::class, 'index']);
+        Route::get('sites/{id}', [Admin\SiteController::class, 'show']);
+        Route::put('sites/{siteId}/widgets/{productId}', [Admin\SiteController::class, 'updateWidget']);
     });
 });

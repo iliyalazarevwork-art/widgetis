@@ -18,7 +18,7 @@ import './admin.css'
 
 const NAV = [
   { to: '/admin', label: 'Дашборд', icon: LayoutDashboard, end: true },
-  { to: '/admin/widgets', label: 'Конфігуратор', icon: Wand2 },
+  { to: '/admin/configurator', label: 'Конфігуратор', icon: Wand2 },
   { to: '/admin/orders', label: 'Замовлення', icon: Receipt },
   { to: '/admin/users', label: 'Користувачі', icon: Users },
   { to: '/admin/sites', label: 'Сайти', icon: Globe },
@@ -31,6 +31,9 @@ export function AdminLayout() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const location = useLocation()
   const isMobileCanvasPage =
+    location.pathname === '/admin' ||
+    location.pathname.startsWith('/admin/configurator') ||
+    location.pathname.startsWith('/admin/widgets') ||
     location.pathname.startsWith('/admin/users') ||
     location.pathname.startsWith('/admin/orders') ||
     location.pathname.startsWith('/admin/sites') ||

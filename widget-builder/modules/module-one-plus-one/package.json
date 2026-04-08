@@ -1,0 +1,14 @@
+{
+  "name": "@laxarevii/module-one-plus-one",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.ts",
+  "types": "index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./schema": "./schema.ts"
+  },
+  "dependencies": {
+    "@laxarevii/core": "workspace:*"
+  }
+}

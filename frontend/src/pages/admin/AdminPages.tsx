@@ -62,8 +62,8 @@ const CONTENT_BLOCKS = [
 ]
 
 const SITE_ACTIONS = [
-  { title: 'Відкрити конфігуратор', to: '/admin/widgets', icon: Wand2 },
-  { title: 'Оновити скрипт', to: '/admin/widgets/marquee', icon: Sparkles },
+  { title: 'Відкрити конфігуратор', to: '/admin/configurator', icon: Wand2 },
+  { title: 'Оновити скрипт', to: '/admin/configurator/marquee', icon: Sparkles },
   { title: 'Перейти до замовлень', to: '/admin/orders', icon: ArrowRight },
 ]
 
@@ -168,6 +168,10 @@ function MobileFooterNav({ active }: { active: TabKey }) {
       <Link to="/admin/sites" className={`users-mobile__tab ${active === 'sites' ? 'users-mobile__tab--active' : ''}`}>
         <Globe size={17} strokeWidth={2} />
         <span>Сайти</span>
+      </Link>
+      <Link to="/admin/configurator" className="users-mobile__tab">
+        <Wand2 size={17} strokeWidth={2} />
+        <span>Конфіг</span>
       </Link>
     </nav>
   )

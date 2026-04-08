@@ -164,6 +164,7 @@ function App() {
 
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboardPage />} />
+            <Route path="configurator" element={<AdminConfiguratorPage />} />
             <Route path="widgets" element={<AdminConfiguratorPage />} />
             <Route path="widgets/:slug" element={<AdminConfiguratorPage />} />
             <Route path="sites" element={<AdminSitesPage />} />

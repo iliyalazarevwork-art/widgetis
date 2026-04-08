@@ -44,6 +44,15 @@ services:
     networks:
       - widgetis
 
+  widget-builder:
+    build:
+      context: ./widget-builder
+      dockerfile: Dockerfile
+    ports:
+      - "3200:3200"
+    networks:
+      - widgetis
+
   visual-check:
     image: mcr.microsoft.com/playwright:v1.59.1-noble
     working_dir: /work/backend/tools/visual-check

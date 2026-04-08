@@ -112,7 +112,7 @@ export default function ChoosePlanPage() {
             <div
               key={plan.id}
               className={`pricing__card ${isPro ? 'pricing__card--pro' : ''}`}
-              style={{ borderColor: `${color}${isPro ? '' : '70'}` }}
+              style={{ borderColor: `${color}${isPro ? '' : plan.slug === 'max' ? '80' : '70'}` }}
             >
               {badge && (
                 <div className="pricing__badge-wrap">
