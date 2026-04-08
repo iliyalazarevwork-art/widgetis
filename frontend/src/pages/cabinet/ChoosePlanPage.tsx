@@ -1,71 +1,43 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Check, ArrowRight, Sprout, Zap, Crown } from 'lucide-react'
+import { Check, ArrowLeft, ArrowRight, Sprout, Zap, Crown, type LucideIcon } from 'lucide-react'
 import { get, post } from '../../api/client'
 import { toast } from 'sonner'
 import type { Plan } from '../../types'
 import './styles/choose-plan.css'
 
-const PLAN_CONFIG: Record<string, {
-  color: string
-  icon: typeof Sprout
-  pitch: string
-  order: number
-  features: string[]
-}> = {
-  basic: {
-    color: '#10B981',
-    icon: Sprout,
-    pitch: 'Для початку',
-    order: 0,
-    features: [
-      'Дата доставки',
-      'Безкоштовна доставка',
-      'Бігуча стрічка',
-      'Хто зараз дивиться',
-      '1 сайт',
-      'Email + Telegram підтримка',
-    ],
-  },
-  pro: {
-    color: '#3B82F6',
-    icon: Zap,
-    pitch: 'Оптимально',
-    order: 1,
-    features: [
-      'Всі 8 віджетів',
-      'Лічильник залишків',
-      'Прогрес кошика',
-      'Фотовідгуки',
-      '3 сайти',
-      'Self-service кастомізація',
-    ],
-  },
-  max: {
-    color: '#8B5CF6',
-    icon: Crown,
-    pitch: 'Все включено',
-    order: 2,
-    features: [
-      'Всі 17 віджетів',
-      'Кешбек-калькулятор',
-      'Таймер терміновості',
-      '5 сайтів',
-      'VIP підтримка',
-      'Повна кастомізація',
-    ],
-  },
+interface PlanFeatureItem {
+  key: string
+  name: string
+  value: boolean | string
+  category: string
+}
+
+interface PlanWithFeatures extends Plan {
+  feature_list: PlanFeatureItem[]
+}
+
+const PLAN_COLORS: Record<string, string> = {
+  basic: '#10B981',
+  pro: '#3B82F6',
+  max: '#8B5CF6',
+}
+
+const PLAN_ICONS: Record<string, LucideIcon> = {
+  sprout: Sprout,
+  zap: Zap,
+  crown: Crown,
 }
 
 export default function ChoosePlanPage() {
   const navigate = useNavigate()
-  const [plans, setPlans] = useState<Plan[]>([])
+  const [plans, setPlans] = useState<PlanWithFeatures[]>([])
   const [loading, setLoading] = useState(true)
   const [yearly, setYearly] = useState(true)
   const [starting, setStarting] = useState<string | null>(null)
 
   useEffect(() => {
-    get<{ data: Plan[] }>('/plans')
+    get<{ data: PlanWithFeatures[] }>('/plans')
       .then((res) => setPlans(res.data))
       .finally(() => setLoading(false))
   }, [])
@@ -86,19 +58,19 @@ export default function ChoosePlanPage() {
 
   if (loading) return <div className="page-loader">Завантаження…</div>
 
-  const sorted = [...plans].sort((a, b) =>
-    (PLAN_CONFIG[a.slug]?.order ?? 9) - (PLAN_CONFIG[b.slug]?.order ?? 9)
-  )
-
   return (
     <div className="pricing">
-      {/* Hero */}
+      <header className="pricing__header">
+        <button className="pricing__back" onClick={() => navigate(-1)}>
+          <ArrowLeft size={18} />
+        </button>
+      </header>
+
       <div className="pricing__hero">
         <h1 className="pricing__title">Обери свій план</h1>
         <p className="pricing__subtitle">7 днів безкоштовно. Скасуєш коли захочеш.</p>
       </div>
 
-      {/* Toggle */}
       <div className="pricing__toggle-wrap">
         <div className="pricing__toggle">
           <button
@@ -117,17 +89,24 @@ export default function ChoosePlanPage() {
         </div>
       </div>
 
-      {/* Plan cards */}
       <div className="pricing__plans">
-        {sorted.map((plan) => {
-          const cfg = PLAN_CONFIG[plan.slug]
-          if (!cfg) return null
-          const { color, icon: Icon, pitch, features } = cfg
+        {plans.map((plan) => {
+          const color = PLAN_COLORS[plan.slug] ?? '#888'
           const isPro = plan.slug === 'pro'
+          const features = (Array.isArray(plan.features) ? null : plan.features) as Record<string, unknown> | null
+          const iconName = (features?.icon as string) || 'zap'
+          const Icon = PLAN_ICONS[iconName] ?? Zap
+          const pitch = resolveTr(features?.pitch)
+          const badge = resolveTr(features?.badge)
           const monthlyPrice = plan.price_monthly
           const yearlyTotal = plan.price_yearly
           const yearlyMonthly = Math.round(yearlyTotal / 12)
           const savings = monthlyPrice * 12 - yearlyTotal
+
+          // Show only included features (true or string) for the card list
+          const included = (plan.feature_list ?? []).filter(
+            (f) => f.value === true || (typeof f.value === 'string' && f.value.length > 0)
+          )
 
           return (
             <div
@@ -135,13 +114,12 @@ export default function ChoosePlanPage() {
               className={`pricing__card ${isPro ? 'pricing__card--pro' : ''}`}
               style={{ borderColor: `${color}${isPro ? '' : '70'}` }}
             >
-              {isPro && (
+              {badge && (
                 <div className="pricing__badge-wrap">
-                  <span className="pricing__badge">Обирає 73% клієнтів</span>
+                  <span className="pricing__badge">{badge}</span>
                 </div>
               )}
 
-              {/* Top: icon + name + pitch */}
               <div className="pricing__card-top">
                 <div className="pricing__card-icon-wrap" style={{ background: `${color}18` }}>
                   <Icon size={16} style={{ color }} />
@@ -150,13 +128,14 @@ export default function ChoosePlanPage() {
                   <span className="pricing__card-name" style={{ color: isPro ? '#FFF' : '#F0F0F0' }}>
                     {plan.name}
                   </span>
-                  <span className="pricing__card-pitch" style={{ color: isPro ? '#9BB3D4' : '#666' }}>
-                    {pitch}
-                  </span>
+                  {pitch && (
+                    <span className="pricing__card-pitch" style={{ color: isPro ? '#9BB3D4' : '#666' }}>
+                      {pitch}
+                    </span>
+                  )}
                 </div>
               </div>
 
-              {/* Price block */}
               <div className="pricing__card-price-block">
                 <div className="pricing__card-price-line">
                   {yearly && (
@@ -184,25 +163,23 @@ export default function ChoosePlanPage() {
                 )}
               </div>
 
-              {/* Widget/site count */}
               <span className="pricing__card-count" style={{ color: isPro ? '#D0DCF0' : '#DDD' }}>
-                {plan.max_widgets} віджетів · {plan.max_sites} {plan.max_sites === 1 ? 'сайт' : plan.max_sites < 5 ? 'сайти' : 'сайтів'}
+                {plan.max_widgets} віджетів · {plan.max_sites} {pluralSites(plan.max_sites)}
               </span>
 
-              {/* Divider */}
               <div className="pricing__card-divider" style={{ background: isPro ? `${color}20` : 'rgba(255,255,255,0.08)' }} />
 
-              {/* Feature list */}
               <div className="pricing__card-feats">
-                {features.map((feat) => (
-                  <div key={feat} className="pricing__card-feat">
+                {included.map((f) => (
+                  <div key={f.key} className="pricing__card-feat">
                     <Check size={12} style={{ color }} />
-                    <span style={{ color: isPro ? '#D0DCF0' : '#AAA' }}>{feat}</span>
+                    <span style={{ color: isPro ? '#D0DCF0' : '#AAA' }}>
+                      {typeof f.value === 'string' ? `${f.name}: ${f.value}` : f.name}
+                    </span>
                   </div>
                 ))}
               </div>
 
-              {/* CTA */}
               <button
                 className="pricing__card-btn"
                 style={{ background: `${color}22`, borderColor: `${color}55`, color }}
@@ -220,7 +197,6 @@ export default function ChoosePlanPage() {
         })}
       </div>
 
-      {/* Final CTA */}
       <div className="pricing__final">
         <h2 className="pricing__final-title">Готові почати?</h2>
         <button
@@ -228,11 +204,26 @@ export default function ChoosePlanPage() {
           onClick={() => handleStart('pro')}
           disabled={starting !== null}
         >
-          Почати безкоштовно
-          <ArrowRight size={16} />
+          Почати безкоштовно <ArrowRight size={16} />
         </button>
         <span className="pricing__final-note">7 днів безкоштовно, без зобов'язань</span>
       </div>
     </div>
   )
+}
+
+function resolveTr(val: unknown): string | null {
+  if (!val) return null
+  if (typeof val === 'string') return val
+  if (typeof val === 'object' && val !== null) {
+    const obj = val as Record<string, string>
+    return obj.uk ?? obj.en ?? null
+  }
+  return null
+}
+
+function pluralSites(n: number): string {
+  if (n === 1) return 'сайт'
+  if (n >= 2 && n <= 4) return 'сайти'
+  return 'сайтів'
 }

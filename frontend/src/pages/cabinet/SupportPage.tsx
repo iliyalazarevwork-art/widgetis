@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Send, ChevronDown, ChevronUp, MessageCircle } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Send, ChevronDown, ChevronUp, MessageCircle, ArrowLeft } from 'lucide-react'
 import { get } from '../../api/client'
 import type { FaqItem } from '../../types'
 import './styles/support.css'
 
 export default function SupportPage() {
+  const navigate = useNavigate()
   const [faq, setFaq] = useState<FaqItem[]>([])
   const [openId, setOpenId] = useState<number | null>(null)
 
@@ -16,7 +18,11 @@ export default function SupportPage() {
 
   return (
     <div className="sup-page">
-      <h1 className="sup-page__title">Підтримка</h1>
+      <div className="sup-page__header">
+        <button className="page-back" onClick={() => navigate(-1)}><ArrowLeft size={18} /></button>
+        <h1 className="sup-page__title">Підтримка</h1>
+        <div style={{ width: 36 }} />
+      </div>
 
       <div className="sup-page__contacts">
         <a href="https://t.me/widgetis_support" target="_blank" rel="noopener noreferrer" className="sup-page__contact">

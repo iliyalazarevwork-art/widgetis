@@ -1,0 +1,524 @@
+/* ===== OVERLAY ===== */
+.consult-modal__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+  animation: overlayFadeIn 0.2s ease-out;
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ===== MODAL ===== */
+.consult-modal {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: 20px;
+  padding: 36px;
+  max-width: 480px;
+  width: 100%;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.5),
+    var(--shadow-glow);
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Close button */
+.consult-modal__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+}
+
+.consult-modal__close:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-light);
+}
+
+/* Header */
+.consult-modal__header {
+  margin-bottom: 28px;
+}
+
+.consult-modal__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 100px;
+  background: rgba(34, 197, 94, 0.12);
+  color: #4ade80;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.consult-modal__title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+}
+
+.consult-modal__subtitle {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Form */
+.consult-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.consult-modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.consult-modal__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.consult-modal__label .req {
+  color: #f87171;
+  margin-left: 2px;
+}
+
+.consult-modal__input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+  outline: none;
+}
+
+.consult-modal__input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.consult-modal__input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Phone input wrapper */
+.consult-modal__phone {
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  overflow: hidden;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.consult-modal__phone:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.consult-modal__phone .react-international-phone-country-selector-button {
+  background: transparent !important;
+  border: none !important;
+  border-right: 1px solid var(--border-subtle) !important;
+  border-radius: 0 !important;
+  height: auto !important;
+  padding: 0 12px !important;
+  margin: 0 !important;
+}
+
+.consult-modal__phone .react-international-phone-country-selector-button:hover {
+  background: var(--bg-hover) !important;
+}
+
+.consult-modal__phone .react-international-phone-input {
+  flex: 1;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 12px 16px !important;
+  font-size: 15px !important;
+  font-family: inherit !important;
+  color: var(--text-primary) !important;
+  outline: none !important;
+  height: auto !important;
+  box-shadow: none !important;
+}
+
+.consult-modal__phone .react-international-phone-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Time grid */
+.consult-modal__field--time {
+  animation: timeSlideIn 0.3s ease-out;
+}
+
+@keyframes timeSlideIn {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 200px;
+  }
+}
+
+.consult-modal__time-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.consult-modal__time-slot {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border-light);
+  background: var(--bg-surface);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.consult-modal__time-slot:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.consult-modal__time-slot--active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--text-primary);
+  box-shadow: 0 4px 12px var(--accent-glow);
+}
+
+.consult-modal__time-slot--active:hover {
+  color: var(--text-primary);
+  background: var(--accent-hover);
+}
+
+/* Submit */
+.consult-modal__submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--accent);
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 4px;
+}
+
+.consult-modal__submit:hover:not(:disabled) {
+  background: var(--accent-hover);
+  box-shadow: 0 8px 25px var(--accent-glow);
+  transform: translateY(-2px);
+}
+
+.consult-modal__submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Spinner */
+.consult-modal__spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: var(--text-primary);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error */
+.consult-modal__error {
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  font-size: 14px;
+  line-height: 1.5;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Disclaimer */
+.consult-modal__disclaimer {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ===== SUCCESS STATE ===== */
+.consult-modal__success {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.consult-modal__success-icon {
+  color: #4ade80;
+  margin-bottom: 20px;
+}
+
+.consult-modal__success-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.consult-modal__success-text {
+  font-size: 16px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+.consult-modal__success-text strong {
+  color: var(--text-primary);
+}
+
+.consult-modal__success-btn {
+  padding: 12px 32px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--accent);
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.consult-modal__success-btn:hover {
+  background: var(--accent-hover);
+  box-shadow: 0 4px 15px var(--accent-glow);
+}
+
+/* ===== DATEPICKER OVERRIDES (dark theme) ===== */
+.react-datepicker {
+  font-family: var(--font-body) !important;
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-light) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5) !important;
+  overflow: hidden;
+  color: var(--text-primary) !important;
+}
+
+.react-datepicker__header {
+  background: var(--bg-elevated) !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+  padding: 12px 16px 8px !important;
+}
+
+.react-datepicker__current-month {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: var(--text-primary) !important;
+  text-transform: capitalize;
+}
+
+.react-datepicker__day-name {
+  color: var(--text-muted) !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  width: 36px !important;
+  line-height: 36px !important;
+}
+
+.react-datepicker__day {
+  width: 36px !important;
+  line-height: 36px !important;
+  border-radius: 10px !important;
+  font-size: 14px !important;
+  color: var(--text-primary) !important;
+  transition: all 0.15s !important;
+}
+
+.react-datepicker__day:hover {
+  background: var(--accent-dim) !important;
+  color: var(--accent) !important;
+}
+
+.react-datepicker__day--selected {
+  background: var(--accent) !important;
+  color: var(--text-primary) !important;
+  font-weight: 700 !important;
+}
+
+.react-datepicker__day--selected:hover {
+  background: var(--accent-hover) !important;
+  color: var(--text-primary) !important;
+}
+
+.react-datepicker__day--disabled {
+  color: var(--text-ghost) !important;
+}
+
+.react-datepicker__day--keyboard-selected {
+  background: var(--accent-dim) !important;
+  color: var(--accent) !important;
+}
+
+.react-datepicker__navigation {
+  top: 12px !important;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: var(--text-secondary) !important;
+}
+
+.react-datepicker__navigation:hover .react-datepicker__navigation-icon::before {
+  border-color: var(--accent) !important;
+}
+
+.react-datepicker__day--today {
+  font-weight: 700 !important;
+  color: var(--accent) !important;
+}
+
+.react-datepicker-popper {
+  z-index: 2100 !important;
+}
+
+@media (max-width: 768px) {
+  .consult-modal__overlay {
+    align-items: flex-start;
+    padding: 0;
+  }
+
+  .consult-modal {
+    padding: 20px 20px 24px;
+    margin: 16px 12px;
+    border-radius: 18px;
+    max-height: calc(100vh - 32px);
+  }
+
+  .consult-modal__close {
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+  }
+
+  .consult-modal__header {
+    margin-bottom: 20px;
+    padding-right: 40px;
+  }
+
+  .consult-modal__badge {
+    font-size: 11px;
+    padding: 3px 10px;
+    margin-bottom: 10px;
+  }
+
+  .consult-modal__title {
+    font-size: 19px;
+    margin-bottom: 6px;
+  }
+
+  .consult-modal__subtitle {
+    font-size: 13.5px;
+    line-height: 1.45;
+  }
+
+  .consult-modal__form {
+    gap: 16px;
+  }
+
+  .consult-modal__input {
+    padding: 11px 14px;
+    font-size: 14px;
+  }
+
+  .consult-modal__phone .react-international-phone-input {
+    padding: 11px 14px !important;
+    font-size: 14px !important;
+  }
+
+  .consult-modal__submit {
+    padding: 13px 20px;
+    font-size: 15px;
+  }
+
+  .consult-modal__time-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

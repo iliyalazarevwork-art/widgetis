@@ -1,0 +1,124 @@
+/* ===== CTA BANNER ===== */
+.cta-banner {
+  padding: 80px 0;
+  position: relative;
+  background: var(--bg-primary);
+}
+
+.cta-banner__container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 40px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.cta-banner__title {
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -1px;
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.cta-banner__title-gradient {
+  color: var(--accent);
+  text-shadow: 0 0 40px var(--accent-glow);
+}
+
+.cta-banner__subtitle {
+  font-size: 18px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.cta-banner__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.cta-banner__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  white-space: nowrap;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+}
+
+.cta-banner__btn--primary {
+  color: var(--text-primary);
+  background: var(--accent);
+  box-shadow: 0 0 30px var(--accent-glow);
+}
+
+.cta-banner__btn--primary:hover {
+  background: var(--accent-hover);
+  box-shadow: 0 0 40px rgba(59, 130, 246, 0.5);
+  transform: translateY(-2px);
+}
+
+.cta-banner__btn--outline {
+  color: var(--text-primary);
+  background: transparent;
+  border: 1px solid var(--border-light);
+}
+
+.cta-banner__btn--outline:hover {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+  color: var(--text-primary);
+}
+
+.cta-banner__btn--ghost {
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+}
+
+.cta-banner__btn--ghost:hover {
+  color: var(--text-primary);
+  border-color: var(--border-light);
+}
+
+.cta-banner__note {
+  margin-top: 20px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+  .cta-banner {
+    padding: 60px 0;
+  }
+
+  .cta-banner__title {
+    font-size: 28px;
+  }
+
+  .cta-banner__subtitle {
+    font-size: 16px;
+  }
+
+  .cta-banner__actions {
+    flex-direction: column;
+  }
+
+  .cta-banner__btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -1,0 +1,131 @@
+/* ===== Telegram floating button ===== */
+
+.tg-float {
+  position: fixed;
+  right: 16px;
+  bottom: 24px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #229ED9; /* Telegram brand blue */
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(34, 158, 217, 0.45);
+  cursor: pointer;
+  transition:
+    transform 0.25s ease,
+    bottom 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.3s ease;
+  z-index: 98;
+  text-decoration: none;
+}
+
+.tg-float:hover {
+  transform: scale(1.08);
+  box-shadow: 0 12px 32px rgba(34, 158, 217, 0.6);
+}
+
+.tg-float svg {
+  position: relative;
+  z-index: 2;
+  transform: translateX(-1px); /* visually centered */
+}
+
+/* Pulse ring */
+.tg-float__pulse {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 2px solid #229ED9;
+  pointer-events: none;
+  animation: tg-pulse 2.4s ease-out infinite;
+}
+
+@keyframes tg-pulse {
+  0%   { transform: scale(1);    opacity: 0.7; }
+  100% { transform: scale(1.4);  opacity: 0;   }
+}
+
+/* Raise above sticky CTA when CTA is visible (mobile only) */
+/* Fixed value without env() — prevents jumping when Chrome UI toggles */
+@media (max-width: 767px) {
+  .tg-float--raised {
+    bottom: 120px;
+  }
+}
+
+.tg-float--hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.6);
+}
+
+/* ===== Sticky mobile CTA ===== */
+
+.sticky-cta {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  background: rgba(14, 14, 14, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid var(--border-light);
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 97;
+  display: none; /* mobile only */
+}
+
+.sticky-cta--visible {
+  transform: translateY(0);
+}
+
+.sticky-cta__btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 18px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.sticky-cta__btn:hover {
+  background: var(--accent-hover);
+}
+
+.sticky-cta__btn:active {
+  transform: scale(0.98);
+}
+
+/* Show only on mobile */
+@media (max-width: 767px) {
+  .sticky-cta {
+    display: block;
+  }
+}
+
+/* Desktop: bigger Telegram button, no raise */
+@media (min-width: 768px) {
+  .tg-float {
+    right: 24px;
+    bottom: 24px;
+    width: 60px;
+    height: 60px;
+  }
+}

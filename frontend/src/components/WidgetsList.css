@@ -1,0 +1,148 @@
+/* ===== WIDGETS LIST — Nudgify-style cards ===== */
+
+.wl {
+  background: var(--bg-primary);
+  padding: 80px 20px;
+}
+
+.wl__container {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 52px;
+}
+
+/* ── Header ── */
+
+.wl__header { text-align: center; }
+
+.wl__eyebrow {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.wl__title {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 6vw, 48px);
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -1.5px;
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+
+.wl__subtitle {
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ── Grid ── */
+
+.wl__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media (min-width: 580px) {
+  .wl__grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Card ── */
+
+.wl__card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  background: var(--bg-elevated);
+  border: 1px solid transparent;
+  border-radius: 16px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.wl__card:hover {
+  box-shadow: 0 12px 36px rgba(0,0,0,0.35);
+  transform: translateY(-2px);
+}
+
+.wl__card:hover .wl__card-more {
+  color: var(--accent);
+  gap: 6px;
+}
+
+.wl__card-title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+}
+
+/* ── Preview box ── */
+
+.wl__preview {
+  background: var(--bg-surface);
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+/* ── Description ── */
+
+.wl__desc {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ── Card footer ── */
+
+.wl__card-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: auto;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: color 0.2s ease, gap 0.2s ease;
+}
+
+/* ── CTA ── */
+
+.wl__cta { display: flex; justify-content: center; }
+
+.wl__cta-btn {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: none;
+  padding: 14px 28px;
+  border: 1px solid var(--accent);
+  border-radius: 50px;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wl__cta-btn:hover {
+  background: var(--accent);
+  color: var(--bg-deep);
+  box-shadow: 0 0 28px var(--accent-glow);
+}

@@ -1,0 +1,342 @@
+/* ===== Contacts page ===== */
+
+.contacts-page {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  padding-top: calc(var(--promo-strip-h, 0px) + 64px);
+}
+
+/* ── Hero ── */
+.contacts-page__hero {
+  position: relative;
+  padding: 56px 0 48px;
+  overflow: hidden;
+  background: var(--bg-deep);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.contacts-page__hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.contacts-page__hero-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.35;
+}
+
+.contacts-page__hero-glow--1 {
+  width: 480px;
+  height: 480px;
+  background: rgba(59, 130, 246, 0.25);
+  top: -220px;
+  right: -100px;
+}
+
+.contacts-page__hero-glow--2 {
+  width: 300px;
+  height: 300px;
+  background: rgba(99, 102, 241, 0.2);
+  bottom: -160px;
+  left: 8%;
+}
+
+.contacts-page__hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.contacts-page__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  margin-bottom: 20px;
+  transition: color 0.2s, gap 0.2s;
+}
+
+.contacts-page__back:hover {
+  color: var(--accent);
+  gap: 8px;
+}
+
+.contacts-page__eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 10px;
+}
+
+.contacts-page__title {
+  font-family: var(--font-display);
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -1px;
+  color: var(--text-primary);
+  margin: 0 0 12px;
+}
+
+.contacts-page__title-accent {
+  color: var(--accent);
+  text-shadow: 0 0 40px var(--accent-glow);
+}
+
+.contacts-page__subtitle {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 520px;
+}
+
+/* ── Content ── */
+.contacts-page__content {
+  padding: 48px 0 96px;
+}
+
+.contacts-page__container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* ── Primary contact cards ── */
+.contacts-page__primary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.contacts-page__card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 20px;
+  border-radius: 16px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.25s, background 0.25s, transform 0.25s;
+  animation: contact-card-in 500ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+.contacts-page__card:nth-child(1) { animation-delay: 80ms; }
+.contacts-page__card:nth-child(2) { animation-delay: 140ms; }
+.contacts-page__card:nth-child(3) { animation-delay: 200ms; }
+
+@keyframes contact-card-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.contacts-page__card:not(.contacts-page__card--static):hover {
+  border-color: rgba(59, 130, 246, 0.35);
+  background: var(--bg-surface);
+  transform: translateY(-2px);
+}
+
+.contacts-page__card--static {
+  cursor: default;
+}
+
+.contacts-page__card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.contacts-page__card-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.contacts-page__card-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.contacts-page__card-value {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.1px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contacts-page__card-hint {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.contacts-page__card-arrow {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.contacts-page__card:hover .contacts-page__card-arrow {
+  color: var(--accent);
+  transform: translate(2px, -2px);
+}
+
+/* ── Messengers ── */
+.contacts-page__messengers {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.contacts-page__section-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.contacts-page__section-sub {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0 0 18px;
+}
+
+.contacts-page__messengers-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.contacts-page__messenger {
+  --m-color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.25s, background 0.25s, transform 0.25s;
+  animation: contact-card-in 500ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+.contacts-page__messenger:nth-child(1) { animation-delay: 260ms; }
+.contacts-page__messenger:nth-child(2) { animation-delay: 320ms; }
+.contacts-page__messenger:nth-child(3) { animation-delay: 380ms; }
+
+.contacts-page__messenger:hover {
+  border-color: color-mix(in srgb, var(--m-color) 55%, transparent);
+  background: var(--bg-surface);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px -14px color-mix(in srgb, var(--m-color) 60%, transparent);
+}
+
+.contacts-page__messenger-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--m-color) 16%, transparent);
+  color: var(--m-color);
+  flex-shrink: 0;
+}
+
+.contacts-page__messenger-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.contacts-page__messenger-name {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.1px;
+}
+
+.contacts-page__messenger-handle {
+  font-size: 12px;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contacts-page__messenger-arrow {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.contacts-page__messenger:hover .contacts-page__messenger-arrow {
+  color: var(--m-color);
+  transform: translate(2px, -2px);
+}
+
+/* ── Responsive ── */
+@media (max-width: 820px) {
+  .contacts-page__primary {
+    grid-template-columns: 1fr;
+  }
+  .contacts-page__messengers-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .contacts-page__hero {
+    padding: 40px 0 36px;
+  }
+  .contacts-page__title {
+    font-size: 30px;
+  }
+  .contacts-page__content {
+    padding: 32px 0 72px;
+  }
+  .contacts-page__container {
+    gap: 32px;
+  }
+  .contacts-page__card {
+    padding: 16px;
+  }
+}

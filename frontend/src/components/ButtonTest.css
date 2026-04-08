@@ -1,0 +1,48 @@
+.btn-test {
+  padding: 40px 20px;
+  background: var(--bg-deep);
+}
+
+.btn-test__hint {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.btn-test__grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.btn-test__btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 32px;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.btn-test__btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn-test__btn:active {
+  transform: scale(0.97);
+}
+
+.btn-test__label {
+  font-size: 10px;
+  font-weight: 400;
+  opacity: 0.6;
+}

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Resources\Api\V1;
 
 use App\Models\Plan;
+use App\Models\PlanFeatureValue;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -16,6 +17,25 @@ class PlanResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $featureValues = PlanFeatureValue::with('feature')
+            ->where('plan_id', $this->id)
+            ->get()
+            ->sortBy(fn (PlanFeatureValue $v) => $v->feature->sort_order);
+
+        $locale = app()->getLocale();
+
+        $featureList = $featureValues->map(function (PlanFeatureValue $v) use ($locale) {
+            $val = $v->value;
+            $name = $v->feature->name;
+
+            return [
+                'key' => $v->feature->feature_key,
+                'name' => is_array($name) ? ($name[$locale] ?? $name['uk'] ?? '') : $name,
+                'value' => $this->resolveValue($val, $locale),
+                'category' => $v->feature->category,
+            ];
+        })->values()->all();
+
         return [
             'id' => $this->id,
             'slug' => $this->slug,
@@ -26,7 +46,20 @@ class PlanResource extends JsonResource
             'max_sites' => $this->max_sites,
             'max_widgets' => $this->max_widgets,
             'features' => $this->features,
+            'feature_list' => $featureList,
             'is_recommended' => $this->is_recommended,
         ];
+    }
+
+    private function resolveValue(mixed $val, string $locale): mixed
+    {
+        if (is_bool($val)) {
+            return $val;
+        }
+        if (is_array($val) && (isset($val['uk']) || isset($val['en']))) {
+            return $val[$locale] ?? $val['uk'] ?? '';
+        }
+
+        return $val;
     }
 }

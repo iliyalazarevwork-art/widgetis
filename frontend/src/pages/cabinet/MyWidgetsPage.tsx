@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Lock } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Lock, ArrowLeft } from 'lucide-react'
 import { get } from '../../api/client'
 import type { WidgetAccess } from '../../types'
 import './styles/widgets.css'
 
 export default function MyWidgetsPage() {
+  const navigate = useNavigate()
   const [data, setData] = useState<WidgetAccess | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -20,7 +22,11 @@ export default function MyWidgetsPage() {
 
   return (
     <div className="wdg-page">
-      <h1 className="wdg-page__title">Мої віджети</h1>
+      <div className="wdg-page__header">
+        <button className="page-back" onClick={() => navigate(-1)}><ArrowLeft size={18} /></button>
+        <h1 className="wdg-page__title">Мої віджети</h1>
+        <div style={{ width: 36 }} />
+      </div>
       <span className="wdg-page__limit">
         {data.limits.used} з {data.limits.max} віджетів
       </span>

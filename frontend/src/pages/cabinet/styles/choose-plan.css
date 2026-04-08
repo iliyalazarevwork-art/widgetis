@@ -7,6 +7,22 @@
   background: var(--bg-page);
 }
 
+/* ── Header ── */
+.pricing__header {
+  padding: 12px 20px;
+}
+
+.pricing__back {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.03);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-icon);
+}
+
 /* ── Hero ── */
 .pricing__hero {
   display: flex;

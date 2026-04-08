@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Bell, Check } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Bell, Check, ArrowLeft } from 'lucide-react'
 import { get, post } from '../../api/client'
 import type { AppNotification } from '../../types'
 import './styles/notifications.css'
 
 export default function NotificationsPage() {
+  const navigate = useNavigate()
   const [items, setItems] = useState<AppNotification[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -32,6 +34,7 @@ export default function NotificationsPage() {
   return (
     <div className="notif-page">
       <div className="notif-page__header">
+        <button className="page-back" onClick={() => navigate(-1)}><ArrowLeft size={18} /></button>
         <h1 className="notif-page__title">Сповіщення</h1>
         {unread > 0 && (
           <button className="notif-page__mark-all" onClick={markAllRead}>

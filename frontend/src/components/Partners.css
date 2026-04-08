@@ -1,0 +1,158 @@
+/* ===== PARTNERS — 4 platforms, 2×2 mobile / 4-in-row desktop ===== */
+
+.partners {
+  padding: 40px 20px;
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.partners__label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+/* 2×2 on mobile, 4-in-row on tablet+ */
+.partners__grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  max-width: 316px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .partners__grid {
+    max-width: 740px;
+    gap: 16px;
+  }
+}
+
+.partners__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 140px;
+  padding: 20px 14px 16px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  cursor: default;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 0 18px -4px rgba(0,0,0,0.4);
+}
+
+@media (min-width: 768px) {
+  .partners__item {
+    width: 170px;
+    padding: 26px 18px 20px;
+    gap: 14px;
+  }
+}
+
+/* Scroll-reveal: staggered glow animation ---- */
+.partners__item {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+.partners--visible .partners__item {
+  animation: partners-reveal 1000ms var(--ease-out) forwards;
+}
+
+.partners--visible .partners__item:nth-child(1) { animation-delay: 100ms; }
+.partners--visible .partners__item:nth-child(2) { animation-delay: 260ms; }
+.partners--visible .partners__item:nth-child(3) { animation-delay: 420ms; }
+.partners--visible .partners__item:nth-child(4) { animation-delay: 580ms; }
+
+@keyframes partners-reveal {
+  0% {
+    opacity: 0;
+    transform: translateY(18px);
+    box-shadow: 0 0 18px -4px rgba(0,0,0,0.4);
+    border-color: var(--border-light);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(-4px);
+    box-shadow: 0 0 40px -2px var(--brand-glow, rgba(0,0,0,0.5));
+    border-color: var(--brand);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    box-shadow: 0 0 18px -4px rgba(0,0,0,0.4);
+    border-color: var(--border-light);
+  }
+}
+
+/* Logo — always brand-colored */
+.partners__logo {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  fill: var(--brand);
+  filter: drop-shadow(0 0 8px var(--brand-glow, rgba(0,0,0,0)));
+  transition: filter 0.25s ease, transform 0.2s ease;
+}
+
+@media (min-width: 768px) {
+  .partners__logo {
+    width: 56px;
+    height: 56px;
+  }
+}
+
+/* Name — always visible */
+.partners__name {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .partners__name {
+    font-size: 13px;
+  }
+}
+
+/* Рекомендовано badge (Horoshop) */
+.partners__badge {
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--bg-deep);
+  background: var(--accent);
+  padding: 2px 7px;
+  border-radius: 10px;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+
+/* Mobile: slightly smaller cards */
+@media (max-width: 400px) {
+  .partners__item {
+    width: 100px;
+    padding: 14px 10px 10px;
+  }
+
+  .partners__logo {
+    width: 30px;
+    height: 30px;
+  }
+}
