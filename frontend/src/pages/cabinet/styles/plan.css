@@ -1,0 +1,35 @@
+.plan-page__header { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; }
+.plan-page__back { width: 36px; height: 36px; border-radius: var(--radius-sm); background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; color: var(--text-icon); }
+.plan-page__title { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+
+.plan-page__body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+
+.plan-page__current { background: var(--bg-card); border: 1px solid; border-radius: var(--radius-xl); padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.plan-page__current-top { display: flex; align-items: flex-start; justify-content: space-between; }
+.plan-page__current-label { font-size: 11px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px; }
+.plan-page__current-name { font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+.plan-page__trial-badge { padding: 4px 10px; border-radius: var(--radius-full); background: var(--orange-dim); color: var(--orange); font-size: 11px; font-weight: 700; }
+
+.plan-page__stats { display: flex; flex-direction: column; gap: 8px; }
+.plan-page__stat { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-secondary); }
+
+.plan-page__cancelled { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--red-dim); border-radius: var(--radius-md); font-size: 12px; color: var(--red); }
+
+.plan-page__no-plan { text-align: center; padding: 40px; color: var(--text-muted); }
+
+.plan-page__section-title { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+
+.plan-page__plans { display: flex; flex-direction: column; gap: 10px; }
+.plan-page__plan-card { background: var(--bg-card); border: 1px solid var(--border-card); border-radius: var(--radius-xl); padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+.plan-page__plan-card--current { border-color: rgba(59,130,246,0.3); }
+.plan-page__plan-header { display: flex; align-items: center; justify-content: space-between; }
+.plan-page__plan-name { font-size: 16px; font-weight: 700; }
+.plan-page__rec-badge { padding: 3px 8px; border-radius: var(--radius-full); background: var(--blue-dim); color: var(--blue); font-size: 10px; font-weight: 700; }
+.plan-page__plan-price { display: flex; align-items: baseline; gap: 2px; }
+.plan-page__plan-amount { font-size: 24px; font-weight: 800; color: var(--text-primary); }
+.plan-page__plan-period { font-size: 13px; color: var(--text-muted); }
+.plan-page__plan-limits { font-size: 12px; color: var(--text-muted); }
+.plan-page__plan-current-label { font-size: 13px; font-weight: 600; color: var(--blue); text-align: center; padding: 8px 0; }
+.plan-page__plan-btn { height: 40px; background: var(--blue); border-radius: var(--radius-lg); color: #fff; font-size: 14px; font-weight: 700; }
+
+.plan-page__cancel-link { display: block; text-align: center; font-size: 13px; color: var(--red); font-weight: 500; padding: 12px; margin-top: 8px; }

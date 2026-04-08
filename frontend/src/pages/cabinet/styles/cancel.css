@@ -1,0 +1,29 @@
+.cancel-page__header { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; }
+.cancel-page__back { width: 36px; height: 36px; border-radius: var(--radius-sm); background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; color: var(--text-icon); }
+.cancel-page__title { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+
+.cancel-page__body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+
+.cancel-page__warning { display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; padding: 32px 16px; }
+.cancel-page__warning-icon { color: var(--orange); }
+.cancel-page__warning h2 { font-size: 20px; font-weight: 800; color: var(--text-primary); }
+.cancel-page__warning p { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
+
+.cancel-page__btn-danger { height: 46px; background: var(--red); border-radius: var(--radius-lg); font-size: 15px; font-weight: 700; color: #fff; display: flex; align-items: center; justify-content: center; }
+.cancel-page__btn-danger:disabled { opacity: 0.5; }
+
+.cancel-page__btn-secondary { height: 46px; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: var(--radius-lg); font-size: 14px; font-weight: 600; color: var(--text-primary); }
+
+.cancel-page__btn-primary { height: 46px; background: var(--blue); border-radius: var(--radius-lg); font-size: 15px; font-weight: 700; color: #fff; display: flex; align-items: center; justify-content: center; }
+
+.cancel-page__reason-title { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+.cancel-page__reason-subtitle { font-size: 13px; color: var(--text-muted); margin-top: -8px; }
+
+.cancel-page__reasons { display: flex; flex-direction: column; gap: 8px; }
+.cancel-page__reason { padding: 14px; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: var(--radius-xl); font-size: 14px; color: var(--text-primary); text-align: left; transition: all var(--t-fast); }
+.cancel-page__reason--active { border-color: var(--red); background: var(--red-dim); }
+
+.cancel-page__done { display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; padding: 40px 16px; }
+.cancel-page__done-icon { color: var(--green); }
+.cancel-page__done h2 { font-size: 20px; font-weight: 800; color: var(--text-primary); }
+.cancel-page__done p { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }

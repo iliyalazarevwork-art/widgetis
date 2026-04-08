@@ -1,0 +1,182 @@
+.choose-plan {
+  padding: 32px 16px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100dvh;
+}
+
+.choose-plan__hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.choose-plan__hero-icon {
+  color: var(--blue);
+  margin-bottom: 4px;
+}
+
+.choose-plan__title {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.choose-plan__subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  max-width: 320px;
+}
+
+/* ── Toggle ── */
+.choose-plan__toggle-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.choose-plan__toggle {
+  display: flex;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 4px;
+}
+
+.choose-plan__toggle-btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: all var(--t-fast);
+}
+.choose-plan__toggle-btn--active {
+  background: var(--blue);
+  color: #fff;
+}
+
+.choose-plan__save-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--green);
+  margin-left: 4px;
+}
+.choose-plan__toggle-btn--active .choose-plan__save-badge {
+  color: #9EFFC8;
+}
+
+/* ── Cards ── */
+.choose-plan__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.choose-plan__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-xl);
+  padding: 16px;
+  text-align: left;
+  transition: all var(--t-fast);
+}
+.choose-plan__card--selected {
+  background: rgba(59, 130, 246, 0.04);
+}
+
+.choose-plan__card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.choose-plan__card-name {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.choose-plan__rec {
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  background: var(--blue-dim);
+  color: var(--blue);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.choose-plan__card-price {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.choose-plan__card-amount {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.choose-plan__card-period {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.choose-plan__card-features {
+  display: flex;
+  gap: 16px;
+}
+
+.choose-plan__card-feature {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.choose-plan__card-check {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--blue);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── CTA ── */
+.choose-plan__cta {
+  height: 52px;
+  background: var(--blue);
+  border-radius: var(--radius-xl);
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  transition: background var(--t-fast);
+}
+.choose-plan__cta:not(:disabled):hover {
+  background: var(--blue-hover);
+}
+.choose-plan__cta:disabled {
+  opacity: 0.5;
+}
+
+.choose-plan__note {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}

@@ -1,0 +1,15 @@
+.cabinet {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.cabinet__content {
+  flex: 1;
+  padding-top: var(--topbar-h);
+  padding-bottom: var(--bottomnav-h);
+  overflow-y: auto;
+}

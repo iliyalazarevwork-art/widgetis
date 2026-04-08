@@ -1,0 +1,116 @@
+.sites {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sites__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sites__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.sites__limit {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.sites__add-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  background: var(--blue);
+  color: #fff;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* ── Empty ── */
+.sites__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 60px 20px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.sites__empty-cta {
+  color: var(--blue);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* ── Card ── */
+.sites__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sites__card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-xl);
+  padding: 14px;
+  text-decoration: none;
+  transition: background var(--t-fast);
+}
+.sites__card:active {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.sites__card-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sites__status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.sites__status-dot--active { background: var(--green); }
+.sites__status-dot--pending { background: var(--yellow); }
+.sites__status-dot--disconnected { background: var(--red); }
+
+.sites__card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.sites__card-domain {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.sites__card-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.sites__card-arrow {
+  color: var(--text-muted);
+}

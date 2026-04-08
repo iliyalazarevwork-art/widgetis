@@ -1,10 +1,10 @@
 services:
   backend:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
     volumes:
-      - .:/var/www/html
+      - ./backend:/var/www/html
     ports:
       - "9001:8000"
       - "9002:9000"
@@ -46,9 +46,9 @@ services:
 
   visual-check:
     image: mcr.microsoft.com/playwright:v1.59.1-noble
-    working_dir: /work/tools/visual-check
+    working_dir: /work/backend/tools/visual-check
     volumes:
-      - .:/work
+      - ./backend:/work/backend
     command: >
       bash -lc "npm install --no-fund --no-audit && node mobile-visual-check.mjs --help"
     profiles:

@@ -1,0 +1,15 @@
+.notif-page { display: flex; flex-direction: column; }
+.notif-page__header { display: flex; align-items: center; justify-content: space-between; padding: 16px 16px 8px; }
+.notif-page__title { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+.notif-page__mark-all { display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; color: var(--blue); }
+.notif-page__empty { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 60px; color: var(--text-muted); }
+
+.notif-page__list { display: flex; flex-direction: column; }
+.notif-page__item { display: flex; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--border-divider); cursor: pointer; transition: background var(--t-fast); }
+.notif-page__item:hover { background: rgba(255,255,255,0.02); }
+.notif-page__item--unread { background: rgba(59,130,246,0.04); }
+.notif-page__unread-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); flex-shrink: 0; margin-top: 6px; }
+.notif-page__item-content { display: flex; flex-direction: column; gap: 3px; }
+.notif-page__item-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.notif-page__item-body { font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
+.notif-page__item-time { font-size: 11px; color: var(--text-muted); }

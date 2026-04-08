@@ -1,0 +1,117 @@
+version: '3'
+
+vars:
+  DC: docker compose -f docker-compose.dev.yml
+  EXEC: '{{.DC}} exec backend'
+  FRONT: cd frontend &&
+
+tasks:
+  # ── OTP ────────────────────────────────────────────────
+  otp:login:
+    desc: Отправить OTP и сразу получить код
+    cmds:
+      - '{{.EXEC}} php artisan otp:login {{.CLI_ARGS}}'
+    requires:
+      vars: [CLI_ARGS]
+
+  otp:get:
+    desc: Получить уже отправленный OTP-код
+    cmds:
+      - '{{.EXEC}} php artisan otp:get {{.CLI_ARGS}}'
+    requires:
+      vars: [CLI_ARGS]
+
+  # ── Artisan ────────────────────────────────────────────
+  artisan:
+    desc: Любая artisan-команда
+    cmds:
+      - '{{.EXEC}} php artisan {{.CLI_ARGS}}'
+
+  tinker:
+    desc: Laravel Tinker
+    interactive: true
+    cmds:
+      - '{{.EXEC}} php artisan tinker'
+
+  # ── Composer ───────────────────────────────────────────
+  composer:
+    desc: Любая composer-команда
+    cmds:
+      - '{{.EXEC}} composer {{.CLI_ARGS}}'
+
+  install:
+    desc: composer install
+    cmds:
+      - '{{.EXEC}} composer install'
+
+  # ── Качество кода ─────────────────────────────────────
+  pint:
+    desc: Автоформатирование (Laravel Pint)
+    cmds:
+      - '{{.EXEC}} ./vendor/bin/pint'
+
+  stan:
+    desc: Статический анализ (PHPStan)
+    cmds:
+      - '{{.EXEC}} ./vendor/bin/phpstan analyse --memory-limit=512M'
+
+  test:
+    desc: Запуск тестов
+    cmds:
+      - '{{.EXEC}} php artisan test {{.CLI_ARGS}}'
+
+  check:
+    desc: Полная проверка — pint + phpstan + tests
+    cmds:
+      - task: pint
+      - task: stan
+      - task: test
+
+  # ── База данных ────────────────────────────────────────
+  migrate:
+    desc: Запуск миграций
+    cmds:
+      - '{{.EXEC}} php artisan migrate'
+
+  migrate:fresh:
+    desc: Пересоздать БД и накатить миграции
+    cmds:
+      - '{{.EXEC}} php artisan migrate:fresh --seed'
+
+  seed:
+    desc: Запуск сидеров
+    cmds:
+      - '{{.EXEC}} php artisan db:seed'
+
+  # ── Docker ─────────────────────────────────────────────
+  up:
+    desc: Поднять контейнеры
+    cmds:
+      - '{{.DC}} up -d'
+
+  down:
+    desc: Остановить контейнеры
+    cmds:
+      - '{{.DC}} down'
+
+  restart:
+    desc: Перезапустить контейнеры
+    cmds:
+      - '{{.DC}} restart'
+
+  logs:
+    desc: Логи backend-контейнера
+    cmds:
+      - '{{.DC}} logs -f backend'
+
+  sh:
+    desc: Shell в backend-контейнере
+    interactive: true
+    cmds:
+      - '{{.EXEC}} sh'
+
+  # ── Кэш ────────────────────────────────────────────────
+  cache:clear:
+    desc: Очистить весь кэш Laravel
+    cmds:
+      - '{{.EXEC}} php artisan optimize:clear'
