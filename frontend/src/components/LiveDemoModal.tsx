@@ -41,7 +41,7 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
   const [error, setError] = useState<string | null>(null)
   const [enabledWidgets, setEnabledWidgets] = useState<Set<string>>(new Set())
   const [building, setBuilding] = useState(false)
-  const [iframeLoaded, setIframeLoaded] = useState(false)
+  const [iframeLoadCount, setIframeLoadCount] = useState(0)
   const [mobileOpen, setMobileOpen] = useState(true)
 
   const iframeRef = useRef<HTMLIFrameElement>(null)
@@ -54,7 +54,7 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
     setDemo(null)
     setLoading(true)
     setError(null)
-    setIframeLoaded(false)
+    setIframeLoadCount(0)
     widgetJsRef.current = null
     injectedRef.current = false
 
@@ -133,7 +133,8 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
         .then((js) => {
           widgetJsRef.current = js
           injectedRef.current = false
-          if (iframeLoaded) {
+          // Inject immediately if iframe is ready
+          if (iframeLoadCount > 0) {
             injectScript(js)
             injectedRef.current = true
           }
@@ -141,7 +142,7 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
         .catch(() => toast.error('Помилка збірки віджетів'))
         .finally(() => setBuilding(false))
     },
-    [code, iframeLoaded, injectScript, destroyWidgets],
+    [code, iframeLoadCount, injectScript, destroyWidgets],
   )
 
   useEffect(() => {
@@ -151,12 +152,14 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [demo])
 
+  // Re-inject on every iframe navigation (iframeLoadCount increments each time)
   useEffect(() => {
-    if (iframeLoaded && widgetJsRef.current && !injectedRef.current) {
+    if (iframeLoadCount > 0 && widgetJsRef.current) {
+      injectedRef.current = false
       injectScript(widgetJsRef.current)
       injectedRef.current = true
     }
-  }, [iframeLoaded, injectScript])
+  }, [iframeLoadCount, injectScript])
 
   const handleToggle = (widgetId: string) => {
     setEnabledWidgets((prev) => {
@@ -294,7 +297,7 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
               className="dm-iframe"
               src={`/site/${demo.domain}/?v=mobile`}
               sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-              onLoad={() => setIframeLoaded(true)}
+              onLoad={() => setIframeLoadCount((c) => c + 1)}
               title={`Preview of ${demo.domain}`}
             />
             {building && (

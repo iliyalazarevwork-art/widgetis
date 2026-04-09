@@ -41,7 +41,7 @@ export function LiveDemoPage() {
   const [error, setError] = useState<string | null>(null)
   const [enabledWidgets, setEnabledWidgets] = useState<Set<string>>(new Set())
   const [building, setBuilding] = useState(false)
-  const [iframeLoaded, setIframeLoaded] = useState(false)
+  const [iframeLoadCount, setIframeLoadCount] = useState(0)
 
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const widgetJsRef = useRef<string | null>(null)
@@ -106,16 +106,9 @@ export function LiveDemoPage() {
     }
   }, [destroyWidgets, doInject])
 
-  const tryInject = useCallback(() => {
-    if (widgetJsRef.current && iframeLoaded) {
-      injectScript(widgetJsRef.current)
-      injectedRef.current = true
-    }
-  }, [iframeLoaded, injectScript])
-
   // ─── Build widgets ─────────────────────────────────────────────────
   const buildWidgets = useCallback(
-    (widgetIds: string[], reload: boolean) => {
+    (widgetIds: string[]) => {
       if (!code) return
       if (widgetIds.length === 0) {
         destroyWidgets()
@@ -139,35 +132,33 @@ export function LiveDemoPage() {
         .then((js) => {
           widgetJsRef.current = js
           injectedRef.current = false
-          if (reload) {
-            setIframeLoaded(false)
-            const frame = iframeRef.current
-            if (frame) frame.src = frame.src
-          } else {
-            tryInject()
+          if (iframeLoadCount > 0) {
+            injectScript(js)
+            injectedRef.current = true
           }
         })
         .catch(() => toast.error('Помилка збірки віджетів'))
         .finally(() => setBuilding(false))
     },
-    [code, tryInject],
+    [code, iframeLoadCount, injectScript, destroyWidgets],
   )
 
   // Build on first load
   useEffect(() => {
     if (demo && enabledWidgets.size > 0) {
-      buildWidgets([...enabledWidgets], false)
+      buildWidgets([...enabledWidgets])
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [demo])
 
-  // Inject when iframe loads
+  // Re-inject on every iframe navigation
   useEffect(() => {
-    if (iframeLoaded && widgetJsRef.current && !injectedRef.current) {
+    if (iframeLoadCount > 0 && widgetJsRef.current) {
+      injectedRef.current = false
       injectScript(widgetJsRef.current)
       injectedRef.current = true
     }
-  }, [iframeLoaded, injectScript])
+  }, [iframeLoadCount, injectScript])
 
   // ─── Toggle widget ─────────────────────────────────────────────────
   const handleToggle = (widgetId: string) => {
@@ -178,7 +169,7 @@ export function LiveDemoPage() {
 
       if (buildTimerRef.current) clearTimeout(buildTimerRef.current)
       buildTimerRef.current = setTimeout(() => {
-        buildWidgets([...next], false)
+        buildWidgets([...next])
       }, 400)
 
       return next
@@ -311,7 +302,7 @@ export function LiveDemoPage() {
             className="live-demo__iframe"
             src={`/site/${demo.domain}/?v=mobile`}
             sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-            onLoad={() => setIframeLoaded(true)}
+            onLoad={() => setIframeLoadCount((c) => c + 1)}
             title={`Preview of ${demo.domain}`}
           />
         </div>
