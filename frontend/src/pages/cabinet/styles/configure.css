@@ -308,6 +308,60 @@
   color: #AAAAAA;
 }
 
+/* ── Subscription banner ─────────────────────────────────── */
+.cfg__sub-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.cfg__sub-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.cfg__sub-banner-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #F59E0B;
+}
+.cfg__sub-banner-desc {
+  font-size: 11px;
+  color: #777777;
+  line-height: 1.4;
+}
+.cfg__sub-banner-btn {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  background: #F59E0B;
+  color: #0A0A0A;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+.cfg__sub-banner-btn:hover {
+  opacity: 0.85;
+}
+
+/* ── Locked widgets ──────────────────────────────────────── */
+.cfg__widgets--locked {
+  opacity: 0.45;
+  pointer-events: none;
+}
+.cfg__wcard--locked {
+  border-color: #FFFFFF06;
+}
+.cfg__wcard--locked .cfg__wico {
+  background: #151515;
+}
+
 /* ── Script install ──────────────────────────────────────── */
 .cfg__install {
   background: #141414;
