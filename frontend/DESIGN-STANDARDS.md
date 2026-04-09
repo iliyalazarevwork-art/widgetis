@@ -199,7 +199,87 @@ Current mappings (16 widgets):
 
 ---
 
-## 9. CSS Conventions
+## 9. Admin Panel Layout — Mandatory Structure
+
+The admin panel has a **fixed layout** that MUST be used on every admin screen without exception.
+Source of truth: Pencil nodes `HTE7v` (Dashboard) and `X4vIO` (sub-pages).
+
+---
+
+### Header — two modes (sticky, always visible)
+
+**Common rules for both modes:**
+- `position: fixed`, `top: 0`, `width: 100%`, `z-index: 100`
+- **Sticky — always follows the user on scroll, never disappears**
+- Height: `60px`; background: `#0E0E0E`; padding: `0 20px`
+- Bottom border: `1px solid rgba(255,255,255,0.04)`
+- Layout: `display: flex; align-items: center; justify-content: space-between`
+
+#### Mode 1 — Dashboard (main section, no back navigation)
+
+```
+[ burger menu btn ]   [ Title + Subtitle stack ]   [ Avatar ]
+```
+
+- **Left** — burger menu button: `36×36px`, `border-radius: 8px`, bg `rgba(255,255,255,0.03)`, Lucide `<Menu />` icon `18px` color `#AAAAAA`
+- **Center** — vertical stack:
+  - Title: `15px`, weight `700`, color `#F0F0F0`
+  - Subtitle: `11px`, weight `400`, color `#555555`
+- **Right** — avatar circle: `36×36px`, `border-radius: 999px`, bg `rgba(59,130,246,0.13)`, border `1px solid rgba(59,130,246,0.25)`, initials text `12px` weight `700` color `#3B82F6`
+
+#### Mode 2 — Sub-page (detail / nested screen, has back navigation)
+
+```
+[ ← back btn ]   [ Page Title ]   [ action btn OR nothing ]
+```
+
+- **Left** — back button: `36×36px`, `border-radius: 8px`, bg `rgba(255,255,255,0.03)`, Lucide `<ArrowLeft />` icon `18px` color `#AAAAAA`
+  - Navigation: use `useNavigate()` from React Router v6, call `navigate(-1)` to go back in history
+- **Center** — page title: `16px`, weight `700`, color `#F0F0F0`
+- **Right** — contextual action button (optional):
+  - If the page has an action (e.g. export, download, add): `36×36px`, `border-radius: 10px`, bg `rgba(59,130,246,0.13)`, Lucide icon `17px` color `#3B82F6`
+  - If no action needed: **render nothing** (empty `<div />` of equal size to keep title centered)
+
+> When to use each mode: Dashboard tab → Mode 1. Any page reached by tapping a list item, a link, or drilling into a detail → Mode 2.
+
+---
+
+### Bottom Tab Navigation (always visible)
+
+- `position: fixed`, `bottom: 0`, `width: 100%`, `z-index: 100`
+- Always visible on every admin screen — never hidden or removed
+- Height: `64px`; background: `#0E0E0E`; top border: `1px solid rgba(255,255,255,0.04)`
+- Layout: `display: flex; justify-content: space-around; align-items: center; padding: 0 4px`
+- Each tab: icon `20px` (Lucide) + label `9px` weight `600`, stacked vertically, gap `3px`
+- **Active tab**: icon + label color `#3B82F6` (blue), weight `600`
+- **Inactive tab**: icon + label color `#555555`, weight `500`
+
+Tab items (from design):
+| # | Icon (Lucide) | Label |
+|---|---------------|-------|
+| 1 | `LayoutDashboard` | Дашборд |
+| 2 | `Receipt` | Замовлення |
+| 3 | `Users` | Юзери |
+| 4 | `Globe` | Сайти |
+| 5 | `Banknote` | (icon only) |
+
+---
+
+### Content area
+
+- `padding-top`: `60px` (= header height) so content is not hidden under sticky header
+- `padding-bottom`: `64px` (= bottom nav height) + `32px` extra breathing room = `96px`
+- Background: `#0A0A0A`
+
+---
+
+### Rule: no exceptions
+
+Every admin screen — dashboard, orders, sites, users, payments, settings, any future screen — MUST use this exact header + bottom nav structure. There is no admin screen without both of these elements.
+
+---
+
+## 10. CSS Conventions
 
 - All design tokens as CSS custom properties in `src/index.css`
 - BEM naming: `.block__element--modifier`
