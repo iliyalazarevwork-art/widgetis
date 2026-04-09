@@ -1,11 +1,50 @@
+import { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, ExternalLink, Star, TrendingUp } from 'lucide-react'
 import { BRAND_NAME_UPPER } from '../constants/brand'
-import { cases } from '../data/cases'
+import { get } from '../api/client'
 import './CasesPage.css'
 
+interface ApiCase {
+  id: number
+  store: string
+  store_url: string
+  store_logo_url: string | null
+  owner: string | null
+  description: string | null
+  review_text: string | null
+  review_rating: number | null
+  result_metric: string | null
+  result_period: string | null
+  color: string | null
+  widgets: string[]
+}
+
+interface CasesResponse {
+  data: ApiCase[]
+}
+
+function isSafeUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url)
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:'
+  } catch {
+    return false
+  }
+}
+
 export function CasesPage() {
+  const [cases, setCases] = useState<ApiCase[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    get<CasesResponse>('/cases')
+      .then((res) => setCases(res.data))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
   return (
     <div className="cases-page">
       <Helmet>
@@ -32,7 +71,9 @@ export function CasesPage() {
             <span className="cases-page__title-accent">реальні цифри</span>
           </h1>
           <p className="cases-page__subtitle">
-            {cases.length} українських магазинів вже використовують віджети. Ось що вийшло.
+            {!loading && cases.length > 0
+              ? `${cases.length} українських магазинів вже використовують віджети. Ось що вийшло.`
+              : 'Українські магазини вже використовують віджети. Ось що вийшло.'}
           </p>
         </div>
       </section>
@@ -40,17 +81,20 @@ export function CasesPage() {
       <section className="cases-page__content">
         <div className="cases-page__container">
           <div className="cases-page__grid">
-            {cases.map((c, i) => (
+            {loading && Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="case-card case-card--skeleton" aria-hidden="true" />
+            ))}
+            {!loading && cases.map((c, i) => (
               <a
                 key={c.id}
-                href={c.storeUrl}
+                href={isSafeUrl(c.store_url) ? c.store_url : '#'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="case-card"
                 style={
                   {
                     animationDelay: `${i * 60}ms`,
-                    ['--case-color' as string]: c.color,
+                    ['--case-color' as string]: c.color ?? '#6366f1',
                   } as React.CSSProperties
                 }
               >
@@ -73,47 +117,50 @@ export function CasesPage() {
                 {/* Body */}
                 <div className="case-card__body">
                   <header className="case-card__head">
-                    <div
-                      className="case-card__avatar"
-                      aria-hidden="true"
-                    >
-                      {c.owner.charAt(0)}
+                    <div className="case-card__avatar" aria-hidden="true">
+                      {(c.owner ?? c.store).charAt(0)}
                     </div>
                     <div className="case-card__meta">
-                      <strong className="case-card__name">{c.owner}</strong>
+                      <strong className="case-card__name">{c.owner ?? c.store}</strong>
                       <span className="case-card__desc">{c.description}</span>
                     </div>
                   </header>
 
-                  <div className="case-card__metric">
-                    <TrendingUp size={16} strokeWidth={2.25} />
-                    <div className="case-card__metric-body">
-                      <strong>{c.result.metric}</strong>
-                      <span>{c.result.period}</span>
+                  {c.result_metric && (
+                    <div className="case-card__metric">
+                      <TrendingUp size={16} strokeWidth={2.25} />
+                      <div className="case-card__metric-body">
+                        <strong>{c.result_metric}</strong>
+                        <span>{c.result_period}</span>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  <blockquote className="case-card__review">
-                    <div className="case-card__stars" aria-label={`${c.review.rating} з 5`}>
-                      {Array.from({ length: 5 }).map((_, j) => (
-                        <Star
-                          key={j}
-                          size={12}
-                          strokeWidth={0}
-                          fill={j < c.review.rating ? '#f5b400' : 'var(--text-ghost)'}
-                        />
+                  {c.review_text && (
+                    <blockquote className="case-card__review">
+                      <div className="case-card__stars" aria-label={`${c.review_rating} з 5`}>
+                        {Array.from({ length: 5 }).map((_, j) => (
+                          <Star
+                            key={j}
+                            size={12}
+                            strokeWidth={0}
+                            fill={j < (c.review_rating ?? 0) ? '#f5b400' : 'var(--text-ghost)'}
+                          />
+                        ))}
+                      </div>
+                      <p className="case-card__review-text">«{c.review_text}»</p>
+                    </blockquote>
+                  )}
+
+                  {c.widgets.length > 0 && (
+                    <div className="case-card__widgets">
+                      {c.widgets.map((w) => (
+                        <span key={w} className="case-card__widget-tag">
+                          {w}
+                        </span>
                       ))}
                     </div>
-                    <p className="case-card__review-text">«{c.review.text}»</p>
-                  </blockquote>
-
-                  <div className="case-card__widgets">
-                    {c.widgets.map((w) => (
-                      <span key={w} className="case-card__widget-tag">
-                        {w}
-                      </span>
-                    ))}
-                  </div>
+                  )}
 
                   <div className="case-card__link">
                     <span>Перейти на сайт</span>

@@ -21,8 +21,8 @@ class CustomerCase extends Model
     /** @var list<string> */
     protected $fillable = [
         'store', 'store_url', 'store_logo_url', 'owner', 'platform',
-        'description', 'review_text', 'review_rating', 'screenshot_urls',
-        'widgets', 'is_published', 'sort_order',
+        'description', 'review_text', 'review_rating', 'result_metric', 'result_period',
+        'color', 'screenshot_urls', 'widgets', 'is_published', 'sort_order',
     ];
 
     /**

@@ -20,10 +20,15 @@ class CaseController extends BaseController
                 'store' => $c->store,
                 'store_url' => $c->store_url,
                 'store_logo_url' => $c->store_logo_url,
+                'owner' => $c->owner,
                 'platform' => $c->platform,
                 'description' => $c->translated('description'),
+                'review_text' => $c->review_text,
                 'review_rating' => $c->review_rating,
-                'widgets' => $c->widgets,
+                'result_metric' => $c->result_metric,
+                'result_period' => $c->result_period,
+                'color' => $c->color,
+                'widgets' => $c->widgets ?? [],
             ]);
 
         return $this->success(['data' => $cases]);

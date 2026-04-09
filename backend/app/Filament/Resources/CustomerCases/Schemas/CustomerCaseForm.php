@@ -40,6 +40,12 @@ class CustomerCaseForm
                     ->numeric()
                     ->minValue(1)
                     ->maxValue(5),
+                TextInput::make('result_metric')
+                    ->placeholder('+18% середній чек'),
+                TextInput::make('result_period')
+                    ->placeholder('за 2 місяці'),
+                TextInput::make('color')
+                    ->placeholder('#10b981'),
                 Toggle::make('is_published'),
                 TextInput::make('sort_order')
                     ->required()
