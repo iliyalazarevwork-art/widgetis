@@ -109,6 +109,7 @@ class DemoSessionController extends BaseController
             return $this->error('DEMO_NOT_FOUND', 'Demo session not found or expired.', 404);
         }
 
+        /** @var array<string, array<string, mixed>> $allModules */
         $allModules = $session->config['modules'] ?? [];
 
         // Filter by enabled_widgets if provided
@@ -127,7 +128,46 @@ class DemoSessionController extends BaseController
             );
         }
 
-        if (empty($allModules)) {
+        // Fetch supported modules from widget-builder to filter unsupported ones
+        $builderUrl = rtrim((string) config('services.widget_builder.url', 'http://widget-builder:3200'), '/');
+        try {
+            $schemasResp = Http::timeout(10)->get("{$builderUrl}/modules");
+            /** @var array<string, mixed> $supportedModules */
+            $supportedModules = $schemasResp->successful() ? ($schemasResp->json() ?? []) : [];
+        } catch (\Throwable) {
+            $supportedModules = [];
+        }
+
+        // Clean modules: fix i18n serialization, filter disabled and unsupported
+        $cleanedModules = [];
+        foreach ($allModules as $key => $module) {
+            if (! is_array($module)) {
+                continue;
+            }
+
+            // Skip modules not supported by widget-builder
+            if (! empty($supportedModules) && ! isset($supportedModules[$key])) {
+                continue;
+            }
+
+            $config = $module['config'] ?? [];
+            if (is_array($config) && isset($config['enabled']) && $config['enabled'] === false) {
+                continue;
+            }
+
+            $i18n = $module['i18n'] ?? new \stdClass();
+            // PHP empty array [] serializes as JSON [] — force to object {}
+            if (is_array($i18n) && $i18n === []) {
+                $i18n = new \stdClass();
+            }
+
+            $cleanedModules[$key] = [
+                'config' => $config,
+                'i18n' => $i18n,
+            ];
+        }
+
+        if (empty($cleanedModules)) {
             return response('/* widgetis: no active widgets */', 200)
                 ->header('Content-Type', 'application/javascript');
         }
@@ -136,7 +176,7 @@ class DemoSessionController extends BaseController
 
         try {
             $resp = Http::timeout(30)
-                ->withBody((string) json_encode(['modules' => $allModules], JSON_UNESCAPED_UNICODE), 'application/json')
+                ->withBody((string) json_encode(['modules' => $cleanedModules], JSON_UNESCAPED_UNICODE), 'application/json')
                 ->post("{$builderUrl}/build");
 
             if (! $resp->successful()) {
@@ -189,14 +229,19 @@ class DemoSessionController extends BaseController
 
         foreach ($products as $product) {
             $moduleName = "module-{$product->slug}";
-            $schema = $schemas[$moduleName] ?? null;
 
-            $config = $schema['defaultConfig'] ?? ['enabled' => true];
-            $i18n = $schema['defaultI18n'] ?? [];
-
-            if (is_array($config)) {
-                $config['enabled'] = true;
+            // Only include modules that widget-builder actually supports
+            if (! isset($schemas[$moduleName])) {
+                continue;
             }
+
+            $schema = $schemas[$moduleName];
+
+            /** @var array<string, mixed> $config */
+            $config = $schema['defaultConfig'] ?? ['enabled' => true];
+            $i18n = $schema['defaultI18n'] ?? new \stdClass();
+
+            $config['enabled'] = true;
 
             $modules[$moduleName] = [
                 'config' => $config,
