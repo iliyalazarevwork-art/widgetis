@@ -10,7 +10,7 @@ import {
 import { toast } from 'sonner'
 import { Link } from 'react-router-dom'
 import { get } from '../api/client'
-import { BRAND_NAME_UPPER } from '../constants/brand'
+import { BRAND_NAME } from '../constants/brand'
 import './LiveDemoModal.css'
 
 interface DemoSessionData {
@@ -49,7 +49,6 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
   const injectedRef = useRef(false)
   const buildTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // ─── Load session ──────────────────────────────────────────────────
   useEffect(() => {
     if (!isOpen || !code) return
     setDemo(null)
@@ -68,7 +67,6 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
       .finally(() => setLoading(false))
   }, [isOpen, code])
 
-  // ─── Injection ─────────────────────────────────────────────────────
   const injectScript = useCallback((js: string) => {
     const frame = iframeRef.current
     if (!frame) return
@@ -82,7 +80,6 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
     ;(doc.body || doc.documentElement).appendChild(s)
   }, [])
 
-  // ─── Build ─────────────────────────────────────────────────────────
   const buildWidgets = useCallback(
     (widgetIds: string[]) => {
       if (!code || widgetIds.length === 0) {
@@ -128,7 +125,6 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
     }
   }, [iframeLoaded, injectScript])
 
-  // ─── Toggle ────────────────────────────────────────────────────────
   const handleToggle = (widgetId: string) => {
     setEnabledWidgets((prev) => {
       const next = new Set(prev)
@@ -156,7 +152,6 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
   const enabledCount = enabledWidgets.size
   const totalCount = moduleIds.length
 
-  // ─── Widget list (shared between desktop & mobile) ─────────────────
   const widgetList = moduleIds.map((id) => {
     const slug = id.replace('module-', '')
     const on = enabledWidgets.has(slug)
@@ -177,11 +172,25 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
     )
   })
 
-  // ─── Loading / Error ───────────────────────────────────────────────
+  /* ── Logo SVG (same as Header) ── */
+  const logoSvg = (
+    <svg className="dm-topbar-logo-mark" viewBox="0 0 120 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M 14 14 L 42 86 L 60 46 L 78 86 L 106 14" fill="none" stroke="currentColor" strokeWidth="22" strokeLinejoin="miter" strokeLinecap="round" />
+    </svg>
+  )
+
   if (loading) {
     return (
-      <div className="dm-overlay" onClick={handleClose}>
-        <div className="dm-page" onClick={(e) => e.stopPropagation()}>
+      <div className="dm-overlay">
+        <div className="dm-page">
+          <div className="dm-topbar">
+            <div className="dm-topbar-left">
+              <span className="dm-topbar-logo">{logoSvg}<span className="dm-topbar-logo-text">{BRAND_NAME}</span></span>
+            </div>
+            <div className="dm-topbar-right">
+              <button className="dm-close-btn" onClick={handleClose} aria-label="Закрити"><X size={18} /></button>
+            </div>
+          </div>
           <div className="dm-center">
             <div className="dm-spinner-big" />
             <div className="dm-loading-text">Завантаження демо...</div>
@@ -193,8 +202,16 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
 
   if (error || !demo) {
     return (
-      <div className="dm-overlay" onClick={handleClose}>
-        <div className="dm-page" onClick={(e) => e.stopPropagation()}>
+      <div className="dm-overlay">
+        <div className="dm-page">
+          <div className="dm-topbar">
+            <div className="dm-topbar-left">
+              <span className="dm-topbar-logo">{logoSvg}<span className="dm-topbar-logo-text">{BRAND_NAME}</span></span>
+            </div>
+            <div className="dm-topbar-right">
+              <button className="dm-close-btn" onClick={handleClose} aria-label="Закрити"><X size={18} /></button>
+            </div>
+          </div>
           <div className="dm-center">
             <AlertCircle size={48} strokeWidth={1.5} />
             <div className="dm-error-title">Демо недоступне</div>
@@ -209,83 +226,96 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
   return (
     <div className="dm-overlay">
       <div className="dm-page">
-        {/* Close button */}
-        <button className="dm-close-btn" onClick={handleClose} aria-label="Закрити">
-          <X size={20} />
-        </button>
-
-        {/* ── Iframe area ── */}
-        <div className="dm-iframe-area">
-          <iframe
-            ref={iframeRef}
-            className="dm-iframe"
-            src={`/site/${demo.domain}/?v=mobile`}
-            sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-            onLoad={() => setIframeLoaded(true)}
-            title={`Preview of ${demo.domain}`}
-          />
-          {building && (
-            <div className="dm-iframe-loading">
-              <div className="dm-spinner-big" />
-              <span>Застосовуємо віджети...</span>
-            </div>
-          )}
-        </div>
-
-        {/* ── Desktop sidebar ── */}
-        <div className="dm-panel">
-          <div className="dm-panel-header">
-            <div className="dm-panel-brand">
-              <Zap size={18} />
-              <span>{BRAND_NAME_UPPER}</span>
-            </div>
-            <div className="dm-panel-domain">
-              <ExternalLink size={12} />
-              {demo.domain}
-            </div>
+        {/* ── Top brand bar ── */}
+        <div className="dm-topbar">
+          <div className="dm-topbar-left">
+            <span className="dm-topbar-logo">
+              {logoSvg}
+              <span className="dm-topbar-logo-text">{BRAND_NAME}</span>
+            </span>
+            <span className="dm-topbar-sep" />
+            <span className="dm-topbar-domain">{demo.domain}</span>
           </div>
-
-          <div className="dm-panel-status">
-            <span className="dm-panel-status-dot" />
-            <span>{enabledCount} з {totalCount} активно</span>
-            {building && <div className="dm-building-spinner" />}
-          </div>
-
-          <div className="dm-widget-list">{widgetList}</div>
-
-          <div className="dm-panel-footer">
-            <div className="dm-panel-hint">Всі кольори та розташування налаштовуються</div>
-            <Link to="/pricing" className="dm-cta-btn" onClick={handleClose}>
-              <Zap size={16} />
-              Замовити віджети
-            </Link>
+          <div className="dm-topbar-right">
+            <a
+              className="dm-topbar-btn"
+              href={`https://${demo.domain}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <ExternalLink size={14} />
+              <span>Сайт</span>
+            </a>
+            <button className="dm-close-btn" onClick={handleClose} aria-label="Закрити">
+              <X size={18} />
+            </button>
           </div>
         </div>
 
-        {/* ── Mobile bottom bar + sheet ── */}
-        <div className="dm-mobile-wrap">
-          {!mobileOpen ? (
-            <div className="dm-mobile-bar" onClick={() => setMobileOpen(true)}>
-              <span className="dm-mobile-bar-text">
-                {building ? 'Оновлення...' : `${enabledCount} з ${totalCount} віджетів`}
-              </span>
-              <ChevronUp size={20} className="dm-mobile-bar-arrow" />
-            </div>
-          ) : (
-            <div className="dm-mobile-sheet">
-              <div className="dm-mobile-sheet-handle" onClick={() => setMobileOpen(false)}>
-                <ChevronDown size={20} />
-                <span>Згорнути</span>
+        {/* ── Main area ── */}
+        <div className="dm-body">
+          {/* Iframe */}
+          <div className="dm-iframe-area">
+            <iframe
+              ref={iframeRef}
+              className="dm-iframe"
+              src={`/site/${demo.domain}/?v=mobile`}
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+              onLoad={() => setIframeLoaded(true)}
+              title={`Preview of ${demo.domain}`}
+            />
+            {building && (
+              <div className="dm-iframe-loading">
+                <div className="dm-spinner-big" />
+                <span>Застосовуємо віджети...</span>
               </div>
-              <div className="dm-mobile-sheet-list">{widgetList}</div>
-              <div className="dm-panel-footer">
-                <Link to="/pricing" className="dm-cta-btn" onClick={handleClose}>
-                  <Zap size={16} />
-                  Замовити віджети
-                </Link>
-              </div>
+            )}
+          </div>
+
+          {/* Desktop sidebar */}
+          <div className="dm-panel">
+            <div className="dm-panel-status">
+              <span className="dm-panel-status-dot" />
+              <span>{enabledCount} з {totalCount} активно</span>
+              {building && <div className="dm-building-spinner" />}
             </div>
-          )}
+
+            <div className="dm-widget-list">{widgetList}</div>
+
+            <div className="dm-panel-footer">
+              <div className="dm-panel-hint">Всі кольори та розташування налаштовуються</div>
+              <Link to="/pricing" className="dm-cta-btn" onClick={handleClose}>
+                <Zap size={15} />
+                Замовити віджети
+              </Link>
+            </div>
+          </div>
+
+          {/* Mobile bottom sheet */}
+          <div className="dm-mobile-wrap">
+            {!mobileOpen ? (
+              <div className="dm-mobile-bar" onClick={() => setMobileOpen(true)}>
+                <span className="dm-mobile-bar-text">
+                  {building ? 'Оновлення...' : `${enabledCount} з ${totalCount} віджетів`}
+                </span>
+                <ChevronUp size={20} className="dm-mobile-bar-arrow" />
+              </div>
+            ) : (
+              <div className="dm-mobile-sheet">
+                <div className="dm-mobile-sheet-handle" onClick={() => setMobileOpen(false)}>
+                  <ChevronDown size={20} />
+                  <span>Згорнути</span>
+                </div>
+                <div className="dm-mobile-sheet-list">{widgetList}</div>
+                <div className="dm-panel-footer">
+                  <Link to="/pricing" className="dm-cta-btn" onClick={handleClose}>
+                    <Zap size={15} />
+                    Замовити віджети
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
