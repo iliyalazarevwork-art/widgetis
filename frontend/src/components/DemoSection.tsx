@@ -102,7 +102,7 @@ export function DemoSection() {
   }
 
   return (
-    <section className="demo">
+    <section className="demo" id="demo">
       <div className="demo__container">
         <div className="demo__card">
           <div className="demo__card-glow" aria-hidden="true" />

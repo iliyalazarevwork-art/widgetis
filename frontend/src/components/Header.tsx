@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { X, LayoutDashboard, ArrowRight } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useSwipeDismiss } from '../hooks/useSwipeDismiss'
@@ -38,7 +38,17 @@ export function Header() {
     }
   }
 
+  const navigate = useNavigate()
   const closeMenu = useCallback(() => setMenuOpen(false), [])
+
+  const scrollToDemo = useCallback(() => {
+    closeMenu()
+    if (onHome) {
+      document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      navigate('/#demo')
+    }
+  }, [onHome, navigate, closeMenu])
 
   const drawerRef = useSwipeDismiss<HTMLElement>({
     direction: 'right',
@@ -201,7 +211,7 @@ export function Header() {
 
                 <motion.button
                   className="header__drawer-cta"
-                  onClick={closeMenu}
+                  onClick={scrollToDemo}
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.18, duration: 0.3, ease: 'easeOut' }}
