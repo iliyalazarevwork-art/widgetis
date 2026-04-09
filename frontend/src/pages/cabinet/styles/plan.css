@@ -1,35 +1,354 @@
-.plan-page__header { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; }
-.plan-page__back { width: 36px; height: 36px; border-radius: var(--radius-sm); background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; color: var(--text-icon); }
-.plan-page__title { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+/* ===== MY PLAN PAGE ===== */
 
-.plan-page__body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.mplan {
+  min-height: 100dvh;
+  background: var(--bg-page);
+  display: flex;
+  flex-direction: column;
+}
 
-.plan-page__current { background: var(--bg-card); border: 1px solid; border-radius: var(--radius-xl); padding: 16px; display: flex; flex-direction: column; gap: 14px; }
-.plan-page__current-top { display: flex; align-items: flex-start; justify-content: space-between; }
-.plan-page__current-label { font-size: 11px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px; }
-.plan-page__current-name { font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
-.plan-page__trial-badge { padding: 4px 10px; border-radius: var(--radius-full); background: var(--orange-dim); color: var(--orange); font-size: 11px; font-weight: 700; }
+/* ── Header ── */
 
-.plan-page__stats { display: flex; flex-direction: column; gap: 8px; }
-.plan-page__stat { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-secondary); }
+.mplan__hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 60px;
+  background: var(--bg-primary);
+  border-bottom: 1px solid #FFFFFF0A;
+  flex-shrink: 0;
+}
 
-.plan-page__cancelled { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--red-dim); border-radius: var(--radius-md); font-size: 12px; color: var(--red); }
+.mplan__back {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #FFFFFF08;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-icon);
+  border: none;
+  cursor: pointer;
+}
 
-.plan-page__no-plan { text-align: center; padding: 40px; color: var(--text-muted); }
+.mplan__hdr-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
 
-.plan-page__section-title { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+/* ── Body ── */
 
-.plan-page__plans { display: flex; flex-direction: column; gap: 10px; }
-.plan-page__plan-card { background: var(--bg-card); border: 1px solid var(--border-card); border-radius: var(--radius-xl); padding: 16px; display: flex; flex-direction: column; gap: 8px; }
-.plan-page__plan-card--current { border-color: rgba(59,130,246,0.3); }
-.plan-page__plan-header { display: flex; align-items: center; justify-content: space-between; }
-.plan-page__plan-name { font-size: 16px; font-weight: 700; }
-.plan-page__rec-badge { padding: 3px 8px; border-radius: var(--radius-full); background: var(--blue-dim); color: var(--blue); font-size: 10px; font-weight: 700; }
-.plan-page__plan-price { display: flex; align-items: baseline; gap: 2px; }
-.plan-page__plan-amount { font-size: 24px; font-weight: 800; color: var(--text-primary); }
-.plan-page__plan-period { font-size: 13px; color: var(--text-muted); }
-.plan-page__plan-limits { font-size: 12px; color: var(--text-muted); }
-.plan-page__plan-current-label { font-size: 13px; font-weight: 600; color: var(--blue); text-align: center; padding: 8px 0; }
-.plan-page__plan-btn { height: 40px; background: var(--blue); border-radius: var(--radius-lg); color: #fff; font-size: 14px; font-weight: 700; }
+.mplan__body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  padding-bottom: 40px;
+}
 
-.plan-page__cancel-link { display: block; text-align: center; font-size: 13px; color: var(--red); font-weight: 500; padding: 12px; margin-top: 8px; }
+/* ── Current plan card ── */
+
+.mplan__cur {
+  background: #141414;
+  border: 1px solid;
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mplan__cur-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mplan__cur-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Plan name is white, icon carries the plan color */
+.mplan__cur-name {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 800;
+  color: #F0F0F0;
+}
+
+.mplan__trial-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.mplan__divider {
+  height: 1px;
+  background: #FFFFFF0A;
+}
+
+/* Stats 2-col grid */
+
+.mplan__stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.mplan__stat-cell {
+  background: #1A1A1A;
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mplan__stat-label {
+  font-size: 10px;
+  color: #666666;
+}
+
+.mplan__stat-val {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  color: #F0F0F0;
+}
+
+/* Trial bar */
+
+.mplan__trial-track {
+  height: 6px;
+  border-radius: 999px;
+  background: #333333;
+  overflow: hidden;
+}
+
+.mplan__trial-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+/* ── No plan ── */
+
+.mplan__no-plan {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* ── Section title ── */
+
+.mplan__section-title {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  color: #F0F0F0;
+}
+
+/* ── Plan chips row ── */
+
+.mplan__chips-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.mplan__chip {
+  border-style: solid;
+  border-radius: 12px;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.mplan__chip--cur {
+  cursor: default;
+}
+
+.mplan__chip-name {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.mplan__chip-price {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.mplan__chip-label {
+  font-size: 10px;
+}
+
+/* ── Info card (includes) ── */
+
+.mplan__info-card {
+  background: #141414;
+  border: 1px solid #FFFFFF0A;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Changes card */
+.mplan__changes-card {
+  background: #3B82F610;
+  border: 1px solid #3B82F630;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mplan__info-title {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  color: #F0F0F0;
+}
+
+.mplan__info-bullet {
+  font-size: 11px;
+  color: #888888;
+  line-height: 1.4;
+}
+
+.mplan__changes-text {
+  font-size: 11px;
+  color: #888888;
+  line-height: 1.4;
+}
+
+/* ── Actions ── */
+
+.mplan__act-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Upgrade button */
+
+.mplan__upgrade-btn {
+  height: 44px;
+  border-radius: 12px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.mplan__upgrade-btn:hover:not(:disabled) {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.mplan__upgrade-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Proration section */
+
+.mplan__prorate {
+  border: 1px solid;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mplan__prorate-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mplan__prorate-label {
+  font-size: 11px;
+  color: #AAAAAA;
+}
+
+.mplan__prorate-val {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  color: #F0F0F0;
+}
+
+.mplan__prorate-row--total {
+  margin-top: 2px;
+  padding-top: 6px;
+  border-top: 1px solid #FFFFFF0A;
+}
+
+.mplan__prorate-due {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.mplan__prorate-amount {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.mplan__prorate-note {
+  font-size: 10px;
+  color: #666666;
+}
+
+/* Cancel button */
+
+.mplan__cancel-btn {
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid #A855F740;
+  background: #A855F720;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #A855F7;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.mplan__cancel-btn:hover {
+  background: #A855F730;
+}

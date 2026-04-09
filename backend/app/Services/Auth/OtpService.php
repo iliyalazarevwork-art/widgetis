@@ -44,6 +44,12 @@ class OtpService
 
     public function verify(string $email, string $code): bool
     {
+        // Dev bypass: accept master code without cache lookup
+        if ($this->isDevBypass($code)) {
+            $this->invalidate($email);
+            return true;
+        }
+
         $attempts = (int) Cache::get($this->attemptsKey($email), 0);
 
         if ($attempts >= self::MAX_ATTEMPTS) {
@@ -62,6 +68,17 @@ class OtpService
         $this->invalidate($email);
 
         return true;
+    }
+
+    private function isDevBypass(string $code): bool
+    {
+        if (! (bool) config('app.otp_dev_bypass', false)) {
+            return false;
+        }
+
+        $masterCode = (string) config('app.otp_dev_code', '121212');
+
+        return $code === $masterCode;
     }
 
     public function invalidate(string $email): void

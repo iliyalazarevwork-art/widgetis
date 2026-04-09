@@ -48,7 +48,12 @@ class PlanForm
                         ->numeric()
                         ->prefix('₴')
                         ->default(0),
-                ])->columns(2),
+                    TextInput::make('trial_days')
+                        ->required()
+                        ->numeric()
+                        ->default(7)
+                        ->minValue(0),
+                ])->columns(3),
                 Group::make([
                     TextInput::make('max_sites')
                         ->required()

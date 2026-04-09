@@ -10,8 +10,12 @@
 
 .cfg__body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
 
-.cfg__site-select { display: flex; align-items: center; justify-content: space-between; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: var(--radius-md); padding: 10px 14px; font-size: 14px; color: var(--text-primary); cursor: pointer; }
+.cfg__site-select { width: 100%; display: flex; align-items: center; justify-content: space-between; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: var(--radius-md); padding: 10px 14px; font-size: 14px; color: var(--text-primary); cursor: pointer; }
+.cfg__site-select:disabled { cursor: default; }
+.cfg__site-select--single { opacity: 0.96; }
 .cfg__site-select-left { display: flex; align-items: center; gap: 10px; }
+.cfg__site-chevron { transition: transform var(--t-fast); color: var(--text-muted); }
+.cfg__site-chevron--open { transform: rotate(180deg); }
 
 .cfg__site-dropdown { background: var(--bg-card); border: 1px solid var(--border-input); border-radius: var(--radius-lg); overflow: hidden; }
 .cfg__site-option { display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px 14px; font-size: 13px; color: var(--text-secondary); text-align: left; transition: background var(--t-fast); }
@@ -35,3 +39,34 @@
 .cfg__toggle--on .cfg__toggle-thumb { transform: translateX(18px); }
 
 .cfg__save-btn { display: flex; align-items: center; justify-content: center; gap: 8px; height: 50px; background: var(--blue); border-radius: var(--radius-xl); font-size: 15px; font-weight: 700; color: #fff; margin-top: 8px; }
+
+/* Locked / muted section */
+.cfg__section-title--muted { color: var(--text-muted); }
+.cfg__widget-card--locked { opacity: 0.45; pointer-events: none; }
+.cfg__lock-icon { color: var(--text-muted); flex-shrink: 0; }
+
+/* Plan badge */
+.cfg__plan-badge { font-size: 11px; font-weight: 600; padding: 6px 12px; border-radius: var(--radius-md); border: 1px solid; }
+.cfg__plan-badge--free, .cfg__plan-badge--basic { color: #10B981; background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.2); }
+.cfg__plan-badge--pro { color: #3B82F6; background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.2); }
+.cfg__plan-badge--max { color: #A855F7; background: rgba(168,85,247,0.08); border-color: rgba(168,85,247,0.2); }
+
+/* Script install block */
+.cfg__install { background: var(--bg-card); border: 1px solid var(--border-card); border-radius: var(--radius-xl); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.cfg__install-header { display: flex; align-items: center; justify-content: space-between; }
+.cfg__install-title { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+.cfg__install-status { font-size: 11px; font-weight: 600; }
+.cfg__install-status--ok { color: #10B981; }
+.cfg__install-status--pending { color: var(--text-muted); }
+.cfg__install-hint { font-size: 11px; color: var(--text-muted); line-height: 1.5; margin: 0; }
+
+/* Config section inside widget card */
+.cfg__config-row { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-card); }
+.cfg__config-toggle { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; }
+.cfg__config-toggle:hover { color: var(--text-secondary); }
+.cfg__config-badge { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; background: rgba(59,130,246,0.15); color: #3B82F6; margin-left: 2px; }
+
+.cfg__config-block { position: relative; margin-top: 8px; }
+.cfg__config-copy { position: absolute; top: 8px; right: 8px; z-index: 2; height: 28px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 10px; border: 1px solid rgba(255,255,255,0.16); border-radius: var(--radius-sm); background: rgba(10,10,10,0.88); color: var(--text-primary); cursor: pointer; transition: background var(--t-fast), border-color var(--t-fast), color var(--t-fast); font-size: 11px; font-weight: 600; line-height: 1; }
+.cfg__config-copy:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.24); color: var(--text-primary); }
+.cfg__config-json { margin: 0; padding: 12px 132px 12px 12px; background: var(--bg-input); border: 1px solid var(--border-input); border-radius: var(--radius-md); font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 11px; line-height: 1.6; color: var(--text-secondary); white-space: pre; overflow-x: auto; }

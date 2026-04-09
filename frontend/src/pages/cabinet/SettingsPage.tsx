@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import {
-  User, CreditCard, Bell, Globe2, Shield, ChevronRight, LogOut, Trash2,
+  User, CreditCard, ChevronRight, LogOut, Trash2,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import './styles/settings.css'
@@ -11,14 +11,6 @@ const sections = [
     items: [
       { icon: User, label: 'Профіль', to: '/cabinet/profile' },
       { icon: CreditCard, label: 'Мій план', to: '/cabinet/plan' },
-      { icon: Bell, label: 'Сповіщення', to: '/cabinet/notifications' },
-    ],
-  },
-  {
-    title: 'Налаштування',
-    items: [
-      { icon: Globe2, label: 'Мова', to: '/cabinet/profile' },
-      { icon: Shield, label: 'Безпека', to: '/cabinet/profile' },
     ],
   },
 ]

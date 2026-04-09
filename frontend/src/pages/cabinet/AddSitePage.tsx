@@ -12,6 +12,14 @@ interface PlatformItem {
   supported: boolean
 }
 
+function normalizeSiteUrl(value: string): string {
+  const raw = value.trim()
+  if (!raw) return ''
+  if (/^https?:\/\//i.test(raw)) return raw
+
+  return `https://${raw}`
+}
+
 export default function AddSitePage() {
   const navigate = useNavigate()
   const [step, setStep] = useState<1 | 2>(1)
@@ -38,10 +46,12 @@ export default function AddSitePage() {
 
   const handleCreate = async () => {
     if (!canContinue || creating) return
+    const normalizedUrl = normalizeSiteUrl(url)
+
     setCreating(true)
     try {
       const res = await post<{ data: SiteCreateResponse }>('/profile/sites', {
-        url,
+        url: normalizedUrl,
         platform,
         name: name || undefined,
       })

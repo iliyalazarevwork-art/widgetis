@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
+use App\Http\Controllers\Api\V1\Payment\CheckoutController;
 use App\Http\Controllers\Api\V1\Profile\DashboardController;
 use App\Http\Controllers\Api\V1\Profile\NotificationController;
 use App\Http\Controllers\Api\V1\Profile\ProfileController;
 use App\Http\Controllers\Api\V1\Profile\SiteController;
 use App\Http\Controllers\Api\V1\Profile\SubscriptionController;
+use App\Http\Controllers\Api\V1\Profile\WidgetController;
 use App\Http\Controllers\Api\V1\Public\CaseController;
 use App\Http\Controllers\Api\V1\Public\ConsultationController;
 use App\Http\Controllers\Api\V1\Public\FaqController;
@@ -17,9 +19,13 @@ use App\Http\Controllers\Api\V1\Public\PlanController;
 use App\Http\Controllers\Api\V1\Public\ProductController;
 use App\Http\Controllers\Api\V1\Public\SettingsController;
 use App\Http\Controllers\Api\V1\Public\TagController;
+use App\Http\Controllers\Api\V1\Webhooks\LiqPayWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
+
+    // --- LiqPay webhook (public, no auth — signature verified inside controller) ---
+    Route::post('payments/liqpay/callback', [LiqPayWebhookController::class, 'handle']);
 
     // --- Health check ---
     Route::get('health', fn () => response()->json([
@@ -74,6 +80,7 @@ Route::prefix('v1')->group(function () {
         Route::get('subscription/prorate', [SubscriptionController::class, 'prorate']);
         Route::post('subscription/change', [SubscriptionController::class, 'change']);
         Route::post('subscription/cancel', [SubscriptionController::class, 'cancel']);
+        Route::post('subscription/checkout/trial', [CheckoutController::class, 'startTrial']);
         Route::get('sites', [SiteController::class, 'index']);
         Route::post('sites', [SiteController::class, 'store']);
         Route::get('sites/{id}', [SiteController::class, 'show']);
@@ -81,6 +88,7 @@ Route::prefix('v1')->group(function () {
         Route::post('sites/{id}/verify', [SiteController::class, 'verify']);
         Route::get('sites/{id}/script', [SiteController::class, 'script']);
         Route::put('sites/{siteId}/widgets/{productId}', [SiteController::class, 'updateWidget']);
+        Route::get('widgets/{productSlug}/config-schema', [WidgetController::class, 'configSchema']);
     });
 
     // --- Admin ---

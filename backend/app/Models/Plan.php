@@ -24,6 +24,7 @@ class Plan extends Model
         'description',
         'price_monthly',
         'price_yearly',
+        'trial_days',
         'max_sites',
         'max_widgets',
         'features',
@@ -43,6 +44,7 @@ class Plan extends Model
             'features' => 'array',
             'price_monthly' => 'decimal:2',
             'price_yearly' => 'decimal:2',
+            'trial_days' => 'integer',
             'is_recommended' => 'boolean',
             'is_active' => 'boolean',
         ];

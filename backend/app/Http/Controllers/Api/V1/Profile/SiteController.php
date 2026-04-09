@@ -39,7 +39,7 @@ class SiteController extends BaseController
             'limits' => [
                 'used' => $sites->count(),
                 'max' => $plan?->max_sites ?? 1,
-                'plan' => $plan?->slug ?? 'free',
+                'plan' => $plan?->slug,
             ],
         ]);
     }
@@ -97,6 +97,7 @@ class SiteController extends BaseController
                 ] : null,
                 'widgets' => $site->widgets->map(fn ($w) => [
                     'product_id' => $w->product_id,
+                    'slug' => $w->product?->slug,
                     'name' => $w->product?->translated('name'),
                     'icon' => $w->product?->icon,
                     'is_enabled' => $w->is_enabled,
@@ -158,25 +159,16 @@ class SiteController extends BaseController
     public function updateWidget(Request $request, int $siteId, int $productId): JsonResponse
     {
         $request->validate([
-            'is_enabled' => ['sometimes', 'boolean'],
-            'config' => ['sometimes', 'array'],
+            'config' => ['required', 'array'],
         ]);
 
-        $site = $this->currentUser()->sites()->findOrFail($siteId);
+        $user = $this->currentUser();
+        $site = $user->sites()->findOrFail($siteId);
 
-        if ($request->boolean('is_enabled')) {
-            $this->siteService->checkWidgetLimit($this->currentUser());
-        }
+        /** @var array<string, mixed> $config */
+        $config = $request->input('config');
 
-        $siteWidget = $site->widgets()->updateOrCreate(
-            ['product_id' => $productId],
-            array_filter([
-                'is_enabled' => $request->input('is_enabled'),
-                'config' => $request->input('config'),
-                'enabled_at' => $request->boolean('is_enabled') ? now() : null,
-                'disabled_at' => $request->input('is_enabled') === false ? now() : null,
-            ], fn ($v) => $v !== null),
-        );
+        $siteWidget = $this->siteService->applyWidgetConfig($user, $site, $productId, $config);
 
         return $this->success([
             'data' => [

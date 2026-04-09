@@ -43,6 +43,7 @@ class PlanResource extends JsonResource
             'description' => $this->translated('description'),
             'price_monthly' => (float) $this->price_monthly,
             'price_yearly' => (float) $this->price_yearly,
+            'trial_days' => (int) $this->trial_days,
             'max_sites' => $this->max_sites,
             'max_widgets' => $this->max_widgets,
             'features' => $this->features,

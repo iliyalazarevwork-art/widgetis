@@ -23,17 +23,7 @@ export default function widgetalityPlugin(options: { site: string; modules: Modu
       }
     },
 
-    generateBundle(_, bundle) {
-      const now = new Date();
-      const dateStr = now.toISOString().replace('T', ' ').slice(0, 19);
-      const versionComment = `/**\n * Version: ${dateStr}\n * Site: ${site}\n * Built: ${now.toUTCString()}\n * Contact: t.me/Lazarev_iLiya\n */\n`;
-
-      for (const chunk of Object.values(bundle)) {
-        if (chunk.type === 'chunk') {
-          chunk.code = versionComment + chunk.code;
-        }
-      }
-    },
+    generateBundle() {},
 
     load(id) {
       if (id.startsWith('\0virtual:widgetality-config:')) {

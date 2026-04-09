@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { NavLink, Outlet, Link, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard,
+  Repeat2,
   Wand2,
   Globe,
   Receipt,
@@ -18,6 +19,7 @@ import './admin.css'
 
 const NAV = [
   { to: '/admin', label: 'Дашборд', icon: LayoutDashboard, end: true },
+  { to: '/admin/subscriptions', label: 'Підписки', icon: Repeat2 },
   { to: '/admin/configurator', label: 'Конфігуратор', icon: Wand2 },
   { to: '/admin/orders', label: 'Замовлення', icon: Receipt },
   { to: '/admin/users', label: 'Користувачі', icon: Users },
@@ -33,6 +35,7 @@ export function AdminLayout() {
   const isMobileCanvasPage =
     location.pathname === '/admin' ||
     location.pathname.startsWith('/admin/configurator') ||
+    location.pathname.startsWith('/admin/subscriptions') ||
     location.pathname.startsWith('/admin/widgets') ||
     location.pathname.startsWith('/admin/users') ||
     location.pathname.startsWith('/admin/orders') ||

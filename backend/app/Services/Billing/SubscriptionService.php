@@ -6,6 +6,9 @@ namespace App\Services\Billing;
 
 use App\Enums\BillingPeriod;
 use App\Enums\SubscriptionStatus;
+use App\Jobs\RebuildSiteScriptJob;
+use App\Models\ActivityLog;
+use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Models\User;
@@ -14,11 +17,12 @@ use Illuminate\Support\Facades\Log;
 
 class SubscriptionService
 {
-    private const TRIAL_DAYS = 7;
-
     public function createTrial(User $user, Plan $plan): Subscription
     {
         return DB::transaction(function () use ($user, $plan) {
+            $trialDays = max(0, (int) ($plan->trial_days ?? 7));
+            $trialEnd = now()->addDays($trialDays);
+
             $subscription = Subscription::updateOrCreate(
                 ['user_id' => $user->id],
                 [
@@ -26,17 +30,31 @@ class SubscriptionService
                     'billing_period' => BillingPeriod::Monthly->value,
                     'status' => SubscriptionStatus::Trial,
                     'is_trial' => true,
-                    'trial_ends_at' => now()->addDays(self::TRIAL_DAYS),
+                    'trial_ends_at' => $trialEnd,
                     'current_period_start' => now(),
-                    'current_period_end' => now()->addDays(self::TRIAL_DAYS),
+                    'current_period_end' => $trialEnd,
                 ],
             );
+
+            Payment::create([
+                'user_id' => $user->id,
+                'subscription_id' => $subscription->id,
+                'type' => 'trial_activation',
+                'amount' => 0,
+                'currency' => 'UAH',
+                'status' => 'success',
+                'description' => ['en' => 'Trial activation', 'uk' => 'Активація тріалу'],
+            ]);
 
             Log::channel('payments')->info('trial.created', [
                 'user_id' => $user->id,
                 'plan' => $plan->slug,
                 'trial_ends_at' => $subscription->trial_ends_at->toIso8601String(),
             ]);
+
+            foreach ($user->sites as $site) {
+                RebuildSiteScriptJob::dispatch($site->id);
+            }
 
             return $subscription;
         });
@@ -149,6 +167,22 @@ class SubscriptionService
             'cancel_reason' => $reason,
         ]);
 
+        ActivityLog::create([
+            'user_id' => $subscription->user_id,
+            'action' => 'subscription.cancelled',
+            'entity_type' => 'subscription',
+            'entity_id' => $subscription->id,
+            'description' => [
+                'en' => 'Subscription cancelled',
+                'uk' => 'Підписку скасовано',
+            ],
+            'metadata' => [
+                'plan' => $subscription->plan->slug,
+                'reason' => $reason,
+            ],
+            'created_at' => now(),
+        ]);
+
         Log::channel('payments')->info('subscription.cancelled', [
             'user_id' => $subscription->user_id,
             'plan' => $subscription->plan->slug,
@@ -162,6 +196,21 @@ class SubscriptionService
     {
         $subscription->update([
             'status' => SubscriptionStatus::Expired,
+        ]);
+
+        ActivityLog::create([
+            'user_id' => $subscription->user_id,
+            'action' => 'subscription.expired',
+            'entity_type' => 'subscription',
+            'entity_id' => $subscription->id,
+            'description' => [
+                'en' => 'Subscription expired',
+                'uk' => 'Підписка закінчилась',
+            ],
+            'metadata' => [
+                'plan' => $subscription->plan?->slug,
+            ],
+            'created_at' => now(),
         ]);
 
         Log::channel('payments')->info('subscription.expired', [

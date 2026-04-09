@@ -14,7 +14,7 @@ class SiteController extends BaseController
 {
     public function index(Request $request): JsonResponse
     {
-        $query = Site::with(['user', 'script'])
+        $query = Site::with(['user.subscription.plan', 'script'])
             ->orderByDesc('created_at');
 
         if ($search = $request->input('search')) {
@@ -28,10 +28,18 @@ class SiteController extends BaseController
             $query->where('status', $status);
         }
 
-        $perPage = min((int) $request->input('per_page', 50), 100);
+        $perPage = min((int) $request->input('per_page', 15), 100);
         $sites = $query->paginate($perPage);
 
+        $totalActive = Site::where('status', 'active')->count();
+        $totalPending = Site::where('status', 'pending')->count();
+
         return $this->paginated($sites, [
+            'stats' => [
+                'total' => Site::count(),
+                'active' => $totalActive,
+                'pending' => $totalPending,
+            ],
             'data' => collect($sites->items())->map(fn (Site $site) => [
                 'id' => $site->id,
                 'name' => $site->name,
@@ -48,6 +56,7 @@ class SiteController extends BaseController
                     'email' => $site->user->email,
                     'name' => $site->user->name,
                 ] : null,
+                'plan' => $site->user?->subscription?->plan?->slug,
             ]),
         ]);
     }

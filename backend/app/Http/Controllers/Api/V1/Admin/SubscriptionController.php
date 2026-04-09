@@ -16,13 +16,27 @@ class SubscriptionController extends BaseController
         $query = Subscription::with('user', 'plan');
 
         if ($request->filled('status')) {
-            $query->where('status', $request->input('status'));
+            $status = (string) $request->input('status');
+
+            if ($status === 'cancelled') {
+                $query->whereIn('status', ['cancelled', 'expired']);
+            } else {
+                $query->where('status', $status);
+            }
         }
 
         $perPage = min((int) $request->input('per_page', 20), 50);
         $subs = $query->orderByDesc('created_at')->paginate($perPage);
 
+        $statsQuery = Subscription::query();
+
         return $this->paginated($subs, [
+            'stats' => [
+                'active' => (clone $statsQuery)->where('status', 'active')->count(),
+                'trial' => (clone $statsQuery)->where('status', 'trial')->count(),
+                'cancelled' => (clone $statsQuery)->whereIn('status', ['cancelled', 'expired'])->count(),
+                'risk' => (clone $statsQuery)->whereIn('status', ['trial', 'past_due', 'cancelled', 'expired'])->count(),
+            ],
             'data' => collect($subs->items())->map(fn (Subscription $s) => [
                 'id' => $s->id,
                 'user_email' => $s->user?->email,

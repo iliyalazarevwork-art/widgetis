@@ -19,6 +19,19 @@ class OrderController extends BaseController
             $query->where('status', $request->input('status'));
         }
 
+        $search = trim((string) $request->input('q', ''));
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $like = '%' . $search . '%';
+
+                $q->where('order_number', 'like', $like)
+                    ->orWhere('amount', 'like', $like)
+                    ->orWhereHas('user', function ($userQuery) use ($like) {
+                        $userQuery->where('email', 'like', $like);
+                    });
+            });
+        }
+
         $perPage = min((int) $request->input('per_page', 20), 50);
         $orders = $query->orderByDesc('created_at')->paginate($perPage);
 
@@ -29,6 +42,7 @@ class OrderController extends BaseController
                 'customer_email' => $o->user?->email,
                 'plan' => $o->plan?->slug,
                 'amount' => (float) $o->amount,
+                'currency' => $o->currency,
                 'status' => $o->status?->value,
                 'created_at' => $o->created_at->toIso8601String(),
             ]),

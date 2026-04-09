@@ -1,33 +1,14 @@
 .loginm {
-  min-height: 100dvh;
-  background: #0a0a0a;
   color: #f0f0f0;
-  max-width: 375px;
+  max-width: 430px;
   margin: 0 auto;
-}
-
-.loginm__header {
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-bottom: 1px solid #ffffff0a;
-  background: #0e0e0e;
-}
-
-.loginm__brand {
-  font-family: Inter, sans-serif;
-  font-size: 29px;
-  font-weight: 800;
-  line-height: 1;
-  color: #3b82f6;
 }
 
 .loginm__body {
   display: flex;
   flex-direction: column;
   gap: 22px;
-  padding: 56px 16px 28px;
+  padding: 48px 16px 64px;
 }
 
 .loginm__hero {
@@ -105,13 +86,29 @@
 
 .loginm__input {
   width: 100%;
+  height: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+  appearance: none;
+  -webkit-appearance: none;
   color: #f0f0f0;
   font-family: Inter, sans-serif;
   font-size: 14px;
+  line-height: 1;
 }
 
 .loginm__input::placeholder {
   color: #444444;
+}
+
+.loginm__input:-webkit-autofill,
+.loginm__input:-webkit-autofill:hover,
+.loginm__input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f0f0f0;
+  box-shadow: 0 0 0 1000px #141414 inset;
+  -webkit-box-shadow: 0 0 0 1000px #141414 inset;
 }
 
 .loginm__otp-btn {

@@ -15858,7 +15858,7 @@
                         },
                         {
                           "type": "frame",
-                          "id": "R0qJl",
+                          "id": "A7Gn9",
                           "name": "prBasicSavBadge",
                           "fill": "#10b98120",
                           "cornerRadius": 20,
@@ -15870,7 +15870,7 @@
                           "children": [
                             {
                               "type": "text",
-                              "id": "8tCwj",
+                              "id": "bTieR",
                               "name": "prBasicSavTxt",
                               "fill": "#10b981",
                               "content": "Економія 1 598 грн",
@@ -16828,7 +16828,7 @@
                         },
                         {
                           "type": "frame",
-                          "id": "GdGnA",
+                          "id": "yMyNo",
                           "name": "prMaxSavBadge",
                           "fill": "#10b98120",
                           "cornerRadius": 20,
@@ -16840,7 +16840,7 @@
                           "children": [
                             {
                               "type": "text",
-                              "id": "LNZRz",
+                              "id": "x3j58",
                               "name": "prMaxSavTxt",
                               "fill": "#10b981",
                               "content": "Економія 5 798 грн",

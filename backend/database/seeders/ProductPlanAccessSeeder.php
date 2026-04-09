@@ -14,9 +14,6 @@ class ProductPlanAccessSeeder extends Seeder
     {
         $allProducts = Product::pluck('id')->toArray();
 
-        $free = Plan::where('slug', 'free')->first();
-        $free?->products()->sync(array_slice($allProducts, 0, 2));
-
         $basic = Plan::where('slug', 'basic')->first();
         $basic?->products()->sync(array_slice($allProducts, 0, 4));
 

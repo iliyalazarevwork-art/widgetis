@@ -149,7 +149,7 @@
 
 .pricing__plan-icon--basic { background: var(--plan-basic-dim); color: var(--plan-basic); }
 .pricing__plan-icon--pro   { background: rgba(50,255,182,0.12);  color: var(--accent); }
-.pricing__plan-icon--max   { background: var(--plan-max-dim);  color: var(--plan-max); }
+.pricing__plan-icon--max   { background: var(--plan-max-dim);    color: var(--plan-max); }
 
 .pricing__plan-name {
   font-family: var(--font-display);
@@ -270,9 +270,8 @@
   transition: opacity 0.15s ease;
 }
 .pricing__feature-link:hover { opacity: 1; }
-.pricing__feature-link--basic:hover { color: var(--plan-basic); }
-.pricing__feature-link--pro:hover   { color: var(--accent); }
-.pricing__feature-link--max:hover   { color: var(--plan-max); }
+.pricing__feature-link--pro:hover { color: var(--accent); }
+.pricing__feature-link--max:hover { color: var(--plan-max); }
 
 /* ── CTA button ── */
 

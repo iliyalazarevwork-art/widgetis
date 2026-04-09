@@ -29,10 +29,6 @@ export default function LoginPage() {
 
   return (
     <div className="loginm">
-      <header className="loginm__header">
-        <span className="loginm__brand">Widgetis</span>
-      </header>
-
       <div className="loginm__body">
         <div className="loginm__hero">
           <Lock size={40} strokeWidth={1.75} className="loginm__lock" />

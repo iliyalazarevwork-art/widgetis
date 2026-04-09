@@ -6,6 +6,7 @@ namespace App\Enums;
 
 enum SubscriptionStatus: string
 {
+    case Pending = 'pending';
     case Active = 'active';
     case Trial = 'trial';
     case PastDue = 'past_due';
@@ -15,6 +16,7 @@ enum SubscriptionStatus: string
     public function label(): string
     {
         return match ($this) {
+            self::Pending => 'Pending',
             self::Active => 'Active',
             self::Trial => 'Trial',
             self::PastDue => 'Past Due',
@@ -26,6 +28,7 @@ enum SubscriptionStatus: string
     public function color(): string
     {
         return match ($this) {
+            self::Pending => 'warning',
             self::Active => 'success',
             self::Trial => 'info',
             self::PastDue => 'warning',

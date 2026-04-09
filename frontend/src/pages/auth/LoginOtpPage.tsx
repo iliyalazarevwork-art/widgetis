@@ -103,15 +103,11 @@ export default function LoginOtpPage() {
 
   return (
     <div className="auth-page">
-      <header className="auth-page__header">
-        <button className="auth-page__back" onClick={() => navigate('/login')}>
-          <ArrowLeft size={18} />
-        </button>
-        <span className="auth-page__logo">W</span>
-        <div style={{ width: 36 }} />
-      </header>
-
       <div className="auth-page__body">
+        <button className="auth-page__back-inline" onClick={() => navigate('/login')}>
+          <ArrowLeft size={16} />
+          Назад
+        </button>
         <div className="auth-page__hero">
           <h1 className="auth-page__title">Введіть код</h1>
           <p className="auth-page__subtitle">

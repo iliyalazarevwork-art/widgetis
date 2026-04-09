@@ -24,6 +24,7 @@ export interface Plan {
   description: string
   price_monthly: number
   price_yearly: number
+  trial_days: number
   max_sites: number
   max_widgets: number
   features: Record<string, unknown>[]
@@ -68,6 +69,7 @@ export interface SiteDetail extends Site {
 
 export interface SiteWidget {
   product_id: number
+  slug: string
   name: string
   icon: string
   is_enabled: boolean
@@ -109,15 +111,26 @@ export interface DashboardData {
   user: { name: string | null; email: string }
   plan: Plan | null
   subscription_status: string | null
+  next_renewal_at: string | null
   stats: {
     sites_count: number
     widgets_count: number
   }
   recent_activity: {
+    source: 'payment' | 'notification' | 'activity'
+    status: string
     action: string
     description: string
-    entity_type: string
+    title: string
+    subtitle: string | null
+    entity_type: string | null
     created_at: string
+    amount: number | null
+    currency: string | null
+    provider: string | null
+    plan_name: string | null
+    is_trial: boolean
+    trial_days: number | null
   }[]
 }
 
@@ -164,4 +177,31 @@ export interface ApiError {
     message: string
     details?: Record<string, unknown>
   }
+}
+
+export interface AdminDashboardData {
+  kpi: {
+    users_count: number
+    orders_count: number
+    orders_this_month: number
+    orders_growth_pct: number | null
+    active_sites: number
+    active_sites_new_week: number
+    installed_widgets_count: number
+    installed_widgets_new_week: number
+    active_subscriptions: number
+    revenue: number
+    revenue_this_month: number
+    revenue_growth_pct: number | null
+  }
+  recent_orders: {
+    id: number
+    order_number: string | null
+    customer_email: string | null
+    plan: string | null
+    amount: number
+    currency: string | null
+    status: string | null
+    created_at: string
+  }[]
 }

@@ -33,6 +33,7 @@ import {
   AdminSettingsPage,
   AdminSitesPage,
   AdminSiteDetailPage,
+  AdminSubscriptionsPage,
   AdminUsersPage,
 } from './pages/admin/AdminPages'
 import LoginPage from './pages/auth/LoginPage'
@@ -131,11 +132,11 @@ function App() {
             <Route path="/widgets/:slug" element={<WidgetDetailPage />} />
             <Route path="/demo" element={<DemoPage />} />
             <Route path="/signup" element={<SignupPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/login/otp" element={<LoginOtpPage />} />
           </Route>
 
           <Route path="/signup/success" element={<TrialSuccessPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/login/otp" element={<LoginOtpPage />} />
 
           <Route
             path="/cabinet"
@@ -169,6 +170,7 @@ function App() {
             <Route path="widgets/:slug" element={<AdminConfiguratorPage />} />
             <Route path="sites" element={<AdminSitesPage />} />
             <Route path="sites/:siteId" element={<AdminSiteDetailPage />} />
+            <Route path="subscriptions" element={<AdminSubscriptionsPage />} />
             <Route path="orders" element={<AdminOrdersPage />} />
             <Route path="users" element={<AdminUsersPage />} />
             <Route path="settings" element={<AdminSettingsPage />} />
@@ -178,9 +180,10 @@ function App() {
         </Routes>
 
         <Toaster
-          position="bottom-right"
+          position="top-right"
           theme="dark"
           toastOptions={{
+            duration: 1500,
             style: {
               background: 'var(--bg-elevated)',
               border: '1px solid var(--border-light)',

@@ -13,28 +13,17 @@ class PlanSeeder extends Seeder
     {
         $plans = [
             [
-                'slug' => 'free',
-                'name' => ['en' => 'Free', 'uk' => 'Безкоштовний'],
-                'description' => ['en' => 'Get started for free', 'uk' => 'Почніть безкоштовно'],
-                'price_monthly' => 0,
-                'price_yearly' => 0,
-                'max_sites' => 1,
-                'max_widgets' => 2,
-                'features' => [],
-                'is_recommended' => false,
-                'sort_order' => 0,
-            ],
-            [
                 'slug' => 'basic',
                 'name' => ['en' => 'Basic', 'uk' => 'Базовий'],
                 'description' => ['en' => 'For small stores', 'uk' => 'Для невеликих магазинів'],
                 'price_monthly' => 799,
                 'price_yearly' => 7990,
+                'trial_days' => 7,
                 'max_sites' => 1,
                 'max_widgets' => 4,
                 'features' => [],
                 'is_recommended' => false,
-                'sort_order' => 1,
+                'sort_order' => 0,
             ],
             [
                 'slug' => 'pro',
@@ -42,11 +31,12 @@ class PlanSeeder extends Seeder
                 'description' => ['en' => 'Optimal for growth', 'uk' => 'Оптимальний для росту'],
                 'price_monthly' => 1599,
                 'price_yearly' => 15990,
+                'trial_days' => 7,
                 'max_sites' => 3,
                 'max_widgets' => 12,
                 'features' => [],
                 'is_recommended' => true,
-                'sort_order' => 2,
+                'sort_order' => 1,
             ],
             [
                 'slug' => 'max',
@@ -54,11 +44,12 @@ class PlanSeeder extends Seeder
                 'description' => ['en' => 'All widgets, maximum power', 'uk' => 'Усі віджети, максимум можливостей'],
                 'price_monthly' => 2899,
                 'price_yearly' => 28990,
+                'trial_days' => 7,
                 'max_sites' => 5,
                 'max_widgets' => 17,
                 'features' => [],
                 'is_recommended' => false,
-                'sort_order' => 3,
+                'sort_order' => 2,
             ],
         ];
 

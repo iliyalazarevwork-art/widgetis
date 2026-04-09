@@ -4,8 +4,8 @@ import './bottomnav.css'
 
 const items = [
   { to: '/cabinet', icon: LayoutDashboard, label: 'Дашборд', end: true },
-  { to: '/cabinet/sites/configure', icon: Wand2, label: 'Конфіг', end: false },
-  { to: '/cabinet/sites', icon: Globe, label: 'Сайти', end: false },
+  { to: '/cabinet/sites/configure', icon: Wand2, label: 'Конфіг', end: true },
+  { to: '/cabinet/sites', icon: Globe, label: 'Сайти', end: true },
   { to: '/cabinet/payments', icon: Receipt, label: 'Платежі', end: false },
   { to: '/cabinet/settings', icon: Settings, label: 'Налаштув.', end: false },
 ]

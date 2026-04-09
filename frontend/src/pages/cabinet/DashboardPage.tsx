@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Link, Navigate } from 'react-router-dom'
-import { ChevronRight, ChevronDown, Globe, Wand2, HelpCircle } from 'lucide-react'
+import { Link, Navigate, useSearchParams } from 'react-router-dom'
+import { ChevronRight, ChevronDown, CirclePlus, Wand2, Headset, Gift, Check, AlertTriangle, Bell, XCircle, Clock } from 'lucide-react'
 import { get } from '../../api/client'
 import { useAuth } from '../../context/AuthContext'
 import type { DashboardData } from '../../types'
+import { toast } from 'sonner'
 import './styles/dashboard.css'
 
 export default function DashboardPage() {
@@ -11,6 +12,7 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [moreOpen, setMoreOpen] = useState(true)
+  const [searchParams, setSearchParams] = useSearchParams()
 
   useEffect(() => {
     get<{ data: DashboardData }>('/profile/dashboard')
@@ -18,6 +20,15 @@ export default function DashboardPage() {
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
+
+  useEffect(() => {
+    if (searchParams.get('payment') === 'success') {
+      toast.success('Картку підключено! Тріал активний — перший платіж через 7 днів.', {
+        duration: 8000,
+      })
+      setSearchParams({}, { replace: true })
+    }
+  }, [searchParams, setSearchParams])
 
   if (loading) return <div className="page-loader">Завантаження…</div>
   if (!data) return <div className="page-loader">Не вдалося завантажити дані</div>
@@ -54,7 +65,7 @@ export default function DashboardPage() {
             <span className="dash__plan-stat-label">Віджети</span>
           </div>
           <div className="dash__plan-stat">
-            <span className="dash__plan-stat-value dash__plan-stat-value--yellow">—</span>
+            <span className="dash__plan-stat-value dash__plan-stat-value--yellow">{formatRenewalDate(data.next_renewal_at)}</span>
             <span className="dash__plan-stat-label">Поновлення</span>
           </div>
         </div>
@@ -92,33 +103,33 @@ export default function DashboardPage() {
 
               <Link to="/cabinet/sites/add" className="dash__qa-card">
                 <div className="dash__qa-icon dash__qa-icon--blue">
-                  <Globe size={16} />
+                  <CirclePlus size={15} />
                 </div>
                 <div className="dash__qa-text">
                   <span className="dash__qa-label">Додати сайт</span>
-                  <span className="dash__qa-desc">Підключити новий магазин</span>
+                  <span className="dash__qa-desc">Підключіть новий магазин</span>
                 </div>
                 <ChevronRight size={14} className="dash__qa-arrow" />
               </Link>
 
               <Link to="/cabinet/sites/configure" className="dash__qa-card">
                 <div className="dash__qa-icon dash__qa-icon--blue">
-                  <Wand2 size={16} />
+                  <Wand2 size={15} />
                 </div>
                 <div className="dash__qa-text">
-                  <span className="dash__qa-label">Конфігуратор</span>
-                  <span className="dash__qa-desc">Увімкнути / налаштувати віджети</span>
+                  <span className="dash__qa-label">Налаштувати віджет</span>
+                  <span className="dash__qa-desc">Змінити кольори та тексти</span>
                 </div>
                 <ChevronRight size={14} className="dash__qa-arrow" />
               </Link>
 
               <Link to="/cabinet/support" className="dash__qa-card">
                 <div className="dash__qa-icon dash__qa-icon--green">
-                  <HelpCircle size={16} />
+                  <Headset size={15} />
                 </div>
                 <div className="dash__qa-text">
                   <span className="dash__qa-label">Підтримка</span>
-                  <span className="dash__qa-desc">Telegram · відповідь до 15 хв</span>
+                  <span className="dash__qa-desc">Написати в Telegram</span>
                 </div>
                 <ChevronRight size={14} className="dash__qa-arrow" />
               </Link>
@@ -132,10 +143,28 @@ export default function DashboardPage() {
               </div>
               {data.recent_activity.length > 0 ? (
                 data.recent_activity.slice(0, 3).map((item, i) => (
-                  <div key={i} className="dash__activity-row">
-                    <div className={`dash__activity-dot dash__activity-dot--${dotColor(i)}`} />
-                    <span className="dash__activity-text">{item.description}</span>
-                    <span className="dash__activity-time">{timeAgo(item.created_at)}</span>
+                  <div key={`${item.source}-${item.action}-${item.created_at}-${i}`} className="dash__activity-row">
+                    <div className={`dash__activity-icon-wrap dash__activity-icon-wrap--${activityTone(item.status)}`}>
+                      {activityIcon(item.status, item.source)}
+                    </div>
+                    <div className="dash__activity-main">
+                      <span className="dash__activity-text">{activityTitle(item)}</span>
+                      <span className="dash__activity-subtext">{activitySubtitle(item)}</span>
+                    </div>
+                    <div className="dash__activity-meta">
+                      {item.source === 'payment' ? (
+                        <>
+                          <span className={`dash__activity-amount ${item.is_trial ? 'dash__activity-amount--trial' : ''}`}>
+                            {paymentAmount(item)}
+                          </span>
+                          <span className={`dash__activity-status dash__activity-status--${activityTone(item.status)}`}>
+                            {activityStatusLabel(item)}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="dash__activity-time">{timeAgo(item.created_at)}</span>
+                      )}
+                    </div>
                   </div>
                 ))
               ) : (
@@ -162,8 +191,77 @@ function getPlanColor(slug?: string | null): string {
   }
 }
 
-function dotColor(i: number): string {
-  return ['green', 'blue', 'yellow'][i % 3]!
+function activityTone(status: string): 'trial' | 'success' | 'failed' | 'pending' | 'info' | 'neutral' | 'cancelled' | 'expired' {
+  switch (status) {
+    case 'trial': return 'trial'
+    case 'success': return 'success'
+    case 'failed': return 'failed'
+    case 'pending': return 'pending'
+    case 'info': return 'info'
+    case 'cancelled': return 'cancelled'
+    case 'expired': return 'expired'
+    default: return 'neutral'
+  }
+}
+
+function activityIcon(status: string, source: string) {
+  if (status === 'trial') return <Gift size={14} />
+  if (status === 'success') return <Check size={14} />
+  if (status === 'failed') return <AlertTriangle size={14} />
+  if (status === 'cancelled') return <XCircle size={14} />
+  if (status === 'expired') return <Clock size={14} />
+  if (source === 'notification') return <Bell size={14} />
+
+  return <Check size={14} />
+}
+
+function activityTitle(item: DashboardData['recent_activity'][number]): string {
+  if (item.source !== 'payment') return item.title || item.description
+  if (item.is_trial) return 'Trial активовано'
+
+  const planLabel = item.plan_name ? `${item.plan_name} підписка` : 'Оплата'
+  return `${planLabel} — ${monthName(item.created_at)}`
+}
+
+function activitySubtitle(item: DashboardData['recent_activity'][number]): string {
+  if (item.source === 'payment') {
+    if (item.is_trial) return formatDate(item.created_at)
+    const provider = item.provider || 'LiqPay'
+    return `${formatDate(item.created_at)} · ${provider}`
+  }
+
+  return item.subtitle || item.description
+}
+
+function activityStatusLabel(item: DashboardData['recent_activity'][number]): string {
+  if (item.is_trial) return `Trial ${item.trial_days ?? 7} днів`
+  switch (item.status) {
+    case 'success': return 'Успішно'
+    case 'pending': return 'Очікує'
+    case 'failed': return 'Помилка'
+    case 'cancelled': return 'Скасовано'
+    case 'expired': return 'Закінчилась'
+    default: return 'Оновлено'
+  }
+}
+
+function paymentAmount(item: DashboardData['recent_activity'][number]): string {
+  if (item.is_trial || item.amount === null) return '0 ₴'
+  const value = Math.round(Math.abs(item.amount))
+  return `−${value.toLocaleString('uk-UA')} ₴`
+}
+
+function formatRenewalDate(value: string | null): string {
+  if (!value) return '—'
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '—'
+
+  return new Intl.DateTimeFormat('uk-UA', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).format(date)
 }
 
 function timeAgo(dateStr: string): string {
@@ -175,4 +273,16 @@ function timeAgo(dateStr: string): string {
   if (hours < 24) return `${hours} год`
   const days = Math.floor(hours / 24)
   return `${days} дн`
+}
+
+function formatDate(raw: string): string {
+  return new Date(raw).toLocaleDateString('uk-UA', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
+}
+
+function monthName(raw: string): string {
+  return new Date(raw).toLocaleDateString('uk-UA', { month: 'long' })
 }

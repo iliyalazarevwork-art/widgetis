@@ -140,17 +140,23 @@ export async function buildModules(request: BuildRequest): Promise<string> {
     const { default: JavaScriptObfuscator } = await import('javascript-obfuscator');
     const obfuscated = JavaScriptObfuscator.obfuscate(code, {
       compact: true,
-      controlFlowFlattening: true,
-      controlFlowFlatteningThreshold: 0.5,
+      controlFlowFlattening: false,
       deadCodeInjection: false,
-      stringArray: true,
-      stringArrayThreshold: 0.5,
-      stringArrayEncoding: ['base64'],
+      identifierNamesGenerator: 'hexadecimal',
+      renameGlobals: false,
+      stringArray: false,
       selfDefending: false,
       disableConsoleOutput: false,
+      target: 'browser',
     });
     code = obfuscated.getObfuscatedCode();
   }
+
+  // Header — always on top, never obfuscated
+  const now = new Date();
+  const ver = now.toISOString().replace('T', ' ').slice(0, 19);
+  const header = `/**\n * Widgetis \n * Version: ${ver}\n * Built: ${now.toUTCString()}\n * https://widgetis.com\n * https://t.me/widgetis\n */\n`;
+  code = header + code;
 
   return code;
 }

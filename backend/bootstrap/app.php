@@ -48,10 +48,35 @@ return Application::configure(basePath: dirname(__DIR__))
             return response()->json([
                 'error' => [
                     'code' => 'VALIDATION_ERROR',
-                    'message' => 'The given data was invalid.',
+                    'message' => __('messages.validation_error'),
                     'details' => $e->errors(),
                 ],
             ], 422);
+        });
+
+        $exceptions->render(function (\Illuminate\Database\UniqueConstraintViolationException $e, \Illuminate\Http\Request $request) {
+            if (!($request->is('api/*') || $request->expectsJson())) {
+                return null;
+            }
+
+            if (str_contains($e->getMessage(), 'sites_domain_user_id_unique')) {
+                return response()->json([
+                    'error' => [
+                        'code' => 'VALIDATION_ERROR',
+                        'message' => __('messages.validation_error'),
+                        'details' => [
+                            'url' => [__('messages.site_already_connected')],
+                        ],
+                    ],
+                ], 422);
+            }
+
+            return response()->json([
+                'error' => [
+                    'code' => 'CONFLICT',
+                    'message' => 'Resource already exists.',
+                ],
+            ], 409);
         });
 
         $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, \Illuminate\Http\Request $request) {

@@ -1,37 +1,106 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Sparkles, Star } from 'lucide-react'
-import { PreviewViewers, PreviewStock, PreviewCartGoal } from './WidgetPreviews'
+import { PreviewCartGoal, PreviewCountdown, PreviewDelivery, PreviewPurchaseCounter } from './WidgetPreviews'
 import './Hero.css'
 
-const PREVIEW_CARDS = [
-  {
-    id:    'live-viewers',
-    title: 'Хто зараз дивиться',
-    desc:  'Показує кількість людей, які переглядають товар прямо зараз. Створює ефект дефіциту уваги.',
-    Preview: PreviewViewers,
-  },
-  {
-    id:    'purchase-counter',
-    title: 'Лічильник залишків',
-    desc:  'Дефіцит товару стимулює швидку покупку і знижує зволікання.',
-    Preview: PreviewStock,
-  },
-  {
-    id:    'free-delivery',
-    title: 'Прогрес кошика',
-    desc:  'Показує скільки залишилось до безкоштовної доставки. Мотивує додати ще товарів.',
-    Preview: PreviewCartGoal,
-  },
+type HeroWidget = {
+  id: string
+  kind: 'delivery' | 'deadline' | 'countdown' | 'purchase'
+}
+
+const HERO_WIDGETS: HeroWidget[] = [
+  { id: 'delivery', kind: 'delivery' },
+  { id: 'deadline', kind: 'deadline' },
+  { id: 'countdown', kind: 'countdown' },
+  { id: 'purchase', kind: 'purchase' },
 ]
 
+function getWidgetSlots(viewportHeight: number) {
+  if (viewportHeight < 650) return 1
+  if (viewportHeight < 920) return 2
+  return 3
+}
+
 export function Hero() {
-  const sectionRef = useRef<HTMLElement>(null)
-  const [inView, setInView]       = useState(false)
+  const heroRef = useRef<HTMLElement | null>(null)
+  const nextWidgetCursorRef = useRef(0)
+  const swapTimersRef = useRef<number[]>([])
+  const scheduleTimersRef = useRef<number[]>([])
+
+  const [visible, setVisible] = useState(false)
+  const [slots, setSlots] = useState(3)
+  const [displayedWidgets, setDisplayedWidgets] = useState<HeroWidget[]>(HERO_WIDGETS.slice(0, 3))
+  const [animatingSlot, setAnimatingSlot] = useState<number | null>(null)
+  const [animStage, setAnimStage] = useState<'out' | 'in' | null>(null)
+  const [inView, setInView] = useState(false)
   const [tabActive, setTabActive] = useState(!document.hidden)
-  const [visible, setVisible]     = useState(false)
-  const [cardIdx, setCardIdx]     = useState(0)
-  const [cardIn, setCardIn]       = useState(true)
+
+  const clearSwapTimers = () => {
+    swapTimersRef.current.forEach((timerId) => window.clearTimeout(timerId))
+    swapTimersRef.current = []
+  }
+
+  const clearScheduleTimers = () => {
+    scheduleTimersRef.current.forEach((timerId) => window.clearTimeout(timerId))
+    scheduleTimersRef.current = []
+  }
+
+  const runSlotSwap = (slot: number) => {
+    setDisplayedWidgets((current) => {
+      if (!current.length || slot >= current.length) return current
+
+      const currentIds = new Set(current.map((widget) => widget.id))
+      let nextWidget: HeroWidget | null = null
+
+      for (let i = 0; i < HERO_WIDGETS.length; i += 1) {
+        const idx = (nextWidgetCursorRef.current + i) % HERO_WIDGETS.length
+        const candidate = HERO_WIDGETS[idx]
+        if (!currentIds.has(candidate.id)) {
+          nextWidget = candidate
+          nextWidgetCursorRef.current = (idx + 1) % HERO_WIDGETS.length
+          break
+        }
+      }
+
+      if (!nextWidget) {
+        nextWidget = HERO_WIDGETS[nextWidgetCursorRef.current]
+        nextWidgetCursorRef.current = (nextWidgetCursorRef.current + 1) % HERO_WIDGETS.length
+      }
+
+      setAnimatingSlot(slot)
+      setAnimStage('out')
+
+      const outTimer = window.setTimeout(() => {
+        setDisplayedWidgets((latest) => {
+          if (slot >= latest.length) return latest
+          const next = [...latest]
+          next[slot] = nextWidget as HeroWidget
+          return next
+        })
+        setAnimStage('in')
+
+        const inTimer = window.setTimeout(() => {
+          setAnimStage(null)
+          setAnimatingSlot(null)
+        }, 260)
+        swapTimersRef.current.push(inTimer)
+      }, 220)
+
+      swapTimersRef.current.push(outTimer)
+      return current
+    })
+  }
+
+  const scheduleSlot = (slot: number, firstDelayMs: number, periodMs: number) => {
+    const tick = () => {
+      runSlotSwap(slot)
+      const nextTimer = window.setTimeout(tick, periodMs)
+      scheduleTimersRef.current.push(nextTimer)
+    }
+    const firstTimer = window.setTimeout(tick, firstDelayMs)
+    scheduleTimersRef.current.push(firstTimer)
+  }
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 80)
@@ -39,87 +108,139 @@ export function Hero() {
   }, [])
 
   useEffect(() => {
-    const el = sectionRef.current
-    if (!el) return
-    const obs = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0 })
-    obs.observe(el)
+    const onResize = () => setSlots(getWidgetSlots(window.innerHeight))
+    onResize()
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
+  useEffect(() => {
+    const onVisible = () => setTabActive(!document.hidden)
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  }, [])
+
+  useEffect(() => {
+    const hero = heroRef.current
+    if (!hero) return
+    const obs = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.2 })
+    obs.observe(hero)
     return () => obs.disconnect()
   }, [])
 
   useEffect(() => {
-    const h = () => setTabActive(!document.hidden)
-    document.addEventListener('visibilitychange', h)
-    return () => document.removeEventListener('visibilitychange', h)
+    const count = Math.min(slots, HERO_WIDGETS.length)
+    const initial = HERO_WIDGETS.slice(0, count)
+    setDisplayedWidgets(initial)
+    setAnimatingSlot(null)
+    setAnimStage(null)
+    nextWidgetCursorRef.current = count % HERO_WIDGETS.length
+    clearSwapTimers()
+    clearScheduleTimers()
+  }, [slots])
+
+  useEffect(() => () => {
+    clearSwapTimers()
+    clearScheduleTimers()
   }, [])
 
   useEffect(() => {
-    if (!inView || !tabActive) return
-    const interval = setInterval(() => {
-      setCardIn(false)
-      setTimeout(() => {
-        setCardIdx(i => (i + 1) % PREVIEW_CARDS.length)
-        setCardIn(true)
-      }, 280)
-    }, 3500)
-    return () => clearInterval(interval)
-  }, [inView, tabActive])
+    if (!inView || !tabActive || slots > 2) return
+    clearScheduleTimers()
 
-  const card = PREVIEW_CARDS[cardIdx]
+    if (slots === 1) {
+      scheduleSlot(0, 3000, 3000)
+    } else if (slots === 2) {
+      scheduleSlot(1, 3000, 6000)
+      scheduleSlot(0, 6000, 6000)
+    }
+
+    return () => {
+      clearSwapTimers()
+      clearScheduleTimers()
+    }
+  }, [inView, tabActive, slots])
 
   return (
-    <section ref={sectionRef} className={`hero ${visible ? 'hero--visible' : ''}`}>
-
+    <section ref={heroRef} className={`hero ${visible ? 'hero--visible' : ''}`}>
       <div className="hero__bg" aria-hidden="true">
         <div className="hero__glow hero__glow--left" />
         <div className="hero__glow hero__glow--right" />
         <div className="hero__grid" />
       </div>
 
-      {/* ── Top: eyebrow + title + sub ── */}
       <div className="hero__content">
         <p className="hero__eyebrow">
           <Sparkles size={11} strokeWidth={2.5} />
           Набір готових віджетів для e-commerce
         </p>
         <h1 className="hero__title">
-          Віджети,<br />
-          що самі <span className="hero__title-accent">продають.</span>
+          <span>Віджети,</span>
+          <span>що самі</span>
+          <span className="hero__title-accent">продають.</span>
         </h1>
         <p className="hero__sub">
           Встановіть за 2 хвилини — і магазин починає конвертувати краще.
         </p>
       </div>
 
-      {/* ── Middle: cycling widget card ── */}
-      <div
-        className={`hero__wcard ${cardIn ? 'hero__wcard--in' : 'hero__wcard--out'}`}
-        aria-live="polite"
-      >
-        <div className="hero__wcard-preview">
-          <card.Preview />
+      <div className="hero__bottom-group">
+        <div className="hero__widgets" aria-live="polite">
+          {displayedWidgets.map((widget, idx) => {
+            const swapClass = animatingSlot === idx
+              ? (animStage === 'out' ? ' hero__widget-card--swap-out' : animStage === 'in' ? ' hero__widget-card--swap-in' : '')
+              : ''
+
+            if (widget.kind === 'delivery') {
+              return (
+                <article className={`hero__widget-card hero__widget-card--preview${swapClass}`} key={`${widget.id}-${idx}`}>
+                  <PreviewCartGoal />
+                </article>
+              )
+            }
+
+            if (widget.kind === 'deadline') {
+              return (
+                <article className={`hero__widget-card hero__widget-card--preview${swapClass}`} key={`${widget.id}-${idx}`}>
+                  <PreviewDelivery />
+                </article>
+              )
+            }
+
+            if (widget.kind === 'purchase') {
+              return (
+                <article className={`hero__widget-card hero__widget-card--preview${swapClass}`} key={`${widget.id}-${idx}`}>
+                  <PreviewPurchaseCounter />
+                </article>
+              )
+            }
+
+            return (
+              <article className={`hero__widget-card hero__widget-card--preview${swapClass}`} key={`${widget.id}-${idx}`}>
+                <PreviewCountdown />
+              </article>
+            )
+          })}
         </div>
-      </div>
 
-      {/* ── Bottom: CTA + social proof ── */}
-      <div className="hero__bottom">
-        <Link to="/pricing" className="hero__cta">
-          Спробувати 7 днів безкоштовно
-          <ArrowRight size={16} strokeWidth={2.5} />
-        </Link>
+        <div className="hero__bottom">
+          <Link to="/pricing" className="hero__cta">
+            Спробувати 7 днів безкоштовно
+            <ArrowRight size={16} strokeWidth={2.5} />
+          </Link>
 
-        <div className="hero__proof">
-          <div className="hero__proof-stars" aria-label="Оцінка 4.9">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} size={11} strokeWidth={0} fill="currentColor" />
-            ))}
-            <span>4.9</span>
+          <div className="hero__proof">
+            <div className="hero__proof-stars" aria-label="Оцінка 4.9">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} size={11} strokeWidth={0} fill="currentColor" />
+              ))}
+              <span>4.9</span>
+            </div>
+            <div className="hero__proof-div" aria-hidden="true" />
+            <span className="hero__proof-trust">Нам довіряють 120+ магазинів</span>
           </div>
-          <div className="hero__proof-div" aria-hidden="true" />
-          <span className="hero__proof-trust">Нам довіряють 120+ магазинів</span>
         </div>
       </div>
-
-      <div className="hero__fade-bottom" aria-hidden="true" />
     </section>
   )
 }

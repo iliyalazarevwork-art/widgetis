@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -14,97 +14,30 @@ import {
   Plus,
   Trash2,
   Play,
-  Monitor,
-  Smartphone,
-  Save,
-  ChevronDown,
   Loader,
-  Megaphone,
-  CalendarClock,
-  ShoppingCart,
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { get, put, getToken } from '../../api/client'
-import type { Site, SiteDetail, SiteWidget } from '../../types'
 import './configurator-mobile.css'
 
-// ─── Module metadata ───────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
-interface ModuleMeta {
-  slug: string          // product slug in backend
-  label: string
-  icon: typeof Megaphone
+interface ModuleSchema {
+  config: Record<string, unknown>
+  i18n: Record<string, unknown>
   defaultConfig: Record<string, unknown>
   defaultI18n: Record<string, unknown>
 }
 
-const MODULES: ModuleMeta[] = [
-  {
-    slug: 'marquee',
-    label: 'Біжучий рядок',
-    icon: Megaphone,
-    defaultConfig: {
-      enabled: true,
-      speed: 80,
-      height: 36,
-      zIndex: 999,
-      mode: 'shift',
-      ttlHours: 24,
-      isFixed: true,
-      colors: {
-        desktop: { backgroundColor: '#1e1b4b', textColor: '#e0e7ff' },
-        mobile:  { backgroundColor: '#1e1b4b', textColor: '#e0e7ff' },
-      },
-    },
-    defaultI18n: { ua: ['АКЦIЯ', 'Офіційний магазин', 'Доставка по всій Україні'] },
-  },
-  {
-    slug: 'delivery-date',
-    label: 'Дата доставки',
-    icon: CalendarClock,
-    defaultConfig: {
-      enabled: true,
-      offsetDays: 3,
-      selectors: [],
-    },
-    defaultI18n: {
-      ua: {
-        prefix: 'Очікувана доставка',
-        tomorrow: 'завтра',
-        dayAfterTomorrow: 'післязавтра',
-        monday: 'в понеділок', tuesday: 'у вівторок', wednesday: 'в середу',
-        thursday: 'в четвер', friday: 'в п\'ятницю', saturday: 'в суботу', sunday: 'в неділю',
-      },
-    },
-  },
-  {
-    slug: 'cart-goal',
-    label: 'Ціль кошика',
-    icon: ShoppingCart,
-    defaultConfig: {
-      enabled: true,
-      threshold: 1000,
-      minimum: 0,
-      floatingWidget: true,
-      background: '#172554',
-      achievedBackground: '#14532d',
-      textColor: '#bfdbfe',
-      shakeInterval: 3000,
-      zIndex: 999,
-    },
-    defaultI18n: {
-      ua: { text: 'До безкоштовної доставки залишилось', achieved: '🎉 Вітаємо! Ви отримали безкоштовну доставку!' },
-    },
-  },
-]
+type ModuleSchemas = Record<string, ModuleSchema>
 
-const COLOR_PRESETS = ['#1E1B4B', '#CBD5E1', '#4C1D95', '#14532D', '#F59E0B', '#3B82F6']
+interface ModuleState {
+  config: Record<string, unknown>
+  i18n: Record<string, unknown>
+}
+
+type JsonPanelMode = 'export' | 'import'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function deepGet(obj: Record<string, unknown>, path: string): unknown {
-  return path.split('.').reduce((o, k) => (o && typeof o === 'object' ? (o as Record<string, unknown>)[k] : undefined), obj as unknown)
-}
 
 function deepSet(obj: Record<string, unknown>, path: string, value: unknown): Record<string, unknown> {
   const keys = path.split('.')
@@ -118,129 +51,375 @@ function deepSet(obj: Record<string, unknown>, path: string, value: unknown): Re
   return result
 }
 
-function scriptTag(token: string): string {
-  return `<script src="https://cdn.widgetis.com/w/${token}.js" async></script>`
+function deepClone<T>(obj: T): T {
+  return JSON.parse(JSON.stringify(obj))
+}
+
+function moduleLabel(id: string): string {
+  return id.replace(/^module-/, '').split('-').map(w => w[0].toUpperCase() + w.slice(1)).join(' ')
+}
+
+function looksLikeColor(v: unknown): boolean {
+  if (typeof v !== 'string' || !v) return false
+  return /^#[0-9a-fA-F]{3,8}$/.test(v)
+}
+
+// ─── Persistence ──────────────────────────────────────────────────────────────
+
+const STORAGE_KEY = 'widgetis-configurator-state'
+
+interface SavedState {
+  moduleStates: Record<string, ModuleState>
+  activeModule: string
+  previewUrl: string
+}
+
+function loadSaved(): SavedState | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch { return null }
+}
+
+function saveToStorage(moduleStates: Record<string, ModuleState>, activeModule: string, previewUrl: string) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ moduleStates, activeModule, previewUrl }))
+  } catch { /* quota */ }
 }
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export function AdminConfiguratorPage() {
-  const [sites, setSites] = useState<Site[]>([])
-  const [siteDetail, setSiteDetail] = useState<SiteDetail | null>(null)
-  const [activeSiteId, setActiveSiteId] = useState<number | null>(null)
-  const [activeSlug, setActiveSlug] = useState<string>('marquee')
-  const [config, setConfig] = useState<Record<string, unknown>>({ ...MODULES[0].defaultConfig })
-  const [i18n, setI18n] = useState<Record<string, unknown>>({ ...MODULES[0].defaultI18n })
-  const [saving, setSaving] = useState(false)
+  const [schemas, setSchemas] = useState<ModuleSchemas | null>(null)
+  const [moduleIds, setModuleIds] = useState<string[]>([])
+  const [moduleStates, setModuleStates] = useState<Record<string, ModuleState>>({})
+  const [activeModule, setActiveModule] = useState<string>('')
   const [loading, setLoading] = useState(true)
-  const [previewOpen, setPreviewOpen] = useState(false)
-  const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop')
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  const [building, setBuilding] = useState(false)
+  const [builtJs, setBuiltJs] = useState<string | null>(null)
+  const [buildError, setBuildError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
-  const [siteDropOpen, setSiteDropOpen] = useState(false)
-  const [siteSearch, setSiteSearch] = useState('')
+  const [obfuscate, setObfuscate] = useState(true)
 
-  // Load sites list
+  const [previewOpen, setPreviewOpen] = useState(false)
+  const [previewUrl, setPreviewUrl] = useState<string>('')
+  const [previewLoading, setPreviewLoading] = useState(false)
+  const [previewLoaded, setPreviewLoaded] = useState(false)
+  const [jsonPanelMode, setJsonPanelMode] = useState<JsonPanelMode | null>(null)
+  const [jsonText, setJsonText] = useState('')
+
+  const iframeRef = useRef<HTMLIFrameElement>(null)
+  const pendingLoadRef = useRef(false)
+  const pendingScriptRef = useRef<string | null>(null)
+  const autoInjectRef = useRef(false)
+  const sheetRef = useRef<HTMLDivElement>(null)
+  const dragStartY = useRef(0)
+  const dragStartH = useRef(0)
+  const [sheetHeight, setSheetHeight] = useState(55) // % of viewport
+
+  // ─── Boot: load schemas from widget-builder ────────────────────────
+
   useEffect(() => {
-    if (!getToken()) {
-      setLoading(false)
-      return
+    async function boot() {
+      try {
+        const res = await fetch('/modules')
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        const data: ModuleSchemas = await res.json()
+        setSchemas(data)
+
+        const ids = Object.keys(data).sort()
+        setModuleIds(ids)
+
+        // Restore from localStorage or use defaults
+        const saved = loadSaved()
+        const states: Record<string, ModuleState> = {}
+        for (const id of ids) {
+          if (saved?.moduleStates?.[id]) {
+            states[id] = saved.moduleStates[id]
+          } else {
+            states[id] = {
+              config: deepClone(data[id].defaultConfig),
+              i18n: deepClone(data[id].defaultI18n),
+            }
+          }
+        }
+        setModuleStates(states)
+
+        const active = (saved?.activeModule && ids.includes(saved.activeModule)) ? saved.activeModule : ids[0] ?? ''
+        setActiveModule(active)
+
+        if (saved?.previewUrl) setPreviewUrl(saved.previewUrl)
+      } catch (err) {
+        setLoadError((err as Error).message)
+      } finally {
+        setLoading(false)
+      }
     }
-    get<{ data: Site[] }>('/admin/sites', { per_page: 100 })
-      .then((res) => {
-        const list = res.data ?? []
-        setSites(list)
-        if (list.length > 0) setActiveSiteId(list[0].id)
-      })
-      .catch(() => { /* backend недоступний — продовжуємо з мок-даними */ })
-      .finally(() => setLoading(false))
+    boot()
   }, [])
 
-  // Load site detail when site changes
+  // Persist on change
   useEffect(() => {
-    if (!activeSiteId || !getToken()) return
-    setLoading(true)
-    get<SiteDetail>(`/admin/sites/${activeSiteId}`)
-      .then((detail) => {
-        setSiteDetail(detail)
-        loadWidgetConfig(detail, activeSlug)
-      })
-      .catch(() => { /* backend недоступний */ })
-      .finally(() => setLoading(false))
-  }, [activeSiteId]) // eslint-disable-line react-hooks/exhaustive-deps
+    if (moduleIds.length > 0) {
+      saveToStorage(moduleStates, activeModule, previewUrl)
+    }
+  }, [moduleStates, activeModule, previewUrl, moduleIds])
 
-  const loadWidgetConfig = useCallback((detail: SiteDetail, slug: string) => {
-    const meta = MODULES.find((m) => m.slug === slug)!
-    const widget = detail.widgets?.find((w) => w.name?.toLowerCase().includes(slug.replace('-', ' ').toLowerCase()) || w.icon === slug)
+  // ─── Convenience ───────────────────────────────────────────────────
 
-    const rawConfig = (widget?.config as Record<string, unknown>) ?? {}
-    const rawI18n = (rawConfig.i18n as Record<string, unknown>) ?? {}
-    // Remove i18n from config to keep them separate
-    const { i18n: _i18n, ...cleanConfig } = rawConfig
+  const config = moduleStates[activeModule]?.config ?? {}
+  const i18n = moduleStates[activeModule]?.i18n ?? {}
+  const isEnabled = (config.enabled ?? true) as boolean
 
-    setConfig(Object.keys(cleanConfig).length > 0 ? cleanConfig : { ...meta.defaultConfig })
-    setI18n(Object.keys(rawI18n).length > 0 ? rawI18n : { ...meta.defaultI18n })
-  }, [])
-
-  const activeMeta = MODULES.find((m) => m.slug === activeSlug) ?? MODULES[0]
-  const activeSite = sites.find((s) => s.id === activeSiteId)
-  const filteredSites = siteSearch.trim()
-    ? sites.filter((s) =>
-        s.domain.toLowerCase().includes(siteSearch.toLowerCase()) ||
-        s.user?.email.toLowerCase().includes(siteSearch.toLowerCase())
-      )
-    : sites
-
-  // Widget availability for module pills
-  function getWidgetForSlug(slug: string): SiteWidget | undefined {
-    return siteDetail?.widgets?.find((w) =>
-      w.name?.toLowerCase().includes(slug.replace('-', ' ').toLowerCase()) ||
-      w.icon === slug
-    )
+  function updateConfig(path: string, value: unknown) {
+    setModuleStates(prev => ({
+      ...prev,
+      [activeModule]: { ...prev[activeModule], config: deepSet(prev[activeModule].config, path, value) },
+    }))
   }
 
-  function handleModuleSelect(slug: string) {
-    setActiveSlug(slug)
-    if (siteDetail) loadWidgetConfig(siteDetail, slug)
+  function updateI18nDirect(newI18n: Record<string, unknown>) {
+    setModuleStates(prev => ({
+      ...prev,
+      [activeModule]: { ...prev[activeModule], i18n: newI18n },
+    }))
   }
 
-  async function handleSave() {
-    if (!activeSiteId) {
-      toast.error('Виберіть сайт')
-      return
-    }
-    const widget = getWidgetForSlug(activeSlug)
-    if (!widget) {
-      toast.error('Виджет не знайдено для цього сайту')
-      return
-    }
+  function setI18nValue(path: string, value: unknown) {
+    setModuleStates(prev => ({
+      ...prev,
+      [activeModule]: { ...prev[activeModule], i18n: deepSet(prev[activeModule].i18n, path, value) },
+    }))
+  }
 
-    setSaving(true)
+  // ─── Build ─────────────────────────────────────────────────────────
+
+  function getBuildRequest() {
+    const modules: Record<string, { config: Record<string, unknown>; i18n: Record<string, unknown> }> = {}
+    for (const id of moduleIds) {
+      const st = moduleStates[id]
+      if (!st) continue
+      modules[id] = { config: deepClone(st.config), i18n: deepClone(st.i18n) }
+    }
+    return { site: 'default', modules, obfuscate }
+  }
+
+  async function buildWidget() {
+    setBuildError(null)
+    setBuilding(true)
     try {
-      await put(`/admin/sites/${activeSiteId}/widgets/${widget.product_id}`, {
-        is_enabled: (config.enabled ?? true) as boolean,
-        config: { ...config, i18n },
+      const res = await fetch('/build', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(getBuildRequest()),
       })
-      toast.success('Конфігурацію збережено')
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }))
+        throw new Error((err as { error?: string }).error ?? `HTTP ${res.status}`)
+      }
+      const js = await res.text()
+      setBuiltJs(js)
+      try { await navigator.clipboard.writeText(js) } catch { /* */ }
+      toast.success(`Збудовано! ${Math.round(js.length / 1024)} KB`)
     } catch (err) {
-      toast.error((err as Error).message || 'Помилка збереження')
+      const msg = (err as Error).message || 'Помилка build'
+      setBuildError(msg)
+      toast.error(msg)
     } finally {
-      setSaving(false)
+      setBuilding(false)
     }
   }
 
-  async function copyScript() {
-    const tag = siteDetail?.script?.script_tag ?? scriptTag(siteDetail?.script?.token ?? '...')
+  // ─── Preview ───────────────────────────────────────────────────────
+
+  function loadPreview() {
+    if (!previewUrl.trim()) { toast.error("Введіть URL сайту"); return }
     try {
-      await navigator.clipboard.writeText(tag)
-      setCopied(true)
-      toast.success('Скрипт скопійовано')
-      setTimeout(() => setCopied(false), 2500)
+      const raw = previewUrl.includes('://') ? previewUrl : `https://${previewUrl}`
+      const parsed = new URL(raw)
+      parsed.searchParams.set('v', 'mobile')
+      setPreviewLoading(true)
+      setPreviewLoaded(false)
+      const frame = iframeRef.current
+      if (!frame) return
+      frame.src = `/site/${parsed.host}${parsed.pathname}${parsed.search}`
+      frame.onload = () => {
+        setPreviewLoading(false)
+        setPreviewLoaded(true)
+        const scriptToInject = pendingScriptRef.current ?? (autoInjectRef.current ? builtJs : null)
+        if (scriptToInject) {
+          try {
+            injectScript(scriptToInject)
+            toast.success('Скрипт застосовано')
+          } catch (err) { toast.error((err as Error).message) }
+          pendingScriptRef.current = null
+        }
+      }
+      frame.onerror = () => {
+        setPreviewLoading(false)
+        setPreviewLoaded(false)
+        toast.error('Не вдалося завантажити')
+      }
+    } catch { toast.error('Невірний URL') }
+  }
+
+  // Load preview after sheet opens (fixes race condition)
+  useEffect(() => {
+    if (previewOpen && pendingLoadRef.current && iframeRef.current) {
+      pendingLoadRef.current = false
+      loadPreview()
+    }
+  }, [previewOpen])
+
+  function injectScript(code?: string) {
+    const js = code ?? builtJs
+    if (!js) { toast.error('Спочатку зберіть скрипт'); return }
+    const doc = iframeRef.current?.contentDocument || iframeRef.current?.contentWindow?.document
+    if (!doc) throw new Error('Фрейм недоступний')
+    const prev = doc.getElementById('widgetis-injected')
+    if (prev) prev.remove()
+    const s = doc.createElement('script')
+    s.id = 'widgetis-injected'
+    s.textContent = js
+    ;(doc.body || doc.documentElement).appendChild(s)
+  }
+
+  function applyToPreview() {
+    if (!builtJs) { toast.error('Спочатку зберіть скрипт'); return }
+    if (!previewUrl.trim()) { toast.error("Введіть URL"); return }
+    pendingScriptRef.current = builtJs
+    if (!previewOpen) {
+      pendingLoadRef.current = true
+      setPreviewOpen(true)
+    } else {
+      loadPreview()
+    }
+  }
+
+  // ─── Sheet drag ────────────────────────────────────────────────────
+
+  function onSheetTouchStart(e: React.TouchEvent) {
+    dragStartY.current = e.touches[0].clientY
+    dragStartH.current = sheetHeight
+    const sheet = sheetRef.current
+    if (sheet) sheet.style.transition = 'none'
+  }
+
+  function onSheetTouchMove(e: React.TouchEvent) {
+    const dy = dragStartY.current - e.touches[0].clientY
+    const dvh = (dy / window.innerHeight) * 100
+    const next = Math.min(98, Math.max(30, dragStartH.current + dvh))
+    setSheetHeight(next)
+  }
+
+  function onSheetTouchEnd() {
+    const sheet = sheetRef.current
+    if (sheet) sheet.style.transition = ''
+    // Snap: <40% → 55%, >75% → 98%, else keep
+    if (sheetHeight < 40) setSheetHeight(55)
+    else if (sheetHeight > 75) setSheetHeight(98)
+  }
+
+  // ─── Export / Import ───────────────────────────────────────────────
+
+  function exportConfig() {
+    setJsonPanelMode('export')
+    setJsonText(JSON.stringify({ moduleStates }, null, 2))
+  }
+
+  function openImportPanel() {
+    setJsonPanelMode('import')
+    setJsonText('')
+  }
+
+  function closeJsonPanel() {
+    setJsonPanelMode(null)
+  }
+
+  async function copyJsonText() {
+    if (!jsonText.trim()) {
+      toast.error('JSON порожній')
+      return
+    }
+    try {
+      await navigator.clipboard.writeText(jsonText)
+      toast.success('JSON скопійовано')
     } catch {
       toast.error('Не вдалося скопіювати')
     }
   }
 
-  const isEnabled = (config.enabled ?? true) as boolean
+  function applyImportFromText() {
+    try {
+      const data = JSON.parse(jsonText)
+      if (!data.moduleStates || typeof data.moduleStates !== 'object') {
+        toast.error('Невірний формат')
+        return
+      }
+      setModuleStates((prev) => {
+        const next = { ...prev }
+        for (const id of moduleIds) {
+          if (data.moduleStates[id]) next[id] = data.moduleStates[id]
+        }
+        return next
+      })
+      toast.success('Імпортовано!')
+      closeJsonPanel()
+    } catch (err) {
+      toast.error('Помилка: ' + (err as Error).message)
+    }
+  }
+
+  function hardReset() {
+    if (!schemas) return
+    const fresh: Record<string, ModuleState> = {}
+    for (const id of moduleIds) {
+      fresh[id] = { config: deepClone(schemas[id].defaultConfig), i18n: deepClone(schemas[id].defaultI18n) }
+    }
+    setModuleStates(fresh)
+    setBuiltJs(null)
+    setBuildError(null)
+    localStorage.removeItem(STORAGE_KEY)
+    toast.success('Скинуто')
+  }
+
+  async function copyBuiltScript() {
+    if (!builtJs) { toast.error('Спочатку зберіть скрипт'); return }
+    try {
+      await navigator.clipboard.writeText(builtJs)
+      setCopied(true)
+      toast.success('Скопійовано')
+      setTimeout(() => setCopied(false), 2500)
+    } catch { toast.error('Не вдалося скопіювати') }
+  }
+
+  // ─── Render ────────────────────────────────────────────────────────
+
+  if (loading) {
+    return (
+      <div className="cfg-m">
+        <div className="cfg-m__loader">
+          <Loader size={22} strokeWidth={2} className="cfg-m__spin" />
+          <span>Завантаження модулів...</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadError) {
+    return (
+      <div className="cfg-m">
+        <div className="cfg-m__loader" style={{ color: '#f87171' }}>
+          Помилка: {loadError}
+          <button type="button" onClick={() => window.location.reload()} style={{ marginTop: 12, padding: '8px 16px', background: '#3B82F6', color: '#fff', border: 0, borderRadius: 8, cursor: 'pointer' }}>
+            Перезавантажити
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="cfg-m">
@@ -256,450 +435,722 @@ export function AdminConfiguratorPage() {
         <div className="cfg-m__avatar" aria-hidden="true">ІЛ</div>
       </header>
 
-      {/* Body */}
       <main className="cfg-m__body">
 
-        {/* Site selector */}
-        <div className="cfg-m__site-sel">
-          <button
-            type="button"
-            className="cfg-m__site-btn"
-            onClick={() => setSiteDropOpen((o) => !o)}
-          >
-            <Globe size={15} strokeWidth={2} className="cfg-m__site-ico" />
-            <span className="cfg-m__site-label">
-              {activeSite ? activeSite.domain : (loading ? 'Завантаження...' : 'Оберіть сайт')}
-            </span>
-            <ChevronDown size={14} strokeWidth={2} className={`cfg-m__site-chevron ${siteDropOpen ? 'cfg-m__site-chevron--open' : ''}`} />
-          </button>
-          {siteDropOpen && (
-            <div className="cfg-m__site-drop">
-              <div className="cfg-m__site-search">
-                <input
-                  type="text"
-                  placeholder="Пошук сайту або email..."
-                  value={siteSearch}
-                  onChange={(e) => setSiteSearch(e.target.value)}
-                  className="cfg-m__site-search-input"
-                  autoFocus
-                />
-              </div>
-              {filteredSites.map((site) => (
-                <button
-                  key={site.id}
-                  type="button"
-                  className={`cfg-m__site-option ${site.id === activeSiteId ? 'cfg-m__site-option--active' : ''}`}
-                  onClick={() => { setActiveSiteId(site.id); setSiteDropOpen(false); setSiteSearch('') }}
-                >
-                  <span className={`cfg-m__site-dot ${site.status === 'active' ? 'cfg-m__site-dot--green' : 'cfg-m__site-dot--grey'}`} />
-                  <span className="cfg-m__site-option-info">
-                    <span className="cfg-m__site-option-domain">{site.domain}</span>
-                    {site.user?.email && <span className="cfg-m__site-option-email">{site.user.email}</span>}
-                  </span>
-                </button>
-              ))}
-              {filteredSites.length === 0 && (
-                <div className="cfg-m__site-empty">Нічого не знайдено</div>
-              )}
-            </div>
-          )}
+        {/* Quick actions */}
+        <div className="cfg-m__qa">
+          <div className="cfg-m__qa-row">
+            <button type="button" className="cfg-m__qa-btn cfg-m__qa-btn--teal" onClick={exportConfig}>Експорт</button>
+            <button type="button" className="cfg-m__qa-btn cfg-m__qa-btn--indigo" onClick={openImportPanel}>Імпорт</button>
+          </div>
+          <div className="cfg-m__qa-row">
+            <button type="button" className="cfg-m__qa-btn cfg-m__qa-btn--dteal" onClick={() => buildWidget()} disabled={building}>
+              {building ? 'Збірка...' : 'Швидко'}
+            </button>
+            <button type="button" className="cfg-m__qa-btn cfg-m__qa-btn--red" onClick={hardReset}>Hard Reset</button>
+          </div>
         </div>
 
-        {loading ? (
-          <div className="cfg-m__loader">
-            <Loader size={22} strokeWidth={2} className="cfg-m__spin" />
-            <span>Завантаження...</span>
+        {/* Module card */}
+        <div className="cfg-m__card">
+          <div className="cfg-m__card-head">
+            <span className="cfg-m__badge-num">1</span>
+            <span className="cfg-m__card-title">Модулі</span>
           </div>
-        ) : (
-          <>
-            {/* Module card */}
-            <div className="cfg-m__card">
-              <div className="cfg-m__card-head">
-                <span className="cfg-m__badge-num">1</span>
-                <span className="cfg-m__card-title">Модулі</span>
-              </div>
-              <div className="cfg-m__pills-row">
-                {MODULES.map((mod) => {
-                  const widget = getWidgetForSlug(mod.slug)
-                  const isActive = activeSlug === mod.slug
-                  const hasWidget = !!widget
-                  return (
-                    <button
-                      key={mod.slug}
-                      type="button"
-                      onClick={() => handleModuleSelect(mod.slug)}
-                      className={[
-                        'cfg-m__pill',
-                        isActive ? 'cfg-m__pill--active' : '',
-                        !hasWidget ? 'cfg-m__pill--dimmed' : '',
-                      ].join(' ')}
-                    >
-                      <span className={`cfg-m__pill-dot cfg-m__pill-dot--${widget?.is_enabled ? 'green' : 'grey'}`} />
-                      {mod.label}
-                    </button>
-                  )
-                })}
-              </div>
-              <div className="cfg-m__divider" />
-              <div className="cfg-m__toggle-row">
-                <span>Увімкнено</span>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={isEnabled}
-                  className={`cfg-m__toggle ${isEnabled ? 'cfg-m__toggle--on' : ''}`}
-                  onClick={() => setConfig((c) => ({ ...c, enabled: !isEnabled }))}
-                >
-                  <span className="cfg-m__toggle-thumb" />
+          <div className="cfg-m__pills-row">
+            {moduleIds.map((id) => {
+              const st = moduleStates[id]
+              const enabled = (st?.config?.enabled ?? false) as boolean
+              const isActive = activeModule === id
+              return (
+                <button key={id} type="button" onClick={() => setActiveModule(id)}
+                  className={`cfg-m__pill ${isActive ? 'cfg-m__pill--active' : ''}`}>
+                  <span className={`cfg-m__pill-dot cfg-m__pill-dot--${enabled ? 'green' : 'grey'}`} />
+                  {moduleLabel(id)}
                 </button>
-              </div>
+              )
+            })}
+          </div>
+          <div className="cfg-m__divider" />
+          <div className="cfg-m__toggle-row">
+            <span>Увімкнено</span>
+            <button type="button" role="switch" aria-checked={isEnabled}
+              className={`cfg-m__toggle ${isEnabled ? 'cfg-m__toggle--on' : ''}`}
+              onClick={() => updateConfig('enabled', !isEnabled)}>
+              <span className="cfg-m__toggle-thumb" />
+            </button>
+          </div>
+        </div>
+
+        {/* Settings card */}
+        <div className="cfg-m__card cfg-m__card--blue">
+          <div className="cfg-m__scard-head">
+            <Code size={15} strokeWidth={2} className="cfg-m__scard-icon" />
+            <span>{moduleLabel(activeModule)} — налаштування</span>
+          </div>
+          <GenericConfigForm config={config} schema={schemas?.[activeModule]?.config} onChange={updateConfig} />
+          <div className="cfg-m__divider" style={{ margin: '10px -14px' }} />
+          <div className="cfg-m__scard-head" style={{ marginTop: 4 }}>
+            <Globe size={15} strokeWidth={2} className="cfg-m__scard-icon" />
+            <span>Переклади (i18n)</span>
+          </div>
+          <GenericI18nForm i18n={i18n} schema={schemas?.[activeModule]?.i18n} onChange={setI18nValue} onReplace={updateI18nDirect} />
+        </div>
+
+        {/* Actions */}
+        <div className="cfg-m__actions">
+          <div className="cfg-m__toggle-row" style={{ marginBottom: 4 }}>
+            <span>Обфускація</span>
+            <ToggleButton checked={obfuscate} onChange={setObfuscate} />
+          </div>
+          <button type="button" className="cfg-m__action-build" onClick={() => buildWidget()} disabled={building}>
+            {building ? <Loader size={15} strokeWidth={2} className="cfg-m__spin" /> : <Code size={15} strokeWidth={2} />}
+            {building ? 'Збірка...' : 'Зібрати скрипт'}
+          </button>
+          <div className="cfg-m__action-row">
+            <button type="button" className="cfg-m__action-preview" onClick={applyToPreview}>До прев&#39;ю</button>
+            <button type="button" className="cfg-m__action-copy" onClick={copyBuiltScript}>
+              {copied ? <Check size={13} strokeWidth={2.5} /> : <Copy size={13} strokeWidth={2} />}
+              {copied ? 'Скопійовано' : 'Копіювати'}
+            </button>
+          </div>
+          <button type="button" className="cfg-m__action-demo" onClick={() => toast.info('Демо-посилання (TODO)')}>
+            <Play size={13} strokeWidth={2} /> Демо-посилання
+          </button>
+          {buildError && <div className="cfg-m__build-error">Помилка: {buildError}</div>}
+        </div>
+
+        {/* Result card */}
+        <div className="cfg-m__card">
+          <div className="cfg-m__card-head">
+            <span className="cfg-m__badge-num cfg-m__badge-num--green">2</span>
+            <span className="cfg-m__card-title">Результат</span>
+          </div>
+          {copied && <div className="cfg-m__copied-banner"><Check size={13} strokeWidth={2.5} /> Скопійовано!</div>}
+          {builtJs && (
+            <div className="cfg-m__copied-banner">
+              <Check size={13} strokeWidth={2.5} />
+              Збірка успішна! Скрипт скопійовано в буфер.
             </div>
-
-            {/* Settings card */}
-            <div className="cfg-m__card cfg-m__card--blue">
-              <div className="cfg-m__scard-head">
-                <activeMeta.icon size={15} strokeWidth={2} className="cfg-m__scard-icon" />
-                <span>{activeMeta.label} — налаштування</span>
-              </div>
-
-              {activeSlug === 'marquee' && (
-                <MarqueeForm
-                  config={config}
-                  i18n={i18n as { ua?: string[] }}
-                  onChange={(path, val) => setConfig((c) => deepSet(c, path, val))}
-                  onI18nChange={(items: string[]) => setI18n({ ...i18n, ua: items })}
-                />
-              )}
-
-              {activeSlug === 'delivery-date' && (
-                <DeliveryDateForm
-                  config={config}
-                  i18n={i18n as Record<string, Record<string, string>>}
-                  onChange={(path, val) => setConfig((c) => deepSet(c, path, val))}
-                  onI18nChange={(lang, key, val) => setI18n((i) => deepSet(i as Record<string, unknown>, `${lang}.${key}`, val))}
-                />
-              )}
-
-              {activeSlug === 'cart-goal' && (
-                <CartGoalForm
-                  config={config}
-                  i18n={i18n as Record<string, { text?: string; achieved?: string }>}
-                  onChange={(path, val) => setConfig((c) => deepSet(c, path, val))}
-                  onI18nChange={(lang, key, val) => setI18n((i) => deepSet(i as Record<string, unknown>, `${lang}.${key}`, val))}
-                />
-              )}
-            </div>
-
-            {/* Actions */}
-            <div className="cfg-m__actions">
-              <button
-                type="button"
-                className="cfg-m__action-build"
-                onClick={handleSave}
-                disabled={saving}
-              >
-                {saving ? <Loader size={15} strokeWidth={2} className="cfg-m__spin" /> : <Save size={15} strokeWidth={2} />}
-                {saving ? 'Збереження...' : 'Зберегти конфігурацію'}
-              </button>
-              <div className="cfg-m__action-row">
-                <button type="button" className="cfg-m__action-preview" onClick={() => setPreviewOpen(true)}>
-                  <Eye size={14} strokeWidth={2} />
-                  До прев'ю
-                </button>
-                <button type="button" className="cfg-m__action-copy" onClick={copyScript}>
-                  {copied ? <Check size={13} strokeWidth={2.5} /> : <Copy size={13} strokeWidth={2} />}
-                  {copied ? 'Скопійовано' : 'Скрипт'}
-                </button>
-              </div>
-              <button type="button" className="cfg-m__action-demo">
-                <Play size={13} strokeWidth={2} />
-                Демо-посилання
-              </button>
-            </div>
-
-            {/* Result card */}
-            <div className="cfg-m__card">
-              <div className="cfg-m__card-head">
-                <span className="cfg-m__badge-num cfg-m__badge-num--green">2</span>
-                <span className="cfg-m__card-title">Результат</span>
-              </div>
-              <div className="cfg-m__code">
-                <ConfigPreview config={config} i18n={i18n} moduleSlug={activeSlug} />
-              </div>
-              <button type="button" className="cfg-m__copy-res" onClick={copyScript}>
-                <Code size={13} strokeWidth={2} />
-                Копіювати скрипт для сайту
-              </button>
-            </div>
-          </>
-        )}
+          )}
+          <div className="cfg-m__code">
+            {builtJs ? (
+              <pre className="cfg-m__code-js">{builtJs}</pre>
+            ) : (
+              <span className="cfg-m__code-placeholder">Тут з&#39;явиться згенерований JavaScript...</span>
+            )}
+          </div>
+          <button type="button" className="cfg-m__copy-res" onClick={copyBuiltScript}>
+            <Copy size={13} strokeWidth={2} /> Копіювати скрипт
+          </button>
+        </div>
       </main>
 
       {/* FAB */}
-      <button type="button" className="cfg-m__fab" onClick={() => setPreviewOpen(true)}>
-        <Eye size={18} strokeWidth={2} />
-        Превью
+      <button type="button" className="cfg-m__fab" onClick={() => setPreviewOpen(true)} disabled={building}>
+        <Eye size={18} strokeWidth={2} /> Превью
       </button>
 
       {/* Bottom nav */}
       <nav className="cfg-m__nav">
-        <Link to="/admin" className="cfg-m__tab">
-          <LayoutDashboard size={20} strokeWidth={2} />
-          <span>Дашборд</span>
-        </Link>
-        <Link to="/admin/orders" className="cfg-m__tab">
-          <Receipt size={20} strokeWidth={2} />
-          <span>Замовлення</span>
-        </Link>
-        <Link to="/admin/users" className="cfg-m__tab">
-          <Users size={20} strokeWidth={2} />
-          <span>Юзери</span>
-        </Link>
-        <Link to="/admin/sites" className="cfg-m__tab">
-          <Globe size={20} strokeWidth={2} />
-          <span>Сайти</span>
-        </Link>
-        <Link to="/admin/configurator" className="cfg-m__tab cfg-m__tab--active">
-          <Wand2 size={20} strokeWidth={2} />
-          <span>Конфіг</span>
-        </Link>
+        <Link to="/admin" className="cfg-m__tab"><LayoutDashboard size={20} strokeWidth={2} /><span>Дашборд</span></Link>
+        <Link to="/admin/orders" className="cfg-m__tab"><Receipt size={20} strokeWidth={2} /><span>Замовлення</span></Link>
+        <Link to="/admin/users" className="cfg-m__tab"><Users size={20} strokeWidth={2} /><span>Юзери</span></Link>
+        <Link to="/admin/sites" className="cfg-m__tab"><Globe size={20} strokeWidth={2} /><span>Сайти</span></Link>
+        <Link to="/admin/configurator" className="cfg-m__tab cfg-m__tab--active"><Wand2 size={20} strokeWidth={2} /><span>Конфіг</span></Link>
       </nav>
 
-      {/* Preview sheet */}
-      {previewOpen && (
-        <PreviewSheet
-          config={config}
-          scriptTag={siteDetail?.script?.script_tag ?? scriptTag(siteDetail?.script?.token ?? '...')}
-          viewMode={viewMode}
-          onViewMode={setViewMode}
-          onCopy={copyScript}
-          copied={copied}
-          onClose={() => setPreviewOpen(false)}
-          activeSlug={activeSlug}
-        />
+      {/* Preview overlay */}
+      {previewOpen && <div className="cfg-m__overlay" role="presentation" onClick={() => setPreviewOpen(false)} />}
+
+      {/* Preview sheet — always mounted so iframe persists */}
+      <div className={`cfg-m__sheet ${previewOpen ? 'cfg-m__sheet--open' : ''}`} ref={sheetRef}
+        style={previewOpen ? { height: `${sheetHeight}dvh` } : undefined}>
+        <div className="cfg-m__sheet-handle"
+          onTouchStart={onSheetTouchStart}
+          onTouchMove={onSheetTouchMove}
+          onTouchEnd={onSheetTouchEnd}
+        ><span /></div>
+        <div className="cfg-m__sheet-head"><strong>Попередній перегляд</strong></div>
+        <div className="cfg-m__preview-url-bar">
+          <input type="text" placeholder="https://example.com" value={previewUrl}
+            onChange={(e) => setPreviewUrl(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') loadPreview() }}
+            className="cfg-m__preview-url-input" />
+          <button type="button" className="cfg-m__preview-url-btn" onClick={loadPreview} disabled={previewLoading}>
+            {previewLoading ? <Loader size={14} strokeWidth={2} className="cfg-m__spin" /> : 'Завантажити'}
+          </button>
+        </div>
+        <div className="cfg-m__preview-frame-wrap">
+          {!previewLoaded && !previewLoading && (
+            <div className="cfg-m__preview-placeholder">Введіть URL та натисніть &quot;Завантажити&quot;</div>
+          )}
+          {previewLoading && (
+            <div className="cfg-m__preview-placeholder">
+              <Loader size={24} strokeWidth={2} className="cfg-m__spin" /><span>Завантаження...</span>
+            </div>
+          )}
+          <iframe ref={iframeRef} className="cfg-m__preview-iframe"
+            style={{ display: previewLoaded ? 'block' : 'none' }}
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups" />
+        </div>
+        <div className="cfg-m__sheet-actions">
+          <button type="button" className="cfg-m__sheet-close" onClick={() => setPreviewOpen(false)}>Закрити</button>
+          <button type="button" className="cfg-m__sheet-apply" onClick={() => {
+            if (!builtJs) { toast.error('Спочатку зберіть скрипт'); return }
+            if (!previewLoaded) { toast.error('Спочатку завантажте сайт'); return }
+            try {
+              injectScript()
+              autoInjectRef.current = true
+              toast.success('Скрипт застосовано (авто-інжект увімкнено)')
+            } catch (err) { toast.error((err as Error).message) }
+          }}>
+            Застосувати скрипт
+          </button>
+        </div>
+      </div>
+
+      {jsonPanelMode && (
+        <>
+          <div className="cfg-m__json-overlay" role="presentation" onClick={closeJsonPanel} />
+          <div className="cfg-m__json-modal" role="dialog" aria-modal="true" aria-label="JSON налаштувань">
+            <div className="cfg-m__json-head">
+              <strong>{jsonPanelMode === 'export' ? 'JSON налаштувань (експорт)' : 'JSON налаштувань (імпорт)'}</strong>
+              <button type="button" onClick={closeJsonPanel} aria-label="Закрити">×</button>
+            </div>
+            <textarea
+              className="cfg-m__json-textarea"
+              value={jsonText}
+              onChange={(e) => setJsonText(e.target.value)}
+              placeholder={jsonPanelMode === 'import' ? 'Вставте JSON тут...' : undefined}
+              readOnly={jsonPanelMode === 'export'}
+              spellCheck={false}
+            />
+            <div className="cfg-m__json-actions">
+              <button type="button" className="cfg-m__json-btn cfg-m__json-btn--muted" onClick={closeJsonPanel}>
+                Закрити
+              </button>
+              {jsonPanelMode === 'export' ? (
+                <button type="button" className="cfg-m__json-btn cfg-m__json-btn--primary" onClick={copyJsonText}>
+                  Скопіювати JSON
+                </button>
+              ) : (
+                <button type="button" className="cfg-m__json-btn cfg-m__json-btn--primary" onClick={applyImportFromText}>
+                  Застосувати
+                </button>
+              )}
+            </div>
+          </div>
+        </>
       )}
     </div>
   )
 }
 
-// ─── Marquee Form ─────────────────────────────────────────────────────────────
+// ─── Schema helpers ────────────────────────────────────────────────────────────
 
-function MarqueeForm({
-  config, i18n, onChange, onI18nChange,
-}: {
-  config: Record<string, unknown>
-  i18n: { ua?: string[] }
-  onChange: (path: string, val: unknown) => void
-  onI18nChange: (items: string[]) => void
-}) {
-  const items = i18n.ua ?? ['АКЦIЯ']
-  const mode = (config.mode ?? 'shift') as string
-  const speed = (config.speed ?? 80) as number
-  const isFixed = (config.isFixed ?? true) as boolean
-  const deskBg = (deepGet(config, 'colors.desktop.backgroundColor') ?? '#1e1b4b') as string
-  const deskTxt = (deepGet(config, 'colors.desktop.textColor') ?? '#e0e7ff') as string
+function resolveRef(node: Record<string, unknown>, root: Record<string, unknown>): Record<string, unknown> {
+  if (!node || !node.$ref) return node
+  const parts = (node.$ref as string).replace(/^#\//, '').split('/')
+  let t: unknown = root
+  for (const p of parts) { if (t && typeof t === 'object') t = (t as Record<string, unknown>)[p]; else return node }
+  const resolved = t as Record<string, unknown>
+  return node.default !== undefined ? { ...resolved, default: node.default } : resolved
+}
 
-  function addItem() { onI18nChange([...items, 'Нова акція']) }
-  function removeItem(i: number) {
-    if (items.length === 1) { toast.error('Мінімум 1 текст'); return }
-    onI18nChange(items.filter((_, idx) => idx !== i))
+function deepResolve(node: Record<string, unknown>, root: Record<string, unknown>): Record<string, unknown> {
+  if (!node || typeof node !== 'object') return node
+  let r = resolveRef(node, root)
+  if (r !== node) r = { ...r }
+  if (r.properties) {
+    const p: Record<string, Record<string, unknown>> = {}
+    for (const [k, v] of Object.entries(r.properties as Record<string, Record<string, unknown>>)) {
+      p[k] = deepResolve(v, root)
+    }
+    r = { ...r, properties: p }
   }
-  function updateItem(i: number, val: string) {
-    onI18nChange(items.map((t, idx) => idx === i ? val : t))
+  if (r.items && typeof r.items === 'object') r = { ...r, items: deepResolve(r.items as Record<string, unknown>, root) }
+  if (r.additionalProperties && typeof r.additionalProperties === 'object') r = { ...r, additionalProperties: deepResolve(r.additionalProperties as Record<string, unknown>, root) }
+  return r
+}
+
+function isOptionalObject(prop: Record<string, unknown>): Record<string, unknown> | null {
+  // oneOf: [{ type: object, properties... }, { type: null }] → optional object
+  if (!Array.isArray(prop.oneOf)) return null
+  const variants = prop.oneOf as Record<string, unknown>[]
+  const obj = variants.find(v => v.type === 'object' && v.properties)
+  const nul = variants.find(v => v.type === 'null')
+  return (obj && nul) ? obj : null
+}
+
+function buildDefaultFromSchema(schema: Record<string, unknown>): Record<string, unknown> {
+  if (!schema || schema.type !== 'object') return {}
+  const obj: Record<string, unknown> = {}
+  const props = (schema.properties ?? {}) as Record<string, Record<string, unknown>>
+  for (const [k, p] of Object.entries(props)) {
+    if (p.default !== undefined) obj[k] = deepClone(p.default)
+    else if (p.type === 'string') obj[k] = p.enum ? (p.enum as string[])[0] : ''
+    else if (p.type === 'number') obj[k] = 0
+    else if (p.type === 'boolean') obj[k] = false
+  }
+  return obj
+}
+
+// ─── Generic Config Form (schema-driven, like old configurator) ───────────────
+
+function GenericConfigForm({ config, schema, onChange }: {
+  config: Record<string, unknown>
+  schema: Record<string, unknown> | undefined
+  onChange: (path: string, val: unknown) => void
+}) {
+  if (!schema) return null
+  const resolved = deepResolve(schema, schema)
+  const properties = resolved.properties as Record<string, Record<string, unknown>> | undefined
+  if (!properties) return null
+
+  const booleans: [string, Record<string, unknown>][] = []
+  const numbers: [string, Record<string, unknown>][] = []
+  const strings: [string, Record<string, unknown>][] = []
+  const objects: [string, Record<string, unknown>][] = []
+  const arrays: [string, Record<string, unknown>][] = []
+
+  for (const [key, prop] of Object.entries(properties)) {
+    if (key === 'enabled') continue
+    const t = prop.type as string
+    if (t === 'boolean') booleans.push([key, prop])
+    else if (t === 'number') numbers.push([key, prop])
+    else if (t === 'string') strings.push([key, prop])
+    else if (t === 'object') objects.push([key, prop])
+    else if (t === 'array') arrays.push([key, prop])
+    else if (isOptionalObject(prop)) objects.push([key, prop])
   }
 
   return (
     <>
-      {/* Colors */}
-      <div className="cfg-m__color-row">
-        <ColorField label="Фон" value={deskBg} onChange={(v) => onChange('colors.desktop.backgroundColor', v)} />
-        <ColorField label="Текст" value={deskTxt} onChange={(v) => onChange('colors.desktop.textColor', v)} />
-      </div>
-
-      {/* Speed */}
-      <div className="cfg-m__field">
-        <div className="cfg-m__field-label">Швидкість</div>
-        <div className="cfg-m__slider-row">
-          <input
-            type="range" min={10} max={100} value={speed}
-            onChange={(e) => onChange('speed', Number(e.target.value))}
-            className="cfg-m__slider"
-          />
-          <span className="cfg-m__slider-val" style={{ color: '#3B82F6' }}>{speed}</span>
-        </div>
-        <span className="cfg-m__hint">Висота: 36 · Z-index: 999 · TTL: 24 год</span>
-      </div>
-
-      {/* Mode */}
-      <div className="cfg-m__field">
-        <div className="cfg-m__field-label">Режим</div>
-        <div className="cfg-m__segs">
-          <button type="button" className={`cfg-m__seg ${mode === 'shift' ? 'cfg-m__seg--active' : ''}`}
-            onClick={() => onChange('mode', 'shift')}>зсув</button>
-          <button type="button" className={`cfg-m__seg ${mode === 'overlay' ? 'cfg-m__seg--active' : ''}`}
-            onClick={() => onChange('mode', 'overlay')}>накладання</button>
-        </div>
-      </div>
-
-      {/* Fixed */}
-      <div className="cfg-m__toggle-row">
-        <span>Фіксований</span>
-        <ToggleButton checked={isFixed} onChange={(v) => onChange('isFixed', v)} />
-      </div>
-
-      {/* Items */}
-      <div className="cfg-m__items-head">
-        <span>Повідомлення ua ({items.length})</span>
-        <button type="button" className="cfg-m__add-btn" onClick={addItem}>
-          <Plus size={12} strokeWidth={2.5} />Додати
-        </button>
-      </div>
-      <div className="cfg-m__items">
-        {items.map((text, i) => (
-          <div key={i} className="cfg-m__item">
-            <input
-              type="text" value={text}
-              onChange={(e) => updateItem(i, e.target.value)}
-              className="cfg-m__item-input"
-            />
-            <button type="button" className="cfg-m__item-remove" onClick={() => removeItem(i)} aria-label="Видалити">
-              <Trash2 size={13} strokeWidth={2} />
-            </button>
+      {/* Booleans as toggles with dividers */}
+      {booleans.map(([key, prop]) => (
+        <div key={key}>
+          <div className="cfg-m__toggle-row">
+            <span>{prettify(key)}</span>
+            <ToggleButton checked={(config[key] ?? prop.default ?? false) as boolean} onChange={(v) => onChange(key, v)} />
           </div>
-        ))}
-      </div>
-
-      {/* Color picker preview */}
-      <div className="cfg-m__cpicker">
-        <span className="cfg-m__cpicker-label">Кольорова палітра</span>
-        <div className="cfg-m__cpicker-gradient" style={{ background: `linear-gradient(135deg, ${deskTxt} 0%, ${deskBg} 100%)` }} />
-        <div className="cfg-m__cpicker-hue" />
-        <div className="cfg-m__cpicker-hex">
-          <span className="cfg-m__cpicker-swatch" style={{ background: deskBg }} />
-          <span className="cfg-m__cpicker-hexval">{deskBg}</span>
+          <div className="cfg-m__divider" style={{ margin: '8px -14px' }} />
         </div>
-        <div className="cfg-m__swatches">
-          {COLOR_PRESETS.map((color) => (
-            <button key={color} type="button" className="cfg-m__swatch"
-              style={{ background: color }}
-              onClick={() => onChange('colors.desktop.backgroundColor', color)}
-              aria-label={color} />
+      ))}
+
+      {/* Numbers in 2-col grid */}
+      {numbers.length > 0 && (
+        <div className="cfg-m__num-grid">
+          {numbers.map(([key, prop]) => (
+            <div key={key} className="cfg-m__field">
+              <div className="cfg-m__field-label">{prettify(key)}</div>
+              <input type="number" className="cfg-m__num-input"
+                value={(config[key] ?? prop.default ?? 0) as number}
+                min={prop.minimum as number | undefined}
+                onChange={(e) => onChange(key, Number(e.target.value))} />
+            </div>
           ))}
         </div>
-      </div>
-    </>
-  )
-}
+      )}
 
-// ─── Delivery Date Form ───────────────────────────────────────────────────────
-
-function DeliveryDateForm({
-  config, i18n, onChange, onI18nChange,
-}: {
-  config: Record<string, unknown>
-  i18n: Record<string, Record<string, string>>
-  onChange: (path: string, val: unknown) => void
-  onI18nChange: (lang: string, key: string, val: string) => void
-}) {
-  const offsetDays = (config.offsetDays ?? 3) as number
-  const ua = i18n.ua ?? {}
-
-  return (
-    <>
-      <div className="cfg-m__field">
-        <div className="cfg-m__field-label">Зсув доставки (днів)</div>
-        <div className="cfg-m__slider-row">
-          <input type="range" min={0} max={14} value={offsetDays}
-            onChange={(e) => onChange('offsetDays', Number(e.target.value))}
-            className="cfg-m__slider" />
-          <span className="cfg-m__slider-val" style={{ color: '#3B82F6' }}>{offsetDays}</span>
-        </div>
-        <span className="cfg-m__hint">Дата = сьогодні + {offsetDays} днів</span>
-      </div>
-
-      <div className="cfg-m__field">
-        <div className="cfg-m__field-label">Префікс (ua)</div>
-        <input type="text" value={ua.prefix ?? 'Очікувана доставка'}
-          onChange={(e) => onI18nChange('ua', 'prefix', e.target.value)}
-          className="cfg-m__item-input" style={{ width: '100%' }} />
-      </div>
-
-      <div className="cfg-m__items-head">
-        <span>Назви днів (ua)</span>
-      </div>
-      <div className="cfg-m__items">
-        {(['tomorrow', 'dayAfterTomorrow', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const).map((day) => (
-          <div key={day} className="cfg-m__item">
-            <span className="cfg-m__item-label">{day}</span>
-            <input type="text" value={ua[day] ?? ''}
-              onChange={(e) => onI18nChange('ua', day, e.target.value)}
-              className="cfg-m__item-input" />
+      {/* Strings: enum → select, color → color picker, else → text */}
+      {strings.map(([key, prop]) => {
+        const val = (config[key] ?? prop.default ?? '') as string
+        if (Array.isArray(prop.enum)) {
+          return (
+            <div key={key} className="cfg-m__field">
+              <div className="cfg-m__field-label">{prettify(key)}</div>
+              <select className="cfg-m__select" value={val} onChange={(e) => onChange(key, e.target.value)}>
+                {(prop.enum as string[]).map(o => <option key={o} value={o}>{o}</option>)}
+              </select>
+            </div>
+          )
+        }
+        if (looksLikeColor(val) || looksLikeColor(prop.default)) {
+          return (
+            <div key={key} className="cfg-m__color-row">
+              <ColorField label={prettify(key)} value={val} onChange={(v) => onChange(key, v)} />
+            </div>
+          )
+        }
+        return (
+          <div key={key} className="cfg-m__field">
+            <div className="cfg-m__field-label">{prettify(key)}</div>
+            <input type="text" className="cfg-m__item-input" style={{ width: '100%' }}
+              value={val} onChange={(e) => onChange(key, e.target.value)} />
           </div>
-        ))}
-      </div>
+        )
+      })}
+
+      {/* Objects: optional (oneOf/null) or nested */}
+      {objects.map(([key, prop]) => {
+        const optSchema = isOptionalObject(prop)
+        if (optSchema) {
+          return <OptionalObjectField key={key} keyName={key} schema={optSchema} value={config[key]} onChange={onChange} />
+        }
+        if (prop.properties) {
+          const obj = (config[key] ?? {}) as Record<string, unknown>
+          return <NestedObjectField key={key} keyName={key} schema={prop} value={obj} parentPath={key} onChange={onChange} />
+        }
+        return null
+      })}
+
+      {/* Arrays of objects */}
+      {arrays.map(([key, prop]) => {
+        const items = (config[key] ?? []) as Record<string, unknown>[]
+        const itemSchema = prop.items as Record<string, unknown> | undefined
+        return <ArrayOfObjectsField key={key} keyName={key} items={items} itemSchema={itemSchema} parentPath={key} onChange={onChange} />
+      })}
     </>
   )
 }
 
-// ─── Cart Goal Form ───────────────────────────────────────────────────────────
+// ─── Optional object (oneOf object|null) ──────────────────────────────────────
 
-function CartGoalForm({
-  config, i18n, onChange, onI18nChange,
-}: {
-  config: Record<string, unknown>
-  i18n: Record<string, { text?: string; achieved?: string }>
+function OptionalObjectField({ keyName, schema, value, onChange }: {
+  keyName: string
+  schema: Record<string, unknown>
+  value: unknown
   onChange: (path: string, val: unknown) => void
-  onI18nChange: (lang: string, key: string, val: string) => void
 }) {
-  const threshold = (config.threshold ?? 1000) as number
-  const floatingWidget = (config.floatingWidget ?? true) as boolean
-  const background = (config.background ?? '#172554') as string
-  const achievedBg = (config.achievedBackground ?? '#14532d') as string
-  const textColor = (config.textColor ?? '#bfdbfe') as string
-  const ua = i18n.ua ?? {}
+  const isActive = value != null && typeof value === 'object'
+
+  function toggle(on: boolean) {
+    if (on) {
+      onChange(keyName, buildDefaultFromSchema(schema))
+    } else {
+      onChange(keyName, null)
+    }
+  }
 
   return (
     <>
-      <div className="cfg-m__field">
-        <div className="cfg-m__field-label">Поріг (грн)</div>
-        <div className="cfg-m__slider-row">
-          <input type="range" min={100} max={5000} step={100} value={threshold}
-            onChange={(e) => onChange('threshold', Number(e.target.value))}
-            className="cfg-m__slider" />
-          <span className="cfg-m__slider-val" style={{ color: '#3B82F6' }}>{threshold} ₴</span>
-        </div>
-      </div>
-
       <div className="cfg-m__toggle-row">
-        <span>Плаваючий віджет</span>
-        <ToggleButton checked={floatingWidget} onChange={(v) => onChange('floatingWidget', v)} />
+        <span>{prettify(keyName)}</span>
+        <ToggleButton checked={isActive} onChange={toggle} />
       </div>
+      <div className="cfg-m__divider" style={{ margin: '8px -14px' }} />
+      {isActive && schema.properties && (
+        <div className="cfg-m__nested-card">
+          <NestedFields obj={value as Record<string, unknown>} properties={schema.properties as Record<string, Record<string, unknown>>} parentPath={keyName} onChange={onChange} />
+        </div>
+      )}
+    </>
+  )
+}
 
-      <div className="cfg-m__color-row">
-        <ColorField label="Фон" value={background} onChange={(v) => onChange('background', v)} />
-        <ColorField label="Досягнуто" value={achievedBg} onChange={(v) => onChange('achievedBackground', v)} />
-      </div>
-      <div className="cfg-m__color-row">
-        <ColorField label="Текст" value={textColor} onChange={(v) => onChange('textColor', v)} />
-      </div>
+// ─── Nested object with toggle ────────────────────────────────────────────────
 
-      <div className="cfg-m__field">
-        <div className="cfg-m__field-label">Текст підказки (ua)</div>
-        <input type="text" value={ua.text ?? ''}
-          onChange={(e) => onI18nChange('ua', 'text', e.target.value)}
-          className="cfg-m__item-input" style={{ width: '100%' }} />
+function NestedObjectField({ keyName, schema, value, parentPath, onChange }: {
+  keyName: string
+  schema: Record<string, unknown>
+  value: Record<string, unknown>
+  parentPath: string
+  onChange: (path: string, val: unknown) => void
+}) {
+  const [open, setOpen] = useState(true)
+  const properties = schema.properties as Record<string, Record<string, unknown>> | undefined
+  if (!properties) return null
+
+  return (
+    <>
+      <div className="cfg-m__toggle-row">
+        <span style={{ fontWeight: 600 }}>{prettify(keyName)}</span>
+        <ToggleButton checked={open} onChange={setOpen} />
       </div>
-      <div className="cfg-m__field">
-        <div className="cfg-m__field-label">Текст досягнення (ua)</div>
-        <input type="text" value={ua.achieved ?? ''}
-          onChange={(e) => onI18nChange('ua', 'achieved', e.target.value)}
-          className="cfg-m__item-input" style={{ width: '100%' }} />
+      <div className="cfg-m__divider" style={{ margin: '8px -14px' }} />
+      {open && (
+        <div className="cfg-m__nested-card">
+          {Object.entries(properties).map(([childKey, childProp]) => {
+            const childPath = `${parentPath}.${childKey}`
+            const childVal = value[childKey]
+
+            // Nested object (e.g. colors.desktop)
+            if ((childProp.type as string) === 'object' && childProp.properties) {
+              return (
+                <div key={childKey}>
+                  <div className="cfg-m__toggle-row">
+                    <span style={{ fontWeight: 600 }}>{prettify(childKey)}</span>
+                    <ToggleButton checked={true} onChange={() => {}} />
+                  </div>
+                  <div className="cfg-m__nested-card">
+                    <NestedFields
+                      obj={(childVal ?? {}) as Record<string, unknown>}
+                      properties={childProp.properties as Record<string, Record<string, unknown>>}
+                      parentPath={childPath}
+                      onChange={onChange}
+                    />
+                  </div>
+                </div>
+              )
+            }
+
+            return <SingleField key={childKey} fieldKey={childKey} prop={childProp} value={childVal} path={childPath} onChange={onChange} />
+          })}
+        </div>
+      )}
+    </>
+  )
+}
+
+// ─── Array of objects ─────────────────────────────────────────────────────────
+
+function ArrayOfObjectsField({ keyName, items, itemSchema, parentPath, onChange }: {
+  keyName: string
+  items: Record<string, unknown>[]
+  itemSchema: Record<string, unknown> | undefined
+  parentPath: string
+  onChange: (path: string, val: unknown) => void
+}) {
+  function removeItem(idx: number) {
+    onChange(parentPath, items.filter((_, i) => i !== idx))
+  }
+
+  function addItem() {
+    const newItem = itemSchema ? buildDefaultFromSchema(itemSchema) : {}
+    onChange(parentPath, [...items, newItem])
+  }
+
+  function updateField(idx: number, field: string, val: unknown) {
+    const updated = items.map((item, i) => i === idx ? { ...item, [field]: val } : item)
+    onChange(parentPath, updated)
+  }
+
+  const fields = (itemSchema?.properties ?? {}) as Record<string, Record<string, unknown>>
+
+  return (
+    <div className="cfg-m__field">
+      <div className="cfg-m__field-label">{prettify(keyName)}</div>
+      {items.map((item, idx) => (
+        <div key={idx} className="cfg-m__array-card">
+          <div className="cfg-m__array-card-head">
+            <span>#{idx + 1}</span>
+            <button type="button" className="cfg-m__array-card-rm" onClick={() => removeItem(idx)}>×</button>
+          </div>
+          {Object.entries(fields).map(([fk, fp]) => {
+            const fVal = item[fk]
+            if (Array.isArray(fp.enum)) {
+              return (
+                <div key={fk} className="cfg-m__field">
+                  <div className="cfg-m__field-label">{prettify(fk)}</div>
+                  <select className="cfg-m__select" value={(fVal ?? fp.default ?? '') as string}
+                    onChange={(e) => updateField(idx, fk, e.target.value)}>
+                    {(fp.enum as string[]).map(o => <option key={o} value={o}>{o}</option>)}
+                  </select>
+                </div>
+              )
+            }
+            return (
+              <div key={fk} className="cfg-m__field">
+                <div className="cfg-m__field-label">{prettify(fk)}</div>
+                <input type="text" className="cfg-m__item-input" style={{ width: '100%' }}
+                  value={(fVal ?? '') as string} onChange={(e) => updateField(idx, fk, e.target.value)} />
+              </div>
+            )
+          })}
+        </div>
+      ))}
+      <button type="button" className="cfg-m__add-btn" onClick={addItem}>
+        <Plus size={12} strokeWidth={2.5} /> Додати
+      </button>
+    </div>
+  )
+}
+
+// ─── Flat nested fields ───────────────────────────────────────────────────────
+
+function NestedFields({ obj, properties, parentPath, onChange }: {
+  obj: Record<string, unknown>
+  properties: Record<string, Record<string, unknown>>
+  parentPath: string
+  onChange: (path: string, val: unknown) => void
+}) {
+  return (
+    <>
+      {Object.entries(properties).map(([key, prop]) => (
+        <SingleField key={key} fieldKey={key} prop={prop} value={obj[key]} path={`${parentPath}.${key}`} onChange={onChange} />
+      ))}
+    </>
+  )
+}
+
+function SingleField({ fieldKey, prop, value, path, onChange }: {
+  fieldKey: string
+  prop: Record<string, unknown>
+  value: unknown
+  path: string
+  onChange: (path: string, val: unknown) => void
+}) {
+  const t = prop.type as string
+  if (t === 'boolean') {
+    return (
+      <div className="cfg-m__toggle-row" style={{ marginTop: 6 }}>
+        <span>{prettify(fieldKey)}</span>
+        <ToggleButton checked={(value ?? prop.default ?? false) as boolean} onChange={(v) => onChange(path, v)} />
+      </div>
+    )
+  }
+  if (t === 'number') {
+    return (
+      <div className="cfg-m__field" style={{ marginTop: 6 }}>
+        <div className="cfg-m__field-label">{prettify(fieldKey)}</div>
+        <input type="number" className="cfg-m__num-input" style={{ width: '100%' }}
+          value={(value ?? prop.default ?? 0) as number}
+          onChange={(e) => onChange(path, Number(e.target.value))} />
+      </div>
+    )
+  }
+  if (t === 'string') {
+    const val = (value ?? prop.default ?? '') as string
+    if (Array.isArray(prop.enum)) {
+      return (
+        <div className="cfg-m__field" style={{ marginTop: 6 }}>
+          <div className="cfg-m__field-label">{prettify(fieldKey)}</div>
+          <select className="cfg-m__select" value={val} onChange={(e) => onChange(path, e.target.value)}>
+            {(prop.enum as string[]).map(o => <option key={o} value={o}>{o}</option>)}
+          </select>
+        </div>
+      )
+    }
+    if (looksLikeColor(val) || looksLikeColor(prop.default)) {
+      return (
+        <div className="cfg-m__field" style={{ marginTop: 6 }}>
+          <div className="cfg-m__field-label">{prettify(fieldKey)}</div>
+          <ColorField label={prettify(fieldKey)} value={val} onChange={(v) => onChange(path, v)} />
+        </div>
+      )
+    }
+    return (
+      <div className="cfg-m__field" style={{ marginTop: 6 }}>
+        <div className="cfg-m__field-label">{prettify(fieldKey)}</div>
+        <input type="text" className="cfg-m__item-input" style={{ width: '100%' }}
+          value={val} onChange={(e) => onChange(path, e.target.value)} />
+      </div>
+    )
+  }
+  return null
+}
+
+// ─── Generic I18n Form ────────────────────────────────────────────────────────
+
+function GenericI18nForm({ i18n, schema, onChange, onReplace }: {
+  i18n: Record<string, unknown>
+  schema: Record<string, unknown> | undefined
+  onChange: (path: string, val: unknown) => void
+  onReplace: (newI18n: Record<string, unknown>) => void
+}) {
+  const [newLang, setNewLang] = useState('')
+
+  if (!schema) return null
+
+  const resolved = deepResolve(schema, schema)
+  const additionalProps = (resolved as { additionalProperties?: Record<string, unknown> }).additionalProperties
+  if (!additionalProps) return null
+
+  const resolvedAP = deepResolve(additionalProps, schema)
+  const isArray = (resolvedAP as { type?: string }).type === 'array'
+
+  // Get object keys from schema for new lang defaults
+  const objKeys = (!isArray && (resolvedAP as { properties?: Record<string, unknown> }).properties)
+    ? Object.keys((resolvedAP as { properties: Record<string, unknown> }).properties)
+    : []
+
+  function removeLang(lang: string) {
+    const next = { ...i18n }
+    delete next[lang]
+    onReplace(next)
+  }
+
+  function addLang() {
+    const code = newLang.trim().toLowerCase()
+    if (!code || i18n[code]) return
+    if (isArray) {
+      onReplace({ ...i18n, [code]: [''] })
+    } else {
+      const entry: Record<string, string> = {}
+      for (const k of objKeys) entry[k] = ''
+      onReplace({ ...i18n, [code]: entry })
+    }
+    setNewLang('')
+  }
+
+  return (
+    <>
+      {Object.entries(i18n).map(([lang, data]) => (
+        <div key={lang} className="cfg-m__i18n-lang-card">
+          <div className="cfg-m__i18n-lang-head">
+            <span className="cfg-m__i18n-lang-code">{lang.toUpperCase()}</span>
+            <button type="button" className="cfg-m__i18n-lang-rm" onClick={() => removeLang(lang)}>Видалити</button>
+          </div>
+          {isArray ? (
+            <I18nArrayFields items={(data as string[]) ?? []} onChange={(items) => onReplace({ ...i18n, [lang]: items })} />
+          ) : (
+            <I18nObjectFields obj={(data as Record<string, string>) ?? {}} onChange={(key, val) => onChange(`${lang}.${key}`, val)} />
+          )}
+        </div>
+      ))}
+
+      {/* Add language */}
+      <div className="cfg-m__i18n-add-row">
+        <input type="text" className="cfg-m__i18n-add-input" placeholder="uk" value={newLang}
+          onChange={(e) => setNewLang(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') addLang() }} />
+        <button type="button" className="cfg-m__add-btn" onClick={addLang}>
+          <Plus size={12} strokeWidth={2.5} /> Додати мову
+        </button>
       </div>
     </>
   )
 }
 
-// ─── Reusable field components ────────────────────────────────────────────────
+function I18nArrayFields({ items, onChange }: {
+  items: string[]
+  onChange: (items: string[]) => void
+}) {
+  return (
+    <>
+      {items.map((text, i) => (
+        <div key={i} className="cfg-m__item" style={{ marginTop: 6 }}>
+          <input type="text" value={text}
+            onChange={(e) => onChange(items.map((t, idx) => idx === i ? e.target.value : t))}
+            className="cfg-m__item-input" />
+          <button type="button" className="cfg-m__item-remove"
+            onClick={() => { if (items.length > 1) onChange(items.filter((_, idx) => idx !== i)) }}
+            aria-label="Видалити">
+            <Trash2 size={13} strokeWidth={2} />
+          </button>
+        </div>
+      ))}
+      <button type="button" className="cfg-m__add-btn" style={{ marginTop: 8 }}
+        onClick={() => onChange([...items, ''])}>
+        <Plus size={12} strokeWidth={2.5} /> Додати
+      </button>
+    </>
+  )
+}
+
+function I18nObjectFields({ obj, onChange }: {
+  obj: Record<string, string>
+  onChange: (key: string, val: string) => void
+}) {
+  return (
+    <>
+      {Object.entries(obj).map(([key, val]) => (
+        <div key={key} className="cfg-m__field" style={{ marginTop: 6 }}>
+          <div className="cfg-m__field-label">{prettify(key)}</div>
+          <input type="text" value={val} onChange={(e) => onChange(key, e.target.value)}
+            className="cfg-m__item-input" style={{ width: '100%' }} />
+        </div>
+      ))}
+    </>
+  )
+}
+
+// ─── Shared components ────────────────────────────────────────────────────────
+
+function prettify(key: string): string {
+  return key.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/[_-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+}
 
 function ColorField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
@@ -723,108 +1174,5 @@ function ToggleButton({ checked, onChange }: { checked: boolean; onChange: (v: b
       onClick={() => onChange(!checked)}>
       <span className="cfg-m__toggle-thumb" />
     </button>
-  )
-}
-
-// ─── Config Preview (JSON) ────────────────────────────────────────────────────
-
-function ConfigPreview({ config, i18n, moduleSlug }: {
-  config: Record<string, unknown>
-  i18n: Record<string, unknown>
-  moduleSlug: string
-}) {
-  const full = { ...config, i18n }
-  const lines = JSON.stringify({ [moduleSlug]: full }, null, 2).split('\n')
-  return (
-    <>
-      {lines.map((line, i) => {
-        let color = '#888888'
-        if (line.includes('"i18n"') || line.includes('"colors"')) color = '#7AB8F5'
-        if (line.includes('true') || line.includes('false')) color = '#A8D5A2'
-        if (line.match(/"[^"]+": "/)) color = '#CCCCCC'
-        if (line.match(/^\s*"[^"]+": [0-9]/)) color = '#F59E0B'
-        if (i === 0) color = '#A8D5A2'
-        return <div key={i} style={{ color }}>{line || '\u00A0'}</div>
-      })}
-    </>
-  )
-}
-
-// ─── Preview bottom sheet ─────────────────────────────────────────────────────
-
-function PreviewSheet({
-  config, scriptTag: tag, viewMode, onViewMode, onCopy, copied, onClose, activeSlug,
-}: {
-  config: Record<string, unknown>
-  scriptTag: string
-  viewMode: 'desktop' | 'mobile'
-  onViewMode: (mode: 'desktop' | 'mobile') => void
-  onCopy: () => void
-  copied: boolean
-  onClose: () => void
-  activeSlug: string
-}) {
-  const bgColor = (deepGet(config, 'colors.desktop.backgroundColor') ?? '#1e1b4b') as string
-  const txtColor = (deepGet(config, 'colors.desktop.textColor') ?? '#e0e7ff') as string
-
-  return (
-    <>
-      <div className="cfg-m__overlay" role="presentation" onClick={onClose} />
-      <div className="cfg-m__sheet">
-        <div className="cfg-m__sheet-handle"><span /></div>
-
-        <div className="cfg-m__sheet-head">
-          <strong>Попередній перегляд</strong>
-          <div className="cfg-m__view-toggle">
-            <button type="button" className={viewMode === 'desktop' ? 'active' : ''} onClick={() => onViewMode('desktop')} aria-label="Десктоп">
-              <Monitor size={14} strokeWidth={2} />
-            </button>
-            <button type="button" className={viewMode === 'mobile' ? 'active' : ''} onClick={() => onViewMode('mobile')} aria-label="Мобільний">
-              <Smartphone size={14} strokeWidth={2} />
-            </button>
-          </div>
-        </div>
-
-        <div className="cfg-m__phone-wrap">
-          <div className="cfg-m__phone">
-            <div className="cfg-m__phone-cam"><span /></div>
-            {activeSlug === 'marquee' && (
-              <div className="cfg-m__phone-marquee" style={{ background: bgColor, color: txtColor }}>
-                {(config.i18n as { ua?: string[] } | undefined)?.ua?.map((t, i) => (
-                  <span key={i}>• {t} </span>
-                )) ?? <span>• АКЦIЯ •</span>}
-              </div>
-            )}
-            <div className="cfg-m__phone-content">
-              <div className="cfg-m__phone-nav">
-                <div className="cfg-m__phone-nav-dots"><span /><span /><span /></div>
-                <div className="cfg-m__phone-url" />
-              </div>
-              <div className="cfg-m__phone-hero" />
-              <div className="cfg-m__phone-line" />
-              <div className="cfg-m__phone-line" style={{ width: '60%' }} />
-              <div className="cfg-m__phone-btn" style={{ background: bgColor }}>Замовити</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="cfg-m__sheet-script">
-          <div className="cfg-m__sheet-script-head">
-            <span>Скрипт для вставки</span>
-            <button type="button" className="cfg-m__sheet-copy" onClick={onCopy}>
-              <Copy size={12} strokeWidth={2} />
-              {copied ? 'Скопійовано' : 'Копіювати'}
-            </button>
-          </div>
-          <pre className="cfg-m__sheet-code">{tag}</pre>
-          <p className="cfg-m__sheet-hint">Вставте перед закриваючим тегом &lt;/body&gt;</p>
-        </div>
-
-        <div className="cfg-m__sheet-actions">
-          <button type="button" className="cfg-m__sheet-close" onClick={onClose}>Закрити</button>
-          <button type="button" className="cfg-m__sheet-apply" onClick={onClose}>Застосувати</button>
-        </div>
-      </div>
-    </>
   )
 }

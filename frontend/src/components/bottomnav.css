@@ -1,13 +1,11 @@
 .bottomnav {
   position: fixed;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
   width: 100%;
-  max-width: 480px;
   height: var(--bottomnav-h);
-  background: var(--bg-elevated);
-  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-card);
   display: flex;
   align-items: center;
   justify-content: space-around;
@@ -26,6 +24,7 @@
   color: var(--text-muted);
   font-size: 9px;
   font-weight: 500;
+  line-height: 1;
   text-decoration: none;
   transition: color var(--t-fast);
 }

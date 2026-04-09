@@ -51,19 +51,23 @@ class SiteScript extends Model
 
     public function getScriptTagAttribute(): string
     {
-        $cdnUrl = config('services.r2.public_url', 'https://cdn.widgetis.com');
+        $cdnUrl = rtrim((string) config('services.r2.public_url', 'https://cdn.widgetis.com'), '/');
+        $this->loadMissing('site');
+        $domain = $this->site !== null ? $this->site->domain : $this->token;
 
         return sprintf(
-            '<script src="%s/loader.js" data-id="%s" async></script>',
+            '<script src="%s/sites/%s/bundle.js" async></script>',
             $cdnUrl,
-            $this->token,
+            $domain,
         );
     }
 
     public function getScriptUrlAttribute(): string
     {
-        $cdnUrl = config('services.r2.public_url', 'https://cdn.widgetis.com');
+        $cdnUrl = rtrim((string) config('services.r2.public_url', 'https://cdn.widgetis.com'), '/');
+        $this->loadMissing('site');
+        $domain = $this->site !== null ? $this->site->domain : $this->token;
 
-        return "{$cdnUrl}/loader.js";
+        return "{$cdnUrl}/sites/{$domain}/bundle.js";
     }
 }

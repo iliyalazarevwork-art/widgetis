@@ -17,6 +17,11 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost:5173'),
+
+    'otp_dev_bypass' => env('OTP_DEV_BYPASS', false),
+    'otp_dev_code' => env('OTP_DEV_CODE', '121212'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

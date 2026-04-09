@@ -77,6 +77,21 @@
   overflow-y: auto;
 }
 
+.dash-m__state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  color: #9ca3af;
+  font-size: 14px;
+  padding: 24px 16px;
+  text-align: center;
+}
+
+.dash-m__state--error {
+  color: #f87171;
+}
+
 /* Stats grid 2×2 */
 .dash-m__stats {
   display: grid;
@@ -197,6 +212,13 @@
 .dash-m__divider {
   height: 1px;
   background: rgba(255, 255, 255, 0.04);
+}
+
+.dash-m__empty {
+  padding: 16px 0;
+  text-align: center;
+  color: #777;
+  font-size: 12px;
 }
 
 /* Order rows */

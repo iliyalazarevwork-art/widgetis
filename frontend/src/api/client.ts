@@ -1,6 +1,7 @@
 const BASE = (import.meta.env.VITE_API_BASE_URL || '/api/v1').replace(/\/+$/, '')
 
 let accessToken: string | null = localStorage.getItem('wty_token')
+const inflightGetRequests = new Map<string, Promise<unknown>>()
 
 export function setToken(token: string | null) {
   accessToken = token
@@ -47,45 +48,72 @@ export async function api<T>(path: string, opts: RequestOptions = {}): Promise<T
     headers['Content-Type'] = 'application/json'
   }
 
-  const res = await fetch(url, {
-    method,
-    headers,
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-  })
+  const request = async (): Promise<T> => {
+    const res = await fetch(url, {
+      method,
+      headers,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    })
 
-  // Handle 401 — token expired
-  if (res.status === 401) {
-    setToken(null)
-    window.location.href = '/login'
-    throw new Error('Unauthorized')
+    // Handle 401 — token expired
+    if (res.status === 401) {
+      setToken(null)
+      window.location.href = '/login'
+      throw new Error('Unauthorized')
+    }
+
+    // Handle 204 No Content
+    if (res.status === 204) {
+      return undefined as T
+    }
+
+    const json = await res.json()
+
+    if (!res.ok) {
+      const errorDetails = json?.error?.details
+      const detailsMessage = (errorDetails && typeof errorDetails === 'object')
+        ? (() => {
+            const first = Object.values(errorDetails)[0]
+            return Array.isArray(first) ? first[0] : first
+          })()
+        : null
+
+      const validationMessage = Array.isArray(json?.errors)
+        ? json.errors[0]
+        : (json?.errors && typeof json.errors === 'object'
+          ? Object.values(json.errors)[0]
+          : null)
+
+      const firstValidationMessage = Array.isArray(validationMessage)
+        ? validationMessage[0]
+        : validationMessage
+
+      const msg = detailsMessage || json?.error?.message || json?.message || firstValidationMessage || `HTTP ${res.status}`
+      const err = new Error(msg) as Error & { code?: string; status?: number }
+      err.code = json?.error?.code
+      err.status = res.status
+      throw err
+    }
+
+    return json as T
   }
 
-  // Handle 204 No Content
-  if (res.status === 204) {
-    return undefined as T
+  if (method.toUpperCase() === 'GET' && body === undefined) {
+    const dedupeKey = `${url}|${headers['Accept-Language'] ?? ''}|${headers['Authorization'] ?? ''}`
+    const existing = inflightGetRequests.get(dedupeKey)
+    if (existing) {
+      return existing as Promise<T>
+    }
+
+    const promise = request().finally(() => {
+      inflightGetRequests.delete(dedupeKey)
+    })
+
+    inflightGetRequests.set(dedupeKey, promise as Promise<unknown>)
+    return promise
   }
 
-  const json = await res.json()
-
-  if (!res.ok) {
-    const validationMessage = Array.isArray(json?.errors)
-      ? json.errors[0]
-      : (json?.errors && typeof json.errors === 'object'
-        ? Object.values(json.errors)[0]
-        : null)
-
-    const firstValidationMessage = Array.isArray(validationMessage)
-      ? validationMessage[0]
-      : validationMessage
-
-    const msg = json?.error?.message || json?.message || firstValidationMessage || `HTTP ${res.status}`
-    const err = new Error(msg) as Error & { code?: string; status?: number }
-    err.code = json?.error?.code
-    err.status = res.status
-    throw err
-  }
-
-  return json as T
+  return request()
 }
 
 /* Convenience wrappers */

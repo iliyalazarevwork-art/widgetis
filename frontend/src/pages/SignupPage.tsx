@@ -88,6 +88,10 @@ function OtpInput({ value, onChange }: { value: string; onChange: (v: string) =>
   const len = 6
   const inputs = useRef<(HTMLInputElement | null)[]>([])
 
+  useEffect(() => {
+    inputs.current[0]?.focus()
+  }, [])
+
   function handleKey(i: number, e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Backspace' && !value[i] && i > 0) {
       inputs.current[i - 1]?.focus()
@@ -95,7 +99,17 @@ function OtpInput({ value, onChange }: { value: string; onChange: (v: string) =>
   }
 
   function handleChange(i: number, raw: string) {
-    const digit = raw.replace(/\D/g, '').slice(-1)
+    const digits = raw.replace(/\D/g, '')
+
+    // iOS autofill fills the whole code into the focused input at once
+    if (digits.length > 1) {
+      const filled = digits.slice(0, len)
+      onChange(filled)
+      inputs.current[Math.min(filled.length, len - 1)]?.focus()
+      return
+    }
+
+    const digit = digits.slice(-1)
     const arr = value.padEnd(len, ' ').split('')
     arr[i] = digit || ' '
     const next = arr.join('').trimEnd()
@@ -123,11 +137,11 @@ function OtpInput({ value, onChange }: { value: string; onChange: (v: string) =>
           className={`signup__otp-cell ${value[i] && value[i] !== ' ' ? 'signup__otp-cell--filled' : ''}`}
           type="text"
           inputMode="numeric"
-          maxLength={1}
+          maxLength={i === 0 ? 6 : 1}
           value={value[i] && value[i] !== ' ' ? value[i] : ''}
           onChange={e => handleChange(i, e.target.value)}
           onKeyDown={e => handleKey(i, e)}
-          autoComplete="one-time-code"
+          autoComplete={i === 0 ? 'one-time-code' : 'off'}
         />
       ))}
     </div>
@@ -156,9 +170,12 @@ interface SignupDraft {
   resendAvailableAt: number | null
 }
 
-interface TrialStartResponse {
+interface LiqPayCheckoutResponse {
   data: {
-    trial_ends_at: string | null
+    checkout_url: string
+    data: string
+    signature: string
+    order_id: string
   }
 }
 
@@ -319,8 +336,8 @@ export function SignupPage() {
       .finally(() => setLoading(false))
   }
 
-  // ── Step 3: store + start trial ──
-  function handleStartTrial(e: React.FormEvent) {
+  // ── Step 3: store + start trial via LiqPay ──
+  async function handleStartTrial(e: React.FormEvent) {
     e.preventDefault()
     const normalizedUrl = normalizeSiteUrl(site)
     if (!normalizedUrl || normalizedUrl.length < 10) {
@@ -330,55 +347,72 @@ export function SignupPage() {
     setSiteError('')
     setLoading(true)
 
-    const finishSignup = (trialEndsAt: string | null, siteResponse: SiteCreateResponse | null) => {
+    try {
+      // 1. Create LiqPay checkout — also creates Trial subscription in DB
+      const checkoutRes = await post<LiqPayCheckoutResponse>('/profile/subscription/checkout/trial', {
+        plan_slug: planKey,
+        billing_period: billing === 'yearly' ? 'yearly' : 'monthly',
+      })
+
+      // 2. Create site (non-blocking if it fails — user can add later)
+      let siteId: number | null = null
+      let scriptTag: string | null = null
+      try {
+        const siteRes = await post<{ data: SiteCreateResponse }>('/profile/sites', { url: normalizedUrl, platform })
+        siteId = siteRes.data.id
+        scriptTag = siteRes.data.script.script_tag
+      } catch {
+        toast.error('Не вдалося додати сайт. Ви зможете додати його пізніше у кабінеті.')
+      }
+
+      // 3. Store data for TrialSuccessPage (survives LiqPay redirect)
+      sessionStorage.setItem('wty_trial_signup', JSON.stringify({
+        email,
+        site: normalizedUrl,
+        platform,
+        plan: planKey,
+        billing,
+        siteId,
+        scriptTag,
+      }))
+
+      // 4. Redirect to LiqPay — user enters card, charge deferred 7 days
+      sessionStorage.removeItem(SIGNUP_DRAFT_KEY)
+      redirectToLiqPay(checkoutRes.data)
+    } catch (err: unknown) {
+      const error = err as Error & { code?: string }
+      if (error.code === 'ALREADY_SUBSCRIBED') {
+        try {
+          await post<{ data: SiteCreateResponse }>('/profile/sites', { url: normalizedUrl, platform })
+        } catch { /* non-blocking */ }
         sessionStorage.removeItem(SIGNUP_DRAFT_KEY)
-        sessionStorage.setItem(
-          'wty_trial_signup',
-          JSON.stringify({
-            email: email.trim(),
-            site: normalizedUrl,
-            platform,
-            plan: planKey,
-            billing,
-            trialEndsAt,
-            siteId: siteResponse?.id ?? null,
-            scriptTag: siteResponse?.script?.script_tag ?? null,
-          }),
-        )
-        navigate('/signup/success', { replace: true })
+        navigate('/cabinet', { replace: true })
+      } else {
+        toast.error(error.message || 'Не вдалося розпочати оформлення')
+        setLoading(false)
+      }
     }
+  }
 
-    const createSite = () => post<{ data: SiteCreateResponse }>('/profile/sites', {
-      url: normalizedUrl,
-      platform,
-    })
+  function redirectToLiqPay(checkout: { checkout_url: string; data: string; signature: string }) {
+    const form = document.createElement('form')
+    form.method = 'POST'
+    form.action = checkout.checkout_url
 
-    let trialEndsAt: string | null = null
+    const dataInput = document.createElement('input')
+    dataInput.type = 'hidden'
+    dataInput.name = 'data'
+    dataInput.value = checkout.data
+    form.appendChild(dataInput)
 
-    post<TrialStartResponse>('/profile/subscription/start-trial', { plan_slug: planKey })
-      .then((trialRes) => {
-        trialEndsAt = trialRes.data?.trial_ends_at ?? null
-        return createSite()
-      })
-      .then((siteRes) => {
-        finishSignup(trialEndsAt, siteRes.data)
-      })
-      .catch((err: unknown) => {
-        const error = err as Error & { code?: string }
-        if (error.code === 'ALREADY_SUBSCRIBED') {
-          createSite()
-            .then((siteRes) => {
-              toast.success('Ви вже авторизовані. Продовжуємо оформлення.')
-              finishSignup(null, siteRes.data)
-            })
-            .catch((siteErr) => {
-              toast.error(siteErr instanceof Error ? siteErr.message : 'Не вдалося додати сайт')
-            })
-        } else {
-          toast.error(error.message || 'Не вдалося активувати trial')
-        }
-      })
-      .finally(() => setLoading(false))
+    const sigInput = document.createElement('input')
+    sigInput.type = 'hidden'
+    sigInput.name = 'signature'
+    sigInput.value = checkout.signature
+    form.appendChild(sigInput)
+
+    document.body.appendChild(form)
+    form.submit()
   }
 
   return (

@@ -13,11 +13,33 @@ interface Props {
 
 const navItems = [
   { to: '/cabinet', icon: LayoutDashboard, label: 'Дашборд', end: true },
-  { to: '/cabinet/sites/configure', icon: Wand2, label: 'Конфігуратор' },
-  { to: '/cabinet/sites', icon: Globe, label: 'Сайти' },
-  { to: '/cabinet/payments', icon: Receipt, label: 'Замовлення' },
-  { to: '/cabinet/settings', icon: Settings, label: 'Налаштування' },
+  { to: '/cabinet/sites/configure', icon: Wand2, label: 'Конфігуратор', end: true },
+  { to: '/cabinet/sites', icon: Globe, label: 'Сайти', end: true },
+  { to: '/cabinet/payments', icon: Receipt, label: 'Платежі', end: false },
+  { to: '/cabinet/settings', icon: Settings, label: 'Налаштування', end: false },
 ]
+
+
+function SupportAgentIcon() {
+  return (
+    <span className="sidebar__support-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+        <defs>
+          <linearGradient id="support-grad" x1="4" y1="4" x2="20" y2="20" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#69C8FF" />
+            <stop offset="1" stopColor="#3B82F6" />
+          </linearGradient>
+        </defs>
+        <circle cx="12" cy="12" r="10" fill="url(#support-grad)" fillOpacity="0.2" />
+        <path d="M6.75 12a5.25 5.25 0 1 1 10.5 0" stroke="#78D0FF" strokeWidth="1.8" strokeLinecap="round" />
+        <rect x="5" y="11.3" width="2.7" height="4.8" rx="1.2" fill="#5AB5FF" />
+        <rect x="16.3" y="11.3" width="2.7" height="4.8" rx="1.2" fill="#5AB5FF" />
+        <circle cx="12" cy="11.7" r="2.3" fill="#EAF6FF" />
+        <path d="M10.9 11.4h2.2M9.9 14.9h4.2" stroke="#2E5FB3" strokeWidth="1.2" strokeLinecap="round" />
+      </svg>
+    </span>
+  )
+}
 
 export default function Sidebar({ open, onClose }: Props) {
   const { logout } = useAuth()
@@ -75,6 +97,16 @@ export default function Sidebar({ open, onClose }: Props) {
                   <span>{label}</span>
                 </NavLink>
               ))}
+              <NavLink
+                to="/cabinet/support"
+                className={({ isActive }) =>
+                  `sidebar__link ${isActive ? 'sidebar__link--active' : ''}`
+                }
+                onClick={onClose}
+              >
+                <SupportAgentIcon />
+                <span>Допомога</span>
+              </NavLink>
             </nav>
 
             <div className="sidebar__bottom">

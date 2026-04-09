@@ -11,7 +11,7 @@ export default function Topbar({ onMenuClick }: Props) {
 
   const initials = user?.name
     ? user.name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()
-    : user?.email?.slice(0, 2).toUpperCase() || '?'
+    : user?.email?.split('@')[0].slice(0, 2).toUpperCase() || '?'
 
   return (
     <header className="topbar">
@@ -22,10 +22,7 @@ export default function Topbar({ onMenuClick }: Props) {
       <div className="topbar__center">
         <span className="topbar__title">Мій кабінет</span>
         {user && (
-          <span className="topbar__plan">
-            <span className="topbar__plan-dot" />
-            {user.email}
-          </span>
+          <span className="topbar__email">{user.email}</span>
         )}
       </div>
 

@@ -15,6 +15,46 @@ export default defineConfig({
         target: process.env.BACKEND_URL || 'http://127.0.0.1:9001',
         changeOrigin: true,
       },
+      '/site': {
+        target: process.env.BACKEND_URL || 'http://127.0.0.1:9001',
+        changeOrigin: true,
+      },
+      '/content': {
+        target: process.env.BACKEND_URL || 'http://127.0.0.1:9001',
+        changeOrigin: true,
+      },
+      '/frontend': {
+        target: process.env.BACKEND_URL || 'http://127.0.0.1:9001',
+        changeOrigin: true,
+      },
+      '/bundles': {
+        target: process.env.BACKEND_URL || 'http://127.0.0.1:9001',
+        changeOrigin: true,
+      },
+      '/_widget': {
+        target: process.env.BACKEND_URL || 'http://127.0.0.1:9001',
+        changeOrigin: true,
+      },
+      '/seen_items': {
+        target: process.env.BACKEND_URL || 'http://127.0.0.1:9001',
+        changeOrigin: true,
+      },
+      '^/[a-z]{2}(?:-[A-Z]{2})?/(?:_widget|seen_items)(?:/|$)': {
+        target: process.env.BACKEND_URL || 'http://127.0.0.1:9001',
+        changeOrigin: true,
+      },
+      '/build-demo': {
+        target: process.env.WIDGET_BUILDER_URL || 'http://127.0.0.1:3200',
+        changeOrigin: true,
+      },
+      '/modules': {
+        target: process.env.WIDGET_BUILDER_URL || 'http://127.0.0.1:3200',
+        changeOrigin: true,
+      },
+      '/build': {
+        target: process.env.WIDGET_BUILDER_URL || 'http://127.0.0.1:3200',
+        changeOrigin: true,
+      },
     },
   },
 })

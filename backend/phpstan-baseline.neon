@@ -51,6 +51,36 @@ parameters:
 		-
 			message: '#^Cannot access property \$value on string\.$#'
 			identifier: property.nonObject
+			count: 2
+			path: app/Http/Controllers/Api/V1/Admin/SiteController.php
+
+		-
+			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: app/Http/Controllers/Api/V1/Admin/SiteController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,App\\Models\\Site\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Api/V1/Admin/SiteController.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,App\\Models\\Site\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 1
+			path: app/Http/Controllers/Api/V1/Admin/SiteController.php
+
+		-
+			message: '#^Using nullsafe property access on non\-nullable type string\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Http/Controllers/Api/V1/Admin/SiteController.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
 			count: 1
 			path: app/Http/Controllers/Api/V1/Admin/SubscriptionController.php
 
@@ -89,6 +119,18 @@ parameters:
 			identifier: method.unresolvableReturnType
 			count: 1
 			path: app/Http/Controllers/Api/V1/Admin/UserController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/V1/Auth/AuthController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Http/Controllers/Api/V1/Auth/AuthController.php
 
 		-
 			message: '#^Cannot access property \$value on string\.$#'
@@ -201,7 +243,7 @@ parameters:
 		-
 			message: '#^Cannot call method toDateString\(\) on string\.$#'
 			identifier: method.nonObject
-			count: 1
+			count: 2
 			path: app/Http/Controllers/Api/V1/Profile/SubscriptionController.php
 
 		-
