@@ -57,7 +57,7 @@ export default function SitesPage() {
           {sites.map((site) => (
             <Link
               key={site.id}
-              to={`/cabinet/sites/${site.id}/widgets`}
+              to={`/cabinet/sites/${site.domain}/widgets`}
               className="sites__card"
             >
               <div className="sites__card-left">

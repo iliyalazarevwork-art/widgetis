@@ -75,7 +75,15 @@ export default function LoginPage() {
             <span>або</span>
           </div>
 
-          <button type="button" className="loginm__google-btn" disabled>
+          <button
+            type="button"
+            className="loginm__google-btn"
+            onClick={() => {
+              const apiBase = import.meta.env.VITE_API_BASE_URL as string | undefined
+              const backendUrl = apiBase ? apiBase.replace(/\/api\/v1\/?$/, '') : ''
+              window.location.href = backendUrl + '/auth/google'
+            }}
+          >
             <span className="loginm__google-g">G</span>
             <span>Увійти через Google</span>
           </button>

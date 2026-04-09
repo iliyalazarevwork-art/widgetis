@@ -1,5 +1,6 @@
-import { Menu } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { useNavigate } from 'react-router-dom'
+import { HamburgerIcon } from './HamburgerIcon'
 import './topbar.css'
 
 interface Props {
@@ -8,6 +9,7 @@ interface Props {
 
 export default function Topbar({ onMenuClick }: Props) {
   const { user } = useAuth()
+  const navigate = useNavigate()
 
   const initials = user?.name
     ? user.name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()
@@ -16,7 +18,7 @@ export default function Topbar({ onMenuClick }: Props) {
   return (
     <header className="topbar">
       <button className="topbar__burger" onClick={onMenuClick} aria-label="Меню">
-        <Menu size={18} />
+        <HamburgerIcon size={18} />
       </button>
 
       <div className="topbar__center">
@@ -26,7 +28,14 @@ export default function Topbar({ onMenuClick }: Props) {
         )}
       </div>
 
-      <div className="topbar__avatar">{initials}</div>
+      <button
+        type="button"
+        className="topbar__avatar"
+        onClick={() => navigate('/cabinet/profile')}
+        aria-label="Профіль"
+      >
+        {initials}
+      </button>
     </header>
   )
 }

@@ -69,7 +69,7 @@ return [
             'region' => 'auto',
             'bucket' => env('R2_BUCKET'),
             'endpoint' => env('R2_ENDPOINT'),
-            'use_path_style_endpoint' => false,
+            'use_path_style_endpoint' => true,
             'url' => env('R2_PUBLIC_URL', 'https://cdn.widgetis.com'),
             'visibility' => 'public',
             'throw' => true,

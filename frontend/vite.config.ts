@@ -15,6 +15,10 @@ export default defineConfig({
         target: process.env.BACKEND_URL || 'http://127.0.0.1:9001',
         changeOrigin: true,
       },
+      '/auth/google': {
+        target: process.env.BACKEND_URL || 'http://127.0.0.1:9001',
+        changeOrigin: true,
+      },
       '/site': {
         target: process.env.BACKEND_URL || 'http://127.0.0.1:9001',
         changeOrigin: true,

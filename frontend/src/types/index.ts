@@ -14,6 +14,7 @@ export interface User {
   two_factor_method: string | null
   notification_enabled: boolean
   onboarding_completed: boolean
+  subscription_status: 'trial' | 'active' | 'cancelled' | 'expired' | 'past_due' | 'pending' | null
   created_at: string
 }
 

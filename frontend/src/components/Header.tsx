@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { Link, useLocation } from 'react-router-dom'
-import { Menu, X } from 'lucide-react'
+import { X, LayoutDashboard } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useSwipeDismiss } from '../hooks/useSwipeDismiss'
 import { SocialIcon } from './SocialIcon'
+import { HamburgerIcon } from './HamburgerIcon'
+import { useAuth } from '../context/AuthContext'
 import './Header.css'
 
 const NAV_LINKS = [
@@ -26,6 +28,7 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
   const onHome = location.pathname === '/'
+  const { isAuthenticated } = useAuth()
 
   const handleLogoClick = (e: React.MouseEvent) => {
     if (onHome) {
@@ -103,7 +106,7 @@ export function Header() {
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label="Меню"
             >
-              {menuOpen ? <X size={22} /> : <Menu size={22} />}
+              {menuOpen ? <X size={22} /> : <HamburgerIcon size={22} />}
             </button>
           </div>
         </div>
@@ -177,6 +180,20 @@ export function Header() {
                       </Link>
                     </motion.div>
                   ))}
+
+                  {isAuthenticated && (
+                    <motion.div
+                      initial={{ opacity: 0, x: 24 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.12 + NAV_LINKS.length * 0.05, duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+                    >
+                      <Link to="/cabinet" className="header__drawer-link header__drawer-link--cabinet" onClick={closeMenu}>
+                        <LayoutDashboard size={16} className="header__drawer-link-icon" />
+                        Кабінет
+                        <span className="header__drawer-link-arrow">→</span>
+                      </Link>
+                    </motion.div>
+                  )}
                 </div>
 
                 <div className="header__drawer-divider" />

@@ -193,6 +193,8 @@ export function SignupPage() {
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const { login } = useAuth()
+  const verifyingOtpRef = useRef(false)
+  const lastAutoSubmittedOtpRef = useRef('')
 
   const rawPlan = params.get('plan') ?? 'pro'
   const billing = params.get('billing') === 'monthly' ? 'monthly' : 'yearly'
@@ -305,6 +307,7 @@ export function SignupPage() {
     post('/auth/otp/resend', { email: email.trim() })
       .then(() => {
         setOtp('')
+        lastAutoSubmittedOtpRef.current = ''
         startCooldown()
         toast.success('Код надіслано повторно')
       })
@@ -315,26 +318,49 @@ export function SignupPage() {
   }
 
   // ── Step 2: verify OTP ──
-  function handleVerifyOtp(e: React.FormEvent) {
-    e.preventDefault()
-    const clean = otp.replace(/\s/g, '')
+  async function verifyOtpCode(rawCode: string) {
+    const clean = rawCode.replace(/\s/g, '')
     if (clean.length < 6) {
       setOtpError('Введіть 6-значний код')
       return
     }
+    if (verifyingOtpRef.current) return
+
+    verifyingOtpRef.current = true
     setOtpError('')
     setLoading(true)
-    post<{ token: string; user: User }>('/auth/otp/verify', { email: email.trim(), code: clean })
-      .then((res) => {
-        login(res.token, res.user)
-        setStep('store')
-        toast.success('Email підтверджено')
-      })
-      .catch((err) => {
-        setOtpError(err instanceof Error ? err.message : 'Невірний або прострочений код')
-      })
-      .finally(() => setLoading(false))
+
+    try {
+      const res = await post<{ token: string; user: User }>('/auth/otp/verify', { email: email.trim(), code: clean })
+      login(res.token, res.user)
+      setStep('store')
+      toast.success('Email підтверджено')
+    } catch (err) {
+      setOtpError(err instanceof Error ? err.message : 'Невірний або прострочений код')
+    } finally {
+      setLoading(false)
+      verifyingOtpRef.current = false
+    }
   }
+
+  function handleVerifyOtp(e: React.FormEvent) {
+    e.preventDefault()
+    void verifyOtpCode(otp)
+  }
+
+  useEffect(() => {
+    if (step !== 'otp' || loading) return
+
+    const clean = otp.replace(/\s/g, '')
+    if (clean.length < 6) {
+      lastAutoSubmittedOtpRef.current = ''
+      return
+    }
+    if (clean === lastAutoSubmittedOtpRef.current) return
+
+    lastAutoSubmittedOtpRef.current = clean
+    void verifyOtpCode(clean)
+  }, [loading, otp, step])
 
   // ── Step 3: store + start trial via LiqPay ──
   async function handleStartTrial(e: React.FormEvent) {

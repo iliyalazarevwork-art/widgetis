@@ -2,6 +2,7 @@
   color: #f0f0f0;
   max-width: 430px;
   margin: 0 auto;
+  padding-top: calc(var(--promo-strip-h, 0px) + 64px + env(safe-area-inset-top, 0px));
 }
 
 .loginm__body {

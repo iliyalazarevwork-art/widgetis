@@ -133,11 +133,12 @@ class CheckoutController
             ]);
 
             // On local env LiqPay cannot reach localhost — simulate the webhook immediately
-            if (app()->environment('local')) {
+            $emulated = app()->environment('local');
+            if ($emulated) {
                 $this->webhookService->simulateSuccess($order);
             }
 
-            return $checkout;
+            return array_merge($checkout, ['emulated' => $emulated]);
         });
 
         return response()->json(['data' => $checkout]);

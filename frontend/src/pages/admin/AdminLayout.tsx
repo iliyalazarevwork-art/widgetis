@@ -11,10 +11,10 @@ import {
   MessageSquareWarning,
   FileText,
   LogOut,
-  Menu,
   X,
   ExternalLink,
 } from 'lucide-react'
+import { HamburgerIcon } from '../../components/HamburgerIcon'
 import './admin.css'
 
 const NAV = [
@@ -133,7 +133,7 @@ export function AdminLayout() {
             aria-label="Відкрити меню"
             type="button"
           >
-            <Menu size={20} strokeWidth={2} />
+            <HamburgerIcon size={20} />
           </button>
           <div className="admin__user">
             <div className="admin__avatar" aria-hidden="true">

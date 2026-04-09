@@ -1,4 +1,4 @@
-.pricing {
+.choose-plan {
   display: flex;
   flex-direction: column;
   max-width: 480px;
@@ -8,11 +8,11 @@
 }
 
 /* ── Header ── */
-.pricing__header {
+.choose-plan__header {
   padding: 12px 20px;
 }
 
-.pricing__back {
+.choose-plan__back {
   width: 36px;
   height: 36px;
   border-radius: var(--radius-sm);
@@ -24,7 +24,7 @@
 }
 
 /* ── Hero ── */
-.pricing__hero {
+.choose-plan__hero {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -33,32 +33,32 @@
   text-align: center;
 }
 
-.pricing__title {
+.choose-plan__title {
   font-size: 28px;
   font-weight: 900;
   color: #fff;
 }
 
-.pricing__subtitle {
+.choose-plan__subtitle {
   font-size: 14px;
   color: var(--text-secondary);
 }
 
 /* ── Toggle ── */
-.pricing__toggle-wrap {
+.choose-plan__toggle-wrap {
   display: flex;
   justify-content: center;
   padding-bottom: 20px;
 }
 
-.pricing__toggle {
+.choose-plan__toggle {
   display: flex;
   background: #161616;
   border-radius: var(--radius-lg);
   padding: 4px;
 }
 
-.pricing__toggle-btn {
+.choose-plan__toggle-btn {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -69,13 +69,13 @@
   color: var(--text-secondary);
   transition: all var(--t-fast);
 }
-.pricing__toggle-btn--active {
+.choose-plan__toggle-btn--active {
   background: #1E3A5F;
   color: #fff;
   font-weight: 700;
 }
 
-.pricing__toggle-save {
+.choose-plan__toggle-save {
   padding: 2px 6px;
   border-radius: var(--radius-full);
   background: var(--green);
@@ -85,7 +85,7 @@
 }
 
 /* ── Plans ── */
-.pricing__plans {
+.choose-plan__plans {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -93,7 +93,7 @@
 }
 
 /* ── Card ── */
-.pricing__card {
+.choose-plan__card {
   background: var(--bg-card);
   border: 1.5px solid;
   border-radius: 24px;
@@ -104,7 +104,7 @@
   position: relative;
 }
 
-.pricing__card--pro {
+.choose-plan__card--pro {
   background: linear-gradient(160deg, #0D1F3C 0%, #0F0F1A 100%);
   box-shadow: 0 8px 32px rgba(59, 130, 246, 0.19);
   padding-top: 22px;
@@ -112,14 +112,14 @@
 }
 
 /* ── Pro badge (floating) ── */
-.pricing__badge-wrap {
+.choose-plan__badge-wrap {
   display: flex;
   justify-content: center;
   margin-top: -33px;
   margin-bottom: 4px;
 }
 
-.pricing__badge {
+.choose-plan__badge {
   padding: 5px 16px;
   border-radius: var(--radius-full);
   background: var(--blue);
@@ -130,13 +130,13 @@
 }
 
 /* ── Card top ── */
-.pricing__card-top {
+.choose-plan__card-top {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.pricing__card-icon-wrap {
+.choose-plan__card-icon-wrap {
   width: 44px;
   height: 44px;
   border-radius: 12px;
@@ -146,35 +146,35 @@
   flex-shrink: 0;
 }
 
-.pricing__card-name-col {
+.choose-plan__card-name-col {
   display: flex;
   flex-direction: column;
   gap: 1px;
 }
 
-.pricing__card-name {
+.choose-plan__card-name {
   font-size: 16px;
   font-weight: 700;
 }
 
-.pricing__card-pitch {
+.choose-plan__card-pitch {
   font-size: 12px;
 }
 
 /* ── Price ── */
-.pricing__card-price-block {
+.choose-plan__card-price-block {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.pricing__card-price-line {
+.choose-plan__card-price-line {
   display: flex;
   align-items: flex-end;
   gap: 6px;
 }
 
-.pricing__card-old-price {
+.choose-plan__card-old-price {
   position: relative;
   font-size: 15px;
   font-weight: 600;
@@ -182,7 +182,7 @@
   padding-bottom: 4px;
 }
 
-.pricing__card-strike {
+.choose-plan__card-strike {
   position: absolute;
   left: 0;
   top: 50%;
@@ -191,29 +191,29 @@
   background: var(--text-secondary);
 }
 
-.pricing__card-amount {
+.choose-plan__card-amount {
   font-size: 36px;
   font-weight: 800;
   line-height: 1;
 }
 
-.pricing__card-unit {
+.choose-plan__card-unit {
   font-size: 13px;
   padding-bottom: 4px;
 }
 
-.pricing__card-annual-line {
+.choose-plan__card-annual-line {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.pricing__card-annual-text {
+.choose-plan__card-annual-text {
   font-size: 12px;
   color: var(--text-muted);
 }
 
-.pricing__card-savings {
+.choose-plan__card-savings {
   padding: 3px 10px;
   border-radius: 20px;
   background: rgba(16, 185, 129, 0.12);
@@ -223,24 +223,24 @@
 }
 
 /* ── Count ── */
-.pricing__card-count {
+.choose-plan__card-count {
   font-size: 13px;
   font-weight: 600;
 }
 
 /* ── Divider ── */
-.pricing__card-divider {
+.choose-plan__card-divider {
   height: 1px;
 }
 
 /* ── Features ── */
-.pricing__card-feats {
+.choose-plan__card-feats {
   display: flex;
   flex-direction: column;
   gap: 7px;
 }
 
-.pricing__card-feat {
+.choose-plan__card-feat {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -248,7 +248,7 @@
 }
 
 /* ── CTA ── */
-.pricing__card-btn {
+.choose-plan__card-btn {
   height: 52px;
   border-radius: var(--radius-full);
   border: 1.5px solid;
@@ -259,18 +259,18 @@
   justify-content: center;
   transition: all var(--t-fast);
 }
-.pricing__card-btn:disabled {
+.choose-plan__card-btn:disabled {
   opacity: 0.5;
 }
 
 /* ── Trial note ── */
-.pricing__card-trial {
+.choose-plan__card-trial {
   font-size: 11px;
   text-align: center;
 }
 
 /* ── Final CTA ── */
-.pricing__final {
+.choose-plan__final {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -278,13 +278,13 @@
   padding: 28px 20px 36px;
 }
 
-.pricing__final-title {
+.choose-plan__final-title {
   font-size: 24px;
   font-weight: 900;
   color: #fff;
 }
 
-.pricing__final-btn {
+.choose-plan__final-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -297,11 +297,11 @@
   font-weight: 700;
   color: #fff;
 }
-.pricing__final-btn:disabled {
+.choose-plan__final-btn:disabled {
   opacity: 0.5;
 }
 
-.pricing__final-note {
+.choose-plan__final-note {
   font-size: 13px;
   color: var(--text-muted);
 }

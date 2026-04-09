@@ -24,6 +24,7 @@ interface RequestOptions {
 
 export async function api<T>(path: string, opts: RequestOptions = {}): Promise<T> {
   const { method = 'GET', body, params } = opts
+  const isPublicAuthPath = /^\/auth\/(otp(?:\/|$)|register(?:\/|$)|google(?:\/|$))/i.test(path)
 
   let url = `${BASE}${path}`
   if (params) {
@@ -40,7 +41,7 @@ export async function api<T>(path: string, opts: RequestOptions = {}): Promise<T
     'Accept-Language': localStorage.getItem('wty_locale') || 'uk',
   }
 
-  if (accessToken) {
+  if (accessToken && !isPublicAuthPath) {
     headers['Authorization'] = `Bearer ${accessToken}`
   }
 
@@ -55,8 +56,8 @@ export async function api<T>(path: string, opts: RequestOptions = {}): Promise<T
       body: body !== undefined ? JSON.stringify(body) : undefined,
     })
 
-    // Handle 401 — token expired
-    if (res.status === 401) {
+    // Handle 401 on protected requests — token expired/invalid
+    if (res.status === 401 && accessToken && !isPublicAuthPath) {
       setToken(null)
       window.location.href = '/login'
       throw new Error('Unauthorized')

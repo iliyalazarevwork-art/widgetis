@@ -2,9 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Web\GoogleAuthController;
 use App\Http\Controllers\Web\SiteProxyController;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Route;
+
+// --- Google OAuth ---
+Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])->name('auth.google');
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
 
 $proxyMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
 

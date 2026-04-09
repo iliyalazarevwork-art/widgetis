@@ -57,8 +57,8 @@
   width: 36px;
   height: 36px;
   border-radius: var(--radius-full);
-  background: var(--blue-glow);
   border: 1px solid var(--blue-ring);
+  background: var(--blue-glow);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -66,4 +66,10 @@
   font-weight: 700;
   line-height: 1;
   color: var(--blue);
+  cursor: pointer;
+  transition: background var(--t-fast), border-color var(--t-fast);
+}
+
+.topbar__avatar:active {
+  background: var(--border-card);
 }

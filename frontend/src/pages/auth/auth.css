@@ -3,6 +3,7 @@
   flex-direction: column;
   max-width: 480px;
   margin: 0 auto;
+  padding-top: calc(var(--promo-strip-h, 0px) + 64px + env(safe-area-inset-top, 0px));
 }
 
 .auth-page__back-inline {
@@ -179,6 +180,14 @@
 .auth-page__status {
   font-size: 13px;
   color: var(--text-secondary);
+}
+
+.auth-page__otp-form {
+  align-items: center;
+}
+
+.auth-page__otp-submit {
+  margin-top: 4px;
 }
 
 .auth-page__resend {

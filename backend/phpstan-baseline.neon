@@ -1,6 +1,12 @@
 parameters:
 	ignoreErrors:
 		-
+			message: '#^Method App\\Models\\SocialAccount::user\(\) should return#'
+			identifier: return.type
+			count: 1
+			path: app/Models/SocialAccount.php
+
+		-
 			message: '#^Cannot access property \$value on string\.$#'
 			identifier: property.nonObject
 			count: 1

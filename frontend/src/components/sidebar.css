@@ -106,13 +106,6 @@
   color: #f0f0f0;
 }
 
-.sidebar__support-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-}
 .sidebar__link--active {
   background: #3b82f615;
   border: 1px solid #3b82f640;

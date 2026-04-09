@@ -100,6 +100,7 @@ export default function LoginOtpPage() {
   }
 
   if (!email) return null
+  const isCodeComplete = digits.every((d) => d !== '')
 
   return (
     <div className="auth-page">
@@ -115,25 +116,42 @@ export default function LoginOtpPage() {
           </p>
         </div>
 
-        <div className="otp-inputs" onPaste={handlePaste}>
-          {digits.map((d, i) => (
-            <input
-              key={i}
-              ref={(el) => { inputsRef.current[i] = el }}
-              type="text"
-              inputMode="numeric"
-              maxLength={1}
-              className={`otp-input ${d ? 'otp-input--filled' : ''}`}
-              value={d}
-              onChange={(e) => handleChange(i, e.target.value)}
-              onKeyDown={(e) => handleKeyDown(i, e)}
-              disabled={loading}
-              autoFocus={i === 0}
-            />
-          ))}
-        </div>
+        <form
+          className="auth-page__form auth-page__otp-form"
+          onSubmit={(e) => {
+            e.preventDefault()
+            if (!isCodeComplete || loading) return
+            void verify(digits.join(''))
+          }}
+        >
+          <div className="otp-inputs" onPaste={handlePaste}>
+            {digits.map((d, i) => (
+              <input
+                key={i}
+                ref={(el) => { inputsRef.current[i] = el }}
+                type="text"
+                inputMode="numeric"
+                maxLength={1}
+                className={`otp-input ${d ? 'otp-input--filled' : ''}`}
+                value={d}
+                onChange={(e) => handleChange(i, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(i, e)}
+                disabled={loading}
+                autoFocus={i === 0}
+              />
+            ))}
+          </div>
 
-        {loading && <p className="auth-page__status">Перевіряємо код…</p>}
+          {loading && <p className="auth-page__status">Перевіряємо код…</p>}
+
+          <button
+            type="submit"
+            className="auth-btn auth-btn--primary auth-page__otp-submit"
+            disabled={!isCodeComplete || loading}
+          >
+            Відправити
+          </button>
+        </form>
 
         <button
           className="auth-page__resend"

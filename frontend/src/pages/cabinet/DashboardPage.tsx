@@ -37,7 +37,8 @@ export default function DashboardPage() {
   const planSlug = data.plan?.slug
   const planName = data.plan?.name || 'Free'
   const planColor = getPlanColor(planSlug)
-  const firstName = user?.name?.split(' ')[0] || 'Користувачу'
+  const firstName = user?.name?.trim().split(/\s+/)[0]
+  const greeting = firstName ? `Привіт, ${firstName}!` : 'Привіт!'
 
   return (
     <div className="dash">
@@ -45,7 +46,7 @@ export default function DashboardPage() {
       <div className="dash__plan" style={{ borderColor: `${planColor}30` }}>
         <div className="dash__plan-top">
           <div className="dash__plan-left">
-            <span className="dash__plan-greeting">Привіт, {firstName}!</span>
+            <span className="dash__plan-greeting">{greeting}</span>
             <span className="dash__plan-sublabel">Ваш поточний тариф</span>
           </div>
           <div className="dash__plan-badge" style={{ background: `${planColor}20`, borderColor: `${planColor}40` }}>

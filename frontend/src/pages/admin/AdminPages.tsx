@@ -9,7 +9,6 @@ import {
   Globe,
   LayoutDashboard,
   Mail,
-  Menu,
   Banknote,
   Phone,
   Plus,
@@ -27,6 +26,7 @@ import {
   X,
 } from 'lucide-react'
 import { get } from '../../api/client'
+import { HamburgerIcon } from '../../components/HamburgerIcon'
 import type { PaginatedResponse } from '../../types'
 import './pages.css'
 
@@ -260,7 +260,7 @@ function MobileHeader({
   return (
     <header className="orders-mobile__top">
       <button type="button" aria-label="Меню" onClick={onMenu}>
-        <Menu size={18} strokeWidth={2.25} />
+        <HamburgerIcon size={18} />
       </button>
       <div>
         <h1>{title}</h1>

@@ -41,6 +41,12 @@ return [
         'public_url' => env('R2_PUBLIC_URL', 'https://cdn.widgetis.com'),
     ],
 
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI', '/auth/google/callback'),
+    ],
+
     'widget_builder' => [
         'url' => env('WIDGET_BUILDER_URL', 'http://widget-builder:3200'),
     ],

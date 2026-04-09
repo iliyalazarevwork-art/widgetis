@@ -8,13 +8,13 @@ import {
   ArrowUpRight,
   Wand2,
   ArrowRight,
-  Menu,
   X,
   LayoutDashboard,
   Repeat2,
   Users,
 } from 'lucide-react'
 import { get } from '../../api/client'
+import { HamburgerIcon } from '../../components/HamburgerIcon'
 import type { AdminDashboardData } from '../../types'
 import './dashboard.css'
 
@@ -158,7 +158,7 @@ export function AdminDashboardPage() {
           aria-label="Меню"
           onClick={() => setMenuOpen(true)}
         >
-          <Menu size={18} strokeWidth={2} />
+          <HamburgerIcon size={18} />
         </button>
         <div className="dash-m__topbar-center">
           <strong>Дашборд</strong>

@@ -82,8 +82,23 @@ class Site extends Model
     public static function domainFromUrl(string $url): string
     {
         $parsed = parse_url($url);
-        $host = $parsed['host'] ?? $url;
+        $host = is_array($parsed) ? ($parsed['host'] ?? null) : null;
+        $normalized = strtolower(trim((string) ($host ?? $url)));
+        $normalized = rtrim($normalized, '.');
+        $normalized = (string) preg_replace('/^www\./i', '', $normalized);
 
-        return (string) preg_replace('/^www\./', '', $host);
+        if ($normalized !== '' && function_exists('idn_to_ascii')) {
+            $ascii = idn_to_ascii(
+                $normalized,
+                IDNA_DEFAULT,
+                defined('INTL_IDNA_VARIANT_UTS46') ? INTL_IDNA_VARIANT_UTS46 : 0,
+            );
+
+            if (is_string($ascii) && $ascii !== '') {
+                $normalized = strtolower($ascii);
+            }
+        }
+
+        return $normalized;
     }
 }

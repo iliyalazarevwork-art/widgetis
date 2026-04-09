@@ -21,7 +21,7 @@ class SiteService
         $domain = Site::domainFromUrl($url);
 
         $takenByAnother = Site::query()
-            ->where('domain', $domain)
+            ->whereRaw('LOWER(domain) = ?', [$domain])
             ->where('user_id', '!=', $user->id)
             ->exists();
 
@@ -33,7 +33,7 @@ class SiteService
 
         $alreadyConnected = Site::query()
             ->where('user_id', $user->id)
-            ->where('domain', $domain)
+            ->whereRaw('LOWER(domain) = ?', [$domain])
             ->exists();
 
         if ($alreadyConnected) {

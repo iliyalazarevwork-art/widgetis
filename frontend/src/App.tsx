@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Outlet, Navigate } from 'react-router-dom'
-import { useState, type ReactElement } from 'react'
+import { useEffect, useState, type ReactElement } from 'react'
 import { Header } from './components/Header'
 import { Footer } from './components/Footer'
 import { Hero } from './components/Hero'
@@ -38,6 +38,7 @@ import {
 } from './pages/admin/AdminPages'
 import LoginPage from './pages/auth/LoginPage'
 import LoginOtpPage from './pages/auth/LoginOtpPage'
+import GoogleCallbackPage from './pages/auth/GoogleCallbackPage'
 import CabinetLayout from './layouts/CabinetLayout'
 import DashboardPage from './pages/cabinet/DashboardPage'
 import SitesPage from './pages/cabinet/SitesPage'
@@ -53,6 +54,7 @@ import ProfilePage from './pages/cabinet/ProfilePage'
 import SettingsPage from './pages/cabinet/SettingsPage'
 import ChoosePlanPage from './pages/cabinet/ChoosePlanPage'
 import CabinetDemoPage from './pages/cabinet/DemoPage'
+import OnboardingPage from './pages/OnboardingPage'
 import { useAuth } from './context/AuthContext'
 import { Toaster } from 'sonner'
 import { Helmet } from 'react-helmet-async'
@@ -115,6 +117,69 @@ function RequireAuth({ children }: { children: ReactElement }) {
   return children
 }
 
+function RequireSubscription({ children }: { children: ReactElement }) {
+  const { user } = useAuth()
+
+  const hasAccess = user?.subscription_status === 'active'
+    || user?.subscription_status === 'trial'
+    || user?.subscription_status === 'past_due'
+
+  if (!hasAccess) {
+    return <Navigate to="/cabinet/choose-plan" replace />
+  }
+
+  return children
+}
+
+function RequireOnboarding({ children }: { children: ReactElement }) {
+  const { user } = useAuth()
+
+  if (user && !user.onboarding_completed) {
+    return <Navigate to="/onboarding" replace />
+  }
+
+  return children
+}
+
+function RequireAdmin({ children }: { children: ReactElement }) {
+  const { user, isAuthenticated, isLoading, refreshUser } = useAuth()
+  const [isCheckingAccess, setIsCheckingAccess] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+
+    const verifyAccess = async () => {
+      if (!isAuthenticated) {
+        if (!cancelled) setIsCheckingAccess(false)
+        return
+      }
+
+      await refreshUser()
+      if (!cancelled) setIsCheckingAccess(false)
+    }
+
+    verifyAccess()
+
+    return () => {
+      cancelled = true
+    }
+  }, [isAuthenticated, refreshUser])
+
+  if (isLoading || isCheckingAccess) {
+    return <div className="page-loader">Завантаження…</div>
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />
+  }
+
+  if (user?.role !== 'admin') {
+    return <Navigate to="/cabinet" replace />
+  }
+
+  return children
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -134,15 +199,39 @@ function App() {
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/login/otp" element={<LoginOtpPage />} />
+            <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
+            <Route
+              path="/onboarding"
+              element={(
+                <RequireAuth>
+                  <RequireSubscription>
+                    <OnboardingPage />
+                  </RequireSubscription>
+                </RequireAuth>
+              )}
+            />
           </Route>
 
           <Route path="/signup/success" element={<TrialSuccessPage />} />
 
           <Route
+            path="/cabinet/choose-plan"
+            element={(
+              <RequireAuth>
+                <ChoosePlanPage />
+              </RequireAuth>
+            )}
+          />
+
+          <Route
             path="/cabinet"
             element={(
               <RequireAuth>
-                <CabinetLayout />
+                <RequireSubscription>
+                  <RequireOnboarding>
+                    <CabinetLayout />
+                  </RequireOnboarding>
+                </RequireSubscription>
               </RequireAuth>
             )}
           >
@@ -150,7 +239,7 @@ function App() {
             <Route path="sites" element={<SitesPage />} />
             <Route path="sites/add" element={<AddSitePage />} />
             <Route path="sites/configure" element={<ConfigureWidgetPage />} />
-            <Route path="sites/:id/widgets" element={<ConfigureWidgetPage />} />
+            <Route path="sites/:domain/widgets" element={<ConfigureWidgetPage />} />
             <Route path="plan" element={<MyPlanPage />} />
             <Route path="plan/cancel" element={<CancelSubscriptionPage />} />
             <Route path="widgets" element={<MyWidgetsPage />} />
@@ -159,11 +248,17 @@ function App() {
             <Route path="support" element={<SupportPage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="settings" element={<SettingsPage />} />
-            <Route path="choose-plan" element={<ChoosePlanPage />} />
             <Route path="demo" element={<CabinetDemoPage />} />
           </Route>
 
-          <Route path="/admin" element={<AdminLayout />}>
+          <Route
+            path="/admin"
+            element={(
+              <RequireAdmin>
+                <AdminLayout />
+              </RequireAdmin>
+            )}
+          >
             <Route index element={<AdminDashboardPage />} />
             <Route path="configurator" element={<AdminConfiguratorPage />} />
             <Route path="widgets" element={<AdminConfiguratorPage />} />

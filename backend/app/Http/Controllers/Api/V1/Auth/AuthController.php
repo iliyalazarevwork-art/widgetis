@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\Auth;
 
+use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
 use App\Http\Controllers\Api\V1\BaseController;
 use App\Http\Requests\Api\V1\Auth\SendOtpRequest;
@@ -94,10 +95,15 @@ class AuthController extends BaseController
     {
         /** @var User $user */
         $user = $this->guard()->user();
+        $user->loadMissing('subscription');
+
+        $status = $user->subscription?->status;
 
         return $this->success(['data' => [
             ...$user->toArray(),
             'role' => $user->roles->first()?->name ?? 'customer',
+            'subscription_status' => $status instanceof SubscriptionStatus ? $status->value : null,
+            'onboarding_completed' => $user->onboarding_completed_at !== null,
         ]]);
     }
 

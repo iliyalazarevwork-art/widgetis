@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Check, ArrowLeft, ArrowRight, Sprout, Zap, Crown, type LucideIcon } from 'lucide-react'
 import { get, post } from '../../api/client'
+import { useAuth } from '../../context/AuthContext'
 import { toast } from 'sonner'
 import type { Plan } from '../../types'
 import './styles/choose-plan.css'
@@ -31,6 +32,7 @@ const PLAN_ICONS: Record<string, LucideIcon> = {
 
 export default function ChoosePlanPage() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [plans, setPlans] = useState<PlanWithFeatures[]>([])
   const [loading, setLoading] = useState(true)
   const [yearly, setYearly] = useState(true)
@@ -45,13 +47,55 @@ export default function ChoosePlanPage() {
   const handleStart = async (slug: string) => {
     if (starting) return
     setStarting(slug)
+    const billingPeriod = yearly ? 'yearly' : 'monthly'
+
+    // Store signup data before the request (needed if we redirect to success)
+    sessionStorage.setItem('wty_trial_signup', JSON.stringify({
+      email: user?.email ?? '',
+      site: '',
+      platform: 'horoshop',
+      plan: slug,
+      billing: billingPeriod,
+    }))
+
     try {
-      await post('/profile/subscription/start-trial', { plan_slug: slug })
-      toast.success('Trial активовано! 7 днів безкоштовно')
-      navigate('/cabinet', { replace: true })
-    } catch (err) {
+      const res = await post<{ data: { checkout_url: string; data: string; signature: string; emulated?: boolean } }>(
+        '/profile/subscription/checkout/trial',
+        { plan_slug: slug, billing_period: billingPeriod },
+      )
+
+      // On local env the webhook is emulated — skip LiqPay and go straight to success
+      if (res.data.emulated) {
+        navigate('/signup/success')
+        return
+      }
+
+      // LiqPay requires a POST form with data + signature fields
+      const form = document.createElement('form')
+      form.method = 'POST'
+      form.action = res.data.checkout_url
+
+      const dataField = document.createElement('input')
+      dataField.type = 'hidden'
+      dataField.name = 'data'
+      dataField.value = res.data.data
+
+      const sigField = document.createElement('input')
+      sigField.type = 'hidden'
+      sigField.name = 'signature'
+      sigField.value = res.data.signature
+
+      form.appendChild(dataField)
+      form.appendChild(sigField)
+      document.body.appendChild(form)
+      form.submit()
+    } catch (err: unknown) {
+      // If already subscribed (e.g. from a previous local session), go to success page
+      if (err && typeof err === 'object' && 'code' in err && (err as { code: string }).code === 'ALREADY_SUBSCRIBED') {
+        navigate('/signup/success')
+        return
+      }
       toast.error(err instanceof Error ? err.message : 'Помилка')
-    } finally {
       setStarting(null)
     }
   }
@@ -59,37 +103,37 @@ export default function ChoosePlanPage() {
   if (loading) return <div className="page-loader">Завантаження…</div>
 
   return (
-    <div className="pricing">
-      <header className="pricing__header">
-        <button className="pricing__back" onClick={() => navigate(-1)}>
+    <div className="choose-plan">
+      <header className="choose-plan__header">
+        <button className="choose-plan__back" onClick={() => navigate(-1)}>
           <ArrowLeft size={18} />
         </button>
       </header>
 
-      <div className="pricing__hero">
-        <h1 className="pricing__title">Обери свій план</h1>
-        <p className="pricing__subtitle">7 днів безкоштовно. Скасуєш коли захочеш.</p>
+      <div className="choose-plan__hero">
+        <h1 className="choose-plan__title">Обери свій план</h1>
+        <p className="choose-plan__subtitle">7 днів безкоштовно. Скасуєш коли захочеш.</p>
       </div>
 
-      <div className="pricing__toggle-wrap">
-        <div className="pricing__toggle">
+      <div className="choose-plan__toggle-wrap">
+        <div className="choose-plan__toggle">
           <button
-            className={`pricing__toggle-btn ${!yearly ? 'pricing__toggle-btn--active' : ''}`}
+            className={`choose-plan__toggle-btn ${!yearly ? 'choose-plan__toggle-btn--active' : ''}`}
             onClick={() => setYearly(false)}
           >
             Місяць
           </button>
           <button
-            className={`pricing__toggle-btn ${yearly ? 'pricing__toggle-btn--active' : ''}`}
+            className={`choose-plan__toggle-btn ${yearly ? 'choose-plan__toggle-btn--active' : ''}`}
             onClick={() => setYearly(true)}
           >
             Рік
-            <span className="pricing__toggle-save">−17%</span>
+            <span className="choose-plan__toggle-save">−17%</span>
           </button>
         </div>
       </div>
 
-      <div className="pricing__plans">
+      <div className="choose-plan__plans">
         {plans.map((plan) => {
           const color = PLAN_COLORS[plan.slug] ?? '#888'
           const isPro = plan.slug === 'pro'
@@ -111,67 +155,67 @@ export default function ChoosePlanPage() {
           return (
             <div
               key={plan.id}
-              className={`pricing__card ${isPro ? 'pricing__card--pro' : ''}`}
+              className={`choose-plan__card ${isPro ? 'choose-plan__card--pro' : ''}`}
               style={{ borderColor: `${color}${isPro ? '' : plan.slug === 'max' ? '80' : '70'}` }}
             >
               {badge && (
-                <div className="pricing__badge-wrap">
-                  <span className="pricing__badge">{badge}</span>
+                <div className="choose-plan__badge-wrap">
+                  <span className="choose-plan__badge">{badge}</span>
                 </div>
               )}
 
-              <div className="pricing__card-top">
-                <div className="pricing__card-icon-wrap" style={{ background: `${color}18` }}>
+              <div className="choose-plan__card-top">
+                <div className="choose-plan__card-icon-wrap" style={{ background: `${color}18` }}>
                   <Icon size={16} style={{ color }} />
                 </div>
-                <div className="pricing__card-name-col">
-                  <span className="pricing__card-name" style={{ color: isPro ? '#FFF' : '#F0F0F0' }}>
+                <div className="choose-plan__card-name-col">
+                  <span className="choose-plan__card-name" style={{ color: isPro ? '#FFF' : '#F0F0F0' }}>
                     {plan.name}
                   </span>
                   {pitch && (
-                    <span className="pricing__card-pitch" style={{ color: isPro ? '#9BB3D4' : '#666' }}>
+                    <span className="choose-plan__card-pitch" style={{ color: isPro ? '#9BB3D4' : '#666' }}>
                       {pitch}
                     </span>
                   )}
                 </div>
               </div>
 
-              <div className="pricing__card-price-block">
-                <div className="pricing__card-price-line">
+              <div className="choose-plan__card-price-block">
+                <div className="choose-plan__card-price-line">
                   {yearly && (
-                    <span className="pricing__card-old-price">
+                    <span className="choose-plan__card-old-price">
                       {monthlyPrice.toLocaleString('uk-UA')}
-                      <span className="pricing__card-strike" />
+                      <span className="choose-plan__card-strike" />
                     </span>
                   )}
-                  <span className="pricing__card-amount" style={{ color: isPro ? '#FFF' : '#F0F0F0' }}>
+                  <span className="choose-plan__card-amount" style={{ color: isPro ? '#FFF' : '#F0F0F0' }}>
                     {yearly ? yearlyMonthly.toLocaleString('uk-UA') : monthlyPrice.toLocaleString('uk-UA')}
                   </span>
-                  <span className="pricing__card-unit" style={{ color: isPro ? '#9BB3D4' : '#666' }}>
+                  <span className="choose-plan__card-unit" style={{ color: isPro ? '#9BB3D4' : '#666' }}>
                     грн/міс
                   </span>
                 </div>
                 {yearly && (
-                  <div className="pricing__card-annual-line">
-                    <span className="pricing__card-annual-text">
+                  <div className="choose-plan__card-annual-line">
+                    <span className="choose-plan__card-annual-text">
                       {yearlyTotal.toLocaleString('uk-UA')} грн/рік
                     </span>
-                    <span className="pricing__card-savings">
+                    <span className="choose-plan__card-savings">
                       Економія {savings.toLocaleString('uk-UA')} грн
                     </span>
                   </div>
                 )}
               </div>
 
-              <span className="pricing__card-count" style={{ color: isPro ? '#D0DCF0' : '#DDD' }}>
+              <span className="choose-plan__card-count" style={{ color: isPro ? '#D0DCF0' : '#DDD' }}>
                 {plan.max_widgets} віджетів · {plan.max_sites} {pluralSites(plan.max_sites)}
               </span>
 
-              <div className="pricing__card-divider" style={{ background: isPro ? `${color}20` : 'rgba(255,255,255,0.08)' }} />
+              <div className="choose-plan__card-divider" style={{ background: isPro ? `${color}20` : 'rgba(255,255,255,0.08)' }} />
 
-              <div className="pricing__card-feats">
+              <div className="choose-plan__card-feats">
                 {included.map((f) => (
-                  <div key={f.key} className="pricing__card-feat">
+                  <div key={f.key} className="choose-plan__card-feat">
                     <Check size={12} style={{ color }} />
                     <span style={{ color: isPro ? '#D0DCF0' : '#AAA' }}>
                       {typeof f.value === 'string' ? `${f.name}: ${f.value}` : f.name}
@@ -181,7 +225,7 @@ export default function ChoosePlanPage() {
               </div>
 
               <button
-                className="pricing__card-btn"
+                className="choose-plan__card-btn"
                 style={{ background: `${color}22`, borderColor: `${color}55`, color }}
                 onClick={() => handleStart(plan.slug)}
                 disabled={starting !== null}
@@ -189,7 +233,7 @@ export default function ChoosePlanPage() {
                 {starting === plan.slug ? 'Активуємо…' : 'Почати безкоштовно'}
               </button>
 
-              <span className="pricing__card-trial" style={{ color: isPro ? `${color}80` : 'rgba(255,255,255,0.32)' }}>
+              <span className="choose-plan__card-trial" style={{ color: isPro ? `${color}80` : 'rgba(255,255,255,0.32)' }}>
                 {isPro ? '7 днів безкоштовно · без зобов\'язань' : '7 днів безкоштовно'}
               </span>
             </div>
@@ -197,16 +241,16 @@ export default function ChoosePlanPage() {
         })}
       </div>
 
-      <div className="pricing__final">
-        <h2 className="pricing__final-title">Готові почати?</h2>
+      <div className="choose-plan__final">
+        <h2 className="choose-plan__final-title">Готові почати?</h2>
         <button
-          className="pricing__final-btn"
+          className="choose-plan__final-btn"
           onClick={() => handleStart('pro')}
           disabled={starting !== null}
         >
           Почати безкоштовно <ArrowRight size={16} />
         </button>
-        <span className="pricing__final-note">7 днів безкоштовно, без зобов'язань</span>
+        <span className="choose-plan__final-note">7 днів безкоштовно, без зобов'язань</span>
       </div>
     </div>
   )
