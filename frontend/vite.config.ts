@@ -59,6 +59,10 @@ export default defineConfig({
         target: process.env.WIDGET_BUILDER_URL || 'http://127.0.0.1:3200',
         changeOrigin: true,
       },
+      '/deploy': {
+        target: process.env.WIDGET_BUILDER_URL || 'http://127.0.0.1:3200',
+        changeOrigin: true,
+      },
     },
   },
 })

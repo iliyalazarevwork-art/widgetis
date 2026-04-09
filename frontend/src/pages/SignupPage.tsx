@@ -192,7 +192,7 @@ function normalizeSiteUrl(value: string): string {
 export function SignupPage() {
   const navigate = useNavigate()
   const [params] = useSearchParams()
-  const { login } = useAuth()
+  const { user, login } = useAuth()
   const verifyingOtpRef = useRef(false)
   const lastAutoSubmittedOtpRef = useRef('')
 
@@ -203,8 +203,9 @@ export function SignupPage() {
   const Icon = plan.icon
   const displayPrice = billing === 'yearly' ? plan.yearlyMonthly : plan.monthlyPrice
 
-  const [step, setStep] = useState<Step>('auth')
-  const [email, setEmail] = useState('')
+  // If user is already authenticated, skip email/OTP steps — go straight to store
+  const [step, setStep] = useState<Step>(user ? 'store' : 'auth')
+  const [email, setEmail] = useState(user?.email ?? '')
   const [emailError, setEmailError] = useState('')
   const [otp, setOtp] = useState('')
   const [otpError, setOtpError] = useState('')
@@ -228,8 +229,11 @@ export function SignupPage() {
       const draft = JSON.parse(rawDraft) as SignupDraft
       if (draft.plan !== planKey || draft.billing !== billing) return
 
-      setStep(draft.step)
-      setEmail(draft.email)
+      // If user is already authenticated, don't restore auth/otp steps — stay on 'store'
+      if (!user || draft.step === 'store') {
+        setStep(draft.step)
+      }
+      setEmail(draft.email || user?.email || '')
       setOtp(draft.otp)
       setSite(draft.site)
       setPlatform(draft.platform)
@@ -451,9 +455,9 @@ export function SignupPage() {
       <div className="signup">
         <div className="signup__container">
 
-          <Link to="/pricing" className="signup__back">
+          <Link to={user ? '/cabinet/choose-plan' : '/pricing'} className="signup__back">
             <ArrowLeft size={15} strokeWidth={2.25} />
-            До тарифів
+            {user ? 'До вибору плану' : 'До тарифів'}
           </Link>
 
           <div className="signup__grid">
@@ -505,7 +509,7 @@ export function SignupPage() {
                 </div>
               </div>
 
-              <Link to="/pricing" className="signup__plan-change">Змінити план</Link>
+              <Link to={user ? '/cabinet/choose-plan' : '/pricing'} className="signup__plan-change">Змінити план</Link>
             </aside>
 
             {/* ══ Right: Steps ══ */}

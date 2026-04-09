@@ -1,18 +1,30 @@
 .choose-plan {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 64px 20px 80px;
   display: flex;
   flex-direction: column;
-  max-width: 480px;
-  margin: 0 auto;
-  min-height: 100dvh;
-  background: var(--bg-page);
+  align-items: center;
+  gap: 40px;
 }
 
-/* ── Header ── */
-.choose-plan__header {
-  padding: 12px 20px;
+
+/* ── Hero ── */
+.choose-plan__hero {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  position: relative;
+  padding-top: 52px;
 }
 
 .choose-plan__back {
+  position: absolute;
+  left: 0;
+  top: 0;
   width: 36px;
   height: 36px;
   border-radius: var(--radius-sm);
@@ -21,16 +33,6 @@
   align-items: center;
   justify-content: center;
   color: var(--text-icon);
-}
-
-/* ── Hero ── */
-.choose-plan__hero {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 32px 20px 24px;
-  text-align: center;
 }
 
 .choose-plan__title {
@@ -48,59 +50,26 @@
 .choose-plan__toggle-wrap {
   display: flex;
   justify-content: center;
-  padding-bottom: 20px;
-}
-
-.choose-plan__toggle {
-  display: flex;
-  background: #161616;
-  border-radius: var(--radius-lg);
-  padding: 4px;
-}
-
-.choose-plan__toggle-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 20px;
-  border-radius: var(--radius-sm);
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  transition: all var(--t-fast);
-}
-.choose-plan__toggle-btn--active {
-  background: #1E3A5F;
-  color: #fff;
-  font-weight: 700;
-}
-
-.choose-plan__toggle-save {
-  padding: 2px 6px;
-  border-radius: var(--radius-full);
-  background: var(--green);
-  font-size: 11px;
-  font-weight: 700;
-  color: #fff;
 }
 
 /* ── Plans ── */
 .choose-plan__plans {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 0 16px;
+  gap: 16px;
 }
 
 /* ── Card ── */
 .choose-plan__card {
+  width: 100%;
   background: var(--bg-card);
   border: 1.5px solid;
-  border-radius: 24px;
-  padding: 18px;
+  border-radius: 20px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
   position: relative;
 }
 
@@ -247,6 +216,42 @@
   font-size: 13px;
 }
 
+.choose-plan__card-feat--widget span {
+  font-weight: 500;
+}
+
+/* ── Feat divider ── */
+.choose-plan__card-feat-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  margin: 4px 0;
+  border-top: 1px dashed rgba(255, 255, 255, 0.06);
+}
+
+/* ── Bonus block ── */
+.choose-plan__card-bonus {
+  border: 1px solid;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 2px;
+}
+
+.choose-plan__card-bonus-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.choose-plan__card-bonus-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
 /* ── CTA ── */
 .choose-plan__card-btn {
   height: 52px;
@@ -269,39 +274,28 @@
   text-align: center;
 }
 
-/* ── Final CTA ── */
+/* ── Final / Compare ── */
 .choose-plan__final {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
-  padding: 28px 20px 36px;
+  padding: 24px 20px 40px;
 }
 
-.choose-plan__final-title {
-  font-size: 24px;
-  font-weight: 900;
-  color: #fff;
-}
-
-.choose-plan__final-btn {
-  display: flex;
+.choose-plan__compare-link {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  height: 52px;
-  background: var(--blue);
-  border-radius: var(--radius-xl);
-  font-size: 16px;
-  font-weight: 700;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: color var(--t-fast), border-color var(--t-fast);
+}
+.choose-plan__compare-link:hover {
   color: #fff;
-}
-.choose-plan__final-btn:disabled {
-  opacity: 0.5;
-}
-
-.choose-plan__final-note {
-  font-size: 13px;
-  color: var(--text-muted);
+  border-color: rgba(255, 255, 255, 0.25);
 }

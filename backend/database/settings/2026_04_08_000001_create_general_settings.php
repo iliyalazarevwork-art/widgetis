@@ -18,8 +18,8 @@ class CreateGeneralSettings extends SettingsMigration
         ]);
         $this->migrator->add('general.messengers', [
             'telegram' => 'https://t.me/widgetis_support',
-            'viber' => '',
-            'whatsapp' => '',
+            'viber' => 'viber://chat?number=%2B380961494747',
+            'whatsapp' => 'https://wa.me/380961494747',
         ]);
         $this->migrator->add('general.stats', [
             'stores_count' => 120,

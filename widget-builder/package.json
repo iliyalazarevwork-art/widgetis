@@ -8,6 +8,7 @@
     "dev": "jiti server.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1028.0",
     "@laxarevii/core": "workspace:*",
     "@laxarevii/vite-plugin-widgetality": "workspace:*",
     "javascript-obfuscator": "^4.1.0",
@@ -19,6 +20,8 @@
     "jiti": "^2.0.0"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild"]
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }

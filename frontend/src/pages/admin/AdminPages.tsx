@@ -1,8 +1,15 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Link, NavLink, useNavigate, useParams } from 'react-router-dom'
+import DatePicker from 'react-datepicker'
+import { uk } from 'date-fns/locale'
+import 'react-datepicker/dist/react-datepicker.css'
 import {
   ArrowLeft,
   ArrowRight,
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  Calendar,
   ChevronLeft,
   CircleAlert,
   ExternalLink,
@@ -10,15 +17,14 @@ import {
   LayoutDashboard,
   Mail,
   Banknote,
-  Phone,
   Plus,
   Receipt,
   Repeat2,
+  RotateCcw,
   Search,
   Settings,
   ShieldCheck,
   SlidersHorizontal,
-  Sparkles,
   Star,
   UserPlus,
   Users,
@@ -29,21 +35,30 @@ import { get } from '../../api/client'
 import { HamburgerIcon } from '../../components/HamburgerIcon'
 import { BRAND_EMAIL, BRAND_NAME } from '../../constants/brand'
 import type { PaginatedResponse } from '../../types'
+import { AdminConfiguratorPage } from './AdminConfiguratorPage'
 import './pages.css'
 
 const ORDER_FILTERS = [
   { label: 'Всі', value: undefined },
   { label: 'Оплачено', value: 'paid' },
   { label: 'Очікує', value: 'pending' },
+  { label: 'Завершено', value: 'completed' },
+  { label: 'Скасовано', value: 'cancelled' },
+  { label: 'Повернено', value: 'refunded' },
 ] as const
 
-const SITES = [
-  { id: 'site-1', domain: 'ballistic.ua', email: 'shop@ballistic.ua', plan: 'Pro', state: 'Активний' },
-  { id: 'site-2', domain: 'zoo-vet.com.ua', email: 'info@zoo-vet.com.ua', plan: 'Basic', state: 'Активний' },
-  { id: 'site-3', domain: 'homedetail.ua', email: 'info@homedetail.ua', plan: 'Max', state: 'Активний' },
-  { id: 'site-4', domain: 'aquamyrgorod.com.ua', email: 'support@aqua.ua', plan: 'Basic', state: 'Очікує' },
-  { id: 'site-5', domain: 'kate-beauty.com.ua', email: 'kate@beauty.com.ua', plan: 'Pro', state: 'Активний' },
-]
+const SORT_FIELDS = [
+  { label: 'Дата', value: 'created_at' },
+  { label: 'Сума', value: 'amount' },
+] as const
+
+const PLAN_FILTERS = [
+  { label: 'Усі плани', value: undefined },
+  { label: 'Basic', value: 'basic' },
+  { label: 'Pro', value: 'pro' },
+  { label: 'Max', value: 'max' },
+] as const
+
 
 const REQUESTS = [
   { id: 'R-0018', name: 'shop@northwear.ua', type: 'Інтеграція', risk: 'Високий', note: 'Сайт не відповідає > 12 годин' },
@@ -58,11 +73,12 @@ const CONTENT_BLOCKS = [
   { id: 'promo-banner', title: 'Промо-банер квітень', status: 'Потребує ревʼю', updated: 'сьогодні 08:18' },
 ]
 
-const SITE_ACTIONS = [
-  { title: 'Відкрити конфігуратор', to: '/admin/configurator', icon: Wand2 },
-  { title: 'Оновити скрипт', to: '/admin/configurator/marquee', icon: Sparkles },
-  { title: 'Перейти до замовлень', to: '/admin/orders', icon: ArrowRight },
-]
+function getSiteActions(_siteId: string) {
+  return [
+    { title: 'Перейти до замовлень', to: '/admin/orders', icon: ArrowRight },
+    { title: 'Всі підписки', to: '/admin/subscriptions', icon: Repeat2 },
+  ]
+}
 
 const ADMIN_MENU_LINKS = [
   { to: '/admin', label: 'Дашборд' },
@@ -76,6 +92,37 @@ const ADMIN_MENU_LINKS = [
 ]
 
 type TabKey = 'dashboard' | 'orders' | 'users' | 'sites' | 'settings'
+
+const ADMIN_BOTTOM_NAV = [
+  { to: '/admin', label: 'Дашборд', icon: LayoutDashboard, end: true },
+  { to: '/admin/subscriptions', label: 'Підписки', icon: Repeat2 },
+  { to: '/admin/orders', label: 'Замовлення', icon: Receipt },
+  { to: '/admin/users', label: 'Юзери', icon: Users },
+  { to: '/admin/sites', label: 'Сайти', icon: Globe },
+]
+
+export function AdminMobileBottomNav() {
+  return (
+    <nav className="users-mobile__bottom">
+      {ADMIN_BOTTOM_NAV.map((item) => {
+        const Icon = item.icon
+        return (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.end}
+            className={({ isActive }) =>
+              `users-mobile__tab${isActive ? ' users-mobile__tab--active' : ''}`
+            }
+          >
+            <Icon size={20} strokeWidth={2} />
+            <span>{item.label}</span>
+          </NavLink>
+        )
+      })}
+    </nav>
+  )
+}
 type OrderFilterLabel = (typeof ORDER_FILTERS)[number]['label']
 
 type AdminOrder = {
@@ -86,6 +133,7 @@ type AdminOrder = {
   amount: number
   currency: string | null
   status: string | null
+  billing_period: string | null
   created_at: string
 }
 
@@ -251,18 +299,26 @@ function MobileHeader({
   title,
   subtitle,
   onMenu,
+  backTo,
   right,
 }: {
   title: string
   subtitle?: string
-  onMenu: () => void
+  onMenu?: () => void
+  backTo?: string
   right?: React.ReactNode
 }) {
   return (
     <header className="orders-mobile__top">
-      <button type="button" aria-label="Меню" onClick={onMenu}>
-        <HamburgerIcon size={18} />
-      </button>
+      {backTo ? (
+        <Link to={backTo} aria-label="Назад" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: 10, background: 'var(--bg-elevated, #1a1a2e)', flexShrink: 0 }}>
+          <ArrowLeft size={18} strokeWidth={2} />
+        </Link>
+      ) : (
+        <button type="button" aria-label="Меню" onClick={onMenu}>
+          <HamburgerIcon size={18} />
+        </button>
+      )}
       <div>
         <h1>{title}</h1>
         {subtitle ? <span>{subtitle}</span> : null}
@@ -276,31 +332,6 @@ function MobileHeader({
   )
 }
 
-function MobileFooterNav({ active }: { active: TabKey }) {
-  return (
-    <nav className="users-mobile__bottom">
-      <Link to="/admin" className={`users-mobile__tab ${active === 'dashboard' ? 'users-mobile__tab--active' : ''}`}>
-        <LayoutDashboard size={20} strokeWidth={2} />
-        <span>Дашборд</span>
-      </Link>
-      <Link to="/admin/orders" className={`users-mobile__tab ${active === 'orders' ? 'users-mobile__tab--active' : ''}`}>
-        <Receipt size={20} strokeWidth={2} />
-        <span>Замовлення</span>
-      </Link>
-      <Link to="/admin/users" className={`users-mobile__tab ${active === 'users' ? 'users-mobile__tab--active' : ''}`}>
-        <Users size={20} strokeWidth={2} />
-        <span>Юзери</span>
-      </Link>
-      <Link to="/admin/sites" className={`users-mobile__tab ${active === 'sites' ? 'users-mobile__tab--active' : ''}`}>
-        <Globe size={20} strokeWidth={2} />
-        <span>Сайти</span>
-      </Link>
-      <Link to="/admin/settings" className={`users-mobile__tab users-mobile__tab--compact ${active === 'settings' ? 'users-mobile__tab--active' : ''}`}>
-        <Banknote size={20} strokeWidth={2} />
-      </Link>
-    </nav>
-  )
-}
 
 function getPageTokens(current: number, total: number): Array<number | 'ellipsis'> {
   if (total <= 5) {
@@ -317,8 +348,17 @@ function getPageTokens(current: number, total: number): Array<number | 'ellipsis
 
 export function AdminOrdersPage() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [filtersOpen, setFiltersOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<OrderFilterLabel>('Всі')
+  const [planFilter, setPlanFilter] = useState<string | undefined>(undefined)
+  const [sortBy, setSortBy] = useState('created_at')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
+  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null])
+  const [startDate, endDate] = dateRange
+  const [amountMin, setAmountMin] = useState(0)
+  const [amountMax, setAmountMax] = useState(50000)
+  const AMOUNT_LIMIT = 50000
   const [page, setPage] = useState(1)
   const [orders, setOrders] = useState<AdminOrder[]>([])
   const [totalPages, setTotalPages] = useState(1)
@@ -331,6 +371,20 @@ export function AdminOrdersPage() {
     [statusFilter],
   )
 
+  const dateFromStr = startDate ? startDate.toISOString().slice(0, 10) : undefined
+  const dateToStr = endDate ? endDate.toISOString().slice(0, 10) : undefined
+
+  const amountChanged = amountMin > 0 || amountMax < AMOUNT_LIMIT
+
+  const activeFilterCount = useMemo(() => {
+    let count = 0
+    if (planFilter) count++
+    if (startDate || endDate) count++
+    if (amountChanged) count++
+    if (sortBy !== 'created_at' || sortDir !== 'desc') count++
+    return count
+  }, [planFilter, startDate, endDate, amountChanged, sortBy, sortDir])
+
   useEffect(() => {
     setLoading(true)
     setError(null)
@@ -340,6 +394,13 @@ export function AdminOrdersPage() {
       per_page: 5,
       status: statusValue,
       q: query.trim() || undefined,
+      plan: planFilter,
+      date_from: dateFromStr,
+      date_to: dateToStr,
+      amount_min: amountMin > 0 ? amountMin : undefined,
+      amount_max: amountMax < AMOUNT_LIMIT ? amountMax : undefined,
+      sort_by: sortBy,
+      sort_dir: sortDir,
     })
       .then((res) => {
         setOrders(res.data)
@@ -355,11 +416,20 @@ export function AdminOrdersPage() {
       .finally(() => {
         setLoading(false)
       })
-  }, [page, query, statusValue])
+  }, [page, query, statusValue, planFilter, dateFromStr, dateToStr, amountMin, amountMax, sortBy, sortDir])
 
   useEffect(() => {
     setPage(1)
-  }, [query, statusFilter])
+  }, [query, statusFilter, planFilter, dateFromStr, dateToStr, amountMin, amountMax, sortBy, sortDir])
+
+  const resetFilters = useCallback(() => {
+    setPlanFilter(undefined)
+    setSortBy('created_at')
+    setSortDir('desc')
+    setDateRange([null, null])
+    setAmountMin(0)
+    setAmountMax(AMOUNT_LIMIT)
+  }, [])
 
   const pagination = getPageTokens(page, totalPages)
 
@@ -379,9 +449,151 @@ export function AdminOrdersPage() {
             placeholder="Пошук за ID, email або сумою..."
           />
         </div>
-        <button type="button" className="orders-mobile__filter" aria-label="Фільтри">
+        <button
+          type="button"
+          className={`orders-mobile__filter ${activeFilterCount > 0 ? 'orders-mobile__filter--active' : ''}`}
+          aria-label="Фільтри"
+          onClick={() => setFiltersOpen(!filtersOpen)}
+        >
           <SlidersHorizontal size={16} strokeWidth={2} />
+          {activeFilterCount > 0 && <span className="orders-mobile__filter-badge">{activeFilterCount}</span>}
         </button>
+
+        {filtersOpen && (
+          <>
+          <div className="orders-mobile__filter-backdrop" onClick={() => setFiltersOpen(false)} />
+          <div className="orders-mobile__filter-panel">
+          <div className="orders-mobile__filter-header">
+            <h3>Фільтри та сортування</h3>
+            <div className="orders-mobile__filter-actions">
+              {activeFilterCount > 0 && (
+                <button type="button" className="orders-mobile__filter-reset" onClick={resetFilters}>
+                  <RotateCcw size={14} strokeWidth={2} />
+                  Скинути
+                </button>
+              )}
+              <button type="button" className="orders-mobile__filter-close" onClick={() => setFiltersOpen(false)}>
+                <X size={16} strokeWidth={2} />
+              </button>
+            </div>
+          </div>
+
+          <div className="orders-mobile__filter-group">
+            <label className="orders-mobile__filter-label">
+              <ArrowUpDown size={14} strokeWidth={2} />
+              Сортування
+            </label>
+            <div className="orders-mobile__sort-options">
+              {SORT_FIELDS.map((field) => {
+                const isActive = sortBy === field.value
+                const DirIcon = isActive && sortDir === 'asc' ? ArrowUp : ArrowDown
+                return (
+                  <button
+                    key={field.value}
+                    type="button"
+                    className={`orders-mobile__sort-btn ${isActive ? 'orders-mobile__sort-btn--active' : ''}`}
+                    onClick={() => {
+                      if (isActive) {
+                        setSortDir(sortDir === 'desc' ? 'asc' : 'desc')
+                      } else {
+                        setSortBy(field.value)
+                        setSortDir('desc')
+                      }
+                    }}
+                  >
+                    {field.label}
+                    <DirIcon size={12} strokeWidth={2.5} />
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          <div className="orders-mobile__filter-group">
+            <label className="orders-mobile__filter-label">
+              <Calendar size={14} strokeWidth={2} />
+              Період
+            </label>
+            <div className="orders-mobile__datepicker-wrap">
+              <DatePicker
+                selectsRange
+                startDate={startDate}
+                endDate={endDate}
+                onChange={(update) => setDateRange(update as [Date | null, Date | null])}
+                locale={uk}
+                dateFormat="dd.MM.yyyy"
+                placeholderText="Оберіть період"
+                isClearable
+                className="orders-mobile__datepicker-input"
+                calendarClassName="orders-mobile__calendar"
+              />
+            </div>
+          </div>
+
+          <div className="orders-mobile__filter-group">
+            <label className="orders-mobile__filter-label">
+              <Banknote size={14} strokeWidth={2} />
+              Сума
+            </label>
+            <div className="orders-mobile__amount-slider">
+              <div className="orders-mobile__amount-track">
+                <div
+                  className="orders-mobile__amount-fill"
+                  style={{
+                    left: `${(amountMin / AMOUNT_LIMIT) * 100}%`,
+                    right: `${100 - (amountMax / AMOUNT_LIMIT) * 100}%`,
+                  }}
+                />
+                <input
+                  type="range"
+                  min={0}
+                  max={AMOUNT_LIMIT}
+                  step={100}
+                  value={amountMin}
+                  onChange={(e) => {
+                    const v = Number(e.target.value)
+                    if (v <= amountMax - 100) setAmountMin(v)
+                  }}
+                  className="orders-mobile__range orders-mobile__range--min"
+                />
+                <input
+                  type="range"
+                  min={0}
+                  max={AMOUNT_LIMIT}
+                  step={100}
+                  value={amountMax}
+                  onChange={(e) => {
+                    const v = Number(e.target.value)
+                    if (v >= amountMin + 100) setAmountMax(v)
+                  }}
+                  className="orders-mobile__range orders-mobile__range--max"
+                />
+              </div>
+              <div className="orders-mobile__amount-labels">
+                <span>{amountMin.toLocaleString('uk-UA')} ₴</span>
+                <span>{amountMax >= AMOUNT_LIMIT ? '50 000+ ₴' : `${amountMax.toLocaleString('uk-UA')} ₴`}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="orders-mobile__filter-group">
+            <label className="orders-mobile__filter-label">План</label>
+            <div className="orders-mobile__plan-options">
+              {PLAN_FILTERS.map((opt) => (
+                <button
+                  key={opt.label}
+                  type="button"
+                  className={`orders-mobile__plan-btn ${planFilter === opt.value ? 'orders-mobile__plan-btn--active' : ''} ${opt.value ? `orders-mobile__plan-btn--${opt.value}` : ''}`}
+                  onClick={() => setPlanFilter(opt.value)}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+        </>
+        )}
       </section>
 
       <section className="orders-mobile__segments">
@@ -437,31 +649,8 @@ export function AdminOrdersPage() {
         <button type="button" onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>›</button>
       </section>
 
-      <MobileFooterNav active="orders" />
+      <AdminMobileBottomNav />
     </div>
-  )
-}
-
-function SubscriptionsBottomNav() {
-  return (
-    <nav className="subs-mobile__bottom">
-      <Link to="/admin" className="subs-mobile__tab">
-        <LayoutDashboard size={18} strokeWidth={2} />
-        <span>Головна</span>
-      </Link>
-      <Link to="/admin/subscriptions" className="subs-mobile__tab subs-mobile__tab--active">
-        <Repeat2 size={18} strokeWidth={2} />
-        <span>Підписки</span>
-      </Link>
-      <Link to="/admin/users" className="subs-mobile__tab">
-        <Users size={18} strokeWidth={2} />
-        <span>Юзери</span>
-      </Link>
-      <Link to="/admin/settings" className="subs-mobile__tab">
-        <Settings size={18} strokeWidth={2} />
-        <span>Ще</span>
-      </Link>
-    </nav>
   )
 }
 
@@ -631,7 +820,7 @@ export function AdminSubscriptionsPage() {
         <button type="button" onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>›</button>
       </section>
 
-      <SubscriptionsBottomNav />
+      <AdminMobileBottomNav />
     </div>
   )
 }
@@ -849,7 +1038,7 @@ export function AdminUsersPage() {
         <button type="button" onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>›</button>
       </section>
 
-      <MobileFooterNav active="users" />
+      <AdminMobileBottomNav />
     </div>
   )
 }
@@ -865,6 +1054,7 @@ type AdminSite = {
   widgets_count: number
   connected_at: string | null
   created_at: string
+  deployed_script_url: string | null
   user: { id: number; email: string; name: string | null } | null
   plan: string | null
 }
@@ -1000,7 +1190,7 @@ export function AdminSitesPage() {
 
       <section className="sites-mobile__list">
         {sites.map((site, idx) => (
-          <article key={site.id} className="sites-mobile__row">
+          <Link key={site.id} to={`/admin/sites/${site.domain}`} className="sites-mobile__row" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
             <div className={`sites-mobile__logo sites-mobile__logo--${(idx % 3) + 1}`}>
               <Globe size={16} strokeWidth={2} />
             </div>
@@ -1013,11 +1203,8 @@ export function AdminSitesPage() {
               <span className={site.status === 'active' ? 'adminx-badge adminx-badge--ok' : 'adminx-badge adminx-badge--warn'}>
                 {siteStatusLabel(site.status)}
               </span>
-              <Link to={`/admin/sites/${site.id}`} className="adminx-badge adminx-badge--info">
-                Дії
-              </Link>
             </div>
-          </article>
+          </Link>
         ))}
         {loading ? <p className="orders-mobile__empty">Завантаження…</p> : null}
         {!loading && error ? <p className="orders-mobile__empty">Помилка: {error}</p> : null}
@@ -1043,73 +1230,153 @@ export function AdminSitesPage() {
         <button type="button" onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>›</button>
       </section>
 
-      <MobileFooterNav active="sites" />
+      <AdminMobileBottomNav />
     </div>
   )
 }
 
+function useSiteByDomain(domain: string | undefined) {
+  const [site, setSite] = useState<AdminSite | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!domain) return
+    setLoading(true)
+    get<{ data: AdminSite[]; meta: { total: number } }>('/admin/sites', { search: domain, per_page: 1 })
+      .then((res) => setSite(res.data[0] ?? null))
+      .catch(() => setSite(null))
+      .finally(() => setLoading(false))
+  }, [domain])
+
+  return { site, loading }
+}
+
 export function AdminSiteDetailPage() {
-  const [menuOpen, setMenuOpen] = useState(false)
-  const { siteId } = useParams<{ siteId: string }>()
-  const site = SITES.find((item) => item.id === siteId) ?? SITES[0]
+  const { domain } = useParams<{ domain: string }>()
+  const { site, loading } = useSiteByDomain(domain)
+  const siteActions = getSiteActions(domain ?? '')
 
   return (
     <div className="mobile-plain">
-      <MobileMenuDrawer open={menuOpen} onClose={() => setMenuOpen(false)} />
-      <MobileHeader title={site.domain} subtitle="Деталі підключення" onMenu={() => setMenuOpen(true)} />
+      <MobileHeader
+        title={loading ? 'Завантаження...' : (site?.domain ?? domain ?? 'Сайт')}
+        subtitle="Деталі підключення"
+        backTo="/admin/sites"
+      />
 
-      <div className="adminx-grid2 mobile-plain__content">
-        <section className="admin-card adminx-section">
-          <h2 className="admin-card__title">Статус сайту</h2>
-          <div className="adminx-status-grid">
-            <div>
-              <span className="adminx-muted">Підключення</span>
-              <p><span className="adminx-badge adminx-badge--ok">Підключено</span></p>
-            </div>
-            <div>
-              <span className="adminx-muted">Синхронізація</span>
-              <p>5 хв тому</p>
-            </div>
-            <div>
-              <span className="adminx-muted">Віджетів</span>
-              <p>7</p>
-            </div>
-            <div>
-              <span className="adminx-muted">Домен</span>
-              <p>{site.domain}</p>
-            </div>
+      {loading && <p className="orders-mobile__empty">Завантаження...</p>}
+
+      {!loading && site && (
+        <>
+          <div className="mobile-plain__content" style={{ paddingTop: 0 }}>
+            <Link
+              to={`/admin/sites/${site.domain}/configure`}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                width: '100%',
+                padding: '14px 20px',
+                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                color: '#fff',
+                borderRadius: 12,
+                fontWeight: 600,
+                fontSize: 15,
+                textDecoration: 'none',
+                boxShadow: '0 4px 14px rgba(99,102,241,0.35)',
+              }}
+            >
+              <Wand2 size={17} strokeWidth={2} />
+              Конфігуратор
+            </Link>
           </div>
-        </section>
 
-        <section className="admin-card adminx-section">
-          <h2 className="admin-card__title">Контакти</h2>
-          <div className="adminx-icon-lines">
-            <div><Mail size={14} strokeWidth={2} /> support@{site.domain}</div>
-            <div><Phone size={14} strokeWidth={2} /> +380 67 000 00 00</div>
-            <div><Globe size={14} strokeWidth={2} /> https://{site.domain}</div>
+          <div className="adminx-grid2 mobile-plain__content">
+            <section className="admin-card adminx-section">
+              <h2 className="admin-card__title">Статус сайту</h2>
+              <div className="adminx-status-grid">
+                <div>
+                  <span className="adminx-muted">Підключення</span>
+                  <p>
+                    <span className={site.status === 'active' ? 'adminx-badge adminx-badge--ok' : 'adminx-badge adminx-badge--warn'}>
+                      {siteStatusLabel(site.status)}
+                    </span>
+                  </p>
+                </div>
+                <div>
+                  <span className="adminx-muted">Скрипт</span>
+                  <p>{site.script_installed ? 'Встановлено' : 'Не встановлено'}</p>
+                </div>
+                <div>
+                  <span className="adminx-muted">Віджетів</span>
+                  <p>{site.widgets_count}</p>
+                </div>
+                <div>
+                  <span className="adminx-muted">Домен</span>
+                  <p>{site.domain}</p>
+                </div>
+              </div>
+            </section>
+
+            <section className="admin-card adminx-section">
+              <h2 className="admin-card__title">Контакти</h2>
+              <div className="adminx-icon-lines">
+                <div><Mail size={14} strokeWidth={2} /> {site.user?.email ?? `support@${site.domain}`}</div>
+                <div><Globe size={14} strokeWidth={2} /> {site.url ?? `https://${site.domain}`}</div>
+                {site.platform && <div><Settings size={14} strokeWidth={2} /> {site.platform}</div>}
+              </div>
+            </section>
           </div>
-        </section>
-      </div>
 
-      <section className="admin-card adminx-section mobile-plain__content">
-        <h2 className="admin-card__title">Швидкі дії</h2>
-        <div className="adminx-action-grid">
-          {SITE_ACTIONS.map((action) => {
-            const Icon = action.icon
-            return (
-              <Link key={action.title} to={action.to} className="adminx-action">
-                <span className="adminx-action-icon"><Icon size={15} strokeWidth={2.25} /></span>
-                <span>{action.title}</span>
-                <ArrowRight size={13} strokeWidth={2.5} />
-              </Link>
-            )
-          })}
-        </div>
-      </section>
+          <section className="admin-card adminx-section mobile-plain__content">
+            <h2 className="admin-card__title">Швидкі дії</h2>
+            <div className="adminx-action-grid">
+              {siteActions.map((action) => {
+                const Icon = action.icon
+                return (
+                  <Link key={action.title} to={action.to} className="adminx-action">
+                    <span className="adminx-action-icon"><Icon size={15} strokeWidth={2.25} /></span>
+                    <span>{action.title}</span>
+                    <ArrowRight size={13} strokeWidth={2.5} />
+                  </Link>
+                )
+              })}
+            </div>
+          </section>
+        </>
+      )}
 
-      <MobileFooterNav active="sites" />
+      {!loading && !site && (
+        <p className="orders-mobile__empty">Сайт не знайдено.</p>
+      )}
+
+      <AdminMobileBottomNav />
     </div>
   )
+}
+
+export function AdminSiteConfiguratorPage() {
+  const { domain } = useParams<{ domain: string }>()
+  const { site, loading } = useSiteByDomain(domain)
+
+  if (loading) {
+    return (
+      <div className="cfg-m">
+        <div className="cfg-m__loader">Завантаження сайту...</div>
+      </div>
+    )
+  }
+
+  if (!site) {
+    return (
+      <div className="cfg-m">
+        <div className="cfg-m__loader" style={{ color: '#f87171' }}>Сайт не знайдено</div>
+      </div>
+    )
+  }
+
+  return <AdminConfiguratorPage siteContext={{ id: site.id, domain: site.domain, deployedScriptUrl: site.deployed_script_url }} />
 }
 
 export function AdminSettingsPage() {
@@ -1150,7 +1417,7 @@ export function AdminSettingsPage() {
         </section>
       </div>
 
-      <MobileFooterNav active="settings" />
+      <AdminMobileBottomNav />
     </div>
   )
 }
@@ -1183,7 +1450,7 @@ export function AdminManagerRequestsPage() {
         ))}
       </section>
 
-      <MobileFooterNav active="settings" />
+      <AdminMobileBottomNav />
     </div>
   )
 }
@@ -1224,7 +1491,7 @@ export function AdminLandingContentPage() {
         ))}
       </section>
 
-      <MobileFooterNav active="settings" />
+      <AdminMobileBottomNav />
     </div>
   )
 }

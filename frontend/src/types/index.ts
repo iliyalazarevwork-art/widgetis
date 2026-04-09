@@ -56,6 +56,7 @@ export interface Site {
   widgets_count: number
   connected_at: string | null
   created_at: string
+  deployed_script_url: string | null
   user?: { id: number; email: string; name: string | null }
 }
 

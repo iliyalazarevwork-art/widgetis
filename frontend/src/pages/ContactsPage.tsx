@@ -2,43 +2,30 @@ import { Helmet } from 'react-helmet-async'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, ArrowUpRight, Mail, Phone, MapPin } from 'lucide-react'
 import { SocialIcon } from '../components/SocialIcon'
-import { BRAND_EMAIL, BRAND_NAME_UPPER } from '../constants/brand'
+import { useSettings } from '../context/SettingsContext'
+import { BRAND_NAME_UPPER } from '../constants/brand'
 import './ContactsPage.css'
 
-const CONTACTS = {
-  phone: '+380 96 149 47 47',
-  phoneHref: 'tel:+380961494747',
-  email: BRAND_EMAIL,
-  emailHref: `mailto:${BRAND_EMAIL}`,
-  city: 'Київ, Україна',
-  hours: 'Пн–Пт · 10:00–19:00',
+const MESSENGER_META: Record<string, { name: string; color: string }> = {
+  telegram:  { name: 'Telegram',  color: '#26A5E4' },
+  viber:     { name: 'Viber',     color: '#7360F2' },
+  whatsapp:  { name: 'WhatsApp',  color: '#25D366' },
 }
 
-const MESSENGERS = [
-  {
-    id: 'telegram',
-    name: 'Telegram',
-    handle: '@Lazarev_iLiya',
-    url: 'https://t.me/Lazarev_iLiya',
-    color: '#26A5E4',
-  },
-  {
-    id: 'viber',
-    name: 'Viber',
-    handle: '+380 96 149 47 47',
-    url: 'viber://chat?number=%2B380961494747',
-    color: '#7360F2',
-  },
-  {
-    id: 'whatsapp',
-    name: 'WhatsApp',
-    handle: '+380 96 149 47 47',
-    url: 'https://wa.me/380961494747',
-    color: '#25D366',
-  },
-]
-
 export function ContactsPage() {
+  const settings = useSettings()
+
+  const phoneHref = settings.phone ? `tel:${settings.phone.replace(/\s+/g, '')}` : ''
+  const messengers = Object.entries(settings.messengers ?? {})
+    .filter(([, url]) => url)
+    .map(([id, url]) => ({
+      id,
+      name: MESSENGER_META[id]?.name ?? id,
+      handle: url.replace(/https?:\/\//, '').replace('t.me/', '@'),
+      url,
+      color: MESSENGER_META[id]?.color ?? '#888',
+    }))
+
   return (
     <div className="contacts-page">
       <Helmet>
@@ -73,45 +60,49 @@ export function ContactsPage() {
         <div className="contacts-page__container">
           {/* ── Primary contacts ── */}
           <div className="contacts-page__primary">
-            <a
-              href={CONTACTS.phoneHref}
-              className="contacts-page__card"
-              aria-label="Зателефонувати"
-            >
-              <div className="contacts-page__card-icon">
-                <Phone size={20} strokeWidth={2} />
-              </div>
-              <div className="contacts-page__card-body">
-                <span className="contacts-page__card-label">Телефон</span>
-                <strong className="contacts-page__card-value">{CONTACTS.phone}</strong>
-                <span className="contacts-page__card-hint">{CONTACTS.hours}</span>
-              </div>
-              <ArrowUpRight
-                size={16}
-                strokeWidth={2}
-                className="contacts-page__card-arrow"
-              />
-            </a>
+            {settings.phone && (
+              <a
+                href={phoneHref}
+                className="contacts-page__card"
+                aria-label="Зателефонувати"
+              >
+                <div className="contacts-page__card-icon">
+                  <Phone size={20} strokeWidth={2} />
+                </div>
+                <div className="contacts-page__card-body">
+                  <span className="contacts-page__card-label">Телефон</span>
+                  <strong className="contacts-page__card-value">{settings.phone}</strong>
+                  <span className="contacts-page__card-hint">{settings.business_hours || 'Пн–Пт · 10:00–19:00'}</span>
+                </div>
+                <ArrowUpRight
+                  size={16}
+                  strokeWidth={2}
+                  className="contacts-page__card-arrow"
+                />
+              </a>
+            )}
 
-            <a
-              href={CONTACTS.emailHref}
-              className="contacts-page__card"
-              aria-label="Написати на пошту"
-            >
-              <div className="contacts-page__card-icon">
-                <Mail size={20} strokeWidth={2} />
-              </div>
-              <div className="contacts-page__card-body">
-                <span className="contacts-page__card-label">Email</span>
-                <strong className="contacts-page__card-value">{CONTACTS.email}</strong>
-                <span className="contacts-page__card-hint">Відповідаємо у день звернення</span>
-              </div>
-              <ArrowUpRight
-                size={16}
-                strokeWidth={2}
-                className="contacts-page__card-arrow"
-              />
-            </a>
+            {settings.email && (
+              <a
+                href={`mailto:${settings.email}`}
+                className="contacts-page__card"
+                aria-label="Написати на пошту"
+              >
+                <div className="contacts-page__card-icon">
+                  <Mail size={20} strokeWidth={2} />
+                </div>
+                <div className="contacts-page__card-body">
+                  <span className="contacts-page__card-label">Email</span>
+                  <strong className="contacts-page__card-value">{settings.email}</strong>
+                  <span className="contacts-page__card-hint">Відповідаємо у день звернення</span>
+                </div>
+                <ArrowUpRight
+                  size={16}
+                  strokeWidth={2}
+                  className="contacts-page__card-arrow"
+                />
+              </a>
+            )}
 
             <div className="contacts-page__card contacts-page__card--static">
               <div className="contacts-page__card-icon">
@@ -119,7 +110,7 @@ export function ContactsPage() {
               </div>
               <div className="contacts-page__card-body">
                 <span className="contacts-page__card-label">Де ми</span>
-                <strong className="contacts-page__card-value">{CONTACTS.city}</strong>
+                <strong className="contacts-page__card-value">Київ, Україна</strong>
                 <span className="contacts-page__card-hint">Працюємо по всій Україні</span>
               </div>
             </div>
@@ -131,7 +122,7 @@ export function ContactsPage() {
             <p className="contacts-page__section-sub">Клікни — і одразу пиши нам</p>
 
             <div className="contacts-page__messengers-grid">
-              {MESSENGERS.map((m) => (
+              {messengers.map((m) => (
                 <a
                   key={m.id}
                   href={m.url}

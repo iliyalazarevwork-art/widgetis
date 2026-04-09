@@ -179,6 +179,7 @@
   border: 1px solid rgba(255, 255, 255, 0.04);
   border-radius: 16px;
   padding: 16px;
+  overflow: hidden;
 }
 
 .dash-m__card-head {
@@ -236,7 +237,9 @@
   font-weight: 600;
   color: rgba(59, 130, 246, 0.6);
   white-space: nowrap;
-  flex-shrink: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .dash-m__order-email {

@@ -228,3 +228,36 @@
   white-space: nowrap;
   flex-shrink: 0;
 }
+
+/* ── Deployed script URL ── */
+.sites__script-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px solid rgba(16, 185, 129, 0.18);
+  border-radius: 8px;
+}
+
+.sites__script-url {
+  flex: 1;
+  font-size: 11px;
+  color: #6ee7b7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: 'Courier New', monospace;
+}
+
+.sites__script-copy {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6ee7b7;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+}

@@ -292,7 +292,7 @@
 .header__drawer-link {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 12px;
   padding: 14px 14px;
   font-family: var(--font-display);
   font-size: 17px;
@@ -305,10 +305,11 @@
 
 .header__drawer-link-arrow {
   flex-shrink: 0;
-  opacity: 1;
+  margin-left: auto;
+  opacity: 0.4;
   transform: translateX(0);
-  color: var(--accent);
-  transition: opacity var(--transition-fast), transform var(--transition-fast);
+  color: var(--text-primary);
+  transition: opacity var(--transition-fast), transform var(--transition-fast), color var(--transition-fast);
 }
 
 .header__drawer-link:hover,
@@ -320,29 +321,17 @@
 @media (hover: hover) {
   .header__drawer-link:hover .header__drawer-link-arrow {
     transform: translateX(2px);
+    opacity: 1;
+    color: var(--accent);
   }
 }
 
 .header__drawer-link-icon {
   flex-shrink: 0;
-  margin-right: 8px;
-  opacity: 0.7;
-}
-
-.header__drawer-link--cabinet {
-  color: var(--accent);
-  justify-content: flex-start;
-  gap: 0;
-}
-
-.header__drawer-link--cabinet .header__drawer-link-arrow {
-  margin-left: auto;
-}
-
-.header__drawer-link--cabinet:hover,
-.header__drawer-link--cabinet:active {
+  opacity: 0.5;
   color: var(--accent);
 }
+
 
 .header__drawer-divider {
   height: 20px;

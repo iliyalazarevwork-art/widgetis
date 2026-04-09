@@ -105,6 +105,29 @@
   text-transform: uppercase;
 }
 
+/* ===== Compact variant (cabinet) ===== */
+
+.footer--compact .footer__inner {
+  padding: 16px 24px;
+}
+
+.footer--compact .footer__bottom {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.footer__compact-links {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
 /* ===== Desktop ===== */
 
 @media (min-width: 768px) {

@@ -16,10 +16,10 @@ const HERO_WIDGETS: HeroWidget[] = [
   { id: 'purchase', kind: 'purchase' },
 ]
 
-function getWidgetSlots(viewportHeight: number) {
-  if (viewportHeight < 650) return 1
-  if (viewportHeight < 920) return 2
-  return 3
+function getWidgetSlots(viewportHeight: number, viewportWidth: number) {
+  if (viewportWidth >= 1024) return 3
+  if (viewportWidth >= 420 && viewportHeight >= 700) return 3
+  return 2
 }
 
 export function Hero() {
@@ -108,7 +108,7 @@ export function Hero() {
   }, [])
 
   useEffect(() => {
-    const onResize = () => setSlots(getWidgetSlots(window.innerHeight))
+    const onResize = () => setSlots(getWidgetSlots(window.innerHeight, window.innerWidth))
     onResize()
     window.addEventListener('resize', onResize)
     return () => window.removeEventListener('resize', onResize)
@@ -169,75 +169,77 @@ export function Hero() {
         <div className="hero__grid" />
       </div>
 
-      <div className="hero__content">
-        <p className="hero__eyebrow">
-          <Sparkles size={11} strokeWidth={2.5} />
-          Набір готових віджетів для e-commerce
-        </p>
-        <h1 className="hero__title">
-          <span>Віджети,</span>
-          <span>що самі</span>
-          <span className="hero__title-accent">продають.</span>
-        </h1>
-        <p className="hero__sub">
-          Встановіть за 2 хвилини — і магазин починає конвертувати краще.
-        </p>
-      </div>
-
-      <div className="hero__bottom-group">
-        <div className="hero__widgets" aria-live="polite">
-          {displayedWidgets.map((widget, idx) => {
-            const swapClass = animatingSlot === idx
-              ? (animStage === 'out' ? ' hero__widget-card--swap-out' : animStage === 'in' ? ' hero__widget-card--swap-in' : '')
-              : ''
-
-            if (widget.kind === 'delivery') {
-              return (
-                <article className={`hero__widget-card hero__widget-card--preview${swapClass}`} key={`${widget.id}-${idx}`}>
-                  <PreviewCartGoal />
-                </article>
-              )
-            }
-
-            if (widget.kind === 'deadline') {
-              return (
-                <article className={`hero__widget-card hero__widget-card--preview${swapClass}`} key={`${widget.id}-${idx}`}>
-                  <PreviewDelivery />
-                </article>
-              )
-            }
-
-            if (widget.kind === 'purchase') {
-              return (
-                <article className={`hero__widget-card hero__widget-card--preview${swapClass}`} key={`${widget.id}-${idx}`}>
-                  <PreviewPurchaseCounter />
-                </article>
-              )
-            }
-
-            return (
-              <article className={`hero__widget-card hero__widget-card--preview${swapClass}`} key={`${widget.id}-${idx}`}>
-                <PreviewCountdown />
-              </article>
-            )
-          })}
+      <div className="hero__wrap">
+        <div className="hero__content">
+          <p className="hero__eyebrow">
+            <Sparkles size={11} strokeWidth={2.5} />
+            Набір готових віджетів для e-commerce
+          </p>
+          <h1 className="hero__title">
+            <span>Віджети,</span>
+            <span>що самі</span>
+            <span className="hero__title-accent">продають.</span>
+          </h1>
+          <p className="hero__sub">
+            Встановіть за 2 хвилини — і магазин починає конвертувати краще.
+          </p>
         </div>
 
-        <div className="hero__bottom">
-          <Link to="/pricing" className="hero__cta">
-            Спробувати 7 днів безкоштовно
-            <ArrowRight size={16} strokeWidth={2.5} />
-          </Link>
+        <div className="hero__bottom-group">
+          <div className="hero__widgets" aria-live="polite">
+            {displayedWidgets.map((widget, idx) => {
+              const swapClass = animatingSlot === idx
+                ? (animStage === 'out' ? ' hero__widget-card--swap-out' : animStage === 'in' ? ' hero__widget-card--swap-in' : '')
+                : ''
 
-          <div className="hero__proof">
-            <div className="hero__proof-stars" aria-label="Оцінка 4.9">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} size={11} strokeWidth={0} fill="currentColor" />
-              ))}
-              <span>4.9</span>
+              if (widget.kind === 'delivery') {
+                return (
+                  <article className={`hero__widget-card hero__widget-card--preview${swapClass}`} key={`${widget.id}-${idx}`}>
+                    <PreviewCartGoal />
+                  </article>
+                )
+              }
+
+              if (widget.kind === 'deadline') {
+                return (
+                  <article className={`hero__widget-card hero__widget-card--preview${swapClass}`} key={`${widget.id}-${idx}`}>
+                    <PreviewDelivery />
+                  </article>
+                )
+              }
+
+              if (widget.kind === 'purchase') {
+                return (
+                  <article className={`hero__widget-card hero__widget-card--preview${swapClass}`} key={`${widget.id}-${idx}`}>
+                    <PreviewPurchaseCounter />
+                  </article>
+                )
+              }
+
+              return (
+                <article className={`hero__widget-card hero__widget-card--preview${swapClass}`} key={`${widget.id}-${idx}`}>
+                  <PreviewCountdown />
+                </article>
+              )
+            })}
+          </div>
+
+          <div className="hero__bottom">
+            <Link to="/pricing" className="hero__cta">
+              Спробувати 7 днів безкоштовно
+              <ArrowRight size={16} strokeWidth={2.5} />
+            </Link>
+
+            <div className="hero__proof">
+              <div className="hero__proof-stars" aria-label="Оцінка 4.9">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} size={11} strokeWidth={0} fill="currentColor" />
+                ))}
+                <span>4.9</span>
+              </div>
+              <div className="hero__proof-div" aria-hidden="true" />
+              <span className="hero__proof-trust">Нам довіряють 120+ магазинів</span>
             </div>
-            <div className="hero__proof-div" aria-hidden="true" />
-            <span className="hero__proof-trust">Нам довіряють 120+ магазинів</span>
           </div>
         </div>
       </div>

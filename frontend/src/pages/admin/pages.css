@@ -737,6 +737,7 @@
   display: flex;
   gap: 10px;
   padding: 10px 16px 0;
+  position: relative;
 }
 
 .orders-mobile__search {
@@ -782,6 +783,13 @@
   display: flex;
   gap: 8px;
   padding: 12px 16px 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.orders-mobile__segments::-webkit-scrollbar {
+  display: none;
 }
 
 .orders-mobile__seg {
@@ -795,6 +803,8 @@
   font-weight: 400;
   display: inline-flex;
   align-items: center;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .orders-mobile__seg--active {
@@ -893,6 +903,442 @@
   border-color: transparent;
   color: #555;
   cursor: default;
+}
+
+/* Filter panel */
+.orders-mobile__filter--active {
+  border-color: rgba(59, 130, 246, 0.4) !important;
+  background: rgba(59, 130, 246, 0.1) !important;
+  color: #3b82f6 !important;
+}
+
+.orders-mobile__filter-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: #3b82f6;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.orders-mobile__filter {
+  position: relative;
+}
+
+.orders-mobile__filter-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 49;
+}
+
+.orders-mobile__filter-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 16px;
+  right: 16px;
+  z-index: 50;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #161616;
+  padding: 14px;
+  animation: filterSlideDown 0.2s ease-out;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes filterSlideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.orders-mobile__filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.orders-mobile__filter-header h3 {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f0f0f0;
+  margin: 0;
+}
+
+.orders-mobile__filter-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.orders-mobile__filter-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 0;
+  background: transparent;
+  color: #3b82f6;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: inherit;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.orders-mobile__filter-reset:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.orders-mobile__filter-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.04);
+  color: #888;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.orders-mobile__filter-group {
+  margin-bottom: 14px;
+}
+
+.orders-mobile__filter-group:last-child {
+  margin-bottom: 0;
+}
+
+.orders-mobile__filter-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.orders-mobile__sort-options {
+  display: flex;
+  gap: 8px;
+}
+
+.orders-mobile__sort-btn {
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: #999;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 16px;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+
+.orders-mobile__sort-btn:active {
+  transform: scale(0.97);
+}
+
+.orders-mobile__sort-btn--active {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.orders-mobile__sort-btn--active svg {
+  opacity: 1;
+}
+
+.orders-mobile__sort-btn svg {
+  opacity: 0.5;
+}
+
+/* Date range picker */
+.orders-mobile__datepicker-wrap {
+  position: relative;
+}
+
+.orders-mobile__datepicker-wrap .react-datepicker-wrapper {
+  width: 100%;
+}
+
+.orders-mobile__datepicker-input {
+  width: 100%;
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: #ccc;
+  font-size: 12px;
+  font-family: inherit;
+  padding: 0 12px;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.orders-mobile__datepicker-input:focus {
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.orders-mobile__datepicker-input::placeholder {
+  color: #555;
+}
+
+/* react-datepicker dark theme */
+.orders-mobile__datepicker-wrap .react-datepicker-popper {
+  z-index: 60 !important;
+}
+
+.orders-mobile__calendar {
+  background: #1a1a1a !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px !important;
+  font-family: 'Inter', sans-serif !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6) !important;
+  overflow: hidden;
+}
+
+.orders-mobile__calendar .react-datepicker__header {
+  background: #1a1a1a !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  padding-top: 10px !important;
+}
+
+.orders-mobile__calendar .react-datepicker__current-month {
+  color: #f0f0f0 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  text-transform: capitalize;
+}
+
+.orders-mobile__calendar .react-datepicker__day-name {
+  color: #666 !important;
+  font-size: 11px !important;
+  width: 32px !important;
+  line-height: 32px !important;
+}
+
+.orders-mobile__calendar .react-datepicker__day {
+  color: #ccc !important;
+  font-size: 12px !important;
+  width: 32px !important;
+  line-height: 32px !important;
+  border-radius: 8px !important;
+  margin: 1px !important;
+}
+
+.orders-mobile__calendar .react-datepicker__day:hover {
+  background: rgba(59, 130, 246, 0.15) !important;
+  color: #fff !important;
+}
+
+.orders-mobile__calendar .react-datepicker__day--selected,
+.orders-mobile__calendar .react-datepicker__day--range-start,
+.orders-mobile__calendar .react-datepicker__day--range-end {
+  background: #3b82f6 !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+}
+
+.orders-mobile__calendar .react-datepicker__day--in-range,
+.orders-mobile__calendar .react-datepicker__day--in-selecting-range {
+  background: rgba(59, 130, 246, 0.2) !important;
+  color: #93bbfc !important;
+}
+
+.orders-mobile__calendar .react-datepicker__day--keyboard-selected {
+  background: rgba(59, 130, 246, 0.12) !important;
+}
+
+.orders-mobile__calendar .react-datepicker__day--outside-month {
+  color: #333 !important;
+}
+
+.orders-mobile__calendar .react-datepicker__day--disabled {
+  color: #333 !important;
+}
+
+.orders-mobile__calendar .react-datepicker__navigation-icon::before {
+  border-color: #888 !important;
+}
+
+.orders-mobile__calendar .react-datepicker__navigation:hover .react-datepicker__navigation-icon::before {
+  border-color: #fff !important;
+}
+
+.orders-mobile__calendar .react-datepicker__triangle {
+  display: none !important;
+}
+
+/* Clear button style */
+.orders-mobile__datepicker-wrap .react-datepicker__close-icon::after {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #888 !important;
+  font-size: 14px !important;
+  height: 18px !important;
+  width: 18px !important;
+  line-height: 1 !important;
+  padding: 0 !important;
+}
+
+/* Amount dual range slider */
+.orders-mobile__amount-slider {
+  padding: 0 2px;
+}
+
+.orders-mobile__amount-track {
+  position: relative;
+  height: 32px;
+  display: flex;
+  align-items: center;
+}
+
+.orders-mobile__amount-track::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.orders-mobile__amount-fill {
+  position: absolute;
+  height: 4px;
+  border-radius: 2px;
+  background: #3b82f6;
+  pointer-events: none;
+}
+
+.orders-mobile__range {
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+  margin: 0;
+}
+
+.orders-mobile__range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #3b82f6;
+  border: 2px solid #1a1a1a;
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.4);
+  pointer-events: auto;
+  cursor: grab;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+
+.orders-mobile__range::-webkit-slider-thumb:active {
+  transform: scale(1.15);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
+  cursor: grabbing;
+}
+
+.orders-mobile__range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #3b82f6;
+  border: 2px solid #1a1a1a;
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.4);
+  pointer-events: auto;
+  cursor: grab;
+}
+
+.orders-mobile__amount-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.orders-mobile__amount-labels span {
+  font-size: 12px;
+  font-weight: 600;
+  color: #3b82f6;
+  font-variant-numeric: tabular-nums;
+}
+
+.orders-mobile__plan-options {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.orders-mobile__plan-btn {
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: #999;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  padding: 0 18px;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+
+.orders-mobile__plan-btn:active {
+  transform: scale(0.96);
+}
+
+.orders-mobile__plan-btn--active {
+  color: #fff;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.orders-mobile__plan-btn--basic.orders-mobile__plan-btn--active {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #10b981;
+}
+
+.orders-mobile__plan-btn--pro.orders-mobile__plan-btn--active {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: #3b82f6;
+}
+
+.orders-mobile__plan-btn--max.orders-mobile__plan-btn--active {
+  background: rgba(168, 85, 247, 0.12);
+  border-color: rgba(168, 85, 247, 0.3);
+  color: #a855f7;
+}
+
+.orders-mobile__empty {
+  text-align: center;
+  color: #555;
+  font-size: 13px;
+  padding: 24px 0;
 }
 
 /* Mobile canvas: Subscriptions page */

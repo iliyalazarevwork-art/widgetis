@@ -40,7 +40,7 @@ export default function LoginOtpPage() {
       const res = await post<{ token: string; user: User }>('/auth/otp/verify', { email, code })
       login(res.token, res.user)
 
-      navigate('/cabinet', { replace: true })
+      navigate(res.user.role === 'admin' ? '/admin' : '/cabinet', { replace: true })
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Невірний код')
       setDigits(Array(OTP_LENGTH).fill(''))

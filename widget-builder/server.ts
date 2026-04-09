@@ -1,6 +1,7 @@
 import { createServer, type IncomingMessage } from 'node:http';
 import { networkInterfaces } from 'node:os';
 import { getModuleSchemas, buildModules, type BuildRequest } from './index.js';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
 const PORT = Number(process.env.PORT) || 3200;
 const HOST = process.env.HOST || '127.0.0.1';
@@ -82,6 +83,58 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === 'POST' && req.url === '/deploy') {
+    try {
+      const accountId = process.env.R2_ACCOUNT_ID;
+      const accessKeyId = process.env.R2_ACCESS_KEY_ID;
+      const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
+      const bucket = process.env.R2_BUCKET;
+      const publicUrl = (process.env.R2_PUBLIC_URL || '').replace(/\/$/, '');
+
+      if (!accountId || !accessKeyId || !secretAccessKey || !bucket || !publicUrl) {
+        res.writeHead(503, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'R2 not configured. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET, R2_PUBLIC_URL.' }));
+        return;
+      }
+
+      const body = await readBody(req);
+      const request: BuildRequest & { site?: string } = JSON.parse(body);
+
+      if (!request.modules) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Missing "modules"' }));
+        return;
+      }
+
+      const site = request.site || 'default';
+      const js = await buildModules(request);
+
+      const s3 = new S3Client({
+        region: 'auto',
+        endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+        credentials: { accessKeyId, secretAccessKey },
+      });
+
+      const key = `${site}/widget.js`;
+      await s3.send(new PutObjectCommand({
+        Bucket: bucket,
+        Key: key,
+        Body: js,
+        ContentType: 'application/javascript',
+        CacheControl: 'public, max-age=300',
+      }));
+
+      const url = `${publicUrl}/${key}`;
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ url, site, size: js.length }));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: message }));
+    }
+    return;
+  }
+
   if (req.method === 'POST' && req.url === '/build') {
     try {
       const body = await readBody(req);
@@ -136,7 +189,8 @@ server.listen(PORT, HOST, () => {
     console.log(`  Network: http://${ip}:${PORT}`);
   }
   console.log('');
-  console.log(`  GET  /modules  — JSON schemas for all modules`);
+  console.log(`  GET  /modules    — JSON schemas for all modules`);
   console.log(`  POST /build      — { modules, obfuscate? } → production.js`);
+  console.log(`  POST /deploy     — { site, modules, obfuscate? } → upload to R2, returns { url }`);
   console.log(`  POST /build-demo — { modules: ["marquee", ...] } → production.js (default configs)`);
 });

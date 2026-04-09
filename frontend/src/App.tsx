@@ -34,6 +34,7 @@ import {
   AdminSettingsPage,
   AdminSitesPage,
   AdminSiteDetailPage,
+  AdminSiteConfiguratorPage,
   AdminSubscriptionsPage,
   AdminUsersPage,
 } from './pages/admin/AdminPages'
@@ -122,6 +123,10 @@ function RequireAuth({ children }: { children: ReactElement }) {
 function RequireSubscription({ children }: { children: ReactElement }) {
   const { user } = useAuth()
 
+  if (user?.role === 'admin') {
+    return children
+  }
+
   const hasAccess = user?.subscription_status === 'active'
     || user?.subscription_status === 'trial'
     || user?.subscription_status === 'past_due'
@@ -136,7 +141,7 @@ function RequireSubscription({ children }: { children: ReactElement }) {
 function RequireOnboarding({ children }: { children: ReactElement }) {
   const { user } = useAuth()
 
-  if (user && !user.onboarding_completed) {
+  if (user && user.role !== 'admin' && !user.onboarding_completed) {
     return <Navigate to="/onboarding" replace />
   }
 
@@ -267,7 +272,8 @@ function App() {
             <Route path="widgets" element={<AdminConfiguratorPage />} />
             <Route path="widgets/:slug" element={<AdminConfiguratorPage />} />
             <Route path="sites" element={<AdminSitesPage />} />
-            <Route path="sites/:siteId" element={<AdminSiteDetailPage />} />
+            <Route path="sites/:domain" element={<AdminSiteDetailPage />} />
+            <Route path="sites/:domain/configure" element={<AdminSiteConfiguratorPage />} />
             <Route path="subscriptions" element={<AdminSubscriptionsPage />} />
             <Route path="orders" element={<AdminOrdersPage />} />
             <Route path="users" element={<AdminUsersPage />} />

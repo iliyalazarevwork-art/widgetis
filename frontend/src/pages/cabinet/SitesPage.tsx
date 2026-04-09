@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Globe, ChevronRight } from 'lucide-react'
+import { Plus, Globe, ChevronRight, Copy, Check } from 'lucide-react'
 import { get } from '../../api/client'
 import type { Site } from '../../types'
 import './styles/sites.css'
@@ -20,6 +20,15 @@ export default function SitesPage() {
   const [sites, setSites] = useState<Site[]>([])
   const [limits, setLimits] = useState<{ used: number; max: number; plan: string } | null>(null)
   const [loading, setLoading] = useState(true)
+  const [copiedId, setCopiedId] = useState<number | null>(null)
+
+  async function copyScriptUrl(e: React.MouseEvent, site: Site) {
+    e.preventDefault()
+    if (!site.deployed_script_url) return
+    await navigator.clipboard.writeText(site.deployed_script_url)
+    setCopiedId(site.id)
+    setTimeout(() => setCopiedId(null), 2000)
+  }
 
   useEffect(() => {
     get<SitesResponse>('/profile/sites')
@@ -99,6 +108,20 @@ export default function SitesPage() {
                 <div className="sites__card-warning">
                   <span>Встановіть скрипт для верифікації</span>
                   <span className="sites__instruction-btn">Інструкція</span>
+                </div>
+              )}
+
+              {site.deployed_script_url && (
+                <div className="sites__script-row">
+                  <code className="sites__script-url">{site.deployed_script_url}</code>
+                  <button
+                    type="button"
+                    className="sites__script-copy"
+                    onClick={(e) => copyScriptUrl(e, site)}
+                    title="Скопіювати посилання на скрипт"
+                  >
+                    {copiedId === site.id ? <Check size={13} strokeWidth={2.5} /> : <Copy size={13} strokeWidth={2} />}
+                  </button>
                 </div>
               )}
             </Link>

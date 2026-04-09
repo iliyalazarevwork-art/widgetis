@@ -1,0 +1,209 @@
+# Widgetis Frontend — Design Standards
+
+> Source of truth: Pencil design file (`frontend/design.pen`, node `I13RR`).
+> Rule: **never change the design — always change the code to match it.**
+
+---
+
+## 1. Colors (7 semantic + 6 neutral)
+
+### Semantic Colors
+
+| Token              | Hex       | CSS Variable  | Role                                              |
+|--------------------|-----------|---------------|----------------------------------------------------|
+| Primary Blue       | `#3B82F6` | `--blue`      | CTA, Pro plan, navigation, links, active elements  |
+| Success Green      | `#10B981` | `--green`     | Basic plan, enabled, success, confirmation          |
+| Accent Purple      | `#A855F7` | `--purple`    | Max plan, hero accent, premium elements             |
+| Telegram Blue      | `#229ED9` | `--telegram`  | Only for Telegram links and support buttons         |
+| Urgency Orange     | `#F97316` | `--orange`    | Timers, urgency, cancellation, warnings             |
+| Danger Red         | `#EF4444` | `--red`       | Refunds, critical errors, irreversible actions      |
+| Warning Yellow     | `#FBBF24` | `--yellow`    | Awaiting payment, paused, pending states            |
+
+### Neutral Palette
+
+| Token      | Hex       | CSS Variable       | Role            |
+|------------|-----------|---------------------|-----------------|
+| Background | `#0A0A0A` | `--bg-page`         | Page background |
+| Cards      | `#141414` | `--bg-card`         | Card surfaces   |
+| Inputs     | `#1A1A1A` | `--bg-input`        | Input fields    |
+| Title      | `#F0F0F0` | `--text-primary`    | Primary text    |
+| Secondary  | `#888888` | `--text-secondary`  | Secondary text  |
+| Muted      | `#555555` | `--text-muted`      | Hints, disabled |
+
+### Derived (opacity-based)
+
+Each semantic color has variants: `--{color}-dim` (bg), `--{color}-glow` (hover), `--{color}-border`, `--{color}-ring`.
+See `src/index.css` for exact values.
+
+### Stars (Rating)
+
+- Active: `#F5B400` — **NOT** `#fbbf24`
+- Inactive: `#FFFFFF20`
+- Implementation: `<Star fill="currentColor" stroke="none" color="#F5B400" />` from lucide-react
+
+### Brand Messengers
+
+| Brand    | Hex       |
+|----------|-----------|
+| Telegram | `#26A5E4` |
+| Viber    | `#7360F2` |
+| WhatsApp | `#25D366` |
+
+---
+
+## 2. Typography
+
+**Font: Inter only.** No other fonts. No Outfit, no system fallbacks for display.
+
+```
+font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+```
+
+### Scale
+
+| Level                | Size       | Weight      | Color            | Use                           |
+|----------------------|------------|-------------|------------------|-------------------------------|
+| H1 — Hero            | 28–52px    | 900 Black   | `--text-primary` | Landing hero headings         |
+| H2 — Section         | 22–24px    | 800 Extra   | `--text-primary` | Section headings              |
+| H3 — Card/Screen     | 15–18px    | 700 Bold    | `--text-primary` | Screen titles, card headings  |
+| Body                 | 13–14px    | 400–600     | `--text-primary` | Main text, descriptions       |
+| Small / Label        | 11–12px    | 600–700     | `--text-secondary` | Labels, badges, navigation  |
+| Eyebrow / Overline   | 10px       | 700 + CAPS  | `--blue`         | Section labels (LS 1.5px)     |
+| Stat / Number        | 20–28px    | 800–900     | `--blue`         | Counters, statistics          |
+
+### Rules
+- Weight scale: 400 (body), 600 (label), 700 (bold), 800 (heading), 900 (hero)
+- Line height: 1.6 (body default)
+- Language: only Ukrainian, address "Ви" capitalized
+
+---
+
+## 3. Icons
+
+- **UI icons**: only `lucide-react`. No emoji. No other icon libraries.
+- **Brand icons** (Telegram, Viber, WhatsApp): inline SVG with brand colors.
+- **Widget icons**: mapped via `WidgetIcon.tsx` — each widget slug has a Lucide icon + color.
+
+---
+
+## 4. Plans — Single Source of Truth
+
+Plans MUST be defined in ONE place (`src/data/plans.ts`) and imported everywhere.
+
+| Plan  | Color     | CSS Variable | Price      | Yearly     |
+|-------|-----------|--------------|------------|------------|
+| Basic | `#10B981` | `--green`    | 799 ₴/міс | 7 990 ₴/рік |
+| Pro   | `#3B82F6` | `--blue`     | 1 599 ₴/міс | 15 990 ₴/рік |
+| Max   | `#A855F7` | `--purple`   | 2 899 ₴/міс | 28 990 ₴/рік |
+
+Each plan has: `id`, `name`, `color`, `icon`, `monthlyPrice`, `yearlyPrice`, `features[]`.
+**Never hardcode plan data in components. Always import from the single source.**
+
+---
+
+## 5. Layout — Global Structure
+
+### All pages MUST have:
+1. **Header** — sticky (`position: fixed`, `z-index: 100`), same component everywhere (marketing + cabinet)
+2. **Footer** — on every page:
+   - **Marketing pages**: full footer (brand, nav columns, contacts, legal links)
+   - **Cabinet pages**: simplified footer (copyright + key links only)
+3. **BackButton** — reusable `<BackButton />` component:
+   - Always positioned top-left
+   - Never overlaps text or content
+   - Uses `<ArrowLeft />` from lucide-react
+   - Navigates to explicit route (not `history.back()`)
+
+### Header behavior
+- Scroll: background becomes `rgba(14,14,14,0.85)` + `blur(16px)` after 8px scroll
+- Contains: logo, nav links, CTA button, hamburger menu (mobile)
+- Auth-aware: shows "Cabinet" link if logged in
+
+### Border radius
+- Cards: `8–14px`
+- Pills / avatars: `999px`
+
+---
+
+## 6. Contacts & Social Links — From Backend
+
+**Source**: `GET /api/v1/settings` (public, no auth required)
+
+**Response fields**:
+```json
+{
+  "phone": "+380 96 149 47 47",
+  "email": "hello@widgetis.com",
+  "business_hours": "Mon-Fri 9:00-20:00",
+  "socials": {
+    "instagram": "https://instagram.com/widgetis",
+    "telegram": "https://t.me/widgetis",
+    "facebook": ""
+  },
+  "messengers": {
+    "telegram": "https://t.me/widgetis_support",
+    "viber": "",
+    "whatsapp": ""
+  },
+  "stats": {
+    "stores_count": 120,
+    "widgets_deployed": 530
+  }
+}
+```
+
+### Frontend rules:
+- Fetch on app init, cache in React context / zustand store
+- Cache TTL: 5 minutes (re-fetch on stale)
+- **Never hardcode** phone, email, social links in components
+- Empty string = hide that link (don't render)
+- Admin manages all values via Filament panel
+
+---
+
+## 7. Widget Icon & Color Mapping
+
+Each widget has a slug → icon + color mapping in `WidgetIcon.tsx`.
+When adding a new widget, add its mapping there.
+
+Current mappings (16 widgets):
+
+| Slug           | Icon (Lucide)  | Color     |
+|----------------|----------------|-----------|
+| megaphone      | Megaphone      | `#7C3AED` |
+| package        | Package        | `#059669` |
+| cart           | ShoppingCart   | `#EA580C` |
+| snowflake      | Snowflake      | `#38BDF8` |
+| truck          | Truck          | `#16A34A` |
+| eye            | Eye            | `#EC4899` |
+| coins          | Coins          | `#F59E0B` |
+| gift           | Gift           | `#F43F5E` |
+| star           | Star           | `#FBBF24` |
+| hourglass      | Hourglass      | `#8B5CF6` |
+| camera         | Camera         | `#6366F1` |
+| bell           | Bell           | `#14B8A6` |
+| wheel          | Disc3          | `#F97316` |
+| puzzle         | Puzzle         | `#3B82F6` |
+| bar-chart      | BarChart3      | `#22C55E` |
+| wrench         | Wrench         | `#6B7280` |
+
+---
+
+## 8. Component Reuse Rules
+
+1. **Never duplicate data** — plans, widgets, contacts must have ONE source
+2. **Wrap repeating UI blocks** in components — pricing cards, widget cards, stat counters
+3. **Shared components** live in `src/components/` — imported where needed
+4. **Page-specific components** live in `src/pages/<page>/components/`
+5. **Changed in one place = changed everywhere** — no copy-paste of blocks
+
+---
+
+## 9. CSS Conventions
+
+- All design tokens as CSS custom properties in `src/index.css`
+- BEM naming: `.block__element--modifier`
+- No inline styles except dynamic values (colors from widget mapping)
+- No `!important` unless overriding third-party
+- Responsive: mobile-first, breakpoints via media queries
+- Transitions: use `--transition-fast` (0.15s), `--transition-normal` (0.25s)

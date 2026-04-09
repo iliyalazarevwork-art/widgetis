@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { NavLink, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import {
   TrendingUp,
   Package,
@@ -10,11 +10,11 @@ import {
   ArrowRight,
   X,
   LayoutDashboard,
-  Repeat2,
   Users,
 } from 'lucide-react'
 import { get } from '../../api/client'
 import { HamburgerIcon } from '../../components/HamburgerIcon'
+import { AdminMobileBottomNav } from './AdminPages'
 import type { AdminDashboardData } from '../../types'
 import './dashboard.css'
 
@@ -36,13 +36,6 @@ type UiOrder = {
   fresh: boolean
 }
 
-const BOTTOM_NAV = [
-  { to: '/admin', label: 'Дашборд', icon: LayoutDashboard, end: true },
-  { to: '/admin/subscriptions', label: 'Підписки', icon: Repeat2 },
-  { to: '/admin/orders', label: 'Замовлення', icon: Receipt },
-  { to: '/admin/users', label: 'Юзери', icon: Users },
-  { to: '/admin/sites', label: 'Сайти', icon: Globe },
-]
 
 const MENU_LINKS = [
   { to: '/admin', label: 'Дашборд', end: true },
@@ -264,24 +257,7 @@ export function AdminDashboardPage() {
         )}
       </main>
 
-      <nav className="dash-m__bottomnav">
-        {BOTTOM_NAV.map((item) => {
-          const Icon = item.icon
-          return (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              className={({ isActive }) =>
-                `dash-m__tab${isActive ? ' dash-m__tab--active' : ''}`
-              }
-            >
-              <Icon size={20} strokeWidth={2} />
-              <span>{item.label}</span>
-            </NavLink>
-          )
-        })}
-      </nav>
+      <AdminMobileBottomNav />
     </div>
   )
 }

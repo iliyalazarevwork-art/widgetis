@@ -3,5 +3,18 @@
     "allow": [
       "Read(//Users/iliya/.claude/**)"
     ]
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.prompt' | grep -qiE 'скриншот|screenshot|сделай скрин|покажи как выглядит|сфоткай|сфотографируй|снимок экрана' && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"UserPromptSubmit\",\"additionalContext\":\"The user wants a screenshot. Use the /screenshot slash command via the Skill tool with the user message as args. Example: Skill({ skill: \\\"screenshot\\\", args: \\\"<user request>\\\" })\"}}' || echo '{}'",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
   }
 }

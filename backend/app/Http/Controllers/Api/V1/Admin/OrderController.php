@@ -19,6 +19,26 @@ class OrderController extends BaseController
             $query->where('status', $request->input('status'));
         }
 
+        if ($request->filled('plan')) {
+            $query->whereHas('plan', fn ($q) => $q->where('slug', $request->input('plan')));
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->input('date_from'));
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->input('date_to'));
+        }
+
+        if ($request->filled('amount_min')) {
+            $query->where('amount', '>=', (float) $request->input('amount_min'));
+        }
+
+        if ($request->filled('amount_max')) {
+            $query->where('amount', '<=', (float) $request->input('amount_max'));
+        }
+
         $search = trim((string) $request->input('q', ''));
         if ($search !== '') {
             $query->where(function ($q) use ($search) {
@@ -32,8 +52,14 @@ class OrderController extends BaseController
             });
         }
 
+        $allowedSorts = ['created_at', 'amount'];
+        $sortBy = in_array($request->input('sort_by'), $allowedSorts, true)
+            ? $request->input('sort_by')
+            : 'created_at';
+        $sortDir = $request->input('sort_dir') === 'asc' ? 'asc' : 'desc';
+
         $perPage = min((int) $request->input('per_page', 20), 50);
-        $orders = $query->orderByDesc('created_at')->paginate($perPage);
+        $orders = $query->orderBy($sortBy, $sortDir)->paginate($perPage);
 
         return $this->paginated($orders, [
             'data' => collect($orders->items())->map(fn (Order $o) => [
@@ -44,6 +70,7 @@ class OrderController extends BaseController
                 'amount' => (float) $o->amount,
                 'currency' => $o->currency,
                 'status' => $o->status?->value,
+                'billing_period' => $o->billing_period,
                 'created_at' => $o->created_at->toIso8601String(),
             ]),
         ]);

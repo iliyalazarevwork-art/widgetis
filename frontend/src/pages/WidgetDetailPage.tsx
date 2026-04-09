@@ -88,7 +88,7 @@ export function WidgetDetailPage() {
 
   const containingPackages = useMemo(() => {
     if (!widget) return []
-    return packages.filter((p) => p.widgetIds.includes(widget.id))
+    return packages.filter((p) => p.widgetSlugs.includes(widget.id))
   }, [widget])
 
   if (!widget) {
@@ -271,24 +271,17 @@ export function WidgetDetailPage() {
                 Цей віджет вже входить у {containingPackages.length === 1 ? 'пакет' : 'пакети'}:
               </p>
               <div className="widget-page__upsell-list">
-                {containingPackages.map((p) => {
-                  const discount = Math.round((1 - p.price / p.originalPrice) * 100)
-                  return (
+                {containingPackages.map((p) => (
                     <div key={p.id} className="widget-page__upsell-item">
                       <div className="widget-page__upsell-item-name">
                         <strong>{p.name}</strong>
-                        <span>{p.widgetIds.length} віджетів</span>
+                        <span>{p.widgets} віджетів</span>
                       </div>
                       <div className="widget-page__upsell-item-price">
-                        <span className="widget-page__upsell-old">
-                          {p.originalPrice.toLocaleString('uk-UA')} грн
-                        </span>
-                        <strong>{p.price.toLocaleString('uk-UA')} грн</strong>
-                        <span className="widget-page__upsell-discount">−{discount}%</span>
+                        <strong>{p.monthlyPrice.toLocaleString('uk-UA')} грн/міс</strong>
                       </div>
                     </div>
-                  )
-                })}
+                ))}
               </div>
               <Link to="/pricing" className="widget-page__upsell-cta">
                 Обрати тариф

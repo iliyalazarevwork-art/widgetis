@@ -74,28 +74,38 @@ interface SavedState {
   previewUrl: string
 }
 
-function loadSaved(): SavedState | null {
+function loadSaved(key: string): SavedState | null {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
+    const raw = localStorage.getItem(key)
     return raw ? JSON.parse(raw) : null
   } catch { return null }
 }
 
-function saveToStorage(moduleStates: Record<string, ModuleState>, activeModule: string, previewUrl: string) {
+function saveToStorage(key: string, moduleStates: Record<string, ModuleState>, activeModule: string, previewUrl: string) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ moduleStates, activeModule, previewUrl }))
+    localStorage.setItem(key, JSON.stringify({ moduleStates, activeModule, previewUrl }))
   } catch { /* quota */ }
+}
+
+// ─── Site context (for site-specific configurator) ─────────────────────────────
+
+export interface SiteContext {
+  id: number
+  domain: string
+  deployedScriptUrl?: string | null
 }
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
-export function AdminConfiguratorPage() {
+export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteContext } = {}) {
   const [schemas, setSchemas] = useState<ModuleSchemas | null>(null)
   const [moduleIds, setModuleIds] = useState<string[]>([])
   const [moduleStates, setModuleStates] = useState<Record<string, ModuleState>>({})
   const [activeModule, setActiveModule] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
+
+  const storageKey = siteContext ? `widgetis-cfg-site-${siteContext.id}` : STORAGE_KEY
 
   const [building, setBuilding] = useState(false)
   const [builtJs, setBuiltJs] = useState<string | null>(null)
@@ -104,6 +114,8 @@ export function AdminConfiguratorPage() {
   const [obfuscate, setObfuscate] = useState(true)
   const [creatingDemo, setCreatingDemo] = useState(false)
   const [demoLink, setDemoLink] = useState<string | null>(null)
+  const [deploying, setDeploying] = useState(false)
+  const [deployedUrl, setDeployedUrl] = useState<string | null>(siteContext?.deployedScriptUrl ?? null)
 
   const [previewOpen, setPreviewOpen] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string>('')
@@ -135,7 +147,7 @@ export function AdminConfiguratorPage() {
         setModuleIds(ids)
 
         // Restore from localStorage or use defaults
-        const saved = loadSaved()
+        const saved = loadSaved(storageKey)
         const states: Record<string, ModuleState> = {}
         for (const id of ids) {
           if (saved?.moduleStates?.[id]) {
@@ -152,7 +164,8 @@ export function AdminConfiguratorPage() {
         const active = (saved?.activeModule && ids.includes(saved.activeModule)) ? saved.activeModule : ids[0] ?? ''
         setActiveModule(active)
 
-        if (saved?.previewUrl) setPreviewUrl(saved.previewUrl)
+        const fallbackUrl = siteContext ? `https://${siteContext.domain}` : ''
+        setPreviewUrl(saved?.previewUrl || fallbackUrl)
       } catch (err) {
         setLoadError((err as Error).message)
       } finally {
@@ -165,9 +178,9 @@ export function AdminConfiguratorPage() {
   // Persist on change
   useEffect(() => {
     if (moduleIds.length > 0) {
-      saveToStorage(moduleStates, activeModule, previewUrl)
+      saveToStorage(storageKey, moduleStates, activeModule, previewUrl)
     }
-  }, [moduleStates, activeModule, previewUrl, moduleIds])
+  }, [moduleStates, activeModule, previewUrl, moduleIds, storageKey])
 
   // ─── Convenience ───────────────────────────────────────────────────
 
@@ -205,7 +218,7 @@ export function AdminConfiguratorPage() {
       if (!st) continue
       modules[id] = { config: deepClone(st.config), i18n: deepClone(st.i18n) }
     }
-    return { site: 'default', modules, obfuscate }
+    return { site: siteContext?.domain || 'default', modules, obfuscate }
   }
 
   async function buildWidget() {
@@ -424,7 +437,7 @@ export function AdminConfiguratorPage() {
     setModuleStates(fresh)
     setBuiltJs(null)
     setBuildError(null)
-    localStorage.removeItem(STORAGE_KEY)
+    localStorage.removeItem(storageKey)
     toast.success('Скинуто')
   }
 
@@ -436,6 +449,34 @@ export function AdminConfiguratorPage() {
       toast.success('Скопійовано')
       setTimeout(() => setCopied(false), 2500)
     } catch { toast.error('Не вдалося скопіювати') }
+  }
+
+  // ─── Deploy to R2 ─────────────────────────────────────────────────
+
+  async function deployToR2() {
+    if (!siteContext) return
+    setDeploying(true)
+    setDeployedUrl(null)
+    try {
+      const res = await fetch('/deploy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(getBuildRequest()),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }))
+        throw new Error((err as { error?: string }).error ?? `HTTP ${res.status}`)
+      }
+      const data = await res.json() as { url?: string }
+      const url = data.url || `https://cdn.widgetis.com/${siteContext.domain}/widget.js`
+      setDeployedUrl(url)
+      await navigator.clipboard.writeText(url).catch(() => {})
+      toast.success('Задеплоєно на R2! Посилання скопійовано.')
+    } catch (err) {
+      toast.error((err as Error).message || 'Помилка деплою на R2')
+    } finally {
+      setDeploying(false)
+    }
   }
 
   // ─── Render ────────────────────────────────────────────────────────
@@ -468,17 +509,38 @@ export function AdminConfiguratorPage() {
     <div className="cfg-m">
       {/* Topbar */}
       <header className="cfg-m__topbar">
-        <Link to="/admin" className="cfg-m__back" aria-label="Назад">
+        <Link to={siteContext ? `/admin/sites/${siteContext.domain}` : '/admin'} className="cfg-m__back" aria-label="Назад">
           <ArrowLeft size={18} strokeWidth={2} />
         </Link>
         <div className="cfg-m__topbar-title">
-          <strong>Конфігуратор</strong>
-          <span>Налаштування віджетів</span>
+          <strong>{siteContext ? siteContext.domain : 'Конфігуратор'}</strong>
+          <span>{siteContext ? 'Конфігуратор сайту' : 'Налаштування віджетів'}</span>
         </div>
         <div className="cfg-m__avatar" aria-hidden="true">ІЛ</div>
       </header>
 
       <main className="cfg-m__body">
+
+        {/* Deployed script URL banner */}
+        {siteContext && deployedUrl && (
+          <div style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: 10, padding: '10px 14px', marginBottom: 10 }}>
+            <div style={{ fontSize: 11, color: '#6ee7b7', fontWeight: 600, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Задеплоєний скрипт
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <code style={{ fontSize: 12, color: '#a7f3d0', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {deployedUrl}
+              </code>
+              <button
+                type="button"
+                style={{ flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', color: '#6ee7b7', padding: 4 }}
+                onClick={async () => { await navigator.clipboard.writeText(deployedUrl); toast.success('Скопійовано') }}
+              >
+                <Copy size={13} strokeWidth={2} />
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Quick actions */}
         <div className="cfg-m__qa">
@@ -568,6 +630,28 @@ export function AdminConfiguratorPage() {
                 <Copy size={12} strokeWidth={2} />
               </button>
             </div>
+          )}
+          {siteContext && (
+            <>
+              <button
+                type="button"
+                className="cfg-m__action-build"
+                style={{ background: 'linear-gradient(135deg, #0f766e 0%, #0369a1 100%)', marginTop: 6 }}
+                onClick={deployToR2}
+                disabled={deploying || !builtJs}
+              >
+                {deploying ? <Loader size={15} strokeWidth={2} className="cfg-m__spin" /> : <Plus size={15} strokeWidth={2} />}
+                {deploying ? 'Деплой...' : 'Задеплоїти на R2'}
+              </button>
+              {deployedUrl && (
+                <div className="cfg-m__demo-link-banner">
+                  <a href={deployedUrl} target="_blank" rel="noopener noreferrer">{deployedUrl}</a>
+                  <button type="button" onClick={async () => { await navigator.clipboard.writeText(deployedUrl); toast.success('Скопійовано') }}>
+                    <Copy size={12} strokeWidth={2} />
+                  </button>
+                </div>
+              )}
+            </>
           )}
           {buildError && <div className="cfg-m__build-error">Помилка: {buildError}</div>}
         </div>

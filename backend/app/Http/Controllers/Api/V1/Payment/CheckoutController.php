@@ -15,17 +15,18 @@ use App\Models\Plan;
 use App\Models\Subscription;
 use App\Services\Billing\LiqPayService;
 use App\Services\Billing\LiqPayWebhookService;
+use App\Services\Billing\UniqueOrderNumberProvider;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
 class CheckoutController
 {
     public function __construct(
         private readonly LiqPayService $liqPayService,
         private readonly LiqPayWebhookService $webhookService,
+        private readonly UniqueOrderNumberProvider $orderNumbers,
     ) {
     }
 
@@ -59,14 +60,16 @@ class CheckoutController
             ], 422);
         }
 
+        $siteDomain = $user->sites()->orderBy('id')->value('domain');
+
         /** @var array{checkout_url: string, data: string, signature: string, order_id: string} $checkout */
-        $checkout = DB::transaction(function () use ($user, $plan, $billingPeriod): array {
+        $checkout = DB::transaction(function () use ($user, $plan, $billingPeriod, $siteDomain): array {
             $amount = $billingPeriod === BillingPeriod::Yearly
                 ? $plan->price_yearly
                 : $plan->price_monthly;
 
             $order = Order::create([
-                'order_number' => 'ORD-' . strtoupper(Str::random(12)),
+                'order_number' => $this->orderNumbers->get($siteDomain, $plan->slug),
                 'user_id' => $user->id,
                 'plan_id' => $plan->id,
                 'billing_period' => $billingPeriod->value,

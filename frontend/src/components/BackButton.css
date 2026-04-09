@@ -1,0 +1,31 @@
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 40px;
+  height: 40px;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  color: var(--text-secondary);
+  transition: background var(--t-fast), color var(--t-fast);
+  flex-shrink: 0;
+}
+
+.back-button:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* When label is present, expand to fit text */
+.back-button:has(.back-button__label) {
+  width: auto;
+  padding: 0 14px 0 12px;
+}
+
+.back-button__label {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}

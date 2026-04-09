@@ -80,7 +80,7 @@ function ChoiceScreen({ data, onChoice }: { data: SignupData; onChoice: (c: 'sel
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 24, padding: '40px 20px 80px', maxWidth: 375, width: '100%', margin: '0 auto' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, textAlign: 'center' }}>
           <SuccessIcon />
-          <h1 style={{ margin: 0, color: '#F0F0F0', fontFamily: 'Outfit, Inter, sans-serif', fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>
+          <h1 style={{ margin: 0, color: '#F0F0F0', fontFamily: 'Inter, sans-serif', fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>
             Оплата пройшла успішно!
           </h1>
           <p style={{ margin: 0, color: '#8A8A8A', fontSize: 14, lineHeight: 1.5, fontFamily: 'Inter, sans-serif' }}>
@@ -96,20 +96,21 @@ function ChoiceScreen({ data, onChoice }: { data: SignupData; onChoice: (c: 'sel
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {[
-            { key: 'self' as const, icon: <Code2 size={28} strokeWidth={2} style={{ color: '#3B82F6' }} />, title: 'Встановлю сам', sub: 'Покрокова інструкція — займе 2 хвилини' },
-            { key: 'concierge' as const, icon: <Users size={28} strokeWidth={2} style={{ color: '#3B82F6' }} />, title: 'З допомогою менеджера', sub: 'Ми все зробимо за вас' },
-          ].map(({ key, icon, title, sub }) => (
+            { key: 'concierge' as const, icon: <Users size={28} strokeWidth={2} />, title: 'З допомогою менеджера', sub: 'Ми все зробимо за вас', featured: true },
+            { key: 'self' as const, icon: <Code2 size={28} strokeWidth={2} style={{ color: '#3B82F6' }} />, title: 'Встановлю сам', sub: 'Покрокова інструкція — займе 2 хвилини', featured: false },
+          ].map(({ key, icon, title, sub, featured }) => (
             <button key={key} onClick={() => onChoice(key)} style={{
-              display: 'flex', alignItems: 'center', gap: 14, padding: 18,
-              background: '#161616', border: '1px solid rgba(255,255,255,0.08)',
+              display: 'flex', alignItems: 'center', gap: 14, padding: 18, minHeight: 82,
+              background: featured ? '#3B82F6' : '#161616',
+              border: featured ? 'none' : '1px solid rgba(255,255,255,0.08)',
               borderRadius: 14, cursor: 'pointer', textAlign: 'left',
             }}>
-              {icon}
+              <span style={{ color: featured ? '#fff' : '#3B82F6', display: 'flex', flexShrink: 0 }}>{icon}</span>
               <div style={{ flex: 1 }}>
-                <div style={{ color: '#F0F0F0', fontSize: 15, fontWeight: 600, fontFamily: 'Inter, sans-serif' }}>{title}</div>
-                <div style={{ color: '#8A8A8A', fontSize: 13, fontFamily: 'Inter, sans-serif', marginTop: 2 }}>{sub}</div>
+                <div style={{ color: featured ? '#fff' : '#F0F0F0', fontSize: 15, fontWeight: 600, fontFamily: 'Inter, sans-serif' }}>{title}</div>
+                <div style={{ color: featured ? 'rgba(255,255,255,0.75)' : '#8A8A8A', fontSize: 13, fontFamily: 'Inter, sans-serif', marginTop: 2 }}>{sub}</div>
               </div>
-              <ArrowRight size={20} strokeWidth={2} style={{ color: '#8A8A8A', flexShrink: 0 }} />
+              <ArrowRight size={20} strokeWidth={2} style={{ color: featured ? 'rgba(255,255,255,0.8)' : '#8A8A8A', flexShrink: 0 }} />
             </button>
           ))}
         </div>
@@ -202,7 +203,7 @@ function SelfScreen({ data, onBack }: { data: SignupData; onBack: () => void }) 
 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, textAlign: 'center' }}>
           <SuccessIcon />
-          <h1 style={{ margin: 0, color: '#F0F0F0', fontFamily: 'Outfit, Inter, sans-serif', fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>
+          <h1 style={{ margin: 0, color: '#F0F0F0', fontFamily: 'Inter, sans-serif', fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>
             Оплата пройшла успішно!
           </h1>
           <p style={{ margin: 0, color: '#8A8A8A', fontSize: 14, lineHeight: 1.5, fontFamily: 'Inter, sans-serif' }}>
@@ -344,7 +345,7 @@ function ManagerScreen({ data, onBack }: { data: SignupData; onBack: () => void 
 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, textAlign: 'center' }}>
           <SuccessIcon />
-          <h1 style={{ margin: 0, color: '#F0F0F0', fontFamily: 'Outfit, Inter, sans-serif', fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>
+          <h1 style={{ margin: 0, color: '#F0F0F0', fontFamily: 'Inter, sans-serif', fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>
             Оплата пройшла успішно!
           </h1>
           <p style={{ margin: 0, color: '#8A8A8A', fontSize: 14, lineHeight: 1.5, fontFamily: 'Inter, sans-serif' }}>
@@ -382,7 +383,7 @@ function ManagerScreen({ data, onBack }: { data: SignupData; onBack: () => void 
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
               padding: '18px 24px', background: '#3B82F6', borderRadius: 14, border: 'none',
               cursor: sending ? 'not-allowed' : 'pointer', opacity: sending ? 0.7 : 1,
-              color: '#0A0A0A', fontSize: 16, fontWeight: 700, fontFamily: 'Outfit, Inter, sans-serif',
+              color: '#0A0A0A', fontSize: 16, fontWeight: 700, fontFamily: 'Inter, sans-serif',
               letterSpacing: 0.2,
             }}>
               {sending ? <LoaderCircle size={18} strokeWidth={2} style={{ animation: 'spin 1s linear infinite' }} /> : null}
@@ -422,17 +423,36 @@ export function TrialSuccessPage() {
 
   useEffect(() => {
     const raw = sessionStorage.getItem('wty_trial_signup')
-    if (!raw) { navigate('/pricing', { replace: true }); return }
+    let parsed: SignupData | null = null
 
-    try {
-      setData(JSON.parse(raw) as SignupData)
-    } catch {
+    if (raw) {
+      try {
+        parsed = JSON.parse(raw) as SignupData
+      } catch {
+        // invalid JSON — ignore
+      }
+    }
+
+    if (parsed) {
+      setData(parsed)
+    } else if (user) {
+      // sessionStorage lost (e.g. LiqPay opened new tab) but user is logged in
+      // — construct minimal data so onboarding screen still works
+      setData({
+        email: user.email ?? '',
+        site: '',
+        platform: 'horoshop',
+        plan: '',
+        billing: '',
+      })
+    } else {
+      // Not logged in and no session data — nothing to show
       navigate('/pricing', { replace: true })
       return
     }
 
     refreshUser()
-  }, [navigate, refreshUser])
+  }, [navigate, refreshUser, user])
 
   useEffect(() => {
     if (!data) return

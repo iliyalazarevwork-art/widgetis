@@ -1,76 +1,19 @@
 import { useNavigate } from 'react-router-dom'
-import { Check, Sparkles, ArrowRight, Shield, Zap, Headphones, Gift } from 'lucide-react'
+import { Check, Sparkles, ArrowRight, Shield, Zap, Headphones } from 'lucide-react'
+import { PLANS as SHARED_PLANS } from '../data/plans'
 import './Pricing.css'
 
-interface Plan {
-  id: 'start' | 'pro' | 'max'
-  name: string
-  price: number
-  originalPrice: number
-  widgetsCount: number
-  tagline: string
-  popular?: boolean
-  widgets: string[]
-  features: string[]
-  bonus?: string
-  bonusHint?: string
-}
-
-const PLANS: Plan[] = [
-  {
-    id: 'start',
-    name: 'Start',
-    price: 699,
-    originalPrice: 899,
-    widgetsCount: 3,
-    tagline: 'Почати працювати',
-    widgets: [
-      'Бігуча стрічка',
-      'Дата доставки',
-      'Ціль кошика',
-    ],
-    features: [
-      'Готовий скрипт + інструкція',
-      '3 місяці оновлень',
-    ],
-  },
-  {
-    id: 'pro',
-    name: 'Pro',
-    price: 999,
-    originalPrice: 1299,
-    widgetsCount: 5,
-    tagline: 'Найпопулярніший',
-    popular: true,
-    widgets: [
-      'Все зі Start',
-      '+ Лічильник переглядів',
-      '+ Відео-прев\'ю товару',
-    ],
-    features: [
-      'Пріоритетна підтримка',
-      '6 місяців оновлень',
-    ],
-  },
-  {
-    id: 'max',
-    name: 'Max',
-    price: 1599,
-    originalPrice: 1999,
-    widgetsCount: 6,
-    tagline: 'Усі віджети + кастом',
-    widgets: [
-      'Все з Pro',
-      '+ Лічильник покупок',
-    ],
-    features: [
-      'Пріоритетна підтримка',
-      '12 місяців оновлень',
-    ],
-    bonus: '1 кастомний віджет під твою нішу',
-    bonusHint: 'вартість від 6 000 грн',
-  },
-]
+// Derive marketing card data from the shared plans source
+const PLANS = SHARED_PLANS.map(p => ({
+  id: p.id,
+  name: p.name,
+  price: p.monthlyPrice,
+  widgetsCount: p.widgets,
+  tagline: p.pitch,
+  popular: p.highlighted,
+  widgets: p.features.filter(f => f.slug).map(f => f.label),
+  features: p.features.filter(f => !f.slug).map(f => f.label),
+}))
 
 export function Pricing() {
   const navigate = useNavigate()
@@ -124,12 +67,9 @@ export function Pricing() {
                 <p className="pricing__plan-tagline">{plan.tagline}</p>
               </div>
               <div className="pricing__price">
-                <span className="pricing__price-old">
-                  {plan.originalPrice.toLocaleString('uk-UA')} ₴
-                </span>
                 <div className="pricing__price-current">
                   <span className="pricing__price-value">{plan.price.toLocaleString('uk-UA')}</span>
-                  <span className="pricing__price-currency">грн</span>
+                  <span className="pricing__price-currency">грн/міс</span>
                 </div>
               </div>
             </div>
@@ -137,9 +77,6 @@ export function Pricing() {
             <div className="pricing__meta-row">
               <span className="pricing__widgets-count">
                 {plan.widgetsCount} віджетів
-              </span>
-              <span className="pricing__save-badge">
-                −{(plan.originalPrice - plan.price).toLocaleString('uk-UA')} ₴
               </span>
             </div>
 
@@ -163,21 +100,8 @@ export function Pricing() {
               ))}
             </ul>
 
-            {plan.bonus && (
-              <div className="pricing__bonus">
-                <div className="pricing__bonus-head">
-                  <Gift size={15} strokeWidth={2.5} className="pricing__bonus-icon" />
-                  <span className="pricing__bonus-label">Бонус</span>
-                </div>
-                <p className="pricing__bonus-text">{plan.bonus}</p>
-                {plan.bonusHint && (
-                  <p className="pricing__bonus-hint">{plan.bonusHint}</p>
-                )}
-              </div>
-            )}
-
             <button className={`pricing__cta ${plan.popular ? 'pricing__cta--popular' : ''}`} type="button">
-              <span>Встановити за {plan.price.toLocaleString('uk-UA')} грн</span>
+              <span>Від {plan.price.toLocaleString('uk-UA')} грн/міс</span>
               <ArrowRight size={16} strokeWidth={2.5} />
             </button>
           </article>

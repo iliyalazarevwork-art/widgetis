@@ -2,14 +2,15 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Send } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { useSettings } from '../context/SettingsContext'
 import './FloatingActions.css'
-
-const TELEGRAM_URL = 'https://t.me/widgetis'
 const SHOW_STICKY_AFTER_PX = 600
 const SHOW_TELEGRAM_AFTER_PX = 1400
 
 export function FloatingActions() {
   const { user, isLoading: authLoading } = useAuth()
+  const settings = useSettings()
+  const telegramUrl = settings.socials?.telegram || settings.messengers?.telegram || ''
   const [stickyVisible, setStickyVisible] = useState(false)
   const [telegramVisible, setTelegramVisible] = useState(false)
   const [atBottom, setAtBottom] = useState(false)
@@ -41,7 +42,7 @@ export function FloatingActions() {
     <>
       {/* Telegram floating button */}
       <a
-        href={TELEGRAM_URL}
+        href={telegramUrl}
         target="_blank"
         rel="noopener noreferrer"
         className={`tg-float ${stickyVisible ? 'tg-float--raised' : ''} ${!telegramVisible || atBottom ? 'tg-float--hidden' : ''}`}

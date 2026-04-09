@@ -123,8 +123,19 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outlin
   --transition-slow: 500ms cubic-bezier(0.16, 1, 0.3, 1);
 
   /* ── Typography ── */
-  --font-display: 'Outfit', sans-serif;
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-body:    'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* ── Font size scale (Design System — node I13RR) ── */
+  --text-hero:     clamp(28px, 6vw, 52px);  /* H1 — 900 Black */
+  --text-section:  clamp(22px, 4vw, 24px);  /* H2 — 800 ExtraBold */
+  --text-card:     clamp(15px, 2.5vw, 18px);/* H3 — 700 Bold */
+  --text-body:     14px;                     /* Body — 400-600 */
+  --text-body-sm:  13px;                     /* Body small */
+  --text-small:    12px;                     /* Label — 600-700 */
+  --text-xs:       11px;                     /* Small label */
+  --text-eyebrow:  10px;                     /* Overline — 700 CAPS LS 1.5 */
+  --text-stat:     clamp(20px, 4vw, 28px);  /* Stat — 800-900 */
 
   /* ── Layout ── */
   --topbar-h:    60px;

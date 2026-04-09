@@ -1,91 +1,14 @@
 import { useEffect, useState } from 'react'
-import { Check, Sprout, Zap, Crown, ChevronDown, Send, Minus } from 'lucide-react'
+import { Check, ChevronDown, Send, Minus } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { get, post } from '../api/client'
 import { useAuth } from '../context/AuthContext'
+import { useSettings } from '../context/SettingsContext'
 import { toast } from 'sonner'
+import { PLANS, COMPARISON_ROWS, type PlanSlug } from '../data/plans'
 import type { Subscription } from '../types'
 import './PricingPage.css'
-
-// ─── Data ─────────────────────────────────────────────────────────────────────
-
-const PLANS = [
-  {
-    id: 'basic',
-    icon: Sprout,
-    name: 'Basic',
-    pitch: 'Для початку',
-    monthlyPrice: 799,
-    yearlyPrice: 7990,
-    yearlyMonthly: 666,
-    widgets: 4,
-    sites: 1,
-    badge: null,
-    highlighted: false,
-    features: [
-      { label: 'Дата доставки',           slug: 'delivery-date'    },
-      { label: 'Безкоштовна доставка',     slug: 'free-delivery'    },
-      { label: 'Бігуча стрічка',           slug: 'marquee'          },
-      { label: 'Хто зараз дивиться',       slug: 'live-viewers'     },
-      { label: '1 сайт'                                              },
-      { label: 'Email + Telegram підтримка'                          },
-    ],
-  },
-  {
-    id: 'pro',
-    icon: Zap,
-    name: 'Pro',
-    pitch: 'Оптимально',
-    monthlyPrice: 1599,
-    yearlyPrice: 15990,
-    yearlyMonthly: 1333,
-    widgets: 8,
-    sites: 3,
-    badge: 'Обирає 73% клієнтів',
-    highlighted: true,
-    features: [
-      { label: 'Всі 8 віджетів',           slug: '/catalog'         },
-      { label: 'Лічильник залишків',        slug: 'purchase-counter' },
-      { label: 'Прогрес кошика',            slug: 'free-delivery'    },
-      { label: 'Фотовідгуки',              slug: 'photo-reviews'    },
-      { label: '3 сайти'                                             },
-      { label: 'Self-service кастомізація'                           },
-    ],
-  },
-  {
-    id: 'max',
-    icon: Crown,
-    name: 'Max',
-    pitch: 'Все включено',
-    monthlyPrice: 2899,
-    yearlyPrice: 28990,
-    yearlyMonthly: 2416,
-    widgets: 17,
-    sites: 5,
-    badge: null,
-    highlighted: false,
-    features: [
-      { label: 'Всі 17 віджетів',          slug: '/catalog'         },
-      { label: 'Кешбек-калькулятор',        slug: 'cashback'         },
-      { label: 'Таймер терміновості',       slug: 'countdown'        },
-      { label: '5 сайтів'                                            },
-      { label: 'VIP підтримка'                                       },
-      { label: 'Повна кастомізація'                                  },
-    ],
-  },
-]
-
-const COMPARISON_ROWS = [
-  { feature: 'Кількість віджетів',  basic: '4',    pro: '8',          max: '17'   },
-  { feature: 'Сайтів',              basic: '1',    pro: '3',          max: '5'    },
-  { feature: 'Лічильник залишків',  basic: false,  pro: true,         max: true   },
-  { feature: 'Фотовідгуки',         basic: false,  pro: true,         max: true   },
-  { feature: 'Кешбек-калькулятор',  basic: false,  pro: false,        max: true   },
-  { feature: 'Таймер терміновості', basic: false,  pro: false,        max: true   },
-  { feature: 'Кастомізація',        basic: 'ручна', pro: 'самостійна', max: 'повна' },
-  { feature: 'Підтримка',           basic: 'Email · TG', pro: 'Email · TG', max: 'VIP' },
-]
 
 const FAQ_ITEMS = [
   {
@@ -152,13 +75,13 @@ const PLAN_HEADERS = [
   { id: 'max',   label: 'Max',   colorClass: 'pricing__col-max'   },
 ] as const
 
-type PlanId = 'basic' | 'pro' | 'max'
-
 const PLAN_ORDER: Record<string, number> = { basic: 0, pro: 1, max: 2 }
 
 export function PricingPage() {
   const navigate = useNavigate()
   const { user, isLoading: authLoading } = useAuth()
+  const settings = useSettings()
+  const telegramUrl = settings.socials?.telegram || settings.messengers?.telegram || ''
   const [yearly, setYearly] = useState(true)
   const [sub, setSub] = useState<Subscription | null>(null)
   const [subLoading, setSubLoading] = useState(true)
@@ -370,7 +293,7 @@ export function PricingPage() {
             {COMPARISON_ROWS.map(row => (
               <div key={row.feature} className="pricing__clist-row">
                 <span className="pricing__clist-feature">{row.feature}</span>
-                {(['basic', 'pro', 'max'] as PlanId[]).map(planId => (
+                {(['basic', 'pro', 'max'] as PlanSlug[]).map(planId => (
                   <span key={planId} className={`pricing__clist-cell pricing__clist-cell--${planId}`}>
                     <CellValue value={row[planId]} planId={planId} />
                   </span>
@@ -383,7 +306,7 @@ export function PricingPage() {
         {/* ── A-la-carte teaser ── */}
         <div className="pricing__alacarte">
           <p>Потрібні тільки 1–2 віджети?<br />Напишіть — обговоримо окремо.</p>
-          <a href="https://t.me/widgetis" target="_blank" rel="noopener noreferrer" className="pricing__alacarte-btn">
+          <a href={telegramUrl} target="_blank" rel="noopener noreferrer" className="pricing__alacarte-btn">
             <Send size={14} strokeWidth={2} />
             Telegram @widgetis
           </a>

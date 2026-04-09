@@ -48,6 +48,14 @@ At every step boundary follow this order — do NOT skip any part:
    - Simple infrastructure / config steps → `quick`
    - Auth / payments / security steps → `very thorough`
 
+## Frontend Design Standards
+
+**All frontend work MUST follow [`frontend/DESIGN-STANDARDS.md`](frontend/DESIGN-STANDARDS.md).**
+
+This file defines: colors, typography, icons, plan data, layout rules (header/footer on every page), back button, contacts from API, widget icon mapping, CSS conventions, and component reuse rules.
+
+Before writing or modifying any frontend component — read and follow this file. Design (Pencil) is the source of truth.
+
 ## Rules
 
 ### Docker — always

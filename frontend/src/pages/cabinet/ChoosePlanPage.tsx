@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Check, ArrowLeft, ArrowRight, Sprout, Zap, Crown, type LucideIcon } from 'lucide-react'
+import { useNavigate, Link } from 'react-router-dom'
+import { Check, ArrowLeft, ChevronDown, Sprout, Zap, Crown, type LucideIcon } from 'lucide-react'
 import { get, post } from '../../api/client'
 import { useAuth } from '../../context/AuthContext'
+import { Header } from '../../components/Header'
+import { Footer } from '../../components/Footer'
 import { toast } from 'sonner'
 import type { Plan, Subscription } from '../../types'
 import './styles/choose-plan.css'
+import '../PricingPage.css'
 
 interface PlanFeatureItem {
   key: string
@@ -24,11 +27,70 @@ const PLAN_COLORS: Record<string, string> = {
   max: '#8B5CF6',
 }
 
-const PLAN_ICONS: Record<string, LucideIcon> = {
+// Default icon per plan slug (matches PricingPage.tsx)
+const PLAN_DEFAULT_ICONS: Record<string, LucideIcon> = {
+  basic: Sprout,
+  pro: Zap,
+  max: Crown,
+}
+
+// Icon override from backend 'features.icon' field
+const PLAN_ICON_MAP: Record<string, LucideIcon> = {
   sprout: Sprout,
   zap: Zap,
   crown: Crown,
 }
+
+interface PlanMockFeature {
+  widgets: string[]
+  service: Array<{ name: string; value?: string }>
+  badge?: string
+  pitch?: string
+}
+
+const PLAN_MOCK: Record<string, PlanMockFeature> = {
+  basic: {
+    pitch: 'Для початку',
+    widgets: [
+      'Дата доставки',
+      'Безкоштовна доставка',
+      'Бігуча стрічка',
+      'Хто зараз дивиться',
+    ],
+    service: [
+      { name: 'Кастомізація', value: 'Базова' },
+      { name: 'Підтримка', value: 'Email + Telegram' },
+    ],
+  },
+  pro: {
+    pitch: 'Оптимально',
+    badge: 'Обирає 73% клієнтів',
+    widgets: [
+      'Всі 8 віджетів',
+      'Лічильник залишків',
+      'Прогрес кошика',
+      'Фотовідгуки',
+    ],
+    service: [
+      { name: 'Кастомізація', value: 'Self-service' },
+      { name: 'Підтримка', value: 'Email + Telegram' },
+    ],
+  },
+  max: {
+    pitch: 'Все включено',
+    widgets: [
+      'Всі 17 віджетів',
+      'Кешбек-калькулятор',
+      'Таймер терміновості',
+      'Повна кастомізація',
+    ],
+    service: [
+      { name: 'Кастомізація', value: 'Повна' },
+      { name: 'Підтримка', value: 'VIP' },
+    ],
+  },
+}
+
 
 export default function ChoosePlanPage() {
   const navigate = useNavigate()
@@ -87,52 +149,9 @@ export default function ChoosePlanPage() {
       return
     }
 
-    // New subscription flow (trial)
-    sessionStorage.setItem('wty_trial_signup', JSON.stringify({
-      email: user?.email ?? '',
-      site: '',
-      platform: 'horoshop',
-      plan: slug,
-      billing: billingPeriod,
-    }))
-
-    try {
-      const res = await post<{ data: { checkout_url: string; data: string; signature: string; emulated?: boolean } }>(
-        '/profile/subscription/checkout/trial',
-        { plan_slug: slug, billing_period: billingPeriod },
-      )
-
-      if (res.data.emulated) {
-        navigate('/signup/success')
-        return
-      }
-
-      const form = document.createElement('form')
-      form.method = 'POST'
-      form.action = res.data.checkout_url
-
-      const dataField = document.createElement('input')
-      dataField.type = 'hidden'
-      dataField.name = 'data'
-      dataField.value = res.data.data
-
-      const sigField = document.createElement('input')
-      sigField.type = 'hidden'
-      sigField.name = 'signature'
-      sigField.value = res.data.signature
-
-      form.appendChild(dataField)
-      form.appendChild(sigField)
-      document.body.appendChild(form)
-      form.submit()
-    } catch (err: unknown) {
-      if (err && typeof err === 'object' && 'code' in err && (err as { code: string }).code === 'ALREADY_SUBSCRIBED') {
-        navigate('/signup/success')
-        return
-      }
-      toast.error(err instanceof Error ? err.message : 'Помилка')
-      setStarting(null)
-    }
+    // Redirect to full signup flow (site URL, platform, LiqPay payment)
+    navigate(`/signup?plan=${slug}&billing=${billingPeriod}`)
+    return
   }
 
   if (loading) return <div className="page-loader">Завантаження…</div>
@@ -143,46 +162,44 @@ export default function ChoosePlanPage() {
       day: 'numeric', month: 'long', year: 'numeric',
     })
     return (
-      <div className="choose-plan">
-        <header className="choose-plan__header">
-          <button className="choose-plan__back" onClick={() => navigate(-1)}>
-            <ArrowLeft size={18} />
-          </button>
-        </header>
-        <div className="choose-plan__hero">
-          <h1 className="choose-plan__title">У вас вже максимальний план</h1>
-          <p className="choose-plan__subtitle">
-            Підписка {sub!.billing_period === 'yearly' ? 'річна' : 'місячна'} · {sub!.plan.name}
-          </p>
-          <p className="choose-plan__subtitle" style={{ marginTop: 8, color: 'rgba(255,255,255,0.4)' }}>
-            Діє до {endDate}
-          </p>
+      <>
+        <Header />
+        <div className="choose-plan">
+          <div className="choose-plan__hero">
+            <h1 className="choose-plan__title">У вас вже максимальний план</h1>
+            <p className="choose-plan__subtitle">
+              Підписка {sub!.billing_period === 'yearly' ? 'річна' : 'місячна'} · {sub!.plan.name}
+            </p>
+            <p className="choose-plan__subtitle" style={{ marginTop: 8, color: 'rgba(255,255,255,0.4)' }}>
+              Діє до {endDate}
+            </p>
+          </div>
+          <div style={{ padding: '40px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+            <p style={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', fontSize: 14 }}>
+              Повертайтесь після закінчення підписки, щоб обрати новий план.
+            </p>
+            <button
+              className="choose-plan__card-btn"
+              style={{ background: 'rgba(255,255,255,0.06)', borderColor: 'rgba(255,255,255,0.12)', color: '#fff' }}
+              onClick={() => navigate('/cabinet/plan')}
+            >
+              Переглянути мій план
+            </button>
+          </div>
         </div>
-        <div className="choose-plan__plans" style={{ justifyContent: 'center', alignItems: 'center', padding: '40px 20px' }}>
-          <p style={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', fontSize: 14 }}>
-            Повертайтесь після закінчення підписки, щоб обрати новий план.
-          </p>
-          <button
-            className="choose-plan__card-btn"
-            style={{ marginTop: 24, background: 'rgba(255,255,255,0.06)', borderColor: 'rgba(255,255,255,0.12)', color: '#fff' }}
-            onClick={() => navigate('/cabinet/plan')}
-          >
-            Переглянути мій план
-          </button>
-        </div>
-      </div>
+        <Footer />
+      </>
     )
   }
 
   return (
+    <>
+    <Header />
     <div className="choose-plan">
-      <header className="choose-plan__header">
+      <div className="choose-plan__hero">
         <button className="choose-plan__back" onClick={() => navigate(-1)}>
           <ArrowLeft size={18} />
         </button>
-      </header>
-
-      <div className="choose-plan__hero">
         <h1 className="choose-plan__title">
           {sub ? 'Підвищити план' : 'Обери свій план'}
         </h1>
@@ -196,19 +213,19 @@ export default function ChoosePlanPage() {
       {/* Show billing toggle only when user has no subscription */}
       {!sub && (
         <div className="choose-plan__toggle-wrap">
-          <div className="choose-plan__toggle">
+          <div className="pricing__seg" role="group" aria-label="Період оплати">
             <button
-              className={`choose-plan__toggle-btn ${!yearly ? 'choose-plan__toggle-btn--active' : ''}`}
+              className={`pricing__seg-btn ${!yearly ? 'pricing__seg-btn--active' : ''}`}
               onClick={() => setYearly(false)}
             >
               Місяць
             </button>
             <button
-              className={`choose-plan__toggle-btn ${yearly ? 'choose-plan__toggle-btn--active' : ''}`}
+              className={`pricing__seg-btn ${yearly ? 'pricing__seg-btn--active' : ''}`}
               onClick={() => setYearly(true)}
             >
               Рік
-              <span className="choose-plan__toggle-save">−17%</span>
+              <span className="pricing__seg-save">−17%</span>
             </button>
           </div>
         </div>
@@ -219,18 +236,35 @@ export default function ChoosePlanPage() {
           const color = PLAN_COLORS[plan.slug] ?? '#888'
           const isPro = plan.slug === 'pro'
           const features = (Array.isArray(plan.features) ? null : plan.features) as Record<string, unknown> | null
-          const iconName = (features?.icon as string) || 'zap'
-          const Icon = PLAN_ICONS[iconName] ?? Zap
-          const pitch = resolveTr(features?.pitch)
-          const badge = resolveTr(features?.badge)
+          // Use backend icon if set, otherwise fall back to per-slug default (matches PricingPage)
+          const iconName = features?.icon as string | undefined
+          const Icon = (iconName ? PLAN_ICON_MAP[iconName] : null) ?? PLAN_DEFAULT_ICONS[plan.slug] ?? Zap
+          const mock = PLAN_MOCK[plan.slug]
+          const pitch = resolveTr(features?.pitch) ?? mock?.pitch ?? null
+          const badge = resolveTr(features?.badge) ?? mock?.badge ?? null
           const monthlyPrice = plan.price_monthly
           const yearlyTotal = plan.price_yearly
           const yearlyMonthly = Math.round(yearlyTotal / 12)
           const savings = monthlyPrice * 12 - yearlyTotal
 
-          const included = (plan.feature_list ?? []).filter(
-            (f) => f.value === true || (typeof f.value === 'string' && f.value.length > 0)
-          )
+          // Use backend feature_list when available, fall back to PLAN_MOCK
+          const backendWidgets = (plan.feature_list ?? []).filter(f => f.category === 'widgets' && f.value !== false)
+          const backendService = (plan.feature_list ?? []).filter(f => f.category === 'service' && f.value !== false)
+          const widgetFeatures: Array<{ key: string; label: string }> = backendWidgets.length > 0
+            ? backendWidgets.map(f => ({
+                key: f.key,
+                label: f.name,
+              }))
+            : (mock?.widgets ?? []).map((w, i) => ({ key: `mock-w-${i}`, label: w }))
+          const serviceFeatures: Array<{ key: string; label: string }> = backendService.length > 0
+            ? backendService.map(f => ({
+                key: f.key,
+                label: typeof f.value === 'string' ? `${f.name}: ${f.value}` : f.name,
+              }))
+            : (mock?.service ?? []).map((s, i) => ({
+                key: `mock-s-${i}`,
+                label: s.value ? `${s.name}: ${s.value}` : s.name,
+              }))
 
           const btnLabel = starting === plan.slug
             ? (sub ? 'Змінюємо…' : 'Активуємо…')
@@ -298,19 +332,29 @@ export default function ChoosePlanPage() {
               <div className="choose-plan__card-divider" style={{ background: isPro ? `${color}20` : 'rgba(255,255,255,0.08)' }} />
 
               <div className="choose-plan__card-feats">
-                {included.map((f) => (
+                {widgetFeatures.map((f) => (
+                  <div key={f.key} className="choose-plan__card-feat choose-plan__card-feat--widget">
+                    <Check size={12} style={{ color }} strokeWidth={3} />
+                    <span style={{ color: isPro ? '#E8F0FF' : '#DDD', fontWeight: 500 }}>{f.label}</span>
+                  </div>
+                ))}
+                {serviceFeatures.length > 0 && widgetFeatures.length > 0 && (
+                  <div className="choose-plan__card-feat-divider" />
+                )}
+                {serviceFeatures.map((f) => (
                   <div key={f.key} className="choose-plan__card-feat">
-                    <Check size={12} style={{ color }} />
-                    <span style={{ color: isPro ? '#D0DCF0' : '#AAA' }}>
-                      {typeof f.value === 'string' ? `${f.name}: ${f.value}` : f.name}
-                    </span>
+                    <Check size={12} style={{ color: isPro ? '#9BB3D4' : 'rgba(255,255,255,0.3)' }} strokeWidth={2.5} />
+                    <span style={{ color: isPro ? '#9BB3D4' : '#777', fontSize: 12 }}>{f.label}</span>
                   </div>
                 ))}
               </div>
 
               <button
                 className="choose-plan__card-btn"
-                style={{ background: `${color}22`, borderColor: `${color}55`, color }}
+                style={isPro
+                  ? { background: color, borderColor: color, color: '#fff', boxShadow: `0 6px 20px ${color}44` }
+                  : { background: `${color}22`, borderColor: `${color}55`, color }
+                }
                 onClick={() => handleStart(plan.slug)}
                 disabled={starting !== null}
               >
@@ -329,18 +373,15 @@ export default function ChoosePlanPage() {
 
       {!sub && (
         <div className="choose-plan__final">
-          <h2 className="choose-plan__final-title">Готові почати?</h2>
-          <button
-            className="choose-plan__final-btn"
-            onClick={() => handleStart('pro')}
-            disabled={starting !== null}
-          >
-            Почати безкоштовно <ArrowRight size={16} />
-          </button>
-          <span className="choose-plan__final-note">7 днів безкоштовно, без зобов'язань</span>
+          <Link to="/pricing#compare-plans" className="choose-plan__compare-link">
+            <ChevronDown size={16} />
+            Переглянути порівняння планів
+          </Link>
         </div>
       )}
     </div>
+    <Footer />
+    </>
   )
 }
 

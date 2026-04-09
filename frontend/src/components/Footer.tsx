@@ -1,8 +1,37 @@
 import { Link } from 'react-router-dom'
-import { BRAND_EMAIL, BRAND_NAME, BRAND_TELEGRAM_URL } from '../constants/brand'
+import { BRAND_NAME } from '../constants/brand'
+import { useSettings } from '../context/SettingsContext'
 import './Footer.css'
 
-export function Footer() {
+interface FooterProps {
+  variant?: 'full' | 'compact'
+}
+
+export function Footer({ variant = 'full' }: FooterProps) {
+  const settings = useSettings()
+  const telegramUrl = settings.socials?.telegram || settings.messengers?.telegram || ''
+
+  if (variant === 'compact') {
+    return (
+      <footer className="footer footer--compact">
+        <div className="footer__inner">
+          <div className="footer__bottom">
+            <span className="footer__copy">&copy; {new Date().getFullYear()} {BRAND_NAME}</span>
+            <nav className="footer__compact-links">
+              <Link to="/legal#offer" className="footer__link">Оферта</Link>
+              {settings.email && (
+                <a href={`mailto:${settings.email}`} className="footer__link">{settings.email}</a>
+              )}
+              {telegramUrl && (
+                <a href={telegramUrl} target="_blank" rel="noopener noreferrer" className="footer__link">Telegram</a>
+              )}
+            </nav>
+          </div>
+        </div>
+      </footer>
+    )
+  }
+
   return (
     <footer className="footer">
       <div className="footer__inner">
@@ -35,17 +64,21 @@ export function Footer() {
 
             <div className="footer__col">
               <h4 className="footer__col-title">Зв'язок</h4>
-              <a href={`mailto:${BRAND_EMAIL}`} className="footer__link">
-                {BRAND_EMAIL}
-              </a>
-              <a
-                href={BRAND_TELEGRAM_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="footer__link"
-              >
-                Telegram
-              </a>
+              {settings.email && (
+                <a href={`mailto:${settings.email}`} className="footer__link">
+                  {settings.email}
+                </a>
+              )}
+              {telegramUrl && (
+                <a
+                  href={telegramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="footer__link"
+                >
+                  Telegram
+                </a>
+              )}
             </div>
           </nav>
         </div>

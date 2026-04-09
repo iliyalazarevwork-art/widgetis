@@ -242,49 +242,6 @@ export const widgets: Widget[] = [
   },
 ]
 
-// ===== Packages =====
-
-export interface Package {
-  id: 'start' | 'pro' | 'max'
-  name: string
-  price: number
-  originalPrice: number
-  widgetIds: string[]
-  tagline: string
-  popular?: boolean
-}
-
-export const packages: Package[] = [
-  {
-    id: 'start',
-    name: 'Start',
-    price: 699,
-    originalPrice: 899,
-    tagline: 'Почати працювати',
-    widgetIds: ['marquee', 'delivery-date', 'free-delivery'],
-  },
-  {
-    id: 'pro',
-    name: 'Pro',
-    price: 999,
-    originalPrice: 1299,
-    tagline: 'Найпопулярніший',
-    popular: true,
-    widgetIds: ['marquee', 'delivery-date', 'free-delivery', 'live-viewers', 'photo-reviews'],
-  },
-  {
-    id: 'max',
-    name: 'Max',
-    price: 1599,
-    originalPrice: 1999,
-    tagline: 'Усі віджети + кастом',
-    widgetIds: [
-      'marquee',
-      'delivery-date',
-      'free-delivery',
-      'live-viewers',
-      'photo-reviews',
-      'purchase-counter',
-    ],
-  },
-]
+// ===== Packages (re-exported from plans.ts for backward compat) =====
+// Single source of truth: src/data/plans.ts
+export { PLANS as packages } from './plans'

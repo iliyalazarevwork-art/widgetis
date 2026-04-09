@@ -68,7 +68,8 @@ Route::prefix('v1')->group(function () {
     });
 
     // --- Profile (customer) ---
-    Route::prefix('profile')->middleware(['auth:api', 'role:customer,admin'])->group(function () {
+    // Admin role is intentionally excluded: admins have no subscription and must not access cabinet routes.
+    Route::prefix('profile')->middleware(['auth:api', 'role:customer'])->group(function () {
         Route::get('dashboard', [DashboardController::class, 'index']);
         Route::get('/', [ProfileController::class, 'show']);
         Route::put('/', [ProfileController::class, 'update']);

@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { setToken } from '../../api/client'
+import { setToken, get } from '../../api/client'
+import type { User } from '../../types'
 
 export default function GoogleCallbackPage() {
   const navigate = useNavigate()
@@ -16,7 +17,13 @@ export default function GoogleCallbackPage() {
     }
 
     setToken(token)
-    navigate('/cabinet', { replace: true })
+    get<{ data: User }>('/auth/user')
+      .then((res) => {
+        navigate(res.data.role === 'admin' ? '/admin' : '/cabinet', { replace: true })
+      })
+      .catch(() => {
+        navigate('/cabinet', { replace: true })
+      })
   }, [navigate])
 
   return (
