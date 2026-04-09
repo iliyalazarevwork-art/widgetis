@@ -7,11 +7,11 @@ namespace App\Filament\Resources\Products\Schemas;
 use App\Enums\Platform;
 use App\Enums\ProductStatus;
 use Filament\Forms\Components\KeyValue;
-use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class ProductForm

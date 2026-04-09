@@ -6,9 +6,9 @@ namespace App\Filament\Pages;
 
 use App\Settings\GeneralSettings;
 use Filament\Forms\Components\KeyValue;
-use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Pages\SettingsPage;
+use Filament\Schemas\Components\Section;
 use Filament\Support\Icons\Heroicon;
 
 class ManageGeneralSettings extends SettingsPage
