@@ -80,17 +80,31 @@ export function LiveDemoPage() {
     }
   }, [])
 
+  const doInject = useCallback((doc: Document, js: string) => {
+    const s = doc.createElement('script')
+    s.id = 'widgetis-injected'
+    s.textContent = js
+    ;(doc.body || doc.documentElement).appendChild(s)
+  }, [])
+
   const injectScript = useCallback((js: string) => {
     destroyWidgets()
     const frame = iframeRef.current
     if (!frame) return
     const doc = frame.contentDocument || frame.contentWindow?.document
     if (!doc) return
-    const s = doc.createElement('script')
-    s.id = 'widgetis-injected'
-    s.textContent = js
-    ;(doc.body || doc.documentElement).appendChild(s)
-  }, [destroyWidgets])
+
+    if (doc.readyState === 'complete') {
+      doInject(doc, js)
+    } else {
+      const win = frame.contentWindow
+      if (win) {
+        win.addEventListener('load', () => doInject(doc, js), { once: true })
+      } else {
+        doInject(doc, js)
+      }
+    }
+  }, [destroyWidgets, doInject])
 
   const tryInject = useCallback(() => {
     if (widgetJsRef.current && iframeLoaded) {
