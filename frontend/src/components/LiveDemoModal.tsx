@@ -67,22 +67,40 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
       .finally(() => setLoading(false))
   }, [isOpen, code])
 
+  const destroyWidgets = useCallback(() => {
+    try {
+      const win = iframeRef.current?.contentWindow as Record<string, unknown> | null
+      if (typeof win?.__widgetality_destroy === 'function') {
+        ;(win.__widgetality_destroy as () => void)()
+      }
+    } catch {
+      // cross-origin or destroyed iframe — ignore
+    }
+    const doc = iframeRef.current?.contentDocument || iframeRef.current?.contentWindow?.document
+    if (doc) {
+      const prev = doc.getElementById('widgetis-injected')
+      if (prev) prev.remove()
+    }
+  }, [])
+
   const injectScript = useCallback((js: string) => {
+    destroyWidgets()
     const frame = iframeRef.current
     if (!frame) return
     const doc = frame.contentDocument || frame.contentWindow?.document
     if (!doc) return
-    const prev = doc.getElementById('widgetis-injected')
-    if (prev) prev.remove()
     const s = doc.createElement('script')
     s.id = 'widgetis-injected'
     s.textContent = js
     ;(doc.body || doc.documentElement).appendChild(s)
-  }, [])
+  }, [destroyWidgets])
 
   const buildWidgets = useCallback(
     (widgetIds: string[]) => {
-      if (!code || widgetIds.length === 0) {
+      if (!code) return
+      // If no widgets enabled — just destroy and clear
+      if (widgetIds.length === 0) {
+        destroyWidgets()
         widgetJsRef.current = null
         return
       }
@@ -108,7 +126,7 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
         .catch(() => toast.error('Помилка збірки віджетів'))
         .finally(() => setBuilding(false))
     },
-    [code, iframeLoaded, injectScript],
+    [code, iframeLoaded, injectScript, destroyWidgets],
   )
 
   useEffect(() => {

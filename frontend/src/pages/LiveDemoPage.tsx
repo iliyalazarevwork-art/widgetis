@@ -66,18 +66,31 @@ export function LiveDemoPage() {
   }, [code])
 
   // ─── Script injection ──────────────────────────────────────────────
+  const destroyWidgets = useCallback(() => {
+    try {
+      const win = iframeRef.current?.contentWindow as Record<string, unknown> | null
+      if (typeof win?.__widgetality_destroy === 'function') {
+        ;(win.__widgetality_destroy as () => void)()
+      }
+    } catch { /* cross-origin */ }
+    const doc = iframeRef.current?.contentDocument || iframeRef.current?.contentWindow?.document
+    if (doc) {
+      const prev = doc.getElementById('widgetis-injected')
+      if (prev) prev.remove()
+    }
+  }, [])
+
   const injectScript = useCallback((js: string) => {
+    destroyWidgets()
     const frame = iframeRef.current
     if (!frame) return
     const doc = frame.contentDocument || frame.contentWindow?.document
     if (!doc) return
-    const prev = doc.getElementById('widgetis-injected')
-    if (prev) prev.remove()
     const s = doc.createElement('script')
     s.id = 'widgetis-injected'
     s.textContent = js
     ;(doc.body || doc.documentElement).appendChild(s)
-  }, [])
+  }, [destroyWidgets])
 
   const tryInject = useCallback(() => {
     if (widgetJsRef.current && iframeLoaded) {
@@ -90,6 +103,11 @@ export function LiveDemoPage() {
   const buildWidgets = useCallback(
     (widgetIds: string[], reload: boolean) => {
       if (!code) return
+      if (widgetIds.length === 0) {
+        destroyWidgets()
+        widgetJsRef.current = null
+        return
+      }
       setBuilding(true)
 
       fetch(
@@ -110,7 +128,7 @@ export function LiveDemoPage() {
           if (reload) {
             setIframeLoaded(false)
             const frame = iframeRef.current
-            if (frame) frame.src = frame.src // reload
+            if (frame) frame.src = frame.src
           } else {
             tryInject()
           }
