@@ -18,6 +18,7 @@ import {
   Search,
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { BRAND_NAME_UPPER } from '../constants/brand'
 import './DemoPage.css'
 
 const MONTHS_UK = [
@@ -128,10 +129,10 @@ export function DemoPage() {
   return (
     <div className="demo-page">
       <Helmet>
-        <title>Живе демо віджетів — Widgetality</title>
+        <title>{`Живе демо віджетів — ${BRAND_NAME_UPPER}`}</title>
         <meta
           name="description"
-          content="Подивися на віджети Widgetality в дії: бігуча стрічка, лічильник переглядів, таймер, прогрес бар кошика, соціальний доказ — усе працює в реальному часі на демо-магазині."
+          content={`Подивися на віджети ${BRAND_NAME_UPPER} в дії: бігуча стрічка, лічильник переглядів, таймер, прогрес бар кошика, соціальний доказ — усе працює в реальному часі на демо-магазині.`}
         />
       </Helmet>
 

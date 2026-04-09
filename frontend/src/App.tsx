@@ -59,6 +59,7 @@ import { useAuth } from './context/AuthContext'
 import { Toaster } from 'sonner'
 import { Helmet } from 'react-helmet-async'
 import { ScrollManager } from './components/ScrollManager'
+import { BRAND_NAME_UPPER } from './constants/brand'
 import './App.css'
 
 function HomePage() {
@@ -67,7 +68,7 @@ function HomePage() {
   return (
     <>
       <Helmet>
-        <title>Widgetality — готові віджети для e-commerce | +15% конверсії</title>
+        <title>{`${BRAND_NAME_UPPER} — готові віджети для e-commerce | +15% конверсії`}</title>
         <meta
           name="description"
           content="Готові віджети для інтернет-магазинів. Встановлення за 2 хвилини, +15% конверсії. Без коду і програміста."

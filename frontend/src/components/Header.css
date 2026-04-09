@@ -50,6 +50,7 @@
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
 /* ── Desktop nav ── */
@@ -250,6 +251,7 @@
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
 .header__drawer-close {
@@ -302,10 +304,10 @@
 }
 
 .header__drawer-link-arrow {
-  opacity: 0;
-  transform: translateX(-6px);
+  flex-shrink: 0;
+  opacity: 1;
+  transform: translateX(0);
   color: var(--accent);
-  font-size: 18px;
   transition: opacity var(--transition-fast), transform var(--transition-fast);
 }
 
@@ -317,13 +319,8 @@
 
 @media (hover: hover) {
   .header__drawer-link:hover .header__drawer-link-arrow {
-    opacity: 1;
-    transform: translateX(0);
+    transform: translateX(2px);
   }
-}
-
-@media (hover: none) {
-  .header__drawer-link-arrow { display: none; }
 }
 
 .header__drawer-link-icon {

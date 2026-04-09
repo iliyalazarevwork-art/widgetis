@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { BRAND_EMAIL, BRAND_NAME, BRAND_TELEGRAM_URL } from '../constants/brand'
 import './Footer.css'
 
 export function Footer() {
@@ -9,7 +10,7 @@ export function Footer() {
           <div className="footer__brand">
             <Link to="/" className="footer__logo">
               <span className="footer__logo-mark">W</span>
-              <span className="footer__logo-text">WIDGETALITY</span>
+              <span className="footer__logo-text">{BRAND_NAME}</span>
             </Link>
             <p className="footer__desc">
               Готові віджети для e-commerce.
@@ -34,11 +35,11 @@ export function Footer() {
 
             <div className="footer__col">
               <h4 className="footer__col-title">Зв'язок</h4>
-              <a href="mailto:hello@widgetality.com" className="footer__link">
-                hello@widgetality.com
+              <a href={`mailto:${BRAND_EMAIL}`} className="footer__link">
+                {BRAND_EMAIL}
               </a>
               <a
-                href="https://t.me/widgetality"
+                href={BRAND_TELEGRAM_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="footer__link"
@@ -50,7 +51,7 @@ export function Footer() {
         </div>
 
         <div className="footer__bottom">
-          <span className="footer__copy">&copy; {new Date().getFullYear()} Widgetality</span>
+          <span className="footer__copy">&copy; {new Date().getFullYear()} {BRAND_NAME}</span>
         </div>
       </div>
     </footer>

@@ -307,7 +307,7 @@ export default function ConfigureWidgetPage() {
                   <span className="cfg__sub-banner-title">Підписка неактивна</span>
                   <span className="cfg__sub-banner-desc">Для керування віджетами потрібна активна підписка</span>
                 </div>
-                <Link to="/cabinet/subscription" className="cfg__sub-banner-btn">
+                <Link to="/cabinet/plan" className="cfg__sub-banner-btn">
                   Оновити
                 </Link>
               </div>

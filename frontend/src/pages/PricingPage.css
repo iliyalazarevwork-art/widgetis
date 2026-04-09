@@ -643,3 +643,44 @@
   color: var(--text-muted);
   margin: 0;
 }
+
+/* ── Subscriber states ── */
+
+.pricing__card--dimmed {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.pricing__badge--current {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.pricing__cta--current {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: rgba(255, 255, 255, 0.5) !important;
+  cursor: default;
+  pointer-events: auto;
+}
+
+.pricing__cta--disabled {
+  display: block;
+  text-align: center;
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.25) !important;
+  cursor: not-allowed;
+  border-radius: 50px;
+  padding: 13px 0;
+  font-size: 14px;
+}
+
+.pricing__cta--skeleton {
+  display: block;
+  height: 48px;
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}

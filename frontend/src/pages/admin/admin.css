@@ -57,6 +57,7 @@
   letter-spacing: 1.4px;
   line-height: 1;
   color: var(--text-primary);
+  text-transform: uppercase;
 }
 
 .admin__brand-text small {

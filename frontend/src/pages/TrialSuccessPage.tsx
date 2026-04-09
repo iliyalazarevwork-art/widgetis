@@ -218,7 +218,7 @@ function SelfScreen({ data, onBack }: { data: SignupData; onBack: () => void }) 
             background: '#0E0E0E', border: '1px solid rgba(255,255,255,0.08)',
             borderRadius: 12, padding: 14, display: 'flex', flexDirection: 'column', gap: 10,
           }}>
-            <code style={{ color: '#4ADE80', fontFamily: 'JetBrains Mono, monospace', fontSize: 11, lineHeight: 1.6, wordBreak: 'break-all' }}>
+            <code style={{ color: '#4ADE80', fontFamily: 'JetBrains Mono, monospace', fontSize: 11, lineHeight: 1.6, overflowWrap: 'break-word', wordBreak: 'break-word' }}>
               {scriptLoading ? 'Завантажуємо скрипт…' : (scriptTag || 'Додайте сайт у кабінеті, щоб отримати код встановлення.')}
             </code>
             <button onClick={handleCopy} style={{

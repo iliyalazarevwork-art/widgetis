@@ -4,7 +4,7 @@ import { Check, ArrowLeft, ArrowRight, Sprout, Zap, Crown, type LucideIcon } fro
 import { get, post } from '../../api/client'
 import { useAuth } from '../../context/AuthContext'
 import { toast } from 'sonner'
-import type { Plan } from '../../types'
+import type { Plan, Subscription } from '../../types'
 import './styles/choose-plan.css'
 
 interface PlanFeatureItem {
@@ -32,24 +32,62 @@ const PLAN_ICONS: Record<string, LucideIcon> = {
 
 export default function ChoosePlanPage() {
   const navigate = useNavigate()
-  const { user } = useAuth()
-  const [plans, setPlans] = useState<PlanWithFeatures[]>([])
+  const { user, isLoading: authLoading } = useAuth()
+  const [allPlans, setAllPlans] = useState<PlanWithFeatures[]>([])
+  const [sub, setSub] = useState<Subscription | null>(null)
   const [loading, setLoading] = useState(true)
   const [yearly, setYearly] = useState(true)
   const [starting, setStarting] = useState<string | null>(null)
 
   useEffect(() => {
-    get<{ data: PlanWithFeatures[] }>('/plans')
-      .then((res) => setPlans(res.data))
+    // Wait for auth to resolve before fetching subscription
+    if (authLoading) return
+
+    const plansFetch = get<{ data: PlanWithFeatures[] }>('/plans')
+    const subFetch = user
+      ? get<{ data: Subscription }>('/profile/subscription').catch(() => null)
+      : Promise.resolve(null)
+
+    Promise.all([plansFetch, subFetch])
+      .then(([plansRes, subRes]) => {
+        setAllPlans(plansRes.data)
+        const subscription = subRes?.data ?? null
+        setSub(subscription)
+        if (subscription) {
+          setYearly(subscription.billing_period === 'yearly')
+        }
+      })
       .finally(() => setLoading(false))
-  }, [])
+  }, [user, authLoading])
+
+  // Sort all plans by price ascending
+  const sortedPlans = [...allPlans].sort((a, b) => a.price_monthly - b.price_monthly)
+  const currentPlanIdx = sub ? sortedPlans.findIndex(p => p.id === sub.plan.id) : -1
+  // Plans higher than current (or all plans if not subscribed)
+  const visiblePlans = currentPlanIdx >= 0
+    ? sortedPlans.slice(currentPlanIdx + 1)
+    : sortedPlans
+  const isMaxPlan = sub !== null && visiblePlans.length === 0
 
   const handleStart = async (slug: string) => {
     if (starting) return
     setStarting(slug)
     const billingPeriod = yearly ? 'yearly' : 'monthly'
 
-    // Store signup data before the request (needed if we redirect to success)
+    // If user already has a subscription — upgrade it
+    if (sub) {
+      try {
+        await post('/profile/subscription/change', { plan_slug: slug })
+        toast.success('План змінено!')
+        navigate('/cabinet/plan')
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : 'Помилка')
+        setStarting(null)
+      }
+      return
+    }
+
+    // New subscription flow (trial)
     sessionStorage.setItem('wty_trial_signup', JSON.stringify({
       email: user?.email ?? '',
       site: '',
@@ -64,13 +102,11 @@ export default function ChoosePlanPage() {
         { plan_slug: slug, billing_period: billingPeriod },
       )
 
-      // On local env the webhook is emulated — skip LiqPay and go straight to success
       if (res.data.emulated) {
         navigate('/signup/success')
         return
       }
 
-      // LiqPay requires a POST form with data + signature fields
       const form = document.createElement('form')
       form.method = 'POST'
       form.action = res.data.checkout_url
@@ -90,7 +126,6 @@ export default function ChoosePlanPage() {
       document.body.appendChild(form)
       form.submit()
     } catch (err: unknown) {
-      // If already subscribed (e.g. from a previous local session), go to success page
       if (err && typeof err === 'object' && 'code' in err && (err as { code: string }).code === 'ALREADY_SUBSCRIBED') {
         navigate('/signup/success')
         return
@@ -102,6 +137,43 @@ export default function ChoosePlanPage() {
 
   if (loading) return <div className="page-loader">Завантаження…</div>
 
+  // User is on max plan — show info screen
+  if (isMaxPlan) {
+    const endDate = new Date(sub!.current_period_end).toLocaleDateString('uk-UA', {
+      day: 'numeric', month: 'long', year: 'numeric',
+    })
+    return (
+      <div className="choose-plan">
+        <header className="choose-plan__header">
+          <button className="choose-plan__back" onClick={() => navigate(-1)}>
+            <ArrowLeft size={18} />
+          </button>
+        </header>
+        <div className="choose-plan__hero">
+          <h1 className="choose-plan__title">У вас вже максимальний план</h1>
+          <p className="choose-plan__subtitle">
+            Підписка {sub!.billing_period === 'yearly' ? 'річна' : 'місячна'} · {sub!.plan.name}
+          </p>
+          <p className="choose-plan__subtitle" style={{ marginTop: 8, color: 'rgba(255,255,255,0.4)' }}>
+            Діє до {endDate}
+          </p>
+        </div>
+        <div className="choose-plan__plans" style={{ justifyContent: 'center', alignItems: 'center', padding: '40px 20px' }}>
+          <p style={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', fontSize: 14 }}>
+            Повертайтесь після закінчення підписки, щоб обрати новий план.
+          </p>
+          <button
+            className="choose-plan__card-btn"
+            style={{ marginTop: 24, background: 'rgba(255,255,255,0.06)', borderColor: 'rgba(255,255,255,0.12)', color: '#fff' }}
+            onClick={() => navigate('/cabinet/plan')}
+          >
+            Переглянути мій план
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="choose-plan">
       <header className="choose-plan__header">
@@ -111,30 +183,39 @@ export default function ChoosePlanPage() {
       </header>
 
       <div className="choose-plan__hero">
-        <h1 className="choose-plan__title">Обери свій план</h1>
-        <p className="choose-plan__subtitle">7 днів безкоштовно. Скасуєш коли захочеш.</p>
+        <h1 className="choose-plan__title">
+          {sub ? 'Підвищити план' : 'Обери свій план'}
+        </h1>
+        <p className="choose-plan__subtitle">
+          {sub
+            ? `Поточний план: ${sub.plan.name} · ${sub.billing_period === 'yearly' ? 'Рік' : 'Місяць'}`
+            : '7 днів безкоштовно. Скасуєш коли захочеш.'}
+        </p>
       </div>
 
-      <div className="choose-plan__toggle-wrap">
-        <div className="choose-plan__toggle">
-          <button
-            className={`choose-plan__toggle-btn ${!yearly ? 'choose-plan__toggle-btn--active' : ''}`}
-            onClick={() => setYearly(false)}
-          >
-            Місяць
-          </button>
-          <button
-            className={`choose-plan__toggle-btn ${yearly ? 'choose-plan__toggle-btn--active' : ''}`}
-            onClick={() => setYearly(true)}
-          >
-            Рік
-            <span className="choose-plan__toggle-save">−17%</span>
-          </button>
+      {/* Show billing toggle only when user has no subscription */}
+      {!sub && (
+        <div className="choose-plan__toggle-wrap">
+          <div className="choose-plan__toggle">
+            <button
+              className={`choose-plan__toggle-btn ${!yearly ? 'choose-plan__toggle-btn--active' : ''}`}
+              onClick={() => setYearly(false)}
+            >
+              Місяць
+            </button>
+            <button
+              className={`choose-plan__toggle-btn ${yearly ? 'choose-plan__toggle-btn--active' : ''}`}
+              onClick={() => setYearly(true)}
+            >
+              Рік
+              <span className="choose-plan__toggle-save">−17%</span>
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="choose-plan__plans">
-        {plans.map((plan) => {
+        {visiblePlans.map((plan) => {
           const color = PLAN_COLORS[plan.slug] ?? '#888'
           const isPro = plan.slug === 'pro'
           const features = (Array.isArray(plan.features) ? null : plan.features) as Record<string, unknown> | null
@@ -147,10 +228,13 @@ export default function ChoosePlanPage() {
           const yearlyMonthly = Math.round(yearlyTotal / 12)
           const savings = monthlyPrice * 12 - yearlyTotal
 
-          // Show only included features (true or string) for the card list
           const included = (plan.feature_list ?? []).filter(
             (f) => f.value === true || (typeof f.value === 'string' && f.value.length > 0)
           )
+
+          const btnLabel = starting === plan.slug
+            ? (sub ? 'Змінюємо…' : 'Активуємо…')
+            : (sub ? `Перейти на ${plan.name}` : 'Почати безкоштовно')
 
           return (
             <div
@@ -230,28 +314,32 @@ export default function ChoosePlanPage() {
                 onClick={() => handleStart(plan.slug)}
                 disabled={starting !== null}
               >
-                {starting === plan.slug ? 'Активуємо…' : 'Почати безкоштовно'}
+                {btnLabel}
               </button>
 
-              <span className="choose-plan__card-trial" style={{ color: isPro ? `${color}80` : 'rgba(255,255,255,0.32)' }}>
-                {isPro ? '7 днів безкоштовно · без зобов\'язань' : '7 днів безкоштовно'}
-              </span>
+              {!sub && (
+                <span className="choose-plan__card-trial" style={{ color: isPro ? `${color}80` : 'rgba(255,255,255,0.32)' }}>
+                  {isPro ? '7 днів безкоштовно · без зобов\'язань' : '7 днів безкоштовно'}
+                </span>
+              )}
             </div>
           )
         })}
       </div>
 
-      <div className="choose-plan__final">
-        <h2 className="choose-plan__final-title">Готові почати?</h2>
-        <button
-          className="choose-plan__final-btn"
-          onClick={() => handleStart('pro')}
-          disabled={starting !== null}
-        >
-          Почати безкоштовно <ArrowRight size={16} />
-        </button>
-        <span className="choose-plan__final-note">7 днів безкоштовно, без зобов'язань</span>
-      </div>
+      {!sub && (
+        <div className="choose-plan__final">
+          <h2 className="choose-plan__final-title">Готові почати?</h2>
+          <button
+            className="choose-plan__final-btn"
+            onClick={() => handleStart('pro')}
+            disabled={starting !== null}
+          >
+            Почати безкоштовно <ArrowRight size={16} />
+          </button>
+          <span className="choose-plan__final-note">7 днів безкоштовно, без зобов'язань</span>
+        </div>
+      )}
     </div>
   )
 }

@@ -27,6 +27,7 @@ import {
 } from 'lucide-react'
 import { get } from '../../api/client'
 import { HamburgerIcon } from '../../components/HamburgerIcon'
+import { BRAND_EMAIL, BRAND_NAME } from '../../constants/brand'
 import type { PaginatedResponse } from '../../types'
 import './pages.css'
 
@@ -1124,8 +1125,8 @@ export function AdminSettingsPage() {
           <h2 className="admin-card__title">Профіль</h2>
           <div className="adminx-form-list">
             <div><span>Імʼя</span><strong>Ілля Л.</strong></div>
-            <div><span>Email</span><strong>hello@widgetality.com</strong></div>
-            <div><span>Компанія</span><strong>Widgetality</strong></div>
+            <div><span>Email</span><strong>{BRAND_EMAIL}</strong></div>
+            <div><span>Компанія</span><strong>{BRAND_NAME}</strong></div>
           </div>
           <button type="button" className="adminx-ghost-btn">Редагувати</button>
         </section>

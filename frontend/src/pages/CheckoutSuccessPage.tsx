@@ -11,6 +11,7 @@ import {
   PhoneCall,
   Sparkles,
 } from 'lucide-react'
+import { BRAND_NAME_UPPER } from '../constants/brand'
 import './CheckoutSuccessPage.css'
 
 interface StoredOrder {
@@ -52,7 +53,7 @@ export function CheckoutSuccessPage() {
   return (
     <div className="success">
       <Helmet>
-        <title>Замовлення оплачено — Widgetality</title>
+        <title>{`Замовлення оплачено — ${BRAND_NAME_UPPER}`}</title>
       </Helmet>
 
       <div className="success__container">

@@ -1,7 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Check, Sprout, Zap, Crown, ChevronDown, Send, Minus } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
+import { get, post } from '../api/client'
+import { useAuth } from '../context/AuthContext'
+import { toast } from 'sonner'
+import type { Subscription } from '../types'
 import './PricingPage.css'
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -150,8 +154,54 @@ const PLAN_HEADERS = [
 
 type PlanId = 'basic' | 'pro' | 'max'
 
+const PLAN_ORDER: Record<string, number> = { basic: 0, pro: 1, max: 2 }
+
 export function PricingPage() {
+  const navigate = useNavigate()
+  const { user, isLoading: authLoading } = useAuth()
   const [yearly, setYearly] = useState(true)
+  const [sub, setSub] = useState<Subscription | null>(null)
+  const [subLoading, setSubLoading] = useState(true)
+  const [upgrading, setUpgrading] = useState<string | null>(null)
+
+  useEffect(() => {
+    // If auth is still loading, wait
+    if (authLoading) return
+
+    // Auth done: no user → no subscription to fetch
+    if (!user) {
+      setSubLoading(false)
+      return
+    }
+
+    // Auth done, user exists → fetch subscription
+    setSubLoading(true)
+    get<{ data: Subscription }>('/profile/subscription')
+      .then(res => {
+        setSub(res.data)
+        setYearly(res.data.billing_period === 'yearly')
+      })
+      .catch(() => null)
+      .finally(() => setSubLoading(false))
+  }, [user, authLoading])
+
+  // True while we don't yet know the user's plan state
+  const ctaReady = !authLoading && !subLoading
+
+  const currentPlanOrder = sub ? (PLAN_ORDER[sub.plan.slug] ?? -1) : -1
+
+  const handleUpgrade = async (planId: string) => {
+    if (upgrading) return
+    setUpgrading(planId)
+    try {
+      await post('/profile/subscription/change', { plan_slug: planId })
+      toast.success('План змінено!')
+      navigate('/cabinet/plan')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Помилка')
+      setUpgrading(null)
+    }
+  }
 
   return (
     <>
@@ -164,38 +214,52 @@ export function PricingPage() {
 
         {/* ── Hero ── */}
         <header className="pricing__hero">
-          <h1 className="pricing__hero-title">Обери свій план</h1>
-          <p className="pricing__hero-sub">7 днів безкоштовно. Скасуєш коли захочеш.</p>
+          <h1 className="pricing__hero-title">
+            {sub ? 'Підвищити план' : 'Обери свій план'}
+          </h1>
+          <p className="pricing__hero-sub">
+            {sub
+              ? `Поточний план: ${sub.plan.name} · ${sub.billing_period === 'yearly' ? 'Рік' : 'Місяць'}`
+              : '7 днів безкоштовно. Скасуєш коли захочеш.'}
+          </p>
         </header>
 
-        {/* ── Toggle ── */}
-        <div className="pricing__seg" role="group" aria-label="Період оплати">
-          <button
-            className={`pricing__seg-btn ${!yearly ? 'pricing__seg-btn--active' : ''}`}
-            onClick={() => setYearly(false)}
-          >
-            Місяць
-          </button>
-          <button
-            className={`pricing__seg-btn ${yearly ? 'pricing__seg-btn--active' : ''}`}
-            onClick={() => setYearly(true)}
-          >
-            Рік
-            <span className="pricing__seg-save">−17%</span>
-          </button>
-        </div>
+        {/* ── Toggle (hidden for subscribers — billing period is locked) ── */}
+        {!sub && (
+          <div className="pricing__seg" role="group" aria-label="Період оплати">
+            <button
+              className={`pricing__seg-btn ${!yearly ? 'pricing__seg-btn--active' : ''}`}
+              onClick={() => setYearly(false)}
+            >
+              Місяць
+            </button>
+            <button
+              className={`pricing__seg-btn ${yearly ? 'pricing__seg-btn--active' : ''}`}
+              onClick={() => setYearly(true)}
+            >
+              Рік
+              <span className="pricing__seg-save">−17%</span>
+            </button>
+          </div>
+        )}
 
         {/* ── Plans ── */}
         <div className="pricing__plans">
           {PLANS.map(plan => {
             const Icon = plan.icon
             const price = yearly ? plan.yearlyMonthly : plan.monthlyPrice
+            const planOrder = PLAN_ORDER[plan.id] ?? 0
+            const isCurrent = sub !== null && sub.plan.slug === plan.id
+            const isBelow = sub !== null && planOrder < currentPlanOrder
+            const isAbove = sub !== null && planOrder > currentPlanOrder
+
             return (
               <div
                 key={plan.id}
-                className={`pricing__card pricing__card--${plan.id} ${plan.highlighted ? 'pricing__card--highlight' : ''}`}
+                className={`pricing__card pricing__card--${plan.id} ${plan.highlighted ? 'pricing__card--highlight' : ''} ${(isCurrent || isBelow) ? 'pricing__card--dimmed' : ''}`}
               >
-                {plan.badge && <div className="pricing__badge">{plan.badge}</div>}
+                {plan.badge && !isCurrent && !isBelow && <div className="pricing__badge">{plan.badge}</div>}
+                {isCurrent && <div className="pricing__badge pricing__badge--current">Ваш поточний план</div>}
 
                 <div className="pricing__card-top">
                   <div className={`pricing__plan-icon pricing__plan-icon--${plan.id}`}>
@@ -247,13 +311,34 @@ export function PricingPage() {
                   ))}
                 </ul>
 
-                <Link
-                  to={`/signup?plan=${plan.id}&billing=${yearly ? 'yearly' : 'monthly'}`}
-                  className={`pricing__cta pricing__cta--${plan.id} ${plan.highlighted ? 'pricing__cta--highlight' : ''}`}
-                >
-                  Почати безкоштовно
-                </Link>
-                <p className="pricing__trial-note">7 днів безкоштовно</p>
+                {/* CTA — render only when auth + subscription state is known */}
+                {!ctaReady ? (
+                  <span className="pricing__cta pricing__cta--skeleton" />
+                ) : isCurrent ? (
+                  <Link to="/cabinet/plan" className={`pricing__cta pricing__cta--${plan.id} pricing__cta--current`}>
+                    Мій план
+                  </Link>
+                ) : isBelow ? (
+                  <span className={`pricing__cta pricing__cta--${plan.id} pricing__cta--disabled`}>
+                    Нижчий план
+                  </span>
+                ) : isAbove ? (
+                  <button
+                    className={`pricing__cta pricing__cta--${plan.id} ${plan.highlighted ? 'pricing__cta--highlight' : ''}`}
+                    onClick={() => handleUpgrade(plan.id)}
+                    disabled={upgrading !== null}
+                  >
+                    {upgrading === plan.id ? 'Змінюємо…' : `Перейти на ${plan.name}`}
+                  </button>
+                ) : (
+                  <Link
+                    to={`/signup?plan=${plan.id}&billing=${yearly ? 'yearly' : 'monthly'}`}
+                    className={`pricing__cta pricing__cta--${plan.id} ${plan.highlighted ? 'pricing__cta--highlight' : ''}`}
+                  >
+                    Почати безкоштовно
+                  </Link>
+                )}
+                {ctaReady && !sub && <p className="pricing__trial-note">7 днів безкоштовно</p>}
               </div>
             )
           })}
@@ -315,10 +400,18 @@ export function PricingPage() {
         {/* ── Final CTA ── */}
         <div className="pricing__final-cta">
           <h2 className="pricing__final-cta-title">Готові почати?</h2>
-          <Link to="/signup?plan=pro" className="pricing__final-cta-btn">
-            Почати безкоштовно
-          </Link>
-          <p className="pricing__final-cta-note">7 днів безкоштовно, без зобов'язань</p>
+          {ctaReady && (sub ? (
+            <Link to="/cabinet/plan" className="pricing__final-cta-btn">
+              Переглянути мій план
+            </Link>
+          ) : (
+            <>
+              <Link to="/signup?plan=pro" className="pricing__final-cta-btn">
+                Почати безкоштовно
+              </Link>
+              <p className="pricing__final-cta-note">7 днів безкоштовно, без зобов'язань</p>
+            </>
+          ))}
         </div>
 
       </div>

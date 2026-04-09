@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, ExternalLink, Star, TrendingUp } from 'lucide-react'
+import { BRAND_NAME_UPPER } from '../constants/brand'
 import { cases } from '../data/cases'
 import './CasesPage.css'
 
@@ -8,10 +9,10 @@ export function CasesPage() {
   return (
     <div className="cases-page">
       <Helmet>
-        <title>Кейси та результати — Widgetality</title>
+        <title>{`Кейси та результати — ${BRAND_NAME_UPPER}`}</title>
         <meta
           name="description"
-          content="Реальні магазини, реальні результати: +18% середній чек, +24% конверсія, −31% відмов. Кейси клієнтів Widgetality з конкретними цифрами."
+          content={`Реальні магазини, реальні результати: +18% середній чек, +24% конверсія, −31% відмов. Кейси клієнтів ${BRAND_NAME_UPPER} з конкретними цифрами.`}
         />
       </Helmet>
 

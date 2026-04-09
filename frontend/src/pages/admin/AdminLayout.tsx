@@ -15,6 +15,7 @@ import {
   ExternalLink,
 } from 'lucide-react'
 import { HamburgerIcon } from '../../components/HamburgerIcon'
+import { BRAND_EMAIL, BRAND_NAME } from '../../constants/brand'
 import './admin.css'
 
 const NAV = [
@@ -70,7 +71,7 @@ export function AdminLayout() {
               />
             </svg>
             <span className="admin__brand-text">
-              WIDGETALITY
+              {BRAND_NAME}
               <small>Admin</small>
             </span>
           </Link>
@@ -141,7 +142,7 @@ export function AdminLayout() {
             </div>
             <div className="admin__user-info">
               <strong>Ілля Л.</strong>
-              <span>hello@widgetality.com</span>
+              <span>{BRAND_EMAIL}</span>
             </div>
           </div>
         </header>

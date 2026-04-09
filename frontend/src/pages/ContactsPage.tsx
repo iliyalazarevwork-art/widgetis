@@ -2,13 +2,14 @@ import { Helmet } from 'react-helmet-async'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, ArrowUpRight, Mail, Phone, MapPin } from 'lucide-react'
 import { SocialIcon } from '../components/SocialIcon'
+import { BRAND_EMAIL, BRAND_NAME_UPPER } from '../constants/brand'
 import './ContactsPage.css'
 
 const CONTACTS = {
   phone: '+380 96 149 47 47',
   phoneHref: 'tel:+380961494747',
-  email: 'hello@widgetality.com',
-  emailHref: 'mailto:hello@widgetality.com',
+  email: BRAND_EMAIL,
+  emailHref: `mailto:${BRAND_EMAIL}`,
   city: 'Київ, Україна',
   hours: 'Пн–Пт · 10:00–19:00',
 }
@@ -41,10 +42,10 @@ export function ContactsPage() {
   return (
     <div className="contacts-page">
       <Helmet>
-        <title>Контакти — Widgetality</title>
+        <title>{`Контакти — ${BRAND_NAME_UPPER}`}</title>
         <meta
           name="description"
-          content="Телефон, email і месенджери Widgetality. Напишіть у Telegram, Viber або WhatsApp — відповімо протягом 15 хвилин."
+          content={`Телефон, email і месенджери ${BRAND_NAME_UPPER}. Напишіть у Telegram, Viber або WhatsApp — відповімо протягом 15 хвилин.`}
         />
       </Helmet>
 

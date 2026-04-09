@@ -45,6 +45,7 @@
   font-weight: 700;
   color: var(--text-secondary);
   letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
 .footer__desc {
@@ -101,6 +102,7 @@
   font-size: 12px;
   color: var(--text-muted);
   letter-spacing: 0.3px;
+  text-transform: uppercase;
 }
 
 /* ===== Desktop ===== */

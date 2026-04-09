@@ -20,6 +20,7 @@ import {
   type Tag,
 } from '../data/widgets'
 import { cases } from '../data/cases'
+import { BRAND_NAME_UPPER } from '../constants/brand'
 import './WidgetDetailPage.css'
 
 // Generic benefit copy per tag — used as "Для чого це" cards
@@ -99,7 +100,7 @@ export function WidgetDetailPage() {
   return (
     <div className="widget-page">
       <Helmet>
-        <title>{widget.title} — віджет для магазину | Widgetality</title>
+        <title>{`${widget.title} — віджет для магазину | ${BRAND_NAME_UPPER}`}</title>
         <meta name="description" content={widget.description} />
       </Helmet>
 

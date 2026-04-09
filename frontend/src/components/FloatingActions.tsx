@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Send } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 import './FloatingActions.css'
 
-const TELEGRAM_URL = 'https://t.me/widgetality'
-const SHOW_STICKY_AFTER_PX = 600 // показати sticky CTA після проскролу hero
-const SHOW_TELEGRAM_AFTER_PX = 1400 // показати Telegram після 2 блоків
+const TELEGRAM_URL = 'https://t.me/widgetis'
+const SHOW_STICKY_AFTER_PX = 600
+const SHOW_TELEGRAM_AFTER_PX = 1400
 
 export function FloatingActions() {
+  const { user, isLoading: authLoading } = useAuth()
   const [stickyVisible, setStickyVisible] = useState(false)
   const [telegramVisible, setTelegramVisible] = useState(false)
   const [atBottom, setAtBottom] = useState(false)
@@ -30,9 +32,14 @@ export function FloatingActions() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // Hide sticky CTA for users with an active subscription — it has no meaning for them
+  const hasActiveSubscription = !authLoading &&
+    user?.subscription_status != null &&
+    ['active', 'trial'].includes(user.subscription_status)
+
   return (
     <>
-      {/* Telegram floating button — visible after 2 blocks scroll */}
+      {/* Telegram floating button */}
       <a
         href={TELEGRAM_URL}
         target="_blank"
@@ -44,13 +51,15 @@ export function FloatingActions() {
         <span className="tg-float__pulse" aria-hidden="true" />
       </a>
 
-      {/* Sticky mobile CTA — visible after scroll past hero */}
-      <div className={`sticky-cta ${stickyVisible ? 'sticky-cta--visible' : ''}`}>
-        <Link to="/pricing" className="sticky-cta__btn">
-          <span>Спробувати</span>
-          <ArrowRight size={18} strokeWidth={2.5} />
-        </Link>
-      </div>
+      {/* Sticky mobile CTA — hidden for active subscribers */}
+      {!hasActiveSubscription && (
+        <div className={`sticky-cta ${stickyVisible ? 'sticky-cta--visible' : ''}`}>
+          <Link to="/pricing" className="sticky-cta__btn">
+            <span>Спробувати</span>
+            <ArrowRight size={18} strokeWidth={2.5} />
+          </Link>
+        </div>
+      )}
     </>
   )
 }

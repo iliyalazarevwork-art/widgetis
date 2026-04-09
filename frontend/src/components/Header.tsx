@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { Link, useLocation } from 'react-router-dom'
-import { X, LayoutDashboard } from 'lucide-react'
+import { X, LayoutDashboard, ArrowRight } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useSwipeDismiss } from '../hooks/useSwipeDismiss'
 import { SocialIcon } from './SocialIcon'
 import { HamburgerIcon } from './HamburgerIcon'
 import { useAuth } from '../context/AuthContext'
+import { BRAND_NAME } from '../constants/brand'
 import './Header.css'
 
 const NAV_LINKS = [
@@ -71,7 +72,7 @@ export function Header() {
             to="/"
             onClick={handleLogoClick}
             className="header__logo"
-            aria-label={onHome ? 'Нагору' : 'Widgetality — на головну'}
+            aria-label={onHome ? 'Нагору' : `${BRAND_NAME} — на головну`}
           >
             <svg
               className="header__logo-mark"
@@ -88,7 +89,7 @@ export function Header() {
                 strokeLinecap="round"
               />
             </svg>
-            <span className="header__logo-text">WIDGETALITY</span>
+            <span className="header__logo-text">{BRAND_NAME}</span>
           </Link>
 
           <nav className="header__nav">
@@ -138,7 +139,7 @@ export function Header() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.08, duration: 0.3, ease: 'easeOut' }}
                 >
-                  <Link to="/" className="header__drawer-logo" onClick={closeMenu} aria-label="Widgetality">
+                  <Link to="/" className="header__drawer-logo" onClick={closeMenu} aria-label={BRAND_NAME}>
                     <svg
                       className="header__drawer-logo-mark"
                       viewBox="0 0 120 100"
@@ -154,7 +155,7 @@ export function Header() {
                         strokeLinecap="round"
                       />
                     </svg>
-                    <span className="header__drawer-logo-text">WIDGETALITY</span>
+                    <span className="header__drawer-logo-text">{BRAND_NAME}</span>
                   </Link>
                   <button
                     className="header__drawer-close"
@@ -176,7 +177,7 @@ export function Header() {
                     >
                       <Link to={link.to} className="header__drawer-link" onClick={closeMenu}>
                         {link.label}
-                        <span className="header__drawer-link-arrow">→</span>
+                        <ArrowRight size={18} strokeWidth={2.5} className="header__drawer-link-arrow" />
                       </Link>
                     </motion.div>
                   ))}
@@ -190,7 +191,7 @@ export function Header() {
                       <Link to="/cabinet" className="header__drawer-link header__drawer-link--cabinet" onClick={closeMenu}>
                         <LayoutDashboard size={16} className="header__drawer-link-icon" />
                         Кабінет
-                        <span className="header__drawer-link-arrow">→</span>
+                        <ArrowRight size={18} strokeWidth={2.5} className="header__drawer-link-arrow" />
                       </Link>
                     </motion.div>
                   )}

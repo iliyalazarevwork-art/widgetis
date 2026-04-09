@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { WidgetIcon } from '../components/WidgetIcon'
+import { BRAND_NAME_UPPER } from '../constants/brand'
 import { platformConfig } from '../data/widgets'
 import './CheckoutPage.css'
 
@@ -101,7 +102,7 @@ export function CheckoutPage() {
   return (
     <div className="checkout">
       <Helmet>
-        <title>Оформлення замовлення — Widgetality</title>
+        <title>{`Оформлення замовлення — ${BRAND_NAME_UPPER}`}</title>
       </Helmet>
 
       <div className="checkout__container">
