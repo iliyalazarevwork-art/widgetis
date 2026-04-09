@@ -4,7 +4,7 @@ import {
   ArrowLeft, Globe, ChevronDown, Check, Copy,
   Megaphone, Truck, Eye, Timer, ShoppingBag, Package,
   TrendingUp, Star, Zap, Tag, BarChart2, Bell, Heart,
-  Gift, Percent, Clock, Users, MessageSquare, Award, X,
+  Gift, Percent, Clock, Users, MessageSquare, Award,
 } from 'lucide-react'
 import { get, put } from '../../api/client'
 import { toast } from 'sonner'
@@ -78,7 +78,7 @@ export default function ConfigureWidgetPage() {
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState<number | null>(null)
-  const [disablingAll, setDisablingAll] = useState(false)
+  const [bulkUpdating, setBulkUpdating] = useState(false)
   const [showSiteSelect, setShowSiteSelect] = useState(false)
   const [copiedScript, setCopiedScript] = useState(false)
 
@@ -161,18 +161,20 @@ export default function ConfigureWidgetPage() {
   const widgets: SiteWidget[] = widgetAccess
     ? mergeWidgets(widgetAccess.available, siteDetail?.widgets ?? [])
     : []
-  const hasEnabledWidgets = widgets.some((widget) => widget.is_enabled)
+  const allEnabled = widgets.length > 0 && widgets.every((widget) => widget.is_enabled)
 
-  const disableAllWidgets = async () => {
-    if (!selectedSiteId || !hasEnabledWidgets) return
+  const setAllWidgetsEnabled = async (nextEnabled: boolean) => {
+    if (!selectedSiteId || widgets.length === 0) return
 
-    const enabledWidgets = widgets.filter((widget) => widget.is_enabled)
-    setDisablingAll(true)
+    const targets = widgets.filter((widget) => widget.is_enabled !== nextEnabled)
+    if (targets.length === 0) return
+
+    setBulkUpdating(true)
     try {
       await Promise.all(
-        enabledWidgets.map((widget) =>
+        targets.map((widget) =>
           put(`/profile/sites/${selectedSiteId}/widgets/${widget.product_id}`, {
-            config: { enabled: false },
+            config: { enabled: nextEnabled },
           }),
         ),
       )
@@ -180,14 +182,14 @@ export default function ConfigureWidgetPage() {
         if (!prev) return prev
         return {
           ...prev,
-          widgets: prev.widgets.map((widget) => ({ ...widget, is_enabled: false })),
+          widgets: widgets.map((widget) => ({ ...widget, is_enabled: nextEnabled })),
         }
       })
-      toast.success('Всі віджети вимкнено')
+      toast.success(nextEnabled ? 'Всі віджети увімкнено' : 'Всі віджети вимкнено')
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Помилка')
     } finally {
-      setDisablingAll(false)
+      setBulkUpdating(false)
     }
   }
 
@@ -204,54 +206,47 @@ export default function ConfigureWidgetPage() {
             <span className="cfg__header-domain">{selectedSite.domain}</span>
           )}
         </div>
-        <button
-          type="button"
-          className="cfg__close-btn"
-          onClick={disableAllWidgets}
-          disabled={disablingAll || !hasEnabledWidgets}
-          title="Вимкнути всі віджети"
-          aria-label="Вимкнути всі віджети"
-        >
-          <X size={18} color="#AAAAAA" />
-        </button>
+        <div style={{ width: 36 }} />
       </div>
 
       {/* Body */}
       <div className="cfg__body">
         {/* Site selector */}
-        <button
-          type="button"
-          className="cfg__site-row"
-          onClick={canSelectSite ? () => setShowSiteSelect((prev) => !prev) : undefined}
-          disabled={!canSelectSite}
-        >
-          <div className="cfg__site-row-left">
-            <Globe size={16} color="#3B82F6" />
-            <span className="cfg__site-row-domain">{selectedSite?.domain ?? 'Оберіть сайт'}</span>
-          </div>
-          {canSelectSite && (
-            <ChevronDown
-              size={16}
-              color="#555555"
-              className={`cfg__site-chevron ${showSiteSelect ? 'cfg__site-chevron--open' : ''}`}
-            />
-          )}
-        </button>
+        <div className="cfg__site-select">
+          <button
+            type="button"
+            className="cfg__site-row"
+            onClick={canSelectSite ? () => setShowSiteSelect((prev) => !prev) : undefined}
+            disabled={!canSelectSite}
+          >
+            <div className="cfg__site-row-left">
+              <Globe size={16} color="#3B82F6" />
+              <span className="cfg__site-row-domain">{selectedSite?.domain ?? 'Оберіть сайт'}</span>
+            </div>
+            {canSelectSite && (
+              <ChevronDown
+                size={16}
+                color="#555555"
+                className={`cfg__site-chevron ${showSiteSelect ? 'cfg__site-chevron--open' : ''}`}
+              />
+            )}
+          </button>
 
-        {canSelectSite && showSiteSelect && (
-          <div className="cfg__site-dropdown">
-            {sites.map((s) => (
-              <button
-                key={s.id}
-                className={`cfg__site-option ${s.id === selectedSiteId ? 'cfg__site-option--active' : ''}`}
-                onClick={() => { setSelectedSiteId(s.id); setShowSiteSelect(false) }}
-              >
-                <Globe size={14} color={s.id === selectedSiteId ? '#3B82F6' : '#555'} />
-                {s.domain}
-              </button>
-            ))}
-          </div>
-        )}
+          {canSelectSite && showSiteSelect && (
+            <div className="cfg__site-dropdown">
+              {sites.map((s) => (
+                <button
+                  key={s.id}
+                  className={`cfg__site-option ${s.id === selectedSiteId ? 'cfg__site-option--active' : ''}`}
+                  onClick={() => { setSelectedSiteId(s.id); setShowSiteSelect(false) }}
+                >
+                  <Globe size={14} color={s.id === selectedSiteId ? '#3B82F6' : '#555'} />
+                  {s.domain}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Script install block */}
         {siteDetail?.script && (
@@ -281,7 +276,23 @@ export default function ConfigureWidgetPage() {
         {/* Widgets section */}
         {widgets.length > 0 && (
           <>
-            <p className="cfg__section-label">Віджети на цьому сайті</p>
+            <div className="cfg__section-head">
+              <p className="cfg__section-label">Віджети на цьому сайті</p>
+              <div className="cfg__bulk">
+                <span className={`cfg__bulk-text ${!allEnabled ? 'cfg__bulk-text--active' : ''}`}>OFF</span>
+                <button
+                  type="button"
+                  className={`cfg__toggle cfg__toggle--bulk ${allEnabled ? 'cfg__toggle--on' : ''}`}
+                  onClick={() => setAllWidgetsEnabled(!allEnabled)}
+                  disabled={bulkUpdating || widgets.length === 0}
+                  title={allEnabled ? 'Вимкнути всі віджети' : 'Увімкнути всі віджети'}
+                  aria-label={allEnabled ? 'Вимкнути всі віджети' : 'Увімкнути всі віджети'}
+                >
+                  <span className="cfg__toggle-thumb" />
+                </button>
+                <span className={`cfg__bulk-text ${allEnabled ? 'cfg__bulk-text--active' : ''}`}>ON</span>
+              </div>
+            </div>
             <div className="cfg__widgets">
               {widgets.map((widget) => {
                 const Icon = getWidgetIcon(widget.icon)
@@ -307,7 +318,7 @@ export default function ConfigureWidgetPage() {
                       <button
                         className={`cfg__toggle ${widget.is_enabled ? 'cfg__toggle--on' : ''}`}
                         onClick={() => toggleWidget(widget)}
-                        disabled={saving === widget.product_id || disablingAll}
+                        disabled={saving === widget.product_id || bulkUpdating}
                       >
                         <span className="cfg__toggle-thumb" />
                       </button>

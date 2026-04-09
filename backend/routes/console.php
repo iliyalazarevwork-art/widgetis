@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Schedule;
 
+// Daily at 03:30: move subscriptions past period end to PastDue (3-day grace period starts)
+Schedule::command('subscriptions:expire')->dailyAt('03:30');
+
 // Daily at 04:00: expire trial subscriptions
 Schedule::command('subscriptions:expire-trials')->dailyAt('04:00');
 
-// Daily at 04:30: expire grace period subscriptions
+// Daily at 04:30: expire grace period subscriptions and disable their widgets
 Schedule::command('subscriptions:process-grace-period')->dailyAt('04:30');
 
 // Daily at 03:00: clean up expired demo sessions

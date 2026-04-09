@@ -42,25 +42,6 @@
   align-items: center;
   justify-content: center;
 }
-.cfg__close-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.12s, border-color 0.12s, opacity 0.12s;
-}
-.cfg__close-btn:hover:not(:disabled) {
-  background: rgba(239,68,68,0.12);
-  border-color: rgba(239,68,68,0.3);
-}
-.cfg__close-btn:disabled {
-  opacity: 0.45;
-  cursor: default;
-}
 .cfg__header-text {
   display: flex;
   flex-direction: column;
@@ -87,6 +68,10 @@
 }
 
 /* ── Site selector ───────────────────────────────────────── */
+.cfg__site-select {
+  position: relative;
+}
+
 .cfg__site-row {
   width: 100%;
   display: flex;
@@ -119,11 +104,18 @@
 }
 
 .cfg__site-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 20;
   background: #141414;
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  margin-top: -8px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45);
+  max-height: 260px;
+  overflow-y: auto;
 }
 .cfg__site-option {
   display: flex;
@@ -140,6 +132,25 @@
 .cfg__site-option--active { color: #3B82F6; background: rgba(59,130,246,0.06); }
 
 /* ── Section label ───────────────────────────────────────── */
+.cfg__section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cfg__bulk {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.cfg__bulk-text {
+  font-size: 10px;
+  font-weight: 700;
+  color: #666666;
+  letter-spacing: 0.4px;
+}
+.cfg__bulk-text--active {
+  color: #F0F0F0;
+}
 .cfg__section-label {
   font-size: 14px;
   font-weight: 700;
@@ -218,6 +229,10 @@
   transition: background 0.15s, border-color 0.15s;
   cursor: pointer;
 }
+.cfg__toggle--bulk {
+  width: 40px;
+  height: 22px;
+}
 .cfg__toggle--on {
   background: #3B82F6;
   border-color: #3B82F6;
@@ -236,9 +251,18 @@
   background: #444444;
   transition: transform 0.15s, background 0.15s;
 }
+.cfg__toggle--bulk .cfg__toggle-thumb {
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+}
 .cfg__toggle--on .cfg__toggle-thumb {
   transform: translateX(18px);
   background: #FFFFFF;
+}
+.cfg__toggle--bulk.cfg__toggle--on .cfg__toggle-thumb {
+  transform: translateX(18px);
 }
 
 /* ── Expanded options ────────────────────────────────────── */

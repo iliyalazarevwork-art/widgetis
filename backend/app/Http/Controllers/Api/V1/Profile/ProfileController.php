@@ -9,6 +9,7 @@ use App\Models\ManagerRequest;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ProfileController extends BaseController
 {
@@ -37,15 +38,18 @@ class ProfileController extends BaseController
 
     public function update(Request $request): JsonResponse
     {
+        $user = $this->currentUser();
+
         $request->validate([
             'name' => ['sometimes', 'string', 'max:255'],
-            'phone' => ['sometimes', 'nullable', 'string', 'max:20'],
+            'email' => ['sometimes', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'phone' => ['sometimes', 'nullable', 'regex:/^\+380\d{9}$/'],
             'telegram' => ['sometimes', 'nullable', 'string', 'max:100'],
             'company' => ['sometimes', 'nullable', 'string', 'max:255'],
             'locale' => ['sometimes', 'string', 'in:uk,en'],
         ]);
 
-        $this->currentUser()->update($request->only(['name', 'phone', 'telegram', 'company', 'locale']));
+        $user->update($request->only(['name', 'email', 'phone', 'telegram', 'company', 'locale']));
 
         return $this->show();
     }

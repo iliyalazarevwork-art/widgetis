@@ -10,6 +10,7 @@ use App\Jobs\RebuildSiteScriptJob;
 use App\Models\ActivityLog;
 use App\Models\Payment;
 use App\Models\Plan;
+use App\Models\SiteWidget;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -161,6 +162,22 @@ class SubscriptionService
 
     public function cancel(Subscription $subscription, ?string $reason = null): Subscription
     {
+        // If the subscription is backed by LiqPay, cancel it on their side first.
+        if (
+            $subscription->payment_provider === 'liqpay'
+            && $subscription->payment_provider_subscription_id !== null
+        ) {
+            $liqpay  = new LiqPayService();
+            $success = $liqpay->cancelSubscription($subscription->payment_provider_subscription_id);
+
+            if (!$success) {
+                Log::channel('payments')->warning('liqpay.unsubscribe_failed', [
+                    'user_id'                          => $subscription->user_id,
+                    'payment_provider_subscription_id' => $subscription->payment_provider_subscription_id,
+                ]);
+            }
+        }
+
         $subscription->update([
             'status' => SubscriptionStatus::Cancelled,
             'cancelled_at' => now(),
@@ -197,6 +214,25 @@ class SubscriptionService
         $subscription->update([
             'status' => SubscriptionStatus::Expired,
         ]);
+
+        // Disable all widgets for all sites of this user
+        $widgetIds = SiteWidget::whereHas('site', function ($q) use ($subscription) {
+            $q->where('user_id', $subscription->user_id);
+        })
+            ->where('is_enabled', true)
+            ->pluck('id');
+
+        if ($widgetIds->isNotEmpty()) {
+            SiteWidget::whereIn('id', $widgetIds)->update([
+                'is_enabled' => false,
+                'disabled_at' => now(),
+            ]);
+
+            // Rebuild scripts for affected sites
+            $subscription->user->sites()->pluck('id')->each(
+                fn (int $siteId) => RebuildSiteScriptJob::dispatch($siteId),
+            );
+        }
 
         ActivityLog::create([
             'user_id' => $subscription->user_id,

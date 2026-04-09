@@ -6,6 +6,7 @@ namespace App\Services\Site;
 
 use App\Enums\SiteStatus;
 use App\Exceptions\PlanLimitExceededException;
+use App\Exceptions\SubscriptionRequiredException;
 use App\Jobs\RebuildSiteScriptJob;
 use App\Models\Site;
 use App\Models\SiteScript;
@@ -112,6 +113,12 @@ class SiteService
         int $productId,
         array $patch,
     ): SiteWidget {
+        if (!$user->hasActivePlan()) {
+            throw new SubscriptionRequiredException(
+                'Widget configuration requires an active subscription.',
+            );
+        }
+
         $planSlug = $user->currentPlan()?->slug;
         $canFullConfig = in_array($planSlug, ['pro', 'max'], strict: true);
 

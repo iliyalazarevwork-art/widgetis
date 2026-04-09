@@ -102,6 +102,32 @@ class LiqPayService
         return (array) (json_decode($decoded, true) ?? []);
     }
 
+    /**
+     * Cancel a recurring LiqPay subscription by its subscribe_order_id.
+     * Returns true on success, false if LiqPay returned an error.
+     */
+    public function cancelSubscription(string $subscribeOrderId): bool
+    {
+        $params = [
+            'public_key' => $this->publicKey,
+            'version'    => self::API_VERSION,
+            'action'     => 'unsubscribe',
+            'order_id'   => $subscribeOrderId,
+        ];
+
+        $data      = base64_encode((string) json_encode($params));
+        $signature = $this->sign($data);
+
+        $response = \Illuminate\Support\Facades\Http::asForm()->post(
+            'https://www.liqpay.ua/api/request',
+            ['data' => $data, 'signature' => $signature],
+        );
+
+        $body = $response->json() ?? [];
+
+        return ($body['status'] ?? '') !== 'error';
+    }
+
     private function sign(string $data): string
     {
         return base64_encode(sha1($this->privateKey . $data . $this->privateKey, true));

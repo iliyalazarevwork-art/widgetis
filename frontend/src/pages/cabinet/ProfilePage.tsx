@@ -6,6 +6,10 @@ import { toast } from 'sonner'
 import type { User as UserType, Subscription } from '../../types'
 import './styles/profile.css'
 
+const PHONE_PREFIX = '+38'
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const PHONE_REGEX = /^\+380\d{9}$/
+
 function getInitials(name: string | null | undefined, email: string): string {
   if (name) {
     const parts = name.trim().split(/\s+/)
@@ -21,12 +25,43 @@ function getPlanColor(slug: string | undefined): 'blue' | 'green' | 'purple' {
   return 'green'
 }
 
+function extractLocalPhoneDigits(value: string): string {
+  const digits = value.replace(/\D/g, '')
+  let localDigits = digits
+
+  if (localDigits.startsWith('380')) localDigits = localDigits.slice(3)
+  else if (localDigits.startsWith('38')) localDigits = localDigits.slice(2)
+  else if (localDigits.startsWith('0')) localDigits = localDigits.slice(1)
+
+  return localDigits.slice(0, 9)
+}
+
+function formatMaskedPhone(value: string): string {
+  const localDigits = extractLocalPhoneDigits(value)
+  const groups = [2, 3, 2, 2]
+  let i = 0
+  let result = `${PHONE_PREFIX}0`
+
+  for (const groupSize of groups) {
+    if (localDigits.length <= i) break
+    const part = localDigits.slice(i, i + groupSize)
+    result += `-${part}`
+    i += groupSize
+  }
+
+  return result
+}
+
+function toApiPhone(value: string): string {
+  return `+380${extractLocalPhoneDigits(value)}`
+}
+
 export default function ProfilePage() {
   const [user, setUser] = useState<UserType | null>(null)
   const [subscription, setSubscription] = useState<Subscription | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [form, setForm] = useState({ name: '', phone: '', telegram: '', company: '' })
+  const [form, setForm] = useState({ name: '', email: '', phone: formatMaskedPhone(''), telegram: '', company: '' })
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -37,7 +72,8 @@ export default function ProfilePage() {
       setUser(userRes.data)
       setForm({
         name: userRes.data.name || '',
-        phone: userRes.data.phone || '',
+        email: userRes.data.email || '',
+        phone: formatMaskedPhone(userRes.data.phone || ''),
         telegram: userRes.data.telegram || '',
         company: userRes.data.company || '',
       })
@@ -46,10 +82,32 @@ export default function ProfilePage() {
   }, [])
 
   const handleSave = async () => {
+    const trimmedEmail = form.email.trim()
+    const normalizedPhone = toApiPhone(form.phone)
+
+    if (!EMAIL_REGEX.test(trimmedEmail)) {
+      toast.error('Введіть коректний email')
+      return
+    }
+
+    if (!PHONE_REGEX.test(normalizedPhone)) {
+      toast.error('Введіть коректний телефон у форматі +380XXXXXXXXX')
+      return
+    }
+
     setSaving(true)
     try {
-      const res = await put<{ data: UserType }>('/profile', form)
+      const res = await put<{ data: UserType }>('/profile', {
+        ...form,
+        email: trimmedEmail,
+        phone: normalizedPhone,
+      })
       setUser(res.data)
+      setForm((f) => ({
+        ...f,
+        email: res.data.email || '',
+        phone: formatMaskedPhone(res.data.phone || ''),
+      }))
       toast.success('Профіль оновлено')
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Помилка')
@@ -118,7 +176,14 @@ export default function ProfilePage() {
           <span className="prof-field__label">Email</span>
           <div className="prof-field__row">
             <Mail size={16} className="prof-field__icon" />
-            <span className="prof-field__value">{user?.email}</span>
+            <input
+              className="prof-field__input"
+              value={form.email}
+              onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+              placeholder="you@example.com"
+              type="email"
+              autoComplete="email"
+            />
           </div>
         </div>
 
@@ -129,8 +194,11 @@ export default function ProfilePage() {
             <input
               className="prof-field__input"
               value={form.phone}
-              onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-              placeholder="+380..."
+              onChange={(e) => setForm((f) => ({ ...f, phone: formatMaskedPhone(e.target.value) }))}
+              onFocus={() => setForm((f) => ({ ...f, phone: formatMaskedPhone(f.phone) }))}
+              placeholder="+380-XX-XXX-XX-XX"
+              inputMode="tel"
+              autoComplete="tel"
             />
           </div>
         </div>

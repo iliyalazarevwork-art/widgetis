@@ -18,6 +18,7 @@ export default function CancelSubscriptionPage() {
   const [step, setStep] = useState<'confirm' | 'reason' | 'done'>('confirm')
   const [reason, setReason] = useState('')
   const [cancelling, setCancelling] = useState(false)
+  const goToPlan = () => navigate('/cabinet/plan', { replace: true })
 
   const handleCancel = async () => {
     setCancelling(true)
@@ -36,7 +37,7 @@ export default function CancelSubscriptionPage() {
       <div className="cancel-page__header">
         <button className="cancel-page__back" onClick={() => {
           if (step === 'reason') setStep('confirm')
-          else navigate('/cabinet/plan')
+          else goToPlan()
         }}>
           <ArrowLeft size={18} />
         </button>
@@ -55,7 +56,7 @@ export default function CancelSubscriptionPage() {
             <button className="cancel-page__btn-danger" onClick={() => setStep('reason')}>
               Так, скасувати підписку
             </button>
-            <button className="cancel-page__btn-secondary" onClick={() => navigate('/cabinet/plan')}>
+            <button className="cancel-page__btn-secondary" onClick={goToPlan}>
               Ні, залишити план
             </button>
           </>
