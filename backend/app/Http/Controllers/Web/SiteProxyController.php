@@ -1,0 +1,565 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Controllers\Web;
+
+use App\Http\Controllers\Controller;
+use GuzzleHttp\Psr7\Uri;
+use GuzzleHttp\Psr7\UriResolver;
+use Illuminate\Http\Client\Response as HttpResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Response;
+
+class SiteProxyController extends Controller
+{
+    public function proxy(Request $request, string $domain, string $path = ''): Response
+    {
+        if (! $this->isAllowedDomain($domain)) {
+            return response()->json(['error' => 'Domain not allowed'], 403);
+        }
+
+        $this->setCurrentPreviewDomain($request, $domain);
+
+        $query = $request->query();
+        $injectParam = null;
+        if (array_key_exists('_inject', $query)) {
+            $injectParam = is_string($query['_inject']) ? $query['_inject'] : null;
+            unset($query['_inject']);
+        }
+
+        $targetPath = '/'.ltrim($path, '/');
+        $queryString = http_build_query($query);
+        if ($queryString !== '') {
+            $targetPath .= '?'.$queryString;
+        }
+
+        return $this->proxyPathForDomain(
+            request: $request,
+            domain: $domain,
+            targetPath: $targetPath,
+            injectScript: $this->loadInjectScript($injectParam)
+        );
+    }
+
+    public function proxyCurrentPrefix(Request $request, string $prefix, string $path = ''): Response
+    {
+        $domain = $this->getCurrentPreviewDomain($request);
+        if ($domain === null || ! $this->isAllowedDomain($domain)) {
+            return response()->json(['error' => 'Preview domain not set'], 404);
+        }
+
+        $targetPath = '/'.$prefix;
+        if ($path !== '') {
+            $targetPath .= '/'.ltrim($path, '/');
+        }
+
+        $queryString = $request->getQueryString();
+        if ($queryString !== null && $queryString !== '') {
+            $targetPath .= '?'.$queryString;
+        }
+
+        return $this->proxyPathForDomain($request, $domain, $targetPath);
+    }
+
+    public function proxyCurrentLocalePrefix(Request $request, string $locale, string $prefix, string $path = ''): Response
+    {
+        $domain = $this->getCurrentPreviewDomain($request);
+        if ($domain === null || ! $this->isAllowedDomain($domain)) {
+            return response()->json(['error' => 'Preview domain not set'], 404);
+        }
+
+        $targetPath = '/'.$locale.'/'.$prefix;
+        if ($path !== '') {
+            $targetPath .= '/'.ltrim($path, '/');
+        }
+
+        $queryString = $request->getQueryString();
+        if ($queryString !== null && $queryString !== '') {
+            $targetPath .= '?'.$queryString;
+        }
+
+        return $this->proxyPathForDomain($request, $domain, $targetPath);
+    }
+
+    private function proxyPathForDomain(
+        Request $request,
+        string $domain,
+        string $targetPath,
+        ?string $injectScript = null
+    ): Response {
+        $targetUrl = "https://{$domain}{$targetPath}";
+        $upstream = $this->fetchRemote($request, $domain, $targetUrl);
+        if ($upstream === null) {
+            return response('Proxy error', 502);
+        }
+
+        // Horoshop challenge: save cookie and retry.
+        $body = $upstream->body();
+        if (
+            is_string($body) &&
+            Str::contains($body, 'challenge_passed') &&
+            Str::contains($body, 'location.reload') &&
+            preg_match('/defaultHash\s*=\s*"([0-9a-f]+)"/i', $body, $m) === 1
+        ) {
+            $this->putCookieToJar($request, $domain, 'challenge_passed', $m[1]);
+            $retry = $this->fetchRemote($request, $domain, $targetUrl, 5, true);
+            if ($retry !== null) {
+                $upstream = $retry;
+                $body = $upstream->body();
+            }
+        }
+
+        if (in_array($upstream->status(), [403, 503], true)) {
+            $isCloudflare = Str::contains(Str::lower((string) $body), 'just a moment') ||
+                Str::contains(Str::lower((string) $body), 'cf-mitigated');
+
+            return $this->blockedResponse($domain, $upstream->status(), $isCloudflare);
+        }
+
+        $contentType = (string) ($upstream->header('Content-Type') ?? 'application/octet-stream');
+        $rewrittenBody = (string) $body;
+
+        if (Str::contains(Str::lower($contentType), 'text/html')) {
+            $rewrittenBody = $this->rewriteHtml($rewrittenBody, $domain);
+            $rewrittenBody = $this->injectRuntimeScript($rewrittenBody, $domain, $injectScript);
+        } elseif (
+            Str::contains(Str::lower($contentType), 'text/css') ||
+            Str::contains(Str::lower($contentType), 'javascript')
+        ) {
+            $rewrittenBody = $this->rewriteTextAssets($rewrittenBody, $domain);
+        }
+
+        $response = response($rewrittenBody, $upstream->status());
+        $response->headers->set('Content-Type', $contentType);
+        $response->headers->set('Access-Control-Allow-Origin', '*');
+
+        $this->forwardSafeHeaders($upstream, $response);
+        $this->forwardCookies($request, $upstream, $response, $domain);
+
+        return $response;
+    }
+
+    private function fetchRemote(
+        Request $request,
+        string $domain,
+        string $url,
+        int $maxRedirects = 5,
+        bool $forceGet = false
+    ): ?HttpResponse {
+        $method = $forceGet ? 'GET' : strtoupper($request->method());
+        $headers = [
+            'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+            'Accept' => '*/*',
+            'Accept-Language' => 'uk,ru;q=0.9,en;q=0.8',
+            'Accept-Encoding' => 'gzip, deflate, br',
+        ];
+
+        $jarCookie = $this->getCookieFromJar($request, $domain);
+        $browserCookie = (string) ($request->header('Cookie') ?? '');
+        $mergedCookie = $this->mergeCookies([$jarCookie, $browserCookie]);
+        if ($mergedCookie !== '') {
+            $headers['Cookie'] = $mergedCookie;
+        }
+
+        if (! in_array($method, ['GET', 'HEAD'], true)) {
+            if ($request->headers->has('Content-Type')) {
+                $headers['Content-Type'] = (string) $request->header('Content-Type');
+            }
+
+            if ($request->headers->has('X-Requested-With')) {
+                $headers['X-Requested-With'] = (string) $request->header('X-Requested-With');
+            }
+
+            if ($request->headers->has('X-CSRF-Token')) {
+                $headers['X-CSRF-Token'] = (string) $request->header('X-CSRF-Token');
+            }
+
+            $headers['Referer'] = "https://{$domain}/";
+            $headers['Origin'] = "https://{$domain}";
+        }
+
+        $options = [
+            'http_errors' => false,
+            'allow_redirects' => false,
+            'timeout' => 20,
+            'connect_timeout' => 8,
+        ];
+
+        if (! in_array($method, ['GET', 'HEAD'], true)) {
+            $options['body'] = $request->getContent();
+        }
+
+        try {
+            $response = Http::withHeaders($headers)
+                ->withOptions($options)
+                ->send($method, $url);
+        } catch (\Throwable) {
+            return null;
+        }
+
+        $this->storeCookies($request, $domain, $response->toPsrResponse()->getHeader('Set-Cookie'));
+
+        if ($maxRedirects <= 0 || ! in_array($response->status(), [301, 302, 303, 307, 308], true)) {
+            return $response;
+        }
+
+        $location = $response->toPsrResponse()->getHeaderLine('Location');
+        if ($location === '') {
+            return $response;
+        }
+
+        $redirectUrl = (string) UriResolver::resolve(new Uri($url), new Uri($location));
+        $redirectHost = parse_url($redirectUrl, PHP_URL_HOST);
+        if (! is_string($redirectHost) || ! $this->isAllowedDomain($redirectHost)) {
+            return $response;
+        }
+
+        return $this->fetchRemote($request, $redirectHost, $redirectUrl, $maxRedirects - 1, $forceGet);
+    }
+
+    private function blockedResponse(string $domain, int $status, bool $isCloudflare): Response
+    {
+        $reason = $isCloudflare ? 'cloudflare' : 'blocked';
+        $message = $isCloudflare
+            ? 'This site is protected and blocks loading through proxy.'
+            : "The target site returned HTTP {$status}.";
+        $html = <<<HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: #f8f9fa;
+      font-family: system-ui, -apple-system, sans-serif;
+      color: #64748b;
+      text-align: center;
+      padding: 32px;
+    }
+    .wrap { max-width: 360px; }
+    .icon { font-size: 48px; margin-bottom: 16px; }
+    h2 { font-size: 18px; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+    p { font-size: 14px; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="icon">!</div>
+    <h2>Preview unavailable</h2>
+    <p>{$message} Try another domain.</p>
+  </div>
+  <script>window.parent.postMessage({type:'site-proxy-error',reason:'{$reason}',domain:'{$domain}'},'*')</script>
+</body>
+</html>
+HTML;
+
+        return response($html, 200, ['Content-Type' => 'text/html; charset=utf-8']);
+    }
+
+    private function rewriteHtml(string $html, string $domain): string
+    {
+        $prefix = "/site/{$domain}";
+        $escapedDomain = preg_quote($domain, '/');
+
+        $html = preg_replace('/<base[^>]*>/i', '', $html) ?? $html;
+
+        $html = preg_replace_callback(
+            "/https?:\\/\\/{$escapedDomain}(\\/|(?=[\"'`\\s>]))/i",
+            static fn (array $m): string => $m[1] === '/' ? "{$prefix}/" : $prefix,
+            $html
+        ) ?? $html;
+
+        $html = preg_replace(
+            '/((?:href|src|action|poster|data-[\w-]+)\s*=\s*["\'])\/(?!\/|site\/)/i',
+            '$1'.$prefix.'/',
+            $html
+        ) ?? $html;
+
+        $html = preg_replace(
+            '/(url\(\s*[\'"]?)\/(?!\/|site\/)/i',
+            '$1'.$prefix.'/',
+            $html
+        ) ?? $html;
+
+        $html = preg_replace_callback('/srcset\s*=\s*"([^"]*)"/i', static function (array $m) use ($prefix): string {
+            $rewritten = preg_replace('/(^|,\s*)\/(?!\/|site\/)/', '$1'.$prefix.'/', $m[1]) ?? $m[1];
+
+            return 'srcset="'.$rewritten.'"';
+        }, $html) ?? $html;
+
+        $html = preg_replace_callback(
+            '/(<script\b[^>]*>)([\s\S]*?)(<\/script>)/i',
+            static function (array $m) use ($prefix): string {
+                $code = preg_replace('/(["\'`])(\/(?:content|frontend|assets|_widget)\/)/', '$1'.$prefix.'$2', $m[2]) ?? $m[2];
+
+                return $m[1].$code.$m[3];
+            },
+            $html
+        ) ?? $html;
+
+        return $html;
+    }
+
+    private function rewriteTextAssets(string $body, string $domain): string
+    {
+        $prefix = "/site/{$domain}";
+
+        return preg_replace('/(url\(\s*[\'"]?)\/(?!\/)/i', '$1'.$prefix.'/', $body) ?? $body;
+    }
+
+    private function injectRuntimeScript(string $html, string $domain, ?string $injectScript): string
+    {
+        $runtime = $this->runtimeScript($domain);
+        $extra = $injectScript ?? '';
+        $injection = '<script>'.$runtime.$extra.'</script>';
+
+        if (Str::contains(Str::lower($html), '</body>')) {
+            return preg_replace('/<\/body>/i', $injection.'</body>', $html, 1) ?? ($html.$injection);
+        }
+
+        return $html.$injection;
+    }
+
+    private function runtimeScript(string $domain): string
+    {
+        $prefix = '/site/'.$domain;
+
+        return <<<JS
+(function(){
+  var PREFIX = "{$prefix}";
+  function rewriteUrl(input){
+    if (typeof input !== 'string') return input;
+    if (input.startsWith('//')) return input;
+    if (input.startsWith(PREFIX + '/')) return input;
+    if (input.startsWith('/')) return PREFIX + input;
+    var abs = input.match(/^https?:\/\/([^\/]+)(\/.*)?$/i);
+    if (abs && abs[1].toLowerCase() === "{$domain}".toLowerCase()) {
+      return PREFIX + (abs[2] || '/');
+    }
+    return input;
+  }
+  var nativeFetch = window.fetch;
+  if (nativeFetch) {
+    window.fetch = function(input, init){
+      if (typeof input === 'string') input = rewriteUrl(input);
+      else if (input && input.url) input = new Request(rewriteUrl(input.url), input);
+      return nativeFetch.call(this, input, init);
+    };
+  }
+  var nativeOpen = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open = function(method, url){
+    if (typeof url === 'string') url = rewriteUrl(url);
+    return nativeOpen.apply(this, [method, url].concat([].slice.call(arguments, 2)));
+  };
+  document.addEventListener('submit', function(e){
+    var form = e.target;
+    if (!form || !form.action) return;
+    form.action = rewriteUrl(form.action);
+  }, true);
+})();
+JS;
+    }
+
+    private function forwardSafeHeaders(HttpResponse $upstream, Response $response): void
+    {
+        $passthrough = ['Cache-Control', 'ETag', 'Last-Modified', 'Expires'];
+
+        foreach ($passthrough as $name) {
+            $value = $upstream->toPsrResponse()->getHeaderLine($name);
+            if ($value !== '') {
+                $response->headers->set($name, $value);
+            }
+        }
+    }
+
+    private function forwardCookies(Request $request, HttpResponse $upstream, Response $response, string $domain): void
+    {
+        $cookies = $upstream->toPsrResponse()->getHeader('Set-Cookie');
+        if ($cookies === []) {
+            return;
+        }
+
+        $this->storeCookies($request, $domain, $cookies);
+
+        foreach ($cookies as $cookie) {
+            $normalized = $this->normalizeSetCookie($cookie, $domain);
+            $response->headers->set('Set-Cookie', $normalized, false);
+        }
+    }
+
+    private function normalizeSetCookie(string $cookie, string $domain): string
+    {
+        $cookie = preg_replace('/;\s*domain=[^;]*/i', '', $cookie) ?? $cookie;
+        $cookie = preg_replace('/;\s*secure/i', '', $cookie) ?? $cookie;
+
+        if (preg_match('/;\s*path=[^;]*/i', $cookie) === 1) {
+            $cookie = preg_replace('/;\s*path=[^;]*/i', '; Path=/site/'.$domain.'/', $cookie) ?? $cookie;
+        } else {
+            $cookie .= '; Path=/site/'.$domain.'/';
+        }
+
+        if (preg_match('/;\s*samesite=[^;]*/i', $cookie) === 1) {
+            $cookie = preg_replace('/;\s*samesite=[^;]*/i', '; SameSite=Lax', $cookie) ?? $cookie;
+        } else {
+            $cookie .= '; SameSite=Lax';
+        }
+
+        return $cookie;
+    }
+
+    private function setCurrentPreviewDomain(Request $request, string $domain): void
+    {
+        $request->session()->put('site_proxy.current_domain', $domain);
+    }
+
+    private function getCurrentPreviewDomain(Request $request): ?string
+    {
+        $domain = $request->session()->get('site_proxy.current_domain');
+
+        return is_string($domain) && $domain !== '' ? $domain : null;
+    }
+
+    private function getCookieFromJar(Request $request, string $domain): string
+    {
+        $jar = $request->session()->get('site_proxy.cookies.'.$domain, []);
+        if (! is_array($jar) || $jar === []) {
+            return '';
+        }
+
+        $pairs = [];
+        foreach ($jar as $name => $value) {
+            if (is_string($name) && is_string($value) && $name !== '') {
+                $pairs[] = $name.'='.$value;
+            }
+        }
+
+        return implode('; ', $pairs);
+    }
+
+    /**
+     * @param list<string> $setCookieHeaders
+     */
+    private function storeCookies(Request $request, string $domain, array $setCookieHeaders): void
+    {
+        if ($setCookieHeaders === []) {
+            return;
+        }
+
+        $jar = $request->session()->get('site_proxy.cookies.'.$domain, []);
+        if (! is_array($jar)) {
+            $jar = [];
+        }
+
+        foreach ($setCookieHeaders as $header) {
+            if (! is_string($header)) {
+                continue;
+            }
+
+            if (preg_match('/^([^=;\s]+)=([^;]*)/i', $header, $m) !== 1) {
+                continue;
+            }
+
+            $name = trim($m[1]);
+            $value = $m[2];
+            if ($name === '') {
+                continue;
+            }
+
+            $jar[$name] = $value;
+        }
+
+        $request->session()->put('site_proxy.cookies.'.$domain, $jar);
+    }
+
+    private function putCookieToJar(Request $request, string $domain, string $name, string $value): void
+    {
+        $jar = $request->session()->get('site_proxy.cookies.'.$domain, []);
+        if (! is_array($jar)) {
+            $jar = [];
+        }
+
+        $jar[$name] = $value;
+        $request->session()->put('site_proxy.cookies.'.$domain, $jar);
+    }
+
+    /**
+     * @param list<string> $cookieParts
+     */
+    private function mergeCookies(array $cookieParts): string
+    {
+        $parts = [];
+        foreach ($cookieParts as $part) {
+            $part = trim($part);
+            if ($part !== '') {
+                $parts[] = $part;
+            }
+        }
+
+        return implode('; ', $parts);
+    }
+
+    private function loadInjectScript(?string $injectParam): ?string
+    {
+        if ($injectParam === null || trim($injectParam) === '') {
+            return null;
+        }
+
+        if (Str::contains($injectParam, ['..', '\\', "\0"])) {
+            return null;
+        }
+
+        $absolutePath = public_path($injectParam);
+        if (! is_file($absolutePath) || ! is_readable($absolutePath)) {
+            return null;
+        }
+
+        try {
+            $content = file_get_contents($absolutePath);
+        } catch (\Throwable) {
+            return null;
+        }
+
+        return is_string($content) ? $content : null;
+    }
+
+    private function isAllowedDomain(string $domain): bool
+    {
+        if (! Str::contains($domain, '.')) {
+            return false;
+        }
+
+        if (preg_match('/^\d{1,3}(\.\d{1,3}){3}$/', $domain) === 1) {
+            return false;
+        }
+
+        if (preg_match('/^\[|^::|^0x/i', $domain) === 1) {
+            return false;
+        }
+
+        $lower = Str::lower($domain);
+        if ($lower === 'localhost' || Str::endsWith($lower, '.localhost')) {
+            return false;
+        }
+
+        foreach (['.local', '.internal', '.test', '.invalid', '.example'] as $suffix) {
+            if (Str::endsWith($lower, $suffix)) {
+                return false;
+            }
+        }
+
+        if (Str::startsWith($lower, '169.254.') || $lower === 'metadata.google.internal') {
+            return false;
+        }
+
+        return true;
+    }
+}
