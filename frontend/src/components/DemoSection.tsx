@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { Eye, ArrowRight, Loader } from 'lucide-react'
 import { toast } from 'sonner'
 import { post } from '../api/client'
+import { LiveDemoModal } from './LiveDemoModal'
 import './DemoSection.css'
 
 const EXAMPLES = [
@@ -75,8 +75,9 @@ const TypewriterInput = forwardRef<HTMLInputElement, {
 export function DemoSection() {
   const [url, setUrl] = useState('')
   const [creating, setCreating] = useState(false)
+  const [demoCode, setDemoCode] = useState<string | null>(null)
+  const [showDemo, setShowDemo] = useState(false)
   const inputEl = useRef<HTMLInputElement>(null)
-  const navigate = useNavigate()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -90,8 +91,9 @@ export function DemoSection() {
 
     setCreating(true)
     try {
-      const res = await post<{ data: { code: string; link: string } }>('/demo-sessions', { domain })
-      navigate(`/live-demo?code=${res.data.code}`)
+      const res = await post<{ data: { code: string } }>('/demo-sessions', { domain })
+      setDemoCode(res.data.code)
+      setShowDemo(true)
     } catch (err) {
       toast.error((err as Error).message || 'Не вдалося створити демо')
     } finally {
@@ -135,6 +137,14 @@ export function DemoSection() {
           <p className="demo__hint">Без реєстрації · Результат за 10 секунд</p>
         </div>
       </div>
+
+      {demoCode && (
+        <LiveDemoModal
+          isOpen={showDemo}
+          onClose={() => setShowDemo(false)}
+          code={demoCode}
+        />
+      )}
     </section>
   )
 }

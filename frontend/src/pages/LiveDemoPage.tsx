@@ -12,7 +12,7 @@ import {
   Clock,
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { get, post } from '../api/client'
+import { get } from '../api/client'
 import { BRAND_NAME_UPPER } from '../constants/brand'
 import './LiveDemoPage.css'
 
