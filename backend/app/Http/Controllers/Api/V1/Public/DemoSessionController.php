@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 class DemoSessionController extends BaseController
@@ -62,8 +63,8 @@ class DemoSessionController extends BaseController
         $domain = preg_replace('#^https?://#', '', $domain);
         $domain = rtrim((string) $domain, '/');
 
-        if (! str_contains($domain, '.')) {
-            return $this->error('INVALID_DOMAIN', 'Please enter a valid domain.', 422);
+        if (! $this->isAllowedDomain($domain)) {
+            return $this->error('INVALID_DOMAIN', 'Please enter a valid public domain.', 422);
         }
 
         $modules = $this->getDefaultModules();
@@ -204,5 +205,41 @@ class DemoSessionController extends BaseController
         }
 
         return $modules;
+    }
+
+    /**
+     * Validate domain is a safe public domain (mirrors SiteProxyController logic).
+     */
+    private function isAllowedDomain(string $domain): bool
+    {
+        if (! Str::contains($domain, '.')) {
+            return false;
+        }
+
+        if (preg_match('/^\d{1,3}(\.\d{1,3}){3}$/', $domain) === 1) {
+            return false;
+        }
+
+        if (preg_match('/^\[|^::|^0x/i', $domain) === 1) {
+            return false;
+        }
+
+        $lower = Str::lower($domain);
+
+        if ($lower === 'localhost' || Str::endsWith($lower, '.localhost')) {
+            return false;
+        }
+
+        foreach (['.local', '.internal', '.test', '.invalid', '.example'] as $suffix) {
+            if (Str::endsWith($lower, $suffix)) {
+                return false;
+            }
+        }
+
+        if (Str::startsWith($lower, '169.254.') || $lower === 'metadata.google.internal') {
+            return false;
+        }
+
+        return true;
     }
 }

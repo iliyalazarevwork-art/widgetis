@@ -17,6 +17,7 @@ class DemoSessionsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn ($query) => $query->with('creator'))
             ->columns([
                 TextColumn::make('code')
                     ->searchable()

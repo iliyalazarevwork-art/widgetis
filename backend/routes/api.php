@@ -49,9 +49,9 @@ Route::prefix('v1')->group(function () {
     Route::post('manager-requests', [ManagerRequestController::class, 'store'])->middleware('throttle:3,60');
 
     // --- Demo sessions (public) ---
-    Route::get('demo-sessions/{code}', [DemoSessionController::class, 'show']);
+    Route::get('demo-sessions/{code}', [DemoSessionController::class, 'show'])->middleware('throttle:30,1');
     Route::post('demo-sessions', [DemoSessionController::class, 'store'])->middleware('throttle:5,60');
-    Route::post('demo-build', [DemoSessionController::class, 'build']);
+    Route::post('demo-build', [DemoSessionController::class, 'build'])->middleware('throttle:20,1');
 
     // --- Auth (public) ---
     Route::prefix('auth')->group(function () {
