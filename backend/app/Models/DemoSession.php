@@ -4,12 +4,19 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Str;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property Carbon|null $expires_at
+ */
 class DemoSession extends Model
 {
+    /** Characters without ambiguous glyphs (no I, L, O, 0, 1) */
+    private const CODE_CHARSET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+
     /** @var list<string> */
     protected $fillable = [
         'code', 'domain', 'config', 'created_by', 'view_count', 'expires_at',
@@ -32,8 +39,32 @@ class DemoSession extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public static function generateCode(): string
+    /**
+     * @param Builder<self> $query
+     * @return Builder<self>
+     */
+    public function scopeActive(Builder $query): Builder
     {
-        return strtoupper(Str::random(8));
+        return $query->where('expires_at', '>', now());
+    }
+
+    public function isExpired(): bool
+    {
+        return $this->expires_at !== null && $this->expires_at->isPast();
+    }
+
+    public static function generateCode(int $length = 6): string
+    {
+        $chars = self::CODE_CHARSET;
+        $max = strlen($chars) - 1;
+
+        do {
+            $code = '';
+            for ($i = 0; $i < $length; $i++) {
+                $code .= $chars[random_int(0, $max)];
+            }
+        } while (self::where('code', $code)->exists());
+
+        return $code;
     }
 }

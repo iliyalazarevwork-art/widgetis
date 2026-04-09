@@ -32,6 +32,22 @@ Each step has:
 
 Use it as a reference when the step guide says "follow the same pattern."
 
+## Step workflow
+
+At every step boundary follow this order — do NOT skip any part:
+
+1. **Before starting a step** — recommend which model (`opus` / `sonnet` / `haiku`) is best suited for the upcoming work so the user can switch if needed.
+2. **After completing a step** — run `git commit` with a conventional commit message (`feat:`, `fix:`, `chore:`, `refactor:`, `docs:`).
+3. **After committing** — launch subagents to review the completed work across:
+   - Code quality & style
+   - Security vulnerabilities
+   - Bugs & logic errors
+   - Architecture & structure analysis
+
+   Choose the effort level (`quick` / `medium` / `very thorough`) **independently** for each subagent based on complexity and risk:
+   - Simple infrastructure / config steps → `quick`
+   - Auth / payments / security steps → `very thorough`
+
 ## Rules
 
 ### Docker — always

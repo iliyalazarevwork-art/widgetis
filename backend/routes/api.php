@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\V1\Profile\SubscriptionController;
 use App\Http\Controllers\Api\V1\Profile\WidgetController;
 use App\Http\Controllers\Api\V1\Public\CaseController;
 use App\Http\Controllers\Api\V1\Public\ConsultationController;
+use App\Http\Controllers\Api\V1\Public\DemoSessionController;
 use App\Http\Controllers\Api\V1\Public\FaqController;
 use App\Http\Controllers\Api\V1\Public\ManagerRequestController;
 use App\Http\Controllers\Api\V1\Public\PlanController;
@@ -46,6 +47,11 @@ Route::prefix('v1')->group(function () {
     Route::get('faq', [FaqController::class, 'index']);
     Route::post('consultations', [ConsultationController::class, 'store'])->middleware('throttle:3,60');
     Route::post('manager-requests', [ManagerRequestController::class, 'store'])->middleware('throttle:3,60');
+
+    // --- Demo sessions (public) ---
+    Route::get('demo-sessions/{code}', [DemoSessionController::class, 'show']);
+    Route::post('demo-sessions', [DemoSessionController::class, 'store'])->middleware('throttle:5,60');
+    Route::post('demo-build', [DemoSessionController::class, 'build']);
 
     // --- Auth (public) ---
     Route::prefix('auth')->group(function () {
@@ -102,5 +108,6 @@ Route::prefix('v1')->group(function () {
         Route::get('sites', [Admin\SiteController::class, 'index']);
         Route::get('sites/{id}', [Admin\SiteController::class, 'show']);
         Route::put('sites/{siteId}/widgets/{productId}', [Admin\SiteController::class, 'updateWidget']);
+        Route::post('demo-sessions', [Admin\DemoSessionController::class, 'store']);
     });
 });

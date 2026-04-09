@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react'
-import { Link } from 'react-router-dom'
-import { Eye, ArrowRight } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Eye, ArrowRight, Loader } from 'lucide-react'
+import { toast } from 'sonner'
+import { post } from '../api/client'
 import './DemoSection.css'
 
 const EXAMPLES = [
@@ -12,7 +14,8 @@ const EXAMPLES = [
 const TypewriterInput = forwardRef<HTMLInputElement, {
   value: string
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-}>(function TypewriterInput({ value, onChange }, externalRef) {
+  disabled?: boolean
+}>(function TypewriterInput({ value, onChange, disabled }, externalRef) {
   const [placeholder, setPlaceholder] = useState('')
   const [exampleIdx, setExampleIdx] = useState(0)
   const [charIdx, setCharIdx] = useState(0)
@@ -57,6 +60,7 @@ const TypewriterInput = forwardRef<HTMLInputElement, {
         value={value}
         onChange={onChange}
         placeholder=""
+        disabled={disabled}
       />
       {!value && (
         <span className="demo__placeholder" onClick={() => inputRef.current?.focus()}>
@@ -70,7 +74,30 @@ const TypewriterInput = forwardRef<HTMLInputElement, {
 
 export function DemoSection() {
   const [url, setUrl] = useState('')
+  const [creating, setCreating] = useState(false)
   const inputEl = useRef<HTMLInputElement>(null)
+  const navigate = useNavigate()
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+
+    const domain = url.trim()
+    if (!domain) {
+      toast.error('Введіть адресу сайту')
+      inputEl.current?.focus()
+      return
+    }
+
+    setCreating(true)
+    try {
+      const res = await post<{ data: { code: string; link: string } }>('/demo-sessions', { domain })
+      navigate(`/live-demo?code=${res.data.code}`)
+    } catch (err) {
+      toast.error((err as Error).message || 'Не вдалося створити демо')
+    } finally {
+      setCreating(false)
+    }
+  }
 
   return (
     <section className="demo">
@@ -80,26 +107,32 @@ export function DemoSection() {
 
           <div className="demo__badge">
             <Eye size={14} strokeWidth={2} />
-            <span>Готові спробувати?</span>
+            <span>Безкоштовне демо</span>
           </div>
 
           <h2 className="demo__title">
-            Віджети для <span className="demo__accent">вашого</span> магазину
+            Віджети на <span className="demo__accent">вашому</span> сайті
           </h2>
 
           <p className="demo__instruction">
-            Оберіть пакет — і встановіть на сайт за 5 хвилин
+            Введіть адресу магазину — побачите віджети в дії за 10 секунд
           </p>
 
-          <div className="demo__input-wrap">
-            <TypewriterInput ref={inputEl} value={url} onChange={(e) => setUrl(e.target.value)} />
-            <Link to="/pricing" className="demo__submit">
-              <span>Купити</span>
-              <ArrowRight size={16} strokeWidth={2.5} />
-            </Link>
-          </div>
+          <form className="demo__input-wrap" onSubmit={handleSubmit}>
+            <TypewriterInput ref={inputEl} value={url} onChange={(e) => setUrl(e.target.value)} disabled={creating} />
+            <button type="submit" className="demo__submit" disabled={creating}>
+              {creating ? (
+                <Loader size={16} strokeWidth={2} className="demo__spinner" />
+              ) : (
+                <>
+                  <span>Спробувати</span>
+                  <ArrowRight size={16} strokeWidth={2.5} />
+                </>
+              )}
+            </button>
+          </form>
 
-          <p className="demo__hint">7 днів безкоштовно · Без реєстрації</p>
+          <p className="demo__hint">Без реєстрації · Результат за 10 секунд</p>
         </div>
       </div>
     </section>

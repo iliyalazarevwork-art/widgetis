@@ -102,6 +102,8 @@ export function AdminConfiguratorPage() {
   const [buildError, setBuildError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [obfuscate, setObfuscate] = useState(true)
+  const [creatingDemo, setCreatingDemo] = useState(false)
+  const [demoLink, setDemoLink] = useState<string | null>(null)
 
   const [previewOpen, setPreviewOpen] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string>('')
@@ -295,6 +297,47 @@ export function AdminConfiguratorPage() {
       setPreviewOpen(true)
     } else {
       loadPreview()
+    }
+  }
+
+  // ─── Create demo link ──────────────────────────────────────────────
+
+  async function createDemoLink() {
+    if (!previewUrl.trim()) { toast.error('Введіть URL сайту'); return }
+    setCreatingDemo(true)
+    try {
+      const domain = previewUrl.replace(/^https?:\/\//, '').replace(/\/.*$/, '')
+      const modules: Record<string, { config: Record<string, unknown>; i18n: Record<string, unknown> }> = {}
+      for (const id of moduleIds) {
+        const st = moduleStates[id]
+        if (!st) continue
+        modules[id] = { config: deepClone(st.config), i18n: deepClone(st.i18n) }
+      }
+
+      const BASE = (import.meta.env.VITE_API_BASE_URL || '/api/v1').replace(/\/+$/, '')
+      const token = localStorage.getItem('wty_token')
+      const res = await fetch(`${BASE}/admin/demo-sessions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ domain, config: { modules } }),
+      })
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error((err as { error?: { message?: string } })?.error?.message || `HTTP ${res.status}`)
+      }
+
+      const json = await res.json() as { data: { link: string; code: string } }
+      setDemoLink(json.data.link)
+      await navigator.clipboard.writeText(json.data.link).catch(() => {})
+      toast.success(`Демо створено! Код: ${json.data.code}`)
+    } catch (err) {
+      toast.error((err as Error).message || 'Помилка створення демо')
+    } finally {
+      setCreatingDemo(false)
     }
   }
 
@@ -514,9 +557,18 @@ export function AdminConfiguratorPage() {
               {copied ? 'Скопійовано' : 'Копіювати'}
             </button>
           </div>
-          <button type="button" className="cfg-m__action-demo" onClick={() => toast.info('Демо-посилання (TODO)')}>
-            <Play size={13} strokeWidth={2} /> Демо-посилання
+          <button type="button" className="cfg-m__action-demo" onClick={createDemoLink} disabled={creatingDemo}>
+            {creatingDemo ? <Loader size={13} strokeWidth={2} className="cfg-m__spin" /> : <Play size={13} strokeWidth={2} />}
+            {creatingDemo ? 'Створення...' : 'Демо-посилання'}
           </button>
+          {demoLink && (
+            <div className="cfg-m__demo-link-banner">
+              <a href={demoLink} target="_blank" rel="noopener noreferrer">{demoLink}</a>
+              <button type="button" onClick={async () => { await navigator.clipboard.writeText(demoLink); toast.success('Скопійовано') }}>
+                <Copy size={12} strokeWidth={2} />
+              </button>
+            </div>
+          )}
           {buildError && <div className="cfg-m__build-error">Помилка: {buildError}</div>}
         </div>
 

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\DemoSessions\Tables;
 
+use App\Models\DemoSession;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use App\Models\DemoSession;
 use Illuminate\Support\Carbon;
 
 class DemoSessionsTable
@@ -20,7 +20,10 @@ class DemoSessionsTable
             ->columns([
                 TextColumn::make('code')
                     ->searchable()
-                    ->fontFamily('mono'),
+                    ->fontFamily('mono')
+                    ->copyable()
+                    ->copyableState(fn (DemoSession $record): string => rtrim((string) config('app.frontend_url', config('app.url')), '/')."/live-demo?code={$record->code}")
+                    ->tooltip('Click to copy demo link'),
                 TextColumn::make('domain')
                     ->searchable(),
                 TextColumn::make('creator.name')

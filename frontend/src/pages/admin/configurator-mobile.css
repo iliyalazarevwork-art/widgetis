@@ -1043,6 +1043,45 @@
 .cfg-m__action-demo:hover {
   background: #A855F730;
 }
+.cfg-m__action-demo:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cfg-m__demo-link-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #A855F715;
+  border: 1px solid #A855F730;
+}
+.cfg-m__demo-link-banner a {
+  flex: 1;
+  color: #A855F7;
+  font-size: 12px;
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cfg-m__demo-link-banner a:hover {
+  text-decoration: underline;
+}
+.cfg-m__demo-link-banner button {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: #A855F720;
+  color: #A855F7;
+  cursor: pointer;
+}
 
 .cfg-m__build-error {
   padding: 8px 12px;

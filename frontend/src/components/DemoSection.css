@@ -158,6 +158,20 @@
   animation: none;
 }
 
+.demo__submit:disabled {
+  opacity: 0.7;
+  cursor: wait;
+  animation: none;
+}
+
+.demo__spinner {
+  animation: demo-spin 1s linear infinite;
+}
+
+@keyframes demo-spin {
+  to { transform: rotate(360deg); }
+}
+
 @keyframes demo-cta-pulse {
   0%, 100% { box-shadow: 0 6px 28px rgba(50, 255, 182, 0.3), 0 0 0 2px rgba(50, 255, 182, 0.12); }
   50%      { box-shadow: 0 8px 40px rgba(50, 255, 182, 0.45), 0 0 0 5px rgba(50, 255, 182, 0.08); }
