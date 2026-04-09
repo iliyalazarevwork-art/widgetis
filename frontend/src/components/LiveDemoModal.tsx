@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   X,
-  Loader,
   AlertCircle,
-  ToggleLeft,
-  ToggleRight,
   ExternalLink,
-  ArrowRight,
+  ChevronUp,
+  ChevronDown,
+  Zap,
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { Link } from 'react-router-dom'
 import { get } from '../api/client'
 import { BRAND_NAME_UPPER } from '../constants/brand'
 import './LiveDemoModal.css'
@@ -24,7 +24,6 @@ interface DemoSessionData {
 interface LiveDemoModalProps {
   isOpen: boolean
   onClose: () => void
-  /** Pre-created session code (from POST /demo-sessions) */
   code: string
 }
 
@@ -43,6 +42,7 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
   const [enabledWidgets, setEnabledWidgets] = useState<Set<string>>(new Set())
   const [building, setBuilding] = useState(false)
   const [iframeLoaded, setIframeLoaded] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(true)
 
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const widgetJsRef = useRef<string | null>(null)
@@ -52,8 +52,6 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
   // ─── Load session ──────────────────────────────────────────────────
   useEffect(() => {
     if (!isOpen || !code) return
-
-    // Reset state for new session
     setDemo(null)
     setLoading(true)
     setError(null)
@@ -70,7 +68,7 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
       .finally(() => setLoading(false))
   }, [isOpen, code])
 
-  // ─── Script injection ──────────────────────────────────────────────
+  // ─── Injection ─────────────────────────────────────────────────────
   const injectScript = useCallback((js: string) => {
     const frame = iframeRef.current
     if (!frame) return
@@ -84,12 +82,14 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
     ;(doc.body || doc.documentElement).appendChild(s)
   }, [])
 
-  // ─── Build widgets ─────────────────────────────────────────────────
+  // ─── Build ─────────────────────────────────────────────────────────
   const buildWidgets = useCallback(
     (widgetIds: string[]) => {
-      if (!code) return
+      if (!code || widgetIds.length === 0) {
+        widgetJsRef.current = null
+        return
+      }
       setBuilding(true)
-
       const BASE = (import.meta.env.VITE_API_BASE_URL || '/api/v1').replace(/\/+$/, '')
       fetch(`${BASE}/demo-build`, {
         method: 'POST',
@@ -103,7 +103,6 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
         .then((js) => {
           widgetJsRef.current = js
           injectedRef.current = false
-          // Inject immediately if iframe is ready
           if (iframeLoaded) {
             injectScript(js)
             injectedRef.current = true
@@ -115,7 +114,6 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
     [code, iframeLoaded, injectScript],
   )
 
-  // Build on first load when demo data arrives
   useEffect(() => {
     if (demo && enabledWidgets.size > 0 && isOpen) {
       buildWidgets([...enabledWidgets])
@@ -123,7 +121,6 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [demo])
 
-  // Inject when iframe finishes loading
   useEffect(() => {
     if (iframeLoaded && widgetJsRef.current && !injectedRef.current) {
       injectScript(widgetJsRef.current)
@@ -131,136 +128,163 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
     }
   }, [iframeLoaded, injectScript])
 
-  // ─── Toggle widget ─────────────────────────────────────────────────
+  // ─── Toggle ────────────────────────────────────────────────────────
   const handleToggle = (widgetId: string) => {
     setEnabledWidgets((prev) => {
       const next = new Set(prev)
       if (next.has(widgetId)) next.delete(widgetId)
       else next.add(widgetId)
-
       if (buildTimerRef.current) clearTimeout(buildTimerRef.current)
-      buildTimerRef.current = setTimeout(() => {
-        buildWidgets([...next])
-      }, 400)
-
+      buildTimerRef.current = setTimeout(() => buildWidgets([...next]), 400)
       return next
     })
   }
 
-  // ─── Close ─────────────────────────────────────────────────────────
   const handleClose = () => {
     if (buildTimerRef.current) clearTimeout(buildTimerRef.current)
     onClose()
   }
 
-  // Lock body scroll when open
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden'
-    }
-    return () => {
-      document.body.style.overflow = ''
-    }
+    if (isOpen) document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = '' }
   }, [isOpen])
 
   if (!isOpen) return null
 
   const moduleIds = demo ? Object.keys(demo.config.modules) : []
+  const enabledCount = enabledWidgets.size
+  const totalCount = moduleIds.length
+
+  // ─── Widget list (shared between desktop & mobile) ─────────────────
+  const widgetList = moduleIds.map((id) => {
+    const slug = id.replace('module-', '')
+    const on = enabledWidgets.has(slug)
+    return (
+      <div
+        key={id}
+        className={`dm-widget-item ${on ? 'dm-widget-item--active' : ''}`}
+        onClick={() => handleToggle(slug)}
+      >
+        <div className="dm-widget-text">
+          <div className="dm-widget-name">{moduleLabel(id)}</div>
+        </div>
+        <label className="dm-toggle" onClick={(e) => e.stopPropagation()}>
+          <input type="checkbox" checked={on} onChange={() => handleToggle(slug)} />
+          <span className="dm-toggle-track" />
+        </label>
+      </div>
+    )
+  })
+
+  // ─── Loading / Error ───────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="dm-overlay" onClick={handleClose}>
+        <div className="dm-page" onClick={(e) => e.stopPropagation()}>
+          <div className="dm-center">
+            <div className="dm-spinner-big" />
+            <div className="dm-loading-text">Завантаження демо...</div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !demo) {
+    return (
+      <div className="dm-overlay" onClick={handleClose}>
+        <div className="dm-page" onClick={(e) => e.stopPropagation()}>
+          <div className="dm-center">
+            <AlertCircle size={48} strokeWidth={1.5} />
+            <div className="dm-error-title">Демо недоступне</div>
+            <p className="dm-loading-text">{error || 'Невідома помилка'}</p>
+            <button className="dm-close-error" onClick={handleClose}>Закрити</button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="demo-modal__overlay" onClick={handleClose}>
-      <div className="demo-modal" onClick={(e) => e.stopPropagation()}>
-        {/* ── Header ── */}
-        <header className="demo-modal__header">
-          <div className="demo-modal__header-left">
-            <span className="demo-modal__logo">{BRAND_NAME_UPPER}</span>
-            {demo && (
-              <>
-                <span className="demo-modal__divider" />
-                <span className="demo-modal__domain">{demo.domain}</span>
-              </>
-            )}
-          </div>
-          <div className="demo-modal__header-right">
-            {demo && (
-              <a
-                className="demo-modal__btn-icon"
-                href={`https://${demo.domain}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Відкрити сайт"
-              >
-                <ExternalLink size={16} />
-              </a>
-            )}
-            <button className="demo-modal__btn-icon" onClick={handleClose} aria-label="Закрити">
-              <X size={18} />
-            </button>
-          </div>
-        </header>
+    <div className="dm-overlay">
+      <div className="dm-page">
+        {/* Close button */}
+        <button className="dm-close-btn" onClick={handleClose} aria-label="Закрити">
+          <X size={20} />
+        </button>
 
-        {/* ── Content ── */}
-        <div className="demo-modal__content">
-          {loading && (
-            <div className="demo-modal__status">
-              <Loader className="demo-modal__spinner" size={28} />
-              <p>Завантаження демо…</p>
+        {/* ── Iframe area ── */}
+        <div className="dm-iframe-area">
+          <iframe
+            ref={iframeRef}
+            className="dm-iframe"
+            src={`/site/${demo.domain}/?v=mobile`}
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+            onLoad={() => setIframeLoaded(true)}
+            title={`Preview of ${demo.domain}`}
+          />
+          {building && (
+            <div className="dm-iframe-loading">
+              <div className="dm-spinner-big" />
+              <span>Застосовуємо віджети...</span>
             </div>
           )}
+        </div>
 
-          {error && (
-            <div className="demo-modal__status">
-              <AlertCircle size={40} strokeWidth={1.5} />
-              <p>{error}</p>
+        {/* ── Desktop sidebar ── */}
+        <div className="dm-panel">
+          <div className="dm-panel-header">
+            <div className="dm-panel-brand">
+              <Zap size={18} />
+              <span>{BRAND_NAME_UPPER}</span>
             </div>
-          )}
+            <div className="dm-panel-domain">
+              <ExternalLink size={12} />
+              {demo.domain}
+            </div>
+          </div>
 
-          {demo && !loading && !error && (
-            <>
-              {/* Widget toggles */}
-              <aside className="demo-modal__panel">
-                <div className="demo-modal__panel-title">
-                  <span>Віджети</span>
-                  {building && <Loader className="demo-modal__mini-spin" size={14} />}
-                </div>
-                <div className="demo-modal__widget-list">
-                  {moduleIds.map((id) => {
-                    const slug = id.replace('module-', '')
-                    const on = enabledWidgets.has(slug)
-                    return (
-                      <button
-                        key={id}
-                        className={`demo-modal__widget-btn ${on ? 'demo-modal__widget-btn--on' : ''}`}
-                        onClick={() => handleToggle(slug)}
-                        type="button"
-                      >
-                        {on ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}
-                        <span>{moduleLabel(id)}</span>
-                      </button>
-                    )
-                  })}
-                </div>
-                <a href="/pricing" className="demo-modal__cta" onClick={handleClose}>
-                  Спробувати безкоштовно <ArrowRight size={14} />
-                </a>
-              </aside>
+          <div className="dm-panel-status">
+            <span className="dm-panel-status-dot" />
+            <span>{enabledCount} з {totalCount} активно</span>
+            {building && <div className="dm-building-spinner" />}
+          </div>
 
-              {/* Site preview */}
-              <div className="demo-modal__preview">
-                <div className="demo-modal__browser-bar">
-                  <div className="demo-modal__dots"><span /><span /><span /></div>
-                  <span className="demo-modal__url">🔒 {demo.domain}</span>
-                </div>
-                <iframe
-                  ref={iframeRef}
-                  className="demo-modal__iframe"
-                  src={`/site/${demo.domain}/?v=mobile`}
-                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-                  onLoad={() => setIframeLoaded(true)}
-                  title={`Preview of ${demo.domain}`}
-                />
+          <div className="dm-widget-list">{widgetList}</div>
+
+          <div className="dm-panel-footer">
+            <div className="dm-panel-hint">Всі кольори та розташування налаштовуються</div>
+            <Link to="/pricing" className="dm-cta-btn" onClick={handleClose}>
+              <Zap size={16} />
+              Замовити віджети
+            </Link>
+          </div>
+        </div>
+
+        {/* ── Mobile bottom bar + sheet ── */}
+        <div className="dm-mobile-wrap">
+          {!mobileOpen ? (
+            <div className="dm-mobile-bar" onClick={() => setMobileOpen(true)}>
+              <span className="dm-mobile-bar-text">
+                {building ? 'Оновлення...' : `${enabledCount} з ${totalCount} віджетів`}
+              </span>
+              <ChevronUp size={20} className="dm-mobile-bar-arrow" />
+            </div>
+          ) : (
+            <div className="dm-mobile-sheet">
+              <div className="dm-mobile-sheet-handle" onClick={() => setMobileOpen(false)}>
+                <ChevronDown size={20} />
+                <span>Згорнути</span>
               </div>
-            </>
+              <div className="dm-mobile-sheet-list">{widgetList}</div>
+              <div className="dm-panel-footer">
+                <Link to="/pricing" className="dm-cta-btn" onClick={handleClose}>
+                  <Zap size={16} />
+                  Замовити віджети
+                </Link>
+              </div>
+            </div>
           )}
         </div>
       </div>
