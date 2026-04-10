@@ -11,6 +11,8 @@ import { toast } from 'sonner'
 import { Link } from 'react-router-dom'
 import { get } from '../api/client'
 import { BRAND_NAME } from '../constants/brand'
+import { widgets as widgetCatalog } from '../data/widgets'
+import { WidgetIcon } from './WidgetIcon'
 import './LiveDemoModal.css'
 
 interface DemoSessionData {
@@ -33,6 +35,14 @@ function moduleLabel(id: string): string {
     .split('-')
     .map((w) => w[0].toUpperCase() + w.slice(1))
     .join(' ')
+}
+
+function getWidgetMeta(slug: string): { title: string; icon: string } {
+  const w = widgetCatalog.find((x) => x.id === slug)
+  return {
+    title: w?.title ?? moduleLabel(`module-${slug}`),
+    icon: w?.icon ?? 'wrench',
+  }
 }
 
 export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
@@ -191,14 +201,16 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
   const widgetList = moduleIds.map((id) => {
     const slug = id.replace('module-', '')
     const on = enabledWidgets.has(slug)
+    const meta = getWidgetMeta(slug)
     return (
       <div
         key={id}
         className={`dm-widget-item ${on ? 'dm-widget-item--active' : ''}`}
         onClick={() => handleToggle(slug)}
       >
+        <WidgetIcon name={meta.icon} size={18} />
         <div className="dm-widget-text">
-          <div className="dm-widget-name">{moduleLabel(id)}</div>
+          <div className="dm-widget-name">{meta.title}</div>
         </div>
         <label className="dm-toggle" onClick={(e) => e.stopPropagation()}>
           <input type="checkbox" checked={on} onChange={() => handleToggle(slug)} />
@@ -320,7 +332,7 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
 
             <div className="dm-panel-footer">
               <div className="dm-panel-hint">Всі кольори та розташування налаштовуються</div>
-              <Link to="/pricing" className="dm-cta-btn" onClick={handleClose}>
+              <Link to="/signup" className="dm-cta-btn" onClick={handleClose}>
                 <Zap size={15} />
                 Замовити віджети
               </Link>
@@ -344,7 +356,7 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
                 </div>
                 <div className="dm-mobile-sheet-list">{widgetList}</div>
                 <div className="dm-panel-footer">
-                  <Link to="/pricing" className="dm-cta-btn" onClick={handleClose}>
+                  <Link to="/signup" className="dm-cta-btn" onClick={handleClose}>
                     <Zap size={15} />
                     Замовити віджети
                   </Link>

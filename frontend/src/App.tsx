@@ -284,7 +284,6 @@ function App() {
             <Route path="/cases" element={<CasesPage />} />
             <Route path="/widgets/:slug" element={<WidgetDetailPage />} />
             <Route path="/demo" element={<DemoPage />} />
-            <Route path="/live-demo" element={<LiveDemoPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/login/otp" element={<LoginOtpPage />} />
@@ -302,6 +301,7 @@ function App() {
           </Route>
 
           <Route path="/signup/success" element={<TrialSuccessPage />} />
+          <Route path="/live-demo" element={<LiveDemoPage />} />
 
           <Route
             path="/cabinet/choose-plan"
