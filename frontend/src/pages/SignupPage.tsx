@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Helmet } from 'react-helmet-async'
+import { SeoHead } from '../components/SeoHead'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -447,10 +447,12 @@ export function SignupPage() {
 
   return (
     <>
-      <Helmet>
-        <title>Початок тріалу — Widgetis</title>
-        <meta name="description" content="Зареєструйтесь та отримайте 7 днів безкоштовного доступу." />
-      </Helmet>
+      <SeoHead
+        title="Початок тріалу — widgetis | 7 днів безкоштовно"
+        description="Зареєструйтесь у widgetis та отримайте 7 днів безкоштовного доступу до всіх віджетів. Без прив'язки картки."
+        path="/signup"
+        noindex
+      />
 
       <div className="signup">
         <div className="signup__container">

@@ -80,7 +80,7 @@ const TESTIMONIALS: Testimonial[] = [
     quote: 'Протестили — все круто. Встановили швидко, без програміста.',
     owner: 'Денис',
     role: 'Власник',
-    avatar: '/reviews/denis-ballistic.jpg',
+    avatar: '/reviews/denis-ballistic.webp',
     rating: 5,
     store: 'ballistic.com.ua',
     storeUrl: 'https://ballistic.com.ua/',
@@ -94,7 +94,7 @@ const TESTIMONIALS: Testimonial[] = [
     quote: 'Задоволений на 100%. Підібрали віджети саме під нашу нішу.',
     owner: 'Ігор',
     role: 'Власник',
-    avatar: '/reviews/igor-ptashkinsad.jpg',
+    avatar: '/reviews/igor-ptashkinsad.webp',
     rating: 5,
     store: 'ptashkinsad.com',
     storeUrl: 'https://ptashkinsad.com/',
@@ -108,7 +108,7 @@ const TESTIMONIALS: Testimonial[] = [
     quote: 'Поставили — і одразу бачимо віддачу від відвідувачів.',
     owner: 'Олександр',
     role: 'Власник',
-    avatar: '/reviews/Alex.jpg',
+    avatar: '/reviews/Alex.webp',
     rating: 5,
     store: 'shop.aquamyrgorod.com.ua',
     storeUrl: 'https://shop.aquamyrgorod.com.ua/',
@@ -122,7 +122,7 @@ const TESTIMONIALS: Testimonial[] = [
     quote: 'Віджет "Дата доставки" зайшов прям ідеально під наш магазин.',
     owner: 'Катерина',
     role: 'Власниця',
-    avatar: '/reviews/kate.png',
+    avatar: '/reviews/kate.webp',
     rating: 5,
     store: 'zoo-vet.com.ua',
     storeUrl: 'https://zoo-vet.com.ua/',
@@ -249,7 +249,7 @@ export function Testimonials() {
 
                 <div className="tst__author">
                   {t.avatar ? (
-                    <img src={t.avatar} alt={t.owner} className="tst__avatar" />
+                    <img src={t.avatar} alt={t.owner} className="tst__avatar" loading="lazy" decoding="async" width="64" height="64" />
                   ) : (
                     <div className="tst__avatar tst__avatar--ph">
                       {t.owner.charAt(0)}

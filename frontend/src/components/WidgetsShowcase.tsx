@@ -66,7 +66,7 @@ function SlidePtashkin() {
         </div>
         <div className="wss__product">
           <div className="wss__product-img wss__product-img--ptashkin">
-            <img src="/showcase/ptashkin-pure.jpg" alt="Pure крем" className="wss__product-photo" />
+            <img src="/showcase/ptashkin-pure.webp" alt="Pure крем" className="wss__product-photo" loading="lazy" decoding="async" width="600" height="600" />
           </div>
           <div className="wss__product-info">
             <p className="wss__product-title wss__product-title--ptashkin">Крем-бустер Pure</p>
@@ -75,7 +75,7 @@ function SlidePtashkin() {
               <span className="wss__price wss__price--ptashkin">1 195 грн</span>
             </div>
             <div className="wss__dd">
-              <img src={NP_LOGO} className="wss__dd-logo" alt="Нова Пошта" />
+              <img src={NP_LOGO} className="wss__dd-logo" alt="Нова Пошта" loading="lazy" decoding="async" width="40" height="40" />
               <span className="wss__dd-text--ptashkin">Завтра, <strong>{getTomorrow()}</strong></span>
             </div>
             <button
@@ -160,7 +160,7 @@ function SlideBeniHome() {
         </div>
         <div className="wss__product">
           <div className="wss__product-img wss__product-img--beni">
-            <img src="/showcase/beni-satin.jpg" alt="Постільна білизна" className="wss__product-photo" />
+            <img src="/showcase/beni-satin.webp" alt="Постільна білизна" className="wss__product-photo" loading="lazy" decoding="async" width="600" height="600" />
             <span className="wss__badge-discount">-30%</span>
           </div>
           <div className="wss__product-info">
@@ -185,7 +185,17 @@ function SlideBeniHome() {
           ВІДЕО ТОВАРУ
         </div>
         <div className="wss__video-circle wss__video-circle--beni">
-          <video src="/showcase/beni-video.mp4" autoPlay muted loop playsInline />
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-label="Демонстрація товару BENI — постільна білизна"
+          >
+            <source src="/showcase/beni-video.webm" type="video/webm" />
+            <source src="/showcase/beni-video.mp4" type="video/mp4" />
+          </video>
           <div className="wss__video-pulse" />
         </div>
       </div>
@@ -225,7 +235,7 @@ function SlideBallistic() {
         </div>
         <div className="wss__product">
           <div className="wss__product-img wss__product-img--ballistic">
-            <img src="/showcase/ballistic-jacket.jpg" alt="Куртка ECWCS" className="wss__product-photo" />
+            <img src="/showcase/ballistic-jacket.webp" alt="Куртка ECWCS" className="wss__product-photo" loading="lazy" decoding="async" width="600" height="600" />
           </div>
           <div className="wss__product-info">
             <p className="wss__product-title wss__product-title--ballistic">Куртка ECWCS L5 Soft Shell</p>

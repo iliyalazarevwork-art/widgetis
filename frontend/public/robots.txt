@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /cabinet
+Disallow: /cabinet/
+Disallow: /onboarding
+Disallow: /login
+Disallow: /login/
+Disallow: /signup/success
+Disallow: /checkout
+Disallow: /checkout/
+Disallow: /api/
+
+Sitemap: https://widgetis.com/sitemap.xml

@@ -21,7 +21,7 @@ const CASES: Case[] = [
     widgets: ['Комплект віджетів'],
     rating: 5,
     quote: 'Працює! Дякую! Протестивши — все круто.',
-    avatar: '/reviews/denis-ballistic.jpg',
+    avatar: '/reviews/denis-ballistic.webp',
   },
   {
     store: 'ptashkinsad.com',
@@ -31,7 +31,7 @@ const CASES: Case[] = [
     widgets: ['Комплект віджетів'],
     rating: 5,
     quote: 'Задоволений на 100% результатом.',
-    avatar: '/reviews/igor-ptashkinsad.jpg',
+    avatar: '/reviews/igor-ptashkinsad.webp',
   },
   {
     store: 'shop.aquamyrgorod.com.ua',
@@ -41,7 +41,7 @@ const CASES: Case[] = [
     widgets: ['Комплект віджетів'],
     rating: 5,
     quote: 'Супер. Як на мене, то чудова пропозиція.',
-    avatar: '/reviews/Alex.jpg',
+    avatar: '/reviews/Alex.webp',
   },
   {
     store: 'maroda.com.ua',
@@ -60,7 +60,7 @@ const CASES: Case[] = [
     widgets: ['Дата доставки'],
     rating: 4,
     quote: 'Виглядає гуд, дуже дякую!',
-    avatar: '/reviews/kate.png',
+    avatar: '/reviews/kate.webp',
   },
   {
     store: 'kr.kyiv.ua',
@@ -110,7 +110,7 @@ export function Cases() {
             <div className="case__footer">
               <div className="case__owner-wrap">
                 {c.avatar ? (
-                  <img src={c.avatar} alt={c.owner} className="case__avatar" />
+                  <img src={c.avatar} alt={c.owner} className="case__avatar" loading="lazy" decoding="async" width="48" height="48" />
                 ) : (
                   <div className="case__avatar-placeholder">{c.owner.charAt(0)}</div>
                 )}

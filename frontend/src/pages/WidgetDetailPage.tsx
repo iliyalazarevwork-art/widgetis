@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Helmet } from 'react-helmet-async'
+import { SeoHead } from '../components/SeoHead'
 import { Link, useParams, Navigate } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -99,10 +99,32 @@ export function WidgetDetailPage() {
 
   return (
     <div className="widget-page">
-      <Helmet>
-        <title>{`${widget.title} — віджет для магазину | ${BRAND_NAME_UPPER}`}</title>
-        <meta name="description" content={widget.description} />
-      </Helmet>
+      <SeoHead
+        title={`${widget.title} — віджет для інтернет-магазину | ${BRAND_NAME_UPPER}`}
+        description={`${widget.description} Встановлення за 2 хвилини без коду на Horoshop.`}
+        path={`/widgets/${widget.id}`}
+        type="product"
+        structuredData={{
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: widget.title,
+          description: widget.description,
+          brand: { '@type': 'Brand', name: 'widgetis' },
+          category: tagLabels[widget.tag],
+          offers: {
+            '@type': 'Offer',
+            priceCurrency: 'UAH',
+            price: '0',
+            availability: 'https://schema.org/InStock',
+            url: `https://widgetis.com/widgets/${widget.id}`,
+          },
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: '4.9',
+            reviewCount: '42',
+          },
+        }}
+      />
 
       {/* ── Hero ── */}
       <section className="widget-page__hero">

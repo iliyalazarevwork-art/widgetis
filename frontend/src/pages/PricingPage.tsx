@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Check, ChevronDown, Send, Minus } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Helmet } from 'react-helmet-async'
+import { SeoHead } from '../components/SeoHead'
 import { get, post } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import { useSettings } from '../context/SettingsContext'
@@ -128,10 +128,20 @@ export function PricingPage() {
 
   return (
     <>
-      <Helmet>
-        <title>Тарифи — Widgetis</title>
-        <meta name="description" content="Оберіть план Widgetis. 7 днів безкоштовно. Від 799 грн/міс." />
-      </Helmet>
+      <SeoHead
+        title="Тарифи та ціни — widgetis | Від 0 грн, 7 днів безкоштовно"
+        description="Прозорі тарифи widgetis: Free, Basic, Pro і Max. Безкоштовний тріал 7 днів на будь-якому платному плані. Без прихованих платежів, скасувати можна в один клік."
+        path="/pricing"
+        structuredData={{
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: FAQ_ITEMS.map((item) => ({
+            '@type': 'Question',
+            name: item.q,
+            acceptedAnswer: { '@type': 'Answer', text: item.a },
+          })),
+        }}
+      />
 
       <div className="pricing">
 

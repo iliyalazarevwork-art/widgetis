@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Helmet } from 'react-helmet-async'
+import { SeoHead } from '../components/SeoHead'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   ArrowRight,
@@ -206,13 +206,18 @@ export function WidgetsPage() {
 
   return (
     <div className="wp">
-      <Helmet>
-        <title>Всі віджети — Widgetis | Готові рішення для e-commerce</title>
-        <meta
-          name="description"
-          content="15 готових віджетів для інтернет-магазинів. Підвищуйте конверсію, середній чек і лояльність клієнтів без програміста."
-        />
-      </Helmet>
+      <SeoHead
+        title="Усі віджети для інтернет-магазину — widgetis | 15 готових рішень"
+        description="15 готових віджетів для інтернет-магазинів на Horoshop: бігуча стрічка, таймер зворотного відліку, дата доставки, фотовідгуки, колесо фортуни, прогресивна знижка та інші. Підвищують конверсію, середній чек і лояльність клієнтів без програміста."
+        path="/widgets"
+        structuredData={{
+          '@context': 'https://schema.org',
+          '@type': 'CollectionPage',
+          name: 'Усі віджети widgetis',
+          description: '15 готових віджетів для інтернет-магазинів на Horoshop.',
+          inLanguage: 'uk-UA',
+        }}
+      />
 
       {/* ── Hero ── */}
       <section className="wp__hero">

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
-import { Helmet } from 'react-helmet-async'
+import { SeoHead } from '../components/SeoHead'
 import {
   Loader,
   AlertCircle,
@@ -212,9 +212,12 @@ export function LiveDemoPage() {
 
   return (
     <div className="live-demo">
-      <Helmet>
-        <title>{`Демо для ${demo.domain} — ${BRAND_NAME_UPPER}`}</title>
-      </Helmet>
+      <SeoHead
+        title={`Демо для ${demo.domain} — ${BRAND_NAME_UPPER}`}
+        description={`Інтерактивне демо віджетів ${BRAND_NAME_UPPER} для магазину ${demo.domain}.`}
+        path="/live-demo"
+        noindex
+      />
 
       {/* ── Top bar ── */}
       <header className="live-demo__header">

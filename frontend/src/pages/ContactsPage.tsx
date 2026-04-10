@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async'
+import { SeoHead } from '../components/SeoHead'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, ArrowUpRight, Mail, Phone } from 'lucide-react'
 import { SocialIcon } from '../components/SocialIcon'
@@ -39,13 +39,17 @@ export function ContactsPage() {
 
   return (
     <div className="contacts-page">
-      <Helmet>
-        <title>{`Контакти — ${BRAND_NAME_UPPER}`}</title>
-        <meta
-          name="description"
-          content={`Телефон, email і месенджери ${BRAND_NAME_UPPER}. Напишіть у Telegram, Viber або WhatsApp — відповімо протягом 15 хвилин.`}
-        />
-      </Helmet>
+      <SeoHead
+        title={`Контакти — ${BRAND_NAME_UPPER} | Telegram, Viber, WhatsApp`}
+        description={`Телефон, email і месенджери ${BRAND_NAME_UPPER}. Напишіть у Telegram, Viber або WhatsApp — відповімо протягом 15 хвилин у робочий час.`}
+        path="/contacts"
+        structuredData={{
+          '@context': 'https://schema.org',
+          '@type': 'ContactPage',
+          name: `Контакти ${BRAND_NAME_UPPER}`,
+          inLanguage: 'uk-UA',
+        }}
+      />
 
       <section className="contacts-page__hero">
         <div className="contacts-page__hero-bg" aria-hidden="true">

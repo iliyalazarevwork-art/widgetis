@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Outlet, Navigate } from 'react-router-dom'
-import { useEffect, useState, type ReactElement } from 'react'
+import { lazy, Suspense, useEffect, useState, type ReactElement } from 'react'
 import { Header } from './components/Header'
 import { Footer } from './components/Footer'
 import { Hero } from './components/Hero'
@@ -13,55 +13,83 @@ import { CTABanner } from './components/CTABanner'
 import { ConsultationModal } from './components/ConsultationModal'
 import { FloatingActions } from './components/FloatingActions'
 import { Testimonials } from './components/Testimonials'
-import { WidgetsPage } from './pages/WidgetsPage'
-import { PricingPage } from './pages/PricingPage'
-import { CheckoutPage } from './pages/CheckoutPage'
-import { CheckoutSuccessPage } from './pages/CheckoutSuccessPage'
-import { ContactsPage } from './pages/ContactsPage'
-import { LicensePage } from './pages/LicensePage'
-import { CasesPage } from './pages/CasesPage'
-import { WidgetDetailPage } from './pages/WidgetDetailPage'
-import { DemoPage } from './pages/DemoPage'
-import { LiveDemoPage } from './pages/LiveDemoPage'
-import { SignupPage } from './pages/SignupPage'
-import { TrialSuccessPage } from './pages/TrialSuccessPage'
-import { AdminLayout } from './pages/admin/AdminLayout'
-import { AdminDashboardPage } from './pages/admin/AdminDashboardPage'
-import { AdminConfiguratorPage } from './pages/admin/AdminConfiguratorPage'
-import {
-  AdminManagerRequestsPage,
-  AdminOrdersPage,
-  AdminSettingsPage,
-  AdminSitesPage,
-  AdminSiteDetailPage,
-  AdminSiteConfiguratorPage,
-  AdminSubscriptionsPage,
-  AdminUsersPage,
-} from './pages/admin/AdminPages'
-import LoginPage from './pages/auth/LoginPage'
-import LoginOtpPage from './pages/auth/LoginOtpPage'
-import GoogleCallbackPage from './pages/auth/GoogleCallbackPage'
-import CabinetLayout from './layouts/CabinetLayout'
-import DashboardPage from './pages/cabinet/DashboardPage'
-import SitesPage from './pages/cabinet/SitesPage'
-import AddSitePage from './pages/cabinet/AddSitePage'
-import ConfigureWidgetPage from './pages/cabinet/ConfigureWidgetPage'
-import MyPlanPage from './pages/cabinet/MyPlanPage'
-import CancelSubscriptionPage from './pages/cabinet/CancelSubscriptionPage'
-import MyWidgetsPage from './pages/cabinet/MyWidgetsPage'
-import PaymentsPage from './pages/cabinet/PaymentsPage'
-import NotificationsPage from './pages/cabinet/NotificationsPage'
-import SupportPage from './pages/cabinet/SupportPage'
-import ProfilePage from './pages/cabinet/ProfilePage'
-import SettingsPage from './pages/cabinet/SettingsPage'
-import ChoosePlanPage from './pages/cabinet/ChoosePlanPage'
-import CabinetDemoPage from './pages/cabinet/DemoPage'
-import OnboardingPage from './pages/OnboardingPage'
+
+const WidgetsPage = lazy(() => import('./pages/WidgetsPage').then((m) => ({ default: m.WidgetsPage })))
+const PricingPage = lazy(() => import('./pages/PricingPage').then((m) => ({ default: m.PricingPage })))
+const CheckoutPage = lazy(() => import('./pages/CheckoutPage').then((m) => ({ default: m.CheckoutPage })))
+const CheckoutSuccessPage = lazy(() =>
+  import('./pages/CheckoutSuccessPage').then((m) => ({ default: m.CheckoutSuccessPage })),
+)
+const ContactsPage = lazy(() => import('./pages/ContactsPage').then((m) => ({ default: m.ContactsPage })))
+const LicensePage = lazy(() => import('./pages/LicensePage').then((m) => ({ default: m.LicensePage })))
+const CasesPage = lazy(() => import('./pages/CasesPage').then((m) => ({ default: m.CasesPage })))
+const WidgetDetailPage = lazy(() =>
+  import('./pages/WidgetDetailPage').then((m) => ({ default: m.WidgetDetailPage })),
+)
+const DemoPage = lazy(() => import('./pages/DemoPage').then((m) => ({ default: m.DemoPage })))
+const LiveDemoPage = lazy(() => import('./pages/LiveDemoPage').then((m) => ({ default: m.LiveDemoPage })))
+const SignupPage = lazy(() => import('./pages/SignupPage').then((m) => ({ default: m.SignupPage })))
+const TrialSuccessPage = lazy(() =>
+  import('./pages/TrialSuccessPage').then((m) => ({ default: m.TrialSuccessPage })),
+)
+
+const AdminLayout = lazy(() => import('./pages/admin/AdminLayout').then((m) => ({ default: m.AdminLayout })))
+const AdminDashboardPage = lazy(() =>
+  import('./pages/admin/AdminDashboardPage').then((m) => ({ default: m.AdminDashboardPage })),
+)
+const AdminConfiguratorPage = lazy(() =>
+  import('./pages/admin/AdminConfiguratorPage').then((m) => ({ default: m.AdminConfiguratorPage })),
+)
+const AdminManagerRequestsPage = lazy(() =>
+  import('./pages/admin/AdminPages').then((m) => ({ default: m.AdminManagerRequestsPage })),
+)
+const AdminOrdersPage = lazy(() =>
+  import('./pages/admin/AdminPages').then((m) => ({ default: m.AdminOrdersPage })),
+)
+const AdminSettingsPage = lazy(() =>
+  import('./pages/admin/AdminPages').then((m) => ({ default: m.AdminSettingsPage })),
+)
+const AdminSitesPage = lazy(() =>
+  import('./pages/admin/AdminPages').then((m) => ({ default: m.AdminSitesPage })),
+)
+const AdminSiteDetailPage = lazy(() =>
+  import('./pages/admin/AdminPages').then((m) => ({ default: m.AdminSiteDetailPage })),
+)
+const AdminSiteConfiguratorPage = lazy(() =>
+  import('./pages/admin/AdminPages').then((m) => ({ default: m.AdminSiteConfiguratorPage })),
+)
+const AdminSubscriptionsPage = lazy(() =>
+  import('./pages/admin/AdminPages').then((m) => ({ default: m.AdminSubscriptionsPage })),
+)
+const AdminUsersPage = lazy(() =>
+  import('./pages/admin/AdminPages').then((m) => ({ default: m.AdminUsersPage })),
+)
+
+const LoginPage = lazy(() => import('./pages/auth/LoginPage'))
+const LoginOtpPage = lazy(() => import('./pages/auth/LoginOtpPage'))
+const GoogleCallbackPage = lazy(() => import('./pages/auth/GoogleCallbackPage'))
+
+const CabinetLayout = lazy(() => import('./layouts/CabinetLayout'))
+const DashboardPage = lazy(() => import('./pages/cabinet/DashboardPage'))
+const SitesPage = lazy(() => import('./pages/cabinet/SitesPage'))
+const AddSitePage = lazy(() => import('./pages/cabinet/AddSitePage'))
+const ConfigureWidgetPage = lazy(() => import('./pages/cabinet/ConfigureWidgetPage'))
+const MyPlanPage = lazy(() => import('./pages/cabinet/MyPlanPage'))
+const CancelSubscriptionPage = lazy(() => import('./pages/cabinet/CancelSubscriptionPage'))
+const MyWidgetsPage = lazy(() => import('./pages/cabinet/MyWidgetsPage'))
+const PaymentsPage = lazy(() => import('./pages/cabinet/PaymentsPage'))
+const NotificationsPage = lazy(() => import('./pages/cabinet/NotificationsPage'))
+const SupportPage = lazy(() => import('./pages/cabinet/SupportPage'))
+const ProfilePage = lazy(() => import('./pages/cabinet/ProfilePage'))
+const SettingsPage = lazy(() => import('./pages/cabinet/SettingsPage'))
+const ChoosePlanPage = lazy(() => import('./pages/cabinet/ChoosePlanPage'))
+const CabinetDemoPage = lazy(() => import('./pages/cabinet/DemoPage'))
+const OnboardingPage = lazy(() => import('./pages/OnboardingPage'))
+
 import { useAuth } from './context/AuthContext'
 import { Toaster } from 'sonner'
-import { Helmet } from 'react-helmet-async'
+import { SeoHead } from './components/SeoHead'
 import { ScrollManager } from './components/ScrollManager'
-import { BRAND_NAME_UPPER } from './constants/brand'
 import './App.css'
 
 function HomePage() {
@@ -69,13 +97,49 @@ function HomePage() {
 
   return (
     <>
-      <Helmet>
-        <title>{`${BRAND_NAME_UPPER} — готові віджети для e-commerce | +15% конверсії`}</title>
-        <meta
-          name="description"
-          content="Готові віджети для інтернет-магазинів. Встановлення за 2 хвилини, +15% конверсії. Без коду і програміста."
-        />
-      </Helmet>
+      <SeoHead
+        title="widgetis — готові віджети для інтернет-магазинів на Horoshop | +15% конверсії"
+        description="Готові віджети для інтернет-магазинів на Horoshop: бігуча стрічка, таймер, дата доставки, фотовідгуки, колесо фортуни. Встановлення за 2 хвилини без коду — підвищують конверсію на 15%. Безкоштовний тест 7 днів."
+        path="/"
+        structuredData={{
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: [
+            {
+              '@type': 'Question',
+              name: 'Скільки часу займає встановлення віджета?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Встановлення займає 2 хвилини: вставляєте один скрипт у налаштування Horoshop і вмикаєте потрібні віджети у кабінеті.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: 'Чи потрібен програміст?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Ні. Усі віджети налаштовуються через візуальний кабінет без коду — кольори, тексти, тригери.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: 'Чи є безкоштовний тест?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Так, 7 днів безкоштовного тріалу на будь-якому платному плані. Скасувати можна в один клік.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: 'З якими платформами працюють віджети?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Зараз підтримується Horoshop. Shopify, WooCommerce та OpenCart — у розробці.',
+              },
+            },
+          ],
+        }}
+      />
       <Hero />
       <WidgetsShowcase />
       <DemoSection />
@@ -200,6 +264,7 @@ function App() {
     <BrowserRouter>
       <ScrollManager />
       <div className="app">
+        <Suspense fallback={<div className="page-loader">Завантаження…</div>}>
         <Routes>
           <Route element={<MarketingLayout />}>
             <Route path="/" element={<HomePage />} />
@@ -294,6 +359,7 @@ function App() {
             <Route path="manager-requests" element={<AdminManagerRequestsPage />} />
           </Route>
         </Routes>
+        </Suspense>
 
         <Toaster
           position="top-right"

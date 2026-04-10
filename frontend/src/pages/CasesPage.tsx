@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Helmet } from 'react-helmet-async'
+import { SeoHead } from '../components/SeoHead'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, ExternalLink, Star, TrendingUp } from 'lucide-react'
 import { BRAND_NAME_UPPER } from '../constants/brand'
@@ -47,13 +47,11 @@ export function CasesPage() {
 
   return (
     <div className="cases-page">
-      <Helmet>
-        <title>{`Кейси та результати — ${BRAND_NAME_UPPER}`}</title>
-        <meta
-          name="description"
-          content={`Реальні магазини, реальні результати: +18% середній чек, +24% конверсія, −31% відмов. Кейси клієнтів ${BRAND_NAME_UPPER} з конкретними цифрами.`}
-        />
-      </Helmet>
+      <SeoHead
+        title={`Кейси та результати клієнтів — ${BRAND_NAME_UPPER} | +24% конверсії`}
+        description={`Реальні магазини, реальні результати: +18% середній чек, +24% конверсія, −31% відмов. Кейси клієнтів ${BRAND_NAME_UPPER} з конкретними цифрами і прикладами використання віджетів на Horoshop.`}
+        path="/cases"
+      />
 
       <section className="cases-page__hero">
         <div className="cases-page__hero-bg" aria-hidden="true">

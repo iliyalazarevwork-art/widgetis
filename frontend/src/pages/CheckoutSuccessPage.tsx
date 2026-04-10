@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Helmet } from 'react-helmet-async'
+import { SeoHead } from '../components/SeoHead'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   CheckCircle2,
@@ -52,9 +52,12 @@ export function CheckoutSuccessPage() {
 
   return (
     <div className="success">
-      <Helmet>
-        <title>{`Замовлення оплачено — ${BRAND_NAME_UPPER}`}</title>
-      </Helmet>
+      <SeoHead
+        title={`Замовлення оплачено — ${BRAND_NAME_UPPER}`}
+        description="Замовлення успішно оплачено."
+        path="/checkout/success"
+        noindex
+      />
 
       <div className="success__container">
         {/* ── Hero confirmation ── */}

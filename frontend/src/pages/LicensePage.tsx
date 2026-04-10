@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async'
+import { SeoHead } from '../components/SeoHead'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, ShieldOff, CheckCircle, AlertTriangle, Scale, BookOpen } from 'lucide-react'
 import { BRAND_NAME_UPPER } from '../constants/brand'
@@ -30,13 +30,11 @@ const SECTIONS = [
 export function LicensePage() {
   return (
     <div className="license-page">
-      <Helmet>
-        <title>{`Ліцензія — ${BRAND_NAME_UPPER}`}</title>
-        <meta
-          name="description"
-          content="Ліцензійна угода Widgetis. Код віджетів є власністю Widgetis і не може бути скопійований або переиспользований без дозволу."
-        />
-      </Helmet>
+      <SeoHead
+        title={`Ліцензійна угода — ${BRAND_NAME_UPPER}`}
+        description="Ліцензійна угода widgetis: умови використання віджетів, права інтелектуальної власності, обмеження на копіювання та модифікацію коду."
+        path="/license"
+      />
 
       <section className="license-page__hero">
         <div className="license-page__hero-bg" aria-hidden="true">

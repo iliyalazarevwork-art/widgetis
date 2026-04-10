@@ -6,6 +6,30 @@ export default defineConfig({
   optimizeDeps: {
     include: ['react-fast-marquee'],
   },
+  build: {
+    target: 'es2020',
+    cssCodeSplit: true,
+    sourcemap: true,
+    chunkSizeWarningLimit: 1024,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return undefined
+          if (id.includes('react-router')) return 'router'
+          if (
+            id.includes('/react/') ||
+            id.includes('/react-dom/') ||
+            id.includes('scheduler') ||
+            id.includes('react-helmet-async')
+          ) return 'react-vendor'
+          if (id.includes('lucide-react')) return 'icons'
+          if (id.includes('sonner')) return 'toast'
+          if (id.includes('react-fast-marquee')) return 'marquee'
+          return 'vendor'
+        },
+      },
+    },
+  },
   server: {
     port: 5173,
     host: '0.0.0.0',

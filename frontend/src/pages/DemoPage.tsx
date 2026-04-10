@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Helmet } from 'react-helmet-async'
+import { SeoHead } from '../components/SeoHead'
 import { Link } from 'react-router-dom'
 import {
   ShoppingCart,
@@ -128,13 +128,11 @@ export function DemoPage() {
 
   return (
     <div className="demo-page">
-      <Helmet>
-        <title>{`Живе демо віджетів — ${BRAND_NAME_UPPER}`}</title>
-        <meta
-          name="description"
-          content={`Подивися на віджети ${BRAND_NAME_UPPER} в дії: бігуча стрічка, лічильник переглядів, таймер, прогрес бар кошика, соціальний доказ — усе працює в реальному часі на демо-магазині.`}
-        />
-      </Helmet>
+      <SeoHead
+        title={`Живе демо віджетів — ${BRAND_NAME_UPPER} | Подивись як працює`}
+        description={`Подивись на віджети ${BRAND_NAME_UPPER} в дії: бігуча стрічка, лічильник переглядів, таймер, прогрес-бар кошика, соціальний доказ — усе працює в реальному часі на демо-магазині.`}
+        path="/demo"
+      />
 
       {/* ── Intro ── */}
       <section className="demo-intro">
@@ -224,7 +222,7 @@ export function DemoPage() {
           {/* Product page */}
           <div className="demo-shop__product">
             <div className="demo-shop__product-img">
-              <img src="/showcase/ptashkin-pure.jpg" alt="Крем-бустер Pure" />
+              <img src="/showcase/ptashkin-pure.webp" alt="Крем-бустер Pure" loading="lazy" decoding="async" width="600" height="600" />
               <button className="demo-shop__fav" aria-label="В обране" type="button">
                 <Heart size={16} strokeWidth={2} />
               </button>

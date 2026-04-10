@@ -49,14 +49,14 @@ export function Footer({ variant = 'full' }: FooterProps) {
 
           <nav className="footer__columns">
             <div className="footer__col">
-              <h4 className="footer__col-title">Навігація</h4>
+              <h3 className="footer__col-title">Навігація</h3>
               <Link to="/widgets" className="footer__link">Віджети</Link>
               <Link to="/cases" className="footer__link">Кейси</Link>
               <Link to="/contacts" className="footer__link">Контакти</Link>
             </div>
 
             <div className="footer__col">
-              <h4 className="footer__col-title">Документи</h4>
+              <h3 className="footer__col-title">Документи</h3>
               <Link to="/legal#offer" className="footer__link">Публічна оферта</Link>
               <Link to="/legal#refund" className="footer__link">Повернення коштів</Link>
               <Link to="/legal#security" className="footer__link">Безпека даних</Link>
@@ -64,7 +64,7 @@ export function Footer({ variant = 'full' }: FooterProps) {
             </div>
 
             <div className="footer__col">
-              <h4 className="footer__col-title">Зв'язок</h4>
+              <h3 className="footer__col-title">Зв'язок</h3>
               {settings.email && (
                 <a href={`mailto:${settings.email}`} className="footer__link">
                   {settings.email}

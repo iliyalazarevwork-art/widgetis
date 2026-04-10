@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Helmet } from 'react-helmet-async'
+import { SeoHead } from '../components/SeoHead'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -101,9 +101,12 @@ export function CheckoutPage() {
 
   return (
     <div className="checkout">
-      <Helmet>
-        <title>{`Оформлення замовлення — ${BRAND_NAME_UPPER}`}</title>
-      </Helmet>
+      <SeoHead
+        title={`Оформлення замовлення — ${BRAND_NAME_UPPER}`}
+        description="Оформлення замовлення widgetis."
+        path="/checkout"
+        noindex
+      />
 
       <div className="checkout__container">
         <Link to="/catalog" className="checkout__back">
