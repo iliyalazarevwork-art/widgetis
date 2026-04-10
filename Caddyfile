@@ -6,20 +6,16 @@ widgetis.com, www.widgetis.com {
         max_size 20MB
     }
 
-    # ── Backend: API, Auth, Admin, Payments ──────────────────
+    # ── Backend: API ──────────────────────────────────────────
     handle /api/* {
         reverse_proxy backend:8000 {
             header_up X-Real-IP {remote_host}
             header_up X-Forwarded-For {remote_host}
         }
     }
+
+    # ── Backend: Google OAuth & LiqPay ───────────────────────
     handle /auth/* {
-        reverse_proxy backend:8000 {
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-        }
-    }
-    handle /admin/* {
         reverse_proxy backend:8000 {
             header_up X-Real-IP {remote_host}
             header_up X-Forwarded-For {remote_host}
@@ -29,6 +25,42 @@ widgetis.com, www.widgetis.com {
         reverse_proxy backend:8000 {
             header_up X-Real-IP {remote_host}
             header_up X-Forwarded-For {remote_host}
+        }
+    }
+
+    # ── Filament Admin Panel (at /manage) ────────────────────
+    # React SPA occupies /admin; Filament is served at /manage
+    handle /manage* {
+        reverse_proxy backend:8000 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Host {host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+    # Filament static assets (CSS/JS/Livewire)
+    handle /livewire/* {
+        reverse_proxy backend:8000 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Host {host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+    handle /css/filament/* {
+        reverse_proxy backend:8000 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Host {host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+    handle /js/filament/* {
+        reverse_proxy backend:8000 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Host {host}
+            header_up X-Forwarded-Proto {scheme}
         }
     }
 
@@ -80,20 +112,22 @@ widgetis.com, www.widgetis.com {
     }
 
     # ── Widget Builder ────────────────────────────────────────
+    # Note: /modules, /build, /deploy are called WITHOUT trailing slash from the SPA,
+    # so we use * (not /*) to match both the exact path and any subpath
     handle /build-demo* {
         reverse_proxy widget-builder:3200
     }
-    handle /modules/* {
+    handle /modules* {
         reverse_proxy widget-builder:3200
     }
-    handle /build/* {
+    handle /build* {
         reverse_proxy widget-builder:3200 {
             transport http {
                 response_header_timeout 120s
             }
         }
     }
-    handle /deploy/* {
+    handle /deploy* {
         reverse_proxy widget-builder:3200 {
             transport http {
                 response_header_timeout 120s
@@ -101,7 +135,8 @@ widgetis.com, www.widgetis.com {
         }
     }
 
-    # ── Frontend SPA ──────────────────────────────────────────
+    # ── Frontend SPA (catch-all) ──────────────────────────────
+    # Handles: /, /admin/*, /cabinet/*, /login, /pricing, etc.
     handle {
         reverse_proxy frontend:80
     }
