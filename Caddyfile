@@ -8,42 +8,75 @@ widgetis.com, www.widgetis.com {
 
     # ── Backend: API, Auth, Admin, Payments ──────────────────
     handle /api/* {
-        reverse_proxy backend:8000
+        reverse_proxy backend:8000 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+        }
     }
     handle /auth/* {
-        reverse_proxy backend:8000
+        reverse_proxy backend:8000 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+        }
     }
     handle /admin/* {
-        reverse_proxy backend:8000
+        reverse_proxy backend:8000 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+        }
     }
     handle /liqpay/* {
-        reverse_proxy backend:8000
+        reverse_proxy backend:8000 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+        }
     }
 
     # ── Backend: Widget delivery ──────────────────────────────
     handle /site/* {
-        reverse_proxy backend:8000
+        reverse_proxy backend:8000 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+        }
     }
     handle /content/* {
-        reverse_proxy backend:8000
+        reverse_proxy backend:8000 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+        }
     }
     handle /frontend/* {
-        reverse_proxy backend:8000
+        reverse_proxy backend:8000 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+        }
     }
     handle /bundles/* {
-        reverse_proxy backend:8000
+        reverse_proxy backend:8000 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+        }
     }
     handle /_widget/* {
-        reverse_proxy backend:8000
+        reverse_proxy backend:8000 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+        }
     }
     handle /seen_items/* {
-        reverse_proxy backend:8000
+        reverse_proxy backend:8000 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+        }
     }
 
     # ── Localized routes (/uk/_widget/, /en/_widget/, etc.) ───
     @localized path_regexp ^/[a-z]{2}(-[A-Z]{2})?/(_widget|seen_items)
     handle @localized {
-        reverse_proxy backend:8000
+        reverse_proxy backend:8000 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+        }
     }
 
     # ── Widget Builder ────────────────────────────────────────
