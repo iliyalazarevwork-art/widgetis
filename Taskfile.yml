@@ -139,6 +139,17 @@ tasks:
     cmds:
       - '{{.EXEC}} php artisan optimize:clear'
 
+  # ── Deploy ─────────────────────────────────────────────
+  deploy:
+    desc: "Задеплоить на прод  ·  task deploy"
+    cmds:
+      - bash deploy.sh
+
+  deploy:fast:
+    desc: "Деплой без пересборки образов  ·  task deploy:fast"
+    cmds:
+      - bash deploy.sh --skip-build
+
   # ── Продакшен ──────────────────────────────────────────
   prod:up:
     desc: "Поднять прод-контейнеры  ·  task prod:up"
