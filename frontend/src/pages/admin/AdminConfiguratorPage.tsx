@@ -307,18 +307,6 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
     ;(doc.body || doc.documentElement).appendChild(s)
   }
 
-  function applyToPreview() {
-    if (!builtJs) { toast.error('Спочатку зберіть скрипт'); return }
-    if (!previewUrl.trim()) { toast.error("Введіть URL"); return }
-    pendingScriptRef.current = builtJs
-    if (!previewOpen) {
-      pendingLoadRef.current = true
-      setPreviewOpen(true)
-    } else {
-      loadPreview()
-    }
-  }
-
   // ─── Create demo link ──────────────────────────────────────────────
 
   async function createDemoLink() {
