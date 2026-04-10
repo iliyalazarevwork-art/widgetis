@@ -17,12 +17,18 @@ export default function GoogleCallbackPage() {
     }
 
     setToken(token)
+    const returnTo = sessionStorage.getItem('google_return_to')
+    sessionStorage.removeItem('google_return_to')
     get<{ data: User }>('/auth/user')
       .then((res) => {
-        navigate(res.data.role === 'admin' ? '/admin' : '/cabinet', { replace: true })
+        if (returnTo) {
+          navigate(returnTo, { replace: true })
+        } else {
+          navigate(res.data.role === 'admin' ? '/admin' : '/cabinet', { replace: true })
+        }
       })
       .catch(() => {
-        navigate('/cabinet', { replace: true })
+        navigate(returnTo ?? '/cabinet', { replace: true })
       })
   }, [navigate])
 
