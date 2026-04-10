@@ -80,6 +80,6 @@ class GoogleAuthController extends Controller
         /** @var string $token */
         $token = JWTAuth::fromUser($user);
 
-        return redirect($frontendUrl . '/auth/google/callback?token=' . urlencode($token));
+        return redirect($frontendUrl . '/login/google-callback?token=' . urlencode($token));
     }
 }

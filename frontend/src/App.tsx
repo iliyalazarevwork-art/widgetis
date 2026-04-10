@@ -216,7 +216,7 @@ function App() {
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/login/otp" element={<LoginOtpPage />} />
-            <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
+            <Route path="/login/google-callback" element={<GoogleCallbackPage />} />
             <Route
               path="/onboarding"
               element={(
