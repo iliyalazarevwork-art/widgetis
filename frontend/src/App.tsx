@@ -10,8 +10,11 @@ import { WidgetsList } from './components/WidgetsList'
 import { HowItWorks } from './components/HowItWorks'
 import { Faq } from './components/Faq'
 import { CTABanner } from './components/CTABanner'
-import { ConsultationModal } from './components/ConsultationModal'
 import { FloatingActions } from './components/FloatingActions'
+
+const ConsultationModal = lazy(() =>
+  import('./components/ConsultationModal').then((m) => ({ default: m.ConsultationModal })),
+)
 import { Testimonials } from './components/Testimonials'
 
 const WidgetsPage = lazy(() => import('./pages/WidgetsPage').then((m) => ({ default: m.WidgetsPage })))
@@ -149,10 +152,14 @@ function HomePage() {
       <Partners />
       <CTABanner onConsultation={() => setShowConsultation(true)} />
       <Faq />
-      <ConsultationModal
-        isOpen={showConsultation}
-        onClose={() => setShowConsultation(false)}
-      />
+      {showConsultation && (
+        <Suspense fallback={null}>
+          <ConsultationModal
+            isOpen={showConsultation}
+            onClose={() => setShowConsultation(false)}
+          />
+        </Suspense>
+      )}
     </>
   )
 }

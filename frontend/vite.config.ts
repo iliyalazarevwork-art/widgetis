@@ -25,6 +25,9 @@ export default defineConfig({
           if (id.includes('lucide-react')) return 'icons'
           if (id.includes('sonner')) return 'toast'
           if (id.includes('react-fast-marquee')) return 'marquee'
+          if (id.includes('react-datepicker') || id.includes('date-fns')) return 'datepicker'
+          if (id.includes('react-international-phone') || id.includes('country-flag-icons')) return 'phone'
+          if (id.includes('motion') || id.includes('framer')) return 'motion'
           return 'vendor'
         },
       },
