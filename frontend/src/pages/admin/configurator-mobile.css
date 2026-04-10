@@ -1173,6 +1173,15 @@
   padding: 0 8px;
   background: #0E0E0E;
   border-top: 1px solid #FFFFFF0A;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+.cfg-m__nav::-webkit-scrollbar {
+  display: none;
 }
 
 .cfg-m__tab {
@@ -1181,7 +1190,9 @@
   align-items: center;
   justify-content: center;
   gap: 3px;
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 64px;
+  scroll-snap-align: start;
   color: #555555;
   text-decoration: none;
   cursor: pointer;

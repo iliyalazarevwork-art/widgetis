@@ -1,19 +1,10 @@
 import { type ReactNode, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Banknote, Globe, LayoutDashboard, Menu, Receipt, Users } from 'lucide-react'
+import { ArrowLeft, Menu } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { MobileMenuDrawer } from './AdminPages'
+import { ADMIN_BOTTOM_TABS } from './adminBottomTabs'
 import './admin-screen-layout.css'
-
-// ─── Bottom nav tabs (from Pencil design node HTE7v) ───────────────────────
-
-const BOTTOM_TABS = [
-  { to: '/admin', label: 'Дашборд', icon: LayoutDashboard, end: true, dim: false },
-  { to: '/admin/orders', label: 'Замовлення', icon: Receipt, end: false, dim: false },
-  { to: '/admin/users', label: 'Юзери', icon: Users, end: false, dim: false },
-  { to: '/admin/sites', label: 'Сайти', icon: Globe, end: false, dim: false },
-  { to: '/admin/subscriptions', label: 'Підписки', icon: Banknote, end: false, dim: false },
-]
 
 function getInitials(name: string | null, email: string): string {
   if (name) {
@@ -119,19 +110,17 @@ export function AdminScreenLayout(props: Props) {
 
       {/* ── Fixed bottom tab navigation ───────────────────────────────── */}
       <nav className="adm-screen__bottomnav">
-        {BOTTOM_TABS.map((tab) => (
+        {ADMIN_BOTTOM_TABS.map((tab) => (
           <NavLink
             key={tab.to}
             to={tab.to}
             end={tab.end}
             className={({ isActive }) =>
-              ['adm-screen__tab', isActive ? 'adm-screen__tab--active' : '', tab.dim ? 'adm-screen__tab--dim' : '']
-                .filter(Boolean)
-                .join(' ')
+              ['adm-screen__tab', isActive ? 'adm-screen__tab--active' : ''].filter(Boolean).join(' ')
             }
           >
             <tab.icon size={20} strokeWidth={2} />
-            {tab.label && <span>{tab.label}</span>}
+            <span>{tab.label}</span>
           </NavLink>
         ))}
       </nav>

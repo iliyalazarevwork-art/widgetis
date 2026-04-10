@@ -1768,7 +1768,7 @@
   inset: 0;
   border: 0;
   background: rgba(0, 0, 0, 0.65);
-  z-index: 41;
+  z-index: 201;
 }
 
 .mobile-menu {
@@ -1779,7 +1779,7 @@
   height: 100vh;
   background: #141414;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
-  z-index: 42;
+  z-index: 202;
   display: flex;
   flex-direction: column;
 }

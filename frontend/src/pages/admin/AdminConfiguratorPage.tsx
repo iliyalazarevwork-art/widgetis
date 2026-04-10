@@ -1,12 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 import {
   ArrowLeft,
-  LayoutDashboard,
-  Receipt,
-  Users,
-  Globe,
-  Wand2,
   Code,
   Eye,
   Copy,
@@ -15,9 +10,11 @@ import {
   Trash2,
   Play,
   Loader,
+  Globe,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { post } from '../../api/client'
+import { ADMIN_BOTTOM_TABS } from './adminBottomTabs'
 import './configurator-mobile.css'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -114,7 +111,8 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
   const [copied, setCopied] = useState(false)
   const [obfuscate, setObfuscate] = useState(true)
   const [creatingDemo, setCreatingDemo] = useState(false)
-  const [_demoLink, setDemoLink] = useState<string | null>(null)
+  const [demoLink, setDemoLink] = useState<string | null>(null)
+  const [demoLinkCopied, setDemoLinkCopied] = useState(false)
   const [deploying, setDeploying] = useState(false)
   const [deployedUrl, setDeployedUrl] = useState<string | null>(siteContext?.deployedScriptUrl ?? null)
   const [hasChanges, setHasChanges] = useState(false)
@@ -623,6 +621,27 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
             {creatingDemo ? <Loader size={13} strokeWidth={2} className="cfg-m__spin" /> : <Play size={13} strokeWidth={2} />}
             {creatingDemo ? 'Створення...' : 'Демо-посилання'}
           </button>
+          {demoLink && (
+            <div className="cfg-m__demo-link-banner">
+              <a href={demoLink} target="_blank" rel="noopener noreferrer" title={demoLink}>{demoLink}</a>
+              <button
+                type="button"
+                aria-label="Копіювати демо-посилання"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(demoLink)
+                    setDemoLinkCopied(true)
+                    toast.success('Посилання скопійовано')
+                    setTimeout(() => setDemoLinkCopied(false), 1500)
+                  } catch {
+                    toast.error('Не вдалося скопіювати')
+                  }
+                }}
+              >
+                {demoLinkCopied ? <Check size={14} strokeWidth={2.5} /> : <Copy size={14} strokeWidth={2} />}
+              </button>
+            </div>
+          )}
           {siteContext && (
             <>
               <button
@@ -681,11 +700,19 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
 
       {/* Bottom nav */}
       <nav className="cfg-m__nav">
-        <Link to="/admin" className="cfg-m__tab"><LayoutDashboard size={20} strokeWidth={2} /><span>Дашборд</span></Link>
-        <Link to="/admin/orders" className="cfg-m__tab"><Receipt size={20} strokeWidth={2} /><span>Замовлення</span></Link>
-        <Link to="/admin/users" className="cfg-m__tab"><Users size={20} strokeWidth={2} /><span>Юзери</span></Link>
-        <Link to="/admin/sites" className="cfg-m__tab"><Globe size={20} strokeWidth={2} /><span>Сайти</span></Link>
-        <Link to="/admin/configurator" className="cfg-m__tab cfg-m__tab--active"><Wand2 size={20} strokeWidth={2} /><span>Конфіг</span></Link>
+        {ADMIN_BOTTOM_TABS.map((tab) => (
+          <NavLink
+            key={tab.to}
+            to={tab.to}
+            end={tab.end}
+            className={({ isActive }) =>
+              ['cfg-m__tab', isActive ? 'cfg-m__tab--active' : ''].filter(Boolean).join(' ')
+            }
+          >
+            <tab.icon size={20} strokeWidth={2} />
+            <span>{tab.label}</span>
+          </NavLink>
+        ))}
       </nav>
 
       {/* Preview overlay */}

@@ -83,14 +83,27 @@ tasks:
 
   # ── Docker ─────────────────────────────────────────────
   up:
-    desc: "Поднять контейнеры  ·  task up"
+    desc: "Поднять контейнеры + фронт  ·  task up"
     cmds:
       - '{{.DC}} up -d'
+      - mkdir -p frontend/.logs
+      - |
+        if lsof -ti tcp:5173 >/dev/null 2>&1; then
+          echo "Vite уже запущен на :5173"
+        else
+          (cd frontend && nohup npx vite --host 127.0.0.1 --port 5173 </dev/null > .logs/vite.log 2>&1 & disown) || true
+          echo "Vite запущен в фоне  ·  логи: frontend/.logs/vite.log  ·  http://localhost:5173"
+        fi
 
   down:
-    desc: "Остановить контейнеры  ·  task down"
+    desc: "Остановить контейнеры + фронт  ·  task down"
     cmds:
       - '{{.DC}} down'
+      - |
+        if lsof -ti tcp:5173 >/dev/null 2>&1; then
+          lsof -ti tcp:5173 | xargs kill 2>/dev/null || true
+          echo "Vite остановлен"
+        fi
 
   restart:
     desc: "Перезапустить контейнеры  ·  task restart"
@@ -113,7 +126,7 @@ tasks:
     desc: "Запустить Vite dev server  ·  task front:dev"
     dir: frontend
     cmds:
-      - npx vite --host 0.0.0.0 --port 5173
+      - npx vite --host 127.0.0.1 --port 5173
 
   front:build:
     desc: "Собрать фронт для продакшена  ·  task front:build"

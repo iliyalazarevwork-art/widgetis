@@ -397,6 +397,15 @@
 
 .signup__input-wrap input::placeholder { color: var(--text-ghost); }
 
+.signup__input-wrap input:-webkit-autofill,
+.signup__input-wrap input:-webkit-autofill:hover,
+.signup__input-wrap input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--bg-surface) inset;
+  -webkit-text-fill-color: var(--text-primary);
+  caret-color: var(--text-primary);
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 .signup__field--error .signup__input-wrap { border-color: #f87171; }
 
 .signup__field-hint {
