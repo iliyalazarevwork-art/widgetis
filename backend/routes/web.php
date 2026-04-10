@@ -13,7 +13,7 @@ Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])->name('aut
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
 
 // --- LiqPay result_url (browser redirect after payment) ---
-Route::post('/liqpay/return', [LiqPayReturnController::class, 'handle'])
+Route::match(['GET', 'POST'], '/liqpay/return', [LiqPayReturnController::class, 'handle'])
     ->withoutMiddleware([ValidateCsrfToken::class]);
 
 $proxyMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
