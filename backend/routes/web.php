@@ -28,6 +28,4 @@ Route::match($proxyMethods, '/{locale}/{prefix}/{path?}', [SiteProxyController::
     ->where('path', '.*')
     ->withoutMiddleware([ValidateCsrfToken::class]);
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::view('/', 'welcome');

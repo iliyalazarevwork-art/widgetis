@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\V1\Public\ManagerRequestController;
 use App\Http\Controllers\Api\V1\Public\PlanController;
 use App\Http\Controllers\Api\V1\Public\ProductController;
 use App\Http\Controllers\Api\V1\Public\SettingsController;
+use App\Http\Controllers\Api\V1\Public\SystemController;
 use App\Http\Controllers\Api\V1\Public\TagController;
 use App\Http\Controllers\Api\V1\Webhooks\LiqPayWebhookController;
 use Illuminate\Support\Facades\Route;
@@ -29,11 +30,7 @@ Route::prefix('v1')->group(function () {
     Route::post('payments/liqpay/callback', [LiqPayWebhookController::class, 'handle']);
 
     // --- Health check ---
-    Route::get('health', fn () => response()->json([
-        'status' => 'ok',
-        'version' => app()->version(),
-        'timestamp' => now()->toIso8601String(),
-    ]));
+    Route::get('health', [SystemController::class, 'health']);
 
     // --- Public catalog ---
     Route::get('plans', [PlanController::class, 'index']);
@@ -42,7 +39,7 @@ Route::prefix('v1')->group(function () {
     Route::get('products/{slug}', [ProductController::class, 'show']);
     Route::get('tags', [TagController::class, 'index']);
     Route::get('settings', [SettingsController::class, 'index']);
-    Route::get('platforms', fn () => response()->json(['data' => \App\Enums\Platform::toArray()]));
+    Route::get('platforms', [SystemController::class, 'platforms']);
     Route::get('cases', [CaseController::class, 'index']);
     Route::get('faq', [FaqController::class, 'index']);
     Route::post('consultations', [ConsultationController::class, 'store'])->middleware('throttle:3,60');

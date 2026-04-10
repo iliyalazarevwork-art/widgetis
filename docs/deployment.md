@@ -108,10 +108,14 @@ task deploy
 2. `ssh root@204.168.206.10` — заходим на сервер
 3. `git pull origin main` — на сервере тянем обновления
 4. `docker compose build` — пересобираем образы (frontend + backend)
-5. `docker compose up -d` — поднимаем контейнеры с zero-downtime
-6. `php artisan migrate --force` — запускаем новые миграции
-7. `php artisan {config,route,view,event}:cache` — прогреваем кэш
-8. Перезапускаем `queue-worker` и `scheduler`
+5. `docker compose up -d` — поднимаем контейнеры
+6. `php artisan down --retry=60` — переводим приложение в maintenance mode, чтобы во время деплоя не отдавать 500
+7. `php artisan migrate --force` — запускаем новые миграции
+8. `php artisan {config,route,view,event}:cache` — прогреваем кэш
+9. Перезапускаем `queue-worker` и `scheduler`
+10. `php artisan up` — возвращаем приложение в работу
+
+Важно: `route:cache` требует, чтобы в маршрутах не было closure-роутов. Для простых JSON-эндпоинтов и health-check лучше использовать контроллеры или `Route::view()`.
 
 ### Флаги
 
