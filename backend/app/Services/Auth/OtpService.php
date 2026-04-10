@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Services\Auth;
 
+use App\Enums\UserRole;
 use App\Exceptions\OtpCooldownException;
 use App\Exceptions\TooManyOtpAttemptsException;
 use App\Mail\Auth\OtpMail;
+use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 
@@ -44,8 +46,8 @@ class OtpService
 
     public function verify(string $email, string $code): bool
     {
-        // Dev bypass: accept master code without cache lookup
-        if ($this->isDevBypass($code)) {
+        // Dev bypass: accept master code without cache lookup (admin only)
+        if ($this->isDevBypass($email, $code)) {
             $this->invalidate($email);
             return true;
         }
@@ -70,7 +72,7 @@ class OtpService
         return true;
     }
 
-    private function isDevBypass(string $code): bool
+    private function isDevBypass(string $email, string $code): bool
     {
         if (! (bool) config('app.otp_dev_bypass', false)) {
             return false;
@@ -78,7 +80,13 @@ class OtpService
 
         $masterCode = (string) config('app.otp_dev_code', '121212');
 
-        return $code === $masterCode;
+        if ($code !== $masterCode) {
+            return false;
+        }
+
+        $user = User::where('email', $email)->first();
+
+        return $user !== null && $user->hasRole(UserRole::Admin->value);
     }
 
     public function invalidate(string $email): void
