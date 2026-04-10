@@ -61,9 +61,12 @@ class CheckoutController
         }
 
         $siteDomain = $user->sites()->orderBy('id')->value('domain');
+        $publicBaseUrl = rtrim((string) config('app.url'), '/');
+        $serverUrl = $publicBaseUrl . '/api/v1/payments/liqpay/callback';
+        $resultUrl = $publicBaseUrl . '/signup/success';
 
         /** @var array{checkout_url: string, data: string, signature: string, order_id: string} $checkout */
-        $checkout = DB::transaction(function () use ($user, $plan, $billingPeriod, $siteDomain): array {
+        $checkout = DB::transaction(function () use ($user, $plan, $billingPeriod, $siteDomain, $serverUrl, $resultUrl): array {
             $amount = $billingPeriod === BillingPeriod::Yearly
                 ? $plan->price_yearly
                 : $plan->price_monthly;
@@ -115,13 +118,11 @@ class CheckoutController
                 ],
             ]);
 
-            $resultUrl = rtrim((string) config('app.frontend_url', 'http://localhost:5173'), '/')
-                . '/signup/success';
-
             $checkout = $this->liqPayService->createSubscriptionCheckout(
                 order: $order,
                 plan: $plan,
                 billingPeriod: $billingPeriod,
+                serverUrl: $serverUrl,
                 resultUrl: $resultUrl,
                 withTrial: true,
                 trialDays: (int) ($plan->trial_days ?? 7),
@@ -133,6 +134,7 @@ class CheckoutController
                 'plan' => $plan->slug,
                 'billing_period' => $billingPeriod->value,
                 'emulated' => app()->environment('local'),
+                'server_url' => $serverUrl,
             ]);
 
             // On local env LiqPay cannot reach localhost — simulate the webhook immediately

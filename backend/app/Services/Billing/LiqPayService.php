@@ -34,6 +34,7 @@ class LiqPayService
         Order $order,
         Plan $plan,
         BillingPeriod $billingPeriod,
+        string $serverUrl,
         string $resultUrl,
         bool $withTrial = false,
         ?int $trialDays = null,
@@ -53,7 +54,7 @@ class LiqPayService
             'description' => "Widgetis: {$plan->slug} ({$billingPeriod->value})",
             'order_id' => $order->order_number,
             'subscribe_periodicity' => $periodicity,
-            'server_url' => url('/api/v1/payments/liqpay/callback'),
+            'server_url' => $serverUrl,
             'result_url' => $resultUrl,
         ];
 
