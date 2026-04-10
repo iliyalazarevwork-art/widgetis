@@ -24,7 +24,7 @@ class OtpMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your verification code — Widgetis',
+            subject: 'Ваш код підтвердження — Widgetis',
         );
     }
 

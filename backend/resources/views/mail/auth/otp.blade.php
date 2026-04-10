@@ -1,14 +1,14 @@
 <x-mail::message>
-# Your verification code
+# Ваш код підтвердження
 
-Use this code to sign in to Widgetis:
+Використайте цей код, щоб увійти в Widgetis:
 
 <x-mail::panel>
 **{{ $code }}**
 </x-mail::panel>
 
-This code expires in 10 minutes. If you didn't request it, ignore this email.
+Код дійсний протягом 10 хвилин. Якщо ви не запитували його, просто проігноруйте цей лист.
 
-Thanks,<br>
+З повагою,<br>
 {{ config('app.name') }}
 </x-mail::message>
