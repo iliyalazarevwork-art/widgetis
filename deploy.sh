@@ -75,6 +75,9 @@ $DC exec -T backend php artisan down --retry=60
 if [ "$SKIP_MIGRATE" = false ]; then
   echo "▶ Running migrations..."
   $DC exec -T backend php artisan migrate --force
+
+  echo "▶ Seeding roles and base data..."
+  $DC exec -T backend php artisan db:seed --force
 fi
 
 echo "▶ Warming cache..."
