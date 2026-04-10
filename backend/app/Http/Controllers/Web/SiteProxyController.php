@@ -9,19 +9,36 @@ use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\UriResolver;
 use Illuminate\Http\Client\Response as HttpResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 
 class SiteProxyController extends Controller
 {
+    private const VISITOR_COOKIE = 'wgts_pv';
+
+    private const VISITOR_TTL = 3600;
+
+    private const ASSET_CACHE_TTL = 300;
+
+    private const ASSET_EXTENSIONS = [
+        'js', 'mjs', 'css', 'map',
+        'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'avif', 'ico', 'bmp',
+        'woff', 'woff2', 'ttf', 'otf', 'eot',
+        'mp4', 'webm', 'mp3', 'ogg',
+        'json',
+    ];
+
     public function proxy(Request $request, string $domain, string $path = ''): Response
     {
         if (! $this->isAllowedDomain($domain)) {
             return response()->json(['error' => 'Domain not allowed'], 403);
         }
 
-        $this->setCurrentPreviewDomain($request, $domain);
+        $visitorId = $this->ensureVisitorId($request);
+        $this->setCurrentPreviewDomain($visitorId, $domain);
 
         $query = $request->query();
         $injectParam = null;
@@ -36,17 +53,21 @@ class SiteProxyController extends Controller
             $targetPath .= '?'.$queryString;
         }
 
-        return $this->proxyPathForDomain(
+        $response = $this->proxyPathForDomain(
             request: $request,
+            visitorId: $visitorId,
             domain: $domain,
             targetPath: $targetPath,
             injectScript: $this->loadInjectScript($injectParam)
         );
+
+        return $this->attachVisitorCookie($response, $visitorId, $request);
     }
 
     public function proxyCurrentPrefix(Request $request, string $prefix, string $path = ''): Response
     {
-        $domain = $this->getCurrentPreviewDomain($request);
+        $visitorId = $this->ensureVisitorId($request);
+        $domain = $this->getCurrentPreviewDomain($visitorId);
         if ($domain === null || ! $this->isAllowedDomain($domain)) {
             return response()->json(['error' => 'Preview domain not set'], 404);
         }
@@ -61,12 +82,15 @@ class SiteProxyController extends Controller
             $targetPath .= '?'.$queryString;
         }
 
-        return $this->proxyPathForDomain($request, $domain, $targetPath);
+        $response = $this->proxyPathForDomain($request, $visitorId, $domain, $targetPath);
+
+        return $this->attachVisitorCookie($response, $visitorId, $request);
     }
 
     public function proxyCurrentLocalePrefix(Request $request, string $locale, string $prefix, string $path = ''): Response
     {
-        $domain = $this->getCurrentPreviewDomain($request);
+        $visitorId = $this->ensureVisitorId($request);
+        $domain = $this->getCurrentPreviewDomain($visitorId);
         if ($domain === null || ! $this->isAllowedDomain($domain)) {
             return response()->json(['error' => 'Preview domain not set'], 404);
         }
@@ -81,17 +105,35 @@ class SiteProxyController extends Controller
             $targetPath .= '?'.$queryString;
         }
 
-        return $this->proxyPathForDomain($request, $domain, $targetPath);
+        $response = $this->proxyPathForDomain($request, $visitorId, $domain, $targetPath);
+
+        return $this->attachVisitorCookie($response, $visitorId, $request);
     }
 
     private function proxyPathForDomain(
         Request $request,
+        string $visitorId,
         string $domain,
         string $targetPath,
         ?string $injectScript = null
     ): Response {
         $targetUrl = "https://{$domain}{$targetPath}";
-        $upstream = $this->fetchRemote($request, $domain, $targetUrl);
+
+        // Fast path: static asset cache hit.
+        $assetCacheKey = null;
+        if ($request->isMethod('GET') && $this->isCacheableAsset($targetPath)) {
+            $assetCacheKey = 'site_proxy:asset:'.sha1($targetUrl);
+            /** @var array{body: string, content_type: string}|null $cached */
+            $cached = Cache::get($assetCacheKey);
+            if (is_array($cached)) {
+                return response($cached['body'], 200)
+                    ->header('Content-Type', $cached['content_type'])
+                    ->header('Cache-Control', 'public, max-age='.self::ASSET_CACHE_TTL)
+                    ->header('Access-Control-Allow-Origin', '*');
+            }
+        }
+
+        $upstream = $this->fetchRemote($request, $visitorId, $domain, $targetUrl);
         if ($upstream === null) {
             return response('Proxy error', 502);
         }
@@ -104,8 +146,8 @@ class SiteProxyController extends Controller
             Str::contains($body, 'location.reload') &&
             preg_match('/defaultHash\s*=\s*"([0-9a-f]+)"/i', $body, $m) === 1
         ) {
-            $this->putCookieToJar($request, $domain, 'challenge_passed', $m[1]);
-            $retry = $this->fetchRemote($request, $domain, $targetUrl, 5, true);
+            $this->putCookieToJar($visitorId, $domain, 'challenge_passed', $m[1]);
+            $retry = $this->fetchRemote($request, $visitorId, $domain, $targetUrl, 5, true);
             if ($retry !== null) {
                 $upstream = $retry;
                 $body = $upstream->body();
@@ -137,13 +179,24 @@ class SiteProxyController extends Controller
         $response->headers->set('Access-Control-Allow-Origin', '*');
 
         $this->forwardSafeHeaders($upstream, $response);
-        $this->forwardCookies($request, $upstream, $response, $domain);
+        $this->forwardCookies($visitorId, $upstream, $response, $domain);
+
+        // Store asset in cache for subsequent requests.
+        if ($assetCacheKey !== null && $upstream->status() === 200) {
+            Cache::put(
+                $assetCacheKey,
+                ['body' => $rewrittenBody, 'content_type' => $contentType],
+                self::ASSET_CACHE_TTL,
+            );
+            $response->headers->set('Cache-Control', 'public, max-age='.self::ASSET_CACHE_TTL);
+        }
 
         return $response;
     }
 
     private function fetchRemote(
         Request $request,
+        string $visitorId,
         string $domain,
         string $url,
         int $maxRedirects = 5,
@@ -154,10 +207,10 @@ class SiteProxyController extends Controller
             'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
             'Accept' => '*/*',
             'Accept-Language' => 'uk,ru;q=0.9,en;q=0.8',
-            'Accept-Encoding' => 'gzip, deflate, br',
+            'Accept-Encoding' => 'gzip, deflate',
         ];
 
-        $jarCookie = $this->getCookieFromJar($request, $domain);
+        $jarCookie = $this->getCookieFromJar($visitorId, $domain);
         $browserCookie = (string) ($request->header('Cookie') ?? '');
         $mergedCookie = $this->mergeCookies([$jarCookie, $browserCookie]);
         if ($mergedCookie !== '') {
@@ -200,7 +253,7 @@ class SiteProxyController extends Controller
             return null;
         }
 
-        $this->storeCookies($request, $domain, $response->toPsrResponse()->getHeader('Set-Cookie'));
+        $this->storeCookies($visitorId, $domain, $response->toPsrResponse()->getHeader('Set-Cookie'));
 
         if ($maxRedirects <= 0 || ! in_array($response->status(), [301, 302, 303, 307, 308], true)) {
             return $response;
@@ -217,7 +270,7 @@ class SiteProxyController extends Controller
             return $response;
         }
 
-        return $this->fetchRemote($request, $redirectHost, $redirectUrl, $maxRedirects - 1, $forceGet);
+        return $this->fetchRemote($request, $visitorId, $redirectHost, $redirectUrl, $maxRedirects - 1, $forceGet);
     }
 
     private function blockedResponse(string $domain, int $status, bool $isCloudflare): Response
@@ -381,14 +434,14 @@ JS;
         }
     }
 
-    private function forwardCookies(Request $request, HttpResponse $upstream, Response $response, string $domain): void
+    private function forwardCookies(string $visitorId, HttpResponse $upstream, Response $response, string $domain): void
     {
         $cookies = $upstream->toPsrResponse()->getHeader('Set-Cookie');
         if ($cookies === []) {
             return;
         }
 
-        $this->storeCookies($request, $domain, $cookies);
+        $this->storeCookies($visitorId, $domain, $cookies);
 
         foreach ($cookies as $cookie) {
             $normalized = $this->normalizeSetCookie($cookie, $domain);
@@ -416,21 +469,55 @@ JS;
         return $cookie;
     }
 
-    private function setCurrentPreviewDomain(Request $request, string $domain): void
+    private function ensureVisitorId(Request $request): string
     {
-        $request->session()->put('site_proxy.current_domain', $domain);
+        $id = $request->cookie(self::VISITOR_COOKIE);
+        if (is_string($id) && preg_match('/^[A-Za-z0-9]{32}$/', $id) === 1) {
+            return $id;
+        }
+
+        return Str::random(32);
     }
 
-    private function getCurrentPreviewDomain(Request $request): ?string
+    private function attachVisitorCookie(Response $response, string $visitorId, Request $request): Response
     {
-        $domain = $request->session()->get('site_proxy.current_domain');
+        $existing = $request->cookie(self::VISITOR_COOKIE);
+        if ($existing === $visitorId) {
+            return $response;
+        }
+
+        $cookie = Cookie::create(
+            name: self::VISITOR_COOKIE,
+            value: $visitorId,
+            expire: time() + self::VISITOR_TTL,
+            path: '/',
+            domain: null,
+            secure: $request->isSecure(),
+            httpOnly: true,
+            raw: false,
+            sameSite: Cookie::SAMESITE_LAX,
+        );
+
+        $response->headers->setCookie($cookie);
+
+        return $response;
+    }
+
+    private function setCurrentPreviewDomain(string $visitorId, string $domain): void
+    {
+        Cache::put('site_proxy:visitor:'.$visitorId.':current', $domain, self::VISITOR_TTL);
+    }
+
+    private function getCurrentPreviewDomain(string $visitorId): ?string
+    {
+        $domain = Cache::get('site_proxy:visitor:'.$visitorId.':current');
 
         return is_string($domain) && $domain !== '' ? $domain : null;
     }
 
-    private function getCookieFromJar(Request $request, string $domain): string
+    private function getCookieFromJar(string $visitorId, string $domain): string
     {
-        $jar = $request->session()->get('site_proxy.cookies.'.$domain, []);
+        $jar = Cache::get($this->jarKey($visitorId, $domain), []);
         if (! is_array($jar) || $jar === []) {
             return '';
         }
@@ -446,19 +533,21 @@ JS;
     }
 
     /**
-     * @param list<string> $setCookieHeaders
+     * @param  list<string>  $setCookieHeaders
      */
-    private function storeCookies(Request $request, string $domain, array $setCookieHeaders): void
+    private function storeCookies(string $visitorId, string $domain, array $setCookieHeaders): void
     {
         if ($setCookieHeaders === []) {
             return;
         }
 
-        $jar = $request->session()->get('site_proxy.cookies.'.$domain, []);
+        $key = $this->jarKey($visitorId, $domain);
+        $jar = Cache::get($key, []);
         if (! is_array($jar)) {
             $jar = [];
         }
 
+        $changed = false;
         foreach ($setCookieHeaders as $header) {
             if (! is_string($header)) {
                 continue;
@@ -474,25 +563,36 @@ JS;
                 continue;
             }
 
-            $jar[$name] = $value;
+            if (($jar[$name] ?? null) !== $value) {
+                $jar[$name] = $value;
+                $changed = true;
+            }
         }
 
-        $request->session()->put('site_proxy.cookies.'.$domain, $jar);
+        if ($changed) {
+            Cache::put($key, $jar, self::VISITOR_TTL);
+        }
     }
 
-    private function putCookieToJar(Request $request, string $domain, string $name, string $value): void
+    private function putCookieToJar(string $visitorId, string $domain, string $name, string $value): void
     {
-        $jar = $request->session()->get('site_proxy.cookies.'.$domain, []);
+        $key = $this->jarKey($visitorId, $domain);
+        $jar = Cache::get($key, []);
         if (! is_array($jar)) {
             $jar = [];
         }
 
         $jar[$name] = $value;
-        $request->session()->put('site_proxy.cookies.'.$domain, $jar);
+        Cache::put($key, $jar, self::VISITOR_TTL);
+    }
+
+    private function jarKey(string $visitorId, string $domain): string
+    {
+        return 'site_proxy:visitor:'.$visitorId.':cookies:'.$domain;
     }
 
     /**
-     * @param list<string> $cookieParts
+     * @param  list<string>  $cookieParts
      */
     private function mergeCookies(array $cookieParts): string
     {
@@ -505,6 +605,21 @@ JS;
         }
 
         return implode('; ', $parts);
+    }
+
+    private function isCacheableAsset(string $targetPath): bool
+    {
+        $path = parse_url($targetPath, PHP_URL_PATH);
+        if (! is_string($path) || $path === '') {
+            return false;
+        }
+
+        $ext = strtolower((string) pathinfo($path, PATHINFO_EXTENSION));
+        if ($ext === '') {
+            return false;
+        }
+
+        return in_array($ext, self::ASSET_EXTENSIONS, true);
     }
 
     private function loadInjectScript(?string $injectParam): ?string
