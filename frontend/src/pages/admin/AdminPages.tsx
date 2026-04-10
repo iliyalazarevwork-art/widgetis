@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
 import { uk } from 'date-fns/locale'
-import 'react-datepicker/dist/react-datepicker.css'
 import {
   ArrowRight,
   ArrowDown,

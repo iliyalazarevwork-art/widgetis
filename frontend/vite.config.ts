@@ -11,6 +11,15 @@ export default defineConfig({
     cssCodeSplit: true,
     sourcemap: true,
     chunkSizeWarningLimit: 1024,
+    modulePreload: {
+      resolveDependencies: (_url, deps) =>
+        deps.filter(
+          (d) =>
+            !/datepicker|phone|marquee|TrialSuccess|Admin|Cabinet|cabinet|Checkout|Signup|OnboardingPage|ConsultationModal/.test(
+              d,
+            ),
+        ),
+    },
     rollupOptions: {
       output: {
         manualChunks(id) {

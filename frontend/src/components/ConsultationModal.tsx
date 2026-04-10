@@ -1,15 +1,23 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { ArrowRight, CircleCheckBig, X } from 'lucide-react'
 import { useSwipeDismiss } from '../hooks/useSwipeDismiss'
 import DatePicker, { registerLocale } from 'react-datepicker'
 import { uk } from 'date-fns/locale/uk'
 import { PhoneInput, defaultCountries, parseCountry } from 'react-international-phone'
 import { post } from '../api/client'
-import 'react-datepicker/dist/react-datepicker.css'
-import 'react-international-phone/style.css'
 import './ConsultationModal.css'
 
 registerLocale('uk', uk)
+
+function ensureStylesheet(href: string) {
+  if (typeof document === 'undefined') return
+  if (document.querySelector(`link[data-vendor-css="${href}"]`)) return
+  const link = document.createElement('link')
+  link.rel = 'stylesheet'
+  link.href = href
+  link.setAttribute('data-vendor-css', href)
+  document.head.appendChild(link)
+}
 
 const uaOnly = defaultCountries.filter((country) => parseCountry(country).iso2 === 'ua')
 
@@ -21,6 +29,11 @@ interface ConsultationModalProps {
 const timeSlots = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00']
 
 export function ConsultationModal({ isOpen, onClose }: ConsultationModalProps) {
+  useEffect(() => {
+    ensureStylesheet('/vendor-css/react-datepicker.css')
+    ensureStylesheet('/vendor-css/react-international-phone.css')
+  }, [])
+
   const stableOnClose = useCallback(() => onClose(), [onClose])
   const swipeRef = useSwipeDismiss<HTMLDivElement>({
     direction: 'down',

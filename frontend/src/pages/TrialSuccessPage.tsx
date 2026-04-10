@@ -19,8 +19,17 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { PhoneInput } from 'react-international-phone'
-import 'react-international-phone/style.css'
 import { get, post } from '../api/client'
+
+function ensureVendorStylesheet(href: string) {
+  if (typeof document === 'undefined') return
+  if (document.querySelector(`link[data-vendor-css="${href}"]`)) return
+  const link = document.createElement('link')
+  link.rel = 'stylesheet'
+  link.href = href
+  link.setAttribute('data-vendor-css', href)
+  document.head.appendChild(link)
+}
 import { useAuth } from '../context/AuthContext'
 import { Header } from '../components/Header'
 import { Footer } from '../components/Footer'
@@ -311,6 +320,10 @@ const fieldStyle = (hasError: boolean): React.CSSProperties => ({
 
 // ─── Screen 3: Manager / channel selection ────────────────────────
 function ManagerScreen({ data, onBack }: { data: SignupData; onBack: () => void }) {
+  useEffect(() => {
+    ensureVendorStylesheet('/vendor-css/react-international-phone.css')
+  }, [])
+
   const [selected, setSelected] = useState<Channel>('telegram')
   // phone stores E.164 value, e.g. "+380671234567"
   const [phone, setPhone] = useState(data.phone ?? '')
