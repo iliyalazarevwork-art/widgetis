@@ -58511,26 +58511,13 @@
               "alignItems": "center",
               "children": [
                 {
-                  "type": "frame",
-                  "id": "cEsjj",
-                  "name": "logoBox",
-                  "width": 32,
-                  "height": 32,
+                  "type": "path",
+                  "id": "5cmPf",
+                  "name": "logoMark",
+                  "geometry": "M21.819 4.206c-0.047 0.826-1.029 2.413-5.387 11.558-1.872 3.929-1.808 4.264-2.817 4.42-0.66 0.102-2.944 0.279-3.858-0.249-0.518-0.299-0.731-0.358-1.79-3.163-1.2-3.179-1.183-3.184-2.427-6.345-0.815-2.07-0.79-2.077-1.612-4.144-0.746-1.875-0.851-2.454-0.892-2.676-0.043-0.236-0.055-0.285 0.051-0.285 5.21-0.022 5.529 0.016 5.988 1.111 1.271 3.035 3.4 9.373 3.781 9.524 0.152 0.06 0.33-0.302 0.615-0.978 0.913-2.162 0.764-2.217 1.793-4.757 1.046-2.58 1.373-4.461 2.309-4.741 0.514-0.154 2.985-0.231 3.614-0.026 0.607 0.198 0.629 0.673 0.633 0.752z m5.118 16.047c-0.367 0.038-3.279 0.2-4.076-0.287-0.271-0.166-0.309-0.165-1.13-2.032-0.054-0.123-2.127-5.002-2.137-5.056-0.011-0.055 2.238-4.518 2.863-5.49 0.093-0.145 0.157-0.239 0.226-0.126 0.314 0.518 0.193 0.778 1.92 4.835 0.068 0.159 0.874 2.03 1.075 2.084 0.342 0.093 1.769-4.481 3.454-8.595 0.794-1.939 1.004-2.15 1.545-2.176 0.508-0.024 0.612-0.086 3.363-0.07 1.086 0.006 1.014 0.228 1.013 0.237-0.072 0.823-2.531 6.877-3.146 8.611-0.177 0.499-1.906 5.056-2.313 6.026-0.353 0.841-0.571 1.916-2.657 2.038z",
                   "fill": "#3B82F6",
-                  "cornerRadius": 8,
-                  "justifyContent": "center",
-                  "alignItems": "center",
-                  "children": [
-                    {
-                      "type": "text",
-                      "id": "ZsqXZ",
-                      "fill": "#FFFFFF",
-                      "content": "W",
-                      "fontFamily": "Inter",
-                      "fontSize": 18,
-                      "fontWeight": "800"
-                    }
-                  ]
+                  "width": 23,
+                  "height": 12
                 },
                 {
                   "type": "text",
@@ -58539,8 +58526,8 @@
                   "content": "WIDGETIS",
                   "fontFamily": "Inter",
                   "fontSize": 15,
-                  "fontWeight": "800",
-                  "letterSpacing": 1
+                  "fontWeight": "700",
+                  "letterSpacing": 2
                 }
               ]
             },
@@ -58554,13 +58541,36 @@
               "alignItems": "center",
               "children": [
                 {
-                  "type": "icon_font",
-                  "id": "FTqlq",
-                  "width": 24,
-                  "height": 24,
-                  "iconFontName": "menu",
-                  "iconFontFamily": "lucide",
-                  "fill": "#F0F0F0"
+                  "type": "frame",
+                  "id": "QVEkO",
+                  "name": "burgerIcon",
+                  "width": 22,
+                  "height": 22,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "rectangle",
+                      "cornerRadius": 2,
+                      "id": "Q4dxq",
+                      "x": 2,
+                      "y": 7,
+                      "name": "topBar",
+                      "fill": "#F0F0F0",
+                      "width": 18,
+                      "height": 2.5
+                    },
+                    {
+                      "type": "rectangle",
+                      "cornerRadius": 2,
+                      "id": "iYIsi",
+                      "x": 5,
+                      "y": 13,
+                      "name": "bottomBar",
+                      "fill": "#F0F0F0",
+                      "width": 13,
+                      "height": 2.5
+                    }
+                  ]
                 }
               ]
             }
@@ -58596,24 +58606,24 @@
                   "type": "frame",
                   "id": "q0tVf",
                   "name": "badge",
-                  "fill": "#3B82F61A",
-                  "cornerRadius": 999,
+                  "fill": "#161616",
+                  "cornerRadius": 20,
                   "stroke": {
                     "thickness": 1,
-                    "fill": "#3B82F640"
+                    "fill": "#FFFFFF0A"
                   },
-                  "gap": 6,
+                  "gap": 5,
                   "padding": [
-                    8,
-                    14
+                    4,
+                    10
                   ],
                   "alignItems": "center",
                   "children": [
                     {
                       "type": "icon_font",
                       "id": "A0lFc",
-                      "width": 12,
-                      "height": 12,
+                      "width": 11,
+                      "height": 11,
                       "iconFontName": "sparkles",
                       "iconFontFamily": "lucide",
                       "fill": "#3B82F6"
@@ -58624,25 +58634,54 @@
                       "fill": "#3B82F6",
                       "content": "НАБІР ГОТОВИХ ВІДЖЕТІВ ДЛЯ E-COMMERCE",
                       "fontFamily": "Inter",
-                      "fontSize": 10,
+                      "fontSize": 9,
                       "fontWeight": "700",
-                      "letterSpacing": 1
+                      "letterSpacing": 0.9
                     }
                   ]
                 },
                 {
-                  "type": "text",
-                  "id": "bdUGU",
-                  "fill": "#FFFFFF",
-                  "textGrowth": "fixed-width",
+                  "type": "frame",
+                  "id": "1sd2i",
+                  "name": "heading",
                   "width": "fill_container",
-                  "content": "Віджети,\nщо самі\nпродають.",
-                  "lineHeight": 1.05,
-                  "textAlign": "center",
-                  "fontFamily": "Inter",
-                  "fontSize": 42,
-                  "fontWeight": "900",
-                  "letterSpacing": -1.2
+                  "layout": "vertical",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "zCero",
+                      "fill": "#FFFFFF",
+                      "content": "Віджети,",
+                      "lineHeight": 1.05,
+                      "fontFamily": "Inter",
+                      "fontSize": 42,
+                      "fontWeight": "900",
+                      "letterSpacing": -1.2
+                    },
+                    {
+                      "type": "text",
+                      "id": "OUIRA",
+                      "fill": "#FFFFFF",
+                      "content": "що самі",
+                      "lineHeight": 1.05,
+                      "fontFamily": "Inter",
+                      "fontSize": 42,
+                      "fontWeight": "900",
+                      "letterSpacing": -1.2
+                    },
+                    {
+                      "type": "text",
+                      "id": "vokQl",
+                      "fill": "#3B82F6",
+                      "content": "продають.",
+                      "lineHeight": 1.05,
+                      "fontFamily": "Inter",
+                      "fontSize": 42,
+                      "fontWeight": "900",
+                      "letterSpacing": -1.2
+                    }
+                  ]
                 },
                 {
                   "type": "text",
@@ -58656,6 +58695,847 @@
                   "fontFamily": "Inter",
                   "fontSize": 14,
                   "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "kImZT",
+              "name": "heroBottom",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "VNAhW",
+                  "name": "shipCard",
+                  "width": "fill_container",
+                  "fill": "#131313",
+                  "cornerRadius": 14,
+                  "stroke": {
+                    "thickness": 1,
+                    "fill": "#FFFFFF12"
+                  },
+                  "layout": "vertical",
+                  "gap": 10,
+                  "padding": [
+                    12,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "wKqVG",
+                      "name": "shipRow",
+                      "width": "fill_container",
+                      "gap": 12,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "lCnci",
+                          "name": "shipIcoBox",
+                          "width": 36,
+                          "height": 36,
+                          "fill": "#F9731620",
+                          "cornerRadius": 10,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "SQKlt",
+                              "width": 20,
+                              "height": 20,
+                              "iconFontName": "gift",
+                              "iconFontFamily": "lucide",
+                              "fill": "#F97316"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "sjNKR",
+                          "name": "shipText",
+                          "width": "fill_container",
+                          "gap": 4,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "mG7Pr",
+                              "fill": "#B0B0B0",
+                              "content": "До безкоштовної доставки:",
+                              "fontFamily": "Inter",
+                              "fontSize": 13,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "text",
+                              "id": "YtlMQ",
+                              "fill": "#FFFFFF",
+                              "content": "910 грн",
+                              "fontFamily": "Inter",
+                              "fontSize": 13,
+                              "fontWeight": "700"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ofysy",
+                      "name": "progBg",
+                      "width": "fill_container",
+                      "height": 6,
+                      "fill": "#FFFFFF0F",
+                      "cornerRadius": 999,
+                      "children": [
+                        {
+                          "type": "rectangle",
+                          "cornerRadius": 999,
+                          "id": "IfJBf",
+                          "name": "progFill",
+                          "fill": {
+                            "type": "gradient",
+                            "gradientType": "linear",
+                            "enabled": true,
+                            "rotation": 90,
+                            "size": {
+                              "height": 1
+                            },
+                            "colors": [
+                              {
+                                "color": "#F97316",
+                                "position": 0
+                              },
+                              {
+                                "color": "#FB923C",
+                                "position": 1
+                              }
+                            ]
+                          },
+                          "width": 110,
+                          "height": 6
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "tDQI7",
+                  "name": "delCard",
+                  "width": "fill_container",
+                  "fill": "#131313",
+                  "cornerRadius": 14,
+                  "stroke": {
+                    "thickness": 1,
+                    "fill": "#FFFFFF12"
+                  },
+                  "gap": 12,
+                  "padding": [
+                    12,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "M6MMw",
+                      "name": "delIcoBox",
+                      "width": 36,
+                      "height": 36,
+                      "fill": "#10B98120",
+                      "cornerRadius": 10,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "fst7L",
+                          "width": 20,
+                          "height": 20,
+                          "iconFontName": "truck",
+                          "iconFontFamily": "lucide",
+                          "fill": "#10B981"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "BnGAK",
+                      "name": "delInfo",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "7DWEl",
+                          "name": "delTitleRow",
+                          "gap": 4,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Aer6x",
+                              "fill": "#B0B0B0",
+                              "content": "Доставка",
+                              "fontFamily": "Inter",
+                              "fontSize": 13,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "text",
+                              "id": "eenri",
+                              "fill": "#10B981",
+                              "content": "завтра, 11 квітня",
+                              "fontFamily": "Inter",
+                              "fontSize": 13,
+                              "fontWeight": "700"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "NOlRA",
+                          "name": "delSubRow",
+                          "gap": 6,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "1AIuy",
+                              "fill": "#6B6B6B",
+                              "content": "Замов до 18:00 — залишилось",
+                              "fontFamily": "Inter",
+                              "fontSize": 11,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "j62la",
+                              "fill": "#F0F0F0",
+                              "content": "18:00:37",
+                              "fontFamily": "Inter",
+                              "fontSize": 11,
+                              "fontWeight": "700"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "S60Tb",
+                  "name": "ctaBtn",
+                  "width": "fill_container",
+                  "fill": "#3B82F6",
+                  "cornerRadius": 14,
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "color": "#3B82F64D",
+                    "blur": 28
+                  },
+                  "gap": 8,
+                  "padding": 14,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "xWYbf",
+                      "fill": "#F0F0F0",
+                      "content": "Спробувати 7 днів безкоштовно",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "icon_font",
+                      "id": "XxQCd",
+                      "width": 16,
+                      "height": 16,
+                      "iconFontName": "arrow-right",
+                      "iconFontFamily": "lucide",
+                      "fill": "#FFFFFF"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "sWkNg",
+          "name": "WidgetsShowcase",
+          "width": "fill_container",
+          "fill": "#0E0E0E",
+          "layout": "vertical",
+          "gap": 64,
+          "padding": [
+            80,
+            20
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "30xf1",
+              "name": "wssHeader",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 12,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "FpAjJ",
+                  "fill": "#3B82F6",
+                  "content": "ДЕМОНСТРАЦІЯ",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "600",
+                  "letterSpacing": 2
+                },
+                {
+                  "type": "frame",
+                  "id": "PXE8h",
+                  "name": "title",
+                  "gap": 10,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "8tPun",
+                      "fill": "#3B82F6",
+                      "content": "Віджети",
+                      "lineHeight": 1.05,
+                      "fontFamily": "Inter",
+                      "fontSize": 36,
+                      "fontWeight": "800",
+                      "letterSpacing": -2
+                    },
+                    {
+                      "type": "text",
+                      "id": "AVAF6",
+                      "fill": "#FFFFFF",
+                      "content": "в дії",
+                      "lineHeight": 1.05,
+                      "fontFamily": "Inter",
+                      "fontSize": 36,
+                      "fontWeight": "800",
+                      "letterSpacing": -2
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "LIyt0",
+                  "fill": "#8A8A8A",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Реальні магазини. Живі інтерактивні приклади.",
+                  "lineHeight": 1.5,
+                  "textAlign": "center",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "GQuDw",
+              "name": "itemBasic",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 20,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "PrJch",
+                  "name": "meta",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "apINs",
+                      "name": "tierBasic",
+                      "fill": "#64B4FF1F",
+                      "cornerRadius": 6,
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "#64B4FF40"
+                      },
+                      "padding": [
+                        3,
+                        10
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "IhAMF",
+                          "fill": "#64B4FF",
+                          "content": "BASIC",
+                          "fontFamily": "Inter",
+                          "fontSize": 11,
+                          "fontWeight": "800",
+                          "letterSpacing": 1.5
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "773E0",
+                      "fill": "#FFFFFF",
+                      "content": "Доставка та кошик",
+                      "lineHeight": 1.2,
+                      "fontFamily": "Inter",
+                      "fontSize": 22,
+                      "fontWeight": "800",
+                      "letterSpacing": -0.5
+                    },
+                    {
+                      "type": "text",
+                      "id": "3bgz0",
+                      "fill": "#8A8A8A",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Бігуча стрічка · Дата доставки · Ціль кошика",
+                      "lineHeight": 1.4,
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "JewRA",
+                  "name": "cardPtashkin",
+                  "width": "fill_container",
+                  "fill": "#F4EDE0",
+                  "cornerRadius": 16,
+                  "stroke": {
+                    "thickness": 1,
+                    "fill": "#00000014"
+                  },
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "CMTRA",
+                      "name": "browser",
+                      "width": "fill_container",
+                      "fill": "#161616",
+                      "gap": 10,
+                      "padding": [
+                        8,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "rV44Y",
+                          "name": "dots",
+                          "gap": 5,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "d17V6",
+                              "fill": "#FF5F57",
+                              "width": 7,
+                              "height": 7
+                            },
+                            {
+                              "type": "ellipse",
+                              "id": "TVVsf",
+                              "fill": "#FFBD2E",
+                              "width": 7,
+                              "height": 7
+                            },
+                            {
+                              "type": "ellipse",
+                              "id": "MHtAZ",
+                              "fill": "#28C840",
+                              "width": 7,
+                              "height": 7
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "iEU7L",
+                          "name": "urlBar",
+                          "width": "fill_container",
+                          "fill": "#0A0A0A",
+                          "cornerRadius": 4,
+                          "padding": [
+                            3,
+                            10
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "DipLc",
+                              "fill": "#8A8A8A",
+                              "content": "ptashkinsad.com",
+                              "fontFamily": "Inter",
+                              "fontSize": 10,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "onsS2",
+                      "name": "marquee",
+                      "clip": true,
+                      "width": "fill_container",
+                      "height": 26,
+                      "fill": "#3A4A3A",
+                      "gap": 20,
+                      "padding": [
+                        0,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "U4cxL",
+                          "name": "mq1a",
+                          "gap": 5,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "T8fY4",
+                              "width": 11,
+                              "height": 11,
+                              "iconFontName": "leaf",
+                              "iconFontFamily": "lucide",
+                              "fill": "#FFFFFF"
+                            },
+                            {
+                              "type": "text",
+                              "id": "EEHCa",
+                              "fill": "#FFFFFF",
+                              "content": "Безкоштовна доставка від 3000 грн",
+                              "fontFamily": "Inter",
+                              "fontSize": 11,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "HXbKZ",
+                          "name": "mq2a",
+                          "gap": 5,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "AILln",
+                              "width": 11,
+                              "height": 11,
+                              "iconFontName": "gift",
+                              "iconFontFamily": "lucide",
+                              "fill": "#FFFFFF"
+                            },
+                            {
+                              "type": "text",
+                              "id": "aHr1b",
+                              "fill": "#FFFFFF",
+                              "content": "-10% при першій покупці",
+                              "fontFamily": "Inter",
+                              "fontSize": 11,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "A1YV3",
+                      "name": "body",
+                      "width": "fill_container",
+                      "fill": "#F4EDE0",
+                      "layout": "vertical",
+                      "gap": 10,
+                      "padding": 12,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "NrHXe",
+                          "name": "storeRow",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Wm7l5",
+                              "fill": "#3A4A3A",
+                              "content": "ptashkin sad",
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "normal",
+                              "fontStyle": "italic"
+                            },
+                            {
+                              "type": "icon_font",
+                              "id": "agi1X",
+                              "width": 15,
+                              "height": 15,
+                              "iconFontName": "shopping-cart",
+                              "iconFontFamily": "lucide",
+                              "fill": "#3A4A3A"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "rectangle",
+                          "id": "80ZkB",
+                          "name": "divider",
+                          "fill": "#3A4A3A26",
+                          "width": "fill_container",
+                          "height": 1
+                        },
+                        {
+                          "type": "frame",
+                          "id": "8Pmlh",
+                          "name": "product",
+                          "width": "fill_container",
+                          "gap": 10,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "3Yxxz",
+                              "name": "img",
+                              "width": 90,
+                              "height": 110,
+                              "fill": "#EDE4D3",
+                              "cornerRadius": 6,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon_font",
+                                  "id": "GuX6R",
+                                  "width": 36,
+                                  "height": 36,
+                                  "iconFontName": "package",
+                                  "iconFontFamily": "lucide",
+                                  "fill": "#3A4A3A60"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "4iLNo",
+                              "name": "info",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 6,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "dhMSn",
+                                  "fill": "#3A4A3A",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Крем-бустер Pure",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "lg7Wm",
+                                  "fill": "#999999",
+                                  "content": "35 ML",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 9,
+                                  "fontWeight": "normal",
+                                  "letterSpacing": 0.5
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "xUxkV",
+                                  "fill": "#3A4A3A",
+                                  "content": "1 195 грн",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 16,
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "L3EC7",
+                                  "name": "dd",
+                                  "gap": 5,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "BmJew",
+                                      "name": "np",
+                                      "width": 20,
+                                      "height": 20,
+                                      "fill": "#DA291C",
+                                      "cornerRadius": 4,
+                                      "justifyContent": "center",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "S4LVL",
+                                          "fill": "#FFFFFF",
+                                          "content": "НП",
+                                          "fontFamily": "Inter",
+                                          "fontSize": 8,
+                                          "fontWeight": "800"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "7FOO5",
+                                      "fill": "#3A4A3A",
+                                      "content": "Завтра,",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 11,
+                                      "fontWeight": "normal"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "6iVAX",
+                                      "fill": "#2D5A2D",
+                                      "content": "12 квітня",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 11,
+                                      "fontWeight": "700"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "83wxp",
+                                  "name": "buy",
+                                  "width": "fill_container",
+                                  "fill": "#3A4A3A",
+                                  "cornerRadius": 8,
+                                  "padding": [
+                                    8,
+                                    10
+                                  ],
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "tYn1y",
+                                      "fill": "#F4EDE0",
+                                      "content": "Купити",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 11,
+                                      "fontWeight": "700"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Qk0iU",
+                          "name": "goal",
+                          "width": "fill_container",
+                          "fill": "#4A3527",
+                          "cornerRadius": 8,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            14
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "wOwW9",
+                              "width": 22,
+                              "height": 22,
+                              "iconFontName": "gift",
+                              "iconFontFamily": "lucide",
+                              "fill": "#E4C9A8"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "U5zJP",
+                              "name": "gc",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 5,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "8g0Bo",
+                                  "fill": "#E4C9A8",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "До безкоштовної доставки залишилось 1805 грн",
+                                  "lineHeight": 1.3,
+                                  "fontFamily": "Inter",
+                                  "fontSize": 11,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "xbeyv",
+                                  "name": "bar",
+                                  "clip": true,
+                                  "width": "fill_container",
+                                  "height": 5,
+                                  "fill": "#FFFFFF33",
+                                  "cornerRadius": 3,
+                                  "children": [
+                                    {
+                                      "type": "rectangle",
+                                      "cornerRadius": 3,
+                                      "id": "Hx8VY",
+                                      "fill": "#E4A971",
+                                      "width": 120,
+                                      "height": 5
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             }
