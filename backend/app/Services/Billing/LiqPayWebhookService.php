@@ -92,7 +92,7 @@ class LiqPayWebhookService
         DB::transaction(function () use ($order, $payload, $status): void {
             match ($status) {
                 'subscribed' => $this->handleSubscribed($order, $payload),
-                'success' => $this->handleSuccess($order, $payload),
+                'success', 'sandbox' => $this->handleSuccess($order, $payload),
                 'failure', 'error' => $this->handleFailure($order, $payload),
                 'unsubscribed' => $this->handleUnsubscribed($order, $payload),
                 default => null,
