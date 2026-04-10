@@ -1,13 +1,13 @@
-/* ===== License page ===== */
+/* ===== Legal document pages (Offer / Refund / Security) ===== */
 
-.license-page {
+.legal-doc-page {
   min-height: 100vh;
   background: var(--bg-primary);
   padding-top: calc(var(--promo-strip-h, 0px) + 64px);
 }
 
 /* ── Hero ── */
-.license-page__hero {
+.legal-doc-page__hero {
   position: relative;
   padding: 56px 0 48px;
   overflow: hidden;
@@ -15,37 +15,37 @@
   border-bottom: 1px solid var(--border-subtle);
 }
 
-.license-page__hero-bg {
+.legal-doc-page__hero-bg {
   position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;
 }
 
-.license-page__hero-glow {
+.legal-doc-page__hero-glow {
   position: absolute;
   border-radius: 50%;
   filter: blur(120px);
   opacity: 0.3;
 }
 
-.license-page__hero-glow--1 {
+.legal-doc-page__hero-glow--1 {
   width: 480px;
   height: 480px;
-  background: rgba(99, 102, 241, 0.22);
+  background: rgba(59, 130, 246, 0.2);
   top: -220px;
   right: -100px;
 }
 
-.license-page__hero-glow--2 {
+.legal-doc-page__hero-glow--2 {
   width: 300px;
   height: 300px;
-  background: rgba(59, 130, 246, 0.18);
+  background: rgba(99, 102, 241, 0.15);
   bottom: -160px;
   left: 8%;
 }
 
-.license-page__hero-content {
+.legal-doc-page__hero-content {
   position: relative;
   z-index: 1;
   max-width: 760px;
@@ -53,7 +53,7 @@
   padding: 0 24px;
 }
 
-.license-page__back {
+.legal-doc-page__back {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -65,12 +65,12 @@
   transition: color 0.2s, gap 0.2s;
 }
 
-.license-page__back:hover {
+.legal-doc-page__back:hover {
   color: var(--accent);
   gap: 8px;
 }
 
-.license-page__eyebrow {
+.legal-doc-page__eyebrow {
   display: inline-block;
   font-size: 11px;
   font-weight: 700;
@@ -80,7 +80,7 @@
   margin: 0 0 10px;
 }
 
-.license-page__title {
+.legal-doc-page__title {
   font-family: var(--font-display);
   font-size: 42px;
   font-weight: 800;
@@ -90,23 +90,23 @@
   margin: 0 0 12px;
 }
 
-.license-page__title-accent {
+.legal-doc-page__title-accent {
   color: var(--accent);
   text-shadow: 0 0 40px var(--accent-glow);
 }
 
-.license-page__subtitle {
+.legal-doc-page__subtitle {
   font-size: 15px;
   color: var(--text-secondary);
   margin: 0;
 }
 
 /* ── Content ── */
-.license-page__content {
+.legal-doc-page__content {
   padding: 48px 0 96px;
 }
 
-.license-page__container {
+.legal-doc-page__container {
   max-width: 760px;
   margin: 0 auto;
   padding: 0 24px;
@@ -116,7 +116,7 @@
 }
 
 /* ── Cards ── */
-.license-page__card {
+.legal-doc-page__card {
   display: flex;
   align-items: flex-start;
   gap: 16px;
@@ -124,23 +124,34 @@
   border-radius: 16px;
   background: var(--bg-elevated);
   border: 1px solid var(--border-subtle);
-  animation: lic-card-in 500ms cubic-bezier(0.32, 0.72, 0, 1) both;
+  animation: ldp-card-in 500ms cubic-bezier(0.32, 0.72, 0, 1) both;
 }
 
-.license-page__card:nth-child(1) { animation-delay: 40ms; }
-.license-page__card:nth-child(2) { animation-delay: 80ms; }
-.license-page__card:nth-child(3) { animation-delay: 120ms; }
-.license-page__card:nth-child(4) { animation-delay: 160ms; }
-.license-page__card:nth-child(5) { animation-delay: 200ms; }
-.license-page__card:nth-child(6) { animation-delay: 240ms; }
-.license-page__card:nth-child(7) { animation-delay: 280ms; }
+.legal-doc-page__card--highlight {
+  border-color: rgba(59, 130, 246, 0.35);
+  background: rgba(59, 130, 246, 0.06);
+}
 
-@keyframes lic-card-in {
+.legal-doc-page__card:nth-child(1)  { animation-delay: 40ms; }
+.legal-doc-page__card:nth-child(2)  { animation-delay: 80ms; }
+.legal-doc-page__card:nth-child(3)  { animation-delay: 120ms; }
+.legal-doc-page__card:nth-child(4)  { animation-delay: 160ms; }
+.legal-doc-page__card:nth-child(5)  { animation-delay: 200ms; }
+.legal-doc-page__card:nth-child(6)  { animation-delay: 240ms; }
+.legal-doc-page__card:nth-child(7)  { animation-delay: 280ms; }
+.legal-doc-page__card:nth-child(8)  { animation-delay: 320ms; }
+.legal-doc-page__card:nth-child(9)  { animation-delay: 360ms; }
+.legal-doc-page__card:nth-child(10) { animation-delay: 400ms; }
+.legal-doc-page__card:nth-child(11) { animation-delay: 440ms; }
+.legal-doc-page__card:nth-child(12) { animation-delay: 480ms; }
+.legal-doc-page__card:nth-child(13) { animation-delay: 520ms; }
+
+@keyframes ldp-card-in {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.license-page__card-icon {
+.legal-doc-page__card-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -153,12 +164,12 @@
   margin-top: 2px;
 }
 
-.license-page__card-body {
+.legal-doc-page__card-body {
   flex: 1;
   min-width: 0;
 }
 
-.license-page__card-title {
+.legal-doc-page__card-title {
   font-family: var(--font-display);
   font-size: 15px;
   font-weight: 700;
@@ -167,7 +178,7 @@
   letter-spacing: -0.1px;
 }
 
-.license-page__card-text {
+.legal-doc-page__card-text {
   font-size: 14px;
   line-height: 1.65;
   color: var(--text-secondary);
@@ -175,7 +186,7 @@
 }
 
 /* ── Legal basis block ── */
-.license-page__legal {
+.legal-doc-page__legal {
   padding: 20px 24px;
   border-radius: 16px;
   background: var(--bg-elevated);
@@ -183,7 +194,7 @@
   margin-top: 8px;
 }
 
-.license-page__legal-header {
+.legal-doc-page__legal-header {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -195,7 +206,7 @@
   margin-bottom: 14px;
 }
 
-.license-page__legal-list {
+.legal-doc-page__legal-list {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -204,7 +215,7 @@
   gap: 12px;
 }
 
-.license-page__legal-list li {
+.legal-doc-page__legal-list li {
   font-size: 13px;
   line-height: 1.6;
   color: var(--text-secondary);
@@ -212,24 +223,13 @@
   border-left: 2px solid var(--border-subtle);
 }
 
-.license-page__legal-list strong {
+.legal-doc-page__legal-list strong {
   color: var(--text-primary);
   font-weight: 600;
 }
 
-.license-page__legal-link {
-  color: var(--accent);
-  text-decoration: none;
-  font-size: 12px;
-  white-space: nowrap;
-}
-
-.license-page__legal-link:hover {
-  text-decoration: underline;
-}
-
 /* ── Footer note ── */
-.license-page__updated {
+.legal-doc-page__updated {
   font-size: 12px;
   color: var(--text-muted);
   margin: 16px 0 0;
@@ -239,19 +239,19 @@
 
 /* ── Responsive ── */
 @media (max-width: 560px) {
-  .license-page__hero {
+  .legal-doc-page__hero {
     padding: 40px 0 36px;
   }
 
-  .license-page__title {
+  .legal-doc-page__title {
     font-size: 30px;
   }
 
-  .license-page__content {
+  .legal-doc-page__content {
     padding: 32px 0 72px;
   }
 
-  .license-page__card {
+  .legal-doc-page__card {
     flex-direction: column;
     gap: 12px;
   }

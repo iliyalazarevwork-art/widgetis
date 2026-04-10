@@ -57,9 +57,9 @@ export function Footer({ variant = 'full' }: FooterProps) {
 
             <div className="footer__col">
               <h3 className="footer__col-title">Документи</h3>
-              <Link to="/legal#offer" className="footer__link">Публічна оферта</Link>
-              <Link to="/legal#refund" className="footer__link">Повернення коштів</Link>
-              <Link to="/legal#security" className="footer__link">Безпека даних</Link>
+              <Link to="/offer" className="footer__link">Публічна оферта</Link>
+              <Link to="/refund" className="footer__link">Повернення коштів</Link>
+              <Link to="/security" className="footer__link">Безпека даних</Link>
               <Link to="/license" className="footer__link">Ліцензія</Link>
             </div>
 

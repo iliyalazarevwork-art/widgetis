@@ -221,47 +221,17 @@ export function WidgetsPage() {
 
       {/* ── Hero ── */}
       <section className="wp__hero">
-        <div className="wp__hero-bg" aria-hidden="true">
-          <div className="wp__hero-glow wp__hero-glow--left" />
-          <div className="wp__hero-glow wp__hero-glow--right" />
-          <div className="wp__hero-grid" />
+        <div className="wp__hero-badge">
+          <span className="wp__hero-badge-dot" aria-hidden="true" />
+          КАТАЛОГ ВІДЖЕТІВ
         </div>
-        <div className="wp__hero-inner">
-          <p className="wp__hero-eyebrow">
-            <Sparkles size={12} strokeWidth={2.5} />
-            15 готових віджетів
-          </p>
-          <h1 className="wp__hero-title">
-            Інструменти, що<br />
-            <span className="wp__hero-accent">продають самі</span>
-          </h1>
-          <p className="wp__hero-sub">
-            Кожен віджет — перевірений результат у реальних магазинах.<br />
-            Встановлення за 2 хвилини, вплив — з першого дня.
-          </p>
-
-          <div className="wp__hero-stats">
-            <div className="wp__stat">
-              <strong>15</strong>
-              <span>готових віджетів</span>
-            </div>
-            <div className="wp__stat-div" />
-            <div className="wp__stat">
-              <strong>120+</strong>
-              <span>магазинів</span>
-            </div>
-            <div className="wp__stat-div" />
-            <div className="wp__stat">
-              <strong>+18%</strong>
-              <span>конверсія в середньому</span>
-            </div>
-            <div className="wp__stat-div" />
-            <div className="wp__stat">
-              <strong>2 хв</strong>
-              <span>встановлення</span>
-            </div>
-          </div>
-        </div>
+        <h1 className="wp__hero-title">
+          Інструменти,<br />що продають
+        </h1>
+        <p className="wp__hero-sub">
+          Підключіть один раз — і магазин<br />
+          починає конвертувати краще.
+        </p>
       </section>
 
       {/* ── Tag filter ── */}

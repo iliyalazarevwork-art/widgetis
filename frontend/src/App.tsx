@@ -25,6 +25,9 @@ const CheckoutSuccessPage = lazy(() =>
 )
 const ContactsPage = lazy(() => import('./pages/ContactsPage').then((m) => ({ default: m.ContactsPage })))
 const LicensePage = lazy(() => import('./pages/LicensePage').then((m) => ({ default: m.LicensePage })))
+const OfferPage = lazy(() => import('./pages/OfferPage').then((m) => ({ default: m.OfferPage })))
+const RefundPage = lazy(() => import('./pages/RefundPage').then((m) => ({ default: m.RefundPage })))
+const SecurityPage = lazy(() => import('./pages/SecurityPage').then((m) => ({ default: m.SecurityPage })))
 const CasesPage = lazy(() => import('./pages/CasesPage').then((m) => ({ default: m.CasesPage })))
 const WidgetDetailPage = lazy(() =>
   import('./pages/WidgetDetailPage').then((m) => ({ default: m.WidgetDetailPage })),
@@ -281,6 +284,9 @@ function App() {
             <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
             <Route path="/contacts" element={<ContactsPage />} />
             <Route path="/license" element={<LicensePage />} />
+            <Route path="/offer" element={<OfferPage />} />
+            <Route path="/refund" element={<RefundPage />} />
+            <Route path="/security" element={<SecurityPage />} />
             <Route path="/cases" element={<CasesPage />} />
             <Route path="/widgets/:slug" element={<WidgetDetailPage />} />
             <Route path="/demo" element={<DemoPage />} />
