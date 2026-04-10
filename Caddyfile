@@ -6,7 +6,7 @@ widgetis.com, www.widgetis.com {
         max_size 20MB
     }
 
-    # ── Backend: API, Auth, Admin ─────────────────────────────
+    # ── Backend: API, Auth, Admin, Payments ──────────────────
     handle /api/* {
         reverse_proxy backend:8000
     }
@@ -14,6 +14,9 @@ widgetis.com, www.widgetis.com {
         reverse_proxy backend:8000
     }
     handle /admin/* {
+        reverse_proxy backend:8000
+    }
+    handle /liqpay/* {
         reverse_proxy backend:8000
     }
 
