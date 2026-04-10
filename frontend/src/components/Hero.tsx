@@ -28,7 +28,6 @@ export function Hero() {
   const swapTimersRef = useRef<number[]>([])
   const scheduleTimersRef = useRef<number[]>([])
 
-  const [visible, setVisible] = useState(false)
   const [slots, setSlots] = useState(3)
   const [displayedWidgets, setDisplayedWidgets] = useState<HeroWidget[]>(HERO_WIDGETS.slice(0, 3))
   const [animatingSlot, setAnimatingSlot] = useState<number | null>(null)
@@ -103,14 +102,9 @@ export function Hero() {
   }
 
   useEffect(() => {
-    const t = setTimeout(() => setVisible(true), 80)
-    return () => clearTimeout(t)
-  }, [])
-
-  useEffect(() => {
     const onResize = () => setSlots(getWidgetSlots(window.innerHeight, window.innerWidth))
     onResize()
-    window.addEventListener('resize', onResize)
+    window.addEventListener('resize', onResize, { passive: true })
     return () => window.removeEventListener('resize', onResize)
   }, [])
 
@@ -162,7 +156,7 @@ export function Hero() {
   }, [inView, tabActive, slots])
 
   return (
-    <section ref={heroRef} className={`hero ${visible ? 'hero--visible' : ''}`}>
+    <section ref={heroRef} className="hero hero--visible">
       <div className="hero__bg" aria-hidden="true">
         <div className="hero__glow hero__glow--left" />
         <div className="hero__glow hero__glow--right" />

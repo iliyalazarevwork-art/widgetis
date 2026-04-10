@@ -64,7 +64,7 @@ export function HowItWorks() {
               <div className="how__progress-track" />
               <div
                 className="how__progress-fill"
-                style={{ width: `${progressPct}%` }}
+                style={{ transform: `scaleX(${progressPct / 100})` }}
               />
             </div>
             <ol className="how__bubbles">

@@ -117,7 +117,7 @@ export function PreviewCartGoal() {
         : <p>До безкоштовної доставки: <strong>{remaining} грн</strong></p>
       }
       <div className="wpr__bar">
-        <div className="wpr__bar-fill" style={{ width: `${pct}%`, background: achieved ? '#22c55e' : '#f59e0b' }} />
+        <div className="wpr__bar-fill" style={{ transform: `scaleX(${pct / 100})`, background: achieved ? '#22c55e' : '#f59e0b' }} />
       </div>
     </Popup>
   )

@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { X, UserRound, ArrowRight, Puzzle, CreditCard, Briefcase, Mail } from 'lucide-react'
-import { motion, AnimatePresence } from 'motion/react'
 import { useSwipeDismiss } from '../hooks/useSwipeDismiss'
 import { SocialIcon } from './SocialIcon'
 import { HamburgerIcon } from './HamburgerIcon'
@@ -122,115 +121,87 @@ export function Header() {
       </header>
 
       {createPortal(
-        <AnimatePresence>
-          {menuOpen && (
-            <>
-              <motion.div
-                className="header__overlay"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
+        <>
+          <div
+            className={`header__overlay ${menuOpen ? 'header__overlay--open' : ''}`}
+            onClick={closeMenu}
+            aria-hidden={!menuOpen}
+          />
+          <nav
+            ref={drawerRef as React.RefObject<HTMLElement>}
+            className={`header__drawer ${menuOpen ? 'header__drawer--open' : ''}`}
+            aria-hidden={!menuOpen}
+          >
+            <div className="header__drawer-top">
+              <Link to="/" className="header__drawer-logo" onClick={closeMenu} aria-label={BRAND_NAME}>
+                <img src="/logo.svg" className="header__drawer-logo-mark" aria-hidden="true" />
+                <span className="header__drawer-logo-text">{BRAND_NAME}</span>
+              </Link>
+              <button
+                className="header__drawer-close"
                 onClick={closeMenu}
-              />
-              <motion.nav
-                ref={drawerRef as React.RefObject<HTMLElement>}
-                className="header__drawer"
-                initial={{ x: '100%' }}
-                animate={{ x: 0 }}
-                exit={{ x: '100%' }}
-                transition={{ type: 'spring', stiffness: 380, damping: 38, mass: 0.9 }}
+                aria-label="Закрити меню"
+                type="button"
               >
-                <motion.div
-                  className="header__drawer-top"
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.08, duration: 0.3, ease: 'easeOut' }}
+                <X size={22} />
+              </button>
+            </div>
+
+            <div className="header__drawer-nav">
+              {[
+                ...NAV_LINKS,
+                ...(isAuthenticated ? [{ to: '/cabinet', label: 'Кабінет', icon: UserRound }] : []),
+              ].map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="header__drawer-link"
+                  onClick={closeMenu}
                 >
-                  <Link to="/" className="header__drawer-logo" onClick={closeMenu} aria-label={BRAND_NAME}>
-                    <img src="/logo.svg" className="header__drawer-logo-mark" aria-hidden="true" />
-                    <span className="header__drawer-logo-text">{BRAND_NAME}</span>
-                  </Link>
-                  <button
-                    className="header__drawer-close"
+                  <link.icon size={18} className="header__drawer-link-icon" />
+                  {link.label}
+                  <ArrowRight size={18} strokeWidth={2.5} className="header__drawer-link-arrow" />
+                </Link>
+              ))}
+            </div>
+
+            <div className="header__drawer-divider" />
+
+            <button
+              className="header__drawer-cta"
+              onClick={scrollToDemo}
+              type="button"
+            >
+              Безкоштовне демо
+            </button>
+
+            <div className="header__drawer-contacts">
+              <p className="header__drawer-contacts-label">Напишіть нам</p>
+              <div className="header__drawer-contacts-grid">
+                {messengerContacts.map((c) => (
+                  <a
+                    key={c.id}
+                    href={c.href}
+                    target={c.href.startsWith('http') ? '_blank' : undefined}
+                    rel={c.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                    className="header__drawer-social"
+                    style={{ '--social-color': c.color } as React.CSSProperties}
                     onClick={closeMenu}
-                    aria-label="Закрити меню"
-                    type="button"
                   >
-                    <X size={22} />
-                  </button>
-                </motion.div>
-
-                <div className="header__drawer-nav">
-                  {[
-                    ...NAV_LINKS,
-                    ...(isAuthenticated ? [{ to: '/cabinet', label: 'Кабінет', icon: UserRound }] : []),
-                  ].map((link, i) => (
-                    <motion.div
-                      key={link.to}
-                      initial={{ opacity: 0, x: 24 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.12 + i * 0.05, duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
-                    >
-                      <Link
-                        to={link.to}
-                        className="header__drawer-link"
-                        onClick={closeMenu}
-                      >
-                        <link.icon size={18} className="header__drawer-link-icon" />
-                        {link.label}
-                        <ArrowRight size={18} strokeWidth={2.5} className="header__drawer-link-arrow" />
-                      </Link>
-                    </motion.div>
-                  ))}
-                </div>
-
-                <div className="header__drawer-divider" />
-
-                <motion.button
-                  className="header__drawer-cta"
-                  onClick={scrollToDemo}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.18, duration: 0.3, ease: 'easeOut' }}
-                >
-                  Безкоштовне демо
-                </motion.button>
-
-                <motion.div
-                  className="header__drawer-contacts"
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.22, duration: 0.3, ease: 'easeOut' }}
-                >
-                  <p className="header__drawer-contacts-label">Напишіть нам</p>
-                  <div className="header__drawer-contacts-grid">
-                    {messengerContacts.map((c) => (
-                      <a
-                        key={c.id}
-                        href={c.href}
-                        target={c.href.startsWith('http') ? '_blank' : undefined}
-                        rel={c.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                        className="header__drawer-social"
-                        style={{ '--social-color': c.color } as React.CSSProperties}
-                        onClick={closeMenu}
-                      >
-                        <SocialIcon id={c.id} size={18} />
-                        <span>{c.label}</span>
-                      </a>
-                    ))}
-                  </div>
-                  {settings.phone && (
-                    <a href={phoneHref} className="header__drawer-phone" onClick={closeMenu}>
-                      <SocialIcon id="phone" size={16} />
-                      <span>{settings.phone}</span>
-                    </a>
-                  )}
-                </motion.div>
-              </motion.nav>
-            </>
-          )}
-        </AnimatePresence>,
+                    <SocialIcon id={c.id} size={18} />
+                    <span>{c.label}</span>
+                  </a>
+                ))}
+              </div>
+              {settings.phone && (
+                <a href={phoneHref} className="header__drawer-phone" onClick={closeMenu}>
+                  <SocialIcon id="phone" size={16} />
+                  <span>{settings.phone}</span>
+                </a>
+              )}
+            </div>
+          </nav>
+        </>,
         document.body,
       )}
     </>

@@ -66,7 +66,7 @@ function SlidePtashkin() {
         </div>
         <div className="wss__product">
           <div className="wss__product-img wss__product-img--ptashkin">
-            <img src="/showcase/ptashkin-pure.webp" alt="Pure крем" className="wss__product-photo" loading="lazy" decoding="async" width="600" height="600" />
+            <img src="/showcase/ptashkin-pure@220.webp" alt="Pure крем" className="wss__product-photo" loading="lazy" decoding="async" width="220" height="220" />
           </div>
           <div className="wss__product-info">
             <p className="wss__product-title wss__product-title--ptashkin">Крем-бустер Pure</p>
@@ -124,7 +124,7 @@ function CartGoalWidget({
         <div className="wss__goal-bar">
           <div
             className={`wss__goal-fill ${achieved ? 'wss__goal-fill--achieved' : 'wss__goal-fill--ptashkin'}`}
-            style={{ width: `${progressPct}%` }}
+            style={{ transform: `scaleX(${progressPct / 100})` }}
           />
         </div>
       </div>
@@ -160,7 +160,7 @@ function SlideBeniHome() {
         </div>
         <div className="wss__product">
           <div className="wss__product-img wss__product-img--beni">
-            <img src="/showcase/beni-satin.webp" alt="Постільна білизна" className="wss__product-photo" loading="lazy" decoding="async" width="600" height="600" />
+            <img src="/showcase/beni-satin@220.webp" alt="Постільна білизна" className="wss__product-photo" loading="lazy" decoding="async" width="220" height="330" />
             <span className="wss__badge-discount">-30%</span>
           </div>
           <div className="wss__product-info">
@@ -195,6 +195,7 @@ function SlideBeniHome() {
           >
             <source src="/showcase/beni-video.webm" type="video/webm" />
             <source src="/showcase/beni-video.mp4" type="video/mp4" />
+            <track kind="captions" src="/showcase/beni-video.vtt" srcLang="uk" label="Без субтитрів" default />
           </video>
           <div className="wss__video-pulse" />
         </div>
@@ -235,7 +236,7 @@ function SlideBallistic() {
         </div>
         <div className="wss__product">
           <div className="wss__product-img wss__product-img--ballistic">
-            <img src="/showcase/ballistic-jacket.webp" alt="Куртка ECWCS" className="wss__product-photo" loading="lazy" decoding="async" width="600" height="600" />
+            <img src="/showcase/ballistic-jacket@220.webp" alt="Куртка ECWCS" className="wss__product-photo" loading="lazy" decoding="async" width="220" height="220" />
           </div>
           <div className="wss__product-info">
             <p className="wss__product-title wss__product-title--ballistic">Куртка ECWCS L5 Soft Shell</p>
