@@ -21,14 +21,20 @@ class SiteProxyController extends Controller
 
     private const VISITOR_TTL = 3600;
 
-    private const ASSET_CACHE_TTL = 300;
+    private const HTML_CACHE_TTL = 60;
 
-    private const ASSET_EXTENSIONS = [
-        'js', 'mjs', 'css', 'map',
+    private const TEXT_ASSET_TTL = 3600;
+
+    private const BINARY_ASSET_TTL = 86400;
+
+    private const TEXT_ASSET_EXTENSIONS = [
+        'js', 'mjs', 'css', 'map', 'json',
+    ];
+
+    private const BINARY_ASSET_EXTENSIONS = [
         'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'avif', 'ico', 'bmp',
         'woff', 'woff2', 'ttf', 'otf', 'eot',
         'mp4', 'webm', 'mp3', 'ogg',
-        'json',
     ];
 
     public function proxy(Request $request, string $domain, string $path = ''): Response
@@ -119,17 +125,20 @@ class SiteProxyController extends Controller
     ): Response {
         $targetUrl = "https://{$domain}{$targetPath}";
 
-        // Fast path: static asset cache hit.
-        $assetCacheKey = null;
-        if ($request->isMethod('GET') && $this->isCacheableAsset($targetPath)) {
-            $assetCacheKey = 'site_proxy:asset:'.sha1($targetUrl);
-            /** @var array{body: string, content_type: string}|null $cached */
-            $cached = Cache::get($assetCacheKey);
-            if (is_array($cached)) {
-                return response($cached['body'], 200)
-                    ->header('Content-Type', $cached['content_type'])
-                    ->header('Cache-Control', 'public, max-age='.self::ASSET_CACHE_TTL)
-                    ->header('Access-Control-Allow-Origin', '*');
+        // Fast path: cached response (asset or HTML).
+        $cacheKey = null;
+        $cacheTtl = 0;
+        if ($request->isMethod('GET')) {
+            [$cacheKey, $cacheTtl] = $this->resolveCacheKeyForGet($targetUrl, $targetPath, $injectScript);
+            if ($cacheKey !== null) {
+                /** @var array{body: string, content_type: string, ttl: int}|null $cached */
+                $cached = Cache::get($cacheKey);
+                if (is_array($cached)) {
+                    return response($cached['body'], 200)
+                        ->header('Content-Type', $cached['content_type'])
+                        ->header('Cache-Control', 'public, max-age='.$cached['ttl'])
+                        ->header('Access-Control-Allow-Origin', '*');
+                }
             }
         }
 
@@ -179,19 +188,61 @@ class SiteProxyController extends Controller
         $response->headers->set('Access-Control-Allow-Origin', '*');
 
         $this->forwardSafeHeaders($upstream, $response);
+        $upstreamSetCookies = $upstream->toPsrResponse()->getHeader('Set-Cookie');
         $this->forwardCookies($visitorId, $upstream, $response, $domain);
 
-        // Store asset in cache for subsequent requests.
-        if ($assetCacheKey !== null && $upstream->status() === 200) {
+        // Store in cache for subsequent requests. Skip HTML cache when
+        // upstream set cookies (per-visitor state) to avoid leaking them.
+        if (
+            $cacheKey !== null
+            && $cacheTtl > 0
+            && $upstream->status() === 200
+            && ! (Str::contains(Str::lower($contentType), 'text/html') && $upstreamSetCookies !== [])
+        ) {
             Cache::put(
-                $assetCacheKey,
-                ['body' => $rewrittenBody, 'content_type' => $contentType],
-                self::ASSET_CACHE_TTL,
+                $cacheKey,
+                ['body' => $rewrittenBody, 'content_type' => $contentType, 'ttl' => $cacheTtl],
+                $cacheTtl,
             );
-            $response->headers->set('Cache-Control', 'public, max-age='.self::ASSET_CACHE_TTL);
+            $response->headers->set('Cache-Control', 'public, max-age='.$cacheTtl);
         }
 
         return $response;
+    }
+
+    /**
+     * Decide whether this GET is cacheable and with what TTL.
+     *
+     * @return array{0: string|null, 1: int}
+     */
+    private function resolveCacheKeyForGet(string $targetUrl, string $targetPath, ?string $injectScript): array
+    {
+        $path = parse_url($targetPath, PHP_URL_PATH);
+        if (! is_string($path)) {
+            return [null, 0];
+        }
+
+        $ext = strtolower((string) pathinfo($path, PATHINFO_EXTENSION));
+
+        if (in_array($ext, self::BINARY_ASSET_EXTENSIONS, true)) {
+            return ['site_proxy:asset:'.sha1($targetUrl), self::BINARY_ASSET_TTL];
+        }
+
+        if (in_array($ext, self::TEXT_ASSET_EXTENSIONS, true)) {
+            return ['site_proxy:asset:'.sha1($targetUrl), self::TEXT_ASSET_TTL];
+        }
+
+        // HTML / extension-less path: cache only without inject override
+        // so the runtime script remains deterministic for all visitors.
+        if ($ext === '' || $ext === 'html' || $ext === 'htm') {
+            if ($injectScript !== null) {
+                return [null, 0];
+            }
+
+            return ['site_proxy:html:'.sha1($targetUrl), self::HTML_CACHE_TTL];
+        }
+
+        return [null, 0];
     }
 
     private function fetchRemote(
@@ -239,6 +290,9 @@ class SiteProxyController extends Controller
             'allow_redirects' => false,
             'timeout' => 20,
             'connect_timeout' => 8,
+            // Prefer HTTP/2 to upstream when curl/nghttp2 is available;
+            // curl silently downgrades to 1.1 if not supported.
+            'version' => 2.0,
         ];
 
         if (! in_array($method, ['GET', 'HEAD'], true)) {
@@ -605,21 +659,6 @@ JS;
         }
 
         return implode('; ', $parts);
-    }
-
-    private function isCacheableAsset(string $targetPath): bool
-    {
-        $path = parse_url($targetPath, PHP_URL_PATH);
-        if (! is_string($path) || $path === '') {
-            return false;
-        }
-
-        $ext = strtolower((string) pathinfo($path, PATHINFO_EXTENSION));
-        if ($ext === '') {
-            return false;
-        }
-
-        return in_array($ext, self::ASSET_EXTENSIONS, true);
     }
 
     private function loadInjectScript(?string $injectParam): ?string
