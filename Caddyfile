@@ -1,0 +1,48 @@
+widgetis.com, www.widgetis.com {
+
+    encode gzip zstd
+
+    request_body {
+        max_size 20MB
+    }
+
+    # ── Backend: API, Auth, Admin ─────────────────────────────
+    handle /api/* { reverse_proxy backend:8000 }
+    handle /auth/* { reverse_proxy backend:8000 }
+    handle /admin/* { reverse_proxy backend:8000 }
+
+    # ── Backend: Widget delivery ──────────────────────────────
+    handle /site/* { reverse_proxy backend:8000 }
+    handle /content/* { reverse_proxy backend:8000 }
+    handle /frontend/* { reverse_proxy backend:8000 }
+    handle /bundles/* { reverse_proxy backend:8000 }
+    handle /_widget/* { reverse_proxy backend:8000 }
+    handle /seen_items/* { reverse_proxy backend:8000 }
+
+    # ── Localized routes (/uk/_widget/, /en/_widget/, etc.) ───
+    @localized path_regexp ^/[a-z]{2}(-[A-Z]{2})?/(_widget|seen_items)
+    handle @localized { reverse_proxy backend:8000 }
+
+    # ── Widget Builder ────────────────────────────────────────
+    handle /build-demo* { reverse_proxy widget-builder:3200 }
+    handle /modules/* { reverse_proxy widget-builder:3200 }
+    handle /build/* {
+        reverse_proxy widget-builder:3200 {
+            transport http {
+                response_header_timeout 120s
+            }
+        }
+    }
+    handle /deploy/* {
+        reverse_proxy widget-builder:3200 {
+            transport http {
+                response_header_timeout 120s
+            }
+        }
+    }
+
+    # ── Frontend SPA ──────────────────────────────────────────
+    handle {
+        reverse_proxy frontend:80
+    }
+}

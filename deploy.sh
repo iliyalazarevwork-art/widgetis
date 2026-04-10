@@ -69,6 +69,9 @@ for i in $(seq 1 30); do
   sleep 2
 done
 
+echo "▶ Putting the app into maintenance mode..."
+$DC exec -T backend php artisan down --retry=60
+
 if [ "$SKIP_MIGRATE" = false ]; then
   echo "▶ Running migrations..."
   $DC exec -T backend php artisan migrate --force
@@ -82,6 +85,12 @@ $DC exec -T backend php artisan event:cache
 
 echo "▶ Restarting queue workers..."
 $DC restart queue-worker scheduler
+
+echo "▶ Bringing the app back online..."
+$DC exec -T backend php artisan up
+
+echo "▶ Restarting caddy (re-resolves container IPs)..."
+$DC restart caddy
 
 echo ""
 echo "==> Service status:"
