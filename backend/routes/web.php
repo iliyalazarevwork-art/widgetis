@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Web\GoogleAuthController;
+use App\Http\Controllers\Web\LiqPayReturnController;
 use App\Http\Controllers\Web\SiteProxyController;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Route;
@@ -10,6 +11,10 @@ use Illuminate\Support\Facades\Route;
 // --- Google OAuth ---
 Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])->name('auth.google');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
+
+// --- LiqPay result_url (browser redirect after payment) ---
+Route::post('/liqpay/return', [LiqPayReturnController::class, 'handle'])
+    ->withoutMiddleware([ValidateCsrfToken::class]);
 
 $proxyMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
 

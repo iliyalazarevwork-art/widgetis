@@ -63,7 +63,7 @@ class CheckoutController
         $siteDomain = $user->sites()->orderBy('id')->value('domain');
         $publicBaseUrl = rtrim((string) config('app.url'), '/');
         $serverUrl = $publicBaseUrl . '/api/v1/payments/liqpay/callback';
-        $resultUrl = $publicBaseUrl . '/signup/success';
+        $resultUrl = $publicBaseUrl . '/liqpay/return';
 
         /** @var array{checkout_url: string, data: string, signature: string, order_id: string} $checkout */
         $checkout = DB::transaction(function () use ($user, $plan, $billingPeriod, $siteDomain, $serverUrl, $resultUrl): array {
