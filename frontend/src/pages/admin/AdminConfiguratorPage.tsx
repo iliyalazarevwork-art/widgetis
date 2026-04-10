@@ -114,7 +114,7 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
   const [copied, setCopied] = useState(false)
   const [obfuscate, setObfuscate] = useState(true)
   const [creatingDemo, setCreatingDemo] = useState(false)
-  const [demoLink, setDemoLink] = useState<string | null>(null)
+  const [_demoLink, setDemoLink] = useState<string | null>(null)
   const [deploying, setDeploying] = useState(false)
   const [deployedUrl, setDeployedUrl] = useState<string | null>(siteContext?.deployedScriptUrl ?? null)
   const [hasChanges, setHasChanges] = useState(false)
