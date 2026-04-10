@@ -1,24 +1,20 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link, NavLink, useNavigate, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
 import { uk } from 'date-fns/locale'
 import 'react-datepicker/dist/react-datepicker.css'
 import {
-  ArrowLeft,
   ArrowRight,
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
   Calendar,
-  ChevronLeft,
   CircleAlert,
   ExternalLink,
   Globe,
-  LayoutDashboard,
   Mail,
   Banknote,
-  Plus,
-  Receipt,
+  Phone,
   Repeat2,
   RotateCcw,
   Search,
@@ -27,15 +23,16 @@ import {
   SlidersHorizontal,
   Star,
   UserPlus,
-  Users,
   Wand2,
   X,
 } from 'lucide-react'
 import { get } from '../../api/client'
-import { HamburgerIcon } from '../../components/HamburgerIcon'
+import { SocialIcon } from '../../components/SocialIcon'
+import { useSettings } from '../../context/SettingsContext'
 import { BRAND_EMAIL, BRAND_NAME } from '../../constants/brand'
 import type { PaginatedResponse } from '../../types'
 import { AdminConfiguratorPage } from './AdminConfiguratorPage'
+import { AdminScreenLayout } from './AdminScreenLayout'
 import './pages.css'
 
 const ORDER_FILTERS = [
@@ -67,11 +64,12 @@ const REQUESTS = [
 ]
 
 const CONTENT_BLOCKS = [
-  { id: 'hero-main', title: 'Головний Hero', status: 'Опубліковано', updated: 'сьогодні 11:42' },
-  { id: 'faq-home', title: 'FAQ на головній', status: 'Чернетка', updated: 'вчора 19:10' },
-  { id: 'cta-pricing', title: 'CTA на тарифах', status: 'Опубліковано', updated: 'сьогодні 09:03' },
-  { id: 'promo-banner', title: 'Промо-банер квітень', status: 'Потребує ревʼю', updated: 'сьогодні 08:18' },
+  { id: 'hero', title: 'Hero Section', status: 'active', updated: '10 хв тому' },
+  { id: 'features', title: 'Features Block', status: 'active', updated: '2 год тому' },
+  { id: 'pricing', title: 'Pricing Table', status: 'draft', updated: '1 день тому' },
+  { id: 'faq', title: 'FAQ Block', status: 'active', updated: '3 дні тому' },
 ]
+
 
 function getSiteActions(_siteId: string) {
   return [
@@ -81,48 +79,18 @@ function getSiteActions(_siteId: string) {
 }
 
 const ADMIN_MENU_LINKS = [
-  { to: '/admin', label: 'Дашборд' },
-  { to: '/admin/subscriptions', label: 'Підписки' },
-  { to: '/admin/orders', label: 'Замовлення' },
-  { to: '/admin/users', label: 'Юзери' },
-  { to: '/admin/sites', label: 'Сайти' },
-  { to: '/admin/settings', label: 'Налаштування' },
-  { to: '/admin/manager-requests', label: 'Manager Requests' },
-  { to: '/admin/landing-content', label: 'Landing Content' },
+  { to: '/admin/settings', label: 'Налаштування', icon: Settings },
+  { to: '/admin/finance', label: 'Фінанси', icon: Banknote },
+  { to: '/admin/manager-requests', label: 'Manager Requests', icon: UserPlus },
 ]
 
-type TabKey = 'dashboard' | 'orders' | 'users' | 'sites' | 'settings'
-
-const ADMIN_BOTTOM_NAV = [
-  { to: '/admin', label: 'Дашборд', icon: LayoutDashboard, end: true },
-  { to: '/admin/subscriptions', label: 'Підписки', icon: Repeat2 },
-  { to: '/admin/orders', label: 'Замовлення', icon: Receipt },
-  { to: '/admin/users', label: 'Юзери', icon: Users },
-  { to: '/admin/sites', label: 'Сайти', icon: Globe },
-]
-
-export function AdminMobileBottomNav() {
-  return (
-    <nav className="users-mobile__bottom">
-      {ADMIN_BOTTOM_NAV.map((item) => {
-        const Icon = item.icon
-        return (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.end}
-            className={({ isActive }) =>
-              `users-mobile__tab${isActive ? ' users-mobile__tab--active' : ''}`
-            }
-          >
-            <Icon size={20} strokeWidth={2} />
-            <span>{item.label}</span>
-          </NavLink>
-        )
-      })}
-    </nav>
-  )
+const MESSENGER_META: Record<string, { name: string; color: string }> = {
+  telegram:  { name: 'Telegram',  color: '#26A5E4' },
+  viber:     { name: 'Viber',     color: '#7360F2' },
+  whatsapp:  { name: 'WhatsApp',  color: '#25D366' },
 }
+
+
 type OrderFilterLabel = (typeof ORDER_FILTERS)[number]['label']
 
 type AdminOrder = {
@@ -270,65 +238,77 @@ function formatSubscriptionDate(raw: string): string {
   })
 }
 
-function MobileMenuDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function MobileMenuDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const settings = useSettings()
+
   if (!open) return null
+
+  const phoneHref = settings.phone ? `tel:${settings.phone.replace(/\s+/g, '')}` : ''
+  const messengers = Object.entries(settings.messengers ?? {})
+    .filter(([, url]) => url)
+    .map(([id, url]) => ({
+      id,
+      name: MESSENGER_META[id]?.name ?? id,
+      url,
+      color: MESSENGER_META[id]?.color ?? '#888',
+    }))
 
   return (
     <>
       <button className="mobile-menu__overlay" type="button" aria-label="Закрити меню" onClick={onClose} />
       <aside className="mobile-menu">
         <div className="mobile-menu__head">
-          <strong>Навігація</strong>
+          <strong>Widgetis Admin</strong>
           <button type="button" onClick={onClose} aria-label="Закрити">
             <X size={16} strokeWidth={2.25} />
           </button>
         </div>
+
         <nav className="mobile-menu__nav">
-          {ADMIN_MENU_LINKS.map((item) => (
-            <Link key={item.to} to={item.to} onClick={onClose}>
-              {item.label}
-            </Link>
-          ))}
+          {ADMIN_MENU_LINKS.map((item) => {
+            const Icon = item.icon
+            return (
+              <Link key={item.to} to={item.to} onClick={onClose}>
+                <Icon size={16} strokeWidth={2} />
+                {item.label}
+              </Link>
+            )
+          })}
         </nav>
+
+        <div className="mobile-menu__divider" />
+
+        <a
+          className="mobile-menu__site-link"
+          href="https://widgetis.com"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <ExternalLink size={14} strokeWidth={2} />
+          widgetis.com
+        </a>
+
+        {messengers.length > 0 && (
+          <div className="mobile-menu__contacts">
+            <span className="mobile-menu__contacts-label">НАПИШІТЬ НАМ</span>
+            <div className="mobile-menu__contacts-grid">
+              {messengers.map((m) => (
+                <a key={m.id} href={m.url} target="_blank" rel="noopener noreferrer" className="mobile-menu__messenger">
+                  <SocialIcon id={m.id} size={18} />
+                  <span>{m.name}</span>
+                </a>
+              ))}
+            </div>
+            {settings.phone && (
+              <a href={phoneHref} className="mobile-menu__phone">
+                <Phone size={14} strokeWidth={2} />
+                {settings.phone}
+              </a>
+            )}
+          </div>
+        )}
       </aside>
     </>
-  )
-}
-
-function MobileHeader({
-  title,
-  subtitle,
-  onMenu,
-  backTo,
-  right,
-}: {
-  title: string
-  subtitle?: string
-  onMenu?: () => void
-  backTo?: string
-  right?: React.ReactNode
-}) {
-  return (
-    <header className="orders-mobile__top">
-      {backTo ? (
-        <Link to={backTo} aria-label="Назад" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: 10, background: 'var(--bg-elevated, #1a1a2e)', flexShrink: 0 }}>
-          <ArrowLeft size={18} strokeWidth={2} />
-        </Link>
-      ) : (
-        <button type="button" aria-label="Меню" onClick={onMenu}>
-          <HamburgerIcon size={18} />
-        </button>
-      )}
-      <div>
-        <h1>{title}</h1>
-        {subtitle ? <span>{subtitle}</span> : null}
-      </div>
-      {right ?? (
-        <button type="button" className="orders-mobile__avatar" aria-label="Профіль">
-          ІЛ
-        </button>
-      )}
-    </header>
   )
 }
 
@@ -347,7 +327,6 @@ function getPageTokens(current: number, total: number): Array<number | 'ellipsis
 }
 
 export function AdminOrdersPage() {
-  const [menuOpen, setMenuOpen] = useState(false)
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<OrderFilterLabel>('Всі')
@@ -434,10 +413,7 @@ export function AdminOrdersPage() {
   const pagination = getPageTokens(page, totalPages)
 
   return (
-    <div className="orders-mobile">
-      <MobileMenuDrawer open={menuOpen} onClose={() => setMenuOpen(false)} />
-      <MobileHeader title="Замовлення" subtitle={`${totalOrders} всього`} onMenu={() => setMenuOpen(true)} />
-
+    <AdminScreenLayout mode="dashboard" title="Замовлення" subtitle={`${totalOrders} всього`}>
       <section className="orders-mobile__search-wrap">
         <div className="orders-mobile__search">
           <Search size={16} strokeWidth={2} />
@@ -649,13 +625,11 @@ export function AdminOrdersPage() {
         <button type="button" onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>›</button>
       </section>
 
-      <AdminMobileBottomNav />
-    </div>
+    </AdminScreenLayout>
   )
 }
 
 export function AdminSubscriptionsPage() {
-  const [menuOpen, setMenuOpen] = useState(false)
   const [statusFilter, setStatusFilter] = useState<SubscriptionFilterLabel>('Усі')
   const [page, setPage] = useState(1)
   const [subscriptions, setSubscriptions] = useState<AdminSubscription[]>([])
@@ -703,17 +677,7 @@ export function AdminSubscriptionsPage() {
   const trialRiskCount = subscriptions.filter((s) => s.status === 'trial' || s.status === 'past_due').length
 
   return (
-    <div className="subs-mobile">
-      <MobileMenuDrawer open={menuOpen} onClose={() => setMenuOpen(false)} />
-
-      <header className="subs-mobile__top">
-        <button type="button" aria-label="Назад" onClick={() => setMenuOpen(true)}>
-          <ArrowLeft size={18} strokeWidth={2.25} />
-        </button>
-        <h1>Підписки</h1>
-        <div className="subs-mobile__stub" />
-      </header>
-
+    <AdminScreenLayout mode="dashboard" title="Підписки">
       <section className="subs-mobile__stats">
         <article className="subs-mobile__stat">
           <strong>{stats.active}</strong>
@@ -820,8 +784,7 @@ export function AdminSubscriptionsPage() {
         <button type="button" onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>›</button>
       </section>
 
-      <AdminMobileBottomNav />
-    </div>
+    </AdminScreenLayout>
   )
 }
 
@@ -886,7 +849,6 @@ function userInitials(name: string | null, email: string): string {
 }
 
 export function AdminUsersPage() {
-  const navigate = useNavigate()
   const [query, setQuery] = useState('')
   const [segment, setSegment] = useState<UserSegmentLabel>('Активні')
   const [page, setPage] = useState(1)
@@ -928,19 +890,7 @@ export function AdminUsersPage() {
   const pagination = getPageTokens(page, totalPages)
 
   return (
-    <div className="users-mobile">
-      <header className="users-mobile__top">
-        <button type="button" aria-label="Назад" className="users-mobile__nav-btn" onClick={() => navigate('/admin')}>
-          <ChevronLeft size={20} strokeWidth={2.25} />
-        </button>
-        <h1>Користувачі</h1>
-        <div className="users-mobile__top-actions">
-          <button type="button" aria-label="Додати користувача">
-            <UserPlus size={18} strokeWidth={2.25} />
-          </button>
-        </div>
-      </header>
-
+    <AdminScreenLayout mode="dashboard" title="Юзери">
       <section className="users-mobile__stats">
         <article className="users-mobile__stat">
           <strong>{stats.total}</strong>
@@ -1038,8 +988,7 @@ export function AdminUsersPage() {
         <button type="button" onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>›</button>
       </section>
 
-      <AdminMobileBottomNav />
-    </div>
+    </AdminScreenLayout>
   )
 }
 
@@ -1084,7 +1033,6 @@ function planLabel(slug: string | null): string {
 }
 
 export function AdminSitesPage() {
-  const [menuOpen, setMenuOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<SiteFilterLabel>('Всі')
   const [page, setPage] = useState(1)
@@ -1129,14 +1077,7 @@ export function AdminSitesPage() {
   const pagination = getPageTokens(page, totalPages)
 
   return (
-    <div className="sites-mobile">
-      <MobileMenuDrawer open={menuOpen} onClose={() => setMenuOpen(false)} />
-      <MobileHeader
-        title="Сайти"
-        subtitle={`${stats.total} всього · ${stats.active} активних`}
-        onMenu={() => setMenuOpen(true)}
-      />
-
+    <AdminScreenLayout mode="dashboard" title="Сайти" subtitle={`${stats.total} всього · ${stats.active} активних`}>
       <section className="sites-mobile__stats">
         <article className="users-mobile__stat">
           <strong>{stats.total}</strong>
@@ -1230,8 +1171,7 @@ export function AdminSitesPage() {
         <button type="button" onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>›</button>
       </section>
 
-      <AdminMobileBottomNav />
-    </div>
+    </AdminScreenLayout>
   )
 }
 
@@ -1257,13 +1197,10 @@ export function AdminSiteDetailPage() {
   const siteActions = getSiteActions(domain ?? '')
 
   return (
-    <div className="mobile-plain">
-      <MobileHeader
-        title={loading ? 'Завантаження...' : (site?.domain ?? domain ?? 'Сайт')}
-        subtitle="Деталі підключення"
-        backTo="/admin/sites"
-      />
-
+    <AdminScreenLayout
+      mode="subpage"
+      title={loading ? 'Завантаження...' : (site?.domain ?? domain ?? 'Сайт')}
+    >
       {loading && <p className="orders-mobile__empty">Завантаження...</p>}
 
       {!loading && site && (
@@ -1350,9 +1287,7 @@ export function AdminSiteDetailPage() {
       {!loading && !site && (
         <p className="orders-mobile__empty">Сайт не знайдено.</p>
       )}
-
-      <AdminMobileBottomNav />
-    </div>
+    </AdminScreenLayout>
   )
 }
 
@@ -1380,13 +1315,8 @@ export function AdminSiteConfiguratorPage() {
 }
 
 export function AdminSettingsPage() {
-  const [menuOpen, setMenuOpen] = useState(false)
-
   return (
-    <div className="mobile-plain">
-      <MobileMenuDrawer open={menuOpen} onClose={() => setMenuOpen(false)} />
-      <MobileHeader title="Налаштування" subtitle="Профіль та безпека" onMenu={() => setMenuOpen(true)} />
-
+    <AdminScreenLayout mode="dashboard" title="Налаштування" subtitle="Профіль та безпека">
       <div className="adminx-settings-grid mobile-plain__content">
         <section className="admin-card adminx-section">
           <h2 className="admin-card__title">Профіль</h2>
@@ -1417,19 +1347,13 @@ export function AdminSettingsPage() {
         </section>
       </div>
 
-      <AdminMobileBottomNav />
-    </div>
+    </AdminScreenLayout>
   )
 }
 
 export function AdminManagerRequestsPage() {
-  const [menuOpen, setMenuOpen] = useState(false)
-
   return (
-    <div className="mobile-plain">
-      <MobileMenuDrawer open={menuOpen} onClose={() => setMenuOpen(false)} />
-      <MobileHeader title="Manager Requests" subtitle="Черга заявок" onMenu={() => setMenuOpen(true)} />
-
+    <AdminScreenLayout mode="dashboard" title="Manager Requests" subtitle="Черга заявок">
       <section className="adminx-list mobile-plain__content">
         {REQUESTS.map((request) => (
           <article key={request.id} className="admin-card adminx-request-row">
@@ -1450,28 +1374,13 @@ export function AdminManagerRequestsPage() {
         ))}
       </section>
 
-      <AdminMobileBottomNav />
-    </div>
+    </AdminScreenLayout>
   )
 }
 
 export function AdminLandingContentPage() {
-  const [menuOpen, setMenuOpen] = useState(false)
-
   return (
-    <div className="mobile-plain">
-      <MobileMenuDrawer open={menuOpen} onClose={() => setMenuOpen(false)} />
-      <MobileHeader
-        title="Landing Content"
-        subtitle="Керування блоками"
-        onMenu={() => setMenuOpen(true)}
-        right={
-          <button type="button" className="orders-mobile__avatar" aria-label="Додати блок">
-            <Plus size={16} strokeWidth={2.5} />
-          </button>
-        }
-      />
-
+    <AdminScreenLayout mode="dashboard" title="Landing Content" subtitle="Керування блоками">
       <section className="adminx-list mobile-plain__content">
         {CONTENT_BLOCKS.map((block) => (
           <article key={block.id} className="admin-card adminx-content-row">
@@ -1490,8 +1399,6 @@ export function AdminLandingContentPage() {
           </article>
         ))}
       </section>
-
-      <AdminMobileBottomNav />
-    </div>
+    </AdminScreenLayout>
   )
 }

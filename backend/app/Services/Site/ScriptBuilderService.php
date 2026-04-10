@@ -7,6 +7,7 @@ namespace App\Services\Site;
 use App\Enums\ScriptBuildStatus;
 use App\Models\Site;
 use App\Models\SiteScriptBuild;
+use App\Settings\GeneralSettings;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -25,13 +26,55 @@ class ScriptBuilderService
     {
         $site->loadMissing(['script', 'widgets.product']);
 
+        $modules = $this->collectModules($site, $this->fetchModuleDefaults());
+
+        return $this->buildAndDeploy($site, $modules, obfuscate: true);
+    }
+
+    /**
+     * Build and deploy using a config from the admin configurator.
+     *
+     * Input format matches DB: each module has `is_enabled`, `config` (without `enabled`), `i18n`.
+     * Only modules with `is_enabled: true` are included in the JS bundle.
+     *
+     * @param array<string, array{is_enabled: bool, config: array<string, mixed>, i18n: mixed}> $modules
+     */
+    public function buildFromModules(Site $site, array $modules, bool $obfuscate = true): SiteScriptBuild
+    {
+        $site->loadMissing(['script']);
+
+        // Transform frontend format → widget-builder format:
+        // filter by is_enabled, put enabled:true back into config
+        $builderModules = [];
+        foreach ($modules as $id => $module) {
+            if (! ($module['is_enabled'] ?? false)) {
+                continue;
+            }
+            $config = $module['config'] ?? [];
+            $config['enabled'] = true;
+            $builderModules[(string) $id] = [
+                'config' => $config,
+                'i18n' => $module['i18n'] ?? [],
+            ];
+        }
+
+        return $this->buildAndDeploy($site, $builderModules, $obfuscate);
+    }
+
+    /**
+     * Core: build JS from modules (widget-builder format), upload to R2, save SiteScriptBuild.
+     *
+     * @param array<string, array{config: array<string, mixed>, i18n: mixed}> $modules
+     */
+    private function buildAndDeploy(Site $site, array $modules, bool $obfuscate): SiteScriptBuild
+    {
         $script = $site->script;
 
         if ($script === null) {
             throw new \RuntimeException("Site {$site->id} has no script token.");
         }
 
-        $js = $this->prependHeader($site, $this->buildJs($site));
+        $js = $this->buildJsFromModules($site, $modules, $obfuscate);
         $hash = md5($js);
         $path = "sites/{$site->domain}/bundle.js";
 
@@ -48,8 +91,6 @@ class ScriptBuilderService
         $script->builds()
             ->where('status', ScriptBuildStatus::Active->value)
             ->update(['status' => ScriptBuildStatus::Inactive->value]);
-
-        $modules = $this->collectModules($site, $this->fetchModuleDefaults());
 
         $build = SiteScriptBuild::create([
             'site_script_id' => $script->id,
@@ -74,23 +115,54 @@ class ScriptBuilderService
     }
 
     /**
-     * Call widget-builder, get obfuscated JS bundle.
+     * Call widget-builder /build with the given modules, get JS bundle.
+     *
+     * @param array<string, array{config: array<string, mixed>, i18n: mixed}> $modules
      */
-    private function buildJs(Site $site): string
+    private function buildJsFromModules(Site $site, array $modules, bool $obfuscate = true): string
     {
-        $defaults = $this->fetchModuleDefaults();
-        $modules = $this->collectModules($site, $defaults);
+        $now = now()->toRfc7231String();
+        $version = now()->format('Y.m.d.His');
+        $settings = app(GeneralSettings::class);
+        $support = $settings->messengers['telegram'] ?? '';
+        $website = rtrim((string) config('app.url'), '/');
+        $year = now()->year;
+        $comment = implode("\n", [
+            '/**',
+            ' * Widgetis — Widget Platform for E-Commerce',
+            " * Site:     {$site->domain}",
+            " * Version:  {$version}",
+            " * Built:    {$now}",
+            ' * ',
+            " * Support:  {$support}",
+            " * Website:  {$website}",
+            ' * ',
+            ' * LICENSE: Proprietary and Confidential.',
+            ' * This code is the exclusive intellectual property of Widgetis.',
+            ' * Unauthorized copying, decompilation, modification, distribution',
+            ' * or reuse of this code, in whole or in part, is strictly prohibited.',
+            " * © {$year} Widgetis. All rights reserved.",
+            " * {$website}/license",
+            ' * ',
+            ' * Protected under Ukrainian law:',
+            ' *   Закон №2811-IX «Про авторське право і суміжні права»',
+            ' *   zakon.rada.gov.ua/laws/show/2811-20',
+            ' *   Ст. 176 КК України — кримінальна відповідальність',
+            ' *   Ст. 432 ЦК України — цивільний захист у суді',
+            ' */',
+        ]);
 
         if (empty($modules)) {
-            return '/* widgetis: no active widgets */';
+            return $comment;
         }
 
         $url = rtrim((string) config('services.widget_builder.url', 'http://widget-builder:3200'), '/');
 
         $payload = (string) json_encode([
             'modules' => $modules,
-            'obfuscate' => true,
+            'obfuscate' => $obfuscate,
             'allowedDomain' => $site->domain,
+            'comment' => $comment,
         ], JSON_UNESCAPED_UNICODE);
 
         $ch = curl_init("{$url}/build");
@@ -212,30 +284,6 @@ class ScriptBuilderService
         }
 
         return $modules;
-    }
-
-    /**
-     * Prepend a human-readable comment header to the JS bundle.
-     * Never obfuscated — always visible in the file.
-     */
-    private function prependHeader(Site $site, string $js): string
-    {
-        $now = now()->toRfc7231String();
-        $version = now()->format('Y.m.d.His');
-        $header = implode("\n", [
-            '/**',
-            ' * Widgetis — Widget Platform for E-Commerce',
-            " * Site:     {$site->domain}",
-            " * Version:  {$version}",
-            " * Built:    {$now}",
-            ' * ',
-            ' * Support:  https://t.me/widgetis',
-            ' * Website:  https://widgetis.com',
-            ' */',
-            '',
-        ]);
-
-        return $header . $js;
     }
 
     /**

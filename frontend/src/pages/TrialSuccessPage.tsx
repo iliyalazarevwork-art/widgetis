@@ -18,6 +18,8 @@ import {
   Play,
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { PhoneInput } from 'react-international-phone'
+import 'react-international-phone/style.css'
 import { get, post } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import { Header } from '../components/Header'
@@ -30,6 +32,7 @@ const POLL_MAX_ATTEMPTS = 6
 
 interface SignupData {
   email: string
+  phone?: string
   site: string
   platform: string
   plan: string
@@ -77,7 +80,7 @@ function ChoiceScreen({ data, onChoice }: { data: SignupData; onChoice: (c: 'sel
   return (
     <div style={{ background: '#0A0A0A', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <PageHeader />
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 24, padding: '40px 20px 80px', maxWidth: 375, width: '100%', margin: '0 auto' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 24, padding: '104px 20px 80px', maxWidth: 375, width: '100%', margin: '0 auto' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, textAlign: 'center' }}>
           <SuccessIcon />
           <h1 style={{ margin: 0, color: '#F0F0F0', fontFamily: 'Inter, sans-serif', fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>
@@ -191,7 +194,7 @@ function SelfScreen({ data, onBack }: { data: SignupData; onBack: () => void }) 
   return (
     <div style={{ background: '#0A0A0A', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <PageHeader />
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 24, padding: '24px 20px 60px', maxWidth: 375, width: '100%', margin: '0 auto' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 24, padding: '88px 20px 60px', maxWidth: 375, width: '100%', margin: '0 auto' }}>
 
         <button onClick={onBack} style={{
           display: 'flex', alignItems: 'center', gap: 6, background: 'none',
@@ -201,15 +204,9 @@ function SelfScreen({ data, onBack }: { data: SignupData; onBack: () => void }) 
           <span style={{ fontSize: 13, fontWeight: 500, fontFamily: 'Inter, sans-serif' }}>Назад до вибору</span>
         </button>
 
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, textAlign: 'center' }}>
-          <SuccessIcon />
-          <h1 style={{ margin: 0, color: '#F0F0F0', fontFamily: 'Inter, sans-serif', fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>
-            Оплата пройшла успішно!
-          </h1>
-          <p style={{ margin: 0, color: '#8A8A8A', fontSize: 14, lineHeight: 1.5, fontFamily: 'Inter, sans-serif' }}>
-            Крок 2: вставте скрипт у CMS магазину
-          </p>
-        </div>
+        <h2 style={{ margin: 0, color: '#F0F0F0', fontFamily: 'Inter, sans-serif', fontSize: 20, fontWeight: 700 }}>
+          Вставте скрипт у CMS магазину
+        </h2>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <span style={{ color: '#7AA2D6', fontSize: 11, fontWeight: 700, fontFamily: 'Inter, sans-serif' }}>
@@ -299,9 +296,27 @@ function SelfScreen({ data, onBack }: { data: SignupData; onBack: () => void }) 
   )
 }
 
+const fieldStyle = (hasError: boolean): React.CSSProperties => ({
+  padding: '14px 16px',
+  background: '#161616',
+  border: `1px solid ${hasError ? '#EF4444' : 'rgba(255,255,255,0.12)'}`,
+  borderRadius: 12,
+  color: '#F0F0F0',
+  fontSize: 15,
+  fontFamily: 'Inter, sans-serif',
+  outline: 'none',
+  width: '100%',
+  boxSizing: 'border-box',
+})
+
 // ─── Screen 3: Manager / channel selection ────────────────────────
 function ManagerScreen({ data, onBack }: { data: SignupData; onBack: () => void }) {
   const [selected, setSelected] = useState<Channel>('telegram')
+  // phone stores E.164 value, e.g. "+380671234567"
+  const [phone, setPhone] = useState(data.phone ?? '')
+  const [phoneError, setPhoneError] = useState('')
+  const [name, setName] = useState('')
+  const [nameError, setNameError] = useState('')
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
 
@@ -311,15 +326,36 @@ function ManagerScreen({ data, onBack }: { data: SignupData; onBack: () => void 
     { key: 'whatsapp', label: 'WhatsApp', icon: <MessageCircle size={22} strokeWidth={2} /> },
   ]
 
+  function handlePhoneChange(value: string) {
+    setPhone(value)
+    setPhoneError('')
+  }
+
+  function handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const val = e.target.value
+    const clean = val.replace(/\d/g, '')
+    setName(clean)
+    setNameError(/\d/.test(val) ? "Ім'я не повинно містити цифри" : '')
+  }
+
   async function handleSend() {
     if (sending) return
+    const digitsOnly = phone.replace(/\D/g, '')
+    if (digitsOnly.length < 12) {
+      setPhoneError('Введіть повний номер телефону')
+      return
+    }
+    if (nameError) return
     setSending(true)
     try {
+      const nameTrimmed = name.trim()
       await post('/profile/support-requests', {
         type: 'install_help',
         site_id: data.siteId ?? null,
         messenger: selected,
-        message: `Клієнт обрав допомогу з підключенням. Канал: ${selected}. Email: ${data.email}`,
+        phone,
+        name: nameTrimmed || undefined,
+        message: `Клієнт обрав допомогу з підключенням. Канал: ${selected}. Телефон: ${phone}${nameTrimmed ? `. Ім'я: ${nameTrimmed}` : ''}. Email: ${data.email}`,
       })
       setSent(true)
       toast.success('Заявку відправлено')
@@ -333,7 +369,7 @@ function ManagerScreen({ data, onBack }: { data: SignupData; onBack: () => void 
   return (
     <div style={{ background: '#0A0A0A', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <PageHeader />
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 20, padding: '24px 20px 60px', maxWidth: 375, width: '100%', margin: '0 auto' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 20, padding: '88px 20px 60px', maxWidth: 375, width: '100%', margin: '0 auto' }}>
 
         <button onClick={onBack} style={{
           display: 'flex', alignItems: 'center', gap: 6, background: 'none',
@@ -343,15 +379,9 @@ function ManagerScreen({ data, onBack }: { data: SignupData; onBack: () => void 
           <span style={{ fontSize: 13, fontWeight: 500, fontFamily: 'Inter, sans-serif' }}>Назад до вибору</span>
         </button>
 
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, textAlign: 'center' }}>
-          <SuccessIcon />
-          <h1 style={{ margin: 0, color: '#F0F0F0', fontFamily: 'Inter, sans-serif', fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>
-            Оплата пройшла успішно!
-          </h1>
-          <p style={{ margin: 0, color: '#8A8A8A', fontSize: 14, lineHeight: 1.5, fontFamily: 'Inter, sans-serif' }}>
-            Крок 2: оберіть канал зв'язку з менеджером
-          </p>
-        </div>
+        <h2 style={{ margin: 0, color: '#F0F0F0', fontFamily: 'Inter, sans-serif', fontSize: 20, fontWeight: 700 }}>
+          Оберіть канал зв'язку з менеджером
+        </h2>
 
         <span style={{ color: '#7AA2D6', fontSize: 11, fontWeight: 700, fontFamily: 'Inter, sans-serif' }}>
           Ключовий блок: канал зв'язку
@@ -359,6 +389,67 @@ function ManagerScreen({ data, onBack }: { data: SignupData; onBack: () => void 
 
         {!sent ? (
           <>
+            {/* Contact fields */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+              {/* Name — optional */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <label style={{ color: '#8A8A8A', fontSize: 12, fontWeight: 600, fontFamily: 'Inter, sans-serif' }}>
+                  Ваше ім'я
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={handleNameChange}
+                  placeholder="Як до вас звертатись?"
+                  autoComplete="given-name"
+                  style={fieldStyle(Boolean(nameError))}
+                />
+                {nameError && (
+                  <span style={{ color: '#EF4444', fontSize: 12, fontFamily: 'Inter, sans-serif' }}>{nameError}</span>
+                )}
+              </div>
+
+              {/* Phone — required */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <label style={{ color: '#8A8A8A', fontSize: 12, fontWeight: 600, fontFamily: 'Inter, sans-serif' }}>
+                  Номер телефону <span style={{ color: '#EF4444' }}>*</span>
+                </label>
+                <div style={{
+                  '--react-international-phone-background-color': '#161616',
+                  '--react-international-phone-text-color': '#F0F0F0',
+                  '--react-international-phone-border-color': phoneError ? '#EF4444' : 'rgba(255,255,255,0.12)',
+                  '--react-international-phone-border-radius': '12px',
+                  '--react-international-phone-height': '50px',
+                  '--react-international-phone-font-size': '15px',
+                  '--react-international-phone-country-selector-background-color': '#161616',
+                  '--react-international-phone-country-selector-background-color-hover': '#1E1E1E',
+                  '--react-international-phone-country-selector-arrow-color': '#8A8A8A',
+                  '--react-international-phone-dropdown-item-background-color': '#161616',
+                  '--react-international-phone-dropdown-item-text-color': '#F0F0F0',
+                  '--react-international-phone-selected-dropdown-item-background-color': '#222222',
+                  '--react-international-phone-dropdown-shadow': '0 4px 24px rgba(0,0,0,0.6)',
+                } as React.CSSProperties}>
+                  <PhoneInput
+                    defaultCountry="ua"
+                    value={phone}
+                    onChange={handlePhoneChange}
+                    style={{ width: '100%' }}
+                    inputStyle={{ flex: 1, width: '100%', fontFamily: 'Inter, sans-serif' }}
+                  />
+                </div>
+                {phoneError ? (
+                  <span style={{ color: '#EF4444', fontSize: 12, fontFamily: 'Inter, sans-serif' }}>{phoneError}</span>
+                ) : (
+                  <span style={{ color: '#555', fontSize: 11, fontFamily: 'Inter, sans-serif' }}>
+                    Менеджер напише вам у обраному месенджері на цей номер
+                  </span>
+                )}
+              </div>
+
+            </div>
+
+            {/* Channel selection */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {channels.map(({ key, label, icon }) => {
                 const isActive = selected === key
@@ -394,7 +485,13 @@ function ManagerScreen({ data, onBack }: { data: SignupData; onBack: () => void 
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16, textAlign: 'center', padding: '20px 0' }}>
             <p style={{ margin: 0, color: '#8A8A8A', fontSize: 14, lineHeight: 1.6, fontFamily: 'Inter, sans-serif' }}>
-              Менеджер напише вам у <strong style={{ color: '#F0F0F0' }}>{channels.find(c => c.key === selected)?.label}</strong> протягом 15 хвилин.
+              {name.trim() ? (
+                <><strong style={{ color: '#F0F0F0' }}>{name.trim()}</strong>, менеджер{' '}</>
+              ) : (
+                'Менеджер '
+              )}
+              напише вам у <strong style={{ color: '#F0F0F0' }}>{channels.find(c => c.key === selected)?.label}</strong>{' '}
+              на номер <strong style={{ color: '#F0F0F0' }}>{phone.trim()}</strong> протягом 15 хвилин.
             </p>
             <Link to="/cabinet" style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
@@ -481,10 +578,11 @@ export function TrialSuccessPage() {
     return (
       <div style={{ background: '#0A0A0A', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         <PageHeader />
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, paddingTop: 64 }}>
           <LoaderCircle size={40} strokeWidth={1.75} style={{ color: '#3B82F6', animation: 'spin 1s linear infinite' }} />
           <p style={{ color: '#8A8A8A', fontSize: 15, fontFamily: 'Inter, sans-serif', margin: 0 }}>Перевіряємо статус оплати…</p>
         </div>
+        <PageFooter />
       </div>
     )
   }
@@ -495,7 +593,7 @@ export function TrialSuccessPage() {
       <div style={{ background: '#0A0A0A', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         <Helmet><title>Оплата не пройшла — Widgetis</title></Helmet>
         <PageHeader />
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 24, padding: '60px 24px 40px', maxWidth: 375, width: '100%', margin: '0 auto' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 24, padding: '104px 24px 40px', maxWidth: 375, width: '100%', margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <div style={{
               width: 64, height: 64, borderRadius: 999,
@@ -542,6 +640,7 @@ export function TrialSuccessPage() {
             Якщо оплата не пройде — доступ буде призупинено на 90 днів
           </p>
         </div>
+        <PageFooter />
       </div>
     )
   }

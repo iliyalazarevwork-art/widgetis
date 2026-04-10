@@ -30,3 +30,7 @@ Thumbs.db
 
 # Docker
 docker-compose.override.yml
+
+# Production secrets (never commit)
+.env.prod
+certbot/

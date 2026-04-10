@@ -13,6 +13,8 @@ export type BuildRequest = {
   modules: ModuleConfigs;
   obfuscate?: boolean;
   allowedDomain?: string;
+  site?: string;
+  comment?: string;
 };
 
 const MODULES_ORDER = [
@@ -133,7 +135,7 @@ export async function buildModules(request: BuildRequest): Promise<string> {
 
   if (request.allowedDomain) {
     const d = request.allowedDomain;
-    code = `(function(){var _h=window.location.hostname;if(_h!=="${d}"&&!_h.endsWith(".${d}"))return;${code}})();`;
+    code = `(function(){_c();${code}function _c(){var _h=window.location.hostname;if(_h!=="${d}"&&!_h.endsWith(".${d}"))throw new Error()}})();`;
   }
 
   if (request.obfuscate) {
@@ -152,13 +154,41 @@ export async function buildModules(request: BuildRequest): Promise<string> {
     code = obfuscated.getObfuscatedCode();
   }
 
-  // Header — always on top, never obfuscated
-  const now = new Date();
-  const ver = now.toISOString().replace('T', ' ').slice(0, 19);
-  const header = `/**\n * Widgetis \n * Version: ${ver}\n * Built: ${now.toUTCString()}\n * https://widgetis.com\n * https://t.me/widgetis\n */\n`;
-  code = header + code;
+  const comment = request.comment ?? buildAutoComment(request.allowedDomain ?? request.site);
+  code = comment + '\n' + code;
 
   return code;
+}
+
+function buildAutoComment(domain?: string): string {
+  const now = new Date();
+  const built = now.toUTCString();
+  const version = now.toISOString().replace('T', ' ').slice(0, 19);
+  const lines = [
+    '/**',
+    ' * Widgetis — Widget Platform for E-Commerce',
+    domain ? ` * Site:     ${domain}` : null,
+    ` * Version:  ${version}`,
+    ` * Built:    ${built}`,
+    ' * ',
+    ' * https://widgetis.com',
+    ' * https://t.me/widgetis',
+    ' * ',
+    ' * LICENSE: Proprietary and Confidential.',
+    ' * This code is the exclusive intellectual property of Widgetis.',
+    ' * Unauthorized copying, decompilation, modification, distribution',
+    ' * or reuse of this code, in whole or in part, is strictly prohibited.',
+    ` * © ${new Date().getFullYear()} Widgetis. All rights reserved.`,
+    ' * https://widgetis.com/license',
+    ' * ',
+    ' * Protected under Ukrainian law:',
+    ' *   Закон №2811-IX «Про авторське право і суміжні права»',
+    ' *   zakon.rada.gov.ua/laws/show/2811-20',
+    ' *   Ст. 176 КК України — кримінальна відповідальність',
+    ' *   Ст. 432 ЦК України — цивільний захист у суді',
+    ' */',
+  ].filter(Boolean);
+  return lines.join('\n');
 }
 
 /**

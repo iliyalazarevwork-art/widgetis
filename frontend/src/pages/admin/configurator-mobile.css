@@ -981,27 +981,6 @@
   gap: 8px;
 }
 
-.cfg-m__action-preview {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  height: 42px;
-  border-radius: 12px;
-  background: #0D9488;
-  border: 0;
-  color: #FFFFFF;
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.cfg-m__action-preview:hover {
-  background: #0f766e;
-}
-
 .cfg-m__action-copy {
   flex: 1;
   display: flex;

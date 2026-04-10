@@ -14,7 +14,7 @@ class ManagerRequest extends Model
 
     /** @var list<string> */
     protected $fillable = [
-        'user_id', 'site_id', 'type', 'messenger', 'email',
+        'user_id', 'site_id', 'type', 'messenger', 'email', 'name',
         'phone', 'widgets', 'message', 'status', 'notes',
     ];
 

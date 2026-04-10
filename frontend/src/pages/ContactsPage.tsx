@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, ArrowUpRight, Mail, Phone, MapPin } from 'lucide-react'
+import { ArrowLeft, ArrowUpRight, Mail, Phone } from 'lucide-react'
 import { SocialIcon } from '../components/SocialIcon'
 import { useSettings } from '../context/SettingsContext'
 import { BRAND_NAME_UPPER } from '../constants/brand'
@@ -16,12 +16,23 @@ export function ContactsPage() {
   const settings = useSettings()
 
   const phoneHref = settings.phone ? `tel:${settings.phone.replace(/\s+/g, '')}` : ''
+  const formatHandle = (id: string, url: string): string => {
+    if (id === 'telegram') {
+      const match = url.match(/t\.me\/(.+)/)
+      return match ? `@${match[1]}` : url
+    }
+    if (id === 'viber' || id === 'whatsapp') {
+      return settings.phone || url.replace(/https?:\/\//, '')
+    }
+    return url.replace(/https?:\/\//, '')
+  }
+
   const messengers = Object.entries(settings.messengers ?? {})
     .filter(([, url]) => url)
     .map(([id, url]) => ({
       id,
       name: MESSENGER_META[id]?.name ?? id,
-      handle: url.replace(/https?:\/\//, '').replace('t.me/', '@'),
+      handle: formatHandle(id, url),
       url,
       color: MESSENGER_META[id]?.color ?? '#888',
     }))
@@ -104,16 +115,6 @@ export function ContactsPage() {
               </a>
             )}
 
-            <div className="contacts-page__card contacts-page__card--static">
-              <div className="contacts-page__card-icon">
-                <MapPin size={20} strokeWidth={2} />
-              </div>
-              <div className="contacts-page__card-body">
-                <span className="contacts-page__card-label">Де ми</span>
-                <strong className="contacts-page__card-value">Київ, Україна</strong>
-                <span className="contacts-page__card-hint">Працюємо по всій Україні</span>
-              </div>
-            </div>
           </div>
 
           {/* ── Messengers ── */}

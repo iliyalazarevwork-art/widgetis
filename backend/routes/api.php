@@ -108,6 +108,7 @@ Route::prefix('v1')->group(function () {
         Route::get('subscriptions', [Admin\SubscriptionController::class, 'index']);
         Route::get('sites', [Admin\SiteController::class, 'index']);
         Route::get('sites/{id}', [Admin\SiteController::class, 'show']);
+        Route::post('sites/{id}/deploy', [Admin\SiteController::class, 'deploy']);
         Route::put('sites/{siteId}/widgets/{productId}', [Admin\SiteController::class, 'updateWidget']);
         Route::post('demo-sessions', [Admin\DemoSessionController::class, 'store']);
     });

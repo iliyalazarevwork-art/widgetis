@@ -1,7 +1,7 @@
 .choose-plan {
   max-width: 600px;
   margin: 0 auto;
-  padding: 64px 20px 80px;
+  padding: 104px 20px 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -17,28 +17,34 @@
   align-items: center;
   gap: 10px;
   text-align: center;
-  position: relative;
-  padding-top: 52px;
 }
 
+/* ── Back button ── */
 .choose-plan__back {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.03);
   display: flex;
   align-items: center;
-  justify-content: center;
-  color: var(--text-icon);
+  gap: 6px;
+  color: #7A7A7A;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  background: none;
+  border: none;
+  cursor: pointer;
+  align-self: flex-start;
+  padding: 0;
+  margin-bottom: 8px;
+  transition: color var(--t-fast);
+}
+
+.choose-plan__back:hover {
+  color: var(--text-primary);
 }
 
 .choose-plan__title {
   font-size: 28px;
   font-weight: 900;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .choose-plan__subtitle {
@@ -124,10 +130,20 @@
 .choose-plan__card-name {
   font-size: 16px;
   font-weight: 700;
+  color: var(--text-primary);
+}
+
+.choose-plan__card--pro .choose-plan__card-name {
+  color: #fff;
 }
 
 .choose-plan__card-pitch {
   font-size: 12px;
+  color: var(--text-muted);
+}
+
+.choose-plan__card--pro .choose-plan__card-pitch {
+  color: #9BB3D4;
 }
 
 /* ── Price ── */
@@ -164,11 +180,21 @@
   font-size: 36px;
   font-weight: 800;
   line-height: 1;
+  color: var(--text-primary);
+}
+
+.choose-plan__card--pro .choose-plan__card-amount {
+  color: #fff;
 }
 
 .choose-plan__card-unit {
   font-size: 13px;
   padding-bottom: 4px;
+  color: var(--text-muted);
+}
+
+.choose-plan__card--pro .choose-plan__card-unit {
+  color: #9BB3D4;
 }
 
 .choose-plan__card-annual-line {
@@ -195,11 +221,21 @@
 .choose-plan__card-count {
   font-size: 13px;
   font-weight: 600;
+  color: #DDD;
+}
+
+.choose-plan__card--pro .choose-plan__card-count {
+  color: #D0DCF0;
 }
 
 /* ── Divider ── */
 .choose-plan__card-divider {
   height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.choose-plan__card--pro .choose-plan__card-divider {
+  background: rgba(59, 130, 246, 0.12);
 }
 
 /* ── Features ── */
@@ -218,6 +254,20 @@
 
 .choose-plan__card-feat--widget span {
   font-weight: 500;
+  color: #DDD;
+}
+
+.choose-plan__card--pro .choose-plan__card-feat--widget span {
+  color: #E8F0FF;
+}
+
+.choose-plan__card-feat--service span {
+  font-size: 12px;
+  color: #777;
+}
+
+.choose-plan__card--pro .choose-plan__card-feat--service span {
+  color: #9BB3D4;
 }
 
 /* ── Feat divider ── */
@@ -272,6 +322,11 @@
 .choose-plan__card-trial {
   font-size: 11px;
   text-align: center;
+  color: rgba(255, 255, 255, 0.32);
+}
+
+.choose-plan__card--pro .choose-plan__card-trial {
+  color: rgba(59, 130, 246, 0.5);
 }
 
 /* ── Final / Compare ── */

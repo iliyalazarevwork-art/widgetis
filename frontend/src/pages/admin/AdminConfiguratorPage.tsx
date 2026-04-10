@@ -17,6 +17,7 @@ import {
   Loader,
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { post } from '../../api/client'
 import './configurator-mobile.css'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -116,6 +117,7 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
   const [demoLink, setDemoLink] = useState<string | null>(null)
   const [deploying, setDeploying] = useState(false)
   const [deployedUrl, setDeployedUrl] = useState<string | null>(siteContext?.deployedScriptUrl ?? null)
+  const [hasChanges, setHasChanges] = useState(false)
 
   const [previewOpen, setPreviewOpen] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string>('')
@@ -193,6 +195,7 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
       ...prev,
       [activeModule]: { ...prev[activeModule], config: deepSet(prev[activeModule].config, path, value) },
     }))
+    setHasChanges(true)
   }
 
   function updateI18nDirect(newI18n: Record<string, unknown>) {
@@ -200,6 +203,7 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
       ...prev,
       [activeModule]: { ...prev[activeModule], i18n: newI18n },
     }))
+    setHasChanges(true)
   }
 
   function setI18nValue(path: string, value: unknown) {
@@ -207,6 +211,7 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
       ...prev,
       [activeModule]: { ...prev[activeModule], i18n: deepSet(prev[activeModule].i18n, path, value) },
     }))
+    setHasChanges(true)
   }
 
   // ─── Build ─────────────────────────────────────────────────────────
@@ -236,6 +241,7 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
       }
       const js = await res.text()
       setBuiltJs(js)
+      setHasChanges(false)
       try { await navigator.clipboard.writeText(js) } catch { /* */ }
       toast.success(`Збудовано! ${Math.round(js.length / 1024)} KB`)
     } catch (err) {
@@ -421,6 +427,7 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
         }
         return next
       })
+      setHasChanges(true)
       toast.success('Імпортовано!')
       closeJsonPanel()
     } catch (err) {
@@ -437,6 +444,7 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
     setModuleStates(fresh)
     setBuiltJs(null)
     setBuildError(null)
+    setHasChanges(true)
     localStorage.removeItem(storageKey)
     toast.success('Скинуто')
   }
@@ -458,18 +466,23 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
     setDeploying(true)
     setDeployedUrl(null)
     try {
-      const res = await fetch('/deploy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(getBuildRequest()),
+      const { modules: rawModules, obfuscate: shouldObfuscate } = getBuildRequest()
+
+      // Align with DB format: extract `enabled` from config → separate `is_enabled`
+      const modules = Object.fromEntries(
+        Object.entries(rawModules).map(([id, m]) => {
+          const { enabled, ...config } = m.config as Record<string, unknown> & { enabled?: unknown }
+          return [id, { is_enabled: Boolean(enabled), config, i18n: m.i18n }]
+        })
+      )
+
+      const data = await post<{ data?: { url?: string } }>(`/admin/sites/${siteContext.id}/deploy`, {
+        modules,
+        obfuscate: shouldObfuscate,
       })
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }))
-        throw new Error((err as { error?: string }).error ?? `HTTP ${res.status}`)
-      }
-      const data = await res.json() as { url?: string }
-      const url = data.url || `https://cdn.widgetis.com/${siteContext.domain}/widget.js`
+      const url = data.data?.url || `https://cdn.widgetis.com/${siteContext.domain}/widget.js`
       setDeployedUrl(url)
+      setBuiltJs(null)
       await navigator.clipboard.writeText(url).catch(() => {})
       toast.success('Задеплоєно на R2! Посилання скопійовано.')
     } catch (err) {
@@ -613,7 +626,6 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
             {building ? 'Збірка...' : 'Зібрати скрипт'}
           </button>
           <div className="cfg-m__action-row">
-            <button type="button" className="cfg-m__action-preview" onClick={applyToPreview}>До прев&#39;ю</button>
             <button type="button" className="cfg-m__action-copy" onClick={copyBuiltScript}>
               {copied ? <Check size={13} strokeWidth={2.5} /> : <Copy size={13} strokeWidth={2} />}
               {copied ? 'Скопійовано' : 'Копіювати'}
@@ -623,34 +635,26 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
             {creatingDemo ? <Loader size={13} strokeWidth={2} className="cfg-m__spin" /> : <Play size={13} strokeWidth={2} />}
             {creatingDemo ? 'Створення...' : 'Демо-посилання'}
           </button>
-          {demoLink && (
-            <div className="cfg-m__demo-link-banner">
-              <a href={demoLink} target="_blank" rel="noopener noreferrer">{demoLink}</a>
-              <button type="button" onClick={async () => { await navigator.clipboard.writeText(demoLink); toast.success('Скопійовано') }}>
-                <Copy size={12} strokeWidth={2} />
-              </button>
-            </div>
-          )}
           {siteContext && (
             <>
               <button
                 type="button"
                 className="cfg-m__action-build"
-                style={{ background: 'linear-gradient(135deg, #0f766e 0%, #0369a1 100%)', marginTop: 6 }}
+                style={{
+                  background: deploying || !builtJs || hasChanges
+                    ? '#374151'
+                    : 'linear-gradient(135deg, #0f766e 0%, #0369a1 100%)',
+                  marginTop: 6,
+                  opacity: deploying || !builtJs || hasChanges ? 0.5 : 1,
+                  cursor: deploying || !builtJs || hasChanges ? 'not-allowed' : 'pointer',
+                }}
                 onClick={deployToR2}
-                disabled={deploying || !builtJs}
+                disabled={deploying || !builtJs || hasChanges}
+                title={hasChanges ? 'Є незбережені зміни — спочатку зберіть скрипт' : !builtJs ? 'Спочатку зберіть скрипт, а потім деплойте' : undefined}
               >
                 {deploying ? <Loader size={15} strokeWidth={2} className="cfg-m__spin" /> : <Plus size={15} strokeWidth={2} />}
                 {deploying ? 'Деплой...' : 'Задеплоїти на R2'}
               </button>
-              {deployedUrl && (
-                <div className="cfg-m__demo-link-banner">
-                  <a href={deployedUrl} target="_blank" rel="noopener noreferrer">{deployedUrl}</a>
-                  <button type="button" onClick={async () => { await navigator.clipboard.writeText(deployedUrl); toast.success('Скопійовано') }}>
-                    <Copy size={12} strokeWidth={2} />
-                  </button>
-                </div>
-              )}
             </>
           )}
           {buildError && <div className="cfg-m__build-error">Помилка: {buildError}</div>}

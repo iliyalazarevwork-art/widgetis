@@ -9,7 +9,6 @@ import {
   Users,
   Settings,
   MessageSquareWarning,
-  FileText,
   LogOut,
   X,
   ExternalLink,
@@ -26,7 +25,6 @@ const NAV = [
   { to: '/admin/users', label: 'Користувачі', icon: Users },
   { to: '/admin/sites', label: 'Сайти', icon: Globe },
   { to: '/admin/manager-requests', label: 'Manager Requests', icon: MessageSquareWarning },
-  { to: '/admin/landing-content', label: 'Landing Content', icon: FileText },
   { to: '/admin/settings', label: 'Налаштування', icon: Settings },
 ]
 
@@ -42,8 +40,7 @@ export function AdminLayout() {
     location.pathname.startsWith('/admin/orders') ||
     location.pathname.startsWith('/admin/sites') ||
     location.pathname.startsWith('/admin/settings') ||
-    location.pathname.startsWith('/admin/manager-requests') ||
-    location.pathname.startsWith('/admin/landing-content')
+    location.pathname.startsWith('/admin/manager-requests')
 
   useEffect(() => {
     setMobileOpen(false)

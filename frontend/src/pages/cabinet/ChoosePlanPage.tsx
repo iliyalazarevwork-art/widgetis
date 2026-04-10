@@ -24,7 +24,7 @@ interface PlanWithFeatures extends Plan {
 const PLAN_COLORS: Record<string, string> = {
   basic: '#10B981',
   pro: '#3B82F6',
-  max: '#8B5CF6',
+  max: '#A855F7',
 }
 
 // Default icon per plan slug (matches PricingPage.tsx)
@@ -181,7 +181,7 @@ export default function ChoosePlanPage() {
             <button
               className="choose-plan__card-btn"
               style={{ background: 'rgba(255,255,255,0.06)', borderColor: 'rgba(255,255,255,0.12)', color: '#fff' }}
-              onClick={() => navigate('/cabinet/plan')}
+              onClick={() => navigate('/cabinet')}
             >
               Переглянути мій план
             </button>
@@ -197,8 +197,9 @@ export default function ChoosePlanPage() {
     <Header />
     <div className="choose-plan">
       <div className="choose-plan__hero">
-        <button className="choose-plan__back" onClick={() => navigate(-1)}>
-          <ArrowLeft size={18} />
+        <button className="choose-plan__back" onClick={() => navigate(sub ? '/cabinet/plan' : '/')}>
+          <ArrowLeft size={14} />
+          <span>Назад</span>
         </button>
         <h1 className="choose-plan__title">
           {sub ? 'Підвищити план' : 'Обери свій план'}
@@ -287,11 +288,11 @@ export default function ChoosePlanPage() {
                   <Icon size={16} style={{ color }} />
                 </div>
                 <div className="choose-plan__card-name-col">
-                  <span className="choose-plan__card-name" style={{ color: isPro ? '#FFF' : '#F0F0F0' }}>
+                  <span className="choose-plan__card-name">
                     {plan.name}
                   </span>
                   {pitch && (
-                    <span className="choose-plan__card-pitch" style={{ color: isPro ? '#9BB3D4' : '#666' }}>
+                    <span className="choose-plan__card-pitch">
                       {pitch}
                     </span>
                   )}
@@ -306,10 +307,10 @@ export default function ChoosePlanPage() {
                       <span className="choose-plan__card-strike" />
                     </span>
                   )}
-                  <span className="choose-plan__card-amount" style={{ color: isPro ? '#FFF' : '#F0F0F0' }}>
+                  <span className="choose-plan__card-amount">
                     {yearly ? yearlyMonthly.toLocaleString('uk-UA') : monthlyPrice.toLocaleString('uk-UA')}
                   </span>
-                  <span className="choose-plan__card-unit" style={{ color: isPro ? '#9BB3D4' : '#666' }}>
+                  <span className="choose-plan__card-unit">
                     грн/міс
                   </span>
                 </div>
@@ -325,26 +326,26 @@ export default function ChoosePlanPage() {
                 )}
               </div>
 
-              <span className="choose-plan__card-count" style={{ color: isPro ? '#D0DCF0' : '#DDD' }}>
+              <span className="choose-plan__card-count">
                 {plan.max_widgets} віджетів · {plan.max_sites} {pluralSites(plan.max_sites)}
               </span>
 
-              <div className="choose-plan__card-divider" style={{ background: isPro ? `${color}20` : 'rgba(255,255,255,0.08)' }} />
+              <div className="choose-plan__card-divider" />
 
               <div className="choose-plan__card-feats">
                 {widgetFeatures.map((f) => (
                   <div key={f.key} className="choose-plan__card-feat choose-plan__card-feat--widget">
                     <Check size={12} style={{ color }} strokeWidth={3} />
-                    <span style={{ color: isPro ? '#E8F0FF' : '#DDD', fontWeight: 500 }}>{f.label}</span>
+                    <span>{f.label}</span>
                   </div>
                 ))}
                 {serviceFeatures.length > 0 && widgetFeatures.length > 0 && (
                   <div className="choose-plan__card-feat-divider" />
                 )}
                 {serviceFeatures.map((f) => (
-                  <div key={f.key} className="choose-plan__card-feat">
-                    <Check size={12} style={{ color: isPro ? '#9BB3D4' : 'rgba(255,255,255,0.3)' }} strokeWidth={2.5} />
-                    <span style={{ color: isPro ? '#9BB3D4' : '#777', fontSize: 12 }}>{f.label}</span>
+                  <div key={f.key} className="choose-plan__card-feat choose-plan__card-feat--service">
+                    <Check size={12} style={{ color }} strokeWidth={2.5} />
+                    <span>{f.label}</span>
                   </div>
                 ))}
               </div>
@@ -362,7 +363,7 @@ export default function ChoosePlanPage() {
               </button>
 
               {!sub && (
-                <span className="choose-plan__card-trial" style={{ color: isPro ? `${color}80` : 'rgba(255,255,255,0.32)' }}>
+                <span className="choose-plan__card-trial">
                   {isPro ? '7 днів безкоштовно · без зобов\'язань' : '7 днів безкоштовно'}
                 </span>
               )}

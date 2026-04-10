@@ -152,6 +152,8 @@ class ProfileController extends BaseController
             'type' => ['required', 'string', 'in:install_help,general'],
             'site_id' => ['nullable', 'integer', 'exists:sites,id'],
             'messenger' => ['nullable', 'string', 'in:telegram,viber,whatsapp'],
+            'phone' => ['required_if:type,install_help', 'nullable', 'string', 'max:20'],
+            'name' => ['nullable', 'string', 'max:100'],
             'message' => ['nullable', 'string', 'max:2000'],
         ]);
 
@@ -162,6 +164,8 @@ class ProfileController extends BaseController
             'type' => $request->input('type'),
             'messenger' => $request->input('messenger'),
             'email' => $user->email,
+            'name' => $request->input('name'),
+            'phone' => $request->input('phone'),
             'message' => $request->input('message'),
             'status' => 'new',
         ]);

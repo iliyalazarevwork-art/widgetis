@@ -18,6 +18,7 @@ import { PricingPage } from './pages/PricingPage'
 import { CheckoutPage } from './pages/CheckoutPage'
 import { CheckoutSuccessPage } from './pages/CheckoutSuccessPage'
 import { ContactsPage } from './pages/ContactsPage'
+import { LicensePage } from './pages/LicensePage'
 import { CasesPage } from './pages/CasesPage'
 import { WidgetDetailPage } from './pages/WidgetDetailPage'
 import { DemoPage } from './pages/DemoPage'
@@ -28,7 +29,6 @@ import { AdminLayout } from './pages/admin/AdminLayout'
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage'
 import { AdminConfiguratorPage } from './pages/admin/AdminConfiguratorPage'
 import {
-  AdminLandingContentPage,
   AdminManagerRequestsPage,
   AdminOrdersPage,
   AdminSettingsPage,
@@ -120,16 +120,24 @@ function RequireAuth({ children }: { children: ReactElement }) {
   return children
 }
 
-function RequireSubscription({ children }: { children: ReactElement }) {
+function RequireCustomer({ children }: { children: ReactElement }) {
   const { user } = useAuth()
 
   if (user?.role === 'admin') {
-    return children
+    return <Navigate to="/admin" replace />
   }
 
+  return children
+}
+
+function RequireSubscription({ children }: { children: ReactElement }) {
+  const { user } = useAuth()
+
+  // 'cancelled' = отменена, но ещё действует до конца оплаченного периода
   const hasAccess = user?.subscription_status === 'active'
     || user?.subscription_status === 'trial'
     || user?.subscription_status === 'past_due'
+    || user?.subscription_status === 'cancelled'
 
   if (!hasAccess) {
     return <Navigate to="/cabinet/choose-plan" replace />
@@ -200,6 +208,7 @@ function App() {
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
             <Route path="/contacts" element={<ContactsPage />} />
+            <Route path="/license" element={<LicensePage />} />
             <Route path="/cases" element={<CasesPage />} />
             <Route path="/widgets/:slug" element={<WidgetDetailPage />} />
             <Route path="/demo" element={<DemoPage />} />
@@ -226,7 +235,9 @@ function App() {
             path="/cabinet/choose-plan"
             element={(
               <RequireAuth>
-                <ChoosePlanPage />
+                <RequireCustomer>
+                  <ChoosePlanPage />
+                </RequireCustomer>
               </RequireAuth>
             )}
           />
@@ -235,11 +246,13 @@ function App() {
             path="/cabinet"
             element={(
               <RequireAuth>
-                <RequireSubscription>
-                  <RequireOnboarding>
-                    <CabinetLayout />
-                  </RequireOnboarding>
-                </RequireSubscription>
+                <RequireCustomer>
+                  <RequireSubscription>
+                    <RequireOnboarding>
+                      <CabinetLayout />
+                    </RequireOnboarding>
+                  </RequireSubscription>
+                </RequireCustomer>
               </RequireAuth>
             )}
           >
@@ -279,7 +292,6 @@ function App() {
             <Route path="users" element={<AdminUsersPage />} />
             <Route path="settings" element={<AdminSettingsPage />} />
             <Route path="manager-requests" element={<AdminManagerRequestsPage />} />
-            <Route path="landing-content" element={<AdminLandingContentPage />} />
           </Route>
         </Routes>
 

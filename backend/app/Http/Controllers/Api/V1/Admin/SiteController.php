@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Api\V1\BaseController;
 use App\Models\Site;
 use App\Models\SiteWidget;
+use App\Services\Site\ScriptBuilderService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -93,6 +94,35 @@ class SiteController extends BaseController
                     'email' => $site->user->email,
                     'name' => $site->user->name,
                 ] : null,
+            ],
+        ]);
+    }
+
+    public function deploy(Request $request, int $id, ScriptBuilderService $builder): JsonResponse
+    {
+        $request->validate([
+            'modules' => ['required', 'array'],
+            'obfuscate' => ['boolean'],
+        ]);
+
+        /** @var Site $site */
+        $site = Site::with(['script'])->findOrFail($id);
+
+        /** @var array<string, array{is_enabled: bool, config: array<string, mixed>, i18n: mixed}> $modules */
+        $modules = $request->input('modules');
+        $obfuscate = $request->boolean('obfuscate', true);
+
+        try {
+            $build = $builder->buildFromModules($site, $modules, $obfuscate);
+        } catch (\Throwable $e) {
+            return $this->error('DEPLOY_FAILED', $e->getMessage(), 500);
+        }
+
+        return $this->success([
+            'data' => [
+                'url' => $build->file_url,
+                'version' => $build->version,
+                'built_at' => now()->toIso8601String(),
             ],
         ]);
     }

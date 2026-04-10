@@ -60,6 +60,7 @@ export function Footer({ variant = 'full' }: FooterProps) {
               <Link to="/legal#offer" className="footer__link">Публічна оферта</Link>
               <Link to="/legal#refund" className="footer__link">Повернення коштів</Link>
               <Link to="/legal#security" className="footer__link">Безпека даних</Link>
+              <Link to="/license" className="footer__link">Ліцензія</Link>
             </div>
 
             <div className="footer__col">

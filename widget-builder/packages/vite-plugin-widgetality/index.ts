@@ -23,8 +23,6 @@ export default function widgetalityPlugin(options: { site: string; modules: Modu
       }
     },
 
-    generateBundle() {},
-
     load(id) {
       if (id.startsWith('\0virtual:widgetality-config:')) {
         const key = id.replace('\0virtual:widgetality-config:', '');

@@ -8,13 +8,10 @@ import {
   ArrowUpRight,
   Wand2,
   ArrowRight,
-  X,
-  LayoutDashboard,
   Users,
 } from 'lucide-react'
 import { get } from '../../api/client'
-import { HamburgerIcon } from '../../components/HamburgerIcon'
-import { AdminMobileBottomNav } from './AdminPages'
+import { AdminScreenLayout } from './AdminScreenLayout'
 import type { AdminDashboardData } from '../../types'
 import './dashboard.css'
 
@@ -36,18 +33,7 @@ type UiOrder = {
   fresh: boolean
 }
 
-
-const MENU_LINKS = [
-  { to: '/admin', label: 'Дашборд', end: true },
-  { to: '/admin/subscriptions', label: 'Підписки' },
-  { to: '/admin/orders', label: 'Замовлення' },
-  { to: '/admin/users', label: 'Користувачі' },
-  { to: '/admin/sites', label: 'Сайти' },
-  { to: '/admin/settings', label: 'Налаштування' },
-]
-
 export function AdminDashboardPage() {
-  const [menuOpen, setMenuOpen] = useState(false)
   const [data, setData] = useState<AdminDashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -117,148 +103,102 @@ export function AdminDashboardPage() {
   }, [data])
 
   return (
-    <div className="dash-m">
-      {menuOpen && (
+    <AdminScreenLayout mode="dashboard" title="Дашборд" subtitle="Widgetis Admin">
+      {loading ? (
+        <div className="dash-m__state">Завантаження…</div>
+      ) : error || !data ? (
+        <div className="dash-m__state dash-m__state--error">{error || 'Не вдалося завантажити дані'}</div>
+      ) : (
         <>
-          <button
-            className="mobile-menu__overlay"
-            onClick={() => setMenuOpen(false)}
-            aria-label="Закрити меню"
-            type="button"
-          />
-          <div className="mobile-menu">
-            <div className="mobile-menu__head">
-              <strong>Widgetis Admin</strong>
-              <button type="button" onClick={() => setMenuOpen(false)}>
-                <X size={16} />
-              </button>
+          <div className="dash-m__stats">
+            {stats.map((s) => {
+              const Icon = s.icon
+              return (
+                <div key={s.label} className={`dash-m__stat dash-m__stat--${s.color}`}>
+                  <div className="dash-m__stat-head">
+                    <span className="dash-m__stat-icon">
+                      <Icon size={16} strokeWidth={2} />
+                    </span>
+                    <span className="dash-m__stat-delta">
+                      <ArrowUpRight size={10} strokeWidth={2.5} />
+                      {s.delta}
+                    </span>
+                  </div>
+                  <strong className="dash-m__stat-value">{s.value}</strong>
+                  <span className="dash-m__stat-label">{s.label}</span>
+                  <span className="dash-m__stat-period">{s.period}</span>
+                </div>
+              )
+            })}
+          </div>
+
+          <div className="dash-m__cards">
+            <div className="dash-m__card">
+              <div className="dash-m__card-head">
+                <span className="dash-m__card-title">Останні замовлення</span>
+                <Link to="/admin/orders" className="dash-m__card-link">
+                  Усі <ArrowRight size={12} strokeWidth={2.5} />
+                </Link>
+              </div>
+              <div className="dash-m__divider" />
+              {recentOrders.length === 0 ? (
+                <div className="dash-m__empty">Замовлень поки немає</div>
+              ) : (
+                recentOrders.map((o, i) => (
+                  <div key={`${o.id}-${i}`}>
+                    <div className="dash-m__order-row">
+                      <code className="dash-m__order-id">{o.id}</code>
+                      <span className="dash-m__order-email">{o.email}</span>
+                      <strong className="dash-m__order-amount">
+                        {formatOrderMoney(o.amount, o.currency)}
+                      </strong>
+                      <span className={`dash-m__order-date${o.fresh ? ' dash-m__order-date--fresh' : ''}`}>
+                        {o.date}
+                      </span>
+                    </div>
+                    {i < recentOrders.length - 1 && <div className="dash-m__divider" />}
+                  </div>
+                ))
+              )}
             </div>
-            <nav className="mobile-menu__nav">
-              {MENU_LINKS.map((l) => (
-                <NavLink key={l.to} to={l.to} end={l.end} onClick={() => setMenuOpen(false)}>
-                  {l.label}
-                </NavLink>
-              ))}
-            </nav>
+
+            <div className="dash-m__card">
+              <span className="dash-m__card-title dash-m__card-title--mb">Швидкі дії</span>
+              <Link to="/admin/configurator" className="dash-m__action">
+                <span className="dash-m__action-icon">
+                  <Wand2 size={16} strokeWidth={2} />
+                </span>
+                <div className="dash-m__action-body">
+                  <strong>Налаштувати віджет</strong>
+                  <span>Змінити кольори, тексти, швидкість</span>
+                </div>
+                <ArrowRight size={14} strokeWidth={2.5} className="dash-m__action-arrow" />
+              </Link>
+              <Link to="/admin/sites" className="dash-m__action">
+                <span className="dash-m__action-icon">
+                  <Globe size={16} strokeWidth={2} />
+                </span>
+                <div className="dash-m__action-body">
+                  <strong>Додати сайт</strong>
+                  <span>Встановити віджети на новий магазин</span>
+                </div>
+                <ArrowRight size={14} strokeWidth={2.5} className="dash-m__action-arrow" />
+              </Link>
+              <Link to="/admin/users" className="dash-m__action">
+                <span className="dash-m__action-icon">
+                  <Users size={16} strokeWidth={2} />
+                </span>
+                <div className="dash-m__action-body">
+                  <strong>Всі клієнти</strong>
+                  <span>Список підписників і активність</span>
+                </div>
+                <ArrowRight size={14} strokeWidth={2.5} className="dash-m__action-arrow" />
+              </Link>
+            </div>
           </div>
         </>
       )}
-
-      <header className="dash-m__topbar">
-        <button
-          className="dash-m__burger"
-          type="button"
-          aria-label="Меню"
-          onClick={() => setMenuOpen(true)}
-        >
-          <HamburgerIcon size={18} />
-        </button>
-        <div className="dash-m__topbar-center">
-          <strong>Дашборд</strong>
-          <span>Widgetis Admin</span>
-        </div>
-        <div className="dash-m__avatar">ІЛ</div>
-      </header>
-
-      <main className="dash-m__body">
-        {loading ? (
-          <div className="dash-m__state">Завантаження…</div>
-        ) : error || !data ? (
-          <div className="dash-m__state dash-m__state--error">{error || 'Не вдалося завантажити дані'}</div>
-        ) : (
-          <>
-            <div className="dash-m__stats">
-              {stats.map((s) => {
-                const Icon = s.icon
-                return (
-                  <div key={s.label} className={`dash-m__stat dash-m__stat--${s.color}`}>
-                    <div className="dash-m__stat-head">
-                      <span className="dash-m__stat-icon">
-                        <Icon size={16} strokeWidth={2} />
-                      </span>
-                      <span className="dash-m__stat-delta">
-                        <ArrowUpRight size={10} strokeWidth={2.5} />
-                        {s.delta}
-                      </span>
-                    </div>
-                    <strong className="dash-m__stat-value">{s.value}</strong>
-                    <span className="dash-m__stat-label">{s.label}</span>
-                    <span className="dash-m__stat-period">{s.period}</span>
-                  </div>
-                )
-              })}
-            </div>
-
-            <div className="dash-m__cards">
-              <div className="dash-m__card">
-                <div className="dash-m__card-head">
-                  <span className="dash-m__card-title">Останні замовлення</span>
-                  <Link to="/admin/orders" className="dash-m__card-link">
-                    Усі <ArrowRight size={12} strokeWidth={2.5} />
-                  </Link>
-                </div>
-                <div className="dash-m__divider" />
-                {recentOrders.length === 0 ? (
-                  <div className="dash-m__empty">Замовлень поки немає</div>
-                ) : (
-                  recentOrders.map((o, i) => (
-                    <div key={`${o.id}-${i}`}>
-                      <div className="dash-m__order-row">
-                        <code className="dash-m__order-id">{o.id}</code>
-                        <span className="dash-m__order-email">{o.email}</span>
-                        <strong className="dash-m__order-amount">
-                          {formatOrderMoney(o.amount, o.currency)}
-                        </strong>
-                        <span className={`dash-m__order-date${o.fresh ? ' dash-m__order-date--fresh' : ''}`}>
-                          {o.date}
-                        </span>
-                      </div>
-                      {i < recentOrders.length - 1 && <div className="dash-m__divider" />}
-                    </div>
-                  ))
-                )}
-              </div>
-
-              <div className="dash-m__card">
-                <span className="dash-m__card-title dash-m__card-title--mb">Швидкі дії</span>
-                <Link to="/admin/configurator" className="dash-m__action">
-                  <span className="dash-m__action-icon">
-                    <Wand2 size={16} strokeWidth={2} />
-                  </span>
-                  <div className="dash-m__action-body">
-                    <strong>Налаштувати віджет</strong>
-                    <span>Змінити кольори, тексти, швидкість</span>
-                  </div>
-                  <ArrowRight size={14} strokeWidth={2.5} className="dash-m__action-arrow" />
-                </Link>
-                <Link to="/admin/sites" className="dash-m__action">
-                  <span className="dash-m__action-icon">
-                    <Globe size={16} strokeWidth={2} />
-                  </span>
-                  <div className="dash-m__action-body">
-                    <strong>Додати сайт</strong>
-                    <span>Встановити віджети на новий магазин</span>
-                  </div>
-                  <ArrowRight size={14} strokeWidth={2.5} className="dash-m__action-arrow" />
-                </Link>
-                <Link to="/admin/users" className="dash-m__action">
-                  <span className="dash-m__action-icon">
-                    <Users size={16} strokeWidth={2} />
-                  </span>
-                  <div className="dash-m__action-body">
-                    <strong>Всі клієнти</strong>
-                    <span>Список підписників і активність</span>
-                  </div>
-                  <ArrowRight size={14} strokeWidth={2.5} className="dash-m__action-arrow" />
-                </Link>
-              </div>
-            </div>
-          </>
-        )}
-      </main>
-
-      <AdminMobileBottomNav />
-    </div>
+    </AdminScreenLayout>
   )
 }
 

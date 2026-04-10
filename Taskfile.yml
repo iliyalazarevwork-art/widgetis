@@ -4,6 +4,8 @@ vars:
   DC: docker compose -f docker-compose.dev.yml
   EXEC: '{{.DC}} exec backend'
   FRONT: cd frontend &&
+  DCP: docker compose -f docker-compose.prod.yml --env-file .env.prod
+  EXECP: '{{.DCP}} exec backend'
 
 tasks:
   # ── OTP ────────────────────────────────────────────────
@@ -136,3 +138,54 @@ tasks:
     desc: "Очистить весь кэш Laravel  ·  task cache:clear"
     cmds:
       - '{{.EXEC}} php artisan optimize:clear'
+
+  # ── Продакшен ──────────────────────────────────────────
+  prod:up:
+    desc: "Поднять прод-контейнеры  ·  task prod:up"
+    cmds:
+      - '{{.DCP}} up -d'
+
+  prod:down:
+    desc: "Остановить прод-контейнеры  ·  task prod:down"
+    cmds:
+      - '{{.DCP}} down'
+
+  prod:build:
+    desc: "Пересобрать прод-образы  ·  task prod:build"
+    cmds:
+      - '{{.DCP}} build --no-cache'
+
+  prod:logs:
+    desc: "Логи прод-бэкенда  ·  task prod:logs"
+    cmds:
+      - '{{.DCP}} logs -f backend'
+
+  prod:migrate:
+    desc: "Миграции на проде  ·  task prod:migrate"
+    cmds:
+      - '{{.EXECP}} php artisan migrate --force'
+
+  prod:cache:
+    desc: "Прогреть кэш на проде  ·  task prod:cache"
+    cmds:
+      - '{{.EXECP}} php artisan config:cache'
+      - '{{.EXECP}} php artisan route:cache'
+      - '{{.EXECP}} php artisan view:cache'
+      - '{{.EXECP}} php artisan event:cache'
+
+  prod:keys:
+    desc: "Сгенерировать APP_KEY и JWT_SECRET  ·  task prod:keys"
+    cmds:
+      - '{{.EXECP}} php artisan key:generate --show'
+      - '{{.EXECP}} php artisan jwt:secret --show'
+
+  prod:artisan:
+    desc: "Artisan на проде  ·  task prod:artisan -- migrate:status"
+    cmds:
+      - '{{.EXECP}} php artisan {{.CLI_ARGS}}'
+
+  prod:sh:
+    desc: "Shell в прод-контейнере  ·  task prod:sh"
+    interactive: true
+    cmds:
+      - '{{.EXECP}} sh'
