@@ -1,0 +1,15 @@
+{
+  "name": "widgetis-site-proxy",
+  "version": "0.1.0",
+  "private": true,
+  "description": "High-performance HTTP proxy for Widgetis live-demo iframe previews of remote shops. Per-visitor cookie jars, tiered in-memory cache, HTML rewriting for Horoshop.",
+  "type": "module",
+  "main": "server.mjs",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node --watch server.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

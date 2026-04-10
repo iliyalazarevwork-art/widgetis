@@ -14,6 +14,7 @@ services:
       - backend
       - frontend
       - widget-builder
+      - site-proxy
     restart: always
     networks:
       - widgetis
@@ -85,6 +86,18 @@ services:
     build:
       context: ./widget-builder
       dockerfile: Dockerfile
+    restart: always
+    networks:
+      - widgetis
+
+  # ── Site Proxy (live-demo iframe preview) ─────────────────
+  site-proxy:
+    build:
+      context: ./services/site-proxy
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: "3100"
     restart: always
     networks:
       - widgetis

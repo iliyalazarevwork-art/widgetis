@@ -70,6 +70,21 @@ services:
     networks:
       - widgetis
 
+  site-proxy:
+    build:
+      context: ./services/site-proxy
+      dockerfile: Dockerfile
+    volumes:
+      - ./services/site-proxy/server.mjs:/app/server.mjs
+    ports:
+      - "3100:3100"
+    environment:
+      NODE_ENV: development
+      PORT: "3100"
+    command: ["node", "--watch", "server.mjs"]
+    networks:
+      - widgetis
+
   visual-check:
     image: mcr.microsoft.com/playwright:v1.59.1-noble
     working_dir: /work/backend/tools/visual-check
