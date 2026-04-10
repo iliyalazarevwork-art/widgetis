@@ -15858,7 +15858,7 @@
                         },
                         {
                           "type": "frame",
-                          "id": "A7Gn9",
+                          "id": "R0qJl",
                           "name": "prBasicSavBadge",
                           "fill": "#10b98120",
                           "cornerRadius": 20,
@@ -15870,7 +15870,7 @@
                           "children": [
                             {
                               "type": "text",
-                              "id": "bTieR",
+                              "id": "8tCwj",
                               "name": "prBasicSavTxt",
                               "fill": "#10b981",
                               "content": "Економія 1 598 грн",
@@ -16828,7 +16828,7 @@
                         },
                         {
                           "type": "frame",
-                          "id": "yMyNo",
+                          "id": "GdGnA",
                           "name": "prMaxSavBadge",
                           "fill": "#10b98120",
                           "cornerRadius": 20,
@@ -16840,7 +16840,7 @@
                           "children": [
                             {
                               "type": "text",
-                              "id": "x3j58",
+                              "id": "LNZRz",
                               "name": "prMaxSavTxt",
                               "fill": "#10b981",
                               "content": "Економія 5 798 грн",
@@ -58258,6 +58258,404 @@
                   "iconFontName": "banknote",
                   "iconFontFamily": "lucide",
                   "fill": "#555555"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "pOvFb",
+      "x": 7750,
+      "y": 0,
+      "name": "License — Mobile",
+      "width": 375,
+      "fill": "#0A0A0A",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "em3g3",
+          "name": "hdr",
+          "width": "fill_container",
+          "height": 64,
+          "fill": "#0E0E0E",
+          "padding": [
+            0,
+            16
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "p9ru2",
+              "name": "licHdrTitle",
+              "fill": "#F0F0F0",
+              "content": "License",
+              "fontFamily": "Inter",
+              "fontSize": 16,
+              "fontWeight": "700"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "4aE3K",
+          "name": "body",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 12,
+          "padding": [
+            16,
+            16,
+            24,
+            16
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "idoxA",
+              "name": "lic1",
+              "width": "fill_container",
+              "fill": "#141414",
+              "cornerRadius": 12,
+              "stroke": {
+                "thickness": 1,
+                "fill": "#FFFFFF15"
+              },
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 12,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "LqVLp",
+                  "name": "licCard1Title",
+                  "fill": "#F0F0F0",
+                  "content": "1. Власність та авторські права",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "aX4AD",
+                  "name": "licCard1Text",
+                  "fill": "#888888",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Всі віджети, вихідний код, алгоритми та їх компоненти є виключною інтелектуальною власністю Widgetis. Всі права захищені.",
+                  "lineHeight": 1.35,
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "PtJZ4",
+              "name": "lic2",
+              "width": "fill_container",
+              "fill": "#141414",
+              "cornerRadius": 12,
+              "stroke": {
+                "thickness": 1,
+                "fill": "#FFFFFF15"
+              },
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 12,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "oIHLG",
+                  "name": "licCard2Title",
+                  "fill": "#F0F0F0",
+                  "content": "2. Заборонені дії",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "41enc",
+                  "name": "licCard2Text",
+                  "fill": "#888888",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Суворо заборонено: копіювати, декомпілювати, дизасемблювати, модифікувати, розповсюджувати або переиспользовувати код віджетів у будь-якій формі без письмового дозволу Widgetis.",
+                  "lineHeight": 1.35,
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "eTi5b",
+              "name": "lic3",
+              "width": "fill_container",
+              "fill": "#141414",
+              "cornerRadius": 12,
+              "stroke": {
+                "thickness": 1,
+                "fill": "#FFFFFF15"
+              },
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 12,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "JMxVG",
+                  "name": "licCard3Title",
+                  "fill": "#F0F0F0",
+                  "content": "3. Дозволене використання",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "fFZvD",
+                  "name": "licCard3Text",
+                  "fill": "#888888",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Використання віджетів дозволено виключно через офіційну платформу Widgetis за наявності активної підписки. Ліцензія не передається третім особам.",
+                  "lineHeight": 1.35,
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "wpkcF",
+              "name": "lic4",
+              "width": "fill_container",
+              "fill": "#141414",
+              "cornerRadius": 12,
+              "stroke": {
+                "thickness": 1,
+                "fill": "#FFFFFF15"
+              },
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 12,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "HXgZ7",
+                  "name": "licCard4Title",
+                  "fill": "#F0F0F0",
+                  "content": "4. Відповідальність за порушення",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "TYaNp",
+                  "name": "licCard4Text",
+                  "fill": "#888888",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Порушення умов ліцензії тягне за собою негайне припинення доступу до платформи та може стати підставою для юридичних позовів відповідно до законодавства України.",
+                  "lineHeight": 1.35,
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "mash3",
+      "x": 8950,
+      "y": -2000,
+      "name": "Current Site — Homepage Mobile",
+      "clip": true,
+      "width": 375,
+      "fill": "#0A0A0A",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "gDNKK",
+          "name": "Header",
+          "width": "fill_container",
+          "height": 64,
+          "fill": "#0A0A0A",
+          "padding": [
+            0,
+            20
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "w58A8",
+              "name": "logoRow",
+              "gap": 10,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "cEsjj",
+                  "name": "logoBox",
+                  "width": 32,
+                  "height": 32,
+                  "fill": "#3B82F6",
+                  "cornerRadius": 8,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "ZsqXZ",
+                      "fill": "#FFFFFF",
+                      "content": "W",
+                      "fontFamily": "Inter",
+                      "fontSize": 18,
+                      "fontWeight": "800"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "HIYxY",
+                  "fill": "#F0F0F0",
+                  "content": "WIDGETIS",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "800",
+                  "letterSpacing": 1
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "n8Eug",
+              "name": "burger",
+              "width": 40,
+              "height": 40,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "FTqlq",
+                  "width": 24,
+                  "height": 24,
+                  "iconFontName": "menu",
+                  "iconFontFamily": "lucide",
+                  "fill": "#F0F0F0"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "453rI",
+          "name": "Hero",
+          "width": "fill_container",
+          "fill": "#0A0A0A",
+          "layout": "vertical",
+          "gap": 24,
+          "padding": [
+            24,
+            20
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "QRnuc",
+              "name": "heroTop",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 20,
+              "padding": [
+                24,
+                0
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "q0tVf",
+                  "name": "badge",
+                  "fill": "#3B82F61A",
+                  "cornerRadius": 999,
+                  "stroke": {
+                    "thickness": 1,
+                    "fill": "#3B82F640"
+                  },
+                  "gap": 6,
+                  "padding": [
+                    8,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "A0lFc",
+                      "width": 12,
+                      "height": 12,
+                      "iconFontName": "sparkles",
+                      "iconFontFamily": "lucide",
+                      "fill": "#3B82F6"
+                    },
+                    {
+                      "type": "text",
+                      "id": "HKIRQ",
+                      "fill": "#3B82F6",
+                      "content": "НАБІР ГОТОВИХ ВІДЖЕТІВ ДЛЯ E-COMMERCE",
+                      "fontFamily": "Inter",
+                      "fontSize": 10,
+                      "fontWeight": "700",
+                      "letterSpacing": 1
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "bdUGU",
+                  "fill": "#FFFFFF",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Віджети,\nщо самі\nпродають.",
+                  "lineHeight": 1.05,
+                  "textAlign": "center",
+                  "fontFamily": "Inter",
+                  "fontSize": 42,
+                  "fontWeight": "900",
+                  "letterSpacing": -1.2
+                },
+                {
+                  "type": "text",
+                  "id": "QiGQL",
+                  "fill": "#8A8A8A",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Встановіть за 2 хвилини — і магазин починає конвертувати краще.",
+                  "lineHeight": 1.55,
+                  "textAlign": "center",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
                 }
               ]
             }

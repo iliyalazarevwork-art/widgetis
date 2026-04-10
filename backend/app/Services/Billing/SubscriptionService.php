@@ -99,6 +99,10 @@ class SubscriptionService
                 'billing_period' => $billingPeriod->value,
             ]);
 
+            foreach ($user->sites as $site) {
+                RebuildSiteScriptJob::dispatch($site->id);
+            }
+
             return $subscription;
         });
     }

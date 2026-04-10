@@ -32,6 +32,31 @@ class ScriptBuilderService
     }
 
     /**
+     * Return the latest active build for the site, building one synchronously
+     * if none exists yet. Guarantees the returned URL actually points to a
+     * file that exists on R2.
+     */
+    public function ensureBuilt(Site $site): SiteScriptBuild
+    {
+        $site->loadMissing('script');
+
+        if ($site->script === null) {
+            throw new \RuntimeException("Site {$site->id} has no script token.");
+        }
+
+        $latest = $site->script->builds()
+            ->where('status', ScriptBuildStatus::Active->value)
+            ->orderByDesc('version')
+            ->first();
+
+        if ($latest !== null) {
+            return $latest;
+        }
+
+        return $this->build($site);
+    }
+
+    /**
      * Build and deploy using a config from the admin configurator.
      *
      * Input format matches DB: each module has `is_enabled`, `config` (without `enabled`), `i18n`.

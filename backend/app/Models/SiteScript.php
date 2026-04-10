@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\ScriptBuildStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -49,25 +50,27 @@ class SiteScript extends Model
         return Str::random(64);
     }
 
-    public function getScriptTagAttribute(): string
+    public function getScriptTagAttribute(): ?string
     {
-        $cdnUrl = rtrim((string) config('services.r2.public_url', 'https://cdn.widgetis.com'), '/');
-        $this->loadMissing('site');
-        $domain = $this->site !== null ? $this->site->domain : $this->token;
+        $url = $this->script_url;
 
-        return sprintf(
-            '<script src="%s/sites/%s/bundle.js" async></script>',
-            $cdnUrl,
-            $domain,
-        );
+        if ($url === null) {
+            return null;
+        }
+
+        return sprintf('<script src="%s" async></script>', $url);
     }
 
-    public function getScriptUrlAttribute(): string
+    public function getScriptUrlAttribute(): ?string
     {
-        $cdnUrl = rtrim((string) config('services.r2.public_url', 'https://cdn.widgetis.com'), '/');
-        $this->loadMissing('site');
-        $domain = $this->site !== null ? $this->site->domain : $this->token;
+        return $this->activeBuild()?->file_url;
+    }
 
-        return "{$cdnUrl}/sites/{$domain}/bundle.js";
+    public function activeBuild(): ?SiteScriptBuild
+    {
+        return $this->builds()
+            ->where('status', ScriptBuildStatus::Active->value)
+            ->orderByDesc('version')
+            ->first();
     }
 }

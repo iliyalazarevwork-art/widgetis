@@ -6,14 +6,17 @@ namespace App\Http\Controllers\Api\V1\Profile;
 
 use App\Http\Controllers\Api\V1\BaseController;
 use App\Models\Site;
+use App\Services\Site\ScriptBuilderService;
 use App\Services\Site\SiteService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class SiteController extends BaseController
 {
     public function __construct(
         private readonly SiteService $siteService,
+        private readonly ScriptBuilderService $scriptBuilder,
     ) {
     }
 
@@ -59,6 +62,8 @@ class SiteController extends BaseController
             $request->input('name'),
         );
 
+        $this->ensureScriptBuilt($site);
+
         return $this->created([
             'data' => [
                 'id' => $site->id,
@@ -74,11 +79,30 @@ class SiteController extends BaseController
         ]);
     }
 
+    private function ensureScriptBuilt(Site $site): void
+    {
+        if ($site->script === null) {
+            return;
+        }
+
+        try {
+            $this->scriptBuilder->ensureBuilt($site);
+        } catch (\Throwable $e) {
+            Log::error('Profile\\SiteController: ensureBuilt failed.', [
+                'site_id' => $site->id,
+                'domain' => $site->domain,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
     public function show(int $id): JsonResponse
     {
         $site = $this->currentUser()->sites()
             ->with(['script', 'widgets.product'])
             ->findOrFail($id);
+
+        $this->ensureScriptBuilt($site);
 
         return $this->success([
             'data' => [
@@ -145,6 +169,8 @@ class SiteController extends BaseController
         if (!$site->script) {
             return $this->error('NO_SCRIPT', 'No script generated for this site.', 404);
         }
+
+        $this->ensureScriptBuilt($site);
 
         return $this->success([
             'data' => [
