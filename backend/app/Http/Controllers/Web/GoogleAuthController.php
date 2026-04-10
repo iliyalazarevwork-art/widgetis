@@ -55,9 +55,14 @@ class GoogleAuthController extends Controller
 
         if ($user->wasRecentlyCreated) {
             $user->assignRole(UserRole::Customer->value);
-        } elseif (! $user->email_verified_at) {
-            $user->email_verified_at = now()->toDateTimeString();
-            $user->save();
+        } else {
+            if (! $user->email_verified_at) {
+                $user->email_verified_at = now()->toDateTimeString();
+                $user->save();
+            }
+            if ($user->roles->isEmpty()) {
+                $user->assignRole(UserRole::Customer->value);
+            }
         }
 
         $token = null;
