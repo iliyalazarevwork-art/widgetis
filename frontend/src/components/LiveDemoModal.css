@@ -191,20 +191,29 @@
   display: block;
 }
 
-.dm-iframe-loading {
-  position: absolute;
-  inset: 0;
-  z-index: 5;
-  display: flex;
-  flex-direction: column;
+/* ── Count pill (N/M виджетов) ── */
+.dm-count-pill {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 13px;
-  font-weight: 500;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #10B981;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.dm-count-spinner {
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid rgba(16, 185, 129, 0.25);
+  border-top-color: #10B981;
+  border-radius: 50%;
+  animation: dm-spin 0.7s linear infinite;
 }
 
 /* ── Desktop sidebar ── */
@@ -232,23 +241,6 @@
   letter-spacing: 0.08em;
 }
 
-.dm-panel-status-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--green, #10B981);
-  box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
-}
-
-.dm-building-spinner {
-  width: 12px;
-  height: 12px;
-  border: 2px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
-  border-top-color: var(--accent, #3B82F6);
-  border-radius: 50%;
-  animation: dm-spin 0.8s linear infinite;
-  margin-left: auto;
-}
 
 /* ── Widget list ── */
 .dm-widget-list {
@@ -453,15 +445,21 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 8px;
     padding: 10px 16px;
     cursor: pointer;
-    color: var(--accent, #3B82F6);
-    font-size: 12px;
-    font-weight: 600;
+    color: #888888;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
     border-bottom: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.04));
     flex-shrink: 0;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  .dm-mobile-sheet-handle-label {
+    color: #888888;
   }
 
   .dm-mobile-sheet-handle:active {

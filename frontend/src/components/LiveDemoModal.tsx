@@ -312,20 +312,16 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
               onLoad={() => setIframeLoadCount((c) => c + 1)}
               title={`Preview of ${demo.domain}`}
             />
-            {building && (
-              <div className="dm-iframe-loading">
-                <div className="dm-spinner-big" />
-                <span>Застосовуємо віджети...</span>
-              </div>
-            )}
           </div>
 
           {/* Desktop sidebar */}
           <div className="dm-panel">
             <div className="dm-panel-status">
-              <span className="dm-panel-status-dot" />
-              <span>{enabledCount} з {totalCount} активно</span>
-              {building && <div className="dm-building-spinner" />}
+              <span className="dm-count-pill">
+                {enabledCount}/{totalCount}
+                {building && <span className="dm-count-spinner" aria-hidden="true" />}
+              </span>
+              <span>віджетів</span>
             </div>
 
             <div className="dm-widget-list">{widgetList}</div>
@@ -343,16 +339,22 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
           <div className="dm-mobile-wrap">
             {!mobileOpen ? (
               <div className="dm-mobile-bar" onClick={() => setMobileOpen(true)}>
-                <span className="dm-mobile-bar-text">
-                  {building ? 'Оновлення...' : `${enabledCount} з ${totalCount} віджетів`}
+                <span className="dm-count-pill">
+                  {enabledCount}/{totalCount}
+                  {building && <span className="dm-count-spinner" aria-hidden="true" />}
                 </span>
+                <span className="dm-mobile-bar-text">віджетів</span>
                 <ChevronUp size={20} className="dm-mobile-bar-arrow" />
               </div>
             ) : (
               <div className="dm-mobile-sheet">
                 <div className="dm-mobile-sheet-handle" onClick={() => setMobileOpen(false)}>
-                  <ChevronDown size={20} />
-                  <span>Згорнути</span>
+                  <span className="dm-count-pill">
+                    {enabledCount}/{totalCount}
+                    {building && <span className="dm-count-spinner" aria-hidden="true" />}
+                  </span>
+                  <span className="dm-mobile-sheet-handle-label">Згорнути</span>
+                  <ChevronDown size={18} />
                 </div>
                 <div className="dm-mobile-sheet-list">{widgetList}</div>
                 <div className="dm-panel-footer">
