@@ -19,7 +19,7 @@
 				{"name": "List Products", "request": {"method": "GET", "url": {"raw": "{{base_url}}/products"}}},
 				{"name": "Products by Tag", "request": {"method": "GET", "url": {"raw": "{{base_url}}/products?tag=social-proof"}}},
 				{"name": "Search Products (EN)", "request": {"method": "GET", "header": [{"key": "Accept-Language", "value": "en"}], "url": {"raw": "{{base_url}}/products?search=ticker"}}},
-				{"name": "Product Detail", "request": {"method": "GET", "url": {"raw": "{{base_url}}/products/marquee"}}},
+				{"name": "Product Detail", "request": {"method": "GET", "url": {"raw": "{{base_url}}/products/promo-line"}}},
 				{"name": "List Tags", "request": {"method": "GET", "url": {"raw": "{{base_url}}/tags"}}},
 				{"name": "Settings", "request": {"method": "GET", "url": {"raw": "{{base_url}}/settings"}}}
 			]

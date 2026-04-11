@@ -1,12 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Method App\\Models\\SocialAccount::user\(\) should return#'
-			identifier: return.type
-			count: 1
-			path: app/Models/SocialAccount.php
-
-		-
 			message: '#^Cannot access property \$value on string\.$#'
 			identifier: property.nonObject
 			count: 1
@@ -141,29 +135,35 @@ parameters:
 		-
 			message: '#^Cannot access property \$value on string\.$#'
 			identifier: property.nonObject
-			count: 1
+			count: 2
 			path: app/Http/Controllers/Api/V1/Profile/DashboardController.php
 
 		-
 			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
 			identifier: method.nonObject
-			count: 1
+			count: 3
 			path: app/Http/Controllers/Api/V1/Profile/DashboardController.php
 
 		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\ActivityLog\>\:\:map\(\) contains unresolvable type\.$#'
-			identifier: argument.unresolvableType
-			count: 1
-			path: app/Http/Controllers/Api/V1/Profile/DashboardController.php
-
-		-
-			message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\ActivityLog\>\:\:map\(\) contains unresolvable type\.$#'
-			identifier: method.unresolvableReturnType
+			message: '#^Offset ''plan'' on array\{\} in isset\(\) does not exist\.$#'
+			identifier: isset.offset
 			count: 1
 			path: app/Http/Controllers/Api/V1/Profile/DashboardController.php
 
 		-
 			message: '#^Using nullsafe method call on non\-nullable type string\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Http/Controllers/Api/V1/Profile/DashboardController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>plan" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Api/V1/Profile/DashboardController.php
+
+		-
+			message: '#^Using nullsafe property access on non\-nullable type string\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
 			path: app/Http/Controllers/Api/V1/Profile/DashboardController.php
@@ -241,16 +241,16 @@ parameters:
 			path: app/Http/Controllers/Api/V1/Profile/SiteController.php
 
 		-
-			message: '#^Using nullsafe property access "\?\-\>slug" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Controllers/Api/V1/Profile/SiteController.php
-
-		-
 			message: '#^Cannot call method toDateString\(\) on string\.$#'
 			identifier: method.nonObject
 			count: 2
 			path: app/Http/Controllers/Api/V1/Profile/SubscriptionController.php
+
+		-
+			message: '#^Call to an undefined method Laravel\\Socialite\\Contracts\\Provider\:\:stateless\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: app/Http/Controllers/Web/GoogleAuthController.php
 
 		-
 			message: '#^Cannot access property \$value on string\.$#'
@@ -263,6 +263,12 @@ parameters:
 			identifier: method.nonObject
 			count: 4
 			path: app/Http/Resources/Api/V1/SubscriptionResource.php
+
+		-
+			message: '#^Method App\\Models\\SocialAccount\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\SocialAccount\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\SocialAccount\)\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/SocialAccount.php
 
 		-
 			message: '#^Cannot call method diffInDays\(\) on string\.$#'

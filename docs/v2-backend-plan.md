@@ -710,8 +710,8 @@ CREATE TABLE site_script_builds (
 ```sql
 CREATE TABLE products (
     id              BIGSERIAL PRIMARY KEY,
-    slug            VARCHAR(100) UNIQUE NOT NULL, -- URL, англійською: "marquee", "delivery-date"
-    name            JSONB NOT NULL,              -- {"en": "Marquee", "uk": "Біжучий рядок"}
+    slug            VARCHAR(100) UNIQUE NOT NULL, -- URL, англійською: "promo-line", "delivery-day"
+    name            JSONB NOT NULL,              -- {"en": "PromoLine", "uk": "Промо-стрічка"}
     description     JSONB NOT NULL,              -- {"en": "...", "uk": "..."}
     long_description JSONB NULL,                 -- розгорнутий опис
     features        JSONB NULL,                  -- [{"en":"...","uk":"..."}]
@@ -788,7 +788,7 @@ CREATE TABLE customer_cases (
     review_text     TEXT NULL,
     review_rating   SMALLINT NULL CHECK (review_rating BETWEEN 1 AND 5),
     screenshot_urls JSONB NULL,
-    widgets         JSONB NULL,                  -- ["marquee", "social-proof"]
+    widgets         JSONB NULL,                  -- ["promo-line", "buyer-count"]
     is_published    BOOLEAN DEFAULT FALSE,
     sort_order      INTEGER DEFAULT 0,
     created_at      TIMESTAMP NOT NULL,

@@ -12,15 +12,14 @@ class ProductPlanAccessSeeder extends Seeder
 {
     public function run(): void
     {
-        $allProducts = Product::pluck('id')->toArray();
+        $basicSlugs = ['promo-line', 'freeship-goal', 'minorder-goal', 'buyer-count'];
+        $proSlugs = ['promo-line', 'freeship-goal', 'minorder-goal', 'buyer-count', 'delivery-day', 'one-plus-one-deal', 'video-preview'];
+        $maxSlugs = $proSlugs;
 
-        $basic = Plan::where('slug', 'basic')->first();
-        $basic?->products()->sync(array_slice($allProducts, 0, 4));
+        $getIds = fn (array $slugs): array => Product::whereIn('slug', $slugs)->pluck('id')->toArray();
 
-        $pro = Plan::where('slug', 'pro')->first();
-        $pro?->products()->sync(array_slice($allProducts, 0, max(1, count($allProducts) - 1)));
-
-        $max = Plan::where('slug', 'max')->first();
-        $max?->products()->sync($allProducts);
+        Plan::where('slug', 'basic')->first()?->products()->sync($getIds($basicSlugs));
+        Plan::where('slug', 'pro')->first()?->products()->sync($getIds($proSlugs));
+        Plan::where('slug', 'max')->first()?->products()->sync($getIds($maxSlugs));
     }
 }

@@ -312,35 +312,15 @@ class DemoDataSeeder extends Seeder
             $createdSites[$row['domain']] = $site;
         }
 
-        $countdown = $products->get('countdown-timer');
-        $marquee = $products->get('marquee');
-        $deliveryDate = $products->get('delivery-date');
-        $purchaseNotification = $products->get('purchase-notification');
+        $promoLine = $products->get('promo-line');
+        $deliveryDay = $products->get('delivery-day');
+        $buyerCount = $products->get('buyer-count');
 
-        if ($countdown && $marquee && $deliveryDate && $purchaseNotification) {
+        if ($promoLine && $deliveryDay && $buyerCount) {
             $mainSite = $createdSites['kovalenko-outdoor.com'];
 
             SiteWidget::updateOrCreate(
-                ['site_id' => $mainSite->id, 'product_id' => $countdown->id],
-                [
-                    'is_enabled' => true,
-                    'config' => [
-                        'theme' => 'dark',
-                        'position' => 'top',
-                        'label' => [
-                            'uk' => 'Весняний розпродаж закінчиться через:',
-                            'en' => 'Spring sale ends in:',
-                        ],
-                        'timezone' => 'Europe/Warsaw',
-                        'end_at' => $now->copy()->addHours(46)->toIso8601String(),
-                    ],
-                    'enabled_at' => $now->copy()->subDays(2),
-                    'disabled_at' => null,
-                ],
-            );
-
-            SiteWidget::updateOrCreate(
-                ['site_id' => $mainSite->id, 'product_id' => $marquee->id],
+                ['site_id' => $mainSite->id, 'product_id' => $promoLine->id],
                 [
                     'is_enabled' => true,
                     'config' => [
@@ -356,13 +336,11 @@ class DemoDataSeeder extends Seeder
             );
 
             SiteWidget::updateOrCreate(
-                ['site_id' => $mainSite->id, 'product_id' => $deliveryDate->id],
+                ['site_id' => $mainSite->id, 'product_id' => $deliveryDay->id],
                 [
                     'is_enabled' => true,
                     'config' => [
-                        'estimate_days_min' => 1,
-                        'estimate_days_max' => 3,
-                        'cutoff_hour' => 16,
+                        'offsetDays' => 3,
                     ],
                     'enabled_at' => $now->copy()->subDays(5),
                     'disabled_at' => null,
@@ -372,13 +350,13 @@ class DemoDataSeeder extends Seeder
             $outletSite = $createdSites['outlet.kovalenko-outdoor.com'];
 
             SiteWidget::updateOrCreate(
-                ['site_id' => $outletSite->id, 'product_id' => $purchaseNotification->id],
+                ['site_id' => $outletSite->id, 'product_id' => $buyerCount->id],
                 [
                     'is_enabled' => true,
                     'config' => [
-                        'interval_sec' => 20,
-                        'max_visible' => 1,
-                        'cities' => ['Kyiv', 'Lviv', 'Dnipro', 'Odesa'],
+                        'minCount' => 8,
+                        'maxCount' => 50,
+                        'updateInterval' => 45,
                     ],
                     'enabled_at' => $now->copy()->subDay(),
                     'disabled_at' => null,

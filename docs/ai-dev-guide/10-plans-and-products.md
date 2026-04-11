@@ -303,9 +303,9 @@ class ProductSeeder extends Seeder
     {
         $products = [
             [
-                'slug' => 'marquee',
-                'name' => ['en' => 'Marquee Ticker', 'uk' => 'Біжучий рядок'],
-                'description' => ['en' => 'Scrolling announcement bar with custom messages', 'uk' => 'Прокручуваний рядок з оголошеннями'],
+                'slug' => 'promo-line',
+                'name' => ['en' => 'PromoLine', 'uk' => 'Промо-стрічка'],
+                'description' => ['en' => 'Scrolling announcement bar at the top of the site', 'uk' => 'Прокручуваний рядок з оголошеннями вгорі сайту'],
                 'icon' => 'megaphone',
                 'tag_slug' => 'engagement',
                 'is_popular' => true,
@@ -313,9 +313,9 @@ class ProductSeeder extends Seeder
                 'sort_order' => 0,
             ],
             [
-                'slug' => 'delivery-date',
-                'name' => ['en' => 'Delivery Date', 'uk' => 'Дата доставки'],
-                'description' => ['en' => 'Show estimated delivery date on product pages', 'uk' => 'Показує очікувану дату доставки на сторінці товару'],
+                'slug' => 'delivery-day',
+                'name' => ['en' => 'DeliveryDay', 'uk' => 'Дата доставки'],
+                'description' => ['en' => 'Show expected delivery date on product pages', 'uk' => 'Показує очікувану дату доставки на сторінці товару'],
                 'icon' => 'truck',
                 'tag_slug' => 'trust',
                 'is_new' => true,
@@ -323,41 +323,53 @@ class ProductSeeder extends Seeder
                 'sort_order' => 1,
             ],
             [
-                'slug' => 'visitor-counter',
-                'name' => ['en' => 'Visitor Counter', 'uk' => 'Лічильник відвідувачів'],
-                'description' => ['en' => 'Show how many people are viewing a product right now', 'uk' => 'Показує скільки людей зараз переглядають товар'],
-                'icon' => 'eye',
-                'tag_slug' => 'social-proof',
-                'builder_module' => 'visitor-counter',
+                'slug' => 'freeship-goal',
+                'name' => ['en' => 'FreeShip Goal', 'uk' => 'До безкоштовної доставки'],
+                'description' => ['en' => 'Floating progress bar showing how much more to spend for free shipping', 'uk' => 'Плаваючий прогрес-бар показує скільки залишилось до безкоштовної доставки'],
+                'icon' => 'package',
+                'tag_slug' => 'conversion',
+                'is_popular' => true,
+                'builder_module' => 'cart-goal',
                 'sort_order' => 2,
             ],
             [
-                'slug' => 'countdown-timer',
-                'name' => ['en' => 'Countdown Timer', 'uk' => 'Таймер знижок'],
-                'description' => ['en' => 'Countdown timer for limited-time offers', 'uk' => 'Зворотний відлік для обмежених пропозицій'],
-                'icon' => 'timer',
-                'tag_slug' => 'urgency',
-                'is_popular' => true,
-                'builder_module' => 'countdown-timer',
+                'slug' => 'minorder-goal',
+                'name' => ['en' => 'MinOrder Goal', 'uk' => 'Мінімальне замовлення'],
+                'description' => ['en' => 'Floating progress bar for minimum order threshold', 'uk' => 'Плаваючий прогрес-бар для мінімальної суми замовлення'],
+                'icon' => 'shopping-cart',
+                'tag_slug' => 'conversion',
+                'builder_module' => 'min-order',
                 'sort_order' => 3,
             ],
             [
-                'slug' => 'purchase-notification',
-                'name' => ['en' => 'Purchase Notification', 'uk' => 'Сповіщення про покупку'],
-                'description' => ['en' => 'Show recent purchase popups to boost social proof', 'uk' => 'Показує нещодавні покупки для підвищення довіри'],
-                'icon' => 'shopping-bag',
-                'tag_slug' => 'social-proof',
-                'builder_module' => 'purchase-notification',
+                'slug' => 'one-plus-one-deal',
+                'name' => ['en' => '1+1=3 Deal', 'uk' => '1+1=3 акція'],
+                'description' => ['en' => 'Buy 2 products — cheapest one for 1 UAH. Increases average order value', 'uk' => 'Купи два товари — найдешевший у кошику за 1 гривню. Збільшує середній чек'],
+                'icon' => 'gift',
+                'tag_slug' => 'conversion',
+                'is_new' => true,
+                'builder_module' => 'one-plus-one',
                 'sort_order' => 4,
             ],
             [
-                'slug' => 'free-shipping-bar',
-                'name' => ['en' => 'Free Shipping Bar', 'uk' => 'Безкоштовна доставка'],
-                'description' => ['en' => 'Progress bar showing how much more to spend for free shipping', 'uk' => 'Прогрес-бар показує скільки залишилось до безкоштовної доставки'],
-                'icon' => 'package',
-                'tag_slug' => 'conversion',
-                'builder_module' => 'free-shipping-bar',
+                'slug' => 'video-preview',
+                'name' => ['en' => 'VideoPreview', 'uk' => 'Відео товару'],
+                'description' => ['en' => 'Floating product video preview in the corner of the page', 'uk' => 'Плаваючий відео-превʼю товару в куті сторінки'],
+                'icon' => 'video',
+                'tag_slug' => 'engagement',
+                'is_new' => true,
+                'builder_module' => 'product-video-preview',
                 'sort_order' => 5,
+            ],
+            [
+                'slug' => 'buyer-count',
+                'name' => ['en' => 'BuyerCount', 'uk' => 'Бейдж продажів'],
+                'description' => ['en' => 'Shows how many people bought this product, updates in real time', 'uk' => 'Показує скільки людей купили цей товар, оновлюється в реальному часі'],
+                'icon' => 'users',
+                'tag_slug' => 'social-proof',
+                'is_popular' => true,
+                'builder_module' => 'social-proof',
+                'sort_order' => 6,
             ],
         ];
 
@@ -699,7 +711,7 @@ curl -s "http://localhost:9002/api/v1/products?search=ticker" \
 # Should find Marquee Ticker
 
 # 5. Product detail
-curl -s http://localhost:9002/api/v1/products/marquee | python3 -m json.tool
+curl -s http://localhost:9002/api/v1/products/promo-line | python3 -m json.tool
 # Should return full product with related_products
 
 # 6. Tags

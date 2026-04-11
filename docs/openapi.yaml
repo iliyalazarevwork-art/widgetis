@@ -134,13 +134,13 @@ components:
           example: 1
         slug:
           type: string
-          example: marquee
+          example: promo-line
         name:
           type: string
-          example: Marquee Ticker
+          example: PromoLine
         description:
           type: string
-          example: Scrolling announcement bar with custom messages
+          example: Scrolling announcement bar at the top of the site
         icon:
           type: string
           example: megaphone
@@ -679,7 +679,7 @@ paths:
           required: true
           schema:
             type: string
-          example: marquee
+          example: promo-line
       responses:
         "200":
           description: Product detail
