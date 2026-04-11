@@ -1,0 +1,192 @@
+.del-modal__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: del-modal-fade 160ms ease-out;
+}
+
+@keyframes del-modal-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.del-modal {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  background: var(--bg-card);
+  border: 1px solid rgba(239, 68, 68, 0.18);
+  border-radius: 20px;
+  padding: 24px 20px 20px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+  animation: del-modal-pop 180ms ease-out;
+}
+
+@keyframes del-modal-pop {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.del-modal__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.del-modal__close:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+}
+
+.del-modal__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  background: var(--red-dim);
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--red);
+  margin: 0 auto 14px;
+}
+
+.del-modal__title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+  text-align: center;
+  margin: 0 0 10px;
+}
+
+.del-modal__text {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  text-align: center;
+  margin: 0 0 10px;
+}
+
+.del-modal__text strong {
+  color: var(--red);
+  font-weight: 700;
+}
+
+.del-modal__text--muted {
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.del-modal__list {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  list-style: none;
+  background: var(--red-dim);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  border-radius: 12px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.del-modal__list li {
+  position: relative;
+  padding-left: 14px;
+  line-height: 1.7;
+}
+
+.del-modal__list li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 10px;
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--red);
+}
+
+.del-modal__input {
+  width: 100%;
+  height: 44px;
+  background: var(--bg-input);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 0 14px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text-primary);
+  outline: none;
+  margin-bottom: 14px;
+  letter-spacing: 0.5px;
+}
+
+.del-modal__input:focus {
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.del-modal__input::placeholder {
+  color: #444;
+  letter-spacing: 0.5px;
+}
+
+.del-modal__actions {
+  display: flex;
+  gap: 10px;
+}
+
+.del-modal__btn {
+  flex: 1;
+  height: 46px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 160ms ease, background 160ms ease;
+}
+
+.del-modal__btn--cancel {
+  background: var(--bg-input);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
+
+.del-modal__btn--cancel:hover {
+  background: var(--bg-hover);
+}
+
+.del-modal__btn--danger {
+  background: var(--red);
+  border: 1px solid var(--red);
+  color: #fff;
+}
+
+.del-modal__btn--danger:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.del-modal__btn--danger:not(:disabled):hover {
+  background: #DC2626;
+  border-color: #DC2626;
+}

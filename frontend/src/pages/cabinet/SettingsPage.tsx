@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   User, CreditCard, ChevronRight, LogOut, Trash2,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
+import { DeleteAccountModal } from '../../components/DeleteAccountModal'
 import './styles/settings.css'
 
 const sections = [
@@ -17,6 +19,7 @@ const sections = [
 
 export default function SettingsPage() {
   const { logout } = useAuth()
+  const [deleteOpen, setDeleteOpen] = useState(false)
 
   const handleLogout = async () => {
     await logout()
@@ -46,10 +49,16 @@ export default function SettingsPage() {
         <button className="set-page__danger-btn" onClick={handleLogout}>
           <LogOut size={18} /> Вийти з акаунту
         </button>
-        <Link to="/cabinet/profile" className="set-page__danger-btn set-page__danger-btn--red">
+        <button
+          type="button"
+          className="set-page__danger-btn set-page__danger-btn--red"
+          onClick={() => setDeleteOpen(true)}
+        >
           <Trash2 size={18} /> Видалити акаунт
-        </Link>
+        </button>
       </div>
+
+      <DeleteAccountModal isOpen={deleteOpen} onClose={() => setDeleteOpen(false)} />
     </div>
   )
 }

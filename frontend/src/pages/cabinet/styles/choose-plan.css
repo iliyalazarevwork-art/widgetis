@@ -1,13 +1,12 @@
 .choose-plan {
   max-width: 600px;
   margin: 0 auto;
-  padding: 104px 20px 80px;
+  padding: 84px 20px 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 40px;
+  gap: 28px;
 }
-
 
 /* ── Hero ── */
 .choose-plan__hero {
@@ -17,28 +16,6 @@
   align-items: center;
   gap: 10px;
   text-align: center;
-}
-
-/* ── Back button ── */
-.choose-plan__back {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #7A7A7A;
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 400;
-  background: none;
-  border: none;
-  cursor: pointer;
-  align-self: flex-start;
-  padding: 0;
-  margin-bottom: 8px;
-  transition: color var(--t-fast);
-}
-
-.choose-plan__back:hover {
-  color: var(--text-primary);
 }
 
 .choose-plan__title {
@@ -56,6 +33,10 @@
 .choose-plan__toggle-wrap {
   display: flex;
   justify-content: center;
+}
+
+.choose-plan__toggle-wrap + .choose-plan__plans {
+  margin-top: -14px;
 }
 
 /* ── Plans ── */

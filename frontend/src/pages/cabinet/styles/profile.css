@@ -202,7 +202,7 @@ button.prof-sec-row {
 
 .prof-sec-row__icon--green  { color: #10b981; flex-shrink: 0; }
 .prof-sec-row__icon--purple { color: var(--purple); flex-shrink: 0; }
-.prof-sec-row__icon--delete { color: rgba(168, 85, 247, 0.5); flex-shrink: 0; }
+.prof-sec-row__icon--delete { color: var(--red); flex-shrink: 0; }
 
 .prof-sec-row__texts {
   display: flex;
@@ -221,8 +221,8 @@ button.prof-sec-row {
 }
 
 .prof-sec-row__title--delete {
-  color: rgba(168, 85, 247, 0.5);
-  font-weight: 400;
+  color: var(--red);
+  font-weight: 600;
 }
 
 .prof-sec-row__subtitle {
@@ -242,10 +242,16 @@ button.prof-sec-row {
   justify-content: space-between;
   gap: 12px;
   padding: 12px 14px;
-  background: rgba(168, 85, 247, 0.03);
+  background: rgba(239, 68, 68, 0.04);
   border-radius: 12px;
-  border: 1px solid rgba(168, 85, 247, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.15);
   width: 100%;
   text-align: left;
   cursor: pointer;
+  font-family: inherit;
+}
+
+.prof-del-row:hover {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.25);
 }
