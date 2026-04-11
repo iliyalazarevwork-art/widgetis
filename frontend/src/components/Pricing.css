@@ -387,6 +387,20 @@
     0 0 0 4px rgba(59, 130, 246, 0.18);
 }
 
+/* Locked CTA — used for Max plan on marketing page */
+.pricing__cta--locked {
+  background: rgba(168, 85, 247, 0.12);
+  border-color: rgba(168, 85, 247, 0.4);
+  color: #A855F7;
+  box-shadow: none;
+}
+
+.pricing__cta--locked:hover {
+  background: rgba(168, 85, 247, 0.2);
+  border-color: rgba(168, 85, 247, 0.6);
+  box-shadow: 0 8px 22px rgba(168, 85, 247, 0.2);
+}
+
 /* ── Trust bar ── */
 .pricing__trust-bar {
   width: 100%;

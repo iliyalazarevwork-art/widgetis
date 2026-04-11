@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Check, Sparkles, ArrowRight, Shield, Zap, Headphones } from 'lucide-react'
+import { Check, Sparkles, ArrowRight, Lock, Shield, Zap, Headphones } from 'lucide-react'
 import { PLANS as SHARED_PLANS } from '../data/plans'
 import './Pricing.css'
 
@@ -100,9 +100,21 @@ export function Pricing() {
               ))}
             </ul>
 
-            <button className={`pricing__cta ${plan.popular ? 'pricing__cta--popular' : ''}`} type="button">
-              <span>Від {plan.price.toLocaleString('uk-UA')} грн/міс</span>
-              <ArrowRight size={16} strokeWidth={2.5} />
+            <button
+              className={`pricing__cta ${plan.popular ? 'pricing__cta--popular' : ''} ${plan.id === 'max' ? 'pricing__cta--locked' : ''}`}
+              type="button"
+            >
+              {plan.id === 'max' ? (
+                <>
+                  <Lock size={15} strokeWidth={2.5} />
+                  <span>За запитом</span>
+                </>
+              ) : (
+                <>
+                  <span>Від {plan.price.toLocaleString('uk-UA')} грн/міс</span>
+                  <ArrowRight size={16} strokeWidth={2.5} />
+                </>
+              )}
             </button>
           </article>
         ))}

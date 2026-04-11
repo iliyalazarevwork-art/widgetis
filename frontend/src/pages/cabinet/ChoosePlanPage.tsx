@@ -5,6 +5,7 @@ import { get, post } from '../../api/client'
 import { useAuth } from '../../context/AuthContext'
 import { Header } from '../../components/Header'
 import { Footer } from '../../components/Footer'
+import { InterestButton } from '../../components/InterestButton'
 import { toast } from 'sonner'
 import type { Plan, Subscription } from '../../types'
 import { PageLoader } from '../../components/PageLoader'
@@ -347,21 +348,27 @@ export default function ChoosePlanPage() {
                 ))}
               </div>
 
-              <button
-                className="choose-plan__card-btn"
-                style={isPro
-                  ? { background: color, borderColor: color, color: '#fff', boxShadow: `0 6px 20px ${color}44` }
-                  : { background: `${color}22`, borderColor: `${color}55`, color }
-                }
-                onClick={() => handleStart(plan.slug)}
-                disabled={starting !== null}
-              >
-                {btnLabel}
-              </button>
+              {plan.slug === 'max' ? (
+                <InterestButton type="plan" id="max" />
+              ) : (
+                <button
+                  className="choose-plan__card-btn"
+                  style={isPro
+                    ? { background: color, borderColor: color, color: '#fff', boxShadow: `0 6px 20px ${color}44` }
+                    : { background: `${color}22`, borderColor: `${color}55`, color }
+                  }
+                  onClick={() => handleStart(plan.slug)}
+                  disabled={starting !== null}
+                >
+                  {btnLabel}
+                </button>
+              )}
 
               {!sub && (
                 <span className="choose-plan__card-trial">
-                  {isPro ? '7 днів безкоштовно · без зобов\'язань' : '7 днів безкоштовно'}
+                  {plan.slug === 'max'
+                    ? 'Менеджер зв\'яжеться протягом дня'
+                    : isPro ? '7 днів безкоштовно · без зобов\'язань' : '7 днів безкоштовно'}
                 </span>
               )}
             </div>

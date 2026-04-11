@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Check, ChevronDown, Send, Minus } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { SeoHead } from '../components/SeoHead'
+import { InterestButton } from '../components/InterestButton'
 import { get, post } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import { useSettings } from '../context/SettingsContext'
@@ -247,6 +248,8 @@ export function PricingPage() {
                 {/* CTA — render only when auth + subscription state is known */}
                 {!ctaReady ? (
                   <span className="pricing__cta pricing__cta--skeleton" />
+                ) : plan.id === 'max' && !isCurrent ? (
+                  <InterestButton type="plan" id="max" />
                 ) : isCurrent ? (
                   <Link to="/cabinet/plan" className={`pricing__cta pricing__cta--${plan.id} pricing__cta--current`}>
                     Мій план
@@ -271,7 +274,10 @@ export function PricingPage() {
                     Почати безкоштовно
                   </Link>
                 )}
-                {ctaReady && !sub && <p className="pricing__trial-note">7 днів безкоштовно</p>}
+                {ctaReady && !sub && plan.id !== 'max' && <p className="pricing__trial-note">7 днів безкоштовно</p>}
+                {ctaReady && plan.id === 'max' && !isCurrent && (
+                  <p className="pricing__trial-note">Менеджер зв'яжеться протягом дня</p>
+                )}
               </div>
             )
           })}
