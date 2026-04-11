@@ -42,13 +42,19 @@ export function InterestModal({
     ensureStylesheet('/vendor-css/react-international-phone.css')
   }, [])
 
-  const [phone, setPhone] = useState('')
+  const [phone, setPhone] = useState(() => {
+    try { return localStorage.getItem('wty_phone') || '' } catch { return '' }
+  })
   const [step, setStep] = useState<'form' | 'sending' | 'error'>('form')
   const [errorMsg, setErrorMsg] = useState('')
 
+  const handlePhoneChange = (value: string) => {
+    setPhone(value)
+    try { localStorage.setItem('wty_phone', value) } catch { /* quota */ }
+  }
+
   const handleClose = useCallback(() => {
     setStep('form')
-    setPhone('')
     setErrorMsg('')
     onClose()
   }, [onClose])
@@ -104,7 +110,7 @@ export function InterestModal({
               hideDropdown
               forceDialCode
               value={phone}
-              onChange={setPhone}
+              onChange={handlePhoneChange}
               inputClassName="consult-modal__input"
               className="consult-modal__phone"
             />

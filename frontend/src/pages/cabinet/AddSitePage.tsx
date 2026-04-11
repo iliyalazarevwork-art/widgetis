@@ -23,10 +23,23 @@ function normalizeSiteUrl(value: string): string {
 export default function AddSitePage() {
   const navigate = useNavigate()
   const [step, setStep] = useState<1 | 2>(1)
-  const [name, setName] = useState('')
-  const [url, setUrl] = useState('')
-  const [platform, setPlatform] = useState('horoshop')
+  const [name, setName] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('wty_add_site_draft') || '{}').name ?? '' } catch { return '' }
+  })
+  const [url, setUrl] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('wty_add_site_draft') || '{}').url ?? '' } catch { return '' }
+  })
+  const [platform, setPlatform] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('wty_add_site_draft') || '{}').platform ?? 'horoshop' } catch { return 'horoshop' }
+  })
   const [platforms, setPlatforms] = useState<PlatformItem[]>([])
+  const saveAddSiteDraft = (patch: Partial<{ name: string; url: string; platform: string }>) => {
+    try {
+      const prev = JSON.parse(localStorage.getItem('wty_add_site_draft') || '{}')
+      localStorage.setItem('wty_add_site_draft', JSON.stringify({ ...prev, ...patch }))
+    } catch { /* quota */ }
+  }
+
   const [creating, setCreating] = useState(false)
   const [siteData, setSiteData] = useState<SiteCreateResponse | null>(null)
   const [verifying, setVerifying] = useState(false)
@@ -56,6 +69,7 @@ export default function AddSitePage() {
         name: name || undefined,
       })
       setSiteData(res.data)
+      try { localStorage.removeItem('wty_add_site_draft') } catch { /* ignore */ }
       setStep(2)
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Не вдалося створити сайт')
@@ -121,7 +135,7 @@ export default function AddSitePage() {
               className="add-site__input"
               placeholder="Мій магазин"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => { setName(e.target.value); saveAddSiteDraft({ name: e.target.value }) }}
             />
           </div>
 
@@ -131,7 +145,7 @@ export default function AddSitePage() {
               className="add-site__input"
               placeholder="https://mystore.com.ua"
               value={url}
-              onChange={(e) => setUrl(e.target.value)}
+              onChange={(e) => { setUrl(e.target.value); saveAddSiteDraft({ url: e.target.value }) }}
               autoFocus
             />
           </div>
@@ -142,7 +156,7 @@ export default function AddSitePage() {
               <button
                 key={p.value}
                 className={`add-site__platform ${platform === p.value ? 'add-site__platform--active' : ''} ${!p.supported ? 'add-site__platform--disabled' : ''}`}
-                onClick={() => p.supported && setPlatform(p.value)}
+                onClick={() => { if (p.supported) { setPlatform(p.value); saveAddSiteDraft({ platform: p.value }) } }}
                 disabled={!p.supported}
               >
                 {p.label}

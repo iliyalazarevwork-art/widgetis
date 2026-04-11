@@ -73,7 +73,9 @@ const TypewriterInput = forwardRef<HTMLInputElement, {
 })
 
 export function DemoSection() {
-  const [url, setUrl] = useState('')
+  const [url, setUrl] = useState(() => {
+    try { return localStorage.getItem('wty_demo_url') || '' } catch { return '' }
+  })
   const [creating, setCreating] = useState(false)
   const [demoCode, setDemoCode] = useState<string | null>(null)
   const [showDemo, setShowDemo] = useState(false)
@@ -121,7 +123,15 @@ export function DemoSection() {
           </p>
 
           <form className="demo__input-wrap" onSubmit={handleSubmit}>
-            <TypewriterInput ref={inputEl} value={url} onChange={(e) => setUrl(e.target.value)} disabled={creating} />
+            <TypewriterInput
+              ref={inputEl}
+              value={url}
+              onChange={(e) => {
+                setUrl(e.target.value)
+                try { localStorage.setItem('wty_demo_url', e.target.value) } catch { /* quota */ }
+              }}
+              disabled={creating}
+            />
             <button type="submit" className="demo__submit" disabled={creating}>
               {creating ? (
                 <Loader size={16} strokeWidth={2} className="demo__spinner" />

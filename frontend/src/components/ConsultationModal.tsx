@@ -41,12 +41,26 @@ export function ConsultationModal({ isOpen, onClose }: ConsultationModalProps) {
     enabled: isOpen,
   })
 
-  const [name, setName] = useState('')
-  const [phone, setPhone] = useState('')
+  const [name, setName] = useState(() => {
+    try { return localStorage.getItem('wty_name') || '' } catch { return '' }
+  })
+  const [phone, setPhone] = useState(() => {
+    try { return localStorage.getItem('wty_phone') || '' } catch { return '' }
+  })
   const [date, setDate] = useState<Date | null>(null)
   const [time, setTime] = useState('')
   const [step, setStep] = useState<'form' | 'sending' | 'success' | 'error'>('form')
   const [errorMsg, setErrorMsg] = useState('')
+
+  const handleNameChange = (value: string) => {
+    setName(value)
+    try { localStorage.setItem('wty_name', value) } catch { /* quota */ }
+  }
+
+  const handlePhoneChange = (value: string) => {
+    setPhone(value)
+    try { localStorage.setItem('wty_phone', value) } catch { /* quota */ }
+  }
 
   if (!isOpen) return null
 
@@ -78,8 +92,6 @@ export function ConsultationModal({ isOpen, onClose }: ConsultationModalProps) {
 
   const handleClose = () => {
     setStep('form')
-    setName('')
-    setPhone('')
     setDate(null)
     setTime('')
     setErrorMsg('')
@@ -138,7 +150,7 @@ export function ConsultationModal({ isOpen, onClose }: ConsultationModalProps) {
                   type="text"
                   className="consult-modal__input"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => handleNameChange(e.target.value)}
                   placeholder="Іван"
                   required
                 />
@@ -154,7 +166,7 @@ export function ConsultationModal({ isOpen, onClose }: ConsultationModalProps) {
                   hideDropdown
                   forceDialCode
                   value={phone}
-                  onChange={setPhone}
+                  onChange={handlePhoneChange}
                   inputClassName="consult-modal__input"
                   className="consult-modal__phone"
                 />

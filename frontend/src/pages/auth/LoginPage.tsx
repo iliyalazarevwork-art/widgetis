@@ -6,7 +6,9 @@ import { toast } from 'sonner'
 import './login-mobile.css'
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(() => {
+    try { return localStorage.getItem('wty_login_email') || '' } catch { return '' }
+  })
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
@@ -49,7 +51,10 @@ export default function LoginPage() {
                 className="loginm__input"
                 placeholder="your@email.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  try { localStorage.setItem('wty_login_email', e.target.value) } catch { /* quota */ }
+                }}
                 autoFocus
                 autoComplete="email"
               />

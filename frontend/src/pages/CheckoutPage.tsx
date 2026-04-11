@@ -32,12 +32,21 @@ export function CheckoutPage() {
   const navigate = useNavigate()
   const { items, totalPrice, originalTotal, savings, clear } = useCart()
 
-  const [form, setForm] = useState<FormState>({
-    email: '',
-    phone: '',
-    site: '',
-    platform: 'horoshop',
-    agreed: true,
+  const [form, setForm] = useState<FormState>(() => {
+    try {
+      const raw = localStorage.getItem('wty_checkout_draft')
+      if (raw) {
+        const saved = JSON.parse(raw) as Partial<FormState>
+        return {
+          email: saved.email ?? '',
+          phone: saved.phone ?? '',
+          site: saved.site ?? '',
+          platform: (saved.platform as Platform) ?? 'horoshop',
+          agreed: true,
+        }
+      }
+    } catch { /* ignore */ }
+    return { email: '', phone: '', site: '', platform: 'horoshop', agreed: true }
   })
   const [paying, setPaying] = useState(false)
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({})
@@ -50,7 +59,16 @@ export function CheckoutPage() {
   }, [items.length, paying, navigate])
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
-    setForm((prev) => ({ ...prev, [key]: value }))
+    setForm((prev) => {
+      const next = { ...prev, [key]: value }
+      if (key !== 'agreed') {
+        try {
+          const { agreed: _, ...draft } = next
+          localStorage.setItem('wty_checkout_draft', JSON.stringify(draft))
+        } catch { /* quota */ }
+      }
+      return next
+    })
     setErrors((prev) => ({ ...prev, [key]: undefined }))
   }
 
@@ -92,6 +110,7 @@ export function CheckoutPage() {
           orderNumber: `W-${Date.now().toString(36).toUpperCase()}`,
         }),
       )
+      try { localStorage.removeItem('wty_checkout_draft') } catch { /* ignore */ }
       clear()
       navigate('/checkout/success', { replace: true })
     }, 1400)
