@@ -150,7 +150,9 @@ export function Header() {
             <div className="header__drawer-nav">
               {[
                 ...NAV_LINKS,
-                ...(isAuthenticated ? [{ to: '/cabinet', label: 'Кабінет', icon: UserRound }] : []),
+                ...(isAuthenticated
+                  ? [{ to: '/cabinet', label: 'Кабінет', icon: UserRound }]
+                  : [{ to: '/cabinet', label: 'Вхід', icon: UserRound }]),
               ].map((link) => (
                 <Link
                   key={link.to}

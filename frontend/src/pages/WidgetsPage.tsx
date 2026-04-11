@@ -4,80 +4,84 @@ import { Link, useNavigate } from 'react-router-dom'
 import {
   ArrowRight,
   Star,
-  BadgeCheck,
-  ExternalLink,
   Sparkles,
   TrendingUp,
-  Layers,
   Users,
+  Sprout,
+  Zap,
+  Crown,
+  ChevronRight,
 } from 'lucide-react'
 import { widgets, tagLabels, type Tag } from '../data/widgets'
-import { Testimonials } from '../components/Testimonials'
 import { PREVIEW_MAP } from '../components/WidgetPreviews'
 import './WidgetsPage.css'
 
 // ─── Cases data per widget ──────────────────────────────────────────────────
 
-const WIDGET_CASES: Record<string, { store: string; storeUrl: string; metric: string; color: string }[]> = {
+const WIDGET_CASES: Record<string, { store: string; metric: string; color: string }[]> = {
   marquee:              [
-    { store: 'ptashkinsad.com', storeUrl: 'https://ptashkinsad.com', metric: '+18% середній чек', color: '#10b981' },
-    { store: 'benihome.com.ua', storeUrl: 'https://benihome.com.ua', metric: '+24% конверсія',    color: '#f59e0b' },
-    { store: 'ballistic.com.ua',storeUrl: 'https://ballistic.com.ua',metric: '−31% відмов',       color: '#ef4444' },
+    { store: 'ptashkinsad.com', metric: '+18% середній чек', color: '#22C55E' },
+    { store: 'benihome.com.ua', metric: '+24% конверсія',    color: '#22C55E' },
+    { store: 'ballistic.com.ua',metric: '−31% відмов',       color: '#3B82F6' },
   ],
   'delivery-date':      [
-    { store: 'ptashkinsad.com', storeUrl: 'https://ptashkinsad.com', metric: '+18% середній чек', color: '#10b981' },
-    { store: 'brewco.kyiv.ua',  storeUrl: 'https://brewco.kyiv.ua',  metric: '+28% повторних',    color: '#ec4899' },
+    { store: 'modnakasta.ua', metric: '−40% питань до чату', color: '#22C55E' },
   ],
   'purchase-counter':   [
-    { store: 'kyivfit.store',   storeUrl: 'https://kyivfit.store',   metric: '+42% email-база',   color: '#3b82f6' },
+    { store: 'kyivfit.store', metric: '+42% email-база', color: '#22C55E' },
   ],
   'free-delivery':      [
-    { store: 'homedetail.ua',   storeUrl: 'https://homedetail.ua',   metric: '+15% середній чек', color: '#8b5cf6' },
+    { store: 'homedetail.ua', metric: '+15% середній чек', color: '#22C55E' },
   ],
   'live-viewers':       [
-    { store: 'benihome.com.ua', storeUrl: 'https://benihome.com.ua', metric: '+24% конверсія',    color: '#f59e0b' },
+    { store: 'benihome.com.ua', metric: '+24% конверсія', color: '#22C55E' },
   ],
   cashback:             [
-    { store: 'brewco.kyiv.ua',  storeUrl: 'https://brewco.kyiv.ua',  metric: '+28% повторних',    color: '#ec4899' },
+    { store: 'brewco.kyiv.ua', metric: '+28% повторних', color: '#22C55E' },
   ],
   countdown:            [
-    { store: 'ballistic.com.ua',storeUrl: 'https://ballistic.com.ua',metric: '−31% відмов',       color: '#ef4444' },
+    { store: 'ballistic.com.ua', metric: '−31% відмов', color: '#3B82F6' },
   ],
   'photo-reviews':      [
-    { store: 'kyivfit.store',   storeUrl: 'https://kyivfit.store',   metric: '+42% email-база',   color: '#3b82f6' },
+    { store: 'kyivfit.store', metric: '+42% email-база', color: '#22C55E' },
   ],
   'recent-purchase':    [
-    { store: 'homedetail.ua',   storeUrl: 'https://homedetail.ua',   metric: '+15% середній чек', color: '#8b5cf6' },
+    { store: 'homedetail.ua', metric: '+15% середній чек', color: '#22C55E' },
   ],
   'spin-wheel':         [
-    { store: 'kyivfit.store',   storeUrl: 'https://kyivfit.store',   metric: '+42% email-база',   color: '#3b82f6' },
+    { store: 'kyivfit.store', metric: '+42% email-база', color: '#22C55E' },
   ],
   quiz:                 [
-    { store: 'brewco.kyiv.ua',  storeUrl: 'https://brewco.kyiv.ua',  metric: '+28% повторних',    color: '#ec4899' },
+    { store: 'stylehub.com.ua', metric: '+33% конверсія', color: '#22C55E' },
   ],
   'progressive-discount': [
-    { store: 'homedetail.ua',   storeUrl: 'https://homedetail.ua',   metric: '+15% середній чек', color: '#8b5cf6' },
+    { store: 'homedetail.ua', metric: '+15% середній чек', color: '#22C55E' },
   ],
 }
 
 // ─── Tag accent colors ──────────────────────────────────────────────────────
 
 const TAG_ACCENT: Record<Tag, string> = {
-  conversion:     '#10b981',
-  trust:          '#3b82f6',
-  'social-proof': '#f59e0b',
-  visual:         '#8b5cf6',
-  'avg-order':    '#10b981',
-  urgency:        '#ef4444',
-  loyalty:        '#3b82f6',
-  engagement:     '#ec4899',
+  conversion:     '#10B981',
+  trust:          '#3B82F6',
+  'social-proof': '#F59E0B',
+  visual:         '#8B5CF6',
+  'avg-order':    '#10B981',
+  urgency:        '#EF4444',
+  loyalty:        '#3B82F6',
+  engagement:     '#EC4899',
 }
 
 // ─── Widget preview mockup ──────────────────────────────────────────────────
 
 function WidgetMockup({ id }: { id: string }) {
   const Preview = PREVIEW_MAP[id]
-  return Preview ? <Preview /> : null
+  if (!Preview) return null
+  return (
+    <div className="wc__preview">
+      <Preview />
+    </div>
+  )
 }
 
 // ─── Widget card ─────────────────────────────────────────────────────────────
@@ -126,21 +130,17 @@ function WidgetCard({ widget, index = 0 }: { widget: typeof widgets[0]; index?: 
 
         <h3 className="wc__title">{widget.title}</h3>
 
-        <div className="wc__preview">
-          <WidgetMockup id={widget.id} />
-        </div>
-
-        <p className="wc__desc">{widget.description}</p>
+        <WidgetMockup id={widget.id} />
 
         {usedIn.length > 0 && (
           <div className="wc__used">
             <span className="wc__used-label">Використовується в</span>
             <div className="wc__used-list">
-              {usedIn.map((c) => (
+              {usedIn.slice(0, 2).map((c) => (
                 <span key={c.store} className="wc__used-store">
-                  <BadgeCheck size={11} strokeWidth={2.5} />
-                  <span>{c.store}</span>
-                  <strong>{c.metric}</strong>
+                  <span className="wc__used-bullet" aria-hidden="true" />
+                  <span className="wc__used-domain">{c.store}</span>
+                  <strong style={{ color: c.color }}>{c.metric}</strong>
                 </span>
               ))}
             </div>
@@ -161,35 +161,23 @@ function WidgetCard({ widget, index = 0 }: { widget: typeof widgets[0]; index?: 
 const FEATURED_CASES = [
   {
     store: 'ballistic.com.ua',
-    storeUrl: 'https://ballistic.com.ua',
     owner: 'Ballistic',
-    category: 'Тактичний одяг',
-    quote: 'Таймер і "залишилось 2 шт" реально створюють терміновість. Імпульсні покупки виросли, показник відмов впав.',
     metrics: [{ label: 'відмов', value: '−31%' }, { label: 'конверсія', value: '+18%' }],
-    widgets: ['Зворотний відлік', 'Бігуча стрічка'],
     color: '#ef4444',
     rating: 5,
   },
   {
-    store: 'kyivfit.store',
-    storeUrl: 'https://kyivfit.store',
-    owner: 'KyivFit',
-    category: 'Спорт та фітнес',
-    quote: 'Колесо фортуни на виході з сайту збирає email-и в 3 рази краще, ніж попап зі знижкою. І покупці повертаються.',
-    metrics: [{ label: 'email-база', value: '+42%' }, { label: 'повторні', value: '+22%' }],
-    widgets: ['Колесо фортуни', 'Фотовідгуки', 'Лічильник покупок'],
-    color: '#3b82f6',
-    rating: 4,
+    store: 'ptashkinsad.com',
+    owner: 'Ptashkinsad',
+    metrics: [{ label: 'середній чек', value: '+18%' }, { label: 'конверсія', value: '+24%' }],
+    color: '#10b981',
+    rating: 5,
   },
   {
-    store: 'homedetail.ua',
-    storeUrl: 'https://homedetail.ua',
-    owner: 'HomeDetail',
-    category: 'Декор та меблі',
-    quote: 'Прогресивна шкала знижок мотивує додати ще товар. Замовлення на 2500 грн перетворилися на 3500 — без агресивних акцій.',
-    metrics: [{ label: 'середній чек', value: '+15%' }, { label: 'LTV', value: '+19%' }],
-    widgets: ['Прогресивна знижка', 'Безкоштовна доставка'],
-    color: '#8b5cf6',
+    store: 'benihome.com.ua',
+    owner: 'Benihome',
+    metrics: [{ label: 'відмов', value: '−40%' }, { label: 'повторних покупок', value: '+31%' }],
+    color: '#3b82f6',
     rating: 5,
   },
 ]
@@ -269,7 +257,7 @@ export function WidgetsPage() {
               <TrendingUp size={12} strokeWidth={2.5} />
               Реальні результати
             </p>
-            <h2 className="wp__section-title">Магазини, що вже ростуть</h2>
+            <h2 className="wp__section-title">Магазини,<br />що вже ростуть</h2>
             <p className="wp__section-sub">Конкретні цифри від реальних клієнтів</p>
           </header>
 
@@ -282,7 +270,7 @@ export function WidgetsPage() {
                   </div>
                   <div className="wcase__meta">
                     <strong className="wcase__owner">{c.owner}</strong>
-                    <span className="wcase__category">{c.category}</span>
+                    <span className="wcase__category">{c.store}</span>
                   </div>
                   <div className="wcase__stars">
                     {Array.from({ length: c.rating }).map((_, i) => (
@@ -294,87 +282,62 @@ export function WidgetsPage() {
                 <div className="wcase__metrics">
                   {c.metrics.map((m, i) => (
                     <div key={i} className="wcase__metric">
-                      <strong style={{ color: '#10b981' }}>{m.value}</strong>
+                      <strong>{m.value}</strong>
                       <span>{m.label}</span>
                     </div>
                   ))}
                 </div>
-
-                <blockquote className="wcase__quote">«{c.quote}»</blockquote>
-
-                <div className="wcase__footer">
-                  <div className="wcase__widgets">
-                    <Layers size={11} strokeWidth={2.5} />
-                    {c.widgets.join(' · ')}
-                  </div>
-                  <a
-                    href={c.storeUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="wcase__link"
-                  >
-                    {c.store}
-                    <ExternalLink size={11} strokeWidth={2} />
-                  </a>
-                </div>
               </article>
             ))}
-          </div>
-
-          <div className="wp__cases-more">
-            <Link to="/cases" className="wp__cases-more-link">
-              Всі кейси
-              <ArrowRight size={14} strokeWidth={2.25} />
-            </Link>
           </div>
         </div>
       </section>
 
-      {/* ── Testimonials ── */}
-      <Testimonials />
-
       {/* ── Pricing CTA ── */}
       <section className="wp__cta">
-        <div className="wp__container">
-          <div className="wp__cta-card">
-            <div className="wp__cta-glow" aria-hidden="true" />
-            <p className="wp__cta-eyebrow">
-              <Users size={12} strokeWidth={2.5} />
-              Приєднуйтесь до 120+ магазинів
-            </p>
-            <h2 className="wp__cta-title">Готові почати?</h2>
-            <p className="wp__cta-sub">
-              Оберіть план та отримайте доступ до всіх потрібних віджетів.<br />
-              14 днів гарантія повернення коштів.
-            </p>
-            <div className="wp__cta-plans">
-              {[
-                { name: 'Basic', price: '799', period: '/міс', desc: '4 віджети · 1 сайт', id: 'basic' },
-                { name: 'Pro',   price: '1 599', period: '/міс', desc: '8 віджетів · 3 сайти', id: 'pro', popular: true },
-                { name: 'Max',   price: '2 899', period: '/міс', desc: '17 віджетів · 5 сайтів', id: 'max' },
-              ].map((p) => (
-                <Link
-                  key={p.id}
-                  to={`/pricing?plan=${p.id}`}
-                  className={`wp__cta-plan ${p.popular ? 'wp__cta-plan--popular' : ''}`}
-                >
-                  {p.popular && <span className="wp__cta-plan-badge">Популярний</span>}
-                  <strong className="wp__cta-plan-name">{p.name}</strong>
+        <div className="wp__cta-inner">
+          <div className="wp__cta-badge">
+            <Users size={13} strokeWidth={2.5} />
+            ПРИЄДНУЙТЕСЬ ДО 120+ МАГАЗИНІВ
+          </div>
+          <h2 className="wp__cta-title">Готові почати?</h2>
+          <p className="wp__cta-sub">
+            Оберіть план та отримайте доступ до всіх потрібних віджетів. 14 днів гарантія повернення коштів.
+          </p>
+
+          <div className="wp__cta-plans">
+            {([
+              { id: 'basic', name: 'Basic', Icon: Sprout, color: '#10b981', desc: '4 віджети · 1 сайт', price: '799', popular: false },
+              { id: 'pro',   name: 'Pro',   Icon: Zap,    color: '#3B82F6', desc: '8 віджетів · 3 сайти', price: '1 599', popular: true },
+              { id: 'max',   name: 'Max',   Icon: Crown,  color: '#A855F7', desc: '17 віджетів · 5 сайтів', price: '2 899', popular: false },
+            ] as const).map((p) => (
+              <Link
+                key={p.id}
+                to={`/pricing?plan=${p.id}`}
+                className={`wp__cta-plan-row ${p.popular ? 'wp__cta-plan-row--popular' : ''}`}
+                style={{ '--plan-color': p.color } as React.CSSProperties}
+              >
+                <div className="wp__cta-plan-left">
+                  <div className="wp__cta-plan-ico">
+                    <p.Icon size={15} strokeWidth={2} />
+                  </div>
+                  <div className="wp__cta-plan-info">
+                    <div className="wp__cta-plan-name-row">
+                      <strong className="wp__cta-plan-name">{p.name}</strong>
+                      {p.popular && <span className="wp__cta-plan-popular">Популярний</span>}
+                    </div>
+                    <span className="wp__cta-plan-desc">{p.desc}</span>
+                  </div>
+                </div>
+                <div className="wp__cta-plan-right">
                   <div className="wp__cta-plan-price">
                     <span>{p.price}</span>
-                    <small>₴{p.period}</small>
+                    <small>₴/міс</small>
                   </div>
-                  <span className="wp__cta-plan-desc">{p.desc}</span>
-                  <span className="wp__cta-plan-arrow">
-                    <ArrowRight size={14} strokeWidth={2.25} />
-                  </span>
-                </Link>
-              ))}
-            </div>
-            <Link to="/pricing#compare-plans" className="wp__cta-compare">
-              Порівняти всі плани
-              <ArrowRight size={13} strokeWidth={2.25} />
-            </Link>
+                  <ChevronRight size={14} strokeWidth={2} className="wp__cta-plan-chevron" />
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </section>

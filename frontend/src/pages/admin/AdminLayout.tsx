@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { HamburgerIcon } from '../../components/HamburgerIcon'
 import { BRAND_EMAIL, BRAND_NAME } from '../../constants/brand'
+import { useAuth } from '../../context/AuthContext'
 import './admin.css'
 
 const NAV = [
@@ -30,7 +31,9 @@ const NAV = [
 
 export function AdminLayout() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
   const location = useLocation()
+  const { logout } = useAuth()
   const isMobileCanvasPage =
     location.pathname === '/admin' ||
     location.pathname.startsWith('/admin/configurator') ||
@@ -45,6 +48,19 @@ export function AdminLayout() {
   useEffect(() => {
     setMobileOpen(false)
   }, [location.pathname])
+
+  const handleLogout = async () => {
+    if (isLoggingOut) return
+
+    setIsLoggingOut(true)
+    setMobileOpen(false)
+
+    try {
+      await logout()
+    } finally {
+      window.location.href = '/login'
+    }
+  }
 
   return (
     <div className="admin">
@@ -107,7 +123,12 @@ export function AdminLayout() {
             <ExternalLink size={14} strokeWidth={2} />
             <span>Сайт</span>
           </Link>
-          <button className="admin__logout" type="button">
+          <button
+            className="admin__logout"
+            type="button"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+          >
             <LogOut size={14} strokeWidth={2} />
             <span>Вийти</span>
           </button>

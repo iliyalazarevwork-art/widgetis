@@ -1867,6 +1867,36 @@
   flex-shrink: 0;
 }
 
+.mobile-menu__logout {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 14px 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #161616;
+  color: #f0f0f0;
+  font-size: 13px;
+  font-weight: 600;
+  width: calc(100% - 28px);
+  cursor: pointer;
+  text-align: left;
+}
+
+.mobile-menu__logout svg {
+  color: #f87171;
+  flex-shrink: 0;
+}
+
+.mobile-menu__logout:hover {
+  background: #1e1e1e;
+}
+
+.mobile-menu__logout:disabled {
+  opacity: 0.65;
+}
+
 .mobile-menu__contacts {
   padding: 12px 14px 0;
   display: flex;

@@ -11,6 +11,7 @@ import {
   CircleAlert,
   ExternalLink,
   Globe,
+  LogOut,
   Mail,
   Banknote,
   Phone,
@@ -27,6 +28,7 @@ import {
 } from 'lucide-react'
 import { get } from '../../api/client'
 import { SocialIcon } from '../../components/SocialIcon'
+import { useAuth } from '../../context/AuthContext'
 import { useSettings } from '../../context/SettingsContext'
 import { BRAND_EMAIL, BRAND_NAME } from '../../constants/brand'
 import type { PaginatedResponse } from '../../types'
@@ -239,6 +241,8 @@ function formatSubscriptionDate(raw: string): string {
 
 export function MobileMenuDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const settings = useSettings()
+  const { logout } = useAuth()
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   if (!open) return null
 
@@ -251,6 +255,19 @@ export function MobileMenuDrawer({ open, onClose }: { open: boolean; onClose: ()
       url,
       color: MESSENGER_META[id]?.color ?? '#888',
     }))
+
+  const handleLogout = async () => {
+    if (isLoggingOut) return
+
+    setIsLoggingOut(true)
+    onClose()
+
+    try {
+      await logout()
+    } finally {
+      window.location.href = '/login'
+    }
+  }
 
   return (
     <>
@@ -286,6 +303,11 @@ export function MobileMenuDrawer({ open, onClose }: { open: boolean; onClose: ()
           <ExternalLink size={14} strokeWidth={2} />
           widgetis.com
         </a>
+
+        <button className="mobile-menu__logout" type="button" onClick={handleLogout} disabled={isLoggingOut}>
+          <LogOut size={14} strokeWidth={2} />
+          Вийти
+        </button>
 
         {messengers.length > 0 && (
           <div className="mobile-menu__contacts">
