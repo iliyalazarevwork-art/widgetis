@@ -7,6 +7,7 @@ import { Header } from '../../components/Header'
 import { Footer } from '../../components/Footer'
 import { toast } from 'sonner'
 import type { Plan, Subscription } from '../../types'
+import { PageLoader } from '../../components/PageLoader'
 import './styles/choose-plan.css'
 import '../PricingPage.css'
 
@@ -154,7 +155,7 @@ export default function ChoosePlanPage() {
     return
   }
 
-  if (loading) return <div className="page-loader">Завантаження…</div>
+  if (loading) return <PageLoader fullscreen />
 
   // User is on max plan — show info screen
   if (isMaxPlan) {
