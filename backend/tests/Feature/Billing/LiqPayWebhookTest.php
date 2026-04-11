@@ -166,23 +166,15 @@ class LiqPayWebhookTest extends TestCase
 
     public function test_duplicate_success_webhooks_do_not_create_duplicate_payments(): void
     {
-        // KNOWN BUG discovered while writing this test:
-        // LiqPayWebhookService::handleSuccess looks up the pending payment, updates it,
-        // and falls through to create a NEW payment if no pending one exists — which is
-        // exactly what happens on retry, because the first webhook already moved the
-        // payment to success. Result: every retried webhook creates a duplicate payment.
-        // LiqPay retries on any non-200 AND may retry even on 200 — so this is a real
-        // data-integrity risk on prod. Fix belongs in a separate PR; this test stays as
-        // a regression guard for that fix.
-        $this->markTestIncomplete(
-            'KNOWN BUG: LiqPayWebhookService::handleSuccess creates duplicate payments '
-            .'on retried webhooks. See tracking task.',
-        );
-
-        /* @phpstan-ignore-next-line — intentionally unreachable until the bug is fixed */
+        // Regression guard: LiqPayWebhookService::handleSuccess used to look
+        // up only PENDING payments and fall through to a "fallback create" if
+        // none was found. On a retried webhook the first call had already
+        // moved the row to SUCCESS, so the fallback created a duplicate.
+        // The fix widens the lookup to include success rows.
         [$order] = $this->seedOrderWithPendingSubscription();
         $payload = $this->buildPayload($order->order_number, 'success');
 
+        $this->postJson(self::WEBHOOK_URL, $payload)->assertOk();
         $this->postJson(self::WEBHOOK_URL, $payload)->assertOk();
         $this->postJson(self::WEBHOOK_URL, $payload)->assertOk();
 

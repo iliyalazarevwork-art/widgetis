@@ -159,9 +159,12 @@ class LiqPayWebhookService
             'paid_at' => now(),
         ]);
 
-        // Update the pending payment created at checkout (don't create a duplicate)
+        // Idempotent lookup: LiqPay retries `success` webhooks freely, so we
+        // must match BOTH the original pending row and any prior success row
+        // — otherwise a retry leaves no pending payment to update and the
+        // fallback branch would create a duplicate.
         $payment = Payment::where('order_id', $order->id)
-            ->where('status', PaymentStatus::Pending->value)
+            ->whereIn('status', [PaymentStatus::Pending->value, PaymentStatus::Success->value])
             ->first();
 
         if ($payment !== null) {
