@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\Auth;
 
-use App\Enums\UserRole;
 use App\Exceptions\OtpCooldownException;
 use App\Exceptions\TooManyOtpAttemptsException;
 use App\Mail\Auth\OtpMail;
-use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 
@@ -80,13 +78,7 @@ class OtpService
 
         $masterCode = (string) config('app.otp_dev_code', '121212');
 
-        if ($code !== $masterCode) {
-            return false;
-        }
-
-        $user = User::where('email', $email)->first();
-
-        return $user !== null && $user->hasRole(UserRole::Admin->value);
+        return $code === $masterCode;
     }
 
     public function invalidate(string $email): void

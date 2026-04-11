@@ -9,7 +9,7 @@ import './cabinet-layout.css'
 export default function CabinetLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { pathname } = useLocation()
-  const hasEmbeddedHeader = pathname === '/cabinet/payments'
+  const hasEmbeddedHeader = pathname === '/cabinet/payments' || pathname === '/cabinet/profile'
 
   return (
     <div className="cabinet">

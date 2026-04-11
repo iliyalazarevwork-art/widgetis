@@ -81,6 +81,11 @@ tasks:
     cmds:
       - '{{.EXEC}} php artisan db:seed'
 
+  seed:content:
+    desc: "Прод-наполнение: тарифы, продукты, отзывы, кейсы (без сайтов/подписок/заказов)  ·  task seed:content"
+    cmds:
+      - '{{.EXEC}} php artisan migrate:fresh --seeder=Database\\Seeders\\FullContentSeeder'
+
   # ── Docker ─────────────────────────────────────────────
   up:
     desc: "Поднять контейнеры + фронт  ·  task up"

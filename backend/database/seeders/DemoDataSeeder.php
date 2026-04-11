@@ -68,7 +68,7 @@ class DemoDataSeeder extends Seeder
     /**
      * @return array<string, User>
      */
-    private function seedCustomers(): array
+    public function seedCustomers(): array
     {
         $rows = [
             'primary' => [
@@ -563,7 +563,7 @@ class DemoDataSeeder extends Seeder
     /**
      * @param array<string, User> $customers
      */
-    private function seedReviews(array $customers, Carbon $now): void
+    public function seedReviews(array $customers, Carbon $now): void
     {
         $reviewRows = [
             [
@@ -616,7 +616,7 @@ class DemoDataSeeder extends Seeder
         }
     }
 
-    private function seedCustomerCases(Carbon $now): void
+    public function seedCustomerCases(Carbon $now): void
     {
         $cases = [
             [
