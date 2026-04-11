@@ -190,6 +190,20 @@ button {
   background: none;
 }
 
+/* Keep browser autofill behavior, but block WebKit white/yellow repaint on all fields. */
+:where(input, textarea, select):-webkit-autofill,
+:where(input, textarea, select):-webkit-autofill:hover,
+:where(input, textarea, select):-webkit-autofill:focus,
+:where(input, textarea, select):-webkit-autofill:active {
+  -webkit-text-fill-color: currentColor !important;
+  caret-color: currentColor !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+  box-shadow: 0 0 0 1000px transparent inset !important;
+  transition: background-color 999999s ease-out 0s, color 999999s ease-out 0s !important;
+}
+
 /* Prevent iOS Safari auto-zoom on input focus (triggers when font-size < 16px) */
 @media (max-width: 768px) {
   input,

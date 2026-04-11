@@ -10,14 +10,13 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->call([
-            RoleSeeder::class,
-            AdminSeeder::class,
-            PlanSeeder::class,
-            WidgetTagSeeder::class,
-            ProductSeeder::class,
-            ProductPlanAccessSeeder::class,
-            DemoDataSeeder::class,
-        ]);
+        $this->call(ProductionBootstrapSeeder::class);
+
+        if (app()->environment(['local', 'testing'])) {
+            $this->call([
+                AdminSeeder::class,
+                DemoDataSeeder::class,
+            ]);
+        }
     }
 }

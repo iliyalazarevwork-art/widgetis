@@ -11,6 +11,7 @@ set -euo pipefail
 #   --local         Run directly on the server (no SSH hop)
 #   --skip-build    Skip docker build (faster if only config changed)
 #   --skip-migrate  Skip migrations
+#   --seed-base     Seed only production-safe reference data
 ###############################################################################
 
 SERVER=root@204.168.206.10
@@ -19,12 +20,14 @@ REMOTE_DIR=/opt/widgetis
 LOCAL=false
 SKIP_BUILD=false
 SKIP_MIGRATE=false
+SEED_BASE=false
 
 for arg in "$@"; do
   case $arg in
     --local)        LOCAL=true ;;
     --skip-build)   SKIP_BUILD=true ;;
     --skip-migrate) SKIP_MIGRATE=true ;;
+    --seed-base)    SEED_BASE=true ;;
   esac
 done
 
@@ -37,7 +40,10 @@ if [ "$LOCAL" = false ]; then
   ssh "$SERVER" "
     cd $REMOTE_DIR &&
     git pull origin main &&
-    bash deploy.sh --local $([ "$SKIP_BUILD"   = true ] && echo '--skip-build')   $([ "$SKIP_MIGRATE" = true ] && echo '--skip-migrate')
+    bash deploy.sh --local \
+      $([ "$SKIP_BUILD" = true ] && echo '--skip-build') \
+      $([ "$SKIP_MIGRATE" = true ] && echo '--skip-migrate') \
+      $([ "$SEED_BASE" = true ] && echo '--seed-base')
   "
   echo ""
   echo "✅  Deploy complete! → http://$SERVER"
@@ -75,9 +81,11 @@ $DC exec -T backend php artisan down --retry=60
 if [ "$SKIP_MIGRATE" = false ]; then
   echo "▶ Running migrations..."
   $DC exec -T backend php artisan migrate --force
+fi
 
-  echo "▶ Seeding roles and base data..."
-  $DC exec -T backend php artisan db:seed --force
+if [ "$SEED_BASE" = true ]; then
+  echo "▶ Seeding production-safe reference data..."
+  $DC exec -T backend php artisan db:seed --class=ProductionBootstrapSeeder --force
 fi
 
 echo "▶ Warming cache..."

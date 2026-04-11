@@ -163,6 +163,11 @@ tasks:
     cmds:
       - bash deploy.sh --skip-build
 
+  deploy:seed-base:
+    desc: "Деплой + безопасные прод-сидеры (без демо/админа)  ·  task deploy:seed-base"
+    cmds:
+      - bash deploy.sh --seed-base
+
   # ── Продакшен ──────────────────────────────────────────
   prod:up:
     desc: "Поднять прод-контейнеры  ·  task prod:up"
@@ -188,6 +193,11 @@ tasks:
     desc: "Миграции на проде  ·  task prod:migrate"
     cmds:
       - '{{.EXECP}} php artisan migrate --force'
+
+  prod:seed-base:
+    desc: "Безопасные прод-сидеры (роли/планы/продукты)  ·  task prod:seed-base"
+    cmds:
+      - '{{.EXECP}} php artisan db:seed --class=ProductionBootstrapSeeder --force'
 
   prod:cache:
     desc: "Прогреть кэш на проде  ·  task prod:cache"

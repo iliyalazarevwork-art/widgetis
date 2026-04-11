@@ -13,8 +13,14 @@ class AdminSeeder extends Seeder
 {
     public function run(): void
     {
-        $email = config('app.admin_email', 'admin@widgetis.com');
-        $password = config('app.admin_password', 'admin123');
+        $email = config('app.admin_email');
+        $password = config('app.admin_password');
+
+        if (!is_string($email) || trim($email) === '' || !is_string($password) || trim($password) === '') {
+            $this->command?->warn('AdminSeeder skipped: set FILAMENT_ADMIN_EMAIL and FILAMENT_ADMIN_PASSWORD first.');
+
+            return;
+        }
 
         $admin = User::updateOrCreate(
             ['email' => $email],

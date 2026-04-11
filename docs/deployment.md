@@ -3,8 +3,9 @@
 ## Быстрый старт
 
 ```bash
-task deploy        # полный деплой (push + build + migrate + cache)
-task deploy:fast   # деплой без пересборки образов (только код/конфиг)
+task deploy           # полный деплой (push + build + migrate + cache)
+task deploy:fast      # деплой без пересборки образов (только код/конфиг)
+task deploy:seed-base # деплой + только безопасные прод-сидеры (без демо/админа)
 ```
 
 ---
@@ -92,6 +93,7 @@ openssl rand -hex 32
 DOCKER_BUILDKIT=1 docker compose -f docker-compose.prod.yml --env-file .env.prod build
 docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
 docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T backend php artisan migrate --force
+docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T backend php artisan db:seed --class=ProductionBootstrapSeeder --force
 ```
 
 ---
@@ -111,20 +113,23 @@ task deploy
 5. `docker compose up -d` — поднимаем контейнеры
 6. `php artisan down --retry=60` — переводим приложение в maintenance mode, чтобы во время деплоя не отдавать 500
 7. `php artisan migrate --force` — запускаем новые миграции
-8. `php artisan {config,route,view,event}:cache` — прогреваем кэш
-9. Перезапускаем `queue-worker` и `scheduler`
-10. `php artisan up` — возвращаем приложение в работу
+8. (опционально) `php artisan db:seed --class=ProductionBootstrapSeeder --force` — только если передан `--seed-base`
+9. `php artisan {config,route,view,event}:cache` — прогреваем кэш
+10. Перезапускаем `queue-worker` и `scheduler`
+11. `php artisan up` — возвращаем приложение в работу
 
 Важно: `route:cache` требует, чтобы в маршрутах не было closure-роутов. Для простых JSON-эндпоинтов и health-check лучше использовать контроллеры или `Route::view()`.
 
 ### Флаги
 
 ```bash
-task deploy              # полный деплой
-task deploy:fast         # без docker build (если менялся только PHP/JS код через volume)
-bash deploy.sh --local   # запустить прямо на сервере (без SSH)
+task deploy                    # полный деплой
+task deploy:fast               # без docker build (если менялся только PHP/JS код через volume)
+task deploy:seed-base          # деплой + только безопасные сиды
+bash deploy.sh --local         # запустить прямо на сервере (без SSH)
 bash deploy.sh --skip-build    # не пересобирать образы
 bash deploy.sh --skip-migrate  # не запускать миграции
+bash deploy.sh --seed-base     # запустить только безопасные сиды (без демо/админа)
 ```
 
 ---
