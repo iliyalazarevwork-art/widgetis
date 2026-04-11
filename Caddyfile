@@ -1,3 +1,15 @@
+# ── Zero-downtime deploy: shared retry policy ─────────────────
+# During rolling restarts an upstream container is briefly
+# unavailable. This snippet makes Caddy hold the client
+# connection open and retry until the new container is up,
+# instead of returning a 502/plaintext error (which Safari
+# sometimes offers to download as a .txt file).
+(zdd_http) {
+    lb_try_duration 30s
+    lb_try_interval 500ms
+    fail_duration   10s
+}
+
 widgetis.com, www.widgetis.com {
 
     encode gzip zstd
@@ -15,7 +27,9 @@ widgetis.com, www.widgetis.com {
     }
     handle @backend {
         root * /var/www/html/public
-        php_fastcgi backend:9000
+        php_fastcgi backend:9000 {
+            import zdd_http
+        }
         file_server
     }
 
@@ -27,44 +41,62 @@ widgetis.com, www.widgetis.com {
         reverse_proxy site-proxy:3100 {
             header_up X-Real-IP {remote_host}
             header_up X-Forwarded-For {remote_host}
+            import zdd_http
         }
     }
     handle /content/* {
-        reverse_proxy site-proxy:3100
+        reverse_proxy site-proxy:3100 {
+            import zdd_http
+        }
     }
     handle /frontend/* {
-        reverse_proxy site-proxy:3100
+        reverse_proxy site-proxy:3100 {
+            import zdd_http
+        }
     }
     handle /bundles/* {
-        reverse_proxy site-proxy:3100
+        reverse_proxy site-proxy:3100 {
+            import zdd_http
+        }
     }
     handle /_widget/* {
-        reverse_proxy site-proxy:3100
+        reverse_proxy site-proxy:3100 {
+            import zdd_http
+        }
     }
     handle /seen_items/* {
-        reverse_proxy site-proxy:3100
+        reverse_proxy site-proxy:3100 {
+            import zdd_http
+        }
     }
 
     # ── Localized routes (/uk/_widget/, /en/_widget/, etc.) ───
     @localized path_regexp ^/[a-z]{2}(-[A-Z]{2})?/(_widget|seen_items)
     handle @localized {
-        reverse_proxy site-proxy:3100
+        reverse_proxy site-proxy:3100 {
+            import zdd_http
+        }
     }
 
     # ── Widget Builder ────────────────────────────────────────
     # Note: /modules, /build, /deploy are called WITHOUT trailing slash from the SPA,
     # so we use * (not /*) to match both the exact path and any subpath
     handle /build-demo* {
-        reverse_proxy widget-builder:3200
+        reverse_proxy widget-builder:3200 {
+            import zdd_http
+        }
     }
     handle /modules* {
-        reverse_proxy widget-builder:3200
+        reverse_proxy widget-builder:3200 {
+            import zdd_http
+        }
     }
     handle /build* {
         reverse_proxy widget-builder:3200 {
             transport http {
                 response_header_timeout 120s
             }
+            import zdd_http
         }
     }
     handle /deploy* {
@@ -72,12 +104,15 @@ widgetis.com, www.widgetis.com {
             transport http {
                 response_header_timeout 120s
             }
+            import zdd_http
         }
     }
 
     # ── Frontend SPA (catch-all) ──────────────────────────────
     # Handles: /, /admin/*, /cabinet/*, /login, /pricing, etc.
     handle {
-        reverse_proxy frontend:80
+        reverse_proxy frontend:80 {
+            import zdd_http
+        }
     }
 }

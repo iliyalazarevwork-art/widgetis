@@ -15,10 +15,14 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
-      - backend
-      - frontend
-      - widget-builder
-      - site-proxy
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+      widget-builder:
+        condition: service_healthy
+      site-proxy:
+        condition: service_healthy
     restart: always
     networks:
       - widgetis
@@ -31,6 +35,13 @@ services:
       args:
         VITE_API_BASE_URL: /api/v1
     restart: always
+    stop_grace_period: 30s
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost/ || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
     networks:
       - widgetis
 
@@ -50,6 +61,14 @@ services:
       redis:
         condition: service_started
     restart: always
+    stop_grace_period: 30s
+    healthcheck:
+      # Confirms php-fpm is accepting TCP connections on :9000.
+      test: ["CMD-SHELL", "php -r \"exit(@fsockopen('127.0.0.1', 9000) ? 0 : 1);\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     networks:
       - widgetis
 
@@ -93,6 +112,15 @@ services:
       context: ./widget-builder
       dockerfile: Dockerfile
     restart: always
+    stop_grace_period: 30s
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "node -e \"require('http').get('http://127.0.0.1:3200/', r => process.exit(r.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))\""
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     networks:
       - widgetis
 
@@ -105,6 +133,15 @@ services:
       NODE_ENV: production
       PORT: "3100"
     restart: always
+    stop_grace_period: 30s
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "node -e \"require('net').createConnection(3100, '127.0.0.1').on('connect', function(){this.end(); process.exit(0);}).on('error', () => process.exit(1))\""
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
     networks:
       - widgetis
 
