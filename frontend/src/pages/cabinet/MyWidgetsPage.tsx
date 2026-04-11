@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Lock, ArrowLeft } from 'lucide-react'
 import { get } from '../../api/client'
 import type { WidgetAccess } from '../../types'
+import { PageLoader } from '../../components/PageLoader'
 import './styles/widgets.css'
 
 export default function MyWidgetsPage() {
@@ -17,8 +18,8 @@ export default function MyWidgetsPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  if (loading) return <div className="page-loader">Завантаження…</div>
-  if (!data) return <div className="page-loader">Помилка завантаження</div>
+  if (loading) return <PageLoader />
+  if (!data) return <PageLoader label="Помилка завантаження" />
 
   return (
     <div className="wdg-page">

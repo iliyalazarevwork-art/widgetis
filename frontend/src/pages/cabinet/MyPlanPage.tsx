@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowUp, X, Sprout, Zap, Crown, type LucideIcon } from 'luci
 import { get, post } from '../../api/client'
 import { toast } from 'sonner'
 import type { Subscription, Plan, DashboardData } from '../../types'
+import { PageLoader } from '../../components/PageLoader'
 import './styles/plan.css'
 
 // ─── Config ───────────────────────────────────────────────────────────────────
@@ -117,7 +118,7 @@ export default function MyPlanPage() {
     }
   }
 
-  if (loading) return <div className="page-loader">Завантаження…</div>
+  if (loading) return <PageLoader />
 
   const sortedPlans      = [...plans].sort((a, b) => a.price_monthly - b.price_monthly)
   const currentPlanFull  = sortedPlans.find(p => p.id === sub?.plan?.id) ?? null

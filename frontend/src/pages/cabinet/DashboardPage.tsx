@@ -5,6 +5,7 @@ import { get } from '../../api/client'
 import { useAuth } from '../../context/AuthContext'
 import type { DashboardData } from '../../types'
 import { toast } from 'sonner'
+import { PageLoader } from '../../components/PageLoader'
 import './styles/dashboard.css'
 
 export default function DashboardPage() {
@@ -30,8 +31,8 @@ export default function DashboardPage() {
     }
   }, [searchParams, setSearchParams])
 
-  if (loading) return <div className="page-loader">Завантаження…</div>
-  if (!data) return <div className="page-loader">Не вдалося завантажити дані</div>
+  if (loading) return <PageLoader />
+  if (!data) return <PageLoader label="Не вдалося завантажити дані" />
   if (!data.plan && !data.subscription_status) return <Navigate to="/cabinet/choose-plan" replace />
 
   const planSlug = data.plan?.slug

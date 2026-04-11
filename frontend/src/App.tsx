@@ -96,6 +96,7 @@ import { useAuth } from './context/AuthContext'
 import { Toaster } from 'sonner'
 import { SeoHead } from './components/SeoHead'
 import { ScrollManager } from './components/ScrollManager'
+import { PageLoader } from './components/PageLoader'
 import './App.css'
 
 function HomePage() {
@@ -184,7 +185,7 @@ function RequireAuth({ children }: { children: ReactElement }) {
   const { isAuthenticated, isLoading } = useAuth()
 
   if (isLoading) {
-    return <div className="page-loader">Завантаження…</div>
+    return <PageLoader fullscreen />
   }
 
   if (!isAuthenticated) {
@@ -255,7 +256,7 @@ function RequireAdmin({ children }: { children: ReactElement }) {
   }, [isAuthenticated, refreshUser])
 
   if (isLoading || isCheckingAccess) {
-    return <div className="page-loader">Завантаження…</div>
+    return <PageLoader fullscreen />
   }
 
   if (!isAuthenticated) {
@@ -274,7 +275,7 @@ function App() {
     <BrowserRouter>
       <ScrollManager />
       <div className="app">
-        <Suspense fallback={<div className="page-loader">Завантаження…</div>}>
+        <Suspense fallback={<PageLoader fullscreen />}>
         <Routes>
           <Route element={<MarketingLayout />}>
             <Route path="/" element={<HomePage />} />

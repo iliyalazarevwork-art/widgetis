@@ -5,6 +5,7 @@ import { get, post, put, setToken } from '../../api/client'
 import { toast } from 'sonner'
 import type { User as UserType, Subscription } from '../../types'
 import { DeleteAccountModal } from '../../components/DeleteAccountModal'
+import { PageLoader } from '../../components/PageLoader'
 import './styles/profile.css'
 
 const PHONE_PREFIX = '+38'
@@ -128,7 +129,7 @@ export default function ProfilePage() {
     navigate('/login')
   }
 
-  if (loading) return <div className="page-loader">Завантаження…</div>
+  if (loading) return <PageLoader />
 
   const initials = getInitials(form.name || user?.name, user?.email || '')
   const planSlug = subscription?.plan?.slug

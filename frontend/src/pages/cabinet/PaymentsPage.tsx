@@ -3,6 +3,7 @@ import { ArrowLeft, Check, ChevronLeft, ChevronRight, Gift } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { get } from '../../api/client'
 import type { Payment, PaginatedResponse, Subscription } from '../../types'
+import { PageLoader } from '../../components/PageLoader'
 import './styles/payments.css'
 
 export default function PaymentsPage() {
@@ -36,7 +37,7 @@ export default function PaymentsPage() {
     ? `${sub.plan.name} · ${formatCurrency(sub.plan.price_monthly)}`
     : 'Немає активного плану'
 
-  if (loading) return <div className="page-loader">Завантаження…</div>
+  if (loading) return <PageLoader />
 
   return (
     <div className="pay-page">

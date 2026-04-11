@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\ProductAvailability;
 use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -36,6 +37,7 @@ class Product extends Model
         'builder_module',
         'config_schema',
         'sort_order',
+        'availability',
     ];
 
     /**
@@ -51,6 +53,7 @@ class Product extends Model
             'config_schema' => 'array',
             'is_popular' => 'boolean',
             'is_new' => 'boolean',
+            'availability' => ProductAvailability::class,
         ];
     }
 
@@ -85,6 +88,15 @@ class Product extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('status', 'active');
+    }
+
+    /**
+     * @param Builder<Product> $query
+     * @return Builder<Product>
+     */
+    public function scopeAvailable(Builder $query): Builder
+    {
+        return $query->where('availability', ProductAvailability::Available->value);
     }
 
     /**

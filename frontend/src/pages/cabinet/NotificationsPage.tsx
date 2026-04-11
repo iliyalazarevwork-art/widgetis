@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Bell, Check, ArrowLeft } from 'lucide-react'
 import { get, post } from '../../api/client'
 import type { AppNotification } from '../../types'
+import { PageLoader } from '../../components/PageLoader'
 import './styles/notifications.css'
 
 export default function NotificationsPage() {
@@ -27,7 +28,7 @@ export default function NotificationsPage() {
     setItems((prev) => prev.map((n) => n.id === id ? { ...n, is_read: true } : n))
   }
 
-  if (loading) return <div className="page-loader">Завантаження…</div>
+  if (loading) return <PageLoader />
 
   const unread = items.filter((n) => !n.is_read).length
 

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Plus, Globe, ChevronRight, Copy, Check } from 'lucide-react'
 import { get } from '../../api/client'
 import type { Site } from '../../types'
+import { PageLoader } from '../../components/PageLoader'
 import './styles/sites.css'
 
 interface SitesResponse {
@@ -40,7 +41,7 @@ export default function SitesPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  if (loading) return <div className="page-loader">Завантаження…</div>
+  if (loading) return <PageLoader />
 
   const isAtLimit = limits ? limits.used >= limits.max : false
 
