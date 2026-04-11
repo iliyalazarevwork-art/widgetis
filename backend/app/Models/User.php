@@ -160,4 +160,12 @@ class User extends Authenticatable implements JWTSubject, FilamentUser
     {
         return $this->hasMany(AppNotification::class);
     }
+
+    /**
+     * @return HasMany<UserWidgetGrant, $this>
+     */
+    public function widgetGrants(): HasMany
+    {
+        return $this->hasMany(UserWidgetGrant::class);
+    }
 }

@@ -9,6 +9,7 @@ import {
 import { get, put } from '../../api/client'
 import { toast } from 'sonner'
 import type { DashboardData, Site, SiteDetail, SiteWidget, WidgetAccess } from '../../types'
+import { PageLoader } from '../../components/PageLoader'
 import './styles/configure.css'
 
 type LucideComp = React.ComponentType<{ size?: number; color?: string }>
@@ -144,7 +145,7 @@ export default function ConfigureWidgetPage() {
     }
   }
 
-  if (loading) return <div className="page-loader">Завантаження…</div>
+  if (loading) return <PageLoader />
 
   if (sites.length === 0) {
     return (
