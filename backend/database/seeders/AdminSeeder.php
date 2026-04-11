@@ -8,19 +8,21 @@ use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class AdminSeeder extends Seeder
 {
     public function run(): void
     {
-        $email = config('app.admin_email');
-        $password = config('app.admin_password');
+        $configuredEmail = config('app.admin_email');
+        $email = is_string($configuredEmail) && trim($configuredEmail) !== ''
+            ? trim($configuredEmail)
+            : 'admin@widgetis.com';
 
-        if (!is_string($email) || trim($email) === '' || !is_string($password) || trim($password) === '') {
-            $this->command?->warn('AdminSeeder skipped: set FILAMENT_ADMIN_EMAIL and FILAMENT_ADMIN_PASSWORD first.');
-
-            return;
-        }
+        $configuredPassword = config('app.admin_password');
+        $password = is_string($configuredPassword) && trim($configuredPassword) !== ''
+            ? $configuredPassword
+            : Str::random(32);
 
         $admin = User::updateOrCreate(
             ['email' => $email],
@@ -32,6 +34,12 @@ class AdminSeeder extends Seeder
             ],
         );
 
-        $admin->assignRole(UserRole::Admin->value);
+        $admin->syncRoles([UserRole::Admin->value]);
+
+        if (!is_string($configuredPassword) || trim($configuredPassword) === '') {
+            $this->command?->warn(
+                'FILAMENT_ADMIN_PASSWORD is not set. Admin user was created with a random password; OTP login still works for admin role.',
+            );
+        }
     }
 }

@@ -12,6 +12,7 @@ class ProductionBootstrapSeeder extends Seeder
     {
         $this->call([
             RoleSeeder::class,
+            AdminSeeder::class,
             PlanSeeder::class,
             WidgetTagSeeder::class,
             ProductSeeder::class,

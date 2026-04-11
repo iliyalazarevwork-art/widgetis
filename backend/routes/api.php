@@ -50,7 +50,6 @@ Route::prefix('v1')->group(function () {
     // --- Demo sessions (public) ---
     Route::get('demo-sessions/{code}', [DemoSessionController::class, 'show'])->middleware('throttle:30,1');
     Route::post('demo-sessions', [DemoSessionController::class, 'store'])->middleware('throttle:10,1');
-    Route::post('demo-build', [DemoSessionController::class, 'build'])->middleware('throttle:20,1');
 
     // --- Auth (public) ---
     Route::prefix('auth')->group(function () {

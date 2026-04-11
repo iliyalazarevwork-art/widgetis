@@ -349,6 +349,27 @@
 }
 
 
+.header__drawer-link--logout {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.header__drawer-link--logout:hover,
+.header__drawer-link--logout:active {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.header__drawer-link--logout .header__drawer-link-icon {
+  color: #ef4444;
+  opacity: 0.7;
+}
+
 .header__drawer-divider {
   height: 20px;
 }

@@ -93,7 +93,11 @@ export async function buildModules(request: BuildRequest): Promise<string> {
     root: resolve(process.cwd()),
     resolve: { alias: moduleAliases },
     plugins: [
-      widgetalityPlugin({ site: 'widget-builder', modules: request.modules }),
+      widgetalityPlugin({
+        site: 'widget-builder',
+        modules: request.modules,
+        master: request.master === true,
+      }),
       {
         name: 'resolve-workspace-deps',
         resolveId(id) {

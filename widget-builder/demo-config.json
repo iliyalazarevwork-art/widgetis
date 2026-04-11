@@ -1,0 +1,42 @@
+{
+  "$comment": "Hand-editable config for the public demo bundle. Edit this file, then run `task build:demo` to regenerate services/site-proxy/public/demo-bundle.js. Only modules that are platform-agnostic belong here — others (cart-goal, min-order, one-plus-one, social-proof, product-video-preview) depend on specific DOM/JS conventions (e.g. Horoshop) and won't render on an arbitrary shop.",
+  "modules": {
+    "module-marquee": {
+      "config": {
+        "enabled": true,
+        "speed": 80,
+        "height": 36,
+        "isFixed": true,
+        "mode": "shift",
+        "ttlHours": 24,
+        "colors": {
+          "desktop": {
+            "backgroundColor": "#1e1b4b",
+            "textColor": "#e0e7ff"
+          },
+          "mobile": {
+            "backgroundColor": "#1e1b4b",
+            "textColor": "#e0e7ff"
+          }
+        }
+      },
+      "i18n": {
+        "ua": [
+          "АКЦIЯ — безкоштовна доставка від 1000 грн",
+          "Офіційний магазин",
+          "Доставка по всій Україні"
+        ],
+        "ru": [
+          "АКЦИЯ — бесплатная доставка от 1000 грн",
+          "Официальный магазин",
+          "Доставка по всей Украине"
+        ],
+        "en": [
+          "SALE — free shipping from 1000 UAH",
+          "Official store",
+          "Shipping across Ukraine"
+        ]
+      }
+    }
+  }
+}

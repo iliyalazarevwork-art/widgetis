@@ -3,9 +3,14 @@ import https from 'node:https';
 import http from 'node:http';
 import { randomBytes } from 'node:crypto';
 import { createGunzip, createBrotliDecompress, createInflate } from 'node:zlib';
+import { statSync, readFileSync } from 'node:fs';
+import { resolve as resolvePath } from 'node:path';
 
 // ── Config ──────────────────────────────────────────────────────────
 const PORT = Number(process.env.PORT) || 3100;
+const DEMO_BUNDLE_PATH = resolvePath(
+  process.env.DEMO_BUNDLE_PATH || './public/demo-bundle.js',
+);
 const VISITOR_COOKIE = 'wgts_pv';
 const VISITOR_TTL_MS = 60 * 60 * 1000;          // 1h
 const HTML_TTL_MS = 60 * 1000;                   // 60s
@@ -247,6 +252,13 @@ function rewriteHtml(html, domain) {
 
   html = html.replace(/<base[^>]*>/gi, '');
 
+  // Strip in-HTML security headers that could block our inline demo bundle
+  // or prevent rendering inside the preview iframe.
+  html = html.replace(
+    /<meta[^>]+http-equiv\s*=\s*["']?(?:content-security-policy|x-frame-options)["']?[^>]*>/gi,
+    '',
+  );
+
   const absRe = new RegExp(`https?://${escaped}(/|(?=["'\`\\s>]))`, 'gi');
   html = html.replace(absRe, (_m, slash) => (slash === '/' ? `${prefix}/` : prefix));
 
@@ -272,6 +284,49 @@ function rewriteHtml(html, domain) {
 function rewriteTextAsset(body, domain) {
   const prefix = `/site/${domain}`;
   return body.replace(/(url\(\s*['"]?)\/(?!\/)/gi, `$1${prefix}/`);
+}
+
+// ── Demo bundle loader (mtime-cached) ──────────────────────────────
+let demoBundleCache = { mtimeMs: 0, code: '', missingLogged: false };
+
+function loadDemoBundle() {
+  try {
+    const stat = statSync(DEMO_BUNDLE_PATH);
+    if (stat.mtimeMs !== demoBundleCache.mtimeMs) {
+      const code = readFileSync(DEMO_BUNDLE_PATH, 'utf-8');
+      demoBundleCache = { mtimeMs: stat.mtimeMs, code, missingLogged: false };
+      console.log(`[site-proxy] loaded demo bundle (${code.length} bytes) from ${DEMO_BUNDLE_PATH}`);
+    }
+    return demoBundleCache.code;
+  } catch (err) {
+    if (!demoBundleCache.missingLogged) {
+      console.warn(`[site-proxy] demo bundle not found at ${DEMO_BUNDLE_PATH}: ${err.message}`);
+      demoBundleCache.missingLogged = true;
+    }
+    demoBundleCache.code = '';
+    demoBundleCache.mtimeMs = 0;
+    return '';
+  }
+}
+
+function injectDemoBundle(html) {
+  const code = loadDemoBundle();
+  if (!code) return html;
+  // Inline script — no external request, no source map, impossible to fetch
+  // the raw file via DevTools Network tab. The closing </script> inside the
+  // bundle would break parsing, so escape it defensively.
+  const safe = code.replace(/<\/script/gi, '<\\/script');
+  const tag = `<script data-widgetis-demo>${safe}</script>`;
+  // IMPORTANT: inject before the LAST </body>, not the first. Some sites
+  // contain the literal string "</body>" inside an inline script body (e.g.
+  // as part of a template string), and a naive first-match replace would
+  // splice our bundle into the middle of that script, breaking its syntax
+  // and preventing execution of anything after — including our own bundle.
+  const lastBodyClose = html.toLowerCase().lastIndexOf('</body>');
+  if (lastBodyClose !== -1) {
+    return html.slice(0, lastBodyClose) + tag + html.slice(lastBodyClose);
+  }
+  return html + tag;
 }
 
 function injectRuntimeScript(html, domain) {
@@ -515,13 +570,17 @@ async function proxyTo(req, res, visitor, visitorId, setVisitorCookie, domain, t
     return;
   }
 
-  // Process body
+  // Process body. HTML is cached WITHOUT the demo bundle — the bundle is
+  // injected on every send (cheap string.replace) so a fresh build is
+  // picked up immediately without any cache invalidation dance.
   let outBody;
+  let injectDemoOnSend = false;
   if (ctLower.includes('text/html')) {
     let html = result.buffer.toString('utf-8');
     html = rewriteHtml(html, domain);
     html = injectRuntimeScript(html, domain);
     outBody = Buffer.from(html, 'utf-8');
+    injectDemoOnSend = true;
   } else if (ctLower.includes('text/css') || ctLower.includes('javascript')) {
     const text = result.buffer.toString('utf-8');
     outBody = Buffer.from(rewriteTextAsset(text, domain), 'utf-8');
@@ -556,8 +615,12 @@ async function proxyTo(req, res, visitor, visitorId, setVisitorCookie, domain, t
   }
   attachVisitorCookie(outHeaders, visitorId, setVisitorCookie);
 
+  const finalBody = injectDemoOnSend
+    ? Buffer.from(injectDemoBundle(outBody.toString('utf-8')), 'utf-8')
+    : outBody;
+
   res.writeHead(result.statusCode, outHeaders);
-  res.end(outBody);
+  res.end(finalBody);
 }
 
 function sendCachedResponse(res, hit, visitorId, setVisitorCookie) {
@@ -568,8 +631,14 @@ function sendCachedResponse(res, hit, visitorId, setVisitorCookie) {
     'X-Proxy-Cache': 'HIT',
   };
   attachVisitorCookie(outHeaders, visitorId, setVisitorCookie);
+
+  let body = hit.body;
+  if (hit.contentType.toLowerCase().includes('text/html')) {
+    body = Buffer.from(injectDemoBundle(body.toString('utf-8')), 'utf-8');
+  }
+
   res.writeHead(200, outHeaders);
-  res.end(hit.body);
+  res.end(body);
 }
 
 function attachVisitorCookie(outHeaders, visitorId, force) {

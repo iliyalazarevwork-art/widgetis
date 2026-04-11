@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { X, UserRound, ArrowRight, Puzzle, CreditCard, Briefcase, Mail } from 'lucide-react'
+import { X, UserRound, ArrowRight, Puzzle, CreditCard, Briefcase, Mail, LogOut } from 'lucide-react'
 import { useSwipeDismiss } from '../hooks/useSwipeDismiss'
 import { SocialIcon } from './SocialIcon'
 import { HamburgerIcon } from './HamburgerIcon'
@@ -28,7 +28,7 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
   const onHome = location.pathname === '/'
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, logout } = useAuth()
   const settings = useSettings()
 
   // Build contacts from backend settings
@@ -51,6 +51,12 @@ export function Header() {
 
   const navigate = useNavigate()
   const closeMenu = useCallback(() => setMenuOpen(false), [])
+
+  const handleLogout = useCallback(async () => {
+    closeMenu()
+    await logout()
+    window.location.href = '/login'
+  }, [logout, closeMenu])
 
   const scrollToDemo = useCallback(() => {
     closeMenu()
@@ -165,6 +171,16 @@ export function Header() {
                   <ArrowRight size={18} strokeWidth={2.5} className="header__drawer-link-arrow" />
                 </Link>
               ))}
+              {isAuthenticated && (
+                <button
+                  type="button"
+                  className="header__drawer-link header__drawer-link--logout"
+                  onClick={handleLogout}
+                >
+                  <LogOut size={18} className="header__drawer-link-icon" />
+                  Вийти
+                </button>
+              )}
             </div>
 
             <div className="header__drawer-divider" />
