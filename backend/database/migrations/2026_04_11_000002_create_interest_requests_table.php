@@ -23,6 +23,7 @@ return new class () extends Migration {
             $table->index(['interestable_type', 'interestable_id']);
         });
 
+        // Partial unique indexes — supported by both PostgreSQL and SQLite.
         DB::statement(
             'CREATE UNIQUE INDEX interest_requests_user_unique ON interest_requests (user_id, interestable_type, interestable_id) WHERE user_id IS NOT NULL',
         );
@@ -31,14 +32,20 @@ return new class () extends Migration {
             'CREATE UNIQUE INDEX interest_requests_anon_unique ON interest_requests (anonymous_id, interestable_type, interestable_id) WHERE anonymous_id IS NOT NULL',
         );
 
-        DB::statement(
-            'ALTER TABLE interest_requests ADD CONSTRAINT interest_requests_owner_check CHECK ((user_id IS NOT NULL AND anonymous_id IS NULL) OR (user_id IS NULL AND anonymous_id IS NOT NULL))',
-        );
+        // XOR check constraint — PostgreSQL only (prod). SQLite (tests) skips it;
+        // the invariant is also enforced at the service layer (InterestRequestService).
+        if (DB::connection()->getDriverName() === 'pgsql') {
+            DB::statement(
+                'ALTER TABLE interest_requests ADD CONSTRAINT interest_requests_owner_check CHECK ((user_id IS NOT NULL AND anonymous_id IS NULL) OR (user_id IS NULL AND anonymous_id IS NOT NULL))',
+            );
+        }
     }
 
     public function down(): void
     {
-        DB::statement('ALTER TABLE interest_requests DROP CONSTRAINT IF EXISTS interest_requests_owner_check');
+        if (DB::connection()->getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE interest_requests DROP CONSTRAINT IF EXISTS interest_requests_owner_check');
+        }
         DB::statement('DROP INDEX IF EXISTS interest_requests_user_unique');
         DB::statement('DROP INDEX IF EXISTS interest_requests_anon_unique');
         Schema::dropIfExists('interest_requests');
