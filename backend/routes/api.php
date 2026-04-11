@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\V1\Public\CaseController;
 use App\Http\Controllers\Api\V1\Public\ConsultationController;
 use App\Http\Controllers\Api\V1\Public\DemoSessionController;
 use App\Http\Controllers\Api\V1\Public\FaqController;
+use App\Http\Controllers\Api\V1\Public\LeadRequestController;
 use App\Http\Controllers\Api\V1\Public\ManagerRequestController;
 use App\Http\Controllers\Api\V1\Public\PlanController;
 use App\Http\Controllers\Api\V1\Public\ProductController;
@@ -44,6 +45,7 @@ Route::prefix('v1')->group(function () {
     Route::get('faq', [FaqController::class, 'index']);
     Route::post('consultations', [ConsultationController::class, 'store'])->middleware('throttle:3,60');
     Route::post('manager-requests', [ManagerRequestController::class, 'store'])->middleware('throttle:3,60');
+    Route::post('lead-requests', [LeadRequestController::class, 'store'])->middleware('throttle:5,1');
 
     // --- Demo sessions (public) ---
     Route::get('demo-sessions/{code}', [DemoSessionController::class, 'show'])->middleware('throttle:30,1');

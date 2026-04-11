@@ -1,0 +1,32 @@
+.interest-modal__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: rgba(168, 85, 247, 0.12);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  color: #A855F7;
+  margin: 0 auto 16px;
+}
+
+.interest-modal .consult-modal__title {
+  text-align: center;
+}
+
+.interest-modal .consult-modal__subtitle {
+  text-align: center;
+}
+
+.interest-modal__submit {
+  background: linear-gradient(135deg, #A855F7, #9333EA) !important;
+  border-color: #A855F7 !important;
+  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.35) !important;
+}
+
+.interest-modal__submit:hover:not(:disabled) {
+  background: linear-gradient(135deg, #9333EA, #7E22CE) !important;
+  border-color: #9333EA !important;
+  box-shadow: 0 8px 26px rgba(168, 85, 247, 0.5) !important;
+}

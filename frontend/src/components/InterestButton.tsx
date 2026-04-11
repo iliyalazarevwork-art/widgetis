@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react'
 import { Lock, Check } from 'lucide-react'
 import { toast } from 'sonner'
+import { InterestModal, type InterestTarget } from './InterestModal'
 import './InterestButton.css'
 
-export type InterestTarget = 'plan' | 'widget'
+export type { InterestTarget }
 
 interface InterestButtonProps {
   type: InterestTarget
   id: string | number
   label?: string
   submittedLabel?: string
-  toastMessage?: string
   className?: string
 }
 
@@ -33,10 +33,10 @@ export function InterestButton({
   id,
   label = 'Залишити заявку',
   submittedLabel = 'Заявку надіслано',
-  toastMessage = 'Дякуємо за Вашу думку!',
   className = '',
 }: InterestButtonProps) {
   const [submitted, setSubmitted] = useState(false)
+  const [modalOpen, setModalOpen] = useState(false)
 
   useEffect(() => {
     setSubmitted(isInterestSubmitted(type, id))
@@ -44,34 +44,47 @@ export function InterestButton({
 
   const handleClick = () => {
     if (submitted) return
+    setModalOpen(true)
+  }
+
+  const handleSuccess = () => {
     try {
       localStorage.setItem(storageKey(type, id), new Date().toISOString())
     } catch {
-      // localStorage may be unavailable (incognito, quota) — still show feedback
+      // localStorage may be unavailable (incognito, quota) — still flip state
     }
     setSubmitted(true)
-    toast.success(toastMessage)
+    toast.success("Дякуємо! Ми зв'яжемося з Вами протягом дня.")
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      disabled={submitted}
-      className={`interest-btn ${submitted ? 'interest-btn--submitted' : ''} ${className}`.trim()}
-      aria-label={submitted ? submittedLabel : label}
-    >
-      {submitted ? (
-        <>
-          <Check size={16} strokeWidth={2.5} />
-          <span>{submittedLabel}</span>
-        </>
-      ) : (
-        <>
-          <Lock size={15} strokeWidth={2.5} />
-          <span>{label}</span>
-        </>
-      )}
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={submitted}
+        className={`interest-btn ${submitted ? 'interest-btn--submitted' : ''} ${className}`.trim()}
+        aria-label={submitted ? submittedLabel : label}
+      >
+        {submitted ? (
+          <>
+            <Check size={16} strokeWidth={2.5} />
+            <span>{submittedLabel}</span>
+          </>
+        ) : (
+          <>
+            <Lock size={15} strokeWidth={2.5} />
+            <span>{label}</span>
+          </>
+        )}
+      </button>
+      <InterestModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSuccess={handleSuccess}
+        type={type}
+        targetId={id}
+      />
+    </>
   )
 }

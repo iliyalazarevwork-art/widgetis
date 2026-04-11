@@ -9,6 +9,7 @@ enum ManagerRequestType: string
     case InstallHelp = 'install_help';
     case General = 'general';
     case DemoRequest = 'demo_request';
+    case PlanInterest = 'plan_interest';
 
     public function label(): string
     {
@@ -16,6 +17,7 @@ enum ManagerRequestType: string
             self::InstallHelp => 'Installation Help',
             self::General => 'General',
             self::DemoRequest => 'Demo Request',
+            self::PlanInterest => 'Plan Interest Lead',
         };
     }
 }
