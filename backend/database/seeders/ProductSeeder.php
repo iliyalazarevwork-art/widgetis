@@ -14,7 +14,7 @@ class ProductSeeder extends Seeder
         // Remove stale widgets that no longer exist as real builder modules
         Product::whereNotIn('slug', [
             'promo-line',
-            'delivery-day',
+            'delivery-date',
             'freeship-goal',
             'minorder-goal',
             'one-plus-one-deal',
@@ -74,7 +74,7 @@ class ProductSeeder extends Seeder
                 ],
             ],
             [
-                'slug' => 'delivery-day',
+                'slug' => 'delivery-date',
                 'name' => ['en' => 'DeliveryDay', 'uk' => 'Дата доставки'],
                 'description' => ['en' => 'Show expected delivery date on product pages', 'uk' => 'Показує очікувану дату доставки на сторінці товару'],
                 'icon' => 'truck',

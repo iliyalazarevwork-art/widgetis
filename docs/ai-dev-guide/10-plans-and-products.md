@@ -313,7 +313,7 @@ class ProductSeeder extends Seeder
                 'sort_order' => 0,
             ],
             [
-                'slug' => 'delivery-day',
+                'slug' => 'delivery-date',
                 'name' => ['en' => 'DeliveryDay', 'uk' => 'Дата доставки'],
                 'description' => ['en' => 'Show expected delivery date on product pages', 'uk' => 'Показує очікувану дату доставки на сторінці товару'],
                 'icon' => 'truck',

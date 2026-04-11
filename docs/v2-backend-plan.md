@@ -710,7 +710,7 @@ CREATE TABLE site_script_builds (
 ```sql
 CREATE TABLE products (
     id              BIGSERIAL PRIMARY KEY,
-    slug            VARCHAR(100) UNIQUE NOT NULL, -- URL, англійською: "promo-line", "delivery-day"
+    slug            VARCHAR(100) UNIQUE NOT NULL, -- URL, англійською: "promo-line", "delivery-date"
     name            JSONB NOT NULL,              -- {"en": "PromoLine", "uk": "Промо-стрічка"}
     description     JSONB NOT NULL,              -- {"en": "...", "uk": "..."}
     long_description JSONB NULL,                 -- розгорнутий опис

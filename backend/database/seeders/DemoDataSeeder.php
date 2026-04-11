@@ -313,7 +313,7 @@ class DemoDataSeeder extends Seeder
         }
 
         $promoLine = $products->get('promo-line');
-        $deliveryDay = $products->get('delivery-day');
+        $deliveryDay = $products->get('delivery-date');
         $buyerCount = $products->get('buyer-count');
 
         if ($promoLine && $deliveryDay && $buyerCount) {

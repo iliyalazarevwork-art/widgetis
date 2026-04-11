@@ -13,7 +13,7 @@ class ProductPlanAccessSeeder extends Seeder
     public function run(): void
     {
         $basicSlugs = ['promo-line', 'freeship-goal', 'minorder-goal', 'buyer-count'];
-        $proSlugs = ['promo-line', 'freeship-goal', 'minorder-goal', 'buyer-count', 'delivery-day', 'one-plus-one-deal', 'video-preview'];
+        $proSlugs = ['promo-line', 'freeship-goal', 'minorder-goal', 'buyer-count', 'delivery-date', 'one-plus-one-deal', 'video-preview'];
         $maxSlugs = $proSlugs;
 
         $getIds = fn (array $slugs): array => Product::whereIn('slug', $slugs)->pluck('id')->toArray();
