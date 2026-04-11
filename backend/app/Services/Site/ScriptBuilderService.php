@@ -19,7 +19,7 @@ class ScriptBuilderService
      * Flow:
      *   1. Collect all enabled widgets with their config + i18n
      *   2. Call widget-builder service → returns obfuscated JS
-     *   3. Upload to R2: sites/{domain}/bundle.js
+     *   3. Upload to R2: sites/{domain}/{token}.js (token is an unguessable 5-char random)
      *   4. Create SiteScriptBuild record
      */
     public function build(Site $site): SiteScriptBuild
@@ -101,7 +101,8 @@ class ScriptBuilderService
 
         $js = $this->buildJsFromModules($site, $modules, $obfuscate);
         $hash = md5($js);
-        $path = "sites/{$site->domain}/bundle.js";
+        $slug = substr($script->token, 0, 5);
+        $path = "sites/{$site->domain}/{$slug}.js";
 
         Storage::disk('r2')->put($path, $js, [
             'ContentType' => 'application/javascript',

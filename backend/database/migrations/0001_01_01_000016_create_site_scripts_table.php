@@ -12,7 +12,7 @@ return new class () extends Migration {
         Schema::create('site_scripts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('site_id')->constrained()->cascadeOnDelete();
-            $table->string('token', 64)->unique();
+            $table->string('token', 5)->unique();
             $table->boolean('is_active')->default(false);
             $table->timestamps();
             $table->unique('site_id');

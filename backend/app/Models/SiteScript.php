@@ -47,7 +47,7 @@ class SiteScript extends Model
 
     public static function generateToken(): string
     {
-        return Str::random(64);
+        return Str::random(5);
     }
 
     public function getScriptTagAttribute(): ?string

@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\V1\Profile;
 use App\Http\Controllers\Api\V1\BaseController;
 use App\Models\ManagerRequest;
 use App\Models\Product;
+use App\Services\User\UserDeletionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -54,10 +55,13 @@ class ProfileController extends BaseController
         return $this->show();
     }
 
-    public function destroy(): JsonResponse
+    public function destroy(UserDeletionService $userDeletionService): JsonResponse
     {
-        $this->currentUser()->delete();
+        $user = $this->currentUser();
+
         auth('api')->logout();
+
+        $userDeletionService->delete($user);
 
         return $this->noContent();
     }

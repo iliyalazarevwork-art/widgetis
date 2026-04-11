@@ -27,7 +27,6 @@ return new class () extends Migration {
             $table->string('two_factor_method', 20)->default('email');
             $table->boolean('notification_enabled')->default(true);
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

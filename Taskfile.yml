@@ -158,6 +158,11 @@ tasks:
     cmds:
       - bash deploy.sh
 
+  d:
+    desc: "Алиас: task d -> task deploy"
+    cmds:
+      - task: deploy
+
   deploy:fast:
     desc: "Деплой без пересборки образов  ·  task deploy:fast"
     cmds:

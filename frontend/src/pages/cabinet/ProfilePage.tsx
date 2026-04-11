@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ArrowLeft, User, Mail, Phone, Send, Building2, LogOut, Trash2, ChevronRight, Crown } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
-import { get, post, put, setToken } from '../../api/client'
+import { del, get, post, put, setToken } from '../../api/client'
 import { toast } from 'sonner'
 import type { User as UserType, Subscription } from '../../types'
 import './styles/profile.css'
@@ -126,6 +126,22 @@ export default function ProfilePage() {
     navigate('/login')
   }
 
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm(
+      'Видалити акаунт назавжди? Усі сайти, скрипти та дані будуть безповоротно видалені.',
+    )
+    if (!confirmed) return
+
+    try {
+      await del('/profile')
+      setToken(null)
+      toast.success('Акаунт видалено')
+      navigate('/login')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Не вдалося видалити акаунт')
+    }
+  }
+
   if (loading) return <div className="page-loader">Завантаження…</div>
 
   const initials = getInitials(form.name || user?.name, user?.email || '')
@@ -241,7 +257,7 @@ export default function ProfilePage() {
           <ChevronRight size={16} className="prof-sec-row__chevron" />
         </button>
 
-        <button className="prof-del-row">
+        <button className="prof-del-row" onClick={handleDeleteAccount}>
           <div className="prof-sec-row__left">
             <Trash2 size={18} className="prof-sec-row__icon--delete" />
             <span className="prof-sec-row__title prof-sec-row__title--delete">Видалити акаунт</span>
