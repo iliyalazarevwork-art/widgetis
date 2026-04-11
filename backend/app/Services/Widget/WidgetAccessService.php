@@ -71,7 +71,7 @@ class WidgetAccessService
         $ids = array_values(array_unique([...$planProductIds, ...$grantedProductIds]));
 
         if ($ids === []) {
-            return Product::query()->whereRaw('1 = 0')->get();
+            return new Collection();
         }
 
         return Product::query()

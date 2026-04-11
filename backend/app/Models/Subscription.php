@@ -69,18 +69,12 @@ class Subscription extends Model
      */
     public function scopeActive(Builder $query): Builder
     {
-        return $query->whereIn('status', [
-            SubscriptionStatus::Active,
-            SubscriptionStatus::Trial,
-        ]);
+        return $query->whereIn('status', SubscriptionStatus::accessGranting());
     }
 
     public function isActive(): bool
     {
-        return in_array($this->status, [
-            SubscriptionStatus::Active,
-            SubscriptionStatus::Trial,
-        ]);
+        return in_array($this->status, SubscriptionStatus::accessGranting(), true);
     }
 
     public function isTrial(): bool

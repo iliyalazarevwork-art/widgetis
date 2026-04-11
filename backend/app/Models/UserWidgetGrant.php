@@ -18,7 +18,6 @@ class UserWidgetGrant extends Model
     protected $fillable = [
         'user_id',
         'product_id',
-        'granted_by_admin_id',
         'reason',
         'expires_at',
     ];
@@ -59,7 +58,7 @@ class UserWidgetGrant extends Model
 
     public function isActive(): bool
     {
-        return $this->expires_at === null || $this->expires_at->isFuture();
+        return $this->expires_at === null || $this->expires_at->gt(now());
     }
 
     /**

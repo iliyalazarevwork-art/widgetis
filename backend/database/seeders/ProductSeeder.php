@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Enums\ProductAvailability;
+use App\Enums\ProductStatus;
 use App\Models\Product;
 use Illuminate\Database\Seeder;
 
@@ -258,8 +260,8 @@ class ProductSeeder extends Seeder
                 ['slug' => $data['slug']],
                 array_merge([
                     'platform' => 'horoshop',
-                    'status' => 'active',
-                    'availability' => 'available',
+                    'status' => ProductStatus::Active->value,
+                    'availability' => ProductAvailability::Available->value,
                     'is_popular' => false,
                     'is_new' => false,
                 ], $data),

@@ -235,6 +235,34 @@ class WidgetAccessServiceTest extends TestCase
         );
     }
 
+    public function test_access_state_for_archived_product_is_archived(): void
+    {
+        $user = User::factory()->create();
+        $product = $this->makeProduct(['availability' => ProductAvailability::Archived]);
+
+        $this->assertSame(
+            ProductAccessState::Archived,
+            $this->service->getAccessState($user, $product),
+        );
+    }
+
+    public function test_accessible_products_excludes_expired_grants(): void
+    {
+        $user = User::factory()->create();
+        $product = $this->makeProduct();
+
+        UserWidgetGrant::create([
+            'user_id' => $user->id,
+            'product_id' => $product->id,
+            'reason' => 'Expired grant',
+            'expires_at' => now()->subDay(),
+        ]);
+
+        $accessible = $this->service->accessibleProducts($user);
+
+        $this->assertCount(0, $accessible);
+    }
+
     public function test_access_state_for_user_with_plan_is_available(): void
     {
         $user = User::factory()->create();
