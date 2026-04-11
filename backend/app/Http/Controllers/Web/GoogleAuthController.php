@@ -23,9 +23,21 @@ class GoogleAuthController extends Controller
         return Socialite::driver('google')->stateless()->redirect();
     }
 
-    public function callback(): RedirectResponse
+    public function callback(\Illuminate\Http\Request $request): RedirectResponse
     {
         $frontendUrl = (string) config('app.frontend_url');
+
+        $code = (string) $request->query('code', '');
+        $codeFingerprint = $code === '' ? null : substr(hash('sha256', $code), 0, 12);
+
+        \Illuminate\Support\Facades\Log::channel('auth')->info('Google OAuth callback received', [
+            'ip' => $request->ip(),
+            'user_agent' => (string) $request->userAgent(),
+            'has_code' => $code !== '',
+            'code_fp' => $codeFingerprint,
+            'state' => (string) $request->query('state', ''),
+            'error' => (string) $request->query('error', ''),
+        ]);
 
         try {
             /** @var SocialiteUser $googleUser */
@@ -34,10 +46,20 @@ class GoogleAuthController extends Controller
             \Illuminate\Support\Facades\Log::error('Google OAuth failed', [
                 'message' => $e->getMessage(),
                 'class' => $e::class,
+                'ip' => $request->ip(),
+                'user_agent' => (string) $request->userAgent(),
+                'code_fp' => $codeFingerprint,
             ]);
 
             return redirect($frontendUrl . '/login?error=google_failed');
         }
+
+        \Illuminate\Support\Facades\Log::channel('auth')->info('Google OAuth token exchange succeeded', [
+            'ip' => $request->ip(),
+            'code_fp' => $codeFingerprint,
+            'google_id' => $googleUser->getId(),
+            'email' => $googleUser->getEmail(),
+        ]);
 
         $email = $googleUser->getEmail();
 

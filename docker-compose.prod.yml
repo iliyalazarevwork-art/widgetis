@@ -8,6 +8,10 @@ services:
       - "443:443/udp"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Backend code mounted read-only so Caddy can serve Laravel
+      # static assets (public/) and route PHP requests to php-fpm
+      # via FastCGI. Path must match backend container WORKDIR.
+      - ./backend:/var/www/html:ro
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
@@ -30,12 +34,14 @@ services:
     networks:
       - widgetis
 
-  # ── Backend API ────────────────────────────────────────────
+  # ── Backend API (php-fpm, fronted by Caddy via FastCGI) ──
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    command: ["sh", "-c", "php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan serve --host=0.0.0.0 --port=8000"]
+    command: ["sh", "-c", "php artisan config:cache && php artisan route:cache && php artisan view:cache && exec php-fpm -F"]
+    expose:
+      - "9000"
     env_file:
       - ./backend/.env
     depends_on:

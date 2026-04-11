@@ -6,62 +6,17 @@ widgetis.com, www.widgetis.com {
         max_size 20MB
     }
 
-    # ── Backend: API ──────────────────────────────────────────
-    handle /api/* {
-        reverse_proxy backend:8000 {
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-        }
+    # ── Backend (Laravel via php-fpm over FastCGI) ──────────
+    # Production backend runs php-fpm in the `backend` container
+    # and Caddy serves static files from /var/www/html/public
+    # (mounted read-only from host ./backend via docker-compose).
+    @backend {
+        path /api/* /auth/* /liqpay/* /manage* /livewire/* /css/filament/* /js/filament/*
     }
-
-    # ── Backend: Google OAuth & LiqPay ───────────────────────
-    handle /auth/* {
-        reverse_proxy backend:8000 {
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-        }
-    }
-    handle /liqpay/* {
-        reverse_proxy backend:8000 {
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-        }
-    }
-
-    # ── Filament Admin Panel (at /manage) ────────────────────
-    # React SPA occupies /admin; Filament is served at /manage
-    handle /manage* {
-        reverse_proxy backend:8000 {
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Host {host}
-            header_up X-Forwarded-Proto {scheme}
-        }
-    }
-    # Filament static assets (CSS/JS/Livewire)
-    handle /livewire/* {
-        reverse_proxy backend:8000 {
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Host {host}
-            header_up X-Forwarded-Proto {scheme}
-        }
-    }
-    handle /css/filament/* {
-        reverse_proxy backend:8000 {
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Host {host}
-            header_up X-Forwarded-Proto {scheme}
-        }
-    }
-    handle /js/filament/* {
-        reverse_proxy backend:8000 {
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Host {host}
-            header_up X-Forwarded-Proto {scheme}
-        }
+    handle @backend {
+        root * /var/www/html/public
+        php_fastcgi backend:9000
+        file_server
     }
 
     # ── Live-demo site proxy (Node service, not Laravel) ─────
