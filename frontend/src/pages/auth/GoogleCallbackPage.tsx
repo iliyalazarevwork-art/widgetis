@@ -1,10 +1,12 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { setToken, get } from '../../api/client'
+import { useAuth } from '../../context/AuthContext'
 import type { User } from '../../types'
 
 export default function GoogleCallbackPage() {
   const navigate = useNavigate()
+  const { login } = useAuth()
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -21,6 +23,7 @@ export default function GoogleCallbackPage() {
     sessionStorage.removeItem('google_return_to')
     get<{ data: User }>('/auth/user')
       .then((res) => {
+        login(token, res.data)
         if (returnTo) {
           navigate(returnTo, { replace: true })
         } else {
@@ -28,9 +31,10 @@ export default function GoogleCallbackPage() {
         }
       })
       .catch(() => {
-        navigate(returnTo ?? '/cabinet', { replace: true })
+        setToken(null)
+        navigate('/login?error=google_failed', { replace: true })
       })
-  }, [navigate])
+  }, [navigate, login])
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
