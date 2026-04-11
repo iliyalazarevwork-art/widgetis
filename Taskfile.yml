@@ -54,9 +54,36 @@ tasks:
       - '{{.EXEC}} ./vendor/bin/phpstan analyse --memory-limit=512M'
 
   test:
-    desc: "Запуск тестов  ·  task test -- --filter=UserTest"
+    desc: "Backend phpunit  ·  task test -- --filter=UserTest"
     cmds:
       - '{{.EXEC}} php artisan test {{.CLI_ARGS}}'
+
+  test:front:
+    desc: "Frontend vitest"
+    dir: frontend
+    cmds:
+      - npm test
+
+  test:e2e:
+    desc: "Frontend Playwright e2e (локально)"
+    dir: frontend
+    cmds:
+      - npm run e2e
+
+  test:smoke:prod:
+    desc: "Прод-смоук Playwright против https://widgetis.com (после деплоя)"
+    dir: frontend
+    cmds:
+      - E2E_BASE_URL=https://widgetis.com npm run e2e
+
+  test:all:
+    desc: "Полный прогон: pint + stan + backend phpunit + frontend vitest + локальный e2e"
+    cmds:
+      - task: pint
+      - task: stan
+      - task: test
+      - task: test:front
+      - task: test:e2e
 
   check:
     desc: "Полная проверка — pint + stan + tests  ·  task check"
@@ -126,6 +153,23 @@ tasks:
     cmds:
       - '{{.EXEC}} sh'
 
+  # ── Demo Bundle ────────────────────────────────────────
+  build:demo:
+    desc: "Собрать обфусцированный demo-bundle.js из widget-builder/demo-config.json  ·  task build:demo"
+    cmds:
+      - mkdir -p services/site-proxy/public
+      # `run --rm` — каждый билд в свежем эфемерном контейнере с актуальной
+      # compose-конфигурацией (volume-mounts из docker-compose.dev.yml).
+      # Не зависит от состояния работающего widget-builder.
+      - '{{.DC}} run --rm --no-deps -T widget-builder jiti build-demo.ts > services/site-proxy/public/demo-bundle.js'
+      - |
+        if [ ! -s services/site-proxy/public/demo-bundle.js ]; then
+          echo "❌ demo-bundle.js is empty — build failed"
+          rm -f services/site-proxy/public/demo-bundle.js
+          exit 1
+        fi
+      - echo "✅ demo-bundle.js written ($(wc -c < services/site-proxy/public/demo-bundle.js) bytes)"
+
   # ── Frontend ───────────────────────────────────────────
   front:dev:
     desc: "Запустить Vite dev server  ·  task front:dev"
@@ -158,10 +202,16 @@ tasks:
       - '{{.EXEC}} php artisan optimize:clear'
 
   # ── Deploy ─────────────────────────────────────────────
+  # Поток деплоя:
+  #   1. test:all      — гейт (pint+stan+phpunit+vitest+local e2e). Падает → нет деплоя.
+  #   2. bash deploy.sh — собственно деплой.
+  #   3. test:smoke:prod — прод-смоук против https://widgetis.com. Падает → шумим.
   deploy:
-    desc: "Задеплоить на прод  ·  task deploy"
+    desc: "Задеплоить на прод (тесты до и после)  ·  task deploy"
     cmds:
+      - task: test:all
       - bash deploy.sh
+      - task: test:smoke:prod
 
   d:
     desc: "Алиас: task d -> task deploy"
@@ -169,14 +219,23 @@ tasks:
       - task: deploy
 
   deploy:fast:
-    desc: "Деплой без пересборки образов  ·  task deploy:fast"
+    desc: "Быстрый деплой без пересборки образов (тесты до и после)  ·  task deploy:fast"
     cmds:
+      - task: test:all
       - bash deploy.sh --skip-build
+      - task: test:smoke:prod
 
   deploy:seed-base:
     desc: "Деплой + безопасные прод-сидеры (без демо/админа)  ·  task deploy:seed-base"
     cmds:
+      - task: test:all
       - bash deploy.sh --seed-base
+      - task: test:smoke:prod
+
+  deploy:nocheck:
+    desc: "Аварийный деплой без тестов (использовать только для срочных хотфиксов)  ·  task deploy:nocheck"
+    cmds:
+      - bash deploy.sh
 
   # ── Продакшен ──────────────────────────────────────────
   prod:up:
