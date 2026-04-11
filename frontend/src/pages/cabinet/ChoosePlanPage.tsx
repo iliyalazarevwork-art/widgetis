@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { Check, ArrowLeft, ChevronDown, Sprout, Zap, Crown, type LucideIcon } from 'lucide-react'
+import { Check, ChevronDown, Sprout, Zap, Crown, type LucideIcon } from 'lucide-react'
 import { get, post } from '../../api/client'
 import { useAuth } from '../../context/AuthContext'
 import { Header } from '../../components/Header'
 import { Footer } from '../../components/Footer'
+import { BackButton } from '../../components/BackButton'
 import { toast } from 'sonner'
 import type { Plan, Subscription } from '../../types'
 import './styles/choose-plan.css'
@@ -196,11 +197,10 @@ export default function ChoosePlanPage() {
     <>
     <Header />
     <div className="choose-plan">
+      <div className="choose-plan__back-row">
+        <BackButton to={sub ? '/cabinet/plan' : '/'} label="Назад" />
+      </div>
       <div className="choose-plan__hero">
-        <button className="choose-plan__back" onClick={() => navigate(sub ? '/cabinet/plan' : '/')}>
-          <ArrowLeft size={14} />
-          <span>Назад</span>
-        </button>
         <h1 className="choose-plan__title">
           {sub ? 'Підвищити план' : 'Обери свій план'}
         </h1>
