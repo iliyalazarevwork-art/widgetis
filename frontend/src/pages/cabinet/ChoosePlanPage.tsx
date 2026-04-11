@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { Check, ChevronDown, Sprout, Zap, Crown, type LucideIcon } from 'lucide-react'
+import { ChevronDown, Sprout, Zap, Crown, type LucideIcon } from 'lucide-react'
 import { get, post } from '../../api/client'
 import { useAuth } from '../../context/AuthContext'
 import { Header } from '../../components/Header'
 import { Footer } from '../../components/Footer'
 import { InterestButton } from '../../components/InterestButton'
+import { PlanCard, type PlanCardFeature } from '../../components/PlanCard'
 import { toast } from 'sonner'
 import type { Plan, Subscription } from '../../types'
 import { PageLoader } from '../../components/PageLoader'
@@ -21,12 +22,6 @@ interface PlanFeatureItem {
 
 interface PlanWithFeatures extends Plan {
   feature_list: PlanFeatureItem[]
-}
-
-const PLAN_COLORS: Record<string, string> = {
-  basic: '#10B981',
-  pro: '#3B82F6',
-  max: '#A855F7',
 }
 
 // Default icon per plan slug (matches PricingPage.tsx)
@@ -230,33 +225,30 @@ export default function ChoosePlanPage() {
         </div>
       )}
 
-      <div className="choose-plan__plans">
+      <div className="pricing__plans">
         {visiblePlans.map((plan) => {
-          const color = PLAN_COLORS[plan.slug] ?? '#888'
           const isPro = plan.slug === 'pro'
           const features = (Array.isArray(plan.features) ? null : plan.features) as Record<string, unknown> | null
-          // Use backend icon if set, otherwise fall back to per-slug default (matches PricingPage)
+          // Use backend icon if set, otherwise fall back to per-slug default
           const iconName = features?.icon as string | undefined
           const Icon = (iconName ? PLAN_ICON_MAP[iconName] : null) ?? PLAN_DEFAULT_ICONS[plan.slug] ?? Zap
           const mock = PLAN_MOCK[plan.slug]
-          const pitch = resolveTr(features?.pitch) ?? mock?.pitch ?? null
-          const badge = resolveTr(features?.badge) ?? mock?.badge ?? null
-          const monthlyPrice = plan.price_monthly
-          const yearlyTotal = plan.price_yearly
-          const yearlyMonthly = Math.round(yearlyTotal / 12)
-          const savings = monthlyPrice * 12 - yearlyTotal
+          const pitch = resolveTr(features?.pitch) ?? mock?.pitch ?? ''
+          const badgeText = resolveTr(features?.badge) ?? mock?.badge ?? null
+          const yearlyMonthly = Math.round(plan.price_yearly / 12)
 
-          // Use backend feature_list when available, fall back to PLAN_MOCK
-          const backendWidgets = (plan.feature_list ?? []).filter(f => f.category === 'widgets' && f.value !== false)
-          const backendService = (plan.feature_list ?? []).filter(f => f.category === 'service' && f.value !== false)
-          const widgetFeatures: Array<{ key: string; label: string }> = backendWidgets.length > 0
-            ? backendWidgets.map(f => ({
-                key: f.key,
-                label: f.name,
-              }))
+          // Backend feature_list when available, fall back to PLAN_MOCK
+          const backendWidgets = (plan.feature_list ?? []).filter(
+            (f) => f.category === 'widgets' && f.value !== false,
+          )
+          const backendService = (plan.feature_list ?? []).filter(
+            (f) => f.category === 'service' && f.value !== false,
+          )
+          const widgetFeatures: PlanCardFeature[] = backendWidgets.length > 0
+            ? backendWidgets.map((f) => ({ key: f.key, label: f.name }))
             : (mock?.widgets ?? []).map((w, i) => ({ key: `mock-w-${i}`, label: w }))
-          const serviceFeatures: Array<{ key: string; label: string }> = backendService.length > 0
-            ? backendService.map(f => ({
+          const serviceFeatures: PlanCardFeature[] = backendService.length > 0
+            ? backendService.map((f) => ({
                 key: f.key,
                 label: typeof f.value === 'string' ? `${f.name}: ${f.value}` : f.name,
               }))
@@ -265,113 +257,62 @@ export default function ChoosePlanPage() {
                 label: s.value ? `${s.name}: ${s.value}` : s.name,
               }))
 
+          const featureSections: PlanCardFeature[][] =
+            serviceFeatures.length > 0
+              ? [widgetFeatures, serviceFeatures]
+              : [widgetFeatures]
+
+          const capLine = `${plan.max_widgets} віджетів · ${plan.max_sites} ${pluralSites(plan.max_sites)}`
+
+          const badge = badgeText
+            ? <div className="pricing__badge">{badgeText}</div>
+            : null
+
           const btnLabel = starting === plan.slug
-            ? (sub ? 'Змінюємо…' : 'Активуємо…')
-            : (sub ? `Перейти на ${plan.name}` : 'Почати безкоштовно')
+            ? sub ? 'Змінюємо…' : 'Активуємо…'
+            : sub ? `Перейти на ${plan.name}` : 'Почати безкоштовно'
+
+          const cta = plan.slug === 'max' ? (
+            <InterestButton type="plan" id="max" />
+          ) : (
+            <button
+              type="button"
+              className={`pricing__cta pricing__cta--${plan.slug} ${
+                isPro ? 'pricing__cta--highlight' : ''
+              }`}
+              onClick={() => handleStart(plan.slug)}
+              disabled={starting !== null}
+            >
+              {btnLabel}
+            </button>
+          )
+
+          const trialNote = !sub
+            ? plan.slug === 'max'
+              ? "Менеджер зв'яжеться протягом дня"
+              : isPro
+                ? "7 днів безкоштовно · без зобов'язань"
+                : '7 днів безкоштовно'
+            : null
 
           return (
-            <div
+            <PlanCard
               key={plan.id}
-              className={`choose-plan__card ${isPro ? 'choose-plan__card--pro' : ''}`}
-              style={{ borderColor: `${color}${isPro ? '' : plan.slug === 'max' ? '80' : '70'}` }}
-            >
-              {badge && (
-                <div className="choose-plan__badge-wrap">
-                  <span className="choose-plan__badge">{badge}</span>
-                </div>
-              )}
-
-              <div className="choose-plan__card-top">
-                <div className="choose-plan__card-icon-wrap" style={{ background: `${color}18` }}>
-                  <Icon size={16} style={{ color }} />
-                </div>
-                <div className="choose-plan__card-name-col">
-                  <span className="choose-plan__card-name">
-                    {plan.name}
-                  </span>
-                  {pitch && (
-                    <span className="choose-plan__card-pitch">
-                      {pitch}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <div className="choose-plan__card-price-block">
-                <div className="choose-plan__card-price-line">
-                  {yearly && (
-                    <span className="choose-plan__card-old-price">
-                      {monthlyPrice.toLocaleString('uk-UA')}
-                      <span className="choose-plan__card-strike" />
-                    </span>
-                  )}
-                  <span className="choose-plan__card-amount">
-                    {yearly ? yearlyMonthly.toLocaleString('uk-UA') : monthlyPrice.toLocaleString('uk-UA')}
-                  </span>
-                  <span className="choose-plan__card-unit">
-                    грн/міс
-                  </span>
-                </div>
-                {yearly && (
-                  <div className="choose-plan__card-annual-line">
-                    <span className="choose-plan__card-annual-text">
-                      {yearlyTotal.toLocaleString('uk-UA')} грн/рік
-                    </span>
-                    <span className="choose-plan__card-savings">
-                      Економія {savings.toLocaleString('uk-UA')} грн
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              <span className="choose-plan__card-count">
-                {plan.max_widgets} віджетів · {plan.max_sites} {pluralSites(plan.max_sites)}
-              </span>
-
-              <div className="choose-plan__card-divider" />
-
-              <div className="choose-plan__card-feats">
-                {widgetFeatures.map((f) => (
-                  <div key={f.key} className="choose-plan__card-feat choose-plan__card-feat--widget">
-                    <Check size={12} style={{ color }} strokeWidth={3} />
-                    <span>{f.label}</span>
-                  </div>
-                ))}
-                {serviceFeatures.length > 0 && widgetFeatures.length > 0 && (
-                  <div className="choose-plan__card-feat-divider" />
-                )}
-                {serviceFeatures.map((f) => (
-                  <div key={f.key} className="choose-plan__card-feat choose-plan__card-feat--service">
-                    <Check size={12} style={{ color }} strokeWidth={2.5} />
-                    <span>{f.label}</span>
-                  </div>
-                ))}
-              </div>
-
-              {plan.slug === 'max' ? (
-                <InterestButton type="plan" id="max" />
-              ) : (
-                <button
-                  className="choose-plan__card-btn"
-                  style={isPro
-                    ? { background: color, borderColor: color, color: '#fff', boxShadow: `0 6px 20px ${color}44` }
-                    : { background: `${color}22`, borderColor: `${color}55`, color }
-                  }
-                  onClick={() => handleStart(plan.slug)}
-                  disabled={starting !== null}
-                >
-                  {btnLabel}
-                </button>
-              )}
-
-              {!sub && (
-                <span className="choose-plan__card-trial">
-                  {plan.slug === 'max'
-                    ? 'Менеджер зв\'яжеться протягом дня'
-                    : isPro ? '7 днів безкоштовно · без зобов\'язань' : '7 днів безкоштовно'}
-                </span>
-              )}
-            </div>
+              slug={plan.slug}
+              name={plan.name}
+              pitch={pitch}
+              Icon={Icon}
+              monthlyPrice={plan.price_monthly}
+              yearlyPrice={plan.price_yearly}
+              yearlyMonthlyPrice={yearlyMonthly}
+              yearly={yearly}
+              capLine={capLine}
+              featureSections={featureSections}
+              highlighted={isPro}
+              badge={badge}
+              cta={cta}
+              trialNote={trialNote}
+            />
           )
         })}
       </div>

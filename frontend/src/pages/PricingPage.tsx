@@ -3,6 +3,7 @@ import { Check, ChevronDown, Send, Minus } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { SeoHead } from '../components/SeoHead'
 import { InterestButton } from '../components/InterestButton'
+import { PlanCard, type PlanCardFeature } from '../components/PlanCard'
 import { get, post } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import { useSettings } from '../context/SettingsContext'
@@ -179,106 +180,91 @@ export function PricingPage() {
 
         {/* ── Plans ── */}
         <div className="pricing__plans">
-          {PLANS.map(plan => {
-            const Icon = plan.icon
-            const price = yearly ? plan.yearlyMonthly : plan.monthlyPrice
+          {PLANS.map((plan) => {
             const planOrder = PLAN_ORDER[plan.id] ?? 0
             const isCurrent = sub !== null && sub.plan.slug === plan.id
             const isBelow = sub !== null && planOrder < currentPlanOrder
             const isAbove = sub !== null && planOrder > currentPlanOrder
 
-            return (
-              <div
-                key={plan.id}
-                className={`pricing__card pricing__card--${plan.id} ${plan.highlighted ? 'pricing__card--highlight' : ''} ${(isCurrent || isBelow) ? 'pricing__card--dimmed' : ''}`}
+            const features: PlanCardFeature[] = plan.features.map((f) => ({
+              key: f.label,
+              label: f.label,
+              href: f.slug ? (f.slug.startsWith('/') ? f.slug : `/widgets/${f.slug}`) : undefined,
+            }))
+
+            const capLine = `${
+              plan.widgets === 17 ? 'Всі 17 віджетів' : `${plan.widgets} віджети`
+            } · ${plan.sites} ${plan.sites === 1 ? 'сайт' : 'сайти'}`
+
+            const badge = isCurrent ? (
+              <div className="pricing__badge pricing__badge--current">Ваш поточний план</div>
+            ) : plan.badge && !isBelow ? (
+              <div className="pricing__badge">{plan.badge}</div>
+            ) : null
+
+            const cta = !ctaReady ? (
+              <span className="pricing__cta pricing__cta--skeleton" />
+            ) : plan.id === 'max' && !isCurrent ? (
+              <InterestButton type="plan" id="max" />
+            ) : isCurrent ? (
+              <Link
+                to="/cabinet/plan"
+                className={`pricing__cta pricing__cta--${plan.id} pricing__cta--current`}
               >
-                {plan.badge && !isCurrent && !isBelow && <div className="pricing__badge">{plan.badge}</div>}
-                {isCurrent && <div className="pricing__badge pricing__badge--current">Ваш поточний план</div>}
+                Мій план
+              </Link>
+            ) : isBelow ? (
+              <span className={`pricing__cta pricing__cta--${plan.id} pricing__cta--disabled`}>
+                Нижчий план
+              </span>
+            ) : isAbove ? (
+              <button
+                className={`pricing__cta pricing__cta--${plan.id} ${
+                  plan.highlighted ? 'pricing__cta--highlight' : ''
+                }`}
+                onClick={() => handleUpgrade(plan.id)}
+                disabled={upgrading !== null}
+              >
+                {upgrading === plan.id ? 'Змінюємо…' : `Перейти на ${plan.name}`}
+              </button>
+            ) : (
+              <Link
+                to={`/signup?plan=${plan.id}&billing=${yearly ? 'yearly' : 'monthly'}`}
+                className={`pricing__cta pricing__cta--${plan.id} ${
+                  plan.highlighted ? 'pricing__cta--highlight' : ''
+                }`}
+              >
+                Почати безкоштовно
+              </Link>
+            )
 
-                <div className="pricing__card-top">
-                  <div className={`pricing__plan-icon pricing__plan-icon--${plan.id}`}>
-                    <Icon size={22} strokeWidth={2} />
-                  </div>
-                  <div>
-                    <h2 className="pricing__plan-name">{plan.name}</h2>
-                    <p className="pricing__plan-pitch">{plan.pitch}</p>
-                  </div>
-                </div>
+            const trialNote = !ctaReady
+              ? null
+              : plan.id === 'max' && !isCurrent
+                ? "Менеджер зв'яжеться протягом дня"
+                : !sub
+                  ? '7 днів безкоштовно'
+                  : null
 
-                <div className="pricing__price-block">
-                  {yearly && (
-                    <span className="pricing__price-old">{plan.monthlyPrice.toLocaleString('uk-UA')}</span>
-                  )}
-                  <span className="pricing__price">{price.toLocaleString('uk-UA')}</span>
-                  <span className="pricing__price-unit">грн/міс</span>
-                </div>
-                {yearly ? (
-                  <div className="pricing__price-yearly-row">
-                    <p className="pricing__price-annual">{plan.yearlyPrice.toLocaleString('uk-UA')} грн/рік</p>
-                    <span className="pricing__savings">
-                      Економія {(plan.monthlyPrice * 12 - plan.yearlyPrice).toLocaleString('uk-UA')} грн
-                    </span>
-                  </div>
-                ) : (
-                  <p className="pricing__price-annual pricing__price-annual--placeholder">При річній оплаті — 2 міс у подарунок</p>
-                )}
-
-                <p className="pricing__widgets-count">
-                  {plan.widgets === 17 ? 'Всі 17 віджетів' : `${plan.widgets} віджети`} · {plan.sites} {plan.sites === 1 ? 'сайт' : 'сайти'}
-                </p>
-
-                <ul className="pricing__features">
-                  {plan.features.map(f => (
-                    <li key={f.label}>
-                      <Check size={14} strokeWidth={2.5} className={`pricing__feature-check pricing__feature-check--${plan.id}`} />
-                      {f.slug ? (
-                        <Link
-                          to={f.slug.startsWith('/') ? f.slug : `/widgets/${f.slug}`}
-                          className={`pricing__feature-link pricing__feature-link--${plan.id}`}
-                        >
-                          {f.label}
-                        </Link>
-                      ) : (
-                        f.label
-                      )}
-                    </li>
-                  ))}
-                </ul>
-
-                {/* CTA — render only when auth + subscription state is known */}
-                {!ctaReady ? (
-                  <span className="pricing__cta pricing__cta--skeleton" />
-                ) : plan.id === 'max' && !isCurrent ? (
-                  <InterestButton type="plan" id="max" />
-                ) : isCurrent ? (
-                  <Link to="/cabinet/plan" className={`pricing__cta pricing__cta--${plan.id} pricing__cta--current`}>
-                    Мій план
-                  </Link>
-                ) : isBelow ? (
-                  <span className={`pricing__cta pricing__cta--${plan.id} pricing__cta--disabled`}>
-                    Нижчий план
-                  </span>
-                ) : isAbove ? (
-                  <button
-                    className={`pricing__cta pricing__cta--${plan.id} ${plan.highlighted ? 'pricing__cta--highlight' : ''}`}
-                    onClick={() => handleUpgrade(plan.id)}
-                    disabled={upgrading !== null}
-                  >
-                    {upgrading === plan.id ? 'Змінюємо…' : `Перейти на ${plan.name}`}
-                  </button>
-                ) : (
-                  <Link
-                    to={`/signup?plan=${plan.id}&billing=${yearly ? 'yearly' : 'monthly'}`}
-                    className={`pricing__cta pricing__cta--${plan.id} ${plan.highlighted ? 'pricing__cta--highlight' : ''}`}
-                  >
-                    Почати безкоштовно
-                  </Link>
-                )}
-                {ctaReady && !sub && plan.id !== 'max' && <p className="pricing__trial-note">7 днів безкоштовно</p>}
-                {ctaReady && plan.id === 'max' && !isCurrent && (
-                  <p className="pricing__trial-note">Менеджер зв'яжеться протягом дня</p>
-                )}
-              </div>
+            return (
+              <PlanCard
+                key={plan.id}
+                slug={plan.id}
+                name={plan.name}
+                pitch={plan.pitch}
+                Icon={plan.icon}
+                monthlyPrice={plan.monthlyPrice}
+                yearlyPrice={plan.yearlyPrice}
+                yearlyMonthlyPrice={plan.yearlyMonthly}
+                yearly={yearly}
+                capLine={capLine}
+                featureSections={[features]}
+                highlighted={plan.highlighted}
+                dimmed={isCurrent || isBelow}
+                badge={badge}
+                cta={cta}
+                trialNote={trialNote}
+              />
             )
           })}
         </div>

@@ -1,3 +1,12 @@
+/*
+ * Page-level styles for /cabinet/choose-plan.
+ *
+ * The actual plan card markup is shared with /pricing via <PlanCard> and
+ * styled by `.pricing__card*` rules in pages/PricingPage.css. This file only
+ * keeps the page chrome around it (hero, toggle, terminal-screen button,
+ * compare link).
+ */
+
 .choose-plan {
   max-width: 600px;
   margin: 0 auto;
@@ -35,255 +44,7 @@
   justify-content: center;
 }
 
-.choose-plan__toggle-wrap + .choose-plan__plans {
-  margin-top: -14px;
-}
-
-/* ── Plans ── */
-.choose-plan__plans {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-/* ── Card ── */
-.choose-plan__card {
-  width: 100%;
-  background: var(--bg-card);
-  border: 1.5px solid;
-  border-radius: 20px;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  position: relative;
-}
-
-.choose-plan__card--pro {
-  background: linear-gradient(160deg, #0D1F3C 0%, #0F0F1A 100%);
-  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.19);
-  padding-top: 22px;
-  padding-bottom: 20px;
-}
-
-/* ── Pro badge (floating) ── */
-.choose-plan__badge-wrap {
-  display: flex;
-  justify-content: center;
-  margin-top: -33px;
-  margin-bottom: 4px;
-}
-
-.choose-plan__badge {
-  padding: 5px 16px;
-  border-radius: var(--radius-full);
-  background: var(--blue);
-  font-size: 12px;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: 0.3px;
-}
-
-/* ── Card top ── */
-.choose-plan__card-top {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.choose-plan__card-icon-wrap {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.choose-plan__card-name-col {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.choose-plan__card-name {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.choose-plan__card--pro .choose-plan__card-name {
-  color: #fff;
-}
-
-.choose-plan__card-pitch {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.choose-plan__card--pro .choose-plan__card-pitch {
-  color: #9BB3D4;
-}
-
-/* ── Price ── */
-.choose-plan__card-price-block {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.choose-plan__card-price-line {
-  display: flex;
-  align-items: flex-end;
-  gap: 6px;
-}
-
-.choose-plan__card-old-price {
-  position: relative;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-muted);
-  padding-bottom: 4px;
-}
-
-.choose-plan__card-strike {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  width: 100%;
-  height: 1.5px;
-  background: var(--text-secondary);
-}
-
-.choose-plan__card-amount {
-  font-size: 36px;
-  font-weight: 800;
-  line-height: 1;
-  color: var(--text-primary);
-}
-
-.choose-plan__card--pro .choose-plan__card-amount {
-  color: #fff;
-}
-
-.choose-plan__card-unit {
-  font-size: 13px;
-  padding-bottom: 4px;
-  color: var(--text-muted);
-}
-
-.choose-plan__card--pro .choose-plan__card-unit {
-  color: #9BB3D4;
-}
-
-.choose-plan__card-annual-line {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.choose-plan__card-annual-text {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.choose-plan__card-savings {
-  padding: 3px 10px;
-  border-radius: 20px;
-  background: rgba(16, 185, 129, 0.12);
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--green);
-}
-
-/* ── Count ── */
-.choose-plan__card-count {
-  font-size: 13px;
-  font-weight: 600;
-  color: #DDD;
-}
-
-.choose-plan__card--pro .choose-plan__card-count {
-  color: #D0DCF0;
-}
-
-/* ── Divider ── */
-.choose-plan__card-divider {
-  height: 1px;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.choose-plan__card--pro .choose-plan__card-divider {
-  background: rgba(59, 130, 246, 0.12);
-}
-
-/* ── Features ── */
-.choose-plan__card-feats {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
-
-.choose-plan__card-feat {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-}
-
-.choose-plan__card-feat--widget span {
-  font-weight: 500;
-  color: #DDD;
-}
-
-.choose-plan__card--pro .choose-plan__card-feat--widget span {
-  color: #E8F0FF;
-}
-
-.choose-plan__card-feat--service span {
-  font-size: 12px;
-  color: #777;
-}
-
-.choose-plan__card--pro .choose-plan__card-feat--service span {
-  color: #9BB3D4;
-}
-
-/* ── Feat divider ── */
-.choose-plan__card-feat-divider {
-  height: 1px;
-  background: rgba(255, 255, 255, 0.06);
-  margin: 4px 0;
-  border-top: 1px dashed rgba(255, 255, 255, 0.06);
-}
-
-/* ── Bonus block ── */
-.choose-plan__card-bonus {
-  border: 1px solid;
-  border-radius: 10px;
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  margin-top: 2px;
-}
-
-.choose-plan__card-bonus-label {
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-}
-
-.choose-plan__card-bonus-text {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-/* ── CTA ── */
+/* ── "You're already on max" terminal-screen button ── */
 .choose-plan__card-btn {
   height: 52px;
   border-radius: var(--radius-full);
@@ -299,18 +60,7 @@
   opacity: 0.5;
 }
 
-/* ── Trial note ── */
-.choose-plan__card-trial {
-  font-size: 11px;
-  text-align: center;
-  color: rgba(255, 255, 255, 0.32);
-}
-
-.choose-plan__card--pro .choose-plan__card-trial {
-  color: rgba(59, 130, 246, 0.5);
-}
-
-/* ── Final / Compare ── */
+/* ── Final / Compare link ── */
 .choose-plan__final {
   display: flex;
   flex-direction: column;

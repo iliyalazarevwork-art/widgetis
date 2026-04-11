@@ -248,6 +248,15 @@
   flex: 1;
 }
 
+/* Secondary feature section (e.g. "service" features after "widgets")
+   — drawn with a thin top divider so the two groups read as separate. */
+.pricing__features--secondary {
+  flex: 0;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-light);
+}
+
 .pricing__features li {
   display: flex;
   align-items: center;
