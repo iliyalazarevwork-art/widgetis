@@ -55,32 +55,37 @@ export default defineConfig({
         target: process.env.BACKEND_URL || 'http://127.0.0.1:9001',
         changeOrigin: true,
       },
+      // Live-demo iframe preview — everything that Caddy routes to the
+      // site-proxy:3100 container in production must go there in dev too,
+      // otherwise the remote shop's own assets (`/bundles`, `/content`,
+      // `/_widget`, `/frontend`, `/seen_items`) resolve against the Laravel
+      // backend and 404.
       '^/site/': {
-        target: process.env.BACKEND_URL || 'http://127.0.0.1:9001',
+        target: process.env.SITE_PROXY_URL || 'http://127.0.0.1:3100',
         changeOrigin: true,
       },
       '/content': {
-        target: process.env.BACKEND_URL || 'http://127.0.0.1:9001',
+        target: process.env.SITE_PROXY_URL || 'http://127.0.0.1:3100',
         changeOrigin: true,
       },
       '/frontend': {
-        target: process.env.BACKEND_URL || 'http://127.0.0.1:9001',
+        target: process.env.SITE_PROXY_URL || 'http://127.0.0.1:3100',
         changeOrigin: true,
       },
       '/bundles': {
-        target: process.env.BACKEND_URL || 'http://127.0.0.1:9001',
+        target: process.env.SITE_PROXY_URL || 'http://127.0.0.1:3100',
         changeOrigin: true,
       },
       '/_widget': {
-        target: process.env.BACKEND_URL || 'http://127.0.0.1:9001',
+        target: process.env.SITE_PROXY_URL || 'http://127.0.0.1:3100',
         changeOrigin: true,
       },
       '/seen_items': {
-        target: process.env.BACKEND_URL || 'http://127.0.0.1:9001',
+        target: process.env.SITE_PROXY_URL || 'http://127.0.0.1:3100',
         changeOrigin: true,
       },
       '^/[a-z]{2}(?:-[A-Z]{2})?/(?:_widget|seen_items)(?:/|$)': {
-        target: process.env.BACKEND_URL || 'http://127.0.0.1:9001',
+        target: process.env.SITE_PROXY_URL || 'http://127.0.0.1:3100',
         changeOrigin: true,
       },
       '/build-demo': {
