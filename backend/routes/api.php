@@ -90,6 +90,7 @@ Route::prefix('v1')->group(function () {
         Route::post('subscription/change', [SubscriptionController::class, 'change']);
         Route::post('subscription/cancel', [SubscriptionController::class, 'cancel']);
         Route::post('subscription/checkout/trial', [CheckoutController::class, 'startTrial']);
+        Route::post('subscription/checkout', [SubscriptionController::class, 'checkout']);
         Route::get('sites', [SiteController::class, 'index']);
         Route::post('sites', [SiteController::class, 'store']);
         Route::get('sites/{id}', [SiteController::class, 'show']);
