@@ -6,6 +6,7 @@ namespace Tests\Feature\Billing;
 
 use App\Enums\PaymentProvider;
 use App\Enums\SubscriptionStatus;
+use App\Models\Order;
 use App\Models\Subscription;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
@@ -64,7 +65,10 @@ class ChargeRecurringTest extends TestCase
 
         $subscription->refresh();
         $this->assertSame(0, $subscription->payment_retry_count);
-        $this->assertNull($subscription->next_payment_retry_at);
+        // Cooldown window is set (not null) so the next cron run cannot
+        // re-select this subscription before the webhook arrives.
+        $this->assertNotNull($subscription->next_payment_retry_at);
+        $this->assertTrue($subscription->next_payment_retry_at->isAfter(now()->addHours(20)));
 
         Http::assertSent(function ($request): bool {
             $body = $request->data();
@@ -116,6 +120,66 @@ class ChargeRecurringTest extends TestCase
             ->assertSuccessful();
 
         Http::assertNothingSent();
+    }
+
+    public function test_recurring_charge_creates_order_with_matching_reference(): void
+    {
+        Http::fake([
+            'api.monobank.ua/api/merchant/wallet/payment' => Http::response([
+                'invoiceId' => 'p2_recurring_order_check',
+                'status' => 'processing',
+            ]),
+        ]);
+
+        $subscription = Subscription::factory()->create([
+            'payment_provider' => PaymentProvider::Monobank,
+            'monobank_card_token' => 'card_tok_abc',
+            'current_period_end' => now()->addHours(12),
+            'status' => SubscriptionStatus::Active,
+        ]);
+
+        $this->assertSame(0, Order::where('user_id', $subscription->user_id)->count());
+
+        $this->artisan('subscriptions:charge-recurring')->assertSuccessful();
+
+        // The cron creates a fresh Order row so the webhook can later
+        // match it by order_number — without this, recurring webhooks
+        // would drop as "order_not_found".
+        $order = Order::where('user_id', $subscription->user_id)->sole();
+        $this->assertSame(PaymentProvider::Monobank, $order->payment_provider);
+
+        Http::assertSent(function ($request) use ($order): bool {
+            $body = $request->data();
+            return isset($body['merchantPaymInfo']['reference'])
+                && $body['merchantPaymInfo']['reference'] === $order->order_number;
+        });
+    }
+
+    public function test_monobank_sync_failure_status_is_treated_as_failure(): void
+    {
+        // Monobank can return HTTP 200 with a terminal failure status —
+        // the cron must NOT park the subscription in cooldown in that case.
+        Http::fake([
+            'api.monobank.ua/api/merchant/wallet/payment' => Http::response([
+                'invoiceId' => 'p2_sync_fail',
+                'status' => 'failure',
+            ]),
+        ]);
+
+        $subscription = Subscription::factory()->create([
+            'payment_provider' => PaymentProvider::Monobank,
+            'monobank_card_token' => 'card_tok_abc',
+            'current_period_end' => now()->addHours(12),
+            'status' => SubscriptionStatus::Active,
+            'payment_retry_count' => 0,
+        ]);
+
+        $this->artisan('subscriptions:charge-recurring')->assertSuccessful();
+
+        $subscription->refresh();
+        // Retry counter bumped (not reset) — sync failure is treated as
+        // a real failure, not a successful dispatch.
+        $this->assertSame(1, $subscription->payment_retry_count);
     }
 
     public function test_subscriptions_with_future_period_are_not_touched(): void
