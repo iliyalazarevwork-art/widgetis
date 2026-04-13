@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\OrderStatus;
+use App\Enums\PaymentProvider;
 use Database\Factories\OrderFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -36,6 +37,7 @@ class Order extends Model
             'refunded_at' => 'datetime',
             'notes' => 'array',
             'status' => OrderStatus::class,
+            'payment_provider' => PaymentProvider::class,
         ];
     }
 

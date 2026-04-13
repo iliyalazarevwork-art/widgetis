@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\PaymentProvider;
 use Database\Factories\PaymentFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -31,6 +32,7 @@ class Payment extends Model
             'amount' => 'decimal:2',
             'description' => 'array',
             'metadata' => 'array',
+            'payment_provider' => PaymentProvider::class,
         ];
     }
 

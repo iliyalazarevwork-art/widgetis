@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Billing;
 
 use App\Enums\BillingPeriod;
+use App\Enums\PaymentProvider;
 use App\Enums\SubscriptionStatus;
 use App\Jobs\RebuildSiteScriptJob;
 use App\Models\ActivityLog;
@@ -168,7 +169,7 @@ class SubscriptionService
     {
         // If the subscription is backed by LiqPay, cancel it on their side first.
         if (
-            $subscription->payment_provider === 'liqpay'
+            $subscription->payment_provider === PaymentProvider::LiqPay
             && $subscription->payment_provider_subscription_id !== null
         ) {
             $liqpay  = new LiqPayService();

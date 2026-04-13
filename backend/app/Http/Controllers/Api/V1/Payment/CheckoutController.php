@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api\V1\Payment;
 
 use App\Enums\BillingPeriod;
 use App\Enums\OrderStatus;
+use App\Enums\PaymentProvider;
 use App\Enums\PaymentStatus;
 use App\Enums\PaymentType;
 use App\Enums\SubscriptionStatus;
@@ -80,7 +81,7 @@ class CheckoutController
                 'discount_amount' => 0,
                 'currency' => 'UAH',
                 'status' => OrderStatus::Pending,
-                'payment_provider' => 'liqpay',
+                'payment_provider' => PaymentProvider::LiqPay,
             ]);
 
             // Subscription starts as pending — access granted only after LiqPay confirms
@@ -111,7 +112,7 @@ class CheckoutController
                 'amount' => (float) $amount,
                 'currency' => 'UAH',
                 'status' => PaymentStatus::Pending->value,
-                'payment_provider' => 'liqpay',
+                'payment_provider' => PaymentProvider::LiqPay,
                 'description' => [
                     'en' => "Subscription: {$plan->slug} ({$billingPeriod->value})",
                     'uk' => "Підписка: {$plan->slug} ({$billingPeriod->value})",

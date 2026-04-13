@@ -6,6 +6,7 @@ namespace Database\Factories;
 
 use App\Enums\BillingPeriod;
 use App\Enums\OrderStatus;
+use App\Enums\PaymentProvider;
 use App\Models\Order;
 use App\Models\Plan;
 use App\Models\User;
@@ -32,7 +33,7 @@ class OrderFactory extends Factory
             'discount_amount' => 0,
             'currency' => 'UAH',
             'status' => OrderStatus::Pending,
-            'payment_provider' => 'liqpay',
+            'payment_provider' => PaymentProvider::LiqPay,
         ];
     }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\PaymentProvider;
 use App\Enums\SubscriptionStatus;
 use Database\Factories\SubscriptionFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -50,6 +51,7 @@ class Subscription extends Model
             'grace_period_ends_at' => 'datetime',
             'next_payment_retry_at' => 'datetime',
             'status' => SubscriptionStatus::class,
+            'payment_provider' => PaymentProvider::class,
         ];
     }
 

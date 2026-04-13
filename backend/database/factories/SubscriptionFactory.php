@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Enums\BillingPeriod;
+use App\Enums\PaymentProvider;
 use App\Enums\SubscriptionStatus;
 use App\Models\Plan;
 use App\Models\Subscription;
@@ -32,7 +33,7 @@ class SubscriptionFactory extends Factory
             'trial_ends_at' => null,
             'current_period_start' => now()->subDay(),
             'current_period_end' => now()->addMonth(),
-            'payment_provider' => 'liqpay',
+            'payment_provider' => PaymentProvider::LiqPay,
             'payment_provider_subscription_id' => 'TEST-SUBSCR-'.fake()->unique()->numerify('######'),
         ];
     }

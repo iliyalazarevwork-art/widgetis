@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Enums\PaymentProvider;
 use App\Enums\PaymentStatus;
 use App\Enums\PaymentType;
 use App\Models\Order;
@@ -31,7 +32,7 @@ class PaymentFactory extends Factory
             'amount' => 499,
             'currency' => 'UAH',
             'status' => PaymentStatus::Pending->value,
-            'payment_provider' => 'liqpay',
+            'payment_provider' => PaymentProvider::LiqPay,
             'payment_method' => null,
             'transaction_id' => null,
             'description' => ['en' => 'Test payment', 'uk' => 'Тестова оплата'],

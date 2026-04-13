@@ -6,6 +6,7 @@ namespace App\Services\Billing;
 
 use App\Enums\BillingPeriod;
 use App\Enums\OrderStatus;
+use App\Enums\PaymentProvider;
 use App\Enums\PaymentStatus;
 use App\Enums\PaymentType;
 use App\Enums\SubscriptionStatus;
@@ -122,7 +123,7 @@ class LiqPayWebhookService
             'trial_ends_at' => $trialEnd,
             'current_period_start' => now(),
             'current_period_end' => $trialEnd,
-            'payment_provider' => 'liqpay',
+            'payment_provider' => PaymentProvider::LiqPay,
             'payment_provider_subscription_id' => (string) ($payload['subscrId'] ?? ''),
         ]);
 
@@ -183,7 +184,7 @@ class LiqPayWebhookService
                 'amount' => $payload['amount'] ?? $order->amount,
                 'currency' => $payload['currency'] ?? 'UAH',
                 'status' => PaymentStatus::Success->value,
-                'payment_provider' => 'liqpay',
+                'payment_provider' => PaymentProvider::LiqPay,
                 'payment_method' => $payload['paytype'] ?? null,
                 'transaction_id' => (string) ($payload['transaction_id'] ?? ''),
                 'description' => ['liqpay_description' => $payload['description'] ?? ''],
@@ -205,7 +206,7 @@ class LiqPayWebhookService
                 'trial_ends_at' => null,
                 'current_period_start' => now(),
                 'current_period_end' => $periodEnd,
-                'payment_provider' => 'liqpay',
+                'payment_provider' => PaymentProvider::LiqPay,
                 'payment_provider_subscription_id' => (string) ($payload['subscrId'] ?? $subscription->payment_provider_subscription_id ?? ''),
                 'payment_retry_count' => 0,
                 'next_payment_retry_at' => null,
@@ -246,7 +247,7 @@ class LiqPayWebhookService
                 'amount' => $payload['amount'] ?? $order->amount,
                 'currency' => $payload['currency'] ?? 'UAH',
                 'status' => PaymentStatus::Failed->value,
-                'payment_provider' => 'liqpay',
+                'payment_provider' => PaymentProvider::LiqPay,
                 'payment_method' => $payload['paytype'] ?? null,
                 'transaction_id' => (string) ($payload['transaction_id'] ?? ''),
                 'description' => ['err_description' => $payload['err_description'] ?? ''],

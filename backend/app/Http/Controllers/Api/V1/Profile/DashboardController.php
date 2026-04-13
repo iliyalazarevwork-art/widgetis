@@ -102,7 +102,7 @@ class DashboardController extends BaseController
     {
         $plan = $payment->subscription?->plan ?? $payment->order?->plan;
         $isTrial = $payment->type === 'trial_activation' || (float) $payment->amount === 0.0;
-        $provider = $payment->payment_provider ?: 'liqpay';
+        $provider = $payment->payment_provider?->value ?? 'liqpay';
         $status = $isTrial ? 'trial' : (string) $payment->status;
 
         return [

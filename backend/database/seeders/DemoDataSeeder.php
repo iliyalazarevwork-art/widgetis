@@ -7,6 +7,7 @@ namespace Database\Seeders;
 use App\Enums\BillingPeriod;
 use App\Enums\NotificationType;
 use App\Enums\OrderStatus;
+use App\Enums\PaymentProvider;
 use App\Enums\PaymentStatus;
 use App\Enums\PaymentType;
 use App\Enums\ReviewStatus;
@@ -169,7 +170,7 @@ class DemoDataSeeder extends Seeder
                 'grace_period_ends_at' => null,
                 'payment_retry_count' => 0,
                 'next_payment_retry_at' => null,
-                'payment_provider' => 'liqpay',
+                'payment_provider' => PaymentProvider::LiqPay,
                 'payment_provider_subscription_id' => 'sub_trial_andrii_001',
             ],
         );
@@ -190,7 +191,7 @@ class DemoDataSeeder extends Seeder
                 'trial_ends_at' => null,
                 'current_period_start' => $now->copy()->subDays(11),
                 'current_period_end' => $now->copy()->addDays(19),
-                'payment_provider' => 'liqpay',
+                'payment_provider' => PaymentProvider::LiqPay,
                 'payment_provider_subscription_id' => 'sub_olena_basic_002',
             ],
         );
@@ -222,7 +223,7 @@ class DemoDataSeeder extends Seeder
                 'current_period_end' => $now->copy()->subDays(2),
                 'payment_retry_count' => 1,
                 'next_payment_retry_at' => $now->copy()->addDay(),
-                'payment_provider' => 'liqpay',
+                'payment_provider' => PaymentProvider::LiqPay,
                 'payment_provider_subscription_id' => 'sub_kateryna_basic_004',
             ],
         );
@@ -239,7 +240,7 @@ class DemoDataSeeder extends Seeder
                 'current_period_end' => $now->copy()->addDays(2),
                 'cancelled_at' => $now->copy()->subDays(5),
                 'cancel_reason' => 'Store paused for seasonal break',
-                'payment_provider' => 'liqpay',
+                'payment_provider' => PaymentProvider::LiqPay,
                 'payment_provider_subscription_id' => 'sub_roman_basic_005',
             ],
         );
@@ -398,7 +399,7 @@ class DemoDataSeeder extends Seeder
                 'amount' => 799,
                 'status' => OrderStatus::Completed->value,
                 'payment_method' => 'card',
-                'payment_provider' => 'liqpay',
+                'payment_provider' => PaymentProvider::LiqPay,
                 'transaction_id' => 'LP-OLENA-0001',
                 'paid_at' => $now->copy()->subDays(10),
             ],
@@ -422,7 +423,7 @@ class DemoDataSeeder extends Seeder
                 'amount' => 799,
                 'status' => OrderStatus::Pending->value,
                 'payment_method' => 'card',
-                'payment_provider' => 'liqpay',
+                'payment_provider' => PaymentProvider::LiqPay,
                 'transaction_id' => 'LP-KATERYNA-0003',
                 'paid_at' => null,
             ],
@@ -434,7 +435,7 @@ class DemoDataSeeder extends Seeder
                 'amount' => 1599,
                 'status' => OrderStatus::Pending->value,
                 'payment_method' => 'card',
-                'payment_provider' => 'liqpay',
+                'payment_provider' => PaymentProvider::LiqPay,
                 'transaction_id' => 'LP-ANDRII-0004',
                 'paid_at' => null,
             ],
@@ -522,7 +523,7 @@ class DemoDataSeeder extends Seeder
                     'amount' => $row['amount'],
                     'currency' => 'UAH',
                     'status' => $row['status'],
-                    'payment_provider' => 'liqpay',
+                    'payment_provider' => PaymentProvider::LiqPay,
                     'payment_method' => 'card',
                     'description' => [
                         'uk' => 'Оплата підписки Widgetis',
