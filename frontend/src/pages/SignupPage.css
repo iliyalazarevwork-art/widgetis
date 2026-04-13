@@ -564,26 +564,32 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 14px;
   min-width: 0;
-  padding: 24px 16px 20px;
+  padding: 28px 20px 22px;
   border-radius: var(--radius-md);
   background: var(--bg-surface);
   border: 1px solid var(--border-light);
   color: var(--text-muted);
   font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 600;
   cursor: pointer;
-  transition: border-color var(--transition-fast), background var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
+  transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
   text-align: center;
 }
 
-.signup__payment-method-name {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
-  line-height: 1.1;
+.signup__payment-method-wordmark {
+  height: 26px;
+  width: auto;
+  max-width: 160px;
+  display: block;
+  opacity: 0.92;
+  transition: opacity var(--transition-fast);
+}
+
+.signup__payment-method:hover:not(:disabled) .signup__payment-method-wordmark,
+.signup__payment-method--active .signup__payment-method-wordmark {
+  opacity: 1;
 }
 
 .signup__payment-method-hint {

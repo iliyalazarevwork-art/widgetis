@@ -16,24 +16,24 @@ import { useCart } from '../context/CartContext'
 import { WidgetIcon } from '../components/WidgetIcon'
 import { BRAND_NAME_UPPER } from '../constants/brand'
 import { platformConfig } from '../data/widgets'
-import liqpaySymbol from '../assets/logo-liqpay-symbol.svg'
-import monobankSymbol from '../assets/logo-monobank-symbol.svg'
+import liqpayWordmark from '../assets/logo-liqpay-dark.svg'
+import plataWordmark from '../assets/logo-plata-dark.svg'
 import './CheckoutPage.css'
 
 type PaymethodId = 'liqpay' | 'monobank'
 
-const PAYMENTS: readonly { id: PaymethodId; name: string; symbol: string; hint: string }[] = [
+const PAYMENTS: readonly { id: PaymethodId; name: string; wordmark: string; hint: string }[] = [
   {
     id: 'liqpay',
     name: 'LiqPay',
-    symbol: liqpaySymbol,
+    wordmark: liqpayWordmark,
     hint: 'Visa · Mastercard · Apple Pay · Google Pay',
   },
   {
     id: 'monobank',
-    name: 'Monobank',
-    symbol: monobankSymbol,
-    hint: 'plata by mono · Apple Pay · Google Pay',
+    name: 'plata by mono',
+    wordmark: plataWordmark,
+    hint: 'Apple Pay · Google Pay · картки будь-якого банку',
   },
 ] as const
 
@@ -250,17 +250,14 @@ export function CheckoutPage() {
                     className={`checkout__paymethod ${paymethod === method.id ? 'checkout__paymethod--active' : ''}`}
                     onClick={() => setPaymethod(method.id)}
                     aria-pressed={paymethod === method.id}
+                    aria-label={method.name}
                   >
                     <img
-                      src={method.symbol}
-                      alt=""
-                      className="checkout__paymethod-symbol"
-                      aria-hidden="true"
+                      src={method.wordmark}
+                      alt={method.name}
+                      className="checkout__paymethod-wordmark"
                     />
-                    <div className="checkout__paymethod-body">
-                      <strong className="checkout__paymethod-name">{method.name}</strong>
-                      <span className="checkout__paymethod-hint">{method.hint}</span>
-                    </div>
+                    <span className="checkout__paymethod-hint">{method.hint}</span>
                   </button>
                 ))}
               </div>

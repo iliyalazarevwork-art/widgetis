@@ -22,8 +22,8 @@ import { post } from '../api/client'
 import type { SiteCreateResponse, User } from '../types'
 import { useAuth } from '../context/AuthContext'
 import { toast } from 'sonner'
-import liqpaySymbol from '../assets/logo-liqpay-symbol.svg'
-import monobankSymbol from '../assets/logo-monobank-symbol.svg'
+import liqpayWordmark from '../assets/logo-liqpay-dark.svg'
+import plataWordmark from '../assets/logo-plata-dark.svg'
 import './SignupPage.css'
 
 // ─── Plan data ────────────────────────────────────────────────────────────────
@@ -157,8 +157,9 @@ type PaymentMethodId = 'liqpay' | 'monobank'
 
 interface PaymentMethod {
   id: PaymentMethodId
+  /** Screen-reader label — brand wordmark is already visual */
   name: string
-  symbol: string
+  wordmark: string
   hint: string
   trial: boolean
 }
@@ -167,15 +168,15 @@ const PAYMENT_METHODS: readonly PaymentMethod[] = [
   {
     id: 'liqpay',
     name: 'LiqPay',
-    symbol: liqpaySymbol,
+    wordmark: liqpayWordmark,
     hint: 'Visa · Mastercard · Apple Pay · Google Pay',
     trial: true,
   },
   {
     id: 'monobank',
-    name: 'Monobank',
-    symbol: monobankSymbol,
-    hint: 'plata by mono · Apple Pay · Google Pay',
+    name: 'plata by mono',
+    wordmark: plataWordmark,
+    hint: 'Apple Pay · Google Pay · картки будь-якого банку',
     trial: false,
   },
 ] as const
@@ -779,21 +780,21 @@ export function SignupPage() {
                               type="button"
                               className={`signup__payment-method ${paymentMethod === method.id ? 'signup__payment-method--active' : ''}`}
                               onClick={() => setPaymentMethod(method.id)}
+                              aria-pressed={paymentMethod === method.id}
+                              aria-label={method.name}
                             >
                               <img
-                                src={method.symbol}
-                                alt=""
-                                className="signup__payment-method-symbol"
-                                aria-hidden="true"
+                                src={method.wordmark}
+                                alt={method.name}
+                                className="signup__payment-method-wordmark"
                               />
-                              <span className="signup__payment-method-name">{method.name}</span>
                               <span className="signup__payment-method-hint">{method.hint}</span>
                             </button>
                           ))}
                         </div>
                         {!PAYMENT_METHODS.find(m => m.id === paymentMethod)?.trial && (
                           <p className="signup__payment-notice">
-                            Monobank списує оплату одразу — тріальний період не підтримується цим провайдером. Для безкоштовних 7 днів оберіть LiqPay.
+                            plata by mono списує оплату одразу — тріальний період не підтримується цим провайдером. Для безкоштовних 7 днів оберіть LiqPay.
                           </p>
                         )}
                       </div>
