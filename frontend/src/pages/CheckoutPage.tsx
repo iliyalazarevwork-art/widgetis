@@ -16,7 +16,26 @@ import { useCart } from '../context/CartContext'
 import { WidgetIcon } from '../components/WidgetIcon'
 import { BRAND_NAME_UPPER } from '../constants/brand'
 import { platformConfig } from '../data/widgets'
+import liqpaySymbol from '../assets/logo-liqpay-symbol.svg'
+import monobankSymbol from '../assets/logo-monobank-symbol.svg'
 import './CheckoutPage.css'
+
+type PaymethodId = 'liqpay' | 'monobank'
+
+const PAYMENTS: readonly { id: PaymethodId; name: string; symbol: string; hint: string }[] = [
+  {
+    id: 'liqpay',
+    name: 'LiqPay',
+    symbol: liqpaySymbol,
+    hint: 'Visa · Mastercard · Apple Pay · Google Pay',
+  },
+  {
+    id: 'monobank',
+    name: 'Monobank',
+    symbol: monobankSymbol,
+    hint: 'plata by mono · Apple Pay · Google Pay',
+  },
+] as const
 
 type Platform = (typeof platformConfig)[number]['id']
 
@@ -49,6 +68,7 @@ export function CheckoutPage() {
     return { email: '', phone: '', site: '', platform: 'horoshop', agreed: true }
   })
   const [paying, setPaying] = useState(false)
+  const [paymethod, setPaymethod] = useState<PaymethodId>('liqpay')
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({})
 
   // Redirect to catalog if cart empty
@@ -217,6 +237,32 @@ export function CheckoutPage() {
                     ))}
                   </div>
                 </div>
+              </div>
+            </section>
+
+            <section className="checkout__section">
+              <h2 className="checkout__section-title">Спосіб оплати</h2>
+              <div className="checkout__paymethods">
+                {PAYMENTS.map((method) => (
+                  <button
+                    key={method.id}
+                    type="button"
+                    className={`checkout__paymethod ${paymethod === method.id ? 'checkout__paymethod--active' : ''}`}
+                    onClick={() => setPaymethod(method.id)}
+                    aria-pressed={paymethod === method.id}
+                  >
+                    <img
+                      src={method.symbol}
+                      alt=""
+                      className="checkout__paymethod-symbol"
+                      aria-hidden="true"
+                    />
+                    <div className="checkout__paymethod-body">
+                      <strong className="checkout__paymethod-name">{method.name}</strong>
+                      <span className="checkout__paymethod-hint">{method.hint}</span>
+                    </div>
+                  </button>
+                ))}
               </div>
             </section>
 

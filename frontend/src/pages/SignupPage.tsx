@@ -22,6 +22,8 @@ import { post } from '../api/client'
 import type { SiteCreateResponse, User } from '../types'
 import { useAuth } from '../context/AuthContext'
 import { toast } from 'sonner'
+import liqpaySymbol from '../assets/logo-liqpay-symbol.svg'
+import monobankSymbol from '../assets/logo-monobank-symbol.svg'
 import './SignupPage.css'
 
 // ─── Plan data ────────────────────────────────────────────────────────────────
@@ -151,8 +153,31 @@ function OtpInput({ value, onChange }: { value: string; onChange: (v: string) =>
 // ─── Steps ────────────────────────────────────────────────────────────────────
 
 type Step = 'auth' | 'otp' | 'store'
-const PAYMENT_METHODS = [
-  { id: 'liqpay', name: 'LiqPay', icon: '💳', active: true },
+type PaymentMethodId = 'liqpay' | 'monobank'
+
+interface PaymentMethod {
+  id: PaymentMethodId
+  name: string
+  symbol: string
+  hint: string
+  trial: boolean
+}
+
+const PAYMENT_METHODS: readonly PaymentMethod[] = [
+  {
+    id: 'liqpay',
+    name: 'LiqPay',
+    symbol: liqpaySymbol,
+    hint: 'Visa · Mastercard · Apple Pay · Google Pay',
+    trial: true,
+  },
+  {
+    id: 'monobank',
+    name: 'Monobank',
+    symbol: monobankSymbol,
+    hint: 'plata by mono · Apple Pay · Google Pay',
+    trial: false,
+  },
 ] as const
 
 const SIGNUP_DRAFT_KEY = 'wty_signup_draft'
@@ -164,18 +189,29 @@ interface SignupDraft {
   otp: string
   site: string
   platform: Platform
-  paymentMethod: (typeof PAYMENT_METHODS)[number]['id']
+  paymentMethod: PaymentMethodId
   plan: PlanKey
   billing: 'monthly' | 'yearly'
   resendAvailableAt: number | null
 }
 
-interface LiqPayCheckoutResponse {
+interface LiqPayTrialCheckoutResponse {
   data: {
     checkout_url: string
     data: string
     signature: string
     order_id: string
+  }
+}
+
+interface UnifiedCheckoutResponse {
+  data: {
+    provider: PaymentMethodId
+    reference: string
+    method: 'GET' | 'POST'
+    url: string
+    form_fields: Record<string, string>
+    provider_reference: string | null
   }
 }
 
@@ -212,7 +248,7 @@ export function SignupPage() {
   const [site, setSite] = useState('')
   const [siteError, setSiteError] = useState('')
   const [platform, setPlatform] = useState<Platform>('horoshop')
-  const [paymentMethod, setPaymentMethod] = useState<(typeof PAYMENT_METHODS)[number]['id']>('liqpay')
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodId>('liqpay')
   const [loading, setLoading] = useState(false)
   const [resending, setResending] = useState(false)
   const [resendCooldown, setResendCooldown] = useState(0)
@@ -366,7 +402,7 @@ export function SignupPage() {
     void verifyOtpCode(clean)
   }, [loading, otp, step])
 
-  // ── Step 3: store + start trial via LiqPay ──
+  // ── Step 3: store + start checkout via selected provider ──
   async function handleStartTrial(e: React.FormEvent) {
     e.preventDefault()
     const normalizedUrl = normalizeSiteUrl(site)
@@ -378,13 +414,10 @@ export function SignupPage() {
     setLoading(true)
 
     try {
-      // 1. Create LiqPay checkout — also creates Trial subscription in DB
-      const checkoutRes = await post<LiqPayCheckoutResponse>('/profile/subscription/checkout/trial', {
-        plan_slug: planKey,
-        billing_period: billing === 'yearly' ? 'yearly' : 'monthly',
-      })
-
-      // 2. Create site (non-blocking if it fails — user can add later)
+      // 1. Create site first (non-blocking if it fails — user can add later).
+      //    This must run BEFORE the checkout endpoint because the unified
+      //    /subscription/checkout endpoint uses the primary site domain
+      //    to build a unique order number.
       let siteId: number | null = null
       let scriptTag: string | null = null
       try {
@@ -395,7 +428,7 @@ export function SignupPage() {
         toast.error('Не вдалося додати сайт. Ви зможете додати його пізніше у кабінеті.')
       }
 
-      // 3. Store data for TrialSuccessPage (survives LiqPay redirect)
+      // 2. Store data for TrialSuccessPage (survives payment redirect)
       sessionStorage.setItem('wty_trial_signup', JSON.stringify({
         email,
         site: normalizedUrl,
@@ -404,17 +437,38 @@ export function SignupPage() {
         billing,
         siteId,
         scriptTag,
+        paymentMethod,
       }))
 
-      // 4. Redirect to LiqPay — user enters card, charge deferred 7 days
       sessionStorage.removeItem(SIGNUP_DRAFT_KEY)
-      redirectToLiqPay(checkoutRes.data)
+
+      // 3. Branch on provider:
+      //    - LiqPay supports a deferred-charge trial → use the legacy
+      //      /subscription/checkout/trial endpoint which defers the
+      //      first charge by the plan's trial_days.
+      //    - Monobank has no deferred-charge capability → use the
+      //      unified /subscription/checkout endpoint which charges
+      //      immediately. We warn the user in the UI.
+      if (paymentMethod === 'liqpay') {
+        const checkoutRes = await post<LiqPayTrialCheckoutResponse>('/profile/subscription/checkout/trial', {
+          plan_slug: planKey,
+          billing_period: billing === 'yearly' ? 'yearly' : 'monthly',
+        })
+
+        submitLiqPayForm(checkoutRes.data)
+        return
+      }
+
+      const checkoutRes = await post<UnifiedCheckoutResponse>('/profile/subscription/checkout', {
+        plan_slug: planKey,
+        billing_period: billing === 'yearly' ? 'yearly' : 'monthly',
+        provider: paymentMethod,
+      })
+
+      redirectToProvider(checkoutRes.data)
     } catch (err: unknown) {
       const error = err as Error & { code?: string }
       if (error.code === 'ALREADY_SUBSCRIBED') {
-        try {
-          await post<{ data: SiteCreateResponse }>('/profile/sites', { url: normalizedUrl, platform })
-        } catch { /* non-blocking */ }
         sessionStorage.removeItem(SIGNUP_DRAFT_KEY)
         navigate('/cabinet', { replace: true })
       } else {
@@ -424,7 +478,7 @@ export function SignupPage() {
     }
   }
 
-  function redirectToLiqPay(checkout: { checkout_url: string; data: string; signature: string }) {
+  function submitLiqPayForm(checkout: { checkout_url: string; data: string; signature: string }) {
     const form = document.createElement('form')
     form.method = 'POST'
     form.action = checkout.checkout_url
@@ -443,6 +497,30 @@ export function SignupPage() {
 
     document.body.appendChild(form)
     form.submit()
+  }
+
+  function redirectToProvider(checkout: UnifiedCheckoutResponse['data']) {
+    if (checkout.method === 'POST') {
+      const form = document.createElement('form')
+      form.method = 'POST'
+      form.action = checkout.url
+
+      for (const [key, value] of Object.entries(checkout.form_fields)) {
+        const input = document.createElement('input')
+        input.type = 'hidden'
+        input.name = key
+        input.value = value
+        form.appendChild(input)
+      }
+
+      document.body.appendChild(form)
+      form.submit()
+      return
+    }
+
+    // GET redirect — providers like Monobank return a pageUrl the user
+    // follows directly in the same tab.
+    window.location.href = checkout.url
   }
 
   return (
@@ -702,18 +780,31 @@ export function SignupPage() {
                               className={`signup__payment-method ${paymentMethod === method.id ? 'signup__payment-method--active' : ''}`}
                               onClick={() => setPaymentMethod(method.id)}
                             >
-                              <span className="signup__payment-method-icon" aria-hidden="true">{method.icon}</span>
-                              <span>{method.name}</span>
+                              <img
+                                src={method.symbol}
+                                alt=""
+                                className="signup__payment-method-symbol"
+                                aria-hidden="true"
+                              />
+                              <span className="signup__payment-method-name">{method.name}</span>
+                              <span className="signup__payment-method-hint">{method.hint}</span>
                             </button>
                           ))}
                         </div>
+                        {!PAYMENT_METHODS.find(m => m.id === paymentMethod)?.trial && (
+                          <p className="signup__payment-notice">
+                            Monobank списує оплату одразу — тріальний період не підтримується цим провайдером. Для безкоштовних 7 днів оберіть LiqPay.
+                          </p>
+                        )}
                       </div>
                     </div>
 
                     <button type="submit" className="signup__submit signup__submit--trial" disabled={loading}>
                       {loading
-                        ? <><LoaderCircle size={17} strokeWidth={2.5} className="signup__spinner" /> Активуємо тріал...</>
-                        : <>Почати 7 днів безкоштовно <ArrowRight size={15} strokeWidth={2.5} /></>
+                        ? <><LoaderCircle size={17} strokeWidth={2.5} className="signup__spinner" /> {paymentMethod === 'liqpay' ? 'Активуємо тріал...' : 'Переходимо до оплати...'}</>
+                        : paymentMethod === 'liqpay'
+                          ? <>Почати 7 днів безкоштовно <ArrowRight size={15} strokeWidth={2.5} /></>
+                          : <>Перейти до оплати <ArrowRight size={15} strokeWidth={2.5} /></>
                       }
                     </button>
 
