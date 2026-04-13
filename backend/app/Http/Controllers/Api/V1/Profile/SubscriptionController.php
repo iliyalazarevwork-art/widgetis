@@ -16,6 +16,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\Subscription;
+use App\Models\User;
 use App\Services\Billing\PaymentProviderRegistry;
 use App\Services\Billing\SubscriptionService;
 use App\Services\Billing\UniqueOrderNumberProvider;
@@ -132,10 +133,29 @@ class SubscriptionController extends BaseController
             return $this->error('ALREADY_SUBSCRIBED', 'User already has an active subscription.', 422);
         }
 
+        // Reject rapid duplicate clicks: if the user already has a
+        // Pending order younger than 5 minutes, treat the click as a
+        // duplicate rather than spawning a second invoice on the
+        // provider side. The expire cron can't help here because
+        // those rows sit in Pending, not past_due.
+        $recentPending = Order::where('user_id', $user->id)
+            ->where('status', OrderStatus::Pending)
+            ->where('created_at', '>=', now()->subMinutes(5))
+            ->exists();
+
+        if ($recentPending) {
+            return $this->error('CHECKOUT_IN_PROGRESS', 'A checkout is already in progress. Please wait a moment before trying again.', 429);
+        }
+
         $siteDomain = $user->sites()->orderBy('id')->value('domain');
 
         /** @var array{reference: string} $pending */
-        $pending = DB::transaction(function () use ($user, $plan, $billingPeriod, $siteDomain): array {
+        $pending = DB::transaction(function () use ($user, $plan, $billingPeriod, $siteDomain, $provider): array {
+            // Lock the user row to serialise concurrent checkout calls
+            // against the same account (belt-and-braces with the
+            // recentPending check above).
+            User::where('id', $user->id)->lockForUpdate()->first();
+
             $amount = $billingPeriod === BillingPeriod::Yearly
                 ? $plan->price_yearly
                 : $plan->price_monthly;
@@ -149,7 +169,7 @@ class SubscriptionController extends BaseController
                 'discount_amount' => 0,
                 'currency' => 'UAH',
                 'status' => OrderStatus::Pending,
-                'payment_provider' => null,
+                'payment_provider' => $provider,
             ]);
 
             Subscription::updateOrCreate(
@@ -162,7 +182,7 @@ class SubscriptionController extends BaseController
                     'trial_ends_at' => null,
                     'current_period_start' => now(),
                     'current_period_end' => now()->addDays((int) ($plan->trial_days ?? 7)),
-                    'payment_provider' => null,
+                    'payment_provider' => $provider,
                     'payment_provider_subscription_id' => null,
                     'payment_retry_count' => 0,
                 ],
@@ -178,7 +198,7 @@ class SubscriptionController extends BaseController
                 'amount' => (float) $amount,
                 'currency' => 'UAH',
                 'status' => PaymentStatus::Pending->value,
-                'payment_provider' => null,
+                'payment_provider' => $provider,
                 'description' => [
                     'en' => "Subscription: {$plan->slug} ({$billingPeriod->value})",
                     'uk' => "Підписка: {$plan->slug} ({$billingPeriod->value})",
@@ -187,13 +207,6 @@ class SubscriptionController extends BaseController
 
             return ['reference' => $order->order_number];
         });
-
-        // Stamp the selected provider onto all pending rows so logs and
-        // admin views immediately show which gateway owns this checkout.
-        Order::where('order_number', $pending['reference'])->update(['payment_provider' => $provider]);
-        Payment::where('order_id', Order::where('order_number', $pending['reference'])->value('id'))
-            ->where('status', PaymentStatus::Pending->value)
-            ->update(['payment_provider' => $provider]);
 
         $result = $this->providers->get($provider)->createSubscriptionCheckout(
             user: $user,

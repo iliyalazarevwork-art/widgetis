@@ -97,7 +97,11 @@ class CheckoutEndpointTest extends TestCase
 
         $subscription = Subscription::where('user_id', $user->id)->sole();
         $this->assertSame(PaymentProvider::Monobank, $subscription->payment_provider);
-        $this->assertSame('p2_mock_invoice_123', $subscription->payment_provider_subscription_id);
+        // payment_provider_subscription_id is deliberately NOT written at
+        // checkout time — it lands via handleWebhook when Monobank
+        // confirms the charge, keeping idempotency reasoning local to
+        // one place instead of being split between two writers.
+        $this->assertNull($subscription->payment_provider_subscription_id);
 
         $order = Order::where('user_id', $user->id)->sole();
         $this->assertSame(PaymentProvider::Monobank, $order->payment_provider);

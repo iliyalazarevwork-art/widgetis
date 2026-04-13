@@ -108,11 +108,12 @@ class MonobankProvider implements PaymentProviderInterface
             throw $e;
         }
 
-        Subscription::where('user_id', $user->id)->update([
-            'payment_provider' => PaymentProvider::Monobank,
-            'payment_provider_subscription_id' => $response->invoiceId,
-        ]);
-
+        // Note: we deliberately do NOT write Subscription state here.
+        // The checkout endpoint already persisted a pending Subscription
+        // row, and the real transition (to Active, with the final
+        // invoice id) lands via handleWebhook when Monobank confirms
+        // the charge. Writing here would race with the webhook and
+        // make idempotency reasoning harder.
         Log::channel('payments')->info('monobank.invoice.created', [
             'user_id' => $user->id,
             'order_number' => $order->order_number,
@@ -295,6 +296,13 @@ class MonobankProvider implements PaymentProviderInterface
         $amountCents = (int) ($payload['finalAmount'] ?? $payload['amount'] ?? 0);
         $amountUah = $amountCents / 100;
 
+        // Strip walletData from metadata: cardToken is stored on the
+        // Subscription row as the canonical recurring-charge credential,
+        // no need to duplicate it inside payments.metadata (widens the
+        // blast radius on any DB leak).
+        $scrubbed = $payload;
+        unset($scrubbed['walletData']);
+
         Payment::create([
             'user_id' => $order->user_id,
             'order_id' => $order->id,
@@ -306,7 +314,7 @@ class MonobankProvider implements PaymentProviderInterface
             'payment_method' => (string) ($payload['paymentInfo']['paymentSystem'] ?? 'card'),
             'transaction_id' => $invoiceId,
             'description' => ['monobank_destination' => (string) ($payload['destination'] ?? '')],
-            'metadata' => $payload,
+            'metadata' => $scrubbed,
         ]);
 
         $subscription = Subscription::where('user_id', $order->user_id)->first();
