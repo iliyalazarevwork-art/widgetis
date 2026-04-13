@@ -19,6 +19,11 @@ use Illuminate\Support\Facades\Log;
 
 class SubscriptionService
 {
+    public function __construct(
+        private readonly PaymentProviderRegistry $providers,
+    ) {
+    }
+
     public function createTrial(User $user, Plan $plan): Subscription
     {
         return DB::transaction(function () use ($user, $plan) {
@@ -66,7 +71,7 @@ class SubscriptionService
         User $user,
         Plan $plan,
         BillingPeriod $billingPeriod,
-        ?string $paymentProvider = null,
+        PaymentProvider $paymentProvider,
         ?string $providerSubscriptionId = null,
     ): Subscription {
         return DB::transaction(function () use ($user, $plan, $billingPeriod, $paymentProvider, $providerSubscriptionId) {
@@ -98,6 +103,7 @@ class SubscriptionService
                 'user_id' => $user->id,
                 'plan' => $plan->slug,
                 'billing_period' => $billingPeriod->value,
+                'provider' => $paymentProvider->value,
             ]);
 
             foreach ($user->sites as $site) {
@@ -167,20 +173,11 @@ class SubscriptionService
 
     public function cancel(Subscription $subscription, ?string $reason = null): Subscription
     {
-        // If the subscription is backed by LiqPay, cancel it on their side first.
-        if (
-            $subscription->payment_provider === PaymentProvider::LiqPay
-            && $subscription->payment_provider_subscription_id !== null
-        ) {
-            $liqpay  = new LiqPayService();
-            $success = $liqpay->cancelSubscription($subscription->payment_provider_subscription_id);
-
-            if (!$success) {
-                Log::channel('payments')->warning('liqpay.unsubscribe_failed', [
-                    'user_id'                          => $subscription->user_id,
-                    'payment_provider_subscription_id' => $subscription->payment_provider_subscription_id,
-                ]);
-            }
+        // Delegate provider-side cancellation through the registry so each
+        // adapter owns its own "stop future charges" semantics. Providers
+        // without server-side subscriptions (Monobank) simply return true.
+        if ($subscription->payment_provider !== null) {
+            $this->providers->for($subscription)->cancelSubscription($subscription);
         }
 
         $subscription->update([
@@ -208,6 +205,7 @@ class SubscriptionService
         Log::channel('payments')->info('subscription.cancelled', [
             'user_id' => $subscription->user_id,
             'plan' => $subscription->plan->slug,
+            'provider' => $subscription->payment_provider?->value,
             'reason' => $reason,
         ]);
 
