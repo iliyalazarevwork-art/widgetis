@@ -14,6 +14,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property ?PaymentProvider $payment_provider
+ * @property ?string $payment_provider_subscription_id
+ * @property ?string $monobank_card_token
+ * @property int $user_id
  */
 class Subscription extends Model
 {
@@ -38,6 +41,7 @@ class Subscription extends Model
         'next_payment_retry_at',
         'payment_provider',
         'payment_provider_subscription_id',
+        'monobank_card_token',
     ];
 
     /**

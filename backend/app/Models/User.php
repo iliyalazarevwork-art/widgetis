@@ -17,6 +17,9 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
+/**
+ * @property ?string $monobank_wallet_id
+ */
 class User extends Authenticatable implements JWTSubject, FilamentUser
 {
     /** @use HasFactory<UserFactory> */
@@ -43,6 +46,7 @@ class User extends Authenticatable implements JWTSubject, FilamentUser
         'two_factor_enabled',
         'two_factor_method',
         'notification_enabled',
+        'monobank_wallet_id',
     ];
 
     /**
