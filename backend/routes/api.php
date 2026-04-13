@@ -23,12 +23,16 @@ use App\Http\Controllers\Api\V1\Public\SettingsController;
 use App\Http\Controllers\Api\V1\Public\SystemController;
 use App\Http\Controllers\Api\V1\Public\TagController;
 use App\Http\Controllers\Api\V1\Webhooks\LiqPayWebhookController;
+use App\Http\Controllers\Api\V1\Webhooks\MonobankWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
 
     // --- LiqPay webhook (public, no auth — signature verified inside controller) ---
     Route::post('payments/liqpay/callback', [LiqPayWebhookController::class, 'handle']);
+
+    // --- Monobank webhook (public, ECDSA signature verified inside provider) ---
+    Route::post('webhooks/monobank', MonobankWebhookController::class);
 
     // --- Health check ---
     Route::get('health', [SystemController::class, 'health']);

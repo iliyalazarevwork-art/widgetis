@@ -6,6 +6,8 @@ namespace App\Providers;
 
 use App\Services\Billing\PaymentProviderRegistry;
 use App\Services\Billing\Providers\LiqPayProvider;
+use App\Services\Billing\Providers\MonobankProvider;
+use AratKruglik\Monobank\Monobank;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 
@@ -20,11 +22,16 @@ class PaymentProviderServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        // The monobank package only binds the 'monobank' string alias; teach
+        // the container how to resolve the Monobank class so our provider's
+        // constructor injection works without falling back to the facade.
+        $this->app->singleton(Monobank::class, fn (Application $app): Monobank => $app->make('monobank'));
+
         $this->app->singleton(PaymentProviderRegistry::class, function (Application $app): PaymentProviderRegistry {
             $registry = new PaymentProviderRegistry();
 
             $registry->register($app->make(LiqPayProvider::class));
-            // MonobankProvider is registered in step 11.
+            $registry->register($app->make(MonobankProvider::class));
 
             return $registry;
         });
