@@ -17,6 +17,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property ?string $payment_provider_subscription_id
  * @property ?string $monobank_card_token
  * @property int $user_id
+ * @property SubscriptionStatus $status
+ * @property \Illuminate\Support\Carbon $current_period_start
+ * @property \Illuminate\Support\Carbon $current_period_end
+ * @property ?\Illuminate\Support\Carbon $trial_ends_at
+ * @property ?\Illuminate\Support\Carbon $cancelled_at
+ * @property ?\Illuminate\Support\Carbon $grace_period_ends_at
+ * @property ?\Illuminate\Support\Carbon $next_payment_retry_at
  */
 class Subscription extends Model
 {
