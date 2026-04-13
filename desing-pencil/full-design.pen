@@ -59992,7 +59992,8 @@
                   "fill": "#8A8A8A",
                   "content": "Доставка",
                   "fontFamily": "Inter",
-                  "fontSize": 13
+                  "fontSize": 13,
+                  "fontWeight": "normal"
                 }
               ]
             },
@@ -60018,7 +60019,8 @@
                   "fill": "#8A8A8A",
                   "content": "Оплата",
                   "fontFamily": "Inter",
-                  "fontSize": 13
+                  "fontSize": 13,
+                  "fontWeight": "normal"
                 }
               ]
             },
@@ -60044,7 +60046,8 @@
                   "fill": "#8A8A8A",
                   "content": "Конверсія",
                   "fontFamily": "Inter",
-                  "fontSize": 13
+                  "fontSize": 13,
+                  "fontWeight": "normal"
                 }
               ]
             }
@@ -60785,7 +60788,8 @@
                               "fill": "#F0F0F0",
                               "content": "купили цей товар",
                               "fontFamily": "Inter",
-                              "fontSize": 15
+                              "fontSize": 15,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -61109,7 +61113,8 @@
                               "width": 120,
                               "content": "ballistic.com.ua",
                               "fontFamily": "Inter",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             }
                           ]
                         }

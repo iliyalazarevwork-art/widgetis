@@ -316,16 +316,26 @@ function injectDemoBundle(html) {
   // the raw file via DevTools Network tab. The closing </script> inside the
   // bundle would break parsing, so escape it defensively.
   const safe = code.replace(/<\/script/gi, '<\\/script');
-  const tag = `<script data-widgetis-demo>${safe}</script>`;
-  // IMPORTANT: inject before the LAST </body>, not the first. Some sites
-  // contain the literal string "</body>" inside an inline script body (e.g.
-  // as part of a template string), and a naive first-match replace would
-  // splice our bundle into the middle of that script, breaking its syntax
-  // and preventing execution of anything after — including our own bundle.
-  const lastBodyClose = html.toLowerCase().lastIndexOf('</body>');
-  if (lastBodyClose !== -1) {
-    return html.slice(0, lastBodyClose) + tag + html.slice(lastBodyClose);
-  }
+  // Wrap in load + double-rAF so the bundle runs only after:
+  //   1. The page and all site scripts have fully loaded
+  //   2. The browser has completed at least one paint cycle
+  // This guarantees getBoundingClientRect() returns real dimensions (not 0)
+  // when the bundle mounts and measures the marquee element.
+  const tag = `<script data-widgetis-demo>
+console.log('[wgts] script tag executed');
+window.addEventListener('load', function(){
+  console.log('[wgts] load fired');
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      var byId = document.getElementById('header');
+      var byClass = document.querySelector('.header');
+      console.log('[wgts] #header =', byId ? 'ЕСТb: ' + byId.tagName + '#' + byId.id : 'НЕТ');
+      console.log('[wgts] .header =', byClass ? 'ЕСТb: ' + byClass.tagName + '.' + byClass.className : 'НЕТ');
+      ${safe}
+    });
+  });
+});
+</script>`;
   return html + tag;
 }
 
