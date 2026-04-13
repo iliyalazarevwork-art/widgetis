@@ -1,6 +1,12 @@
 import { Link } from 'react-router-dom'
 import { BRAND_NAME } from '../constants/brand'
 import { useSettings } from '../context/SettingsContext'
+import liqpayLogo from '../assets/logo-liqpay-dark.svg'
+import plataLogo from '../assets/logo-plata-dark.svg'
+import visaLogo from '../assets/logo-visa-dark.svg'
+import mastercardLogo from '../assets/logo-mastercard-dark.svg'
+import applePayLogo from '../assets/logo-apple-pay-dark.svg'
+import googlePayLogo from '../assets/logo-google-pay-dark.svg'
 import './Footer.css'
 
 interface FooterProps {
@@ -18,7 +24,7 @@ export function Footer({ variant = 'full' }: FooterProps) {
           <div className="footer__bottom">
             <span className="footer__copy">&copy; {new Date().getFullYear()} {BRAND_NAME}</span>
             <nav className="footer__compact-links">
-              <Link to="/legal#offer" className="footer__link">Оферта</Link>
+              <Link to="/offer" className="footer__link">Оферта</Link>
               {settings.email && (
                 <a href={`mailto:${settings.email}`} className="footer__link">{settings.email}</a>
               )}
@@ -65,6 +71,11 @@ export function Footer({ variant = 'full' }: FooterProps) {
 
             <div className="footer__col">
               <h3 className="footer__col-title">Зв'язок</h3>
+              {settings.phone && (
+                <a href={`tel:${settings.phone.replace(/\s+/g, '')}`} className="footer__link">
+                  {settings.phone}
+                </a>
+              )}
               {settings.email && (
                 <a href={`mailto:${settings.email}`} className="footer__link">
                   {settings.email}
@@ -80,12 +91,42 @@ export function Footer({ variant = 'full' }: FooterProps) {
                   Telegram
                 </a>
               )}
+              <span className="footer__col-address">
+                вул. Сарми-Соколовського, 58,<br />
+                Дніпро, 49000
+              </span>
             </div>
           </nav>
         </div>
 
         <div className="footer__bottom">
-          <span className="footer__copy">&copy; {new Date().getFullYear()} {BRAND_NAME}</span>
+          <div className="footer__legal">
+            <span className="footer__copy">&copy; {new Date().getFullYear()} {BRAND_NAME}</span>
+            <span className="footer__address">
+              ФОП Лазарєв Ілля Ігорович · ІПН 3660907893 · вул. Сарми-Соколовського, 58, Дніпро, 49000
+            </span>
+          </div>
+          <div className="footer__payments">
+            <div className="footer__pay-group" aria-label="Еквайринг">
+              <img
+                src={plataLogo}
+                alt="plata by mono"
+                className="footer__pay-logo footer__pay-logo--wordmark"
+              />
+              <img
+                src={liqpayLogo}
+                alt="LiqPay"
+                className="footer__pay-logo footer__pay-logo--wordmark"
+              />
+            </div>
+            <span className="footer__pay-sep" aria-hidden="true" />
+            <div className="footer__pay-group" aria-label="Способи оплати">
+              <img src={visaLogo} alt="Visa" className="footer__pay-logo" />
+              <img src={mastercardLogo} alt="Mastercard" className="footer__pay-logo" />
+              <img src={applePayLogo} alt="Apple Pay" className="footer__pay-logo" />
+              <img src={googlePayLogo} alt="Google Pay" className="footer__pay-logo" />
+            </div>
+          </div>
         </div>
       </div>
     </footer>
