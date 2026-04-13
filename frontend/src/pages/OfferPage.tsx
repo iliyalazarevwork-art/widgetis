@@ -5,7 +5,7 @@ import {
   UserCheck, ShieldOff, AlertCircle, CloudOff, PenLine,
   Scale, BookOpen, Gavel,
 } from 'lucide-react'
-import { BRAND_NAME, BRAND_NAME_UPPER } from '../constants/brand'
+import { BRAND_NAME_UPPER } from '../constants/brand'
 import './LegalDocPage.css'
 
 const SECTIONS = [

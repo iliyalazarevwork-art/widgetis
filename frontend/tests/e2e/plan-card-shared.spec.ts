@@ -19,6 +19,7 @@ test.describe('Shared PlanCard', () => {
     await page.locator('input[type="email"]').fill(`shared-${Date.now()}@widgetis.local`)
     await page.getByRole('button', { name: /отримати код/i }).click()
     await expect(page).toHaveURL(/\/login\/otp$/)
+    await expect(page.locator('input.otp-input')).toHaveCount(6)
     for (const d of '121212') await page.keyboard.type(d)
     await expect(page).toHaveURL(/\/(cabinet|admin)/, { timeout: 10_000 })
 
