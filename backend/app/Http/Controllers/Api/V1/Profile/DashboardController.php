@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\Profile;
 
+use App\Enums\PaymentProvider;
 use App\Http\Controllers\Api\V1\BaseController;
 use App\Http\Resources\Api\V1\PlanResource;
 use App\Models\ActivityLog;
@@ -102,7 +103,7 @@ class DashboardController extends BaseController
     {
         $plan = $payment->subscription?->plan ?? $payment->order?->plan;
         $isTrial = $payment->type === 'trial_activation' || (float) $payment->amount === 0.0;
-        $provider = $payment->payment_provider?->value ?? 'liqpay';
+        $provider = $payment->payment_provider?->value ?? PaymentProvider::LiqPay->value;
         $status = $isTrial ? 'trial' : (string) $payment->status;
 
         return [

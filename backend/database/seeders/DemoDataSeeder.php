@@ -206,7 +206,7 @@ class DemoDataSeeder extends Seeder
                 'trial_ends_at' => null,
                 'current_period_start' => $now->copy()->subDays(78),
                 'current_period_end' => $now->copy()->addDays(287),
-                'payment_provider' => 'stripe',
+                'payment_provider' => PaymentProvider::Monobank,
                 'payment_provider_subscription_id' => 'sub_dmytro_max_003',
             ],
         );
@@ -411,8 +411,8 @@ class DemoDataSeeder extends Seeder
                 'amount' => 28990,
                 'status' => OrderStatus::Completed->value,
                 'payment_method' => 'visa',
-                'payment_provider' => 'stripe',
-                'transaction_id' => 'ST-DMYTRO-0002',
+                'payment_provider' => PaymentProvider::Monobank,
+                'transaction_id' => 'MB-DMYTRO-0002',
                 'paid_at' => $now->copy()->subDays(75),
             ],
             [
