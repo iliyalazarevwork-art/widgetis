@@ -47,7 +47,12 @@ class LiqPayProvider implements PaymentProviderInterface
         BillingPeriod $billingPeriod,
         string $reference,
     ): CheckoutResult {
-        $order = Order::where('order_number', $reference)->firstOrFail();
+        // Scope the lookup by user_id even though the caller controls
+        // $reference — defense in depth against any future caller that
+        // passes a user-supplied value, blocking cross-user hijack.
+        $order = Order::where('order_number', $reference)
+            ->where('user_id', $user->id)
+            ->firstOrFail();
 
         $publicBaseUrl = rtrim((string) config('app.url'), '/');
         $serverUrl = $publicBaseUrl . '/api/v1/payments/liqpay/callback';

@@ -1,6 +1,6 @@
 import { SeoHead } from '../components/SeoHead'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, ArrowUpRight, Mail, Phone } from 'lucide-react'
+import { ArrowLeft, ArrowUpRight, Mail, MapPin, Phone } from 'lucide-react'
 import { SocialIcon } from '../components/SocialIcon'
 import { useSettings } from '../context/SettingsContext'
 import { BRAND_NAME_UPPER } from '../constants/brand'
@@ -119,6 +119,24 @@ export function ContactsPage() {
               </a>
             )}
 
+          </div>
+
+          {/* ── Legal address ── */}
+          <div className="contacts-page__legal">
+            <div className="contacts-page__card contacts-page__card--static">
+              <div className="contacts-page__card-icon">
+                <MapPin size={20} strokeWidth={2} />
+              </div>
+              <div className="contacts-page__card-body">
+                <span className="contacts-page__card-label">Юридична адреса</span>
+                <strong className="contacts-page__card-value">
+                  вул. Сарми-Соколовського, 58, Дніпро, 49000
+                </strong>
+                <span className="contacts-page__card-hint">
+                  ФОП Лазарєв Ілля Ігорович · ІПН 3660907893
+                </span>
+              </div>
+            </div>
           </div>
 
           {/* ── Messengers ── */}

@@ -123,7 +123,7 @@ tasks:
         if lsof -ti tcp:5173 >/dev/null 2>&1; then
           echo "Vite уже запущен на :5173"
         else
-          (cd frontend && nohup npx vite --host 127.0.0.1 --port 5173 </dev/null > .logs/vite.log 2>&1 & disown) || true
+          (cd frontend && nohup npx vite --host 127.0.0.1 --port 5173 </dev/null > .logs/vite.log 2>&1 &) || true
           echo "Vite запущен в фоне  ·  логи: frontend/.logs/vite.log  ·  http://localhost:5173"
         fi
 

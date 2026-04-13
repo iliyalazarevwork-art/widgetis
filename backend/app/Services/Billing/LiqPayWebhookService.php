@@ -196,15 +196,30 @@ class LiqPayWebhookService
 
         if ($subscription !== null) {
             $billingPeriod = BillingPeriod::from($order->billing_period);
-            $periodEnd = $billingPeriod === BillingPeriod::Yearly
-                ? now()->addYear()
-                : now()->addMonth();
+
+            // On renewal, extend from the existing period_end so any
+            // paid-for tail isn't thrown away (a monthly cycle fired at
+            // T-1d would otherwise silently lose 24h every renewal).
+            $isRenewal = $subscription->status === SubscriptionStatus::Active
+                && $subscription->current_period_end?->isFuture();
+
+            if ($isRenewal) {
+                $periodStart = $subscription->current_period_end;
+                $periodEnd = $billingPeriod === BillingPeriod::Yearly
+                    ? $periodStart->copy()->addYear()
+                    : $periodStart->copy()->addMonth();
+            } else {
+                $periodStart = now();
+                $periodEnd = $billingPeriod === BillingPeriod::Yearly
+                    ? now()->addYear()
+                    : now()->addMonth();
+            }
 
             $subscription->update([
                 'status' => SubscriptionStatus::Active,
                 'is_trial' => false,
                 'trial_ends_at' => null,
-                'current_period_start' => now(),
+                'current_period_start' => $periodStart,
                 'current_period_end' => $periodEnd,
                 'payment_provider' => PaymentProvider::LiqPay,
                 'payment_provider_subscription_id' => (string) ($payload['subscrId'] ?? $subscription->payment_provider_subscription_id ?? ''),

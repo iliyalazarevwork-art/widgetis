@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Billing\Providers;
 
 use App\Enums\BillingPeriod;
+use App\Enums\OrderStatus;
 use App\Enums\PaymentProvider;
 use App\Enums\PaymentStatus;
 use App\Enums\SubscriptionStatus;
@@ -17,6 +18,7 @@ use App\Services\Billing\Contracts\PaymentProviderInterface;
 use App\Services\Billing\DTO\ChargeResult;
 use App\Services\Billing\DTO\CheckoutResult;
 use App\Services\Billing\DTO\WebhookResult;
+use App\Services\Billing\UniqueOrderNumberProvider;
 use AratKruglik\Monobank\Contracts\ClientInterface as MonobankClient;
 use AratKruglik\Monobank\DTO\CartItemDTO;
 use AratKruglik\Monobank\DTO\InvoiceRequestDTO;
@@ -46,6 +48,7 @@ class MonobankProvider implements PaymentProviderInterface
         private readonly Monobank $monobank,
         private readonly MonobankClient $client,
         private readonly PubKeyProvider $pubKeyProvider,
+        private readonly UniqueOrderNumberProvider $orderNumbers,
     ) {
     }
 
@@ -60,7 +63,11 @@ class MonobankProvider implements PaymentProviderInterface
         BillingPeriod $billingPeriod,
         string $reference,
     ): CheckoutResult {
-        $order = Order::where('order_number', $reference)->firstOrFail();
+        // Scope by user_id — defense in depth against cross-user hijack
+        // if any future caller passes a user-supplied $reference.
+        $order = Order::where('order_number', $reference)
+            ->where('user_id', $user->id)
+            ->firstOrFail();
 
         if ($user->monobank_wallet_id === null) {
             $user->monobank_wallet_id = (string) Str::uuid();
@@ -133,8 +140,25 @@ class MonobankProvider implements PaymentProviderInterface
             ? (float) $plan->price_yearly
             : (float) $plan->price_monthly;
 
-        $reference = sprintf('sub_%d_%d', $subscription->id, now()->timestamp);
         $destination = 'Widgetis renewal: ' . $plan->slug . ' (' . $billingPeriod->value . ')';
+
+        // Create a fresh Order row so the webhook can locate it by its
+        // unique order_number reference (same contract as the checkout
+        // flow). Without this step, /wallet/payment's reference would
+        // not map to any merchant-side entity and handleSuccess would
+        // drop every renewal webhook as "order_not_found".
+        $siteDomain = $subscription->user->sites()->orderBy('id')->value('domain');
+        $order = Order::create([
+            'order_number' => $this->orderNumbers->get($siteDomain, $plan->slug),
+            'user_id' => $subscription->user_id,
+            'plan_id' => $plan->id,
+            'billing_period' => $billingPeriod->value,
+            'amount' => $amount,
+            'discount_amount' => 0,
+            'currency' => 'UAH',
+            'status' => OrderStatus::Pending,
+            'payment_provider' => PaymentProvider::Monobank,
+        ]);
 
         try {
             $response = $this->client->post('wallet/payment', [
@@ -143,13 +167,14 @@ class MonobankProvider implements PaymentProviderInterface
                 'ccy' => 980,
                 'initiationKind' => 'merchant',
                 'merchantPaymInfo' => [
-                    'reference' => $reference,
+                    'reference' => $order->order_number,
                     'destination' => $destination,
                 ],
             ]);
         } catch (MonobankException $e) {
             Log::channel('payments')->warning('monobank.recurring.failed', [
                 'subscription_id' => $subscription->id,
+                'order_number' => $order->order_number,
                 'error' => $e->getMessage(),
             ]);
 
@@ -160,15 +185,34 @@ class MonobankProvider implements PaymentProviderInterface
         $status = (string) ($body['status'] ?? 'processing');
         $invoiceId = (string) ($body['invoiceId'] ?? '');
 
+        // Monobank may return HTTP 200 with a terminal failure status
+        // ("failure" / "reversed" / "expired"). The HTTP success only
+        // means "request accepted"; the charge state lives in $status.
+        if (in_array($status, ['failure', 'reversed', 'expired'], true)) {
+            Log::channel('payments')->warning('monobank.recurring.sync_failure', [
+                'subscription_id' => $subscription->id,
+                'order_number' => $order->order_number,
+                'invoice_id' => $invoiceId,
+                'status' => $status,
+            ]);
+
+            return ChargeResult::fail(
+                code: 'MONOBANK_' . strtoupper($status),
+                message: "Monobank rejected the recurring charge with status={$status}",
+            );
+        }
+
         Log::channel('payments')->info('monobank.recurring.dispatched', [
             'subscription_id' => $subscription->id,
+            'order_number' => $order->order_number,
             'invoice_id' => $invoiceId,
             'status' => $status,
         ]);
 
         // /wallet/payment may settle synchronously ("success") or move to
-        // "processing" and finalise via webhook. Treat both as successfully
-        // dispatched — final state lands through handleWebhook().
+        // "processing" and finalise via webhook. Both non-terminal paths
+        // land through handleWebhook() which picks the Order row up by
+        // its order_number reference and advances the subscription.
         return ChargeResult::ok($invoiceId);
     }
 
@@ -269,9 +313,25 @@ class MonobankProvider implements PaymentProviderInterface
 
         if ($subscription !== null) {
             $billingPeriod = BillingPeriod::from($order->billing_period);
-            $periodEnd = $billingPeriod === BillingPeriod::Yearly
-                ? now()->addYear()
-                : now()->addMonth();
+
+            // On renewal, extend from the existing period_end so paid-for
+            // time is never thrown away. On first activation (no Active
+            // sub, or its period has already lapsed), start a fresh clock
+            // from now. This matches SubscriptionService::renew().
+            $isRenewal = $subscription->status === SubscriptionStatus::Active
+                && $subscription->current_period_end?->isFuture();
+
+            if ($isRenewal) {
+                $periodStart = $subscription->current_period_end;
+                $periodEnd = $billingPeriod === BillingPeriod::Yearly
+                    ? $periodStart->copy()->addYear()
+                    : $periodStart->copy()->addMonth();
+            } else {
+                $periodStart = now();
+                $periodEnd = $billingPeriod === BillingPeriod::Yearly
+                    ? now()->addYear()
+                    : now()->addMonth();
+            }
 
             $cardToken = isset($payload['walletData']['cardToken'])
                 ? (string) $payload['walletData']['cardToken']
@@ -281,7 +341,7 @@ class MonobankProvider implements PaymentProviderInterface
                 'status' => SubscriptionStatus::Active,
                 'is_trial' => false,
                 'trial_ends_at' => null,
-                'current_period_start' => now(),
+                'current_period_start' => $periodStart,
                 'current_period_end' => $periodEnd,
                 'payment_provider' => PaymentProvider::Monobank,
                 'payment_provider_subscription_id' => $invoiceId,
@@ -293,7 +353,7 @@ class MonobankProvider implements PaymentProviderInterface
         }
 
         $order->update([
-            'status' => \App\Enums\OrderStatus::Paid,
+            'status' => OrderStatus::Paid,
             'transaction_id' => $invoiceId,
             'paid_at' => now(),
         ]);
@@ -340,7 +400,10 @@ class MonobankProvider implements PaymentProviderInterface
 
         $subscription = Subscription::where('user_id', $order->user_id)->first();
 
-        if ($subscription !== null && $subscription->status !== SubscriptionStatus::Active) {
+        // A failed renewal webhook must move an Active subscription to
+        // past_due — that's the whole point of dunning. The previous
+        // guard was inverted and silently left Active subs untouched.
+        if ($subscription !== null && $subscription->status !== SubscriptionStatus::Cancelled) {
             $subscription->update([
                 'status' => SubscriptionStatus::PastDue,
                 'grace_period_ends_at' => now()->addDays(3),

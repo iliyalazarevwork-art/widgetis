@@ -29,6 +29,14 @@ class ChargeRecurringSubscriptions extends Command
 
     private const MAX_RETRY_COUNT = 3;
 
+    /**
+     * Cooldown window after a successful dispatch — prevents the next
+     * cron run from re-selecting a subscription whose webhook hasn't
+     * yet advanced current_period_end. Must comfortably exceed Monobank's
+     * maximum webhook retry window (≤24h).
+     */
+    private const DISPATCH_COOLDOWN_HOURS = 26;
+
     public function handle(PaymentProviderRegistry $registry): int
     {
         $query = Subscription::query()
@@ -61,18 +69,21 @@ class ChargeRecurringSubscriptions extends Command
 
             if ($result->success) {
                 // Monobank dispatch was accepted; the actual success (and
-                // period rollover) lands through handleWebhook. Reset the
-                // retry counter preemptively so a flaky webhook doesn't
-                // force a cron retry that would double-charge.
+                // period rollover) lands through handleWebhook. Park the
+                // subscription in a cooldown window so the NEXT cron run
+                // cannot re-select it before the webhook advances
+                // current_period_end — otherwise a delayed webhook causes
+                // a guaranteed double-charge.
                 $subscription->update([
                     'payment_retry_count' => 0,
-                    'next_payment_retry_at' => null,
+                    'next_payment_retry_at' => now()->addHours(self::DISPATCH_COOLDOWN_HOURS),
                 ]);
 
                 Log::channel('payments')->info('recurring.charge.dispatched', [
                     'subscription_id' => $subscription->id,
                     'provider' => $provider->name()->value,
                     'transaction_id' => $result->transactionId,
+                    'cooldown_until' => now()->addHours(self::DISPATCH_COOLDOWN_HOURS)->toIso8601String(),
                 ]);
 
                 $processed++;

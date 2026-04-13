@@ -145,6 +145,17 @@
 .pay-page__item-date {
   font-size: 10px;
   color: #555555;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pay-page__item-liqpay {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  margin: 0 4px;
+  vertical-align: middle;
 }
 
 .pay-page__item-right {

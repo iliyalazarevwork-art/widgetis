@@ -116,6 +116,11 @@
   gap: 40px;
 }
 
+/* ── Legal address ── */
+.contacts-page__legal {
+  margin-top: 4px;
+}
+
 /* ── Primary contact cards ── */
 .contacts-page__primary {
   display: grid;

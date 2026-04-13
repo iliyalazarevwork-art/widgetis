@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { get } from '../../api/client'
 import type { Payment, PaginatedResponse, Subscription } from '../../types'
 import { PageLoader } from '../../components/PageLoader'
+import liqpaySymbol from '../../assets/logo-liqpay-symbol.svg'
 import './styles/payments.css'
 
 export default function PaymentsPage() {
@@ -76,7 +77,21 @@ export default function PaymentsPage() {
               </div>
               <div className="pay-page__item-left">
                 <span className="pay-page__item-type">{paymentTitle(p)}</span>
-                <span className="pay-page__item-date">{paymentSubtitle(p)}</span>
+                <span className="pay-page__item-date">
+                  {formatDate(p.created_at)}
+                  {!trial && (
+                    <>
+                      {' · '}
+                      <img
+                        src={liqpaySymbol}
+                        alt=""
+                        className="pay-page__item-liqpay"
+                        aria-hidden="true"
+                      />
+                      LiqPay
+                    </>
+                  )}
+                </span>
               </div>
               <div className="pay-page__item-right">
                 <span className={`pay-page__item-amount ${trial ? 'pay-page__item-amount--trial' : ''}`}>
@@ -137,12 +152,6 @@ function paymentTitle(p: Payment): string {
   if (p.type === 'charge') return `Оплата — ${monthName(p.created_at)}`
 
   return p.type
-}
-
-function paymentSubtitle(p: Payment): string {
-  if (isTrialPayment(p)) return formatDate(p.created_at)
-
-  return `${formatDate(p.created_at)} · LiqPay`
 }
 
 function paymentAmount(p: Payment): string {
