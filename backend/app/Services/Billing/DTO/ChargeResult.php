@@ -22,6 +22,16 @@ final readonly class ChargeResult
         return new self(true, $transactionId);
     }
 
+    /**
+     * Success result for providers that schedule recurring charges on
+     * their own (LiqPay) and therefore never return a transaction id
+     * to the caller at charge-time.
+     */
+    public static function noop(): self
+    {
+        return new self(true);
+    }
+
     public static function fail(string $code, string $message): self
     {
         return new self(false, null, $code, $message);
