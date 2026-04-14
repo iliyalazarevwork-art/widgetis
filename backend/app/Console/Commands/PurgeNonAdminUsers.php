@@ -38,12 +38,26 @@ class PurgeNonAdminUsers extends Command
         }
 
         DB::transaction(function () use ($ids): void {
+            // Leaf tables first, then tables with FK to sites, then sites, then users.
+            $siteIds = DB::table('sites')->whereIn('user_id', $ids)->pluck('id');
+
+            DB::table('site_widgets')->whereIn('site_id', $siteIds)->delete();
+            DB::table('site_scripts')->whereIn('site_id', $siteIds)->delete();
+            DB::table('manager_requests')->whereIn('site_id', $siteIds)->delete();
+
             DB::table('payments')->whereIn('user_id', $ids)->delete();
             DB::table('orders')->whereIn('user_id', $ids)->delete();
             DB::table('reviews')->whereIn('user_id', $ids)->delete();
-            DB::table('manager_requests')->whereIn('user_id', $ids)->delete();
+            DB::table('subscriptions')->whereIn('user_id', $ids)->delete();
+            DB::table('notifications')->whereIn('user_id', $ids)->delete();
+            DB::table('interest_requests')->whereIn('user_id', $ids)->delete();
+            DB::table('social_accounts')->whereIn('user_id', $ids)->delete();
+            DB::table('demo_sessions')->whereIn('created_by', $ids)->delete();
+            DB::table('user_widget_grants')->whereIn('user_id', $ids)->delete();
             DB::table('activity_log')->whereIn('user_id', $ids)->delete();
             DB::table('sessions')->whereIn('user_id', $ids)->delete();
+
+            DB::table('sites')->whereIn('user_id', $ids)->delete();
 
             User::whereIn('id', $ids)->delete();
         });

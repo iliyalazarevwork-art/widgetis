@@ -541,14 +541,13 @@ export function SignupPage() {
                       {plan.pitch}
                     </span>
                   </p>
+                  {billing === 'yearly' && (
+                    <p className="signup__plan-annual">
+                      {plan.yearlyPrice.toLocaleString('uk-UA')} грн/рік · 2 міс у подарунок
+                    </p>
+                  )}
                 </div>
               </div>
-
-              {billing === 'yearly' && (
-                <p className="signup__plan-annual">
-                  {plan.yearlyPrice.toLocaleString('uk-UA')} грн/рік · 2 міс у подарунок
-                </p>
-              )}
 
               <div className="signup__plan-price">
                 <span className="signup__plan-amount">{displayPrice.toLocaleString('uk-UA')}</span>
@@ -573,12 +572,6 @@ export function SignupPage() {
                 <div className="signup__section-hdr">
                   <span className="signup__section-num">1</span>
                   <span className="signup__section-title">Підтвердження email</span>
-                  {emailStatus === 'idle' && (
-                    <span className="signup__email-badge signup__email-badge--warn">
-                      <AlertCircle size={11} strokeWidth={2.5} />
-                      Потрібно підтвердити
-                    </span>
-                  )}
                   {emailStatus === 'sent' && (
                     <span className="signup__email-badge signup__email-badge--sent">
                       <Check size={11} strokeWidth={2.5} />
