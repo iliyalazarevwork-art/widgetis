@@ -1,11 +1,17 @@
-import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, ArrowUp, X, Sprout, Zap, Crown, type LucideIcon } from 'lucide-react'
 import { get, post } from '../../api/client'
 import { toast } from 'sonner'
 import type { Subscription, Plan, DashboardData } from '../../types'
 import { PageLoader } from '../../components/PageLoader'
 import './styles/plan.css'
+
+// Post-payment polling: user returns from pay.mbnk.biz with
+// ?payment=processing, we poll /profile/subscription every 2s until
+// the webhook advances status to Active or we hit the timeout.
+const PAYMENT_POLL_INTERVAL_MS = 2000
+const PAYMENT_POLL_TIMEOUT_MS = 60_000
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
@@ -68,12 +74,14 @@ interface ProrationData {
 
 export default function MyPlanPage() {
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [sub, setSub]             = useState<Subscription | null>(null)
   const [plans, setPlans]         = useState<PlanWithFeatures[]>([])
   const [usage, setUsage]         = useState({ sites: 0, widgets: 0 })
   const [proration, setProration] = useState<ProrationData | null>(null)
   const [loading, setLoading]     = useState(true)
   const [changing, setChanging]   = useState(false)
+  const paymentToastRef = useRef<string | number | null>(null)
 
   useEffect(() => {
     Promise.all([
@@ -102,6 +110,74 @@ export default function MyPlanPage() {
         }
       }
     }).finally(() => setLoading(false))
+  }, [])
+
+  // Post-payment redirect handling. Monobank sends the user back to
+  // ?payment=processing after the checkout page closes; LiqPay can
+  // also land here when the caller chooses to. The webhook that
+  // activates the subscription is async — poll until it arrives.
+  useEffect(() => {
+    const status = searchParams.get('payment')
+    if (!status) return
+
+    if (status === 'failure') {
+      toast.error('Оплата не пройшла. Спробуйте ще раз або оберіть інший спосіб оплати.')
+      const next = new URLSearchParams(searchParams)
+      next.delete('payment')
+      setSearchParams(next, { replace: true })
+      return
+    }
+
+    if (status !== 'processing' && status !== 'success') return
+
+    paymentToastRef.current = toast.loading('Перевіряємо оплату...')
+
+    const startedAt = Date.now()
+    let cancelled = false
+
+    const poll = async (): Promise<void> => {
+      if (cancelled) return
+
+      try {
+        const res = await get<{ data: Subscription }>('/profile/subscription')
+        const s = res.data
+        const isActive = s.status === 'active' || s.status === 'trial'
+
+        if (isActive) {
+          setSub(s)
+          if (paymentToastRef.current !== null) {
+            toast.dismiss(paymentToastRef.current)
+          }
+          toast.success('Оплата пройшла, підписка активна!')
+          const next = new URLSearchParams(searchParams)
+          next.delete('payment')
+          setSearchParams(next, { replace: true })
+          return
+        }
+      } catch {
+        /* ignore — will retry */
+      }
+
+      if (Date.now() - startedAt >= PAYMENT_POLL_TIMEOUT_MS) {
+        if (paymentToastRef.current !== null) {
+          toast.dismiss(paymentToastRef.current)
+        }
+        toast.warning('Оплата ще обробляється. Ми надішлемо підтвердження на email щойно вона завершиться.')
+        return
+      }
+
+      setTimeout(poll, PAYMENT_POLL_INTERVAL_MS)
+    }
+
+    void poll()
+
+    return () => {
+      cancelled = true
+      if (paymentToastRef.current !== null) {
+        toast.dismiss(paymentToastRef.current)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleUpgrade = async (slug: string) => {
