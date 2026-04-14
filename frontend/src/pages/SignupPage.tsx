@@ -223,6 +223,7 @@ export function SignupPage() {
   const { user, login } = useAuth()
   const verifyingOtpRef = useRef(false)
   const lastAutoSubmittedOtpRef = useRef('')
+  const siteInputRef = useRef<HTMLInputElement>(null)
 
   const rawPlan = params.get('plan') ?? 'pro'
   const billing = params.get('billing') === 'monthly' ? 'monthly' : 'yearly'
@@ -259,8 +260,29 @@ export function SignupPage() {
 
   // ── Restore draft ──
   useEffect(() => {
+    // Helper: read persisted site data from localStorage (shared with AddSitePage)
+    function getSavedSite(): { url: string; platform: Platform } {
+      try {
+        const raw = localStorage.getItem('wty_add_site_draft')
+        if (!raw) return { url: '', platform: 'horoshop' }
+        const parsed = JSON.parse(raw) as { url?: string; platform?: string }
+        return {
+          url: parsed.url ?? '',
+          platform: (parsed.platform as Platform) ?? 'horoshop',
+        }
+      } catch {
+        return { url: '', platform: 'horoshop' }
+      }
+    }
+
     const rawDraft = sessionStorage.getItem(SIGNUP_DRAFT_KEY)
-    if (!rawDraft) { setDraftHydrated(true); return }
+    if (!rawDraft) {
+      // No session draft — still restore site from localStorage if available
+      const saved = getSavedSite()
+      if (saved.url) { setSite(saved.url); setPlatform(saved.platform) }
+      setDraftHydrated(true)
+      return
+    }
 
     try {
       const draft = JSON.parse(rawDraft) as SignupDraft
@@ -273,8 +295,11 @@ export function SignupPage() {
       setEmailStatus(safeStatus)
       setEmail(draft.email || user?.email || '')
       setOtp(draft.otp)
-      setSite(draft.site)
-      setPlatform(draft.platform)
+      // Prefer session draft site; fall back to localStorage if empty
+      const savedSite = draft.site || getSavedSite().url
+      const savedPlatform = draft.site ? draft.platform : (getSavedSite().platform)
+      setSite(savedSite)
+      setPlatform(savedPlatform)
       setPaymentMethod(draft.paymentMethod ?? 'liqpay')
 
       if (draft.resendAvailableAt && draft.resendAvailableAt > Date.now()) {
@@ -303,6 +328,15 @@ export function SignupPage() {
     }
     sessionStorage.setItem(SIGNUP_DRAFT_KEY, JSON.stringify(draft))
   }, [billing, draftHydrated, email, emailStatus, otp, paymentMethod, planKey, platform, resendCooldown, site])
+
+  // ── Persist site URL to localStorage so it survives tab close ──
+  useEffect(() => {
+    if (!draftHydrated || !site.trim()) return
+    try {
+      const prev = JSON.parse(localStorage.getItem('wty_add_site_draft') || '{}') as Record<string, string>
+      localStorage.setItem('wty_add_site_draft', JSON.stringify({ ...prev, url: site.trim(), platform }))
+    } catch { /* quota */ }
+  }, [draftHydrated, site, platform])
 
   // ── Resend countdown ──
   useEffect(() => {
@@ -399,6 +433,8 @@ export function SignupPage() {
     const normalizedUrl = normalizeSiteUrl(site)
     if (!normalizedUrl || normalizedUrl.length < 10) {
       setSiteError('Вкажіть адресу магазину')
+      siteInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      siteInputRef.current?.focus()
       return
     }
     setSiteError('')
@@ -409,6 +445,7 @@ export function SignupPage() {
         email, site: normalizedUrl, platform, plan: planKey, billing, paymentMethod,
       }))
       sessionStorage.removeItem(SIGNUP_DRAFT_KEY)
+      try { localStorage.removeItem('wty_add_site_draft') } catch { /* ignore */ }
 
       if (paymentMethod === 'liqpay') {
         const checkoutRes = await post<LiqPayTrialCheckoutResponse>('/profile/subscription/checkout/trial', {
@@ -690,6 +727,7 @@ export function SignupPage() {
                   <div className="signup__input-wrap">
                     <Globe size={15} strokeWidth={2} />
                     <input
+                      ref={siteInputRef}
                       type="text"
                       placeholder="store.com.ua"
                       value={site}

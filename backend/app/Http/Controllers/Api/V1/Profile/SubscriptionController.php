@@ -152,12 +152,15 @@ class SubscriptionController extends BaseController
         }
 
         // Reject rapid duplicate clicks: if the user already has a
-        // Pending order younger than 5 minutes, treat the click as a
-        // duplicate rather than spawning a second invoice on the
-        // provider side.
+        // Pending order younger than 5 minutes with no failed payment yet,
+        // treat the click as a duplicate rather than spawning a second
+        // invoice on the provider side.
+        // Orders whose payment already failed are excluded so the user can
+        // retry immediately after a declined card.
         $recentPending = Order::where('user_id', $user->id)
             ->where('status', OrderStatus::Pending)
             ->where('created_at', '>=', now()->subMinutes(5))
+            ->whereDoesntHave('payments', fn ($q) => $q->where('status', PaymentStatus::Failed->value))
             ->exists();
 
         if ($recentPending) {

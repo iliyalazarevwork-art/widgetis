@@ -18,6 +18,7 @@ use App\Services\Billing\Contracts\PaymentProviderInterface;
 use App\Services\Billing\DTO\ChargeResult;
 use App\Services\Billing\DTO\CheckoutResult;
 use App\Services\Billing\DTO\WebhookResult;
+use App\Services\Billing\PaymentFailureHandler;
 use App\Services\Billing\UniqueOrderNumberProvider;
 use AratKruglik\Monobank\Contracts\ClientInterface as MonobankClient;
 use AratKruglik\Monobank\DTO\CartItemDTO;
@@ -49,6 +50,7 @@ class MonobankProvider implements PaymentProviderInterface
         private readonly MonobankClient $client,
         private readonly PubKeyProvider $pubKeyProvider,
         private readonly UniqueOrderNumberProvider $orderNumbers,
+        private readonly PaymentFailureHandler $failureHandler,
     ) {
     }
 
@@ -407,17 +409,7 @@ class MonobankProvider implements PaymentProviderInterface
             ],
         );
 
-        $subscription = Subscription::where('user_id', $order->user_id)->first();
-
-        // A failed renewal webhook must move an Active subscription to
-        // past_due — that's the whole point of dunning. The previous
-        // guard was inverted and silently left Active subs untouched.
-        if ($subscription !== null && $subscription->status !== SubscriptionStatus::Cancelled) {
-            $subscription->update([
-                'status' => SubscriptionStatus::PastDue,
-                'grace_period_ends_at' => now()->addDays(3),
-            ]);
-        }
+        $this->failureHandler->handle($order);
 
         Log::channel('payments')->warning('monobank.payment.failed', [
             'user_id' => $order->user_id,

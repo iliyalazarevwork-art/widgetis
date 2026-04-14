@@ -20,6 +20,7 @@ class LiqPayWebhookService
 {
     public function __construct(
         private readonly LiqPayService $liqPayService,
+        private readonly PaymentFailureHandler $failureHandler,
     ) {
     }
 
@@ -270,14 +271,7 @@ class LiqPayWebhookService
             ]);
         }
 
-        $subscription = Subscription::where('user_id', $order->user_id)->first();
-
-        if ($subscription !== null) {
-            $subscription->update([
-                'status' => SubscriptionStatus::PastDue,
-                'grace_period_ends_at' => now()->addDays(3),
-            ]);
-        }
+        $this->failureHandler->handle($order);
 
         Log::channel('payments')->warning('liqpay.payment.failed', [
             'user_id' => $order->user_id,
