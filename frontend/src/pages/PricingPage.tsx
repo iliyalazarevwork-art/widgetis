@@ -113,7 +113,8 @@ export function PricingPage() {
   // True while we don't yet know the user's plan state
   const ctaReady = !authLoading && !subLoading
 
-  const currentPlanOrder = sub ? (PLAN_ORDER[sub.plan.slug] ?? -1) : -1
+  const isSubActive = sub !== null && (sub.status === 'active' || sub.status === 'trial')
+  const currentPlanOrder = isSubActive ? (PLAN_ORDER[sub!.plan.slug] ?? -1) : -1
 
   const handleUpgrade = async (planId: string) => {
     if (upgrading) return
@@ -150,17 +151,17 @@ export function PricingPage() {
         {/* ── Hero ── */}
         <header className="pricing__hero">
           <h1 className="pricing__hero-title">
-            {sub ? 'Підвищити план' : 'Обери свій план'}
+            {isSubActive ? 'Підвищити план' : 'Обери свій план'}
           </h1>
           <p className="pricing__hero-sub">
-            {sub
-              ? `Поточний план: ${sub.plan.name} · ${sub.billing_period === 'yearly' ? 'Рік' : 'Місяць'}`
+            {isSubActive
+              ? `Поточний план: ${sub!.plan.name} · ${sub!.billing_period === 'yearly' ? 'Рік' : 'Місяць'}`
               : '7 днів безкоштовно. Скасуєш коли захочеш.'}
           </p>
         </header>
 
-        {/* ── Toggle (hidden for subscribers — billing period is locked) ── */}
-        {!sub && (
+        {/* ── Toggle (hidden for active subscribers — billing period is locked) ── */}
+        {!isSubActive && (
           <div className="pricing__seg" role="group" aria-label="Період оплати">
             <button
               className={`pricing__seg-btn ${!yearly ? 'pricing__seg-btn--active' : ''}`}
@@ -182,9 +183,9 @@ export function PricingPage() {
         <div className="pricing__plans">
           {PLANS.map((plan) => {
             const planOrder = PLAN_ORDER[plan.id] ?? 0
-            const isCurrent = sub !== null && sub.plan.slug === plan.id
-            const isBelow = sub !== null && planOrder < currentPlanOrder
-            const isAbove = sub !== null && planOrder > currentPlanOrder
+            const isCurrent = isSubActive && sub!.plan.slug === plan.id
+            const isBelow = isSubActive && planOrder < currentPlanOrder
+            const isAbove = isSubActive && planOrder > currentPlanOrder
 
             const features: PlanCardFeature[] = plan.features.map((f) => ({
               key: f.label,

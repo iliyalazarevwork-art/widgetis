@@ -42,9 +42,10 @@ class CheckoutEndpointTest extends TestCase
         $plan = Plan::factory()->pro()->create();
 
         $response = $this->postJson('/api/v1/profile/subscription/checkout', [
-            'plan_slug' => $plan->slug,
+            'plan_slug'   => $plan->slug,
             'billing_period' => 'monthly',
-            'provider' => 'liqpay',
+            'provider'    => 'liqpay',
+            'site_domain' => 'mystore.com.ua',
         ], $this->authHeaders($user));
 
         $response->assertOk();
@@ -81,9 +82,10 @@ class CheckoutEndpointTest extends TestCase
         $this->assertNull($user->monobank_wallet_id);
 
         $response = $this->postJson('/api/v1/profile/subscription/checkout', [
-            'plan_slug' => $plan->slug,
+            'plan_slug'      => $plan->slug,
             'billing_period' => 'monthly',
-            'provider' => 'monobank',
+            'provider'       => 'monobank',
+            'site_domain'    => 'mystore.com.ua',
         ], $this->authHeaders($user));
 
         $response->assertOk();
@@ -122,9 +124,10 @@ class CheckoutEndpointTest extends TestCase
         $plan = Plan::factory()->pro()->create();
 
         $response = $this->postJson('/api/v1/profile/subscription/checkout', [
-            'plan_slug' => $plan->slug,
+            'plan_slug'      => $plan->slug,
             'billing_period' => 'monthly',
-            'provider' => 'stripe',
+            'provider'       => 'stripe',
+            'site_domain'    => 'mystore.com.ua',
         ], $this->authHeaders($user));
 
         $response->assertStatus(422);
@@ -141,9 +144,10 @@ class CheckoutEndpointTest extends TestCase
         ]);
 
         $response = $this->postJson('/api/v1/profile/subscription/checkout', [
-            'plan_slug' => $plan->slug,
+            'plan_slug'      => $plan->slug,
             'billing_period' => 'monthly',
-            'provider' => 'liqpay',
+            'provider'       => 'liqpay',
+            'site_domain'    => 'mystore.com.ua',
         ], $this->authHeaders($user));
 
         $response->assertStatus(422);

@@ -62,6 +62,7 @@ class MonobankProvider implements PaymentProviderInterface
         Plan $plan,
         BillingPeriod $billingPeriod,
         string $reference,
+        ?string $redirectUrl = null,
     ): CheckoutResult {
         // Scope by user_id — defense in depth against cross-user hijack
         // if any future caller passes a user-supplied $reference.
@@ -82,7 +83,7 @@ class MonobankProvider implements PaymentProviderInterface
 
         $dto = new InvoiceRequestDTO(
             amount: $amount,
-            redirectUrl: (string) config('monobank.redirect_url'),
+            redirectUrl: $redirectUrl ?? (string) config('monobank.redirect_url'),
             webHookUrl: (string) config('monobank.webhook_url'),
             validity: 86400,
             saveCardData: [

@@ -19,10 +19,6 @@ import { Testimonials } from './components/Testimonials'
 
 const WidgetsPage = lazy(() => import('./pages/WidgetsPage').then((m) => ({ default: m.WidgetsPage })))
 const PricingPage = lazy(() => import('./pages/PricingPage').then((m) => ({ default: m.PricingPage })))
-const CheckoutPage = lazy(() => import('./pages/CheckoutPage').then((m) => ({ default: m.CheckoutPage })))
-const CheckoutSuccessPage = lazy(() =>
-  import('./pages/CheckoutSuccessPage').then((m) => ({ default: m.CheckoutSuccessPage })),
-)
 const ContactsPage = lazy(() => import('./pages/ContactsPage').then((m) => ({ default: m.ContactsPage })))
 const LicensePage = lazy(() => import('./pages/LicensePage').then((m) => ({ default: m.LicensePage })))
 const OfferPage = lazy(() => import('./pages/OfferPage').then((m) => ({ default: m.OfferPage })))
@@ -281,8 +277,6 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/widgets" element={<WidgetsPage />} />
             <Route path="/pricing" element={<PricingPage />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
             <Route path="/contacts" element={<ContactsPage />} />
             <Route path="/license" element={<LicensePage />} />
             <Route path="/offer" element={<OfferPage />} />

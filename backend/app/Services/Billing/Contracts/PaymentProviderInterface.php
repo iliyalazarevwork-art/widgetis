@@ -38,6 +38,7 @@ interface PaymentProviderInterface
         Plan $plan,
         BillingPeriod $billingPeriod,
         string $reference,
+        ?string $redirectUrl = null,
     ): CheckoutResult;
 
     /**

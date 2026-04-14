@@ -9,10 +9,12 @@ use App\Enums\OrderStatus;
 use App\Enums\PaymentProvider;
 use App\Enums\PaymentStatus;
 use App\Enums\PaymentType;
+use App\Enums\SiteStatus;
 use App\Enums\SubscriptionStatus;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Plan;
+use App\Models\Site;
 use App\Models\Subscription;
 use App\Services\Billing\LiqPayService;
 use App\Services\Billing\LiqPayWebhookService;
@@ -42,8 +44,10 @@ class CheckoutController
     public function startTrial(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'plan_slug' => ['required', 'string', 'exists:plans,slug'],
+            'plan_slug'      => ['required', 'string', 'exists:plans,slug'],
             'billing_period' => ['required', 'string', 'in:monthly,yearly'],
+            'site_domain'    => ['required', 'string', 'max:255'],
+            'platform'       => ['nullable', 'string', 'max:100'],
         ]);
 
         /** @var \App\Models\User $user */
@@ -61,7 +65,18 @@ class CheckoutController
             ], 422);
         }
 
-        $siteDomain = $user->sites()->orderBy('id')->value('domain');
+        $siteDomain = $validated['site_domain'];
+
+        Site::firstOrCreate(
+            ['user_id' => $user->id, 'domain' => $siteDomain],
+            [
+                'name'     => $siteDomain,
+                'url'      => 'https://' . $siteDomain,
+                'platform' => $validated['platform'] ?? 'horoshop',
+                'status'   => SiteStatus::Pending,
+            ],
+        );
+
         $publicBaseUrl = rtrim((string) config('app.url'), '/');
         $serverUrl = $publicBaseUrl . '/api/v1/payments/liqpay/callback';
         $resultUrl = $publicBaseUrl . '/liqpay/return';

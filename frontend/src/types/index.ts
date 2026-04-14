@@ -36,7 +36,7 @@ export interface Subscription {
   id: number
   plan: Plan
   billing_period: 'monthly' | 'yearly'
-  status: 'trial' | 'active' | 'cancelled' | 'expired' | 'past_due'
+  status: 'trial' | 'active' | 'pending' | 'cancelled' | 'expired' | 'past_due'
   is_trial: boolean
   trial_ends_at: string | null
   current_period_start: string

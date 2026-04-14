@@ -158,23 +158,6 @@
 .signup__plan--pro   .signup__plan-check { color: var(--accent); }
 .signup__plan--max   .signup__plan-check { color: var(--plan-max); }
 
-.signup__trust-list {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  padding-top: 4px;
-  border-top: 1px solid var(--border-subtle);
-}
-
-.signup__trust-item {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-family: var(--font-body);
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
 .signup__plan-change {
   font-family: var(--font-body);
   font-size: 12px;
@@ -196,109 +179,207 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  min-height: 440px;
   min-width: 0;
 }
 
-/* ── Step progress ── */
+/* ── Sections ── */
 
-.signup__steps {
+.signup__section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.signup__section-hdr {
   display: flex;
   align-items: center;
-  gap: 0;
-  margin-bottom: 4px;
+  gap: 10px;
 }
 
-.signup__step {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  position: relative;
-  min-width: 0;
-}
-
-.signup__step:not(:last-child)::after {
-  content: '';
-  position: absolute;
-  left: calc(14px + 8px);
-  right: 0;
-  top: 50%;
-  height: 1px;
-  background: var(--border-subtle);
-  transform: translateY(-50%);
-  z-index: 0;
-}
-
-.signup__step--done:not(:last-child)::after {
-  background: var(--accent-dim);
-}
-
-.signup__step-dot {
-  width: 28px;
-  height: 28px;
+.signup__section-num {
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-light);
+  background: var(--accent-dim);
+  border: 1px solid rgba(59, 130, 246, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.signup__section-title {
   font-family: var(--font-body);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
+  color: var(--text-primary);
+}
+
+.signup__section-icon {
   color: var(--text-muted);
   flex-shrink: 0;
-  position: relative;
-  z-index: 1;
-  transition: all var(--transition-fast);
 }
 
-.signup__step--active .signup__step-dot {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #f0f0f0;
-  box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+.signup__section-divider {
+  height: 1px;
+  background: var(--border-subtle);
 }
 
-.signup__step--done .signup__step-dot {
-  background: var(--accent-dim);
-  border-color: var(--accent);
+/* ── Email status badge ── */
+
+.signup__email-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  margin-left: auto;
+}
+
+.signup__email-badge--warn {
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  color: #f87171;
+}
+
+.signup__email-badge--sent {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.25);
   color: var(--accent);
 }
 
-.signup__step-label {
+.signup__email-badge--ok {
+  background: rgba(74, 222, 128, 0.1);
+  border: 1px solid rgba(74, 222, 128, 0.25);
+  color: #4ade80;
+}
+
+/* ── Email confirmed row ── */
+
+.signup__email-confirmed {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: rgba(74, 222, 128, 0.06);
+  border: 1px solid rgba(74, 222, 128, 0.2);
+}
+
+.signup__email-confirmed-icon { color: #4ade80; flex-shrink: 0; }
+
+.signup__email-confirmed-text {
   font-family: var(--font-body);
-  font-size: 12px;
-  color: var(--text-muted);
-  transition: color var(--transition-fast);
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+/* ── Email row (idle: input + send button) ── */
+
+.signup__email-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.signup__field--email {
+  flex: 1;
   min-width: 0;
 }
 
-.signup__step--active .signup__step-label { color: var(--text-primary); font-weight: 500; }
-.signup__step--done .signup__step-label   { color: var(--accent); }
-
-/* ── Headings ── */
-
-.signup__title {
-  font-family: var(--font-display);
-  font-size: clamp(22px, 4vw, 30px);
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  color: var(--text-primary);
-  line-height: 1.1;
-}
-
-.signup__subtitle {
+.signup__send-btn {
+  height: 44px;
+  padding: 0 18px;
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: #f0f0f0;
   font-family: var(--font-body);
   font-size: 14px;
-  color: var(--text-muted);
-  line-height: 1.5;
-  margin-top: -12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background var(--transition-fast);
 }
 
-.signup__email-accent {
+.signup__send-btn:hover:not(:disabled) { background: var(--accent-hover); }
+.signup__send-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+/* ── Email sent row (code sent: email display + change button) ── */
+
+.signup__email-sent-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+}
+
+.signup__email-sent-left {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-body);
+  font-size: 14px;
   color: var(--text-primary);
-  font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.signup__email-sent-left span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.signup__email-sent-left svg { flex-shrink: 0; color: var(--text-muted); }
+
+.signup__change-email-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: color var(--transition-fast);
+}
+
+.signup__change-email-btn:hover { color: var(--accent-hover); }
+
+/* ── OTP inline box ── */
+
+.signup__otp-box {
+  background: rgba(59, 130, 246, 0.05);
+  border: 1px solid rgba(59, 130, 246, 0.18);
+  border-radius: var(--radius-md);
+  padding: 20px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.signup__otp-box-label {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-align: center;
 }
 
 /* ── Google button ── */
@@ -347,26 +428,11 @@
 
 /* ── Fields ── */
 
-.signup__fields {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
 .signup__field {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
-
-.signup__field-label {
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-
-.signup__field-req { color: var(--accent); margin-left: 2px; }
 
 .signup__input-wrap {
   display: flex;
@@ -468,26 +534,6 @@
 .signup__resend-btn:hover { color: var(--accent-hover); }
 .signup__resend-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-/* ── Back step ── */
-
-.signup__back-step {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  font-family: var(--font-body);
-  font-size: 12px;
-  cursor: pointer;
-  padding: 0;
-  margin: -8px auto 0;
-  transition: color var(--transition-fast);
-  align-self: center;
-}
-
-.signup__back-step:hover { color: var(--text-secondary); }
-
 /* ── Platforms ── */
 
 .signup__platforms {
@@ -536,78 +582,80 @@
   border-radius: var(--radius-full);
 }
 
-/* ── LiqPay section ── */
+/* ── Payment list (vertical) ── */
 
-.signup__card-section {
+.signup__payment-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-}
-
-.signup__card-label {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-
-.signup__payment-methods {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
 
-.signup__payment-method {
+.signup__payment-card {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  min-width: 0;
-  padding: 20px 16px 18px;
+  gap: 16px;
+  padding: 16px 18px;
   border-radius: var(--radius-md);
   background: var(--bg-surface);
-  border: 1px solid var(--border-light);
-  color: var(--text-muted);
-  font-family: var(--font-body);
+  border: 1.5px solid var(--border-light);
   cursor: pointer;
   transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
-  text-align: center;
+  text-align: left;
+  width: 100%;
 }
 
-.signup__payment-method-symbol {
-  width: 34px;
-  height: 34px;
-  display: block;
+.signup__payment-card:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.signup__payment-card--active {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.18);
+}
+
+.signup__payment-card-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
   flex-shrink: 0;
-  opacity: 0.9;
-  transition: opacity var(--transition-fast);
 }
 
-.signup__payment-method:hover:not(:disabled) .signup__payment-method-symbol,
-.signup__payment-method--active .signup__payment-method-symbol {
-  opacity: 1;
+.signup__payment-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
 }
 
-.signup__payment-method-name {
-  font-size: 13px;
+.signup__payment-card-name {
+  font-family: var(--font-body);
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-primary);
-  line-height: 1.1;
 }
 
-.signup__payment-method-hint {
-  font-size: 11px;
-  font-weight: 500;
+.signup__payment-card-hint {
+  font-family: var(--font-body);
+  font-size: 12px;
   color: var(--text-muted);
-  line-height: 1.3;
+  line-height: 1.4;
+}
+
+.signup__payment-card-trial {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  color: #4ade80;
+  margin-top: 2px;
 }
 
 .signup__payment-notice {
-  margin: 12px 0 0;
   padding: 10px 12px;
   border-radius: var(--radius-sm);
   background: rgba(251, 191, 36, 0.08);
@@ -619,29 +667,21 @@
   line-height: 1.45;
 }
 
-.signup__payment-method:hover:not(:disabled) {
-  border-color: var(--accent);
-  background: var(--accent-dim);
-  color: var(--text-primary);
-}
+/* ── CTA lock warning ── */
 
-.signup__payment-method--active {
-  border-color: var(--accent);
-  background: var(--accent-dim);
-  color: var(--text-primary);
-  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.22);
-}
-
-.signup__payment-method-icon {
-  font-size: 28px;
-  line-height: 1;
-}
-
-.signup__payment-method-symbol {
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
-  display: block;
+.signup__cta-lock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: #f87171;
+  padding: 10px 14px;
+  background: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+  border-radius: var(--radius-md);
 }
 
 /* ── Submit ── */
@@ -785,10 +825,7 @@
   }
 
   /* Hide details on mobile — user already chose the plan */
-  .signup__plan-features,
-  .signup__trust-list {
-    display: none;
-  }
+  .signup__plan-features { display: none; }
 
   .signup__plan-change {
     width: 100%;
@@ -799,41 +836,26 @@
   }
 
   .signup__form-wrap {
-    padding: 26px 20px 24px;
-  }
-
-  .signup__payment-methods {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .signup__payment-method {
-    width: 100%;
-  }
-
-  .signup__steps {
-    gap: 8px;
-    overflow: hidden;
-  }
-
-  .signup__step {
-    gap: 6px;
-  }
-
-  .signup__step:not(:last-child)::after {
-    left: calc(14px + 6px);
-  }
-
-  .signup__step-label {
-    font-size: 11px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    padding: 24px 16px 22px;
   }
 
   .signup__otp-cell {
     width: 42px;
     height: 50px;
     font-size: 20px;
+  }
+
+  .signup__email-row {
+    flex-direction: column;
+  }
+
+  .signup__send-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .signup__payment-card {
+    padding: 14px 14px;
+    gap: 12px;
   }
 }

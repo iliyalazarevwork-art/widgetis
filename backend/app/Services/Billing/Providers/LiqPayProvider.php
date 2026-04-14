@@ -46,6 +46,7 @@ class LiqPayProvider implements PaymentProviderInterface
         Plan $plan,
         BillingPeriod $billingPeriod,
         string $reference,
+        ?string $redirectUrl = null,
     ): CheckoutResult {
         // Scope the lookup by user_id even though the caller controls
         // $reference — defense in depth against any future caller that
@@ -56,7 +57,7 @@ class LiqPayProvider implements PaymentProviderInterface
 
         $publicBaseUrl = rtrim((string) config('app.url'), '/');
         $serverUrl = $publicBaseUrl . '/api/v1/payments/liqpay/callback';
-        $resultUrl = $publicBaseUrl . '/liqpay/return';
+        $resultUrl = $redirectUrl ?? ($publicBaseUrl . '/liqpay/return');
 
         $checkout = $this->liqPayService->createSubscriptionCheckout(
             order: $order,

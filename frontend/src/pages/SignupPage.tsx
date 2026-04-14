@@ -15,18 +15,20 @@ import {
   CalendarClock,
   CreditCard,
   RefreshCw,
+  Lock,
+  AlertCircle,
 } from 'lucide-react'
 import { platformConfig } from '../data/widgets'
 import type { Platform } from '../data/widgets'
 import { post } from '../api/client'
-import type { SiteCreateResponse, User } from '../types'
+import type { User } from '../types'
 import { useAuth } from '../context/AuthContext'
 import { toast } from 'sonner'
 import liqpaySymbol from '../assets/logo-liqpay-symbol.svg'
 import plataSymbol from '../assets/logo-plata-symbol-dark.svg'
 import './SignupPage.css'
 
-// ─── Plan data ────────────────────────────────────────────────────────────────
+// ─── Plan data ─────────────────────────────────────────────────────────────────
 
 const PLAN_META = {
   basic: {
@@ -84,41 +86,32 @@ const PLAN_META = {
 
 type PlanKey = keyof typeof PLAN_META
 
-// ─── OTP input component ──────────────────────────────────────────────────────
+// ─── OTP input ─────────────────────────────────────────────────────────────────
 
 function OtpInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const len = 6
   const inputs = useRef<(HTMLInputElement | null)[]>([])
 
-  useEffect(() => {
-    inputs.current[0]?.focus()
-  }, [])
+  useEffect(() => { inputs.current[0]?.focus() }, [])
 
   function handleKey(i: number, e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Backspace' && !value[i] && i > 0) {
-      inputs.current[i - 1]?.focus()
-    }
+    if (e.key === 'Backspace' && !value[i] && i > 0) inputs.current[i - 1]?.focus()
   }
 
   function handleChange(i: number, raw: string) {
     const digits = raw.replace(/\D/g, '')
-
-    // iOS autofill fills the whole code into the focused input at once
     if (digits.length > 1) {
       const filled = digits.slice(0, len)
       onChange(filled)
       inputs.current[Math.min(filled.length, len - 1)]?.focus()
       return
     }
-
     const digit = digits.slice(-1)
     const arr = value.padEnd(len, ' ').split('')
     arr[i] = digit || ' '
     const next = arr.join('').trimEnd()
     onChange(next)
-    if (digit && i < len - 1) {
-      inputs.current[i + 1]?.focus()
-    }
+    if (digit && i < len - 1) inputs.current[i + 1]?.focus()
   }
 
   function handlePaste(e: React.ClipboardEvent) {
@@ -150,9 +143,9 @@ function OtpInput({ value, onChange }: { value: string; onChange: (v: string) =>
   )
 }
 
-// ─── Steps ────────────────────────────────────────────────────────────────────
+// ─── Types ─────────────────────────────────────────────────────────────────────
 
-type Step = 'auth' | 'otp' | 'store'
+type EmailStatus = 'idle' | 'sent' | 'verified'
 type PaymentMethodId = 'liqpay' | 'monobank'
 
 interface PaymentMethod {
@@ -184,7 +177,7 @@ const SIGNUP_DRAFT_KEY = 'wty_signup_draft'
 const RESEND_COOLDOWN_SECONDS = 60
 
 interface SignupDraft {
-  step: Step
+  emailStatus: EmailStatus
   email: string
   otp: string
   site: string
@@ -219,11 +212,10 @@ function normalizeSiteUrl(value: string): string {
   const raw = value.trim()
   if (!raw) return ''
   if (/^https?:\/\//i.test(raw)) return raw
-
   return `https://${raw}`
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+// ─── Page ──────────────────────────────────────────────────────────────────────
 
 export function SignupPage() {
   const navigate = useNavigate()
@@ -239,8 +231,7 @@ export function SignupPage() {
   const Icon = plan.icon
   const displayPrice = billing === 'yearly' ? plan.yearlyMonthly : plan.monthlyPrice
 
-  // If user is already authenticated, skip email/OTP steps — go straight to store
-  const [step, setStep] = useState<Step>(user ? 'store' : 'auth')
+  const [emailStatus, setEmailStatus] = useState<EmailStatus>(user ? 'verified' : 'idle')
   const [email, setEmail] = useState(user?.email ?? '')
   const [emailError, setEmailError] = useState('')
   const [otp, setOtp] = useState('')
@@ -254,24 +245,32 @@ export function SignupPage() {
   const [resendCooldown, setResendCooldown] = useState(0)
   const [draftHydrated, setDraftHydrated] = useState(false)
 
+  // Auth context may not be loaded when this component first mounts, so
+  // emailStatus could be initialised to 'idle' even for an authenticated user.
+  // Also, the draft restoration effect may run first and set emailStatus to
+  // 'sent' from a stale draft, then user loads and we need to override it.
+  // Depend on draftHydrated so this always runs AFTER draft restoration.
+  useEffect(() => {
+    if (draftHydrated && user) {
+      setEmailStatus('verified')
+      if (!email) setEmail(user.email ?? '')
+    }
+  }, [user, draftHydrated]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Restore draft ──
   useEffect(() => {
     const rawDraft = sessionStorage.getItem(SIGNUP_DRAFT_KEY)
-    if (!rawDraft) {
-      setDraftHydrated(true)
-      return
-    }
+    if (!rawDraft) { setDraftHydrated(true); return }
 
     try {
       const draft = JSON.parse(rawDraft) as SignupDraft
       if (draft.plan !== planKey || draft.billing !== billing) return
 
-      // The 'store' step submits authenticated API calls (/profile/sites,
-      // /profile/subscription/checkout). Restoring it for a user who has
-      // no token would 401 on submit. If a stale draft was saved as
-      // 'store' but the current session has no user, drop the user back
-      // to the auth step instead of trusting the draft blindly.
-      const safeStep: Step = draft.step === 'store' && !user ? 'auth' : draft.step
-      setStep(safeStep)
+      // If draft had emailStatus=verified but there's no active user, fallback to idle
+      const safeStatus: EmailStatus =
+        draft.emailStatus === 'verified' && !user ? 'idle' : draft.emailStatus ?? 'idle'
+
+      setEmailStatus(safeStatus)
       setEmail(draft.email || user?.email || '')
       setOtp(draft.otp)
       setSite(draft.site)
@@ -288,15 +287,11 @@ export function SignupPage() {
     setDraftHydrated(true)
   }, [billing, planKey])
 
+  // ── Save draft ──
   useEffect(() => {
     if (!draftHydrated) return
-
-    const resendAvailableAt = resendCooldown > 0
-      ? Date.now() + resendCooldown * 1000
-      : null
-
     const draft: SignupDraft = {
-      step,
+      emailStatus,
       email,
       otp,
       site,
@@ -304,23 +299,21 @@ export function SignupPage() {
       paymentMethod,
       plan: planKey,
       billing,
-      resendAvailableAt,
+      resendAvailableAt: resendCooldown > 0 ? Date.now() + resendCooldown * 1000 : null,
     }
-
     sessionStorage.setItem(SIGNUP_DRAFT_KEY, JSON.stringify(draft))
-  }, [billing, draftHydrated, email, otp, paymentMethod, planKey, platform, resendCooldown, site, step])
+  }, [billing, draftHydrated, email, emailStatus, otp, paymentMethod, planKey, platform, resendCooldown, site])
 
+  // ── Resend countdown ──
   useEffect(() => {
     if (resendCooldown <= 0) return
-
     const id = window.setInterval(() => {
-      setResendCooldown(value => (value <= 1 ? 0 : value - 1))
+      setResendCooldown(v => (v <= 1 ? 0 : v - 1))
     }, 1000)
-
     return () => window.clearInterval(id)
   }, [resendCooldown])
 
-  // ── Step 1: send OTP ──
+  // ── Send OTP ──
   function handleSendOtp(e: React.FormEvent) {
     e.preventDefault()
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
@@ -331,18 +324,12 @@ export function SignupPage() {
     setLoading(true)
     post('/auth/otp', { email: email.trim() })
       .then(() => {
-        setStep('otp')
-        startCooldown()
+        setEmailStatus('sent')
+        setResendCooldown(RESEND_COOLDOWN_SECONDS)
         toast.success('Код підтвердження надіслано на email')
       })
-      .catch((err) => {
-        toast.error(err instanceof Error ? err.message : 'Не вдалося надіслати код')
-      })
+      .catch(err => toast.error(err instanceof Error ? err.message : 'Не вдалося надіслати код'))
       .finally(() => setLoading(false))
-  }
-
-  function startCooldown() {
-    setResendCooldown(RESEND_COOLDOWN_SECONDS)
   }
 
   function handleResend() {
@@ -351,22 +338,17 @@ export function SignupPage() {
       .then(() => {
         setOtp('')
         lastAutoSubmittedOtpRef.current = ''
-        startCooldown()
+        setResendCooldown(RESEND_COOLDOWN_SECONDS)
         toast.success('Код надіслано повторно')
       })
-      .catch((err) => {
-        toast.error(err instanceof Error ? err.message : 'Не вдалося надіслати код повторно')
-      })
+      .catch(err => toast.error(err instanceof Error ? err.message : 'Не вдалося надіслати код'))
       .finally(() => setResending(false))
   }
 
-  // ── Step 2: verify OTP ──
+  // ── Verify OTP ──
   async function verifyOtpCode(rawCode: string) {
     const clean = rawCode.replace(/\s/g, '')
-    if (clean.length < 6) {
-      setOtpError('Введіть 6-значний код')
-      return
-    }
+    if (clean.length < 6) { setOtpError('Введіть 6-значний код'); return }
     if (verifyingOtpRef.current) return
 
     verifyingOtpRef.current = true
@@ -374,9 +356,12 @@ export function SignupPage() {
     setLoading(true)
 
     try {
-      const res = await post<{ token: string; user: User }>('/auth/otp/verify', { email: email.trim(), code: clean })
+      const res = await post<{ token: string; user: User }>('/auth/otp/verify', {
+        email: email.trim(),
+        code: clean,
+      })
       login(res.token, res.user)
-      setStep('store')
+      setEmailStatus('verified')
       toast.success('Email підтверджено')
     } catch (err) {
       setOtpError(err instanceof Error ? err.message : 'Невірний або прострочений код')
@@ -391,31 +376,23 @@ export function SignupPage() {
     void verifyOtpCode(otp)
   }
 
+  // Auto-submit when all 6 digits entered
   useEffect(() => {
-    if (step !== 'otp' || loading) return
-
+    if (emailStatus !== 'sent' || loading) return
     const clean = otp.replace(/\s/g, '')
-    if (clean.length < 6) {
-      lastAutoSubmittedOtpRef.current = ''
-      return
-    }
+    if (clean.length < 6) { lastAutoSubmittedOtpRef.current = ''; return }
     if (clean === lastAutoSubmittedOtpRef.current) return
-
     lastAutoSubmittedOtpRef.current = clean
     void verifyOtpCode(clean)
-  }, [loading, otp, step])
+  }, [loading, otp, emailStatus])
 
-  // ── Step 3: store + start checkout via selected provider ──
+  // ── Start checkout ──
   async function handleStartTrial(e: React.FormEvent) {
     e.preventDefault()
 
-    // Defense in depth: the 'store' step is only meant to be reached
-    // after a successful OTP verification. If the user's session is
-    // gone (e.g. they cleared cookies mid-flow) fall back to the auth
-    // step instead of firing authenticated calls that will 401.
     if (!user) {
       toast.error('Сесія завершилась. Увійдіть ще раз.')
-      setStep('auth')
+      setEmailStatus('idle')
       return
     }
 
@@ -428,57 +405,29 @@ export function SignupPage() {
     setLoading(true)
 
     try {
-      // 1. Create site first (non-blocking if it fails — user can add later).
-      //    This must run BEFORE the checkout endpoint because the unified
-      //    /subscription/checkout endpoint uses the primary site domain
-      //    to build a unique order number.
-      let siteId: number | null = null
-      let scriptTag: string | null = null
-      try {
-        const siteRes = await post<{ data: SiteCreateResponse }>('/profile/sites', { url: normalizedUrl, platform })
-        siteId = siteRes.data.id
-        scriptTag = siteRes.data.script.script_tag
-      } catch {
-        toast.error('Не вдалося додати сайт. Ви зможете додати його пізніше у кабінеті.')
-      }
-
-      // 2. Store data for TrialSuccessPage (survives payment redirect)
       sessionStorage.setItem('wty_trial_signup', JSON.stringify({
-        email,
-        site: normalizedUrl,
-        platform,
-        plan: planKey,
-        billing,
-        siteId,
-        scriptTag,
-        paymentMethod,
+        email, site: normalizedUrl, platform, plan: planKey, billing, paymentMethod,
       }))
-
       sessionStorage.removeItem(SIGNUP_DRAFT_KEY)
 
-      // 3. Branch on provider:
-      //    - LiqPay supports a deferred-charge trial → use the legacy
-      //      /subscription/checkout/trial endpoint which defers the
-      //      first charge by the plan's trial_days.
-      //    - Monobank has no deferred-charge capability → use the
-      //      unified /subscription/checkout endpoint which charges
-      //      immediately. We warn the user in the UI.
       if (paymentMethod === 'liqpay') {
         const checkoutRes = await post<LiqPayTrialCheckoutResponse>('/profile/subscription/checkout/trial', {
-          plan_slug: planKey,
+          plan_slug:      planKey,
           billing_period: billing === 'yearly' ? 'yearly' : 'monthly',
+          site_domain:    normalizedUrl,
+          platform,
         })
-
         submitLiqPayForm(checkoutRes.data)
         return
       }
 
       const checkoutRes = await post<UnifiedCheckoutResponse>('/profile/subscription/checkout', {
-        plan_slug: planKey,
+        plan_slug:      planKey,
         billing_period: billing === 'yearly' ? 'yearly' : 'monthly',
-        provider: paymentMethod,
+        provider:       paymentMethod,
+        site_domain:    normalizedUrl,
+        platform,
       })
-
       redirectToProvider(checkoutRes.data)
     } catch (err: unknown) {
       const error = err as Error & { code?: string }
@@ -496,19 +445,9 @@ export function SignupPage() {
     const form = document.createElement('form')
     form.method = 'POST'
     form.action = checkout.checkout_url
-
-    const dataInput = document.createElement('input')
-    dataInput.type = 'hidden'
-    dataInput.name = 'data'
-    dataInput.value = checkout.data
-    form.appendChild(dataInput)
-
-    const sigInput = document.createElement('input')
-    sigInput.type = 'hidden'
-    sigInput.name = 'signature'
-    sigInput.value = checkout.signature
-    form.appendChild(sigInput)
-
+    const d = document.createElement('input'); d.type = 'hidden'; d.name = 'data'; d.value = checkout.data
+    const s = document.createElement('input'); s.type = 'hidden'; s.name = 'signature'; s.value = checkout.signature
+    form.appendChild(d); form.appendChild(s)
     document.body.appendChild(form)
     form.submit()
   }
@@ -518,30 +457,25 @@ export function SignupPage() {
       const form = document.createElement('form')
       form.method = 'POST'
       form.action = checkout.url
-
       for (const [key, value] of Object.entries(checkout.form_fields)) {
         const input = document.createElement('input')
-        input.type = 'hidden'
-        input.name = key
-        input.value = value
+        input.type = 'hidden'; input.name = key; input.value = value
         form.appendChild(input)
       }
-
       document.body.appendChild(form)
       form.submit()
       return
     }
-
-    // GET redirect — providers like Monobank return a pageUrl the user
-    // follows directly in the same tab.
     window.location.href = checkout.url
   }
+
+  const isCtaActive = emailStatus === 'verified' && !loading
 
   return (
     <>
       <SeoHead
         title="Початок тріалу — widgetis | 7 днів безкоштовно"
-        description="Зареєструйтесь у widgetis та отримайте 7 днів безкоштовного доступу до всіх віджетів. Без прив'язки картки."
+        description="Зареєструйтесь у widgetis та отримайте 7 днів безкоштовного доступу до всіх віджетів."
         path="/signup"
         noindex
       />
@@ -592,247 +526,269 @@ export function SignupPage() {
                 ))}
               </ul>
 
-              <div className="signup__trust-list">
-                <div className="signup__trust-item">
-                  <BadgeCheck size={13} strokeWidth={2} />
-                  Картка не списується 7 днів
-                </div>
-                <div className="signup__trust-item">
-                  <CreditCard size={13} strokeWidth={2} />
-                  Скасуєте в один клік
-                </div>
-              </div>
-
-              <Link to={user ? '/cabinet/choose-plan' : '/pricing'} className="signup__plan-change">Змінити план</Link>
+              <Link to={user ? '/cabinet/choose-plan' : '/pricing'} className="signup__plan-change">
+                Змінити план
+              </Link>
             </aside>
 
-            {/* ══ Right: Steps ══ */}
+            {/* ══ Right: Unified form ══ */}
             <div className="signup__form-wrap">
 
-              {/* ── Step progress ── */}
-              <div className="signup__steps">
-                {(['auth', 'otp', 'store'] as Step[]).map((s, i) => (
-                  <div
-                    key={s}
-                    className={`signup__step ${step === s ? 'signup__step--active' : ''} ${
-                      ['auth', 'otp', 'store'].indexOf(step) > i ? 'signup__step--done' : ''
-                    }`}
-                  >
-                    <div className="signup__step-dot">
-                      {['auth', 'otp', 'store'].indexOf(step) > i
-                        ? <Check size={11} strokeWidth={3} />
-                        : i + 1
-                      }
-                    </div>
-                    <span className="signup__step-label">
-                      {s === 'auth' ? 'Email' : s === 'otp' ? 'Код' : 'Магазин'}
+              {/* ── Section 1: Email ── */}
+              <div className="signup__section">
+                <div className="signup__section-hdr">
+                  <span className="signup__section-num">1</span>
+                  <span className="signup__section-title">Підтвердження email</span>
+                  {emailStatus === 'idle' && (
+                    <span className="signup__email-badge signup__email-badge--warn">
+                      <AlertCircle size={11} strokeWidth={2.5} />
+                      Потрібно підтвердити
                     </span>
+                  )}
+                  {emailStatus === 'sent' && (
+                    <span className="signup__email-badge signup__email-badge--sent">
+                      <Check size={11} strokeWidth={2.5} />
+                      Код надіслано
+                    </span>
+                  )}
+                  {emailStatus === 'verified' && (
+                    <span className="signup__email-badge signup__email-badge--ok">
+                      <BadgeCheck size={11} strokeWidth={2} />
+                      Підтверджено
+                    </span>
+                  )}
+                </div>
+
+                {/* Verified: show confirmed email row */}
+                {emailStatus === 'verified' && (
+                  <div className="signup__email-confirmed">
+                    <Mail size={15} strokeWidth={2} className="signup__email-confirmed-icon" />
+                    <span className="signup__email-confirmed-text">{email || user?.email}</span>
                   </div>
-                ))}
-              </div>
+                )}
 
-              {/* ── Step 1: Email ── */}
-              {step === 'auth' && (
-                <>
-                  <h1 className="signup__title">Введіть email</h1>
-                  <p className="signup__subtitle">Надішлемо код підтвердження — реєстрація без пароля</p>
-
-                  <button
-                    className="signup__google-btn"
-                    type="button"
-                    onClick={() => {
-                      sessionStorage.setItem('google_return_to', window.location.pathname + window.location.search)
-                      window.location.href = '/auth/google'
-                    }}
-                  >
-                    <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
-                      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-                      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-                      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-                      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-                    </svg>
-                    Продовжити через Google
-                  </button>
-
-                  <div className="signup__or"><span>або</span></div>
-
-                  <form onSubmit={handleSendOtp} noValidate>
-                    <label className={`signup__field ${emailError ? 'signup__field--error' : ''}`}>
-                      <span className="signup__field-label">
-                        Email <span className="signup__field-req">*</span>
-                      </span>
-                      <div className="signup__input-wrap">
-                        <Mail size={15} strokeWidth={2} />
-                        <input
-                          type="email"
-                          placeholder="you@store.ua"
-                          value={email}
-                          onChange={e => { setEmail(e.target.value); setEmailError('') }}
-                          autoComplete="email"
-                          autoFocus
-                        />
-                      </div>
-                      {emailError && <span className="signup__field-hint">{emailError}</span>}
-                    </label>
-
-                    <button type="submit" className="signup__submit" disabled={loading} style={{ marginTop: 16 }}>
-                      {loading
-                        ? <><LoaderCircle size={17} strokeWidth={2.5} className="signup__spinner" /> Надсилаємо код...</>
-                        : <>Отримати код <ArrowRight size={15} strokeWidth={2.5} /></>
-                      }
-                    </button>
-                  </form>
-
-                  <p className="signup__login-hint">
-                    Вже є акаунт?{' '}
-                    <Link to="/login" className="signup__login-link">Увійти</Link>
-                  </p>
-                </>
-              )}
-
-              {/* ── Step 2: OTP ── */}
-              {step === 'otp' && (
-                <>
-                  <h1 className="signup__title">Введіть код</h1>
-                  <p className="signup__subtitle">
-                    Надіслали 6-значний код на <strong className="signup__email-accent">{email}</strong>
-                  </p>
-
-                  <form onSubmit={handleVerifyOtp} noValidate>
-                    <div className={`signup__field ${otpError ? 'signup__field--error' : ''}`}>
-                      <OtpInput value={otp} onChange={v => { setOtp(v); setOtpError('') }} />
-                      {otpError && <span className="signup__field-hint signup__field-hint--center">{otpError}</span>}
-                    </div>
-
-                    <button type="submit" className="signup__submit" disabled={loading} style={{ marginTop: 20 }}>
-                      {loading
-                        ? <><LoaderCircle size={17} strokeWidth={2.5} className="signup__spinner" /> Перевіряємо...</>
-                        : <>Підтвердити <ArrowRight size={15} strokeWidth={2.5} /></>
-                      }
-                    </button>
-                  </form>
-
-                  <div className="signup__resend">
-                    {resendCooldown > 0
-                      ? <span className="signup__resend-wait">Надіслати повторно через {resendCooldown} с</span>
-                      : (
-                        <button
-                          type="button"
-                          className="signup__resend-btn"
-                          onClick={handleResend}
-                          disabled={resending}
-                        >
-                          {resending
-                            ? <><RefreshCw size={13} strokeWidth={2} className="signup__spinner" /> Надсилаємо...</>
-                            : 'Надіслати повторно'
+                {/* Idle: email input + send code + Google */}
+                {emailStatus === 'idle' && (
+                  <>
+                    <form onSubmit={handleSendOtp} noValidate>
+                      <div className="signup__email-row">
+                        <div className={`signup__field signup__field--email ${emailError ? 'signup__field--error' : ''}`}>
+                          <div className="signup__input-wrap">
+                            <Mail size={15} strokeWidth={2} />
+                            <input
+                              type="email"
+                              placeholder="you@store.ua"
+                              value={email}
+                              onChange={e => { setEmail(e.target.value); setEmailError('') }}
+                              autoComplete="email"
+                              autoFocus
+                            />
+                          </div>
+                          {emailError && <span className="signup__field-hint">{emailError}</span>}
+                        </div>
+                        <button type="submit" className="signup__send-btn" disabled={loading}>
+                          {loading
+                            ? <LoaderCircle size={16} strokeWidth={2.5} className="signup__spinner" />
+                            : 'Надіслати код'
                           }
                         </button>
-                      )
-                    }
-                  </div>
-
-                  <button type="button" className="signup__back-step" onClick={() => setStep('auth')}>
-                    <ArrowLeft size={13} strokeWidth={2} /> Змінити email
-                  </button>
-                </>
-              )}
-
-              {/* ── Step 3: Store ── */}
-              {step === 'store' && (
-                <>
-                  <h1 className="signup__title">Ваш магазин</h1>
-                  <p className="signup__subtitle">Вкажіть сайт — підключимо після активації тріалу</p>
-
-                  <form onSubmit={handleStartTrial} noValidate>
-                    <div className="signup__fields">
-                      <label className={`signup__field ${siteError ? 'signup__field--error' : ''}`}>
-                        <span className="signup__field-label">
-                          Адреса магазину <span className="signup__field-req">*</span>
-                        </span>
-                        <div className="signup__input-wrap">
-                          <Globe size={15} strokeWidth={2} />
-                          <input
-                            type="text"
-                            placeholder="store.com.ua"
-                            value={site}
-                            onChange={e => { setSite(e.target.value); setSiteError('') }}
-                            autoFocus
-                          />
-                        </div>
-                        {siteError && <span className="signup__field-hint">{siteError}</span>}
-                      </label>
-
-                      <div className="signup__field">
-                        <span className="signup__field-label">Платформа</span>
-                        <div className="signup__platforms">
-                          {platformConfig.map(p => (
-                            <button
-                              key={p.id}
-                              type="button"
-                              disabled={!p.available}
-                              className={`signup__platform ${platform === p.id ? 'signup__platform--active' : ''} ${!p.available ? 'signup__platform--disabled' : ''}`}
-                              onClick={() => p.available && setPlatform(p.id)}
-                            >
-                              {p.label}
-                              {!p.available && <span className="signup__platform-soon">Скоро</span>}
-                            </button>
-                          ))}
-                        </div>
                       </div>
+                    </form>
 
-                      {/* Payment method */}
-                      <div className="signup__card-section">
-                        <div className="signup__card-label">
-                          <CreditCard size={14} strokeWidth={2} />
-                          <span>Спосіб оплати</span>
-                        </div>
-                        <div className="signup__payment-methods">
-                          {PAYMENT_METHODS.map(method => (
-                            <button
-                              key={method.id}
-                              type="button"
-                              className={`signup__payment-method ${paymentMethod === method.id ? 'signup__payment-method--active' : ''}`}
-                              onClick={() => setPaymentMethod(method.id)}
-                              aria-pressed={paymentMethod === method.id}
-                              aria-label={method.name}
-                            >
-                              <img
-                                src={method.symbol}
-                                alt=""
-                                className="signup__payment-method-symbol"
-                                aria-hidden="true"
-                              />
-                              <span className="signup__payment-method-name">{method.name}</span>
-                              <span className="signup__payment-method-hint">{method.hint}</span>
-                            </button>
-                          ))}
-                        </div>
-                        {!PAYMENT_METHODS.find(m => m.id === paymentMethod)?.trial && (
-                          <p className="signup__payment-notice">
-                            plata by mono списує оплату одразу — тріальний період не підтримується цим провайдером. Для безкоштовних 7 днів оберіть LiqPay.
-                          </p>
-                        )}
-                      </div>
-                    </div>
+                    <div className="signup__or"><span>або</span></div>
 
-                    <button type="submit" className="signup__submit signup__submit--trial" disabled={loading}>
-                      {loading
-                        ? <><LoaderCircle size={17} strokeWidth={2.5} className="signup__spinner" /> {paymentMethod === 'liqpay' ? 'Активуємо тріал...' : 'Переходимо до оплати...'}</>
-                        : paymentMethod === 'liqpay'
-                          ? <>Почати 7 днів безкоштовно <ArrowRight size={15} strokeWidth={2.5} /></>
-                          : <>Перейти до оплати <ArrowRight size={15} strokeWidth={2.5} /></>
-                      }
+                    <button
+                      className="signup__google-btn"
+                      type="button"
+                      onClick={() => {
+                        sessionStorage.setItem('google_return_to', window.location.pathname + window.location.search)
+                        window.location.href = '/auth/google'
+                      }}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+                        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                      </svg>
+                      Продовжити через Google
                     </button>
 
-                    <p className="signup__terms">
-                      Продовжуючи, Ви погоджуєтесь з{' '}
-                      <a href="/terms" target="_blank" rel="noreferrer">умовами використання</a>
-                      {' '}та{' '}
-                      <a href="/privacy" target="_blank" rel="noreferrer">політикою конфіденційності</a>
+                    <p className="signup__login-hint">
+                      Вже є акаунт?{' '}
+                      <Link to="/login" className="signup__login-link">Увійти</Link>
                     </p>
-                  </form>
-                </>
-              )}
+                  </>
+                )}
+
+                {/* Sent: OTP inline */}
+                {emailStatus === 'sent' && (
+                  <>
+                    <div className="signup__email-sent-row">
+                      <div className="signup__email-sent-left">
+                        <Mail size={15} strokeWidth={2} />
+                        <span>{email}</span>
+                      </div>
+                      <button
+                        type="button"
+                        className="signup__change-email-btn"
+                        onClick={() => { setEmailStatus('idle'); setOtp(''); setOtpError('') }}
+                      >
+                        Змінити
+                      </button>
+                    </div>
+
+                    <div className="signup__otp-box">
+                      <p className="signup__otp-box-label">Введіть 6-значний код з листа</p>
+                      <form onSubmit={handleVerifyOtp} noValidate>
+                        <div className={`signup__field ${otpError ? 'signup__field--error' : ''}`}>
+                          <OtpInput value={otp} onChange={v => { setOtp(v); setOtpError('') }} />
+                          {otpError && (
+                            <span className="signup__field-hint signup__field-hint--center">{otpError}</span>
+                          )}
+                        </div>
+                        <button type="submit" className="signup__submit" disabled={loading} style={{ marginTop: 14 }}>
+                          {loading
+                            ? <><LoaderCircle size={17} strokeWidth={2.5} className="signup__spinner" /> Перевіряємо...</>
+                            : <>Підтвердити <ArrowRight size={15} strokeWidth={2.5} /></>
+                          }
+                        </button>
+                      </form>
+                      <div className="signup__resend">
+                        {resendCooldown > 0
+                          ? <span className="signup__resend-wait">Надіслати повторно через {resendCooldown} с</span>
+                          : (
+                            <button
+                              type="button"
+                              className="signup__resend-btn"
+                              onClick={handleResend}
+                              disabled={resending}
+                            >
+                              {resending
+                                ? <><RefreshCw size={13} strokeWidth={2} className="signup__spinner" /> Надсилаємо...</>
+                                : 'Надіслати повторно'
+                              }
+                            </button>
+                          )
+                        }
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <div className="signup__section-divider" />
+
+              {/* ── Section 2: Site ── */}
+              <div className="signup__section">
+                <div className="signup__section-hdr">
+                  <span className="signup__section-num">2</span>
+                  <span className="signup__section-title">Ваш магазин</span>
+                </div>
+
+                <label className={`signup__field ${siteError ? 'signup__field--error' : ''}`}>
+                  <div className="signup__input-wrap">
+                    <Globe size={15} strokeWidth={2} />
+                    <input
+                      type="text"
+                      placeholder="store.com.ua"
+                      value={site}
+                      onChange={e => { setSite(e.target.value); setSiteError('') }}
+                    />
+                  </div>
+                  {siteError && <span className="signup__field-hint">{siteError}</span>}
+                </label>
+
+                <div className="signup__platforms">
+                  {platformConfig.map(p => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      disabled={!p.available}
+                      className={`signup__platform ${platform === p.id ? 'signup__platform--active' : ''} ${!p.available ? 'signup__platform--disabled' : ''}`}
+                      onClick={() => p.available && setPlatform(p.id)}
+                    >
+                      {p.label}
+                      {!p.available && <span className="signup__platform-soon">Скоро</span>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="signup__section-divider" />
+
+              {/* ── Section 3: Payment ── */}
+              <div className="signup__section">
+                <div className="signup__section-hdr">
+                  <CreditCard size={14} strokeWidth={2} className="signup__section-icon" />
+                  <span className="signup__section-title">3. Спосіб оплати</span>
+                </div>
+
+                <div className="signup__payment-list">
+                  {PAYMENT_METHODS.map(method => (
+                    <button
+                      key={method.id}
+                      type="button"
+                      className={`signup__payment-card ${paymentMethod === method.id ? 'signup__payment-card--active' : ''}`}
+                      onClick={() => setPaymentMethod(method.id)}
+                      aria-pressed={paymentMethod === method.id}
+                    >
+                      <div className="signup__payment-card-info">
+                        <span className="signup__payment-card-name">{method.name}</span>
+                        <span className="signup__payment-card-hint">{method.hint}</span>
+                        {method.trial && (
+                          <span className="signup__payment-card-trial">
+                            <Check size={10} strokeWidth={3} />
+                            Тріал 7 днів
+                          </span>
+                        )}
+                      </div>
+                      <img
+                        src={method.symbol}
+                        alt={method.name}
+                        className="signup__payment-card-logo"
+                      />
+                    </button>
+                  ))}
+                </div>
+
+                {!PAYMENT_METHODS.find(m => m.id === paymentMethod)?.trial && (
+                  <p className="signup__payment-notice">
+                    plata by mono списує оплату одразу — тріал не підтримується. Для 7 безкоштовних днів оберіть LiqPay.
+                  </p>
+                )}
+              </div>
+
+              {/* ── CTA ── */}
+              <form onSubmit={handleStartTrial} noValidate>
+                {emailStatus !== 'verified' && (
+                  <div className="signup__cta-lock">
+                    <Lock size={13} strokeWidth={2.5} />
+                    Підтвердіть email, щоб продовжити
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  className="signup__submit signup__submit--trial"
+                  disabled={!isCtaActive}
+                  style={{ marginTop: emailStatus !== 'verified' ? 10 : 0 }}
+                >
+                  {loading
+                    ? <><LoaderCircle size={17} strokeWidth={2.5} className="signup__spinner" /> {paymentMethod === 'liqpay' ? 'Активуємо тріал...' : 'Переходимо до оплати...'}</>
+                    : paymentMethod === 'liqpay'
+                      ? <>Почати 7 днів безкоштовно <ArrowRight size={15} strokeWidth={2.5} /></>
+                      : <>Перейти до оплати <ArrowRight size={15} strokeWidth={2.5} /></>
+                  }
+                </button>
+
+                <p className="signup__terms">
+                  Продовжуючи, Ви погоджуєтесь з{' '}
+                  <a href="/terms" target="_blank" rel="noreferrer">умовами використання</a>
+                  {' '}та{' '}
+                  <a href="/privacy" target="_blank" rel="noreferrer">політикою конфіденційності</a>
+                </p>
+              </form>
 
             </div>
           </div>

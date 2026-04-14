@@ -9,12 +9,14 @@ use App\Enums\OrderStatus;
 use App\Enums\PaymentProvider;
 use App\Enums\PaymentStatus;
 use App\Enums\PaymentType;
+use App\Enums\SiteStatus;
 use App\Enums\SubscriptionStatus;
 use App\Http\Controllers\Api\V1\BaseController;
 use App\Http\Resources\Api\V1\SubscriptionResource;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Plan;
+use App\Models\Site;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Services\Billing\PaymentProviderRegistry;
@@ -35,8 +37,10 @@ class SubscriptionController extends BaseController
 
     public function startTrial(Request $request): JsonResponse
     {
-        $request->validate([
-            'plan_slug' => ['required', 'string', 'exists:plans,slug'],
+        $validated = $request->validate([
+            'plan_slug'   => ['required', 'string', 'exists:plans,slug'],
+            'site_domain' => ['required', 'string', 'max:255'],
+            'platform'    => ['nullable', 'string', 'max:100'],
         ]);
 
         $user = $this->currentUser();
@@ -45,7 +49,18 @@ class SubscriptionController extends BaseController
             return $this->error('ALREADY_SUBSCRIBED', 'User already has a subscription.', 409);
         }
 
-        $plan = Plan::where('slug', $request->input('plan_slug'))->firstOrFail();
+        // Ensure site exists for this user.
+        Site::firstOrCreate(
+            ['user_id' => $user->id, 'domain' => $validated['site_domain']],
+            [
+                'name'     => $validated['site_domain'],
+                'url'      => 'https://' . $validated['site_domain'],
+                'platform' => $validated['platform'] ?? 'horoshop',
+                'status'   => SiteStatus::Pending,
+            ],
+        );
+
+        $plan = Plan::where('slug', $validated['plan_slug'])->firstOrFail();
 
         $subscription = $this->subscriptionService->createTrial($user, $plan);
 
@@ -119,9 +134,12 @@ class SubscriptionController extends BaseController
     public function checkout(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'plan_slug' => ['required', 'string', 'exists:plans,slug'],
+            'plan_slug'      => ['required', 'string', 'exists:plans,slug'],
             'billing_period' => ['required', 'string', 'in:monthly,yearly'],
-            'provider' => ['required', 'string', 'in:liqpay,monobank'],
+            'provider'       => ['required', 'string', 'in:liqpay,monobank'],
+            'site_domain'    => ['required', 'string', 'max:255'],
+            'platform'       => ['nullable', 'string', 'max:100'],
+            'redirect_url'   => ['nullable', 'string', 'max:500'],
         ]);
 
         $user = $this->currentUser();
@@ -136,8 +154,7 @@ class SubscriptionController extends BaseController
         // Reject rapid duplicate clicks: if the user already has a
         // Pending order younger than 5 minutes, treat the click as a
         // duplicate rather than spawning a second invoice on the
-        // provider side. The expire cron can't help here because
-        // those rows sit in Pending, not past_due.
+        // provider side.
         $recentPending = Order::where('user_id', $user->id)
             ->where('status', OrderStatus::Pending)
             ->where('created_at', '>=', now()->subMinutes(5))
@@ -147,14 +164,23 @@ class SubscriptionController extends BaseController
             return $this->error('CHECKOUT_IN_PROGRESS', 'A checkout is already in progress. Please wait a moment before trying again.', 429);
         }
 
-        $siteDomain = $user->sites()->orderBy('id')->value('domain');
+        $siteDomain = $validated['site_domain'];
 
         /** @var array{reference: string} $pending */
-        $pending = DB::transaction(function () use ($user, $plan, $billingPeriod, $siteDomain, $provider): array {
-            // Lock the user row to serialise concurrent checkout calls
-            // against the same account (belt-and-braces with the
-            // recentPending check above).
+        $pending = DB::transaction(function () use ($user, $plan, $billingPeriod, $siteDomain, $validated, $provider): array {
+            // Lock the user row to serialise concurrent checkout calls.
             User::where('id', $user->id)->lockForUpdate()->first();
+
+            // Ensure site exists for this user.
+            Site::firstOrCreate(
+                ['user_id' => $user->id, 'domain' => $siteDomain],
+                [
+                    'name'     => $siteDomain,
+                    'url'      => 'https://' . $siteDomain,
+                    'platform' => $validated['platform'] ?? 'horoshop',
+                    'status'   => SiteStatus::Pending,
+                ],
+            );
 
             $amount = $billingPeriod === BillingPeriod::Yearly
                 ? $plan->price_yearly
@@ -213,6 +239,7 @@ class SubscriptionController extends BaseController
             plan: $plan,
             billingPeriod: $billingPeriod,
             reference: $pending['reference'],
+            redirectUrl: isset($validated['redirect_url']) ? (string) $validated['redirect_url'] : null,
         );
 
         return $this->success([

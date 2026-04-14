@@ -110,7 +110,11 @@ export default function ChoosePlanPage() {
     Promise.all([plansFetch, subFetch])
       .then(([plansRes, subRes]) => {
         setAllPlans(plansRes.data)
-        const subscription = subRes?.data ?? null
+        const rawSub = subRes?.data ?? null
+        // Only treat as current plan if payment was confirmed (active or trial).
+        // A pending subscription means the user initiated checkout but hasn't paid yet —
+        // they should still be able to choose or re-choose any plan.
+        const subscription = rawSub && (rawSub.status === 'active' || rawSub.status === 'trial') ? rawSub : null
         setSub(subscription)
         if (subscription) {
           setYearly(subscription.billing_period === 'yearly')
