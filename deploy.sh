@@ -147,11 +147,6 @@ else
     echo "▶ Running migrations..."
     $DC exec -T backend php artisan migrate --force
 
-    # ── Pre-launch test mode: wipe every non-admin user on every deploy ──────
-    # Remove this block before going live.
-    echo "▶ Purging non-admin users (test-mode cleanup)..."
-    $DC exec -T backend php artisan users:purge-non-admin --force
-
     if [ "$MAINTENANCE" = true ]; then
       echo "▶ Disabling maintenance mode..."
       $DC exec -T backend php artisan up || true
@@ -167,6 +162,12 @@ else
   # Order matters: backend first (API), then SPAs / proxies on top.
   # Caddy's lb_try_duration absorbs the brief gap while each container swaps.
   rolling_restart backend
+
+  # ── Pre-launch test mode: wipe every non-admin user on every deploy ──────
+  # Remove this block before going live.
+  echo "▶ Purging non-admin users (test-mode cleanup)..."
+  $DC exec -T backend php artisan users:purge-non-admin --force
+
   rolling_restart frontend
   rolling_restart widget-builder
   rolling_restart site-proxy

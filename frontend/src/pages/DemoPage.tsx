@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { SeoHead } from '../components/SeoHead'
 import { Link } from 'react-router-dom'
 import {
@@ -16,6 +16,7 @@ import {
   Heart,
   Star,
   Search,
+  Lock,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { BRAND_NAME_UPPER } from '../constants/brand'
@@ -53,7 +54,31 @@ const SOCIAL_PURCHASES = [
 const PRICE = 1195
 const CART_GOAL = 3000
 
+function normalizeUrl(raw: string): string {
+  const s = raw.trim()
+  if (!s) return ''
+  if (/^https?:\/\//i.test(s)) return s
+  return 'https://' + s
+}
+
 export function DemoPage() {
+  // Your-site demo
+  const [siteInput, setSiteInput] = useState(() => localStorage.getItem('wty_demo_url') ?? '')
+  const [demoUrl, setDemoUrl] = useState<string | null>(null)
+  const iframeRef = useRef<HTMLIFrameElement>(null)
+
+  function openSiteDemo(e: React.FormEvent) {
+    e.preventDefault()
+    const url = normalizeUrl(siteInput)
+    if (!url) return
+    localStorage.setItem('wty_demo_url', siteInput)
+    setDemoUrl(url)
+  }
+
+  function closeSiteDemo() {
+    setDemoUrl(null)
+  }
+
   // Live viewers widget
   const [viewers, setViewers] = useState(12)
   useEffect(() => {
@@ -133,6 +158,40 @@ export function DemoPage() {
         description={`Подивись на віджети ${BRAND_NAME_UPPER} в дії: бігуча стрічка, лічильник переглядів, таймер, прогрес-бар кошика, соціальний доказ — усе працює в реальному часі на демо-магазині.`}
         path="/demo"
       />
+
+      {/* ── Your-site hero ── */}
+      <section className="demo-hero">
+        <div className="demo-hero__card">
+          <span className="demo-hero__badge">
+            <Eye size={13} strokeWidth={2.25} />
+            Безкоштовне демо
+          </span>
+          <h2 className="demo-hero__title">
+            Віджети на <span className="demo-hero__title-accent">вашому</span> сайті
+          </h2>
+          <p className="demo-hero__sub">
+            Введіть адресу магазину — побачите віджети в дії за 10 секунд
+          </p>
+          <form className="demo-hero__form" onSubmit={openSiteDemo}>
+            <input
+              className="demo-hero__input"
+              type="text"
+              placeholder="store.myshopify.com"
+              value={siteInput}
+              onChange={(e) => setSiteInput(e.target.value)}
+              autoComplete="url"
+              spellCheck={false}
+            />
+            <button className="demo-hero__btn" type="submit">
+              Спробувати →
+            </button>
+          </form>
+          <p className="demo-hero__note">
+            <Lock size={11} strokeWidth={2.25} />
+            7 днів безкоштовно · без автосписання
+          </p>
+        </div>
+      </section>
 
       {/* ── Intro ── */}
       <section className="demo-intro">
@@ -382,6 +441,39 @@ export function DemoPage() {
           </div>
         </div>
       </section>
+      {/* ── Site-preview modal ── */}
+      {demoUrl && (
+        <div className="demo-site-modal" onClick={(e) => { if (e.target === e.currentTarget) closeSiteDemo() }}>
+          <div className="demo-site-modal__window">
+            <div className="demo-site-modal__chrome">
+              <div className="demo-site-modal__dots" aria-hidden="true">
+                <span /><span /><span />
+              </div>
+              <div className="demo-site-modal__url">
+                <span className="demo-site-modal__lock" aria-hidden="true">
+                  <Lock size={11} strokeWidth={2.25} />
+                </span>
+                <span className="demo-site-modal__url-text">{demoUrl.replace(/^https?:\/\//, '')}</span>
+              </div>
+              <button
+                className="demo-site-modal__close"
+                onClick={closeSiteDemo}
+                aria-label="Закрити"
+                type="button"
+              >
+                <XIcon size={15} strokeWidth={2.25} />
+              </button>
+            </div>
+            <iframe
+              ref={iframeRef}
+              className="demo-site-modal__iframe"
+              src={demoUrl}
+              title="Ваш сайт"
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

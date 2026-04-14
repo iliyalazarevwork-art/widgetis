@@ -58,14 +58,6 @@ export function Header() {
     window.location.href = '/login'
   }, [logout, closeMenu])
 
-  const scrollToDemo = useCallback(() => {
-    closeMenu()
-    if (onHome) {
-      document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })
-    } else {
-      navigate('/#demo')
-    }
-  }, [onHome, navigate, closeMenu])
 
   const drawerRef = useSwipeDismiss<HTMLElement>({
     direction: 'right',
@@ -185,13 +177,22 @@ export function Header() {
 
             <div className="header__drawer-divider" />
 
-            <button
-              className="header__drawer-cta"
-              onClick={scrollToDemo}
-              type="button"
-            >
-              Безкоштовне демо
-            </button>
+            <div className="header__drawer-cta-group">
+              <button
+                className="header__drawer-cta"
+                onClick={() => { closeMenu(); navigate('/signup'); }}
+                type="button"
+              >
+                Спробувати →
+              </button>
+              <button
+                className="header__drawer-cta header__drawer-cta--secondary"
+                onClick={() => { closeMenu(); navigate('/demo'); }}
+                type="button"
+              >
+                Переглянути демо
+              </button>
+            </div>
 
             <div className="header__drawer-contacts">
               <p className="header__drawer-contacts-label">Напишіть нам</p>

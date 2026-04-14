@@ -529,42 +529,39 @@ export function SignupPage() {
 
             {/* ══ Left: Plan summary ══ */}
             <aside className={`signup__plan ${plan.colorClass}`}>
-              <div className="signup__plan-top">
+              <div className="signup__plan-info">
                 <div className="signup__plan-icon-wrap">
-                  <Icon size={20} strokeWidth={2} />
+                  <Icon size={18} strokeWidth={2} />
                 </div>
-                <div>
-                  <p className="signup__plan-name">{plan.name}</p>
-                  <p className="signup__plan-pitch">{plan.pitch}</p>
+                <div className="signup__plan-text">
+                  <p className="signup__plan-name">
+                    {plan.name}
+                    <span className="signup__plan-inline-pitch">
+                      <span className="signup__plan-sep"> · </span>
+                      {plan.pitch}
+                    </span>
+                  </p>
                 </div>
               </div>
 
-              <div className="signup__plan-price">
-                <span className="signup__plan-amount">{displayPrice.toLocaleString('uk-UA')}</span>
-                <span className="signup__plan-unit">грн/міс</span>
-              </div>
               {billing === 'yearly' && (
                 <p className="signup__plan-annual">
                   {plan.yearlyPrice.toLocaleString('uk-UA')} грн/рік · 2 міс у подарунок
                 </p>
               )}
 
+              <div className="signup__plan-price">
+                <span className="signup__plan-amount">{displayPrice.toLocaleString('uk-UA')}</span>
+                <span className="signup__plan-unit">грн/міс</span>
+              </div>
+
               <div className="signup__trial-badge">
                 <CalendarClock size={14} strokeWidth={2} />
                 7 днів безкоштовно
               </div>
 
-              <ul className="signup__plan-features">
-                {plan.features.map(f => (
-                  <li key={f}>
-                    <Check size={13} strokeWidth={2.5} className="signup__plan-check" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-
               <Link to={user ? '/cabinet/choose-plan' : '/pricing'} className="signup__plan-change">
-                Змінити план
+                Змінити план →
               </Link>
             </aside>
 

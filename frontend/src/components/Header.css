@@ -375,6 +375,12 @@
 }
 
 /* CTA */
+.header__drawer-cta-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .header__drawer-cta {
   padding: 14px 24px;
   font-family: var(--font-display);
@@ -388,6 +394,13 @@
   cursor: pointer;
   transition: opacity var(--transition-fast), transform var(--transition-fast);
   box-shadow: 0 4px 20px var(--accent-glow);
+}
+
+.header__drawer-cta--secondary {
+  color: var(--text-primary);
+  background: var(--bg-input);
+  box-shadow: none;
+  border: 1px solid var(--border-light);
 }
 
 .header__drawer-cta:hover { opacity: 0.92; transform: translateY(-1px); }
