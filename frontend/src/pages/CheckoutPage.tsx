@@ -16,23 +16,23 @@ import { useCart } from '../context/CartContext'
 import { WidgetIcon } from '../components/WidgetIcon'
 import { BRAND_NAME_UPPER } from '../constants/brand'
 import { platformConfig } from '../data/widgets'
-import liqpayWordmark from '../assets/logo-liqpay-dark.svg'
-import plataWordmark from '../assets/logo-plata-dark.svg'
+import liqpaySymbol from '../assets/logo-liqpay-symbol.svg'
+import plataSymbol from '../assets/logo-plata-symbol-dark.svg'
 import './CheckoutPage.css'
 
 type PaymethodId = 'liqpay' | 'monobank'
 
-const PAYMENTS: readonly { id: PaymethodId; name: string; wordmark: string; hint: string }[] = [
+const PAYMENTS: readonly { id: PaymethodId; name: string; symbol: string; hint: string }[] = [
   {
     id: 'liqpay',
     name: 'LiqPay',
-    wordmark: liqpayWordmark,
+    symbol: liqpaySymbol,
     hint: 'Visa · Mastercard · Apple Pay · Google Pay',
   },
   {
     id: 'monobank',
     name: 'plata by mono',
-    wordmark: plataWordmark,
+    symbol: plataSymbol,
     hint: 'Apple Pay · Google Pay · картки будь-якого банку',
   },
 ] as const
@@ -253,11 +253,15 @@ export function CheckoutPage() {
                     aria-label={method.name}
                   >
                     <img
-                      src={method.wordmark}
-                      alt={method.name}
-                      className="checkout__paymethod-wordmark"
+                      src={method.symbol}
+                      alt=""
+                      className="checkout__paymethod-symbol"
+                      aria-hidden="true"
                     />
-                    <span className="checkout__paymethod-hint">{method.hint}</span>
+                    <div className="checkout__paymethod-body">
+                      <strong className="checkout__paymethod-name">{method.name}</strong>
+                      <span className="checkout__paymethod-hint">{method.hint}</span>
+                    </div>
                   </button>
                 ))}
               </div>

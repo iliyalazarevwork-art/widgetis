@@ -22,8 +22,8 @@ import { post } from '../api/client'
 import type { SiteCreateResponse, User } from '../types'
 import { useAuth } from '../context/AuthContext'
 import { toast } from 'sonner'
-import liqpayWordmark from '../assets/logo-liqpay-dark.svg'
-import plataWordmark from '../assets/logo-plata-dark.svg'
+import liqpaySymbol from '../assets/logo-liqpay-symbol.svg'
+import plataSymbol from '../assets/logo-plata-symbol-dark.svg'
 import './SignupPage.css'
 
 // ─── Plan data ────────────────────────────────────────────────────────────────
@@ -157,9 +157,8 @@ type PaymentMethodId = 'liqpay' | 'monobank'
 
 interface PaymentMethod {
   id: PaymentMethodId
-  /** Screen-reader label — brand wordmark is already visual */
   name: string
-  wordmark: string
+  symbol: string
   hint: string
   trial: boolean
 }
@@ -168,14 +167,14 @@ const PAYMENT_METHODS: readonly PaymentMethod[] = [
   {
     id: 'liqpay',
     name: 'LiqPay',
-    wordmark: liqpayWordmark,
+    symbol: liqpaySymbol,
     hint: 'Visa · Mastercard · Apple Pay · Google Pay',
     trial: true,
   },
   {
     id: 'monobank',
     name: 'plata by mono',
-    wordmark: plataWordmark,
+    symbol: plataSymbol,
     hint: 'Apple Pay · Google Pay · картки будь-якого банку',
     trial: false,
   },
@@ -784,10 +783,12 @@ export function SignupPage() {
                               aria-label={method.name}
                             >
                               <img
-                                src={method.wordmark}
-                                alt={method.name}
-                                className="signup__payment-method-wordmark"
+                                src={method.symbol}
+                                alt=""
+                                className="signup__payment-method-symbol"
+                                aria-hidden="true"
                               />
+                              <span className="signup__payment-method-name">{method.name}</span>
                               <span className="signup__payment-method-hint">{method.hint}</span>
                             </button>
                           ))}
