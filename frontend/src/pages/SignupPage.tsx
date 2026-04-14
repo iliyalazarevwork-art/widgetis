@@ -265,10 +265,13 @@ export function SignupPage() {
       const draft = JSON.parse(rawDraft) as SignupDraft
       if (draft.plan !== planKey || draft.billing !== billing) return
 
-      // If user is already authenticated, don't restore auth/otp steps — stay on 'store'
-      if (!user || draft.step === 'store') {
-        setStep(draft.step)
-      }
+      // The 'store' step submits authenticated API calls (/profile/sites,
+      // /profile/subscription/checkout). Restoring it for a user who has
+      // no token would 401 on submit. If a stale draft was saved as
+      // 'store' but the current session has no user, drop the user back
+      // to the auth step instead of trusting the draft blindly.
+      const safeStep: Step = draft.step === 'store' && !user ? 'auth' : draft.step
+      setStep(safeStep)
       setEmail(draft.email || user?.email || '')
       setOtp(draft.otp)
       setSite(draft.site)
@@ -405,6 +408,17 @@ export function SignupPage() {
   // ── Step 3: store + start checkout via selected provider ──
   async function handleStartTrial(e: React.FormEvent) {
     e.preventDefault()
+
+    // Defense in depth: the 'store' step is only meant to be reached
+    // after a successful OTP verification. If the user's session is
+    // gone (e.g. they cleared cookies mid-flow) fall back to the auth
+    // step instead of firing authenticated calls that will 401.
+    if (!user) {
+      toast.error('Сесія завершилась. Увійдіть ще раз.')
+      setStep('auth')
+      return
+    }
+
     const normalizedUrl = normalizeSiteUrl(site)
     if (!normalizedUrl || normalizedUrl.length < 10) {
       setSiteError('Вкажіть адресу магазину')
