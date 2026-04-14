@@ -17,7 +17,11 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
 COPY composer.json composer.lock ./
-RUN composer install --no-interaction --no-dev --optimize-autoloader --no-scripts 2>/dev/null || true
+# NEVER swallow errors here with `|| true` — a silently-failed composer
+# install produces an image with an empty vendor/ and the backend then
+# restart-loops in prod with "vendor/autoload.php: No such file or
+# directory". The build MUST fail loudly if composer can't resolve.
+RUN composer install --no-interaction --no-dev --optimize-autoloader --no-scripts
 
 COPY . .
 
