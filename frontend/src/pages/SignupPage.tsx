@@ -570,8 +570,13 @@ export function SignupPage() {
               {/* ── Section 1: Email ── */}
               <div className="signup__section">
                 <div className="signup__section-hdr">
-                  <span className="signup__section-num">1</span>
-                  <span className="signup__section-title">Підтвердження email</span>
+                  <span className="signup__section-title">1. Підтвердження email</span>
+                  {emailStatus === 'idle' && (
+                    <span className="signup__email-badge signup__email-badge--warn">
+                      <AlertCircle size={11} strokeWidth={2.5} />
+                      Потрібно підтвердити
+                    </span>
+                  )}
                   {emailStatus === 'sent' && (
                     <span className="signup__email-badge signup__email-badge--sent">
                       <Check size={11} strokeWidth={2.5} />
@@ -622,8 +627,6 @@ export function SignupPage() {
                       </div>
                     </form>
 
-                    <div className="signup__or"><span>або</span></div>
-
                     <button
                       className="signup__google-btn"
                       type="button"
@@ -638,27 +641,22 @@ export function SignupPage() {
                         <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
                         <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
                       </svg>
-                      Продовжити через Google
+                      Або увійти через Google
                     </button>
-
-                    <p className="signup__login-hint">
-                      Вже є акаунт?{' '}
-                      <Link to="/login" className="signup__login-link">Увійти</Link>
-                    </p>
                   </>
                 )}
 
                 {/* Sent: OTP inline */}
                 {emailStatus === 'sent' && (
                   <>
-                    <div className="signup__email-sent-row">
+                    <div className="signup__email-sent-row signup__email-sent-row--sent">
                       <div className="signup__email-sent-left">
                         <Mail size={15} strokeWidth={2} />
                         <span>{email}</span>
                       </div>
                       <button
                         type="button"
-                        className="signup__change-email-btn"
+                        className="signup__change-email-btn signup__change-email-btn--green"
                         onClick={() => { setEmailStatus('idle'); setOtp(''); setOtpError('') }}
                       >
                         Змінити
@@ -674,12 +672,6 @@ export function SignupPage() {
                             <span className="signup__field-hint signup__field-hint--center">{otpError}</span>
                           )}
                         </div>
-                        <button type="submit" className="signup__submit" disabled={loading} style={{ marginTop: 14 }}>
-                          {loading
-                            ? <><LoaderCircle size={17} strokeWidth={2.5} className="signup__spinner" /> Перевіряємо...</>
-                            : <>Підтвердити <ArrowRight size={15} strokeWidth={2.5} /></>
-                          }
-                        </button>
                       </form>
                       <div className="signup__resend">
                         {resendCooldown > 0
@@ -709,8 +701,7 @@ export function SignupPage() {
               {/* ── Section 2: Site ── */}
               <div className="signup__section">
                 <div className="signup__section-hdr">
-                  <span className="signup__section-num">2</span>
-                  <span className="signup__section-title">Ваш магазин</span>
+                  <span className="signup__section-title">2. Ваш магазин</span>
                 </div>
 
                 <label className={`signup__field ${siteError ? 'signup__field--error' : ''}`}>
@@ -746,6 +737,7 @@ export function SignupPage() {
               <div className="signup__section-divider" />
 
               {/* ── Section 3: Payment ── */}
+
               <div className="signup__section">
                 <div className="signup__section-hdr">
                   <CreditCard size={14} strokeWidth={2} className="signup__section-icon" />
@@ -787,38 +779,49 @@ export function SignupPage() {
                 )}
               </div>
 
+              <div className="signup__section-divider" />
+
               {/* ── CTA ── */}
-              <form onSubmit={handleStartTrial} noValidate>
-                {emailStatus !== 'verified' && (
-                  <div className="signup__cta-lock">
-                    <Lock size={13} strokeWidth={2.5} />
-                    Підтвердіть email, щоб продовжити
-                  </div>
-                )}
+              <div className="signup__section">
+                <form onSubmit={handleStartTrial} noValidate>
+                  {emailStatus !== 'verified' && (
+                    <div className="signup__cta-lock">
+                      <Lock size={13} strokeWidth={2.5} />
+                      Підтвердіть email, щоб продовжити
+                    </div>
+                  )}
 
-                <button
-                  type="submit"
-                  className="signup__submit signup__submit--trial"
-                  disabled={!isCtaActive}
-                  style={{ marginTop: emailStatus !== 'verified' ? 10 : 0 }}
-                >
-                  {loading
-                    ? <><LoaderCircle size={17} strokeWidth={2.5} className="signup__spinner" /> {paymentMethod === 'liqpay' ? 'Активуємо тріал...' : 'Переходимо до оплати...'}</>
-                    : paymentMethod === 'liqpay'
-                      ? <>Почати 7 днів безкоштовно <ArrowRight size={15} strokeWidth={2.5} /></>
-                      : <>Перейти до оплати <ArrowRight size={15} strokeWidth={2.5} /></>
-                  }
-                </button>
+                  <button
+                    type="submit"
+                    className={`signup__submit signup__submit--trial${!isCtaActive ? ' signup__submit--locked-state' : ''}`}
+                    disabled={!isCtaActive}
+                  >
+                    {loading
+                      ? <><LoaderCircle size={17} strokeWidth={2.5} className="signup__spinner" /> {paymentMethod === 'liqpay' ? 'Активуємо тріал...' : 'Переходимо до оплати...'}</>
+                      : !isCtaActive
+                        ? <>Почати 7 днів безкоштовно <Lock size={14} strokeWidth={2} /></>
+                        : paymentMethod === 'liqpay'
+                          ? <>Почати 7 днів безкоштовно <ArrowRight size={15} strokeWidth={2.5} /></>
+                          : <>Перейти до оплати <ArrowRight size={15} strokeWidth={2.5} /></>
+                    }
+                  </button>
 
-                <p className="signup__terms">
-                  Продовжуючи, Ви погоджуєтесь з{' '}
-                  <a href="/terms" target="_blank" rel="noreferrer">умовами використання</a>
-                  {' '}та{' '}
-                  <a href="/privacy" target="_blank" rel="noreferrer">політикою конфіденційності</a>
-                </p>
-              </form>
+                  <p className="signup__terms">
+                    Натискаючи, Ви погоджуєтесь з{' '}
+                    <a href="/terms" target="_blank" rel="noreferrer">умовами використання</a>
+                    {' '}та{' '}
+                    <a href="/privacy" target="_blank" rel="noreferrer">політикою конфіденційності</a>
+                  </p>
+                </form>
+              </div>
 
             </div>
+
+            <p className="signup__login-hint">
+              Вже є акаунт?{' '}
+              <Link to="/login" className="signup__login-link">Увійти</Link>
+            </p>
+
           </div>
         </div>
       </div>
