@@ -167,6 +167,12 @@ fi
 # ── Step 2: Ensure infra (postgres, redis, caddy) is up ───────────────────────
 echo "▶ Ensuring infra services are up..."
 $DC up -d --no-deps postgres redis
+wait_healthy postgres || true
+
+# Pre-deploy DB backup is triggered by Taskfile (`task prod:db:dump` runs
+# before this script). When deploy.sh is invoked directly with --local on the
+# server, make sure you snapshot the DB first — e.g. via `task prod:db:dump`
+# from your workstation, or a manual pg_dump.
 
 # First-ever deploy: if nothing is running at all, bring the full stack up
 # in one shot (honors depends_on + healthchecks) and skip the rolling dance.

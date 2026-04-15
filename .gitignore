@@ -31,6 +31,9 @@ Thumbs.db
 # Docker
 docker-compose.override.yml
 
+# DB backups (pre-deploy dumps, stored on server)
+backups/
+
 # Age private key — never commit
 .age-key.txt
 

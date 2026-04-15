@@ -6,6 +6,8 @@ vars:
   FRONT: cd frontend &&
   DCP: docker compose -f docker-compose.prod.yml --env-file .env.prod
   EXECP: '{{.DCP}} exec backend'
+  SERVER: root@204.168.206.10
+  REMOTE_DIR: /opt/widgetis
 
 tasks:
   # ── Secrets (SOPS + age) ───────────────────────────────
@@ -233,8 +235,9 @@ tasks:
 
   # ── Deploy ─────────────────────────────────────────────
   deploy:
-    desc: "Задеплоить на прод (смоук после)  ·  task deploy"
+    desc: "Задеплоить на прод (дамп БД → deploy → смоук)  ·  task deploy"
     cmds:
+      - task: prod:db:dump
       - bash deploy.sh
       - task: test:smoke:prod
 
@@ -244,20 +247,23 @@ tasks:
       - task: deploy
 
   deploy:fast:
-    desc: "Быстрый деплой без пересборки образов (смоук после)  ·  task deploy:fast"
+    desc: "Быстрый деплой без пересборки образов (дамп → deploy → смоук)  ·  task deploy:fast"
     cmds:
+      - task: prod:db:dump
       - bash deploy.sh --skip-build
       - task: test:smoke:prod
 
   deploy:seed-base:
-    desc: "Деплой + безопасные прод-сидеры (смоук после)  ·  task deploy:seed-base"
+    desc: "Деплой + безопасные прод-сидеры (дамп → deploy → смоук)  ·  task deploy:seed-base"
     cmds:
+      - task: prod:db:dump
       - bash deploy.sh --seed-base
       - task: test:smoke:prod
 
   deploy:nocheck:
-    desc: "Аварийный деплой без тестов (использовать только для срочных хотфиксов)  ·  task deploy:nocheck"
+    desc: "Аварийный деплой без тестов (дамп → deploy)  ·  task deploy:nocheck"
     cmds:
+      - task: prod:db:dump
       - bash deploy.sh
 
   # ── Продакшен ──────────────────────────────────────────
@@ -309,6 +315,59 @@ tasks:
     desc: "Artisan на проде  ·  task prod:artisan -- migrate:status"
     cmds:
       - '{{.EXECP}} php artisan {{.CLI_ARGS}}'
+
+  prod:db:dump:
+    desc: "Сделать дамп прод-БД на сервере (/opt/widgetis/backups/)  ·  task prod:db:dump"
+    cmds:
+      - |
+        ssh {{.SERVER}} 'set -e
+          cd {{.REMOTE_DIR}}
+          mkdir -p backups
+          TS=$(date -u +%Y%m%d-%H%M%S)
+          OUT="backups/widgetis-$TS.sql.gz"
+          docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T postgres \
+            pg_dump -U widgetis -d widgetis --clean --if-exists | gzip > "$OUT"
+          ls -1t backups/widgetis-*.sql.gz 2>/dev/null | tail -n +21 | xargs -r rm -f
+          echo "✓ $OUT ($(du -h "$OUT" | cut -f1))"
+        '
+
+  prod:db:list:
+    desc: "Список прод-дампов на сервере  ·  task prod:db:list"
+    cmds:
+      - ssh {{.SERVER}} 'ls -lht {{.REMOTE_DIR}}/backups/widgetis-*.sql.gz 2>/dev/null || echo "дампов нет"'
+
+  prod:db:restore:
+    desc: "Восстановить прод-БД из дампа на сервере  ·  task prod:db:restore -- widgetis-YYYYMMDD-HHMMSS.sql.gz"
+    cmds:
+      - |
+        FILE="{{.CLI_ARGS}}"
+        if [ -z "$FILE" ]; then
+          echo "❌ укажи файл: task prod:db:restore -- widgetis-...sql.gz (см. task prod:db:list)"
+          exit 1
+        fi
+        ssh {{.SERVER}} "set -e
+          cd {{.REMOTE_DIR}}
+          if [ ! -f backups/$FILE ]; then
+            echo '❌ backups/$FILE не найден'
+            exit 1
+          fi
+          echo '▶ восстанавливаю backups/$FILE в widgetis (prod)...'
+          gunzip -c backups/$FILE | docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T postgres psql -U widgetis -d widgetis
+          echo '✓ restored'
+        "
+
+  prod:db:fetch:
+    desc: "Скачать дамп с сервера локально  ·  task prod:db:fetch -- widgetis-YYYYMMDD-HHMMSS.sql.gz"
+    cmds:
+      - mkdir -p backups
+      - |
+        FILE="{{.CLI_ARGS}}"
+        if [ -z "$FILE" ]; then
+          echo "❌ укажи файл: task prod:db:fetch -- widgetis-...sql.gz"
+          exit 1
+        fi
+        scp {{.SERVER}}:{{.REMOTE_DIR}}/backups/$FILE backups/$FILE
+        echo "✓ backups/$FILE"
 
   prod:sh:
     desc: "Shell в прод-контейнере  ·  task prod:sh"
