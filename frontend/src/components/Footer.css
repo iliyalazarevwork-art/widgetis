@@ -214,20 +214,20 @@
 .footer__payments {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 28px;
   flex-wrap: wrap;
 }
 
 .footer__pay-group {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 28px;
   flex-wrap: wrap;
 }
 
 .footer__pay-sep {
   width: 1px;
-  height: 18px;
+  height: 22px;
   background: rgba(255, 255, 255, 0.14);
   flex-shrink: 0;
 }
@@ -236,19 +236,18 @@
   height: 22px;
   width: auto;
   flex-shrink: 0;
-  opacity: 0.7;
-  filter: grayscale(0.25);
-  transition: opacity 260ms var(--ease-out), filter 260ms var(--ease-out), transform 260ms var(--ease-out);
+  opacity: 0.85;
+  filter: none;
+  transition: opacity 260ms var(--ease-out), transform 260ms var(--ease-out);
 }
 
 .footer__pay-logo:hover {
   opacity: 1;
-  filter: grayscale(0);
   transform: translateY(-1px);
 }
 
 .footer__pay-logo--wordmark {
-  height: 20px;
+  height: 22px;
 }
 
 @media (max-width: 520px) {
