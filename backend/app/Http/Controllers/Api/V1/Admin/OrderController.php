@@ -76,7 +76,7 @@ class OrderController extends BaseController
         ]);
     }
 
-    public function show(int $id): JsonResponse
+    public function show(string $id): JsonResponse
     {
         $order = Order::with('user', 'plan', 'payments')->findOrFail($id);
 

@@ -66,7 +66,7 @@ class UserController extends BaseController
         ]);
     }
 
-    public function show(int $id): JsonResponse
+    public function show(string $id): JsonResponse
     {
         $user = User::with('subscription.plan', 'roles', 'sites')->findOrFail($id);
 

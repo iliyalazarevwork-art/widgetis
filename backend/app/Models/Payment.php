@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\PaymentProvider;
+use App\Models\Concerns\HasUuidV7;
 use Database\Factories\PaymentFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +18,7 @@ class Payment extends Model
 {
     /** @use HasFactory<PaymentFactory> */
     use HasFactory;
+    use HasUuidV7;
 
 
     /** @var list<string> */

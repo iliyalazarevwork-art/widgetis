@@ -12,8 +12,8 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('subscriptions', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->uuid('id')->primary();
+            $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('plan_id')->constrained();
             $table->string('billing_period', 10)->default(BillingPeriod::Monthly->value);
             $table->string('status', 20)->default(SubscriptionStatus::Active->value);

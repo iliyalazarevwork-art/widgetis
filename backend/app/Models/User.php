@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\UserRole;
+use App\Models\Concerns\HasUuidV7;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -25,6 +26,7 @@ class User extends Authenticatable implements JWTSubject, FilamentUser
     /** @use HasFactory<UserFactory> */
     use HasFactory;
     use HasRoles;
+    use HasUuidV7;
     use Notifiable;
 
     /**

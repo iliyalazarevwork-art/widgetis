@@ -233,7 +233,7 @@ class SubscriptionService
 
             // Rebuild scripts for affected sites
             $subscription->user->sites()->pluck('id')->each(
-                fn (int $siteId) => RebuildSiteScriptJob::dispatch($siteId),
+                fn (string $siteId) => RebuildSiteScriptJob::dispatch($siteId),
             );
         }
 

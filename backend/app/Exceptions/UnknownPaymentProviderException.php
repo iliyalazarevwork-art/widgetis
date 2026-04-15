@@ -14,7 +14,7 @@ final class UnknownPaymentProviderException extends RuntimeException
         return new self("Payment provider [{$provider->value}] is not registered.");
     }
 
-    public static function subscriptionHasNoProvider(int $subscriptionId): self
+    public static function subscriptionHasNoProvider(string $subscriptionId): self
     {
         return new self("Subscription #{$subscriptionId} has no payment_provider set.");
     }

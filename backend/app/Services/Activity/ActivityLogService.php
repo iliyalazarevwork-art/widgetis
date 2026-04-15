@@ -13,10 +13,10 @@ class ActivityLogService
      * @param array<string, mixed>|null $metadata
      */
     public function log(
-        ?int $userId,
+        ?string $userId,
         string $action,
         ?string $entityType = null,
-        ?int $entityId = null,
+        int|string|null $entityId = null,
         ?array $description = null,
         ?array $metadata = null,
     ): ActivityLog {

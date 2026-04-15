@@ -12,7 +12,7 @@ return new class () extends Migration {
     {
         Schema::create('interest_requests', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnDelete();
+            $table->foreignUuid('user_id')->nullable()->constrained('users')->cascadeOnDelete();
             $table->string('anonymous_id', 100)->nullable();
             $table->string('interestable_type');
             $table->unsignedBigInteger('interestable_id');

@@ -234,9 +234,26 @@ tasks:
       - '{{.EXEC}} php artisan optimize:clear'
 
   # ── Deploy ─────────────────────────────────────────────
-  deploy:
-    desc: "Задеплоить на прод (дамп БД → deploy → смоук)  ·  task deploy"
+  deploy:pre:
+    desc: "Предеплойные проверки: автофикс → статика → тесты  ·  task deploy:pre"
     cmds:
+      - echo "── 1/6  PHP auto-fix (pint) ─────────────────────────────────────"
+      - '{{.EXEC}} ./vendor/bin/pint'
+      - echo "── 2/6  Frontend auto-fix (eslint --fix) ────────────────────────"
+      - (cd frontend && npx eslint --fix 'src/**/*.{ts,tsx}') || true
+      - echo "── 3/6  PHPStan static analysis ─────────────────────────────────"
+      - '{{.EXEC}} ./vendor/bin/phpstan analyse --memory-limit=512M'
+      - echo "── 4/6  TypeScript check (tsc --noEmit) ─────────────────────────"
+      - (cd frontend && npx tsc --noEmit)
+      - echo "── 5/6  Laravel tests ───────────────────────────────────────────"
+      - '{{.EXEC}} php artisan test'
+      - echo "── 6/6  Frontend vitest ─────────────────────────────────────────"
+      - (cd frontend && npm test)
+
+  deploy:
+    desc: "Полный деплой: проверки → бэкап → деплой → смоук  ·  task deploy"
+    cmds:
+      - task: deploy:pre
       - task: prod:db:dump
       - bash deploy.sh
       - task: test:smoke:prod
@@ -247,21 +264,23 @@ tasks:
       - task: deploy
 
   deploy:fast:
-    desc: "Быстрый деплой без пересборки образов (дамп → deploy → смоук)  ·  task deploy:fast"
+    desc: "Быстрый деплой без пересборки образов  ·  task deploy:fast"
     cmds:
+      - task: deploy:pre
       - task: prod:db:dump
       - bash deploy.sh --skip-build
       - task: test:smoke:prod
 
   deploy:seed-base:
-    desc: "Деплой + безопасные прод-сидеры (дамп → deploy → смоук)  ·  task deploy:seed-base"
+    desc: "Деплой + безопасные прод-сидеры  ·  task deploy:seed-base"
     cmds:
+      - task: deploy:pre
       - task: prod:db:dump
       - bash deploy.sh --seed-base
       - task: test:smoke:prod
 
   deploy:nocheck:
-    desc: "Аварийный деплой без тестов (дамп → deploy)  ·  task deploy:nocheck"
+    desc: "Аварийный деплой без проверок и тестов (только бэкап → deploy)  ·  task deploy:nocheck"
     cmds:
       - task: prod:db:dump
       - bash deploy.sh

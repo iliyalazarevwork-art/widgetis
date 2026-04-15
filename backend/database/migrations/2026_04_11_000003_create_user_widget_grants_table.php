@@ -11,9 +11,9 @@ return new class () extends Migration {
     {
         Schema::create('user_widget_grants', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignUuid('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('product_id')->constrained('products')->cascadeOnDelete();
-            $table->foreignId('granted_by_admin_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignUuid('granted_by_admin_id')->nullable()->constrained('users')->nullOnDelete();
             $table->text('reason');
             $table->timestamp('expires_at')->nullable();
             $table->timestamps();

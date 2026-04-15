@@ -96,7 +96,7 @@ class SiteController extends BaseController
         }
     }
 
-    public function show(int $id): JsonResponse
+    public function show(string $id): JsonResponse
     {
         $site = $this->currentUser()->sites()
             ->with(['script', 'widgets.product'])
@@ -131,7 +131,7 @@ class SiteController extends BaseController
         ]);
     }
 
-    public function destroy(int $id): JsonResponse
+    public function destroy(string $id): JsonResponse
     {
         $site = $this->currentUser()->sites()->findOrFail($id);
         $site->delete();
@@ -139,7 +139,7 @@ class SiteController extends BaseController
         return $this->noContent();
     }
 
-    public function verify(int $id): JsonResponse
+    public function verify(string $id): JsonResponse
     {
         $site = $this->currentUser()->sites()->with('script')->findOrFail($id);
 
@@ -162,7 +162,7 @@ class SiteController extends BaseController
         ]);
     }
 
-    public function script(int $id): JsonResponse
+    public function script(string $id): JsonResponse
     {
         $site = $this->currentUser()->sites()->with('script')->findOrFail($id);
 
@@ -182,7 +182,7 @@ class SiteController extends BaseController
         ]);
     }
 
-    public function updateWidget(Request $request, int $siteId, int $productId): JsonResponse
+    public function updateWidget(Request $request, string $siteId, int $productId): JsonResponse
     {
         $request->validate([
             'config' => ['required', 'array'],

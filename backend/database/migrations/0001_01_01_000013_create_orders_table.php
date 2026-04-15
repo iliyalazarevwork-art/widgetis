@@ -11,9 +11,9 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('orders', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->string('order_number', 20)->unique();
-            $table->foreignId('user_id')->constrained();
+            $table->foreignUuid('user_id')->constrained();
             $table->foreignId('plan_id')->constrained();
             $table->string('billing_period', 10);
             $table->decimal('amount', 10, 2);

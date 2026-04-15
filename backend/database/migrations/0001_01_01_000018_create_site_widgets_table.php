@@ -11,7 +11,7 @@ return new class () extends Migration {
     {
         Schema::create('site_widgets', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('site_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('site_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
             $table->boolean('is_enabled')->default(true);
             $table->jsonb('config')->nullable();

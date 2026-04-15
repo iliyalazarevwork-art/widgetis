@@ -11,10 +11,10 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('payments', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained();
-            $table->foreignId('order_id')->nullable()->constrained();
-            $table->foreignId('subscription_id')->nullable()->constrained();
+            $table->uuid('id')->primary();
+            $table->foreignUuid('user_id')->constrained();
+            $table->foreignUuid('order_id')->nullable()->constrained();
+            $table->foreignUuid('subscription_id')->nullable()->constrained();
             $table->string('type', 20);
             $table->decimal('amount', 10, 2);
             $table->string('currency', 3)->default('UAH');

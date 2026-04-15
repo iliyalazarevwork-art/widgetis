@@ -13,8 +13,8 @@ return new class () extends Migration {
     {
         Schema::create('manager_requests', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained();
-            $table->foreignId('site_id')->nullable()->constrained();
+            $table->foreignUuid('user_id')->nullable()->constrained();
+            $table->foreignUuid('site_id')->nullable()->constrained();
             $table->string('type', 30)->default(ManagerRequestType::InstallHelp->value);
             $table->string('messenger', 30)->nullable();
             $table->string('email')->nullable();

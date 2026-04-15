@@ -19,7 +19,7 @@ class RebuildSiteScriptJob implements ShouldQueue
     public int $backoff = 10;
 
     public function __construct(
-        public readonly int $siteId,
+        public readonly string $siteId,
     ) {
     }
 

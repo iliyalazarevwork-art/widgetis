@@ -11,7 +11,7 @@ return new class () extends Migration {
     {
         Schema::create('notifications', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
             $table->string('type', 50);
             $table->jsonb('title');
             $table->jsonb('body');

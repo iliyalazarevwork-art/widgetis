@@ -62,7 +62,7 @@ class SiteController extends BaseController
         ]);
     }
 
-    public function show(int $id): JsonResponse
+    public function show(string $id): JsonResponse
     {
         /** @var Site $site */
         $site = Site::with(['script', 'widgets.product', 'user'])->findOrFail($id);
@@ -98,7 +98,7 @@ class SiteController extends BaseController
         ]);
     }
 
-    public function deploy(Request $request, int $id, ScriptBuilderService $builder): JsonResponse
+    public function deploy(Request $request, string $id, ScriptBuilderService $builder): JsonResponse
     {
         $request->validate([
             'modules' => ['required', 'array'],
@@ -127,7 +127,7 @@ class SiteController extends BaseController
         ]);
     }
 
-    public function updateWidget(Request $request, int $siteId, int $productId): JsonResponse
+    public function updateWidget(Request $request, string $siteId, int $productId): JsonResponse
     {
         $request->validate([
             'is_enabled' => ['sometimes', 'boolean'],

@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\PaymentProvider;
 use App\Enums\SubscriptionStatus;
+use App\Models\Concerns\HasUuidV7;
 use Database\Factories\SubscriptionFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property ?PaymentProvider $payment_provider
  * @property ?string $payment_provider_subscription_id
  * @property ?string $monobank_card_token
- * @property int $user_id
+ * @property string $user_id
  * @property SubscriptionStatus $status
  * @property \Illuminate\Support\Carbon $current_period_start
  * @property \Illuminate\Support\Carbon $current_period_end
@@ -29,6 +30,7 @@ class Subscription extends Model
 {
     /** @use HasFactory<SubscriptionFactory> */
     use HasFactory;
+    use HasUuidV7;
 
 
     /** @var list<string> */

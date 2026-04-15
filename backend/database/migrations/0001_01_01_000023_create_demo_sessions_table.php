@@ -14,7 +14,7 @@ return new class () extends Migration {
             $table->string('code', 8)->unique();
             $table->string('domain');
             $table->jsonb('config');
-            $table->foreignId('created_by')->nullable()->constrained('users');
+            $table->foreignUuid('created_by')->nullable()->constrained('users');
             $table->integer('view_count')->default(0);
             $table->timestamp('expires_at');
             $table->timestamps();
