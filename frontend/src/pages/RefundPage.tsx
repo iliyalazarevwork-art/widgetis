@@ -1,38 +1,37 @@
 import { SeoHead } from '../components/SeoHead'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, CalendarCheck, MessageSquare, Clock, XCircle, ShieldCheck, BookOpen } from 'lucide-react'
 import { BRAND_NAME_UPPER } from '../constants/brand'
-import './LegalDocPage.css'
+import './SimpleLegalPage.css'
 
-const SECTIONS = [
+type Section = {
+  title: string
+  body: string
+}
+
+const SECTIONS: Section[] = [
   {
-    icon: ShieldCheck,
     title: 'Загальна позиція',
     body: `Сервіс Widgetis є цифровою послугою у форматі підписки (SaaS). Відповідно до ЗУ «Про захист прав споживачів», ЗУ «Про електронну комерцію» та специфіки цифрових послуг, оплата за підписку не підлягає поверненню в разі:
 — дострокового розірвання Договору за ініціативою Користувача;
-— невикористання або часткового використання функціональності Сервісу протягом оплаченого периоду;
+— невикористання або часткового використання функціональності Сервісу протягом оплаченого періоду;
 — незадоволення функціональністю після активного використання.
 
 Це стандартна практика для українських та міжнародних SaaS-сервісів (Horoshop, Serpstat, Binotel тощо).`,
-    highlight: false,
   },
   {
-    icon: CalendarCheck,
     title: '14-денна гарантія повернення',
     body: `Widgetis надає 14-денну гарантію задоволення для нових підписників.
 
 Ви маєте право на повне повернення коштів за умови одночасного виконання ВСІХ вимог:
 
-а) з дати першої оплати конкретного тарифного плану минуло не більше 14 (чотирнадцяти) календарних днів;
+a) з дати першої оплати конкретного тарифного плану минуло не більше 14 (чотирнадцяти) календарних днів;
 б) Користувач звернувся до служби підтримки з письмовим запитом на повернення;
 в) відсутні ознаки зловживання правом на повернення (попередні повернення з того ж облікового запису або пов'язаних акаунтів);
 г) обліковий запис не перебуває під дією санкцій за порушення Публічної оферти.
 
 Після спливу 14-денного строку повернення коштів не здійснюється незалежно від причини.`,
-    highlight: true,
   },
   {
-    icon: MessageSquare,
     title: 'Порядок подання запиту на повернення',
     body: `Для ініціювання повернення Користувач надсилає письмовий запит на адресу підтримки, зазначену на сторінці widgetis.ua/contacts.
 
@@ -44,7 +43,6 @@ const SECTIONS = [
 Служба підтримки розглядає запит протягом 3 (трьох) робочих днів та надсилає підтвердження схвалення або мотивовану відмову. Запити, надіслані в неробочі дні, розглядаються починаючи з наступного робочого дня.`,
   },
   {
-    icon: Clock,
     title: 'Строки та спосіб повернення коштів',
     body: `У разі схвалення запиту кошти повертаються на ту ж платіжну карту або рахунок, з якого здійснювалась оплата, протягом 7 (семи) робочих днів з моменту підтвердження повернення Оператором.
 
@@ -53,16 +51,14 @@ const SECTIONS = [
 Повернення здійснюється у тій самій валюті, в якій було проведено оплату. Різниця курсу в разі конвертації Оператором не компенсується.`,
   },
   {
-    icon: ShieldCheck,
     title: 'Повернення при розірванні з ініціативи Оператора',
     body: `У разі дострокового розірвання Договору з ініціативи Оператора з причин, не пов'язаних з порушенням Користувачем умов Публічної оферти, Оператор повертає Користувачу залишок вартості оплачених, але не наданих повних місяців підписки.
 
 Повернення здійснюється на підставі письмового запиту Користувача, надісланого не пізніше ніж через 30 (тридцять) днів після отримання повідомлення про розірвання.
 
-Частково використані місяці не компенсуються — лише повні невикористані розрахункові периоди.`,
+Частково використані місяці не компенсуються — лише повні невикористані розрахункові періоди.`,
   },
   {
-    icon: XCircle,
     title: 'Випадки, коли повернення не здійснюється',
     body: `Повернення коштів не здійснюється у разі:
 
@@ -75,78 +71,57 @@ const SECTIONS = [
   },
 ]
 
+const LEGAL_BASIS = [
+  'ЗУ №1023-XII «Про захист прав споживачів», ст. 10, 13 — права споживачів при отриманні послуг дистанційним способом.',
+  'ЗУ №3153-IX (2023) «Про електронну комерцію» — особливості надання та оплати цифрових послуг в Україні.',
+  'Директива ЄС 2019/770 «Про цифровий контент та цифрові послуги» — орієнтир на кращі практики ЄС щодо захисту прав споживачів цифрових послуг.',
+]
+
+function renderBody(body: string) {
+  return body
+    .split('\n\n')
+    .filter(Boolean)
+    .map((paragraph, index) => (
+      <p key={`${index}-${paragraph.slice(0, 24)}`} className="simple-doc-page__text">
+        {paragraph}
+      </p>
+    ))
+}
+
 export function RefundPage() {
   return (
-    <div className="legal-doc-page">
+    <div className="simple-doc-page">
       <SeoHead
         title={`Повернення коштів — ${BRAND_NAME_UPPER}`}
-        description="Політика повернення коштів Widgetis: 14-денна гарантія повернення при зверненні до технічної підтримки. Умови та порядок."
+        description="Політика повернення коштів Widgetis: 14-денна гарантія повернення при зверненні до технічної підтримки."
         path="/refund"
       />
 
-      <section className="legal-doc-page__hero">
-        <div className="legal-doc-page__hero-bg" aria-hidden="true">
-          <div className="legal-doc-page__hero-glow legal-doc-page__hero-glow--1" />
-          <div className="legal-doc-page__hero-glow legal-doc-page__hero-glow--2" />
-        </div>
-        <div className="legal-doc-page__hero-content">
-          <Link to="/" className="legal-doc-page__back">
-            <ArrowLeft size={16} strokeWidth={2.25} />
-            На головну
-          </Link>
-          <p className="legal-doc-page__eyebrow">Гарантія</p>
-          <h1 className="legal-doc-page__title">
-            Повернення <span className="legal-doc-page__title-accent">коштів</span>
-          </h1>
-          <p className="legal-doc-page__subtitle">
-            14 днів на повернення — якщо щось пішло не так, напишіть нам.
-          </p>
-        </div>
-      </section>
+      <main className="simple-doc-page__container">
+        <Link to="/" className="simple-doc-page__back">← На головну</Link>
+        <h1 className="simple-doc-page__title">Повернення коштів</h1>
+        <p className="simple-doc-page__subtitle">Проста текстова версія умов повернення.</p>
 
-      <section className="legal-doc-page__content">
-        <div className="legal-doc-page__container">
-          {SECTIONS.map(({ icon: Icon, title, body, highlight }) => (
-            <div
-              key={title}
-              className={`legal-doc-page__card${highlight ? ' legal-doc-page__card--highlight' : ''}`}
-            >
-              <div className="legal-doc-page__card-icon">
-                <Icon size={20} strokeWidth={2} />
-              </div>
-              <div className="legal-doc-page__card-body">
-                <h2 className="legal-doc-page__card-title">{title}</h2>
-                <p className="legal-doc-page__card-text">{body}</p>
-              </div>
-            </div>
-          ))}
+        {SECTIONS.map((section) => (
+          <section key={section.title} className="simple-doc-page__section">
+            <h2 className="simple-doc-page__section-title">{section.title}</h2>
+            {renderBody(section.body)}
+          </section>
+        ))}
 
-          <div className="legal-doc-page__legal">
-            <div className="legal-doc-page__legal-header">
-              <BookOpen size={16} strokeWidth={2} />
-              <span>Правова основа</span>
-            </div>
-            <ul className="legal-doc-page__legal-list">
-              <li>
-                <strong>ЗУ №1023-XII «Про захист прав споживачів», ст. 10, 13</strong>
-                {' '}— права споживачів при отриманні послуг дистанційним способом.
-              </li>
-              <li>
-                <strong>ЗУ №3153-IX (2023) «Про електронну комерцію»</strong>
-                {' '}— особливості надання та оплати цифрових послуг в Україні.
-              </li>
-              <li>
-                <strong>Директива ЄС 2019/770 «Про цифровий контент та цифрові послуги»</strong>
-                {' '}— ми орієнтуємось на кращі практики ЄС щодо захисту прав споживачів цифрових послуг.
-              </li>
-            </ul>
-          </div>
+        <section className="simple-doc-page__section">
+          <h2 className="simple-doc-page__section-title">Правова основа</h2>
+          <ul className="simple-doc-page__list">
+            {LEGAL_BASIS.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </section>
 
-          <p className="legal-doc-page__updated">
-            Редакція від 1 квітня 2026 р. &mdash; © {new Date().getFullYear()} {BRAND_NAME_UPPER}. Всі права захищені.
-          </p>
-        </div>
-      </section>
+        <p className="simple-doc-page__updated">
+          Редакція від 1 квітня 2026 р. © {new Date().getFullYear()} {BRAND_NAME_UPPER}. Всі права захищені.
+        </p>
+      </main>
     </div>
   )
 }

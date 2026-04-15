@@ -1,15 +1,15 @@
 import { SeoHead } from '../components/SeoHead'
 import { Link } from 'react-router-dom'
-import {
-  ArrowLeft, Database, Target, Users, Eye, Clock,
-  ShieldCheck, Cookie, AlertTriangle, BookOpen,
-} from 'lucide-react'
 import { BRAND_NAME_UPPER } from '../constants/brand'
-import './LegalDocPage.css'
+import './SimpleLegalPage.css'
 
-const SECTIONS = [
+type Section = {
+  title: string
+  body: string
+}
+
+const SECTIONS: Section[] = [
   {
-    icon: Database,
     title: '1. Які дані ми збираємо',
     body: `Реєстраційні та профільні дані:
 — ім'я та прізвище;
@@ -31,7 +31,6 @@ const SECTIONS = [
 — статистика показів та кліків по віджетах у вашому магазині.`,
   },
   {
-    icon: Target,
     title: '2. Мета та правові підстави обробки',
     body: `Ми обробляємо персональні дані виключно для:
 
@@ -47,7 +46,6 @@ const SECTIONS = [
 — явна згода суб'єкта — для маркетингових комунікацій.`,
   },
   {
-    icon: Users,
     title: '3. Передача та розкриття даних третім особам',
     body: `Ми не продаємо і не передаємо ваші персональні дані третім особам, крім:
 
@@ -60,7 +58,6 @@ const SECTIONS = [
 При будь-якій передачі даних за межі України ми укладаємо відповідні угоди про обробку даних та забезпечуємо рівень захисту, що відповідає вимогам GDPR (стандартні договірні застереження ЄС).`,
   },
   {
-    icon: Eye,
     title: '4. Ваші права як суб\'єкта даних',
     body: `Відповідно до ЗУ «Про захист персональних даних» та принципів GDPR ви маєте право:
 
@@ -75,7 +72,6 @@ const SECTIONS = [
 Для реалізації будь-якого з прав надішліть запит через форму на сторінці widgetis.ua/contacts. Ми відповімо протягом 30 (тридцяти) календарних днів.`,
   },
   {
-    icon: Clock,
     title: '5. Строки зберігання персональних даних',
     body: `Ваші персональні дані зберігаються:
 
@@ -87,7 +83,6 @@ const SECTIONS = [
 Ви маєте право вивантажити власні дані (конфігурацію віджетів) у будь-який момент через особистий кабінет або запит до підтримки. Після видалення облікового запису ця можливість зберігається протягом 30 днів.`,
   },
   {
-    icon: ShieldCheck,
     title: '6. Технічний та організаційний захист даних',
     body: `Ми застосовуємо комплексні заходи для захисту ваших даних:
 
@@ -106,7 +101,6 @@ const SECTIONS = [
 У разі виявлення витоку даних, що може призвести до ризиків для Користувачів, ми повідомимо постраждалих Користувачів та Уповноважений орган з питань захисту персональних даних протягом 72 годин.`,
   },
   {
-    icon: Cookie,
     title: '7. Файли cookie',
     body: `Ми використовуємо такі категорії cookie:
 
@@ -124,7 +118,6 @@ const SECTIONS = [
 Ви можете в будь-який момент змінити налаштування cookie через відповідний банер або налаштування браузера. Відмова від аналітичних та маркетингових cookie не впливає на роботу Сервісу.`,
   },
   {
-    icon: AlertTriangle,
     title: '8. Зміни до Політики конфіденційності',
     body: `У разі суттєвих змін до цієї Політики (зміна мети обробки, нові категорії одержувачів даних, зміни строків зберігання) ми повідомимо вас:
 — електронним листом на адресу, вказану при реєстрації;
@@ -136,75 +129,57 @@ const SECTIONS = [
   },
 ]
 
+const LEGAL_BASIS = [
+  'ЗУ №2297-VI «Про захист персональних даних» — основний закон України, що регулює збір, зберігання та обробку персональних даних.',
+  'Регламент ЄС 2016/679 (GDPR) — орієнтир на вимоги GDPR як на високий стандарт захисту приватності у цифрових сервісах.',
+  'Директива ЄС 2002/58/EC «Про конфіденційність в електронних комунікаціях» — стандарти використання cookie-файлів.',
+]
+
+function renderBody(body: string) {
+  return body
+    .split('\n\n')
+    .filter(Boolean)
+    .map((paragraph, index) => (
+      <p key={`${index}-${paragraph.slice(0, 24)}`} className="simple-doc-page__text">
+        {paragraph}
+      </p>
+    ))
+}
+
 export function SecurityPage() {
   return (
-    <div className="legal-doc-page">
+    <div className="simple-doc-page">
       <SeoHead
         title={`Безпека даних — ${BRAND_NAME_UPPER}`}
-        description="Політика конфіденційності та захисту персональних даних Widgetis. Відповідність ЗУ «Про захист персональних даних» та принципам GDPR."
+        description="Політика конфіденційності та захисту персональних даних Widgetis."
         path="/security"
       />
 
-      <section className="legal-doc-page__hero">
-        <div className="legal-doc-page__hero-bg" aria-hidden="true">
-          <div className="legal-doc-page__hero-glow legal-doc-page__hero-glow--1" />
-          <div className="legal-doc-page__hero-glow legal-doc-page__hero-glow--2" />
-        </div>
-        <div className="legal-doc-page__hero-content">
-          <Link to="/" className="legal-doc-page__back">
-            <ArrowLeft size={16} strokeWidth={2.25} />
-            На головну
-          </Link>
-          <p className="legal-doc-page__eyebrow">Конфіденційність</p>
-          <h1 className="legal-doc-page__title">
-            Безпека <span className="legal-doc-page__title-accent">даних</span>
-          </h1>
-          <p className="legal-doc-page__subtitle">
-            Як ми збираємо, зберігаємо та захищаємо ваші персональні дані.
-          </p>
-        </div>
-      </section>
+      <main className="simple-doc-page__container">
+        <Link to="/" className="simple-doc-page__back">← На головну</Link>
+        <h1 className="simple-doc-page__title">Безпека даних</h1>
+        <p className="simple-doc-page__subtitle">Проста текстова версія політики конфіденційності.</p>
 
-      <section className="legal-doc-page__content">
-        <div className="legal-doc-page__container">
-          {SECTIONS.map(({ icon: Icon, title, body }) => (
-            <div key={title} className="legal-doc-page__card">
-              <div className="legal-doc-page__card-icon">
-                <Icon size={20} strokeWidth={2} />
-              </div>
-              <div className="legal-doc-page__card-body">
-                <h2 className="legal-doc-page__card-title">{title}</h2>
-                <p className="legal-doc-page__card-text">{body}</p>
-              </div>
-            </div>
-          ))}
+        {SECTIONS.map((section) => (
+          <section key={section.title} className="simple-doc-page__section">
+            <h2 className="simple-doc-page__section-title">{section.title}</h2>
+            {renderBody(section.body)}
+          </section>
+        ))}
 
-          <div className="legal-doc-page__legal">
-            <div className="legal-doc-page__legal-header">
-              <BookOpen size={16} strokeWidth={2} />
-              <span>Правова основа</span>
-            </div>
-            <ul className="legal-doc-page__legal-list">
-              <li>
-                <strong>ЗУ №2297-VI «Про захист персональних даних»</strong>
-                {' '}— основний закон України, що регулює збір, зберігання та обробку персональних даних.
-              </li>
-              <li>
-                <strong>Регламент ЄС 2016/679 (GDPR)</strong>
-                {' '}— ми орієнтуємось на вимоги GDPR як найвищий стандарт захисту приватності у цифрових сервісах.
-              </li>
-              <li>
-                <strong>Директива ЄС 2002/58/EC «Про конфіденційність в електронних комунікаціях»</strong>
-                {' '}— стандарти використання cookie-файлів.
-              </li>
-            </ul>
-          </div>
+        <section className="simple-doc-page__section">
+          <h2 className="simple-doc-page__section-title">Правова основа</h2>
+          <ul className="simple-doc-page__list">
+            {LEGAL_BASIS.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </section>
 
-          <p className="legal-doc-page__updated">
-            Редакція від 1 квітня 2026 р. &mdash; © {new Date().getFullYear()} {BRAND_NAME_UPPER}. Всі права захищені.
-          </p>
-        </div>
-      </section>
+        <p className="simple-doc-page__updated">
+          Редакція від 1 квітня 2026 р. © {new Date().getFullYear()} {BRAND_NAME_UPPER}. Всі права захищені.
+        </p>
+      </main>
     </div>
   )
 }
