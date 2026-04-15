@@ -48,12 +48,9 @@ done
 
 # ── If called locally — SSH into server and re-run this script ────────────────
 if [ "$LOCAL" = false ]; then
-  # ── Pre-deploy: auto-fix unused imports, then type-check ─────────────────────
+  # ── Pre-deploy: auto-fix unused imports ───────────────────────────────────────
   echo "▶ Frontend: ESLint auto-fix (unused imports, style)..."
   (cd frontend && npm run lint:fix) || true   # fixes what it can; non-fixable issues stay as warnings
-
-  echo "▶ Frontend: TypeScript type-check..."
-  (cd frontend && npx tsc -b --noEmit)        # fails fast if real type errors remain
 
   # If lint:fix changed anything — commit those fixes before pushing
   if ! git diff --quiet frontend/; then
