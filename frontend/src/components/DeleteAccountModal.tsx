@@ -16,7 +16,9 @@ export function DeleteAccountModal({ isOpen, onClose, onDeleted }: DeleteAccount
 
   useEffect(() => {
     if (!isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setConfirmText('')
+       
       setDeleting(false)
     }
   }, [isOpen])

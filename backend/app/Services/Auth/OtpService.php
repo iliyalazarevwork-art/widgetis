@@ -72,6 +72,13 @@ class OtpService
 
     private function isDevBypass(string $email, string $code): bool
     {
+        // Hard guard: in production the master OTP code is NEVER honoured, even
+        // if OTP_DEV_BYPASS somehow leaks into the production env file. A stale
+        // flag here used to be a full auth-bypass — see SecurityOtpDevBypassProdTest.
+        if (app()->environment('production')) {
+            return false;
+        }
+
         if (! (bool) config('app.otp_dev_bypass', false)) {
             return false;
         }

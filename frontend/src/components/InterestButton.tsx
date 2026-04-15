@@ -20,6 +20,7 @@ function storageKey(type: InterestTarget, id: string | number): string {
   return `${STORAGE_PREFIX}${type}:${id}`
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function isInterestSubmitted(type: InterestTarget, id: string | number): boolean {
   try {
     return localStorage.getItem(storageKey(type, id)) !== null

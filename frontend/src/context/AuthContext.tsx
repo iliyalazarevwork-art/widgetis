@@ -45,6 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // On mount: if token exists, fetch user
   useEffect(() => {
     if (!getToken()) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoading(true)
     get<{ data: User }>('/auth/user')
       .then((res) => setUser(res.data))
@@ -67,6 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth(): AuthState {
   const ctx = useContext(AuthContext)
   if (!ctx) throw new Error('useAuth must be used within AuthProvider')

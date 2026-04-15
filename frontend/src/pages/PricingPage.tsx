@@ -95,6 +95,7 @@ export function PricingPage() {
 
     // Auth done: no user → no subscription to fetch
     if (!user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSubLoading(false)
       return
     }

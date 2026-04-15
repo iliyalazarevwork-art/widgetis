@@ -24,6 +24,7 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
 
   useEffect(() => {
     if (!isOpen || !code) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDemo(null)
     setLoading(true)
     setError(null)

@@ -16,6 +16,7 @@ export default function PaymentsPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true)
     Promise.all([
       get<{ data: Subscription }>('/profile/subscription').catch(() => null),

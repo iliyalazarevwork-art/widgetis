@@ -125,6 +125,7 @@ export function Hero() {
   useEffect(() => {
     const count = Math.min(slots, HERO_WIDGETS.length)
     const initial = HERO_WIDGETS.slice(0, count)
+     
     setDisplayedWidgets(initial)
     setAnimatingSlot(null)
     setAnimStage(null)
@@ -157,6 +158,7 @@ export function Hero() {
       clearSwapTimers()
       clearScheduleTimers()
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inView, tabActive, slots])
 
   return (

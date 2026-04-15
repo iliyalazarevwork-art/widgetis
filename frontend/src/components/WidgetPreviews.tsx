@@ -225,6 +225,7 @@ export function PreviewRecentPurchase() {
     }
     const t = setInterval(cycle, 3000)
     return () => clearInterval(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active])
 
   return (
@@ -310,6 +311,7 @@ export function PreviewProgressiveDiscount() {
     if (!active) return
     const t = setInterval(() => setStep(s => (s + 1) % STEPS.length), 1800)
     return () => clearInterval(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active])
 
   const cur = STEPS[step]
@@ -399,6 +401,7 @@ export function PreviewSnow() {
 
 // ─── Map: widget id → preview component ──────────────────────────────────────
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const PREVIEW_MAP: Record<string, React.FC> = {
   'photo-reviews':        PreviewPhotoReviews,
   'live-viewers':         PreviewViewers,

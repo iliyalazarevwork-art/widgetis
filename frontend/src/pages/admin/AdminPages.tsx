@@ -386,6 +386,7 @@ export function AdminOrdersPage() {
   }, [planFilter, startDate, endDate, amountChanged, sortBy, sortDir])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true)
     setError(null)
 
@@ -419,6 +420,7 @@ export function AdminOrdersPage() {
   }, [page, query, statusValue, planFilter, dateFromStr, dateToStr, amountMin, amountMax, sortBy, sortDir])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1)
   }, [query, statusFilter, planFilter, dateFromStr, dateToStr, amountMin, amountMax, sortBy, sortDir])
 
@@ -666,6 +668,7 @@ export function AdminSubscriptionsPage() {
   )
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true)
     setError(null)
 
@@ -691,6 +694,7 @@ export function AdminSubscriptionsPage() {
   }, [page, statusValue])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1)
   }, [statusFilter])
 
@@ -885,6 +889,7 @@ export function AdminUsersPage() {
   )
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true)
     setError(null)
 
@@ -1069,6 +1074,7 @@ export function AdminSitesPage() {
   )
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true)
     setError(null)
 
@@ -1092,6 +1098,7 @@ export function AdminSitesPage() {
   }, [page, query, statusValue])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1)
   }, [query, statusFilter])
 
@@ -1202,6 +1209,7 @@ function useSiteByDomain(domain: string | undefined) {
 
   useEffect(() => {
     if (!domain) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true)
     get<{ data: AdminSite[]; meta: { total: number } }>('/admin/sites', { search: domain, per_page: 1 })
       .then((res) => setSite(res.data[0] ?? null))

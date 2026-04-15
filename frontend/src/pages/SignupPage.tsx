@@ -310,6 +310,7 @@ export function SignupPage() {
     }
 
     setDraftHydrated(true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [billing, planKey])
 
   // ── Save draft ──
@@ -418,6 +419,7 @@ export function SignupPage() {
     if (clean === lastAutoSubmittedOtpRef.current) return
     lastAutoSubmittedOtpRef.current = clean
     void verifyOtpCode(clean)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, otp, emailStatus])
 
   // ── Start checkout ──

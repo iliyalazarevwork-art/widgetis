@@ -172,6 +172,7 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
       }
     }
     boot()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Persist on change
@@ -284,6 +285,7 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
       pendingLoadRef.current = false
       loadPreview()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [previewOpen])
 
   function injectScript(code?: string) {

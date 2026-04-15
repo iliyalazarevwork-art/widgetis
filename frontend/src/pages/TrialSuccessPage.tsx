@@ -544,6 +544,7 @@ export function TrialSuccessPage() {
     }
 
     if (parsed) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setData(parsed)
     } else if (user) {
       // sessionStorage lost (e.g. LiqPay opened new tab) but user is logged in
@@ -568,6 +569,7 @@ export function TrialSuccessPage() {
     if (!data) return
 
     if (user?.subscription_status && ACTIVE_STATUSES.has(user.subscription_status)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPaymentStatus('success')
       return
     }

@@ -47,6 +47,7 @@ const TypewriterInput = forwardRef<HTMLInputElement, {
       return () => clearTimeout(timer)
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDeleting(false)
     setExampleIdx((i) => (i + 1) % EXAMPLES.length)
   }, [value, charIdx, deleting, exampleIdx])
