@@ -68481,13 +68481,13 @@
                                 },
                                 {
                                   "type": "frame",
-                                  "id": "nQRA3",
+                                  "id": "BLsjR",
                                   "name": "dsEmailBadge",
-                                  "fill": "#4ade801a",
+                                  "fill": "#ef44441a",
                                   "cornerRadius": 999,
                                   "stroke": {
                                     "thickness": 1,
-                                    "fill": "#4ade8038"
+                                    "fill": "#ef444438"
                                   },
                                   "gap": 5,
                                   "padding": [
@@ -68498,18 +68498,18 @@
                                   "children": [
                                     {
                                       "type": "icon_font",
-                                      "id": "Yzqhd",
+                                      "id": "uAOUM",
                                       "width": 12,
                                       "height": 12,
-                                      "iconFontName": "badge-check",
+                                      "iconFontName": "circle-alert",
                                       "iconFontFamily": "lucide",
-                                      "fill": "#4ade80"
+                                      "fill": "#ef4444"
                                     },
                                     {
                                       "type": "text",
-                                      "id": "ngoVx",
-                                      "fill": "#4ade80",
-                                      "content": "Підтверджено",
+                                      "id": "psmFv",
+                                      "fill": "#ef4444",
+                                      "content": "Потрібно підтвердити",
                                       "fontFamily": "Inter",
                                       "fontSize": 11,
                                       "fontWeight": "600"
@@ -68520,36 +68520,122 @@
                             },
                             {
                               "type": "frame",
-                              "id": "cpFNq",
-                              "name": "dsEmailConfirmed",
+                              "id": "eueZv",
+                              "name": "dsEmailRow",
                               "width": "fill_container",
-                              "fill": "#0F1A2E",
-                              "cornerRadius": 12,
-                              "stroke": {
-                                "thickness": 1,
-                                "fill": "#3B82F630"
-                              },
                               "gap": 12,
-                              "padding": [
-                                14,
-                                16
-                              ],
                               "alignItems": "center",
                               "children": [
                                 {
-                                  "type": "icon_font",
-                                  "id": "BVYjX",
-                                  "width": 16,
-                                  "height": 16,
-                                  "iconFontName": "mail",
-                                  "iconFontFamily": "lucide",
-                                  "fill": "#3B82F6"
+                                  "type": "frame",
+                                  "id": "gz8hI",
+                                  "name": "dsEmailField",
+                                  "width": "fill_container",
+                                  "height": 58,
+                                  "fill": "#1A1A1A",
+                                  "cornerRadius": 14,
+                                  "stroke": {
+                                    "thickness": 1,
+                                    "fill": "#ffffff1a"
+                                  },
+                                  "gap": 12,
+                                  "padding": [
+                                    0,
+                                    20
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon_font",
+                                      "id": "STdEx",
+                                      "width": 16,
+                                      "height": 16,
+                                      "iconFontName": "mail",
+                                      "iconFontFamily": "lucide",
+                                      "fill": "#7A7A7A"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "KxCrU",
+                                      "fill": "#555555",
+                                      "content": "you@store.ua",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 15,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "kX21T",
+                                  "name": "dsSendBtn",
+                                  "width": 200,
+                                  "height": 58,
+                                  "fill": "#3B82F6",
+                                  "cornerRadius": 14,
+                                  "stroke": {
+                                    "thickness": 1,
+                                    "fill": "#60A5FA"
+                                  },
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "BTtQt",
+                                      "fill": "#FFFFFF",
+                                      "content": "Надіслати код",
+                                      "fontFamily": "Outfit",
+                                      "fontSize": 15,
+                                      "fontWeight": "700"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "htpoG",
+                              "name": "dsGoogleBtn",
+                              "width": "fill_container",
+                              "height": 54,
+                              "fill": "#1A1A1A",
+                              "cornerRadius": 14,
+                              "stroke": {
+                                "thickness": 1,
+                                "fill": "#ffffff1a"
+                              },
+                              "gap": 12,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "UMLET",
+                                  "name": "dsGIco",
+                                  "width": 20,
+                                  "height": 20,
+                                  "fill": "#FFFFFF",
+                                  "cornerRadius": 999,
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "8yx8Y",
+                                      "fill": "#EA4335",
+                                      "content": "G",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 13,
+                                      "fontWeight": "800"
+                                    }
+                                  ]
                                 },
                                 {
                                   "type": "text",
-                                  "id": "gtCFD",
+                                  "id": "T2OQk",
                                   "fill": "#F0F0F0",
-                                  "content": "alex@merchant-store.ua",
+                                  "content": "Або увійти через Google",
                                   "fontFamily": "Inter",
                                   "fontSize": 14,
                                   "fontWeight": "500"
@@ -68666,7 +68752,107 @@
                                 },
                                 {
                                   "type": "frame",
-                                  "id": "LEL94",
+                                  "id": "aVptd",
+                                  "name": "dsPlatShop",
+                                  "width": "fill_container",
+                                  "height": 46,
+                                  "fill": "#1A1A1A",
+                                  "cornerRadius": 10,
+                                  "stroke": {
+                                    "thickness": 1,
+                                    "fill": "#ffffff1a"
+                                  },
+                                  "gap": 8,
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "WJaBd",
+                                      "fill": "#7A7A7A",
+                                      "content": "Shopify",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 13,
+                                      "fontWeight": "500"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "aGLwg",
+                                      "name": "pShopBadge",
+                                      "fill": "#ffffff0a",
+                                      "cornerRadius": 999,
+                                      "padding": [
+                                        3,
+                                        7
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "3l14L",
+                                          "fill": "#555555",
+                                          "content": "Скоро",
+                                          "fontFamily": "Inter",
+                                          "fontSize": 10,
+                                          "fontWeight": "500"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "Sexbj",
+                                  "name": "dsPlatWoo",
+                                  "width": "fill_container",
+                                  "height": 46,
+                                  "fill": "#1A1A1A",
+                                  "cornerRadius": 10,
+                                  "stroke": {
+                                    "thickness": 1,
+                                    "fill": "#ffffff1a"
+                                  },
+                                  "gap": 8,
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "Mnj00",
+                                      "fill": "#7A7A7A",
+                                      "content": "WooCommerce",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 13,
+                                      "fontWeight": "500"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "Wt6I0",
+                                      "name": "pWooBadge",
+                                      "fill": "#ffffff0a",
+                                      "cornerRadius": 999,
+                                      "padding": [
+                                        3,
+                                        7
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "sC2EQ",
+                                          "fill": "#555555",
+                                          "content": "Скоро",
+                                          "fontFamily": "Inter",
+                                          "fontSize": 10,
+                                          "fontWeight": "500"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "3ltLB",
                                   "name": "dsPlatOpen",
                                   "width": "fill_container",
                                   "height": 46,
@@ -68682,7 +68868,7 @@
                                   "children": [
                                     {
                                       "type": "text",
-                                      "id": "ET2s3",
+                                      "id": "dv6Xj",
                                       "fill": "#7A7A7A",
                                       "content": "OpenCart",
                                       "fontFamily": "Inter",
@@ -68690,13 +68876,27 @@
                                       "fontWeight": "500"
                                     },
                                     {
-                                      "type": "text",
-                                      "id": "xreop",
-                                      "fill": "#555555",
-                                      "content": "Скоро",
-                                      "fontFamily": "Inter",
-                                      "fontSize": 10,
-                                      "fontWeight": "500"
+                                      "type": "frame",
+                                      "id": "RwN7y",
+                                      "name": "pOpenBadge",
+                                      "fill": "#ffffff0a",
+                                      "cornerRadius": 999,
+                                      "padding": [
+                                        3,
+                                        7
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "hunRq",
+                                          "fill": "#555555",
+                                          "content": "Скоро",
+                                          "fontFamily": "Inter",
+                                          "fontSize": 10,
+                                          "fontWeight": "500"
+                                        }
+                                      ]
                                     }
                                   ]
                                 }
@@ -69026,35 +69226,6 @@
                           ]
                         }
                       ]
-                    }
-                  ]
-                },
-                {
-                  "type": "frame",
-                  "id": "eaEij",
-                  "name": "dsLoginHint",
-                  "width": "fill_container",
-                  "gap": 6,
-                  "justifyContent": "center",
-                  "alignItems": "center",
-                  "children": [
-                    {
-                      "type": "text",
-                      "id": "TZ4aH",
-                      "fill": "#7A7A7A",
-                      "content": "Вже є акаунт?",
-                      "fontFamily": "Inter",
-                      "fontSize": 13,
-                      "fontWeight": "normal"
-                    },
-                    {
-                      "type": "text",
-                      "id": "tl5sL",
-                      "fill": "#3B82F6",
-                      "content": "Увійти",
-                      "fontFamily": "Inter",
-                      "fontSize": 13,
-                      "fontWeight": "600"
                     }
                   ]
                 }
