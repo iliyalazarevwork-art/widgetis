@@ -98,15 +98,30 @@ export function Header() {
           </Link>
 
           <nav className="header__nav">
-            {NAV_LINKS.map((link) => (
-              <Link key={link.to} to={link.to} className="header__nav-link">
-                {link.label}
-              </Link>
-            ))}
+            {NAV_LINKS.map((link) => {
+              const isActive = location.pathname === link.to
+                || (link.to !== '/' && location.pathname.startsWith(link.to))
+              return (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className={`header__nav-link ${isActive ? 'header__nav-link--active' : ''}`}
+                >
+                  {link.label}
+                </Link>
+              )
+            })}
           </nav>
 
           <div className="header__actions">
-            <button className="header__cta">Спробувати</button>
+            <button
+              type="button"
+              className="header__cta"
+              onClick={() => navigate('/signup')}
+            >
+              <span className="header__cta-label">Спробувати</span>
+              <span className="header__cta-glow" aria-hidden="true" />
+            </button>
             <button
               className="header__burger"
               onClick={() => setMenuOpen(!menuOpen)}

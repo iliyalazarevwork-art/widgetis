@@ -69,6 +69,22 @@ const TAG_BENEFITS: Record<Tag, { title: string; text: string }[]> = {
 
 const BENEFIT_ICONS = [Zap, ShieldCheck, HeartHandshake]
 
+// Explicit mapping: widget.id → case.id[] (cases that reference this widget)
+const WIDGET_CASE_MAP: Record<string, string[]> = {
+  marquee: ['ptashkin', 'beni-home', 'ballistic'],
+  'delivery-date': ['ptashkin', 'brewco'],
+  'free-delivery': ['ptashkin', 'homedetail'],
+  'live-viewers': ['beni-home'],
+  countdown: ['ballistic'],
+  'purchase-counter': ['kyivfit'],
+  'photo-reviews': ['kyivfit'],
+  'spin-wheel': ['kyivfit'],
+  'recent-purchase': ['homedetail'],
+  'progressive-discount': ['homedetail'],
+  quiz: ['brewco'],
+  cashback: ['brewco'],
+}
+
 export function WidgetDetailPage() {
   const { slug } = useParams<{ slug: string }>()
 
@@ -83,7 +99,10 @@ export function WidgetDetailPage() {
 
   const usedInCases = useMemo(() => {
     if (!widget) return []
-    return cases.filter((c) => c.widgets.some((w) => w.toLowerCase().includes(widget.title.toLowerCase().slice(0, 6))))
+    const ids = WIDGET_CASE_MAP[widget.id] ?? []
+    return ids
+      .map((id) => cases.find((c) => c.id === id))
+      .filter((c): c is (typeof cases)[number] => Boolean(c))
   }, [widget])
 
   const containingPackages = useMemo(() => {
