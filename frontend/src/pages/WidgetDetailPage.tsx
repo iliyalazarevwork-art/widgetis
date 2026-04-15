@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import type { PlanDef } from '../data/plans'
 import { WidgetIcon } from '../components/WidgetIcon'
+import { WidgetCard } from '../components/WidgetCard'
 import {
   widgets,
   packages,
@@ -369,21 +370,8 @@ export function WidgetDetailPage() {
               <h2 className="widget-page__section-title">Розглянь також</h2>
             </header>
             <div className="widget-page__related-grid">
-              {relatedWidgets.map((w) => (
-                <Link key={w.id} to={`/widgets/${w.id}`} className="widget-page__related-card">
-                  <div className="widget-page__related-icon">
-                    <WidgetIcon name={w.icon} size={22} />
-                  </div>
-                  <div className="widget-page__related-body">
-                    <strong>{w.title}</strong>
-                    <span>{tagLabels[w.tag]}</span>
-                  </div>
-                  <ArrowRight
-                    size={14}
-                    strokeWidth={2.25}
-                    className="widget-page__related-arrow"
-                  />
-                </Link>
+              {relatedWidgets.map((w, i) => (
+                <WidgetCard key={w.id} widget={w} index={i} />
               ))}
             </div>
           </div>
