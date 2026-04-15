@@ -84,7 +84,7 @@ export function PricingPage() {
   const { user, isLoading: authLoading } = useAuth()
   const settings = useSettings()
   const telegramUrl = settings.socials?.telegram || settings.messengers?.telegram || ''
-  const [yearly, setYearly] = useState(true)
+  const [yearly, setYearly] = useState(false)
   const [sub, setSub] = useState<Subscription | null>(null)
   const [subLoading, setSubLoading] = useState(true)
   const [upgrading, setUpgrading] = useState<string | null>(null)
