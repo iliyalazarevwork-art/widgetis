@@ -151,20 +151,36 @@ class SubscriptionController extends BaseController
             return $this->error('ALREADY_SUBSCRIBED', 'User already has an active subscription.', 422);
         }
 
-        // Reject rapid duplicate clicks: if the user already has a
-        // Pending order younger than 5 minutes with no failed payment yet,
-        // treat the click as a duplicate rather than spawning a second
-        // invoice on the provider side.
-        // Orders whose payment already failed are excluded so the user can
-        // retry immediately after a declined card.
-        $recentPending = Order::where('user_id', $user->id)
+        // Cancel any abandoned pending orders so the user is never stuck.
+        // We keep the duplicate-click guard only for the exact same plan+period
+        // within a 5-minute window — that prevents double-invoicing on rapid
+        // re-clicks without blocking the user from switching plans.
+        $stalePendingOrders = Order::where('user_id', $user->id)
             ->where('status', OrderStatus::Pending)
-            ->where('created_at', '>=', now()->subMinutes(5))
             ->whereDoesntHave('payments', fn ($q) => $q->where('status', PaymentStatus::Failed->value))
-            ->exists();
+            ->get();
 
-        if ($recentPending) {
-            return $this->error('CHECKOUT_IN_PROGRESS', 'A checkout is already in progress. Please wait a moment before trying again.', 429);
+        foreach ($stalePendingOrders as $staleOrder) {
+            $isSamePlanAndPeriod = $staleOrder->plan_id === $plan->id
+                && $staleOrder->billing_period === $billingPeriod->value;
+
+            $isRecentDuplicate = $isSamePlanAndPeriod
+                && $staleOrder->created_at >= now()->subMinutes(5);
+
+            if ($isRecentDuplicate) {
+                return $this->error('CHECKOUT_IN_PROGRESS', 'A checkout is already in progress. Please wait a moment before trying again.', 429);
+            }
+
+            // Different plan/period or older than 5 minutes — cancel and allow new checkout.
+            $staleOrder->update(['status' => OrderStatus::Cancelled]);
+            $staleOrder->payments()
+                ->where('status', PaymentStatus::Pending->value)
+                ->update(['status' => PaymentStatus::Failed->value]);
+        }
+
+        // Reset a stuck pending subscription so the new checkout can proceed.
+        if ($user->subscription?->status === SubscriptionStatus::Pending) {
+            $user->subscription->update(['status' => SubscriptionStatus::Cancelled]);
         }
 
         $siteDomain = $validated['site_domain'];
@@ -255,6 +271,35 @@ class SubscriptionController extends BaseController
                 'provider_reference' => $result->providerReference,
             ],
         ]);
+    }
+
+    /**
+     * Cancel any pending (unpaid) checkout so the user can start a new one.
+     */
+    public function cancelPendingCheckout(): JsonResponse
+    {
+        $user = $this->currentUser();
+
+        $cancelled = Order::where('user_id', $user->id)
+            ->where('status', OrderStatus::Pending)
+            ->get();
+
+        if ($cancelled->isEmpty()) {
+            return $this->error('NO_PENDING_CHECKOUT', 'No pending checkout to cancel.', 404);
+        }
+
+        foreach ($cancelled as $order) {
+            $order->update(['status' => OrderStatus::Cancelled]);
+            $order->payments()
+                ->where('status', PaymentStatus::Pending->value)
+                ->update(['status' => PaymentStatus::Failed->value]);
+        }
+
+        if ($user->subscription?->status === SubscriptionStatus::Pending) {
+            $user->subscription->update(['status' => SubscriptionStatus::Cancelled]);
+        }
+
+        return $this->success(['message' => 'Pending checkout cancelled.']);
     }
 
     public function cancel(Request $request): JsonResponse

@@ -100,6 +100,7 @@ Route::prefix('v1')->group(function () {
         Route::post('subscription/change', [SubscriptionController::class, 'change']);
         Route::post('subscription/cancel', [SubscriptionController::class, 'cancel']);
         Route::post('subscription/checkout/trial', [CheckoutController::class, 'startTrial']);
+        Route::post('subscription/checkout/cancel', [SubscriptionController::class, 'cancelPendingCheckout']);
         Route::post('subscription/checkout', [SubscriptionController::class, 'checkout'])
             ->withoutMiddleware([\Illuminate\Routing\Middleware\ThrottleRequests::class, \Illuminate\Routing\Middleware\ThrottleRequestsWithRedis::class]);
         Route::get('sites', [SiteController::class, 'index']);
