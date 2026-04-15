@@ -832,11 +832,6 @@ export function SignupPage() {
 
             </div>
 
-            <p className="signup__login-hint">
-              Вже є акаунт?{' '}
-              <Link to="/login" className="signup__login-link">Увійти</Link>
-            </p>
-
           </div>
         </div>
       </div>

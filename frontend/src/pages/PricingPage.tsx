@@ -271,16 +271,6 @@ export function PricingPage() {
           })}
         </div>
 
-        {/* ── Trust row ── */}
-        <div className="pricing__trust">
-          <span className="pricing__trust-badge">🔒 7 днів безкоштовно · без автосписання без попередження</span>
-          <div className="pricing__payment-logos">
-            {['Visa', 'Mastercard', 'Privat24', 'Monobank'].map(name => (
-              <span key={name} className="pricing__payment-logo">{name}</span>
-            ))}
-          </div>
-        </div>
-
         {/* ── Comparison table ── */}
         <div id="compare-plans" className="pricing__compare-wrap">
           <h2 className="pricing__compare-title">Порівняння планів</h2>

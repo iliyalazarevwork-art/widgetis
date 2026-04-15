@@ -502,6 +502,83 @@
 .pricing__cell-text--num-pro   { color: var(--accent); }
 .pricing__cell-text--num-max   { color: var(--plan-max); }
 
+/* ── Comparison table — desktop enhancements ── */
+
+@media (min-width: 720px) {
+  .pricing__compare-title {
+    font-size: 32px;
+    margin-bottom: 32px;
+  }
+
+  .pricing__clist-header {
+    grid-template-columns: 1fr repeat(3, 150px);
+    padding: 0 0 0 16px;
+    border-bottom: none;
+    gap: 4px;
+  }
+
+  .pricing__clist-plan-col {
+    font-size: 16px;
+    font-weight: 800;
+    padding: 14px 12px;
+    border-radius: 12px 12px 0 0;
+    text-align: center;
+  }
+
+  .pricing__col-basic {
+    background: rgba(16, 185, 129, 0.07);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    border-bottom: none;
+  }
+
+  .pricing__col-pro {
+    background: rgba(50, 255, 182, 0.1);
+    border: 1px solid rgba(50, 255, 182, 0.35);
+    border-bottom: none;
+  }
+
+  .pricing__col-max {
+    background: rgba(139, 92, 246, 0.07);
+    border: 1px solid rgba(139, 92, 246, 0.25);
+    border-bottom: none;
+  }
+
+  .pricing__clist-row {
+    grid-template-columns: 1fr repeat(3, 150px);
+    padding: 14px 0 14px 16px;
+    gap: 4px;
+  }
+
+  .pricing__clist-row:nth-child(even) {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 4px;
+  }
+
+  .pricing__clist-feature {
+    font-size: 14px;
+  }
+
+  .pricing__clist-cell--basic {
+    background: rgba(16, 185, 129, 0.03);
+  }
+
+  .pricing__clist-cell--pro {
+    background: rgba(50, 255, 182, 0.05);
+  }
+
+  .pricing__clist-cell--max {
+    background: rgba(139, 92, 246, 0.03);
+  }
+
+  .pricing__cell-text--num {
+    font-size: 18px;
+  }
+
+  .pricing__check {
+    transform: scale(1.25);
+  }
+}
+
 /* ── A-la-carte ── */
 
 .pricing__alacarte {

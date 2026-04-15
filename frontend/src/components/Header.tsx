@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { X, UserRound, ArrowRight, Puzzle, CreditCard, Briefcase, Mail, LogOut } from 'lucide-react'
+import { X, UserRound, ArrowRight, Puzzle, CreditCard, Briefcase, Mail, LogOut, ChevronDown, Globe, Settings, User } from 'lucide-react'
 import { useSwipeDismiss } from '../hooks/useSwipeDismiss'
 import { SocialIcon } from './SocialIcon'
 import { HamburgerIcon } from './HamburgerIcon'
@@ -26,9 +26,21 @@ const MESSENGER_META: Record<string, { label: string; color: string }> = {
 export function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const location = useLocation()
-  const { isAuthenticated, logout } = useAuth()
+  const { isAuthenticated, user, logout } = useAuth()
   const settings = useSettings()
+
+  const initials = user?.name
+    ? user.name.split(' ').map(w => w[0] ?? '').join('').slice(0, 2).toUpperCase()
+    : user?.email?.split('@')[0].slice(0, 2).toUpperCase() || '?'
+
+  const displayName = user?.name?.split(' ')[0] || user?.email?.split('@')[0] || ''
+
+  const isAuthPage = ['/login', '/signup', '/otp', '/register'].some(p =>
+    location.pathname.startsWith(p)
+  )
 
   // Build contacts from backend settings
   const messengerContacts = Object.entries(settings.messengers ?? {})
@@ -46,6 +58,7 @@ export function Header() {
 
   const handleLogout = useCallback(async () => {
     closeMenu()
+    setDropdownOpen(false)
     await logout()
     window.location.href = '/login'
   }, [logout, closeMenu])
@@ -65,9 +78,20 @@ export function Header() {
   }, [])
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMenuOpen(false)
+    setDropdownOpen(false)
   }, [location.pathname])
+
+  useEffect(() => {
+    if (!dropdownOpen) return
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [dropdownOpen])
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : ''
@@ -106,14 +130,66 @@ export function Header() {
           </nav>
 
           <div className="header__actions">
-            <button
-              type="button"
-              className="header__cta"
-              onClick={() => navigate('/signup')}
-            >
-              <span className="header__cta-label">Спробувати</span>
-              <span className="header__cta-glow" aria-hidden="true" />
-            </button>
+            {!isAuthPage && isAuthenticated ? (
+              <div className="header__user" ref={dropdownRef}>
+                <button
+                  type="button"
+                  className={`header__user-btn ${dropdownOpen ? 'header__user-btn--open' : ''}`}
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  aria-expanded={dropdownOpen}
+                  aria-haspopup="true"
+                >
+                  <span className="header__user-avatar">{initials}</span>
+                  <span className="header__user-name">{displayName}</span>
+                  <ChevronDown size={16} className="header__user-chevron" />
+                </button>
+
+                {dropdownOpen && (
+                  <div className="header__dropdown" role="menu">
+                    <Link to="/cabinet" className="header__dropdown-item" role="menuitem" onClick={() => setDropdownOpen(false)}>
+                      <User size={16} />
+                      Кабінет
+                    </Link>
+                    <Link to="/cabinet/sites" className="header__dropdown-item" role="menuitem" onClick={() => setDropdownOpen(false)}>
+                      <Globe size={16} />
+                      Мої сайти
+                    </Link>
+                    <Link to="/cabinet/plan" className="header__dropdown-item" role="menuitem" onClick={() => setDropdownOpen(false)}>
+                      <CreditCard size={16} />
+                      Підписка
+                    </Link>
+                    <Link to="/cabinet/settings" className="header__dropdown-item" role="menuitem" onClick={() => setDropdownOpen(false)}>
+                      <Settings size={16} />
+                      Налаштування
+                    </Link>
+                    <div className="header__dropdown-divider" />
+                    <button
+                      type="button"
+                      className="header__dropdown-item header__dropdown-item--logout"
+                      role="menuitem"
+                      onClick={handleLogout}
+                    >
+                      <LogOut size={16} />
+                      Вийти
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                {!isAuthPage && (
+                  <Link to="/login" className="header__login">Увійти</Link>
+                )}
+                <button
+                  type="button"
+                  className="header__cta"
+                  onClick={() => navigate('/signup')}
+                >
+                  <span className="header__cta-label">Спробувати</span>
+                  <span className="header__cta-glow" aria-hidden="true" />
+                </button>
+              </>
+            )}
             <button
               className="header__burger"
               onClick={() => setMenuOpen(!menuOpen)}
