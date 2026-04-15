@@ -467,8 +467,12 @@ class MonobankProvider implements PaymentProviderInterface
             return false;
         }
 
+        $pemKey = "-----BEGIN PUBLIC KEY-----\n"
+            . chunk_split($pubKey, 64, "\n")
+            . "-----END PUBLIC KEY-----\n";
+
         $body = $request->getContent();
-        $result = openssl_verify($body, $signature, $pubKey, OPENSSL_ALGO_SHA256);
+        $result = openssl_verify($body, $signature, $pemKey, OPENSSL_ALGO_SHA256);
 
         return $result === 1;
     }
