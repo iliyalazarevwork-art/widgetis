@@ -31,6 +31,10 @@ Thumbs.db
 # Docker
 docker-compose.override.yml
 
-# Production secrets (never commit)
+# Production secrets (never commit plain text)
 .env.prod
+backend/.env.prod.plain
 certbot/
+
+# SOPS encrypted secrets ARE committed
+# backend/.env.enc  ← tracked in git (encrypted)

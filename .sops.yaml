@@ -1,0 +1,3 @@
+creation_rules:
+  - path_regex: backend/\.env
+    age: age1d4eqtlcqrevpsdhwdpshyx857kl7skyr94uk9sg9mr2ly2036g0qsrrnuh

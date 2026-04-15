@@ -82,6 +82,14 @@ fi
 
 # ── Running ON the server ──────────────────────────────────────────────────────
 cd "$REMOTE_DIR"
+
+# ── Decrypt secrets from encrypted .env.enc ───────────────────────────────────
+echo "▶ Decrypting secrets..."
+export SOPS_AGE_KEY_FILE=~/.config/sops/age/keys.txt
+sops --input-type dotenv --output-type dotenv --decrypt backend/.env.enc > backend/.env
+chmod 600 backend/.env
+echo "   ✓ backend/.env decrypted"
+
 DC="docker compose -f docker-compose.prod.yml --env-file .env.prod"
 
 # Wait until a given service reports state=healthy (or running if it has no
