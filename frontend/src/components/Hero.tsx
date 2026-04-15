@@ -139,7 +139,7 @@ export function Hero() {
   }, [])
 
   useEffect(() => {
-    if (!inView || !tabActive || slots > 2) return
+    if (!inView || !tabActive) return
     clearScheduleTimers()
 
     if (slots === 1) {
@@ -147,6 +147,10 @@ export function Hero() {
     } else if (slots === 2) {
       scheduleSlot(1, 3000, 6000)
       scheduleSlot(0, 6000, 6000)
+    } else if (slots >= 3) {
+      scheduleSlot(2, 3200, 9000)
+      scheduleSlot(1, 6200, 9000)
+      scheduleSlot(0, 9200, 9000)
     }
 
     return () => {

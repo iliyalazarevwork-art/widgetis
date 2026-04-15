@@ -43,6 +43,18 @@ tasks:
       - '{{.EXEC}} composer install'
 
   # ── Качество кода ─────────────────────────────────────
+  fix:
+    desc: "Авто-исправление стиля кода: pint (PHP) + eslint --fix (TS/TSX)  ·  task fix"
+    cmds:
+      - task: pint
+      - task: fix:front
+
+  fix:front:
+    desc: "ESLint --fix для фронта  ·  task fix:front"
+    dir: frontend
+    cmds:
+      - npx eslint --fix 'src/**/*.{ts,tsx}'
+
   pint:
     desc: "Автоформатирование (Pint)  ·  task pint"
     cmds:

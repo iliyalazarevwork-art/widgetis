@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\SocialAccount;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Contracts\User as SocialiteUser;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User as SocialiteTwoUser;
@@ -30,20 +31,28 @@ class GoogleAuthController extends Controller
         $code = (string) $request->query('code', '');
         $codeFingerprint = $code === '' ? null : substr(hash('sha256', $code), 0, 12);
 
-        \Illuminate\Support\Facades\Log::channel('auth')->info('Google OAuth callback received', [
-            'ip' => $request->ip(),
-            'user_agent' => (string) $request->userAgent(),
-            'has_code' => $code !== '',
-            'code_fp' => $codeFingerprint,
-            'state' => (string) $request->query('state', ''),
-            'error' => (string) $request->query('error', ''),
-        ]);
+        try {
+            Log::channel('auth')->info('Google OAuth callback received', [
+                'ip'         => $request->ip(),
+                'user_agent' => (string) $request->userAgent(),
+                'has_code'   => $code !== '',
+                'code_fp'    => $codeFingerprint,
+                'state'      => (string) $request->query('state', ''),
+                'error'      => (string) $request->query('error', ''),
+            ]);
+        } catch (Throwable $logException) {
+            // Log-channel failure (e.g. wrong file owner after deploy) must never
+            // crash the OAuth callback — fall back to the main channel.
+            Log::warning('Auth log channel write failed; check storage/logs permissions', [
+                'message' => $logException->getMessage(),
+            ]);
+        }
 
         try {
             /** @var SocialiteUser $googleUser */
             $googleUser = Socialite::driver('google')->stateless()->user();
         } catch (Throwable $e) {
-            \Illuminate\Support\Facades\Log::error('Google OAuth failed', [
+            Log::error('Google OAuth failed', [
                 'message' => $e->getMessage(),
                 'class' => $e::class,
                 'ip' => $request->ip(),
@@ -54,12 +63,16 @@ class GoogleAuthController extends Controller
             return redirect($frontendUrl . '/login?error=google_failed');
         }
 
-        \Illuminate\Support\Facades\Log::channel('auth')->info('Google OAuth token exchange succeeded', [
-            'ip' => $request->ip(),
-            'code_fp' => $codeFingerprint,
-            'google_id' => $googleUser->getId(),
-            'email' => $googleUser->getEmail(),
-        ]);
+        try {
+            Log::channel('auth')->info('Google OAuth token exchange succeeded', [
+                'ip'        => $request->ip(),
+                'code_fp'   => $codeFingerprint,
+                'google_id' => $googleUser->getId(),
+                'email'     => $googleUser->getEmail(),
+            ]);
+        } catch (Throwable) {
+            // Same guard as above — log failure must not abort the flow.
+        }
 
         $email = $googleUser->getEmail();
 

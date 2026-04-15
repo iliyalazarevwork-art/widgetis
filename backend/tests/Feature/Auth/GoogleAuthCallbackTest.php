@@ -179,6 +179,61 @@ class GoogleAuthCallbackTest extends TestCase
         $this->assertSame(0, User::count());
     }
 
+    /**
+     * Regression: auth log file owned by root after deploy → Permission denied on
+     * Log::channel('auth')->info() → callback returned 500 instead of completing login.
+     *
+     * Points the auth channel at a non-writable temp directory so Monolog throws
+     * the real UnexpectedValueException — no mocks needed.
+     */
+    public function test_callback_completes_login_even_when_auth_log_channel_is_broken(): void
+    {
+        SocialiteFake::google([
+            'id'    => '7777',
+            'email' => 'logfail@user.test',
+            'name'  => 'Log Fail User',
+        ]);
+
+        // Reproduce the production failure: make Monolog unable to open the log
+        // file by pointing the path through a regular file (not a directory).
+        // PHP cannot create a subdirectory inside a file, so the StreamHandler
+        // throws "failed to open stream" even when running as root.
+        $blockingFile = tempnam(sys_get_temp_dir(), 'wty_');
+        config(['logging.channels.auth.path' => $blockingFile . '/auth.log']);
+
+        $response = $this->get('/auth/google/callback?code=fake-code');
+
+        unlink($blockingFile);
+
+        // Must still redirect with a JWT token — NOT a 500
+        $response->assertStatus(302);
+        $this->assertStringStartsWith(
+            'https://app.test/login/google-callback?token=',
+            $response->headers->get('Location'),
+        );
+
+        // User must be created despite the broken log channel
+        $this->assertDatabaseHas('users', ['email' => 'logfail@user.test']);
+    }
+
+    public function test_callback_without_code_redirects_with_error(): void
+    {
+        // Socialite stateless()->user() throws when no code is present
+        SocialiteFake::googleFailure(
+            new \Laravel\Socialite\Two\InvalidStateException('No code present')
+        );
+
+        $response = $this->get('/auth/google/callback');
+
+        $response->assertStatus(302);
+        $this->assertSame(
+            'https://app.test/login?error=google_failed',
+            $response->headers->get('Location'),
+        );
+
+        $this->assertSame(0, User::count());
+    }
+
     public function test_callback_stores_provider_tokens_on_social_account(): void
     {
         SocialiteFake::google([

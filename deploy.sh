@@ -48,6 +48,20 @@ done
 
 # ── If called locally — SSH into server and re-run this script ────────────────
 if [ "$LOCAL" = false ]; then
+  # ── Pre-deploy: auto-fix unused imports, then type-check ─────────────────────
+  echo "▶ Frontend: ESLint auto-fix (unused imports, style)..."
+  (cd frontend && npm run lint:fix) || true   # fixes what it can; non-fixable issues stay as warnings
+
+  echo "▶ Frontend: TypeScript type-check..."
+  (cd frontend && npx tsc -b --noEmit)        # fails fast if real type errors remain
+
+  # If lint:fix changed anything — commit those fixes before pushing
+  if ! git diff --quiet frontend/; then
+    echo "▶ Committing ESLint auto-fixes..."
+    git add frontend/
+    git commit -m "chore(frontend): auto-fix eslint issues before deploy"
+  fi
+
   echo "▶ Pushing to GitHub..."
   git push origin main
 
@@ -141,21 +155,21 @@ else
   if [ "$SKIP_MIGRATE" = false ]; then
     if [ "$MAINTENANCE" = true ]; then
       echo "▶ Enabling maintenance mode (--maintenance flag)..."
-      $DC exec -T backend php artisan down --retry=60 || true
+      $DC exec -T --user www-data backend php artisan down --retry=60 || true
     fi
 
     echo "▶ Running migrations..."
-    $DC exec -T backend php artisan migrate --force
+    $DC exec -T --user www-data backend php artisan migrate --force
 
     if [ "$MAINTENANCE" = true ]; then
       echo "▶ Disabling maintenance mode..."
-      $DC exec -T backend php artisan up || true
+      $DC exec -T --user www-data backend php artisan up || true
     fi
   fi
 
   if [ "$SEED_BASE" = true ]; then
     echo "▶ Seeding production-safe reference data..."
-    $DC exec -T backend php artisan db:seed --class=ProductionBootstrapSeeder --force
+    $DC exec -T --user www-data backend php artisan db:seed --class=ProductionBootstrapSeeder --force
   fi
 
   # ── Step 4: Rolling restart of user-facing services ──────────────────────
@@ -166,7 +180,7 @@ else
   # ── Pre-launch test mode: wipe every non-admin user on every deploy ──────
   # Remove this block before going live.
   echo "▶ Purging non-admin users (test-mode cleanup)..."
-  $DC exec -T backend php artisan users:purge-non-admin --force
+  $DC exec -T --user www-data backend php artisan users:purge-non-admin --force
 
   rolling_restart frontend
   rolling_restart widget-builder
