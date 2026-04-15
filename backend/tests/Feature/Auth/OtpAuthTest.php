@@ -331,4 +331,51 @@ class OtpAuthTest extends TestCase
             ->assertStatus(422)
             ->assertJsonPath('error.code', 'LINK_ALREADY_USED');
     }
+
+    /**
+     * Full end-to-end: POST /otp → Redis stores link → status pending
+     * → confirm → status returns JWT → JWT works on protected endpoint.
+     *
+     * Unlike test_magic_link_full_flow, this goes through OtpService::send()
+     * and verifies that it writes the Redis payload in exactly the format
+     * LinkService expects — no manual Redis seeding.
+     */
+    public function test_magic_link_end_to_end_from_send_otp_to_jwt(): void
+    {
+        Mail::fake();
+
+        $email = 'e2e-magic@example.com';
+
+        // Step 1: send OTP — get magic_link_token
+        $sendResponse = $this->postJson('/api/v1/auth/otp', ['email' => $email]);
+        $sendResponse->assertStatus(200)->assertJsonStructure(['magic_link_token']);
+
+        $token = $sendResponse->json('magic_link_token');
+        $this->assertNotEmpty($token);
+
+        // Step 2: status is pending (link not yet clicked)
+        $this->getJson("/api/v1/auth/link/{$token}/status")
+            ->assertStatus(200)
+            ->assertJsonPath('status', 'pending');
+
+        // Step 3: user clicks the link in email → confirmed
+        $this->getJson("/api/v1/auth/link/{$token}/confirm")
+            ->assertStatus(200)
+            ->assertJsonPath('status', 'confirmed');
+
+        // Step 4: polling returns JWT + user info
+        $statusResponse = $this->getJson("/api/v1/auth/link/{$token}/status");
+        $statusResponse->assertStatus(200)
+            ->assertJsonPath('status', 'confirmed')
+            ->assertJsonStructure(['token', 'token_type', 'expires_in', 'user' => ['id', 'email', 'role']]);
+
+        $jwt = $statusResponse->json('token');
+        $this->assertNotEmpty($jwt);
+
+        // Step 5: JWT works on a protected endpoint
+        $this->getJson('/api/v1/auth/user', ['Authorization' => "Bearer {$jwt}"])
+            ->assertStatus(200)
+            ->assertJsonPath('data.email', $email)
+            ->assertJsonPath('data.role', 'customer');
+    }
 }
