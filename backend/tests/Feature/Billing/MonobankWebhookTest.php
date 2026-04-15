@@ -51,7 +51,17 @@ class MonobankWebhookTest extends TestCase
         openssl_pkey_export($resource, $privatePem);
         $this->privateKey = $privatePem;
         $details = openssl_pkey_get_details($resource);
-        $this->publicKey = (string) $details['key'];
+        $pemKey = (string) $details['key'];
+
+        // Monobank's /pubkey endpoint returns the public key as raw base64
+        // (no PEM headers). Strip headers to simulate the real API response —
+        // this is the format PubKeyProvider::getKey() actually returns and
+        // what MonobankProvider::verifySignature() must handle.
+        $this->publicKey = str_replace(
+            ['-----BEGIN PUBLIC KEY-----', '-----END PUBLIC KEY-----', "\n"],
+            '',
+            $pemKey,
+        );
 
         // Replace the real PubKeyProvider with a stub that returns our
         // test public key so verifySignature() accepts fixtures signed
@@ -197,6 +207,37 @@ class MonobankWebhookTest extends TestCase
         $subscription->refresh();
         $this->assertSame(SubscriptionStatus::PastDue, $subscription->status);
         $this->assertNotNull($subscription->grace_period_ends_at);
+    }
+
+    /**
+     * Monobank returns the public key as raw base64 (no PEM headers).
+     * verifySignature() must wrap it into PEM before passing to openssl_verify —
+     * otherwise openssl throws "cannot be coerced into a public key" and the
+     * webhook returns 500 instead of processing the payment.
+     */
+    public function test_signature_verification_works_with_raw_base64_pubkey(): void
+    {
+        [$user, $plan, $subscription, $order] = $this->pendingSetup();
+
+        // $this->publicKey is already raw base64 (PEM headers stripped in setUp).
+        // Ensure it has no PEM markers — this is what the real PubKeyProvider returns.
+        $this->assertStringNotContainsString('-----BEGIN', $this->publicKey);
+
+        $payload = [
+            'invoiceId' => 'p2_base64_pubkey_test',
+            'status' => 'success',
+            'amount' => (int) ($plan->price_monthly * 100),
+            'finalAmount' => (int) ($plan->price_monthly * 100),
+            'ccy' => 980,
+            'reference' => $order->order_number,
+        ];
+
+        // If verifySignature() passes raw base64 directly to openssl_verify
+        // without PEM wrapping, this throws ErrorException and returns 500.
+        // The test catches that failure as a non-Active subscription.
+        $this->dispatchWebhook($payload);
+
+        $this->assertSame(SubscriptionStatus::Active, $subscription->fresh()->status);
     }
 
     public function test_invalid_signature_is_rejected(): void
