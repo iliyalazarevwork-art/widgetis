@@ -23,8 +23,8 @@ use App\Services\Billing\UniqueOrderNumberProvider;
 use AratKruglik\Monobank\Contracts\ClientInterface as MonobankClient;
 use AratKruglik\Monobank\DTO\CartItemDTO;
 use AratKruglik\Monobank\DTO\InvoiceRequestDTO;
+use AratKruglik\Monobank\DTO\InvoiceResponseDTO;
 use AratKruglik\Monobank\Exceptions\MonobankException;
-use AratKruglik\Monobank\Monobank;
 use AratKruglik\Monobank\Services\PubKeyProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -46,7 +46,6 @@ use Illuminate\Support\Str;
 class MonobankProvider implements PaymentProviderInterface
 {
     public function __construct(
-        private readonly Monobank $monobank,
         private readonly MonobankClient $client,
         private readonly PubKeyProvider $pubKeyProvider,
         private readonly UniqueOrderNumberProvider $orderNumbers,
@@ -114,14 +113,26 @@ class MonobankProvider implements PaymentProviderInterface
                 'walletId' => $user->monobank_wallet_id,
             ],
             cartItems: [
-                new CartItemDTO(name: $label, qty: 1, sum: $amount),
+                new CartItemDTO(
+                    name: $label,
+                    qty: 1,
+                    sum: $amount,
+                    icon: config('monobank.logo_url') ?: null,
+                    unit: 'шт',
+                ),
             ],
             destination: $label,
             reference: $order->order_number,
         );
 
+        // InvoiceRequestDTO does not expose a lang field, so we merge it
+        // into the raw payload ourselves. Monobank defaults to English
+        // without this field, which surfaces as "Cart items" / "1 pcs".
+        $payload = array_merge($dto->toArray(), ['lang' => 'uk']);
+
         try {
-            $response = $this->monobank->createInvoice($dto);
+            $raw = $this->client->post('invoice/create', $payload);
+            $response = InvoiceResponseDTO::fromArray($raw->json());
         } catch (MonobankException $e) {
             Log::channel('payments')->error('monobank.invoice.create_failed', [
                 'user_id' => $user->id,
@@ -479,7 +490,9 @@ class MonobankProvider implements PaymentProviderInterface
             return false;
         }
 
-        // Monobank returns the key as base64-encoded PEM (already with headers).
+        // Monobank's /pubkey endpoint returns the key as base64-encoded PEM
+        // (including headers). Decode to get the full PEM string and pass
+        // it directly to openssl_verify.
         $pemKey = base64_decode($pubKey, strict: true);
 
         if ($pemKey === false) {

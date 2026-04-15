@@ -53,15 +53,10 @@ class MonobankWebhookTest extends TestCase
         $details = openssl_pkey_get_details($resource);
         $pemKey = (string) $details['key'];
 
-        // Monobank's /pubkey endpoint returns the public key as raw base64
-        // (no PEM headers). Strip headers to simulate the real API response —
-        // this is the format PubKeyProvider::getKey() actually returns and
-        // what MonobankProvider::verifySignature() must handle.
-        $this->publicKey = str_replace(
-            ['-----BEGIN PUBLIC KEY-----', '-----END PUBLIC KEY-----', "\n"],
-            '',
-            $pemKey,
-        );
+        // Monobank's /pubkey endpoint returns the key field as base64 of the
+        // full PEM string (headers included). PubKeyProvider::getKey() returns
+        // this raw value; verifySignature() base64-decodes it to recover the PEM.
+        $this->publicKey = base64_encode($pemKey);
 
         // Replace the real PubKeyProvider with a stub that returns our
         // test public key so verifySignature() accepts fixtures signed
@@ -210,18 +205,17 @@ class MonobankWebhookTest extends TestCase
     }
 
     /**
-     * Monobank returns the public key as raw base64 (no PEM headers).
-     * verifySignature() must wrap it into PEM before passing to openssl_verify —
-     * otherwise openssl throws "cannot be coerced into a public key" and the
-     * webhook returns 500 instead of processing the payment.
+     * Monobank returns the public key as base64(PEM) — base64 of the full
+     * PEM string including headers. verifySignature() base64-decodes it to
+     * recover the PEM and passes it to openssl_verify.
      */
-    public function test_signature_verification_works_with_raw_base64_pubkey(): void
+    public function test_signature_verification_works_with_base64_encoded_pem_pubkey(): void
     {
         [$user, $plan, $subscription, $order] = $this->pendingSetup();
 
-        // $this->publicKey is already raw base64 (PEM headers stripped in setUp).
-        // Ensure it has no PEM markers — this is what the real PubKeyProvider returns.
-        $this->assertStringNotContainsString('-----BEGIN', $this->publicKey);
+        // $this->publicKey is base64(PEM) — this is what the real PubKeyProvider
+        // returns from the /pubkey endpoint. Decoding it gives a valid PEM string.
+        $this->assertStringContainsString('-----BEGIN', base64_decode($this->publicKey));
 
         $payload = [
             'invoiceId' => 'p2_base64_pubkey_test',
