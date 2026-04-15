@@ -19,7 +19,7 @@ import {
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
-const ICON_MAP: Record<string, LucideIcon> = {
+export const WIDGET_ICON_MAP: Record<string, LucideIcon> = {
   megaphone: Megaphone,
   package: Package,
   cart: ShoppingCart,
@@ -65,8 +65,8 @@ interface WidgetIconProps {
 }
 
 export function WidgetIcon({ name, size = 24, className, style }: WidgetIconProps) {
-  const key = name && ICON_MAP[name] ? name : 'wrench'
-  const IconComponent = ICON_MAP[key]
+  const key = name && WIDGET_ICON_MAP[name] ? name : 'wrench'
+  const IconComponent = WIDGET_ICON_MAP[key]
   const color = ICON_COLORS[key] ?? ICON_COLORS.wrench
 
   const bgSize = Math.round(size * 1.75)

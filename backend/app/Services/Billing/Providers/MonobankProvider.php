@@ -80,7 +80,16 @@ class MonobankProvider implements PaymentProviderInterface
             ? (float) $plan->price_yearly
             : (float) $plan->price_monthly;
 
-        $label = 'Widgetis: ' . $plan->slug . ' (' . $billingPeriod->value . ')';
+        // Ukrainian label for the Monobank payment page (the bank shows
+        // destination / cart item name as-is to the end user).
+        $planName = $plan->getTranslation('name', 'uk');
+        $periodLabel = $billingPeriod === BillingPeriod::Yearly ? 'річна підписка' : 'щомісячна підписка';
+        $label = 'Widgetis: ' . $planName . ' — ' . $periodLabel;
+
+        // Per-plan icon: Monobank's /invoice/create accepts a public URL
+        // for the cart item icon and renders it on the payment page in
+        // place of the generic placeholder.
+        $iconUrl = $this->planIconUrl($plan->slug);
 
         // Fail fast on missing config — Monobank rejects empty redirect/webhook
         // URLs or missing token with a generic 400, which historically buried
@@ -117,7 +126,7 @@ class MonobankProvider implements PaymentProviderInterface
                     name: $label,
                     qty: 1,
                     sum: $amount,
-                    icon: config('monobank.logo_url') ?: null,
+                    icon: $iconUrl,
                     unit: 'шт',
                 ),
             ],
@@ -162,6 +171,23 @@ class MonobankProvider implements PaymentProviderInterface
         );
     }
 
+    /**
+     * Resolve the absolute URL of the plan icon shown on the Monobank
+     * payment page. Falls back to the merchant logo if the plan slug
+     * has no dedicated icon file (guards against future plans added
+     * without a corresponding asset).
+     */
+    private function planIconUrl(string $planSlug): ?string
+    {
+        $knownPlans = ['basic', 'pro', 'max'];
+
+        if (in_array($planSlug, $knownPlans, true)) {
+            return asset('images/plans/' . $planSlug . '.svg');
+        }
+
+        return config('monobank.logo_url') ?: null;
+    }
+
     public function chargeRecurring(Subscription $subscription): ChargeResult
     {
         if ($subscription->monobank_card_token === null) {
@@ -177,7 +203,9 @@ class MonobankProvider implements PaymentProviderInterface
             ? (float) $plan->price_yearly
             : (float) $plan->price_monthly;
 
-        $destination = 'Widgetis renewal: ' . $plan->slug . ' (' . $billingPeriod->value . ')';
+        $planName = $plan->getTranslation('name', 'uk');
+        $periodLabel = $billingPeriod === BillingPeriod::Yearly ? 'річна підписка' : 'щомісячна підписка';
+        $destination = 'Widgetis: поновлення — ' . $planName . ' — ' . $periodLabel;
 
         // Create a fresh Order row so the webhook can locate it by its
         // unique order_number reference (same contract as the checkout

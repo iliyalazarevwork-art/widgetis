@@ -9,14 +9,17 @@ import {
   ShieldCheck,
   Zap,
   HeartHandshake,
+  Layers,
+  X,
 } from 'lucide-react'
 import type { PlanDef } from '../data/plans'
-import { WidgetIcon } from '../components/WidgetIcon'
+import { WidgetIcon, WIDGET_ICON_MAP } from '../components/WidgetIcon'
+import { Wrench } from 'lucide-react'
+import { PREVIEW_MAP } from '../components/WidgetPreviews'
 import { WidgetCard } from '../components/WidgetCard'
 import {
   widgets,
   packages,
-  platformConfig,
   tagLabels,
   type Tag,
 } from '../data/widgets'
@@ -24,12 +27,11 @@ import { cases } from '../data/cases'
 import { BRAND_NAME_UPPER } from '../constants/brand'
 import './WidgetDetailPage.css'
 
-// Generic benefit copy per tag — used as "Для чого це" cards
 const TAG_BENEFITS: Record<Tag, { title: string; text: string }[]> = {
   conversion: [
     { title: 'Більше покупок', text: 'Знижує бар\'єр до дії — відвідувач перетворюється на покупця.' },
     { title: 'Менше відмов', text: 'Зменшує сумніви на картці товару в момент прийняття рішення.' },
-    { title: 'Працює 24/7', text: 'Продає навіть коли ти спиш — автоматично на кожній сторінці.' },
+    { title: 'Працює 24/7', text: 'Продає навіть коли Ви спите — автоматично на кожній сторінці.' },
   ],
   trust: [
     { title: 'Знімає сумніви', text: 'Покупець бачить чітку інформацію — не йде шукати відповіді на форумах.' },
@@ -57,7 +59,7 @@ const TAG_BENEFITS: Record<Tag, { title: string; text: string }[]> = {
     { title: 'Імпульсні покупки', text: 'Конверсія в реальний час росте за рахунок швидших транзакцій.' },
   ],
   loyalty: [
-    { title: 'Повертаються', text: 'Покупці мають мотивацію прийти до тебе знову — LTV росте.' },
+    { title: 'Повертаються', text: 'Покупці мають мотивацію прийти до Вас знову — LTV росте.' },
     { title: 'Економія на рекламі', text: 'Повторні покупки дешевші за залучення нових клієнтів.' },
     { title: 'Залучення', text: 'Система бонусів перетворює разового покупця на фаната.' },
   ],
@@ -68,9 +70,9 @@ const TAG_BENEFITS: Record<Tag, { title: string; text: string }[]> = {
   ],
 }
 
+const BENEFIT_COLORS = ['#3B82F6', '#10B981', '#F59E0B']
 const BENEFIT_ICONS = [Zap, ShieldCheck, HeartHandshake]
 
-// Explicit mapping: widget.id → case.id[] (cases that reference this widget)
 const WIDGET_CASE_MAP: Record<string, string[]> = {
   marquee: ['ptashkin', 'beni-home', 'ballistic'],
   'delivery-date': ['ptashkin', 'brewco'],
@@ -116,6 +118,10 @@ export function WidgetDetailPage() {
   }
 
   const benefits = TAG_BENEFITS[widget.tag]
+  const PreviewComp = PREVIEW_MAP[widget.id]
+
+  // Пакеты, включающие виджет
+  const availablePlans = packages.filter((p) => p.widgetSlugs.includes(widget.id))
 
   return (
     <div className="widget-page">
@@ -182,36 +188,51 @@ export function WidgetDetailPage() {
 
               <h1 className="widget-page__title">{widget.title}</h1>
               <p className="widget-page__lede">{widget.description}</p>
+
+              {PreviewComp && (
+                <div className="widget-page__anim" aria-label="Живий прев’ю віджета">
+                  <div className="widget-page__anim-head">
+                    <span className="widget-page__anim-dot widget-page__anim-dot--r" />
+                    <span className="widget-page__anim-dot widget-page__anim-dot--y" />
+                    <span className="widget-page__anim-dot widget-page__anim-dot--g" />
+                    <span className="widget-page__anim-label">Прев’ю в реальному часі</span>
+                  </div>
+                  <div className="widget-page__anim-stage">
+                    <PreviewComp />
+                  </div>
+                </div>
+              )}
             </div>
 
             <aside className="widget-page__buy">
               <p className="widget-page__buy-sub">Доступний у тарифах</p>
               <div className="widget-page__buy-plans">
-                {['Pro', 'Max'].map((plan) => (
-                  <div key={plan} className="widget-page__buy-plan">
-                    <Check size={13} strokeWidth={3} />
-                    <span>{plan}</span>
-                  </div>
-                ))}
+                {availablePlans.map((p) => {
+                  const PIcon = p.icon
+                  return (
+                    <div
+                      key={p.id}
+                      className="widget-page__buy-plan"
+                      style={{ ['--p-color' as string]: p.color }}
+                    >
+                      <span className="widget-page__buy-plan-ico" aria-hidden="true">
+                        <PIcon size={15} strokeWidth={2.25} />
+                      </span>
+                      <span className="widget-page__buy-plan-name">{p.name}</span>
+                      <span className="widget-page__buy-plan-price">
+                        {p.monthlyPrice.toLocaleString('uk-UA')} ₴/міс
+                      </span>
+                    </div>
+                  )
+                })}
               </div>
               <Link to="/pricing" className="widget-page__buy-btn">
                 Обрати тариф
-                <ArrowRight size={15} strokeWidth={2.5} />
               </Link>
-              <ul className="widget-page__buy-perks">
-                <li>
-                  <Check size={13} strokeWidth={3} />
-                  <span>Встановлення за 2 хвилини</span>
-                </li>
-                <li>
-                  <Check size={13} strokeWidth={3} />
-                  <span>Інструкція для твоєї CMS</span>
-                </li>
-                <li>
-                  <Check size={13} strokeWidth={3} />
-                  <span>14 днів гарантія повернення</span>
-                </li>
-              </ul>
+              <div className="widget-page__buy-guarantee">
+                <ShieldCheck size={13} strokeWidth={2.5} />
+                <span>14 днів гарантія повернення</span>
+              </div>
             </aside>
           </div>
         </div>
@@ -227,42 +248,24 @@ export function WidgetDetailPage() {
           <div className="widget-page__benefits-grid">
             {benefits.map((b, i) => {
               const Icon = BENEFIT_ICONS[i % BENEFIT_ICONS.length]
+              const color = BENEFIT_COLORS[i % BENEFIT_COLORS.length]
               return (
                 <div key={b.title} className="widget-benefit">
-                  <div className="widget-benefit__icon" aria-hidden="true">
-                    <Icon size={20} strokeWidth={2} />
+                  <div
+                    className="widget-benefit__icon"
+                    style={{
+                      background: `${color}14`,
+                      color,
+                    }}
+                    aria-hidden="true"
+                  >
+                    <Icon size={18} strokeWidth={2} />
                   </div>
                   <h3 className="widget-benefit__title">{b.title}</h3>
                   <p className="widget-benefit__text">{b.text}</p>
                 </div>
               )
             })}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Compatibility ── */}
-      <section className="widget-page__compat">
-        <div className="widget-page__container">
-          <header className="widget-page__section-head">
-            <p className="widget-page__section-eyebrow">Сумісність</p>
-            <h2 className="widget-page__section-title">Працює з цими платформами</h2>
-          </header>
-          <div className="widget-page__platforms">
-            {platformConfig.map((p) => (
-              <span
-                key={p.id}
-                className={`widget-page__platform ${!p.available ? 'widget-page__platform--soon' : ''}`}
-              >
-                {p.available ? (
-                  <Check size={14} strokeWidth={2.5} />
-                ) : (
-                  <span className="widget-page__platform-soon-dot" />
-                )}
-                <span>{p.label}</span>
-                {!p.available && <span className="widget-page__platform-soon-label">Скоро</span>}
-              </span>
-            ))}
           </div>
         </div>
       </section>
@@ -313,49 +316,97 @@ export function WidgetDetailPage() {
       {containingPackages.length > 0 && (
         <section className="widget-page__upsell">
           <div className="widget-page__container">
-            <div className="widget-page__upsell-card">
-              <div className="widget-page__upsell-head">
-                <Sparkles size={18} strokeWidth={2.5} />
-                <h2>Вигідніше пакетом</h2>
-              </div>
-              <p className="widget-page__upsell-sub">
-                Цей віджет вже входить у {containingPackages.length === 1 ? 'пакет' : 'пакети'}:
-              </p>
-              <div className="widget-page__upsell-list">
-                {containingPackages.map((p: PlanDef) => {
-                  const PlanIcon = p.icon
-                  return (
-                    <div
-                      key={p.id}
-                      className="widget-page__upsell-item"
-                      style={{
-                        background: `${p.color}10`,
-                        borderColor: `${p.color}30`,
-                      }}
-                    >
-                      <div className="widget-page__upsell-item-left">
-                        <div
-                          className="widget-page__upsell-item-ico"
-                          style={{ background: `${p.color}20` }}
-                        >
-                          <PlanIcon size={16} color={p.color} strokeWidth={2} />
-                        </div>
-                        <div className="widget-page__upsell-item-name">
-                          <strong style={{ color: p.color }}>{p.name}</strong>
-                          <span>{p.widgets} віджетів</span>
-                        </div>
+            <header className="widget-page__upsell-head">
+              <Layers size={20} strokeWidth={2.25} />
+              <h2 className="widget-page__section-title">Вигідніше пакетом</h2>
+            </header>
+            <p className="widget-page__upsell-sub">
+              Цей віджет вже входить у пакети. Підключіть один тариф — і отримаєте доступ до всіх
+              входячих віджетів.
+            </p>
+            <div className="widget-page__upsell-list">
+              {containingPackages.map((p: PlanDef) => {
+                const PlanIcon = p.icon
+                const included = p.widgetSlugs
+                  .map((s) => widgets.find((w) => w.id === s))
+                  .filter((w): w is (typeof widgets)[number] => Boolean(w))
+                const shown = included.slice(0, 4)
+                const extra = Math.max(0, included.length - shown.length)
+                const allWidgetIds = new Set(p.widgetSlugs)
+                const notIncluded = widgets
+                  .filter((w) => !allWidgetIds.has(w.id))
+                  .slice(0, 2)
+
+                return (
+                  <div
+                    key={p.id}
+                    className={`widget-page__plan widget-page__plan--${p.id}`}
+                    style={{ ['--p-color' as string]: p.color }}
+                  >
+                    <div className="widget-page__plan-top">
+                      <div className="widget-page__plan-ico" aria-hidden="true">
+                        <PlanIcon size={20} strokeWidth={2.25} />
                       </div>
-                      <div className="widget-page__upsell-item-price">
-                        <strong>{p.monthlyPrice.toLocaleString('uk-UA')} грн/міс</strong>
+                      <div className="widget-page__plan-labels">
+                        <strong className="widget-page__plan-name">{p.name}</strong>
+                        <span className="widget-page__plan-meta">{p.widgets} віджетів</span>
                       </div>
                     </div>
-                  )
-                })}
-              </div>
-              <Link to="/pricing" className="widget-page__upsell-cta">
-                Обрати тариф
-                <ArrowRight size={14} strokeWidth={2.5} />
-              </Link>
+                    <div className="widget-page__plan-price">
+                      {p.monthlyPrice.toLocaleString('uk-UA')} ₴/міс
+                    </div>
+                    <div className="widget-page__plan-sep" />
+                    <p className="widget-page__plan-eyebrow">ЩО ВХОДИТЬ</p>
+                    <ul className="widget-page__plan-list">
+                      {shown.map((w) => {
+                        const WIcon = WIDGET_ICON_MAP[w.icon] ?? Wrench
+                        return (
+                          <li key={w.id}>
+                            <span
+                              className="widget-page__plan-list-ico"
+                              aria-hidden="true"
+                            >
+                              <WIcon size={12} strokeWidth={2} />
+                            </span>
+                            <span className="widget-page__plan-list-name">{w.title}</span>
+                            <Check size={12} strokeWidth={3} className="widget-page__plan-list-check" />
+                          </li>
+                        )
+                      })}
+                      {extra > 0 && (
+                        <li className="widget-page__plan-more">+ ще {extra} віджети</li>
+                      )}
+                    </ul>
+                    {notIncluded.length > 0 && (
+                      <>
+                        <div className="widget-page__plan-sep widget-page__plan-sep--dim" />
+                        <ul className="widget-page__plan-list widget-page__plan-list--off">
+                          {notIncluded.map((w) => {
+                            const WIcon = WIDGET_ICON_MAP[w.icon] ?? Wrench
+                            return (
+                              <li key={w.id}>
+                                <span
+                                  className="widget-page__plan-list-ico widget-page__plan-list-ico--off"
+                                  aria-hidden="true"
+                                >
+                                  <WIcon size={12} strokeWidth={2} />
+                                </span>
+                                <span className="widget-page__plan-list-name">{w.title}</span>
+                                <X size={12} strokeWidth={3} className="widget-page__plan-list-x" />
+                              </li>
+                            )
+                          })}
+                        </ul>
+                      </>
+                    )}
+                    <div className="widget-page__plan-sep" />
+                    <Link to="/pricing" className="widget-page__plan-cta">
+                      <PlanIcon size={15} strokeWidth={2.5} />
+                      Обрати {p.name}
+                    </Link>
+                  </div>
+                )
+              })}
             </div>
           </div>
         </section>
@@ -383,20 +434,18 @@ export function WidgetDetailPage() {
         <div className="widget-page__container">
           <div className="widget-page__final-card">
             <div className="widget-page__final-badge">
-              <ShieldCheck size={14} strokeWidth={2.25} />
+              <ShieldCheck size={13} strokeWidth={2.5} />
               <span>14 днів гарантії без ризику</span>
             </div>
             <h2 className="widget-page__final-title">Підключаємо?</h2>
             <p className="widget-page__final-sub">
-              14 днів гарантія. Якщо не сподобається — повертаємо гроші без питань.
+              Якщо не сподобається — повертаємо гроші без питань.
             </p>
             <div className="widget-page__final-actions">
               <Link to="/pricing" className="widget-page__final-btn">
                 Обрати тариф
-                <ArrowRight size={16} strokeWidth={2.5} />
               </Link>
               <Link to="/widgets" className="widget-page__final-back">
-                <ArrowLeft size={13} strokeWidth={2.25} />
                 Всі віджети
               </Link>
             </div>
