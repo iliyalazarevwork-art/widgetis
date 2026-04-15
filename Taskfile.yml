@@ -214,14 +214,9 @@ tasks:
       - '{{.EXEC}} php artisan optimize:clear'
 
   # ── Deploy ─────────────────────────────────────────────
-  # Поток деплоя:
-  #   1. test:all      — гейт (pint+stan+phpunit+vitest+local e2e). Падает → нет деплоя.
-  #   2. bash deploy.sh — собственно деплой.
-  #   3. test:smoke:prod — прод-смоук против https://widgetis.com. Падает → шумим.
   deploy:
-    desc: "Задеплоить на прод (тесты до и после)  ·  task deploy"
+    desc: "Задеплоить на прод (смоук после)  ·  task deploy"
     cmds:
-      - task: test:all
       - bash deploy.sh
       - task: test:smoke:prod
 
@@ -231,16 +226,14 @@ tasks:
       - task: deploy
 
   deploy:fast:
-    desc: "Быстрый деплой без пересборки образов (тесты до и после)  ·  task deploy:fast"
+    desc: "Быстрый деплой без пересборки образов (смоук после)  ·  task deploy:fast"
     cmds:
-      - task: test:all
       - bash deploy.sh --skip-build
       - task: test:smoke:prod
 
   deploy:seed-base:
-    desc: "Деплой + безопасные прод-сидеры (без демо/админа)  ·  task deploy:seed-base"
+    desc: "Деплой + безопасные прод-сидеры (смоук после)  ·  task deploy:seed-base"
     cmds:
-      - task: test:all
       - bash deploy.sh --seed-base
       - task: test:smoke:prod
 

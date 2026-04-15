@@ -74,7 +74,9 @@ class PublicApiTest extends TestCase
 
         $response->assertStatus(200);
 
-        $slugs = collect($response->json('data'))->pluck('slug')->all();
+        /** @var array<int, array{slug: string}> $data */
+        $data = $response->json('data');
+        $slugs = array_column($data, 'slug');
         $this->assertContains('alpha', $slugs);
         $this->assertContains('bravo', $slugs);
         $this->assertNotContains('hidden', $slugs, 'inactive plans must not leak into public listing');
@@ -225,7 +227,9 @@ class PublicApiTest extends TestCase
         $response = $this->getJson('/api/v1/cases');
 
         $response->assertStatus(200);
-        $stores = collect($response->json('data'))->pluck('store')->all();
+        /** @var array<int, array{store: string}> $data */
+        $data = $response->json('data');
+        $stores = array_column($data, 'store');
         $this->assertContains('Published Shop', $stores);
         $this->assertNotContains('Draft Shop', $stores);
     }

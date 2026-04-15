@@ -289,9 +289,19 @@ export function WidgetDetailPage() {
                     {c.owner.charAt(0)}
                   </div>
                   <div className="widget-page__case-body">
-                    <strong>{c.owner}</strong>
-                    <span>{c.result.metric}</span>
+                    <strong className="widget-page__case-owner">{c.owner}</strong>
+                    <span className="widget-page__case-domain">{c.store}</span>
                   </div>
+                  <div className="widget-page__case-metric">
+                    <span className="widget-page__case-metric-value">{c.result.metric}</span>
+                    <span className="widget-page__case-metric-period">{c.result.period}</span>
+                  </div>
+                  <ArrowRight
+                    size={14}
+                    strokeWidth={2.5}
+                    className="widget-page__case-arrow"
+                    aria-hidden="true"
+                  />
                 </a>
               ))}
             </div>

@@ -74,6 +74,9 @@ if [ "$LOCAL" = false ]; then
   "
   echo ""
   echo "✅  Deploy complete! → https://widgetis.com"
+
+  echo "▶ Running smoke tests against production..."
+  (cd frontend && E2E_BASE_URL=https://widgetis.com npm run e2e)
   exit 0
 fi
 

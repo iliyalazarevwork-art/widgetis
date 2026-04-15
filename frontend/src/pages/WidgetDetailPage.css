@@ -410,65 +410,140 @@
 /* ── Cases ── */
 .widget-page__cases-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 10px;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .widget-page__cases-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .widget-page__cases-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .widget-page__case {
   --c-color: var(--accent);
-  display: flex;
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  border-radius: 12px;
-  background: var(--bg-elevated);
+  gap: 14px;
+  padding: 16px 48px 16px 18px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, var(--bg-elevated) 0%, var(--bg-elevated) 100%);
   border: 1px solid var(--border-subtle);
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.25s, background 0.25s, transform 0.2s;
+  overflow: hidden;
+  transition: border-color 0.25s, background 0.25s, transform 0.25s, box-shadow 0.25s;
+}
+
+.widget-page__case::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 140% at 100% 0%, color-mix(in srgb, var(--c-color) 12%, transparent) 0%, transparent 55%);
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
 }
 
 .widget-page__case:hover {
-  border-color: color-mix(in srgb, var(--c-color) 38%, transparent);
-  background: var(--bg-surface);
+  border-color: color-mix(in srgb, var(--c-color) 44%, transparent);
   transform: translateY(-2px);
+  box-shadow: 0 16px 36px -20px color-mix(in srgb, var(--c-color) 55%, transparent);
+}
+
+.widget-page__case:hover::before {
+  opacity: 1;
 }
 
 .widget-page__case-avatar {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--c-color) 18%, var(--bg-surface));
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--c-color) 20%, var(--bg-surface));
   color: var(--c-color);
   font-family: var(--font-display);
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 800;
   flex-shrink: 0;
-  border: 1px solid color-mix(in srgb, var(--c-color) 32%, transparent);
+  border: 1px solid color-mix(in srgb, var(--c-color) 36%, transparent);
 }
 
 .widget-page__case-body {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
   line-height: 1.2;
   min-width: 0;
 }
 
-.widget-page__case-body strong {
+.widget-page__case-owner {
   font-family: var(--font-display);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--text-primary);
+  letter-spacing: -0.1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.widget-page__case-body span {
+.widget-page__case-domain {
   font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.widget-page__case-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.widget-page__case-metric-value {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 800;
   color: var(--c-color);
-  font-weight: 600;
+  letter-spacing: -0.1px;
+  white-space: nowrap;
+}
+
+.widget-page__case-metric-period {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.widget-page__case-arrow {
+  position: absolute;
+  top: 50%;
+  right: 18px;
+  color: var(--text-muted);
+  transform: translateY(-50%) translateX(0);
+  transition: color 0.25s, transform 0.25s;
+}
+
+.widget-page__case:hover .widget-page__case-arrow {
+  color: var(--c-color);
+  transform: translateY(-50%) translateX(3px);
 }
 
 /* ── Upsell ── */

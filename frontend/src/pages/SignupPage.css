@@ -794,3 +794,111 @@
     gap: 12px;
   }
 }
+
+/* ══ Desktop (PC) layout ══ */
+
+@media (min-width: 1024px) {
+  .signup {
+    padding: calc(72px + 48px) 40px 96px;
+  }
+
+  .signup__container {
+    max-width: 1120px;
+    gap: 28px;
+  }
+
+  .signup__grid {
+    display: grid;
+    grid-template-columns: 380px minmax(0, 1fr);
+    align-items: flex-start;
+    gap: 28px;
+  }
+
+  .signup__plan {
+    position: sticky;
+    top: 96px;
+    padding: 24px;
+    grid-template-areas:
+      "info  info"
+      "price price"
+      "badge badge"
+      "change change";
+    grid-template-columns: 1fr;
+    row-gap: 16px;
+  }
+
+  .signup__plan-info {
+    gap: 14px;
+  }
+
+  .signup__plan-icon-wrap {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+  }
+
+  .signup__plan-icon-wrap svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .signup__plan-name {
+    font-size: 18px;
+  }
+
+  .signup__plan-price {
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .signup__plan-amount {
+    font-size: 42px;
+    letter-spacing: -2px;
+  }
+
+  .signup__plan-unit {
+    font-size: 13px;
+  }
+
+  .signup__trial-badge {
+    font-size: 12px;
+    padding: 7px 14px;
+    justify-self: start;
+  }
+
+  .signup__plan-change {
+    justify-self: start;
+    font-size: 12px;
+    padding-top: 4px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    width: 100%;
+  }
+
+  .signup__form-wrap {
+    padding: 0;
+  }
+
+  .signup__section {
+    padding: 26px 32px;
+    gap: 16px;
+  }
+
+  .signup__section-title {
+    font-size: 15px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .signup__container {
+    max-width: 1200px;
+  }
+
+  .signup__grid {
+    grid-template-columns: 420px minmax(0, 1fr);
+    gap: 36px;
+  }
+
+  .signup__section {
+    padding: 30px 36px;
+  }
+}

@@ -58,10 +58,18 @@ Route::prefix('v1')->group(function () {
     Route::post('demo-sessions', [DemoSessionController::class, 'store'])->middleware('throttle:10,1');
 
     // --- Auth (public) ---
-    Route::prefix('auth')->group(function () {
-        Route::post('otp', [AuthController::class, 'sendOtp'])->middleware('throttle:10,1');
-        Route::post('otp/verify', [AuthController::class, 'verifyOtp'])->middleware('throttle:10,1');
-        Route::post('otp/resend', [AuthController::class, 'resendOtp'])->middleware('throttle:3,1');
+    // In dev (OTP_DEV_BYPASS=true) the throttle caps are raised so the
+    // Playwright E2E suite — which fires dozens of OTP calls per run from
+    // 127.0.0.1 — doesn't trip the 10/min per-IP limiter. The higher cap
+    // has no effect in prod because OTP_DEV_BYPASS stays false there.
+    $otpSendLimit   = (bool) config('app.otp_dev_bypass', false) ? 500 : 10;
+    $otpVerifyLimit = (bool) config('app.otp_dev_bypass', false) ? 500 : 10;
+    $otpResendLimit = (bool) config('app.otp_dev_bypass', false) ? 200 : 3;
+
+    Route::prefix('auth')->group(function () use ($otpSendLimit, $otpVerifyLimit, $otpResendLimit) {
+        Route::post('otp', [AuthController::class, 'sendOtp'])->middleware("throttle:{$otpSendLimit},1");
+        Route::post('otp/verify', [AuthController::class, 'verifyOtp'])->middleware("throttle:{$otpVerifyLimit},1");
+        Route::post('otp/resend', [AuthController::class, 'resendOtp'])->middleware("throttle:{$otpResendLimit},1");
     });
 
     // --- Auth (protected) ---
