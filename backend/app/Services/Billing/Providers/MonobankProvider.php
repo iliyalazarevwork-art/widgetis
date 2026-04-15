@@ -83,10 +83,31 @@ class MonobankProvider implements PaymentProviderInterface
 
         $label = 'Widgetis: ' . $plan->slug . ' (' . $billingPeriod->value . ')';
 
+        // Fail fast on missing config — Monobank rejects empty redirect/webhook
+        // URLs or missing token with a generic 400, which historically buried
+        // the real cause inside its ValidationException.
+        $configuredRedirect = (string) config('monobank.redirect_url');
+        $configuredWebhook = (string) config('monobank.webhook_url');
+        $effectiveRedirect = $redirectUrl ?? $configuredRedirect;
+
+        if (config('monobank.token') === null || $configuredWebhook === '' || $effectiveRedirect === '') {
+            Log::channel('payments')->error('monobank.config.missing', [
+                'user_id' => $user->id,
+                'order_number' => $order->order_number,
+                'has_token' => config('monobank.token') !== null,
+                'has_webhook_url' => $configuredWebhook !== '',
+                'has_redirect_url' => $effectiveRedirect !== '',
+            ]);
+
+            throw new \RuntimeException(
+                'Monobank provider is not fully configured (MONOBANK_TOKEN / MONOBANK_REDIRECT_URL / MONOBANK_WEBHOOK_URL).'
+            );
+        }
+
         $dto = new InvoiceRequestDTO(
             amount: $amount,
-            redirectUrl: $redirectUrl ?? (string) config('monobank.redirect_url'),
-            webHookUrl: (string) config('monobank.webhook_url'),
+            redirectUrl: $effectiveRedirect,
+            webHookUrl: $configuredWebhook,
             validity: 86400,
             saveCardData: [
                 'saveCard' => true,
@@ -106,6 +127,7 @@ class MonobankProvider implements PaymentProviderInterface
                 'user_id' => $user->id,
                 'order_number' => $order->order_number,
                 'error' => $e->getMessage(),
+                'api_error' => $e->getApiErrorDetails(),
             ]);
 
             throw $e;

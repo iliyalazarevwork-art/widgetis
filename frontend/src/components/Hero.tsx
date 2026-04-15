@@ -18,7 +18,7 @@ const HERO_WIDGETS: HeroWidget[] = [
 
 function getWidgetSlots(viewportHeight: number, viewportWidth: number) {
   if (viewportWidth >= 1024) return 3
-  if (viewportWidth >= 420 && viewportHeight >= 700) return 3
+  if (viewportHeight >= 700) return 3
   return 2
 }
 
