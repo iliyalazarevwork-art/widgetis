@@ -21,7 +21,7 @@ class GoogleAuthController extends Controller
     public function redirect(): RedirectResponse
     {
         /** @var RedirectResponse */
-        return Socialite::driver('google')->stateless()->redirect();
+        return Socialite::driver('google')->redirect();
     }
 
     public function callback(\Illuminate\Http\Request $request): RedirectResponse
@@ -50,7 +50,7 @@ class GoogleAuthController extends Controller
 
         try {
             /** @var SocialiteUser $googleUser */
-            $googleUser = Socialite::driver('google')->stateless()->user();
+            $googleUser = Socialite::driver('google')->user();
         } catch (Throwable $e) {
             Log::error('Google OAuth failed', [
                 'message' => $e->getMessage(),

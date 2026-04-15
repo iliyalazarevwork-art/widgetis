@@ -1,0 +1,201 @@
+.desktop-cabinet-nav {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .desktop-cabinet-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--cabinet-sidebar-w, 240px);
+    height: 100dvh;
+    background: linear-gradient(180deg, #141414 0%, #131313 100%);
+    border-right: 1px solid #ffffff0a;
+    display: flex;
+    flex-direction: column;
+    z-index: 60;
+    overflow-y: auto;
+    padding: 22px 14px 20px;
+  }
+
+  .desktop-cabinet-nav__brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 8px 18px;
+    border-bottom: 1px solid #ffffff0a;
+    margin-bottom: 14px;
+  }
+
+  .desktop-cabinet-nav__brand-mark {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--blue, #3b82f6);
+  }
+
+  .desktop-cabinet-nav__brand-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .desktop-cabinet-nav__brand-name {
+    font-family: Inter, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.6px;
+    color: #f0f0f0;
+  }
+
+  .desktop-cabinet-nav__brand-role {
+    font-family: Inter, sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--blue, #3b82f6);
+  }
+
+  .desktop-cabinet-nav__user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 10px;
+    background: #ffffff05;
+    border: 1px solid #ffffff08;
+    border-radius: 12px;
+    color: #f0f0f0;
+    text-align: left;
+    cursor: pointer;
+    margin-bottom: 16px;
+    transition: background var(--t-fast), border-color var(--t-fast);
+  }
+
+  .desktop-cabinet-nav__user:hover {
+    background: #ffffff08;
+    border-color: #ffffff12;
+  }
+
+  .desktop-cabinet-nav__avatar {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    border: 1px solid var(--blue-ring, #3b82f640);
+    background: var(--blue-glow, #3b82f615);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--blue, #3b82f6);
+  }
+
+  .desktop-cabinet-nav__user-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .desktop-cabinet-nav__user-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: #f0f0f0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .desktop-cabinet-nav__user-email {
+    font-size: 10px;
+    color: #888;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .desktop-cabinet-nav__user-icon {
+    flex-shrink: 0;
+    color: #666;
+  }
+
+  .desktop-cabinet-nav__nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0 2px;
+  }
+
+  .desktop-cabinet-nav__link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 12px;
+    border-radius: 10px;
+    font-family: Inter, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #aaaaaa;
+    text-decoration: none;
+    transition: background var(--t-fast), color var(--t-fast);
+  }
+
+  .desktop-cabinet-nav__link:hover {
+    background: #ffffff06;
+    color: #f0f0f0;
+  }
+
+  .desktop-cabinet-nav__link--active {
+    background: #3b82f615;
+    color: var(--blue, #3b82f6);
+    font-weight: 700;
+  }
+
+  .desktop-cabinet-nav__link--active:hover {
+    background: #3b82f61f;
+    color: var(--blue, #3b82f6);
+  }
+
+  .desktop-cabinet-nav__bottom {
+    display: flex;
+    gap: 8px;
+    padding-top: 14px;
+    margin-top: 14px;
+    border-top: 1px solid #ffffff0a;
+  }
+
+  .desktop-cabinet-nav__bottom-btn {
+    flex: 1;
+    min-height: 38px;
+    border-radius: 10px;
+    background: #ffffff05;
+    color: #888;
+    border: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: Inter, sans-serif;
+    font-size: 12px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background var(--t-fast), color var(--t-fast);
+  }
+
+  .desktop-cabinet-nav__bottom-btn:hover {
+    background: #ffffff0a;
+    color: #f0f0f0;
+  }
+
+  .desktop-cabinet-nav__bottom-btn--logout:hover {
+    background: #ef444418;
+    color: #ef4444;
+  }
+}

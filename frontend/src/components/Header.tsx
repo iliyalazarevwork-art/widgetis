@@ -27,7 +27,6 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
-  const onHome = location.pathname === '/'
   const { isAuthenticated, logout } = useAuth()
   const settings = useSettings()
 
@@ -41,13 +40,6 @@ export function Header() {
       color: MESSENGER_META[id]?.color ?? 'var(--accent)',
     }))
   const phoneHref = settings.phone ? `tel:${settings.phone.replace(/\s+/g, '')}` : ''
-
-  const handleLogoClick = (e: React.MouseEvent) => {
-    if (onHome) {
-      e.preventDefault()
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    }
-  }
 
   const navigate = useNavigate()
   const closeMenu = useCallback(() => setMenuOpen(false), [])
@@ -89,9 +81,8 @@ export function Header() {
         <div className="header__inner">
           <Link
             to="/"
-            onClick={handleLogoClick}
             className="header__logo"
-            aria-label={onHome ? 'Нагору' : `${BRAND_NAME} — на головну`}
+            aria-label={`${BRAND_NAME} — на головну`}
           >
             <img src="/logo.svg" className="header__logo-mark" aria-hidden="true" />
             <span className="header__logo-text">{BRAND_NAME}</span>

@@ -15,3 +15,22 @@
 .cabinet__content--embedded-header {
   padding-top: 0;
 }
+
+@media (min-width: 1024px) {
+  .cabinet {
+    --topbar-h: 0px;
+    --bottomnav-h: 0px;
+    --cabinet-sidebar-w: 240px;
+    padding-left: var(--cabinet-sidebar-w);
+  }
+
+  .cabinet .topbar,
+  .cabinet .bottomnav {
+    display: none;
+  }
+
+  .cabinet__content {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}

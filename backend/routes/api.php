@@ -102,7 +102,7 @@ Route::prefix('v1')->group(function () {
         Route::post('subscription/checkout/trial', [CheckoutController::class, 'startTrial']);
         Route::post('subscription/checkout/cancel', [SubscriptionController::class, 'cancelPendingCheckout']);
         Route::post('subscription/checkout', [SubscriptionController::class, 'checkout'])
-            ->withoutMiddleware([\Illuminate\Routing\Middleware\ThrottleRequests::class, \Illuminate\Routing\Middleware\ThrottleRequestsWithRedis::class]);
+            ->middleware('throttle:5,60');
         Route::get('sites', [SiteController::class, 'index']);
         Route::post('sites', [SiteController::class, 'store']);
         Route::get('sites/{id}', [SiteController::class, 'show']);
@@ -123,8 +123,14 @@ Route::prefix('v1')->group(function () {
         Route::get('subscriptions', [Admin\SubscriptionController::class, 'index']);
         Route::get('sites', [Admin\SiteController::class, 'index']);
         Route::get('sites/{id}', [Admin\SiteController::class, 'show']);
-        Route::post('sites/{id}/deploy', [Admin\SiteController::class, 'deploy']);
+        Route::post('sites/{id}/deploy', [Admin\SiteController::class, 'deploy'])
+            ->middleware('throttle:10,60');
         Route::put('sites/{siteId}/widgets/{productId}', [Admin\SiteController::class, 'updateWidget']);
         Route::post('demo-sessions', [Admin\DemoSessionController::class, 'store']);
+
+        // Widget-builder proxy — widget-builder itself is not exposed publicly.
+        Route::get('widget-builder/modules', [Admin\WidgetBuilderController::class, 'modules']);
+        Route::post('widget-builder/build', [Admin\WidgetBuilderController::class, 'build'])
+            ->middleware('throttle:30,60');
     });
 });

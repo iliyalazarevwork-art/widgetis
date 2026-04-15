@@ -78,35 +78,12 @@ widgetis.com, www.widgetis.com {
         }
     }
 
-    # ── Widget Builder ────────────────────────────────────────
-    # Note: /modules, /build, /deploy are called WITHOUT trailing slash from the SPA,
-    # so we use * (not /*) to match both the exact path and any subpath
-    handle /build-demo* {
-        reverse_proxy widget-builder:3200 {
-            import zdd_http
-        }
-    }
-    handle /modules* {
-        reverse_proxy widget-builder:3200 {
-            import zdd_http
-        }
-    }
-    handle /build* {
-        reverse_proxy widget-builder:3200 {
-            transport http {
-                response_header_timeout 120s
-            }
-            import zdd_http
-        }
-    }
-    handle /deploy* {
-        reverse_proxy widget-builder:3200 {
-            transport http {
-                response_header_timeout 120s
-            }
-            import zdd_http
-        }
-    }
+    # ── Widget Builder (INTERNAL ONLY) ────────────────────────
+    # widget-builder:3200 is reachable only inside the Docker network.
+    # Admin UI must call /api/v1/admin/widget-builder/* instead —
+    # those routes are proxied by the Laravel backend under
+    # auth:api + role:admin. Never expose /build, /deploy, /modules,
+    # /build-demo through Caddy.
 
     # ── Frontend SPA (catch-all) ──────────────────────────────
     # Handles: /, /admin/*, /cabinet/*, /login, /pricing, etc.

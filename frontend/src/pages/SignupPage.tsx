@@ -559,8 +559,21 @@ export function SignupPage() {
                 7 днів безкоштовно
               </div>
 
+              <div className="signup__plan-divider" aria-hidden="true" />
+
+              <ul className="signup__plan-features">
+                {plan.features.map(feature => (
+                  <li key={feature} className="signup__plan-feature">
+                    <Check size={14} strokeWidth={2.5} />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="signup__plan-divider" aria-hidden="true" />
+
               <Link to={user ? '/cabinet/choose-plan' : '/pricing'} className="signup__plan-change">
-                Змінити план →
+                Змінити план <ArrowRight size={13} strokeWidth={2.25} />
               </Link>
             </aside>
 

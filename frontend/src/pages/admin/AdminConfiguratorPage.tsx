@@ -13,7 +13,7 @@ import {
   Globe,
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { post } from '../../api/client'
+import { get, post } from '../../api/client'
 import { ADMIN_BOTTOM_TABS } from './adminBottomTabs'
 import './configurator-mobile.css'
 
@@ -138,9 +138,8 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
   useEffect(() => {
     async function boot() {
       try {
-        const res = await fetch('/modules')
-        if (!res.ok) throw new Error(`HTTP ${res.status}`)
-        const data: ModuleSchemas = await res.json()
+        const res = await get<{ data: ModuleSchemas }>('/admin/widget-builder/modules')
+        const data = res.data
         setSchemas(data)
 
         const ids = Object.keys(data).sort()
@@ -228,16 +227,11 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
     setBuildError(null)
     setBuilding(true)
     try {
-      const res = await fetch('/build', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(getBuildRequest()),
-      })
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }))
-        throw new Error((err as { error?: string }).error ?? `HTTP ${res.status}`)
-      }
-      const js = await res.text()
+      const res = await post<{ data: { js: string; size: number } }>(
+        '/admin/widget-builder/build',
+        getBuildRequest(),
+      )
+      const js = res.data.js
       setBuiltJs(js)
       setHasChanges(false)
       try { await navigator.clipboard.writeText(js) } catch { /* */ }

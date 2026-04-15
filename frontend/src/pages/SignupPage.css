@@ -162,6 +162,9 @@
 .signup__plan-change {
   grid-area: change;
   justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-family: var(--font-body);
   font-size: 11px;
   color: #555555;
@@ -795,39 +798,65 @@
   }
 }
 
-/* ══ Desktop (PC) layout ══ */
+/* ── Plan feature list (desktop only) ── */
+
+.signup__plan-divider,
+.signup__plan-features { display: none; }
+
+/* ══ Desktop (PC) layout — matches Pencil "Signup — Desktop" ══ */
 
 @media (min-width: 1024px) {
   .signup {
-    padding: calc(72px + 48px) 40px 96px;
+    padding: calc(64px + 48px) 48px 80px;
   }
 
   .signup__container {
     max-width: 1120px;
-    gap: 28px;
+    gap: 24px;
   }
 
   .signup__grid {
     display: grid;
-    grid-template-columns: 380px minmax(0, 1fr);
+    grid-template-columns: 360px minmax(0, 1fr);
     align-items: flex-start;
     gap: 28px;
   }
 
+  /* ── Plan card ── */
+
   .signup__plan {
     position: sticky;
     top: 96px;
-    padding: 24px;
-    grid-template-areas:
-      "info  info"
-      "price price"
-      "badge badge"
-      "change change";
-    grid-template-columns: 1fr;
-    row-gap: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 22px;
+    padding: 28px 26px;
+    background: #161616;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    grid-template-areas: none;
+    grid-template-columns: none;
+    text-align: left;
   }
 
+  .signup__plan > * {
+    justify-self: flex-start;
+    align-self: flex-start;
+  }
+
+  .signup__plan-info,
+  .signup__plan-price,
+  .signup__plan-features,
+  .signup__plan-divider {
+    width: 100%;
+  }
+
+  .signup__plan::before { display: none; }
+
   .signup__plan-info {
+    display: flex;
+    align-items: center;
     gap: 14px;
   }
 
@@ -835,70 +864,247 @@
     width: 44px;
     height: 44px;
     border-radius: 12px;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.22);
+    color: var(--accent);
+  }
+
+  .signup__plan--basic .signup__plan-icon-wrap,
+  .signup__plan--pro   .signup__plan-icon-wrap,
+  .signup__plan--max   .signup__plan-icon-wrap {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.22);
+    color: var(--accent);
   }
 
   .signup__plan-icon-wrap svg {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
   }
 
+  .signup__plan-text { gap: 4px; }
+
   .signup__plan-name {
-    font-size: 18px;
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    color: #f0f0f0;
+  }
+
+  .signup__plan-sep { color: #7a7a7a; font-weight: 400; }
+
+  .signup__plan-annual {
+    font-size: 12px;
+    color: #7a7a7a;
   }
 
   .signup__plan-price {
-    align-items: baseline;
-    gap: 6px;
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    line-height: 1;
   }
 
   .signup__plan-amount {
-    font-size: 42px;
-    letter-spacing: -2px;
+    font-family: var(--font-display);
+    font-size: 56px;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    line-height: 0.95;
+    color: #f0f0f0;
   }
 
   .signup__plan-unit {
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #7a7a7a;
+    padding-bottom: 6px;
   }
 
   .signup__trial-badge {
+    width: fit-content;
+    padding: 7px 12px;
+    gap: 7px;
     font-size: 12px;
-    padding: 7px 14px;
-    justify-self: start;
   }
 
-  .signup__plan-change {
-    justify-self: start;
-    font-size: 12px;
-    padding-top: 4px;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  .signup__plan-divider {
+    display: block;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
     width: 100%;
   }
 
-  .signup__form-wrap {
+  .signup__plan-features {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    list-style: none;
+    margin: 0;
     padding: 0;
   }
 
-  .signup__section {
-    padding: 26px 32px;
-    gap: 16px;
+  .signup__plan-feature {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    color: #b8b8b8;
   }
 
-  .signup__section-title {
-    font-size: 15px;
+  .signup__plan-feature svg {
+    color: #4ade80;
+    flex-shrink: 0;
   }
+
+  .signup__plan-change {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding-top: 0;
+    border-top: none;
+    width: fit-content;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .signup__plan-change:hover { color: var(--accent-hover); }
+
+  /* ── Form container ── */
+
+  .signup__form-wrap {
+    background: #161616;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 36px 40px;
+    gap: 24px;
+  }
+
+  .signup__section {
+    padding: 0;
+    gap: 14px;
+  }
+
+  .signup__section-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    margin: 0 -40px;
+  }
+
+  .signup__section-title { font-size: 17px; }
+
+  /* Email confirmed row — blue accent on desktop */
+  .signup__email-confirmed {
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: #0f1a2e;
+    border-color: rgba(59, 130, 246, 0.3);
+    gap: 12px;
+  }
+
+  .signup__email-confirmed-icon { color: var(--accent); }
+
+  .signup__email-confirmed-text {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  /* Site input bigger */
+  .signup__section .signup__input-wrap {
+    height: 52px;
+    padding: 0 18px;
+    gap: 12px;
+    background: #1a1a1a;
+    border-radius: 12px;
+  }
+
+  .signup__section .signup__input-wrap input {
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  /* Platforms — equal width row */
+  .signup__platforms {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .signup__platform {
+    justify-content: center;
+    height: 46px;
+    padding: 0;
+    border-radius: 10px;
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 13px;
+  }
+
+  .signup__platform--active {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1.5px solid var(--accent);
+    color: #f0f0f0;
+  }
+
+  /* Payment cards */
+  .signup__payment-card {
+    padding: 18px 20px;
+    border-radius: 14px;
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    gap: 20px;
+  }
+
+  .signup__payment-card--active {
+    background: #0f1a2e;
+    border: 1.5px solid var(--accent);
+    box-shadow: none;
+  }
+
+  .signup__payment-card-name {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .signup__payment-card-hint { font-size: 11px; }
+
+  .signup__payment-card-logo {
+    width: 48px;
+    height: 48px;
+    padding: 8px;
+    background: #ffffff;
+    border-radius: 12px;
+  }
+
+  /* CTA button */
+  .signup__submit,
+  .signup__submit--trial {
+    height: 58px;
+    border-radius: 14px;
+    border: 1px solid #60a5fa;
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 700;
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.25);
+  }
+
+  .signup__submit--trial:hover:not(:disabled) {
+    box-shadow: 0 10px 28px rgba(59, 130, 246, 0.4);
+  }
+
+  .signup__submit--locked-state {
+    border-color: rgba(255, 255, 255, 0.04);
+    box-shadow: none;
+  }
+
+  .signup__terms { font-size: 12px; }
 }
 
 @media (min-width: 1280px) {
-  .signup__container {
-    max-width: 1200px;
-  }
-
-  .signup__grid {
-    grid-template-columns: 420px minmax(0, 1fr);
-    gap: 36px;
-  }
-
-  .signup__section {
-    padding: 30px 36px;
-  }
+  .signup__container { max-width: 1120px; }
 }

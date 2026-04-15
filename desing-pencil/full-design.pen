@@ -68003,6 +68003,1210 @@
           ]
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "ZjeMk",
+      "x": 9975,
+      "y": -2000,
+      "name": "Signup — Desktop",
+      "width": 1440,
+      "fill": "#0E0E0E",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "mMYI2",
+          "name": "dsContent",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 28,
+          "padding": [
+            48,
+            48,
+            80,
+            48
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "YCSVW",
+              "name": "dsInner",
+              "width": 1120,
+              "layout": "vertical",
+              "gap": 24,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "ji51O",
+                  "name": "dsBack",
+                  "gap": 6,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "7DotD",
+                      "width": 14,
+                      "height": 14,
+                      "iconFontName": "arrow-left",
+                      "iconFontFamily": "lucide",
+                      "fill": "#7A7A7A"
+                    },
+                    {
+                      "type": "text",
+                      "id": "HkAg4",
+                      "fill": "#7A7A7A",
+                      "content": "До тарифів",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "yx8Vd",
+                  "name": "dsGrid",
+                  "width": "fill_container",
+                  "gap": 28,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "IDZH1",
+                      "name": "dsPlan",
+                      "width": 360,
+                      "fill": "#161616",
+                      "cornerRadius": 20,
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "#ffffff1a"
+                      },
+                      "layout": "vertical",
+                      "gap": 22,
+                      "padding": [
+                        28,
+                        26
+                      ],
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "RbLPY",
+                          "name": "dsPlanHdr",
+                          "width": "fill_container",
+                          "gap": 14,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "CDs2J",
+                              "name": "dsPlanIcon",
+                              "width": 44,
+                              "height": 44,
+                              "fill": "#3B82F61a",
+                              "cornerRadius": 12,
+                              "stroke": {
+                                "thickness": 1,
+                                "fill": "#3B82F638"
+                              },
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon_font",
+                                  "id": "KJ0SP",
+                                  "width": 20,
+                                  "height": 20,
+                                  "iconFontName": "zap",
+                                  "iconFontFamily": "lucide",
+                                  "fill": "#3B82F6"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "Yak6o",
+                              "name": "dsPlanText",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 4,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "uVjez",
+                                  "fill": "#F0F0F0",
+                                  "content": "Pro · Оптимально",
+                                  "fontFamily": "Outfit",
+                                  "fontSize": 22,
+                                  "fontWeight": "800",
+                                  "letterSpacing": -0.3
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "zZWA2",
+                                  "fill": "#7A7A7A",
+                                  "content": "15 990 грн/рік · 2 міс у подарунок",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "6cNef",
+                          "name": "dsPriceRow",
+                          "gap": 8,
+                          "alignItems": "end",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "OoVdl",
+                              "fill": "#F0F0F0",
+                              "content": "1 333",
+                              "fontFamily": "Outfit",
+                              "fontSize": 56,
+                              "fontWeight": "800",
+                              "letterSpacing": -1.5
+                            },
+                            {
+                              "type": "text",
+                              "id": "tDhqm",
+                              "fill": "#7A7A7A",
+                              "content": "грн/міс",
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "LWsUD",
+                          "name": "dsTrialBadge",
+                          "fill": "#4ade801a",
+                          "cornerRadius": 999,
+                          "stroke": {
+                            "thickness": 1,
+                            "fill": "#4ade8038"
+                          },
+                          "gap": 7,
+                          "padding": [
+                            7,
+                            12
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "VdiSo",
+                              "width": 13,
+                              "height": 13,
+                              "iconFontName": "calendar-clock",
+                              "iconFontFamily": "lucide",
+                              "fill": "#4ade80"
+                            },
+                            {
+                              "type": "text",
+                              "id": "mqz7N",
+                              "fill": "#4ade80",
+                              "content": "7 днів безкоштовно",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "rectangle",
+                          "id": "wFmQs",
+                          "name": "dsPlanDiv",
+                          "fill": "#ffffff14",
+                          "width": "fill_container",
+                          "height": 1
+                        },
+                        {
+                          "type": "frame",
+                          "id": "UtAWq",
+                          "name": "dsFeatList",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 12,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "pXlR4",
+                              "name": "f1",
+                              "gap": 10,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon_font",
+                                  "id": "Dlhs7",
+                                  "width": 14,
+                                  "height": 14,
+                                  "iconFontName": "check",
+                                  "iconFontFamily": "lucide",
+                                  "fill": "#4ade80"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "TqgsK",
+                                  "fill": "#B8B8B8",
+                                  "content": "Всі 8 віджетів",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 13,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "udlcI",
+                              "name": "f2",
+                              "gap": 10,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon_font",
+                                  "id": "cVudM",
+                                  "width": 14,
+                                  "height": 14,
+                                  "iconFontName": "check",
+                                  "iconFontFamily": "lucide",
+                                  "fill": "#4ade80"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "kYVmk",
+                                  "fill": "#B8B8B8",
+                                  "content": "Лічильник залишків",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 13,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "c6yZS",
+                              "name": "f3",
+                              "gap": 10,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon_font",
+                                  "id": "zJdMx",
+                                  "width": 14,
+                                  "height": 14,
+                                  "iconFontName": "check",
+                                  "iconFontFamily": "lucide",
+                                  "fill": "#4ade80"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "Okq6Y",
+                                  "fill": "#B8B8B8",
+                                  "content": "Прогрес кошика",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 13,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "XrwCQ",
+                              "name": "f4",
+                              "gap": 10,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon_font",
+                                  "id": "E3PU1",
+                                  "width": 14,
+                                  "height": 14,
+                                  "iconFontName": "check",
+                                  "iconFontFamily": "lucide",
+                                  "fill": "#4ade80"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "PV0mN",
+                                  "fill": "#B8B8B8",
+                                  "content": "Фотовідгуки",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 13,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "DIj3C",
+                              "name": "f5",
+                              "gap": 10,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon_font",
+                                  "id": "ldtfC",
+                                  "width": 14,
+                                  "height": 14,
+                                  "iconFontName": "check",
+                                  "iconFontFamily": "lucide",
+                                  "fill": "#4ade80"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "Pll7H",
+                                  "fill": "#B8B8B8",
+                                  "content": "3 сайти",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 13,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "yFV0G",
+                              "name": "f6",
+                              "gap": 10,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon_font",
+                                  "id": "E3rCD",
+                                  "width": 14,
+                                  "height": 14,
+                                  "iconFontName": "check",
+                                  "iconFontFamily": "lucide",
+                                  "fill": "#4ade80"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "yx96l",
+                                  "fill": "#B8B8B8",
+                                  "content": "Self-service кастомізація",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 13,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "rectangle",
+                          "id": "0cDjU",
+                          "name": "dsPlanDiv2",
+                          "fill": "#ffffff14",
+                          "width": "fill_container",
+                          "height": 1
+                        },
+                        {
+                          "type": "frame",
+                          "id": "fipWP",
+                          "name": "dsChangeRow",
+                          "gap": 6,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "5pmHh",
+                              "fill": "#3B82F6",
+                              "content": "Змінити план",
+                              "fontFamily": "Inter",
+                              "fontSize": 13,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "icon_font",
+                              "id": "qjkbN",
+                              "width": 13,
+                              "height": 13,
+                              "iconFontName": "arrow-right",
+                              "iconFontFamily": "lucide",
+                              "fill": "#3B82F6"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "nmcx1",
+                      "name": "dsForm",
+                      "width": "fill_container",
+                      "fill": "#161616",
+                      "cornerRadius": 20,
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "#ffffff1a"
+                      },
+                      "layout": "vertical",
+                      "gap": 24,
+                      "padding": [
+                        36,
+                        40
+                      ],
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "DDHxB",
+                          "name": "dsSec1",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 14,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "YPd0R",
+                              "name": "dsSec1Hdr",
+                              "width": "fill_container",
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "ocEqg",
+                                  "fill": "#F0F0F0",
+                                  "content": "1. Підтвердження email",
+                                  "fontFamily": "Outfit",
+                                  "fontSize": 17,
+                                  "fontWeight": "700"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "nQRA3",
+                                  "name": "dsEmailBadge",
+                                  "fill": "#4ade801a",
+                                  "cornerRadius": 999,
+                                  "stroke": {
+                                    "thickness": 1,
+                                    "fill": "#4ade8038"
+                                  },
+                                  "gap": 5,
+                                  "padding": [
+                                    5,
+                                    10
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon_font",
+                                      "id": "Yzqhd",
+                                      "width": 12,
+                                      "height": 12,
+                                      "iconFontName": "badge-check",
+                                      "iconFontFamily": "lucide",
+                                      "fill": "#4ade80"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "ngoVx",
+                                      "fill": "#4ade80",
+                                      "content": "Підтверджено",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 11,
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "cpFNq",
+                              "name": "dsEmailConfirmed",
+                              "width": "fill_container",
+                              "fill": "#0F1A2E",
+                              "cornerRadius": 12,
+                              "stroke": {
+                                "thickness": 1,
+                                "fill": "#3B82F630"
+                              },
+                              "gap": 12,
+                              "padding": [
+                                14,
+                                16
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon_font",
+                                  "id": "BVYjX",
+                                  "width": 16,
+                                  "height": 16,
+                                  "iconFontName": "mail",
+                                  "iconFontFamily": "lucide",
+                                  "fill": "#3B82F6"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "gtCFD",
+                                  "fill": "#F0F0F0",
+                                  "content": "alex@merchant-store.ua",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 14,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "rectangle",
+                          "id": "0DLPD",
+                          "name": "dsDiv1",
+                          "fill": "#ffffff14",
+                          "width": "fill_container",
+                          "height": 1
+                        },
+                        {
+                          "type": "frame",
+                          "id": "eLKqn",
+                          "name": "dsSec2",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 14,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "rUcW8",
+                              "name": "s2Hdr",
+                              "width": "fill_container",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "zd8HY",
+                                  "fill": "#F0F0F0",
+                                  "content": "2. Ваш магазин",
+                                  "fontFamily": "Outfit",
+                                  "fontSize": 17,
+                                  "fontWeight": "700"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "ysbcg",
+                              "name": "dsSiteField",
+                              "width": "fill_container",
+                              "height": 52,
+                              "fill": "#1A1A1A",
+                              "cornerRadius": 12,
+                              "stroke": {
+                                "thickness": 1,
+                                "fill": "#ffffff1a"
+                              },
+                              "gap": 12,
+                              "padding": [
+                                0,
+                                18
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon_font",
+                                  "id": "ZWWO1",
+                                  "width": 16,
+                                  "height": 16,
+                                  "iconFontName": "globe",
+                                  "iconFontFamily": "lucide",
+                                  "fill": "#7A7A7A"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "ycPl5",
+                                  "fill": "#F0F0F0",
+                                  "content": "merchant-store.com.ua",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 15,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "jaGlm",
+                              "name": "dsPlatforms",
+                              "width": "fill_container",
+                              "gap": 10,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "3sM0q",
+                                  "name": "dsPlatHoro",
+                                  "width": "fill_container",
+                                  "height": 46,
+                                  "fill": "#3B82F61a",
+                                  "cornerRadius": 10,
+                                  "stroke": {
+                                    "thickness": 1.5,
+                                    "fill": "#3B82F6"
+                                  },
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "2IEOW",
+                                      "fill": "#F0F0F0",
+                                      "content": "Horoshop",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 13,
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "LEL94",
+                                  "name": "dsPlatOpen",
+                                  "width": "fill_container",
+                                  "height": 46,
+                                  "fill": "#1A1A1A",
+                                  "cornerRadius": 10,
+                                  "stroke": {
+                                    "thickness": 1,
+                                    "fill": "#ffffff1a"
+                                  },
+                                  "gap": 8,
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "ET2s3",
+                                      "fill": "#7A7A7A",
+                                      "content": "OpenCart",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 13,
+                                      "fontWeight": "500"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "xreop",
+                                      "fill": "#555555",
+                                      "content": "Скоро",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 10,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "rectangle",
+                          "id": "jbSMK",
+                          "name": "dsDiv2",
+                          "fill": "#ffffff14",
+                          "width": "fill_container",
+                          "height": 1
+                        },
+                        {
+                          "type": "frame",
+                          "id": "EEcqq",
+                          "name": "dsSec3",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 14,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "XGngk",
+                              "name": "s3Hdr",
+                              "gap": 8,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon_font",
+                                  "id": "9caIV",
+                                  "width": 16,
+                                  "height": 16,
+                                  "iconFontName": "credit-card",
+                                  "iconFontFamily": "lucide",
+                                  "fill": "#B8B8B8"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "oQ7SN",
+                                  "fill": "#F0F0F0",
+                                  "content": "3. Спосіб оплати",
+                                  "fontFamily": "Outfit",
+                                  "fontSize": 17,
+                                  "fontWeight": "700"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "QirGW",
+                              "name": "dsPayList",
+                              "width": "fill_container",
+                              "gap": 12,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "Xu0PJ",
+                                  "name": "dsPayLiq",
+                                  "width": "fill_container",
+                                  "fill": "#0F1A2E",
+                                  "cornerRadius": 14,
+                                  "stroke": {
+                                    "thickness": 1.5,
+                                    "fill": "#3B82F6"
+                                  },
+                                  "padding": [
+                                    18,
+                                    20
+                                  ],
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "J7Yul",
+                                      "name": "pay1Info",
+                                      "layout": "vertical",
+                                      "gap": 4,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "lZYmV",
+                                          "fill": "#F0F0F0",
+                                          "content": "LiqPay",
+                                          "fontFamily": "Outfit",
+                                          "fontSize": 16,
+                                          "fontWeight": "700"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "ATuF8",
+                                          "fill": "#7A7A7A",
+                                          "content": "Visa · Mastercard · Apple Pay · Google Pay",
+                                          "fontFamily": "Inter",
+                                          "fontSize": 11,
+                                          "fontWeight": "500"
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "S3S3f",
+                                          "name": "pay1Trial",
+                                          "fill": "#4ade801a",
+                                          "cornerRadius": 999,
+                                          "stroke": {
+                                            "thickness": 1,
+                                            "fill": "#4ade8038"
+                                          },
+                                          "gap": 5,
+                                          "padding": [
+                                            4,
+                                            9
+                                          ],
+                                          "alignItems": "center",
+                                          "children": [
+                                            {
+                                              "type": "icon_font",
+                                              "id": "FIL3d",
+                                              "width": 10,
+                                              "height": 10,
+                                              "iconFontName": "check",
+                                              "iconFontFamily": "lucide",
+                                              "fill": "#4ade80"
+                                            },
+                                            {
+                                              "type": "text",
+                                              "id": "HzYnk",
+                                              "fill": "#4ade80",
+                                              "content": "Тріал 7 днів",
+                                              "fontFamily": "Inter",
+                                              "fontSize": 10,
+                                              "fontWeight": "600"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "wsqll",
+                                      "name": "dsLiqLogo",
+                                      "width": 48,
+                                      "height": 48,
+                                      "fill": "#ffffff",
+                                      "cornerRadius": 12,
+                                      "justifyContent": "center",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "cx0yL",
+                                          "fill": "#1B9FEA",
+                                          "content": "LP",
+                                          "fontFamily": "Outfit",
+                                          "fontSize": 18,
+                                          "fontWeight": "800",
+                                          "letterSpacing": -0.5
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "BFyC7",
+                                  "name": "dsPayMono",
+                                  "width": "fill_container",
+                                  "fill": "#1A1A1A",
+                                  "cornerRadius": 14,
+                                  "stroke": {
+                                    "thickness": 1,
+                                    "fill": "#ffffff1a"
+                                  },
+                                  "padding": [
+                                    18,
+                                    20
+                                  ],
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "GlYcu",
+                                      "name": "pay2Info",
+                                      "layout": "vertical",
+                                      "gap": 4,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "SSvop",
+                                          "fill": "#F0F0F0",
+                                          "content": "plata by mono",
+                                          "fontFamily": "Outfit",
+                                          "fontSize": 16,
+                                          "fontWeight": "700"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "1TDOW",
+                                          "fill": "#7A7A7A",
+                                          "content": "Apple Pay · Google Pay · картки",
+                                          "fontFamily": "Inter",
+                                          "fontSize": 11,
+                                          "fontWeight": "500"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "rV7f2",
+                                      "name": "dsMonoLogo",
+                                      "width": 48,
+                                      "height": 48,
+                                      "fill": "#000000",
+                                      "cornerRadius": 12,
+                                      "stroke": {
+                                        "thickness": 1,
+                                        "fill": "#ffffff14"
+                                      },
+                                      "justifyContent": "center",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "sIAnH",
+                                          "fill": "#ffffff",
+                                          "content": "m",
+                                          "fontFamily": "Outfit",
+                                          "fontSize": 24,
+                                          "fontWeight": "800"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "rectangle",
+                          "id": "0CasW",
+                          "name": "dsDiv3",
+                          "fill": "#ffffff14",
+                          "width": "fill_container",
+                          "height": 1
+                        },
+                        {
+                          "type": "frame",
+                          "id": "D2zd0",
+                          "name": "dsSec4",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 14,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "B0nDi",
+                              "name": "dsCtaBtn",
+                              "width": "fill_container",
+                              "height": 58,
+                              "fill": "#3B82F6",
+                              "cornerRadius": 14,
+                              "stroke": {
+                                "thickness": 1,
+                                "fill": "#60A5FA"
+                              },
+                              "effect": {
+                                "type": "shadow",
+                                "shadowType": "outer",
+                                "color": "#3B82F640",
+                                "offset": {
+                                  "x": 0,
+                                  "y": 8
+                                },
+                                "blur": 24
+                              },
+                              "gap": 10,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "owYCL",
+                                  "fill": "#FFFFFF",
+                                  "content": "Почати 7 днів безкоштовно",
+                                  "fontFamily": "Outfit",
+                                  "fontSize": 16,
+                                  "fontWeight": "700"
+                                },
+                                {
+                                  "type": "icon_font",
+                                  "id": "dgEJU",
+                                  "width": 17,
+                                  "height": 17,
+                                  "iconFontName": "arrow-right",
+                                  "iconFontFamily": "lucide",
+                                  "fill": "#FFFFFF"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "UhQnW",
+                              "name": "dsTerms",
+                              "width": "fill_container",
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "zQPQl",
+                                  "fill": "#555555",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Натискаючи, Ви погоджуєтесь з умовами використання та політикою конфіденційності",
+                                  "lineHeight": 1.5,
+                                  "textAlign": "center",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "eaEij",
+                  "name": "dsLoginHint",
+                  "width": "fill_container",
+                  "gap": 6,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "TZ4aH",
+                      "fill": "#7A7A7A",
+                      "content": "Вже є акаунт?",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "tl5sL",
+                      "fill": "#3B82F6",
+                      "content": "Увійти",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "bmPwZ",
+      "x": 0,
+      "y": 0,
+      "name": "dsHdr",
+      "width": "fill_container(0)",
+      "height": 72,
+      "fill": "#0A0A0A",
+      "stroke": {
+        "thickness": {
+          "bottom": 1
+        },
+        "fill": "#ffffff14"
+      },
+      "padding": [
+        0,
+        48
+      ],
+      "justifyContent": "space_between",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "qclmZ",
+          "name": "dsLogoRow",
+          "gap": 10,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "icon_font",
+              "id": "zg4Ei",
+              "width": 22,
+              "height": 22,
+              "iconFontName": "box",
+              "iconFontFamily": "lucide",
+              "fill": "#3B82F6"
+            },
+            {
+              "type": "text",
+              "id": "T3y9N",
+              "fill": "#F0F0F0",
+              "content": "WIDGETIS",
+              "fontFamily": "Inter",
+              "fontSize": 15,
+              "fontWeight": "700",
+              "letterSpacing": 2
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "wp2yu",
+          "name": "dsNav",
+          "gap": 36,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "NEw8s",
+              "fill": "#B8B8B8",
+              "content": "Віджети",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "500"
+            },
+            {
+              "type": "text",
+              "id": "GW1V8",
+              "fill": "#B8B8B8",
+              "content": "Тарифи",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "500"
+            },
+            {
+              "type": "text",
+              "id": "6KgOx",
+              "fill": "#B8B8B8",
+              "content": "FAQ",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "500"
+            },
+            {
+              "type": "text",
+              "id": "Epxdb",
+              "fill": "#B8B8B8",
+              "content": "Контакти",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "500"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "XXHKd",
+          "name": "dsHdrRight",
+          "gap": 18,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "BtOk5",
+              "fill": "#7A7A7A",
+              "content": "UK",
+              "fontFamily": "Inter",
+              "fontSize": 13,
+              "fontWeight": "600",
+              "letterSpacing": 0.5
+            },
+            {
+              "type": "frame",
+              "id": "Mmw87",
+              "name": "dsLoginBtn",
+              "fill": "#1A1A1A",
+              "cornerRadius": 10,
+              "stroke": {
+                "thickness": 1,
+                "fill": "#ffffff1a"
+              },
+              "padding": [
+                10,
+                18
+              ],
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "8ZOWn",
+                  "fill": "#F0F0F0",
+                  "content": "Увійти",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "variables": {
