@@ -86,6 +86,11 @@ class MonobankProvider implements PaymentProviderInterface
         $periodLabel = $billingPeriod === BillingPeriod::Yearly ? 'річна підписка' : 'щомісячна підписка';
         $label = 'Widgetis: ' . $planName . ' — ' . $periodLabel;
 
+        // Monobank renders cart items as "{qty} {unit}". Instead of the
+        // meaningless "1 шт", show "1 місяць" / "1 рік" so the user sees
+        // what they are actually paying for.
+        $unitLabel = $billingPeriod === BillingPeriod::Yearly ? 'рік' : 'місяць';
+
         // Per-plan icon: Monobank's /invoice/create accepts a public URL
         // for the cart item icon and renders it on the payment page in
         // place of the generic placeholder.
@@ -127,7 +132,7 @@ class MonobankProvider implements PaymentProviderInterface
                     qty: 1,
                     sum: $amount,
                     icon: $iconUrl,
-                    unit: 'шт',
+                    unit: $unitLabel,
                 ),
             ],
             destination: $label,
