@@ -8,6 +8,24 @@ vars:
   EXECP: '{{.DCP}} exec backend'
 
 tasks:
+  # ── Secrets (SOPS + age) ───────────────────────────────
+  secrets:enc:
+    desc: "Зашифровать .env.production → .env.production.enc  ·  task secrets:enc"
+    cmds:
+      - SOPS_AGE_KEY_FILE=.age-key.txt sops --input-type dotenv --output-type dotenv --encrypt backend/.env.production > backend/.env.production.enc
+      - echo "✓ backend/.env.production.enc updated"
+
+  secrets:dec:
+    desc: "Расшифровать .env.production.enc → .env.production  ·  task secrets:dec"
+    cmds:
+      - SOPS_AGE_KEY_FILE=.age-key.txt sops --input-type dotenv --output-type dotenv --decrypt backend/.env.production.enc > backend/.env.production
+      - echo "✓ backend/.env.production decrypted"
+
+  secrets:edit:
+    desc: "Редактировать зашифрованный файл напрямую в $EDITOR  ·  task secrets:edit"
+    cmds:
+      - SOPS_AGE_KEY_FILE=.age-key.txt sops backend/.env.production.enc
+
   # ── OTP ────────────────────────────────────────────────
   otp:login:
     desc: "Отправить OTP и получить код  ·  task otp:login -- admin@widgetis.com"

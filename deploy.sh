@@ -48,6 +48,25 @@ done
 
 # ── If called locally — SSH into server and re-run this script ────────────────
 if [ "$LOCAL" = false ]; then
+  # ── Pre-deploy: encrypt .env.production → .env.production.enc ────────────────
+  if [ -f backend/.env.production ]; then
+    echo "▶ Encrypting backend/.env.production..."
+    SOPS_AGE_KEY_FILE=.age-key.txt sops \
+      --input-type dotenv --output-type dotenv \
+      --encrypt backend/.env.production > backend/.env.production.enc
+    echo "   ✓ backend/.env.production.enc updated"
+  fi
+
+  # If .env.production.enc changed — commit it
+  if ! git diff --quiet backend/.env.production.enc 2>/dev/null || \
+     git ls-files --error-unmatch backend/.env.production.enc 2>/dev/null | grep -q .; then
+    if ! git diff --quiet backend/.env.production.enc; then
+      echo "▶ Committing updated secrets..."
+      git add backend/.env.production.enc
+      git commit -m "chore(secrets): update encrypted production secrets"
+    fi
+  fi
+
   # ── Pre-deploy: auto-fix unused imports ───────────────────────────────────────
   echo "▶ Frontend: ESLint auto-fix (unused imports, style)..."
   (cd frontend && npm run lint:fix) || true   # fixes what it can; non-fixable issues stay as warnings
@@ -83,12 +102,12 @@ fi
 # ── Running ON the server ──────────────────────────────────────────────────────
 cd "$REMOTE_DIR"
 
-# ── Decrypt secrets from encrypted .env.enc ───────────────────────────────────
+# ── Decrypt secrets from encrypted .env.production.enc ───────────────────────
 echo "▶ Decrypting secrets..."
 export SOPS_AGE_KEY_FILE=~/.config/sops/age/keys.txt
-sops --input-type dotenv --output-type dotenv --decrypt backend/.env.enc > backend/.env
+sops --input-type dotenv --output-type dotenv --decrypt backend/.env.production.enc > backend/.env
 chmod 600 backend/.env
-echo "   ✓ backend/.env decrypted"
+echo "   ✓ backend/.env ready"
 
 DC="docker compose -f docker-compose.prod.yml --env-file .env.prod"
 

@@ -1,3 +1,10 @@
 creation_rules:
-  - path_regex: backend/\.env
+  - path_regex: backend/\.env\.production
     age: age1d4eqtlcqrevpsdhwdpshyx857kl7skyr94uk9sg9mr2ly2036g0qsrrnuh
+
+# Workflow:
+#   Edit:    backend/.env.production  (plain, gitignored)
+#   Deploy:  task d  → auto-encrypts to .env.production.enc → git push
+#   Server:  decrypts .env.production.enc → backend/.env
+#
+# Key: .age-key.txt (gitignored, local copy)
