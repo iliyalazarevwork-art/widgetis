@@ -45,7 +45,7 @@ class OtpMailDispatchTest extends TestCase
 
     public function test_otp_mail_envelope_has_the_widgetis_subject(): void
     {
-        $mail = new OtpMail('999999');
+        $mail     = new OtpMail('999999', 'fake-magic-token');
         $envelope = $mail->envelope();
 
         $this->assertStringContainsString('Widgetis', $envelope->subject);
@@ -54,12 +54,13 @@ class OtpMailDispatchTest extends TestCase
 
     public function test_otp_mail_content_passes_the_code_into_the_markdown_view(): void
     {
-        $mail = new OtpMail('424242');
+        $mail    = new OtpMail('424242', 'fake-magic-token');
         $content = $mail->content();
 
         $this->assertSame('mail.auth.otp', $content->markdown);
         $this->assertArrayHasKey('code', $content->with);
         $this->assertSame('424242', $content->with['code']);
+        $this->assertArrayHasKey('magicLink', $content->with);
     }
 
     public function test_repeated_send_does_not_queue_two_mails_during_cooldown(): void

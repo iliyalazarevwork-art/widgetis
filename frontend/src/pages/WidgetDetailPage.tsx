@@ -10,13 +10,13 @@ import {
   Zap,
   HeartHandshake,
 } from 'lucide-react'
+import type { PlanDef } from '../data/plans'
 import { WidgetIcon } from '../components/WidgetIcon'
 import {
   widgets,
   packages,
   platformConfig,
   tagLabels,
-  tierLabels,
   type Tag,
 } from '../data/widgets'
 import { cases } from '../data/cases'
@@ -170,7 +170,6 @@ export function WidgetDetailPage() {
                 <span className={`widget-page__tag widget-page__tag--${widget.tagColor}`}>
                   {tagLabels[widget.tag]}
                 </span>
-                <span className="widget-page__tier">{tierLabels[widget.priceTier]}</span>
                 {widget.isNew && <span className="widget-page__new">NEW</span>}
                 {widget.isPopular && (
                   <span className="widget-page__popular">
@@ -322,17 +321,35 @@ export function WidgetDetailPage() {
                 Цей віджет вже входить у {containingPackages.length === 1 ? 'пакет' : 'пакети'}:
               </p>
               <div className="widget-page__upsell-list">
-                {containingPackages.map((p) => (
-                    <div key={p.id} className="widget-page__upsell-item">
-                      <div className="widget-page__upsell-item-name">
-                        <strong>{p.name}</strong>
-                        <span>{p.widgets} віджетів</span>
+                {containingPackages.map((p: PlanDef) => {
+                  const PlanIcon = p.icon
+                  return (
+                    <div
+                      key={p.id}
+                      className="widget-page__upsell-item"
+                      style={{
+                        background: `${p.color}10`,
+                        borderColor: `${p.color}30`,
+                      }}
+                    >
+                      <div className="widget-page__upsell-item-left">
+                        <div
+                          className="widget-page__upsell-item-ico"
+                          style={{ background: `${p.color}20` }}
+                        >
+                          <PlanIcon size={16} color={p.color} strokeWidth={2} />
+                        </div>
+                        <div className="widget-page__upsell-item-name">
+                          <strong style={{ color: p.color }}>{p.name}</strong>
+                          <span>{p.widgets} віджетів</span>
+                        </div>
                       </div>
                       <div className="widget-page__upsell-item-price">
                         <strong>{p.monthlyPrice.toLocaleString('uk-UA')} грн/міс</strong>
                       </div>
                     </div>
-                ))}
+                  )
+                })}
               </div>
               <Link to="/pricing" className="widget-page__upsell-cta">
                 Обрати тариф

@@ -70,6 +70,10 @@ Route::prefix('v1')->group(function () {
         Route::post('otp', [AuthController::class, 'sendOtp'])->middleware("throttle:{$otpSendLimit},1");
         Route::post('otp/verify', [AuthController::class, 'verifyOtp'])->middleware("throttle:{$otpVerifyLimit},1");
         Route::post('otp/resend', [AuthController::class, 'resendOtp'])->middleware("throttle:{$otpResendLimit},1");
+
+        // Magic link — user clicks confirm, frontend polls for status
+        Route::get('link/{token}/confirm', [AuthController::class, 'confirmLink'])->middleware('throttle:20,1');
+        Route::get('link/{token}/status', [AuthController::class, 'linkStatus'])->middleware('throttle:60,1');
     });
 
     // --- Auth (protected) ---

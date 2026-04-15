@@ -12,6 +12,8 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class OtpAuthTest extends TestCase
@@ -30,7 +32,10 @@ class OtpAuthTest extends TestCase
 
         $response = $this->postJson('/api/v1/auth/otp', ['email' => $email]);
 
-        $response->assertStatus(200);
+        $response->assertStatus(200)
+            ->assertJsonStructure(['magic_link_token'])
+            ->assertJsonPath('expires_in', 600);
+
         $this->assertTrue(Cache::has("otp:code:{$email}"));
         Mail::assertQueued(OtpMail::class, fn (OtpMail $mail) => $mail->hasTo($email));
     }
@@ -260,5 +265,70 @@ class OtpAuthTest extends TestCase
     public function test_get_user_requires_auth(): void
     {
         $this->getJson('/api/v1/auth/user')->assertStatus(401);
+    }
+
+    // -------------------------------------------------------------------------
+    // magic link — confirm + status polling
+    // -------------------------------------------------------------------------
+
+    public function test_magic_link_full_flow(): void
+    {
+        $email = 'magic@example.com';
+        $token = (string) Str::uuid();
+
+        Redis::setex("otp:link:{$token}", 600, json_encode([
+            'email'  => $email,
+            'status' => 'pending',
+        ]));
+
+        // Status is pending before confirm
+        $this->getJson("/api/v1/auth/link/{$token}/status")
+            ->assertStatus(200)
+            ->assertJsonPath('status', 'pending');
+
+        // User clicks the link — confirm
+        $this->getJson("/api/v1/auth/link/{$token}/confirm")
+            ->assertStatus(200)
+            ->assertJsonPath('status', 'confirmed');
+
+        // Polling now returns JWT token
+        $response = $this->getJson("/api/v1/auth/link/{$token}/status");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('status', 'confirmed')
+            ->assertJsonStructure(['token', 'token_type', 'expires_in', 'user']);
+
+        // User was auto-created with customer role
+        $user = User::where('email', $email)->first();
+        $this->assertNotNull($user);
+        $this->assertTrue($user->hasRole(UserRole::Customer->value));
+    }
+
+    public function test_magic_link_confirm_returns_error_for_expired_token(): void
+    {
+        $this->getJson('/api/v1/auth/link/non-existent-token/confirm')
+            ->assertStatus(422)
+            ->assertJsonPath('error.code', 'LINK_EXPIRED');
+    }
+
+    public function test_magic_link_status_returns_error_for_expired_token(): void
+    {
+        $this->getJson('/api/v1/auth/link/non-existent-token/status')
+            ->assertStatus(422)
+            ->assertJsonPath('error.code', 'LINK_EXPIRED');
+    }
+
+    public function test_magic_link_confirm_returns_error_if_already_used(): void
+    {
+        $token = (string) Str::uuid();
+
+        Redis::setex("otp:link:{$token}", 600, json_encode([
+            'email'  => 'used@example.com',
+            'status' => 'confirmed',
+        ]));
+
+        $this->getJson("/api/v1/auth/link/{$token}/confirm")
+            ->assertStatus(422)
+            ->assertJsonPath('error.code', 'LINK_ALREADY_USED');
     }
 }

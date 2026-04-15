@@ -9,6 +9,8 @@ use App\Exceptions\TooManyOtpAttemptsException;
 use App\Mail\Auth\OtpMail;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Str;
 
 class OtpService
 {
@@ -17,29 +19,32 @@ class OtpService
     private const COOLDOWN_SECONDS = 30;
     private const CODE_LENGTH = 6;
 
-    public function send(string $email): void
+    /**
+     * Generate OTP code + magic link token, store both in Redis, send email.
+     *
+     * @return string Magic link token (UUID) to be returned to the frontend for polling.
+     */
+    public function send(string $email): string
     {
         $this->enforceCooldown($email);
 
-        $code = $this->generateCode();
+        $code       = $this->generateCode();
+        $magicToken = (string) Str::uuid();
 
-        Cache::put(
-            $this->codeKey($email),
-            $code,
+        Cache::put($this->codeKey($email), $code, self::TTL_SECONDS);
+        Cache::put($this->attemptsKey($email), 0, self::TTL_SECONDS);
+        Cache::put($this->cooldownKey($email), true, self::COOLDOWN_SECONDS);
+
+        // Store magic link state for LinkService to read
+        Redis::setex(
+            "otp:link:{$magicToken}",
             self::TTL_SECONDS,
-        );
-        Cache::put(
-            $this->attemptsKey($email),
-            0,
-            self::TTL_SECONDS,
-        );
-        Cache::put(
-            $this->cooldownKey($email),
-            true,
-            self::COOLDOWN_SECONDS,
+            json_encode(['email' => $email, 'status' => 'pending']),
         );
 
-        Mail::to($email)->queue(new OtpMail($code));
+        Mail::to($email)->queue(new OtpMail($code, $magicToken));
+
+        return $magicToken;
     }
 
     public function verify(string $email, string $code): bool

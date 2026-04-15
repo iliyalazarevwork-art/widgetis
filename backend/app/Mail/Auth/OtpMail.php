@@ -18,6 +18,7 @@ class OtpMail extends Mailable implements ShouldQueue
 
     public function __construct(
         public readonly string $code,
+        public readonly string $magicToken,
     ) {
     }
 
@@ -32,7 +33,17 @@ class OtpMail extends Mailable implements ShouldQueue
     {
         return new Content(
             markdown: 'mail.auth.otp',
-            with: ['code' => $this->code],
+            with: [
+                'code'      => $this->code,
+                'magicLink' => $this->buildMagicLink(),
+            ],
         );
+    }
+
+    private function buildMagicLink(): string
+    {
+        $base = rtrim((string) config('app.url'), '/');
+
+        return "{$base}/api/v1/auth/link/{$this->magicToken}/confirm";
     }
 }
