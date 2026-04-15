@@ -155,6 +155,19 @@ class LiqPayWebhookService
      */
     private function handleSuccess(Order $order, array $payload): void
     {
+        // If the user started a new checkout after abandoning this one, the
+        // order was cancelled. Do not activate — flag for manual review.
+        if ($order->status === OrderStatus::Cancelled) {
+            Log::channel('payments')->warning('liqpay.payment.success_for_cancelled_order', [
+                'user_id' => $order->user_id,
+                'order_id' => $order->order_number,
+                'transaction_id' => $payload['transaction_id'] ?? null,
+                'amount' => $payload['amount'] ?? null,
+            ]);
+
+            return;
+        }
+
         $order->update([
             'status' => OrderStatus::Paid,
             'transaction_id' => (string) ($payload['transaction_id'] ?? ''),

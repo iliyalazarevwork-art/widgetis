@@ -151,32 +151,18 @@ class SubscriptionController extends BaseController
             return $this->error('ALREADY_SUBSCRIBED', 'User already has an active subscription.', 422);
         }
 
-        // Cancel any abandoned pending orders so the user is never stuck.
-        // We keep the duplicate-click guard only for the exact same plan+period
-        // within a 5-minute window — that prevents double-invoicing on rapid
-        // re-clicks without blocking the user from switching plans.
-        $stalePendingOrders = Order::where('user_id', $user->id)
+        // Cancel any pending orders the user abandoned so the payment page
+        // they left can never activate the wrong subscription. If somehow a
+        // success webhook still arrives for a cancelled order, the webhook
+        // handler skips activation and flags it for review.
+        Order::where('user_id', $user->id)
             ->where('status', OrderStatus::Pending)
-            ->whereDoesntHave('payments', fn ($q) => $q->where('status', PaymentStatus::Failed->value))
-            ->get();
-
-        foreach ($stalePendingOrders as $staleOrder) {
-            $isSamePlanAndPeriod = $staleOrder->plan_id === $plan->id
-                && $staleOrder->billing_period === $billingPeriod->value;
-
-            $isRecentDuplicate = $isSamePlanAndPeriod
-                && $staleOrder->created_at >= now()->subMinutes(5);
-
-            if ($isRecentDuplicate) {
-                return $this->error('CHECKOUT_IN_PROGRESS', 'A checkout is already in progress. Please wait a moment before trying again.', 429);
-            }
-
-            // Different plan/period or older than 5 minutes — cancel and allow new checkout.
-            $staleOrder->update(['status' => OrderStatus::Cancelled]);
-            $staleOrder->payments()
-                ->where('status', PaymentStatus::Pending->value)
-                ->update(['status' => PaymentStatus::Failed->value]);
-        }
+            ->each(function (Order $staleOrder): void {
+                $staleOrder->update(['status' => OrderStatus::Cancelled]);
+                $staleOrder->payments()
+                    ->where('status', PaymentStatus::Pending->value)
+                    ->update(['status' => PaymentStatus::Failed->value]);
+            });
 
         // Reset a stuck pending subscription so the new checkout can proceed.
         if ($user->subscription?->status === SubscriptionStatus::Pending) {

@@ -318,6 +318,18 @@ class MonobankProvider implements PaymentProviderInterface
             return WebhookResult::ignored($reference, 'success');
         }
 
+        // If the user started a new checkout after abandoning this one, the
+        // order was cancelled. Do not activate — flag for manual review.
+        if ($order->status === OrderStatus::Cancelled) {
+            Log::channel('payments')->warning('monobank.payment.success_for_cancelled_order', [
+                'user_id' => $order->user_id,
+                'order_number' => $order->order_number,
+                'invoice_id' => $invoiceId,
+            ]);
+
+            return WebhookResult::ignored($reference, 'success');
+        }
+
         $amountCents = (int) ($payload['finalAmount'] ?? $payload['amount'] ?? 0);
         $amountUah = $amountCents / 100;
 
