@@ -665,6 +665,38 @@
   }
 }
 
+@media (min-width: 1200px) {
+  .wp__container,
+  .wp__hero,
+  .wp__cta-inner {
+    max-width: 1240px;
+  }
+
+  .wp__hero {
+    padding: 56px 20px 40px;
+    gap: 14px;
+  }
+
+  .wp__hero-title {
+    font-size: 56px;
+    letter-spacing: -1.2px;
+  }
+
+  .wp__hero-sub {
+    font-size: 16px;
+    max-width: 560px;
+  }
+
+  .wp__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .wp__section-title {
+    font-size: 44px;
+  }
+}
+
 /* ============================================================
    Widget mockups (wm)
    ============================================================ */
