@@ -467,9 +467,12 @@ class MonobankProvider implements PaymentProviderInterface
             return false;
         }
 
-        $pemKey = "-----BEGIN PUBLIC KEY-----\n"
-            . chunk_split($pubKey, 64, "\n")
-            . "-----END PUBLIC KEY-----\n";
+        // Monobank returns the key as base64-encoded PEM (already with headers).
+        $pemKey = base64_decode($pubKey, strict: true);
+
+        if ($pemKey === false) {
+            return false;
+        }
 
         $body = $request->getContent();
         $result = openssl_verify($body, $signature, $pemKey, OPENSSL_ALGO_SHA256);
