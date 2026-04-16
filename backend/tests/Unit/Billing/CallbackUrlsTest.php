@@ -2,60 +2,76 @@
 
 declare(strict_types=1);
 
+namespace Tests\Unit\Billing;
+
 use App\Exceptions\Billing\InvalidCallbackUrlException;
 use App\Services\Billing\ValueObjects\CallbackUrls;
+use Tests\TestCase;
 
-it('accepts valid https urls', function (): void {
-    $urls = new CallbackUrls(
-        webhookUrl: 'https://example.com/webhook',
-        returnUrl: 'https://example.com/return',
-    );
-    expect($urls->webhookUrl)->toBe('https://example.com/webhook');
-});
+final class CallbackUrlsTest extends TestCase
+{
+    public function test_accepts_valid_https_urls(): void
+    {
+        $urls = new CallbackUrls(
+            webhookUrl: 'https://example.com/webhook',
+            returnUrl: 'https://example.com/return',
+        );
+        $this->assertSame('https://example.com/webhook', $urls->webhookUrl);
+    }
 
-it('accepts http urls', function (): void {
-    $urls = new CallbackUrls(
-        webhookUrl: 'http://example.com/webhook',
-        returnUrl: 'http://example.com/return',
-    );
-    expect($urls->webhookUrl)->toBe('http://example.com/webhook');
-});
+    public function test_accepts_http_urls(): void
+    {
+        $urls = new CallbackUrls(
+            webhookUrl: 'http://example.com/webhook',
+            returnUrl: 'http://example.com/return',
+        );
+        $this->assertSame('http://example.com/webhook', $urls->webhookUrl);
+    }
 
-it('accepts optional cancel url when provided as https', function (): void {
-    $urls = new CallbackUrls(
-        webhookUrl: 'https://example.com/webhook',
-        returnUrl: 'https://example.com/return',
-        cancelUrl: 'https://example.com/cancel',
-    );
-    expect($urls->cancelUrl)->toBe('https://example.com/cancel');
-});
+    public function test_accepts_optional_cancel_url_when_provided_as_https(): void
+    {
+        $urls = new CallbackUrls(
+            webhookUrl: 'https://example.com/webhook',
+            returnUrl: 'https://example.com/return',
+            cancelUrl: 'https://example.com/cancel',
+        );
+        $this->assertSame('https://example.com/cancel', $urls->cancelUrl);
+    }
 
-it('allows null cancel url', function (): void {
-    $urls = new CallbackUrls(
-        webhookUrl: 'https://example.com/webhook',
-        returnUrl: 'https://example.com/return',
-    );
-    expect($urls->cancelUrl)->toBeNull();
-});
+    public function test_allows_null_cancel_url(): void
+    {
+        $urls = new CallbackUrls(
+            webhookUrl: 'https://example.com/webhook',
+            returnUrl: 'https://example.com/return',
+        );
+        $this->assertNull($urls->cancelUrl);
+    }
 
-it('rejects non-http webhook url', function (): void {
-    expect(fn () => new CallbackUrls(
-        webhookUrl: 'ftp://example.com/webhook',
-        returnUrl: 'https://example.com/return',
-    ))->toThrow(InvalidCallbackUrlException::class);
-});
+    public function test_rejects_non_http_webhook_url(): void
+    {
+        $this->expectException(InvalidCallbackUrlException::class);
+        new CallbackUrls(
+            webhookUrl: 'ftp://example.com/webhook',
+            returnUrl: 'https://example.com/return',
+        );
+    }
 
-it('rejects non-http return url', function (): void {
-    expect(fn () => new CallbackUrls(
-        webhookUrl: 'https://example.com/webhook',
-        returnUrl: 'example.com/return',
-    ))->toThrow(InvalidCallbackUrlException::class);
-});
+    public function test_rejects_non_http_return_url(): void
+    {
+        $this->expectException(InvalidCallbackUrlException::class);
+        new CallbackUrls(
+            webhookUrl: 'https://example.com/webhook',
+            returnUrl: 'example.com/return',
+        );
+    }
 
-it('rejects non-http cancel url', function (): void {
-    expect(fn () => new CallbackUrls(
-        webhookUrl: 'https://example.com/webhook',
-        returnUrl: 'https://example.com/return',
-        cancelUrl: 'javascript:void(0)',
-    ))->toThrow(InvalidCallbackUrlException::class);
-});
+    public function test_rejects_non_http_cancel_url(): void
+    {
+        $this->expectException(InvalidCallbackUrlException::class);
+        new CallbackUrls(
+            webhookUrl: 'https://example.com/webhook',
+            returnUrl: 'https://example.com/return',
+            cancelUrl: 'javascript:void(0)',
+        );
+    }
+}
