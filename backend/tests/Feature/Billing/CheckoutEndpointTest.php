@@ -67,19 +67,17 @@ class CheckoutEndpointTest extends TestCase
         $this->assertSame(PaymentProvider::LiqPay, $payment->payment_provider);
     }
 
-    public function test_monobank_checkout_returns_redirect_url_and_assigns_wallet(): void
+    public function test_monobank_checkout_creates_subscription_and_returns_redirect(): void
     {
         Http::fake([
-            'api.monobank.ua/api/merchant/invoice/create' => Http::response([
-                'invoiceId' => 'p2_mock_invoice_123',
-                'pageUrl' => 'https://pay.mbnk.biz/p2_mock_invoice_123',
+            'api.monobank.ua/api/merchant/subscription/create' => Http::response([
+                'subscriptionId' => 'mono_sub_mock_123',
+                'pageUrl' => 'https://pay.mbnk.biz/mono_sub_mock_123',
             ]),
         ]);
 
         $user = $this->customer();
         $plan = Plan::factory()->pro()->create();
-
-        $this->assertNull($user->monobank_wallet_id);
 
         $response = $this->postJson('/api/v1/profile/subscription/checkout', [
             'plan_slug'      => $plan->slug,
@@ -91,30 +89,23 @@ class CheckoutEndpointTest extends TestCase
         $response->assertOk();
         $response->assertJsonPath('data.provider', 'monobank');
         $response->assertJsonPath('data.method', 'GET');
-        $response->assertJsonPath('data.url', 'https://pay.mbnk.biz/p2_mock_invoice_123');
-        $response->assertJsonPath('data.provider_reference', 'p2_mock_invoice_123');
-
-        $user->refresh();
-        $this->assertNotNull($user->monobank_wallet_id);
+        $response->assertJsonPath('data.url', 'https://pay.mbnk.biz/mono_sub_mock_123');
+        $response->assertJsonPath('data.provider_reference', 'mono_sub_mock_123');
 
         $subscription = Subscription::where('user_id', $user->id)->sole();
         $this->assertSame(PaymentProvider::Monobank, $subscription->payment_provider);
-        // payment_provider_subscription_id is deliberately NOT written at
-        // checkout time — it lands via handleWebhook when Monobank
-        // confirms the charge, keeping idempotency reasoning local to
-        // one place instead of being split between two writers.
-        $this->assertNull($subscription->payment_provider_subscription_id);
+        $this->assertSame('mono_sub_mock_123', $subscription->payment_provider_subscription_id);
 
         $order = Order::where('user_id', $user->id)->sole();
         $this->assertSame(PaymentProvider::Monobank, $order->payment_provider);
 
         Http::assertSent(function ($request): bool {
-            if (! str_contains((string) $request->url(), 'invoice/create')) {
+            if (! str_contains((string) $request->url(), 'subscription/create')) {
                 return false;
             }
             $body = $request->data();
-            return isset($body['saveCardData']['saveCard'], $body['saveCardData']['walletId'])
-                && $body['saveCardData']['saveCard'] === true;
+            return isset($body['interval']) && $body['interval'] === '1m'
+                && ($body['lang'] ?? null) === 'uk';
         });
     }
 

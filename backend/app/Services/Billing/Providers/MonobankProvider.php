@@ -19,36 +19,31 @@ use App\Services\Billing\DTO\ChargeResult;
 use App\Services\Billing\DTO\CheckoutResult;
 use App\Services\Billing\DTO\WebhookResult;
 use App\Services\Billing\PaymentFailureHandler;
-use App\Services\Billing\UniqueOrderNumberProvider;
 use AratKruglik\Monobank\Contracts\ClientInterface as MonobankClient;
-use AratKruglik\Monobank\DTO\CartItemDTO;
-use AratKruglik\Monobank\DTO\InvoiceRequestDTO;
-use AratKruglik\Monobank\DTO\InvoiceResponseDTO;
-use AratKruglik\Monobank\Exceptions\MonobankException;
+use AratKruglik\Monobank\DTO\SubscriptionRequestDTO;
+use AratKruglik\Monobank\DTO\SubscriptionResponseDTO;
+use AratKruglik\Monobank\Facades\Monobank;
 use AratKruglik\Monobank\Services\PubKeyProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
 /**
- * Monobank payment provider.
+ * Monobank payment provider using native Subscription API.
  *
- * Uses the aratkruglik/monobank-laravel facade for documented endpoints
- * (invoice/create, pubkey) and hits /wallet/payment directly for
- * merchant-initiated recurring charges, which the package does not cover.
+ * Creates a Monobank subscription via POST /subscription/create with
+ * the billing interval (1m / 1y). Monobank handles recurring charges
+ * automatically and sends webhooks for each charge event. Our cron
+ * does NOT need to call chargeRecurring — Monobank self-schedules.
  *
- * Monobank has no server-side "subscription" entity: we create an initial
- * invoice with saveCardData=true, persist the walletId+cardToken from the
- * webhook that confirms success, then charge that token on renewal via
- * chargeRecurring().
+ * On cancellation, we call DELETE /subscription/delete to stop future
+ * charges on Monobank's side.
  */
 class MonobankProvider implements PaymentProviderInterface
 {
     public function __construct(
         private readonly MonobankClient $client,
         private readonly PubKeyProvider $pubKeyProvider,
-        private readonly UniqueOrderNumberProvider $orderNumbers,
         private readonly PaymentFailureHandler $failureHandler,
     ) {
     }
@@ -65,40 +60,16 @@ class MonobankProvider implements PaymentProviderInterface
         string $reference,
         ?string $redirectUrl = null,
     ): CheckoutResult {
-        // Scope by user_id — defense in depth against cross-user hijack
-        // if any future caller passes a user-supplied $reference.
         $order = Order::where('order_number', $reference)
             ->where('user_id', $user->id)
             ->firstOrFail();
-
-        if ($user->monobank_wallet_id === null) {
-            $user->monobank_wallet_id = (string) Str::uuid();
-            $user->save();
-        }
 
         $amount = $billingPeriod === BillingPeriod::Yearly
             ? (float) $plan->price_yearly
             : (float) $plan->price_monthly;
 
-        // Ukrainian label for the Monobank payment page (the bank shows
-        // destination / cart item name as-is to the end user).
-        $planName = $plan->getTranslation('name', 'uk');
-        $periodLabel = $billingPeriod === BillingPeriod::Yearly ? 'річна підписка' : 'щомісячна підписка';
-        $label = 'Widgetis: ' . $planName . ' — ' . $periodLabel;
+        $interval = $billingPeriod === BillingPeriod::Yearly ? '1y' : '1m';
 
-        // Monobank renders cart items as "{qty} {unit}". Instead of the
-        // meaningless "1 шт", show "1 місяць" / "1 рік" so the user sees
-        // what they are actually paying for.
-        $unitLabel = $billingPeriod === BillingPeriod::Yearly ? 'рік' : 'місяць';
-
-        // Per-plan icon: Monobank's /invoice/create accepts a public URL
-        // for the cart item icon and renders it on the payment page in
-        // place of the generic placeholder.
-        $iconUrl = $this->planIconUrl($plan->slug);
-
-        // Fail fast on missing config — Monobank rejects empty redirect/webhook
-        // URLs or missing token with a generic 400, which historically buried
-        // the real cause inside its ValidationException.
         $configuredRedirect = (string) config('monobank.redirect_url');
         $configuredWebhook = (string) config('monobank.webhook_url');
         $effectiveRedirect = $redirectUrl ?? $configuredRedirect;
@@ -117,186 +88,94 @@ class MonobankProvider implements PaymentProviderInterface
             );
         }
 
-        $dto = new InvoiceRequestDTO(
+        $dto = new SubscriptionRequestDTO(
             amount: $amount,
+            interval: $interval,
+            webHookStatusUrl: $configuredWebhook,
+            webHookChargeUrl: $configuredWebhook,
+            ccy: 980,
             redirectUrl: $effectiveRedirect,
-            webHookUrl: $configuredWebhook,
             validity: 86400,
-            saveCardData: [
-                'saveCard' => true,
-                'walletId' => $user->monobank_wallet_id,
-            ],
-            cartItems: [
-                new CartItemDTO(
-                    name: $label,
-                    qty: 1,
-                    sum: $amount,
-                    icon: $iconUrl,
-                    unit: $unitLabel,
-                ),
-            ],
-            destination: $label,
-            reference: $order->order_number,
         );
 
-        // InvoiceRequestDTO does not expose a lang field, so we merge it
-        // into the raw payload ourselves. Monobank defaults to English
-        // without this field, which surfaces as "Cart items" / "1 pcs".
+        // SubscriptionRequestDTO does not expose a lang field, so we merge
+        // it into the raw payload ourselves. Without this Monobank defaults
+        // to English on the payment page ("Every month", "Regular withdrawal…").
         $payload = array_merge($dto->toArray(), ['lang' => 'uk']);
 
         try {
-            $raw = $this->client->post('invoice/create', $payload);
-            $response = InvoiceResponseDTO::fromArray($raw->json());
-        } catch (MonobankException $e) {
-            Log::channel('payments')->error('monobank.invoice.create_failed', [
+            $raw = $this->client->post('subscription/create', $payload);
+            $response = SubscriptionResponseDTO::fromArray($raw->json());
+        } catch (\Throwable $e) {
+            Log::channel('payments')->error('monobank.subscription.create_failed', [
                 'user_id' => $user->id,
                 'order_number' => $order->order_number,
                 'error' => $e->getMessage(),
-                'api_error' => $e->getApiErrorDetails(),
             ]);
 
             throw $e;
         }
 
-        // Note: we deliberately do NOT write Subscription state here.
-        // The checkout endpoint already persisted a pending Subscription
-        // row, and the real transition (to Active, with the final
-        // invoice id) lands via handleWebhook when Monobank confirms
-        // the charge. Writing here would race with the webhook and
-        // make idempotency reasoning harder.
-        Log::channel('payments')->info('monobank.invoice.created', [
+        // Store the Monobank subscription ID on our Subscription row so we
+        // can cancel it later via deleteSubscription().
+        $subscription = Subscription::where('user_id', $user->id)->first();
+        $subscription?->update([
+            'payment_provider_subscription_id' => $response->subscriptionId,
+        ]);
+
+        Log::channel('payments')->info('monobank.subscription.created', [
             'user_id' => $user->id,
             'order_number' => $order->order_number,
-            'invoice_id' => $response->invoiceId,
+            'subscription_id' => $response->subscriptionId,
         ]);
 
         return CheckoutResult::redirect(
             url: $response->pageUrl,
-            providerReference: $response->invoiceId,
+            providerReference: $response->subscriptionId,
         );
     }
 
     /**
-     * Resolve the absolute URL of the plan icon shown on the Monobank
-     * payment page. Falls back to the merchant logo if the plan slug
-     * has no dedicated icon file (guards against future plans added
-     * without a corresponding asset).
+     * Monobank handles recurring charges automatically via its Subscription
+     * API — no merchant-initiated charge needed. The cron should skip this
+     * provider (same as LiqPay and WayForPay).
      */
-    private function planIconUrl(string $planSlug): ?string
-    {
-        $knownPlans = ['basic', 'pro', 'max'];
-
-        if (in_array($planSlug, $knownPlans, true)) {
-            return asset('images/plans/' . $planSlug . '.svg');
-        }
-
-        return config('monobank.logo_url') ?: null;
-    }
-
     public function chargeRecurring(Subscription $subscription): ChargeResult
     {
-        if ($subscription->monobank_card_token === null) {
-            return ChargeResult::fail(
-                code: 'NO_CARD_TOKEN',
-                message: 'Subscription has no saved Monobank card token.',
-            );
-        }
-
-        $plan = $subscription->plan;
-        $billingPeriod = BillingPeriod::from($subscription->billing_period);
-        $amount = $billingPeriod === BillingPeriod::Yearly
-            ? (float) $plan->price_yearly
-            : (float) $plan->price_monthly;
-
-        $planName = $plan->getTranslation('name', 'uk');
-        $periodLabel = $billingPeriod === BillingPeriod::Yearly ? 'річна підписка' : 'щомісячна підписка';
-        $destination = 'Widgetis: поновлення — ' . $planName . ' — ' . $periodLabel;
-
-        // Create a fresh Order row so the webhook can locate it by its
-        // unique order_number reference (same contract as the checkout
-        // flow). Without this step, /wallet/payment's reference would
-        // not map to any merchant-side entity and handleSuccess would
-        // drop every renewal webhook as "order_not_found".
-        $siteDomain = $subscription->user->sites()->orderBy('id')->value('domain');
-        $order = Order::create([
-            'order_number' => $this->orderNumbers->get($siteDomain, $plan->slug),
-            'user_id' => $subscription->user_id,
-            'plan_id' => $plan->id,
-            'billing_period' => $billingPeriod->value,
-            'amount' => $amount,
-            'discount_amount' => 0,
-            'currency' => 'UAH',
-            'status' => OrderStatus::Pending,
-            'payment_provider' => PaymentProvider::Monobank,
-        ]);
-
-        try {
-            $response = $this->client->post('wallet/payment', [
-                'cardToken' => $subscription->monobank_card_token,
-                'amount' => (int) round($amount * 100),
-                'ccy' => 980,
-                'initiationKind' => 'merchant',
-                'merchantPaymInfo' => [
-                    'reference' => $order->order_number,
-                    'destination' => $destination,
-                ],
-            ]);
-        } catch (MonobankException $e) {
-            Log::channel('payments')->warning('monobank.recurring.failed', [
-                'subscription_id' => $subscription->id,
-                'order_number' => $order->order_number,
-                'error' => $e->getMessage(),
-            ]);
-
-            return ChargeResult::fail(code: 'MONOBANK_ERROR', message: $e->getMessage());
-        }
-
-        $body = (array) $response->json();
-        $status = (string) ($body['status'] ?? 'processing');
-        $invoiceId = (string) ($body['invoiceId'] ?? '');
-
-        // Monobank may return HTTP 200 with a terminal failure status
-        // ("failure" / "reversed" / "expired"). The HTTP success only
-        // means "request accepted"; the charge state lives in $status.
-        if (in_array($status, ['failure', 'reversed', 'expired'], true)) {
-            Log::channel('payments')->warning('monobank.recurring.sync_failure', [
-                'subscription_id' => $subscription->id,
-                'order_number' => $order->order_number,
-                'invoice_id' => $invoiceId,
-                'status' => $status,
-            ]);
-
-            return ChargeResult::fail(
-                code: 'MONOBANK_' . strtoupper($status),
-                message: "Monobank rejected the recurring charge with status={$status}",
-            );
-        }
-
-        Log::channel('payments')->info('monobank.recurring.dispatched', [
-            'subscription_id' => $subscription->id,
-            'order_number' => $order->order_number,
-            'invoice_id' => $invoiceId,
-            'status' => $status,
-        ]);
-
-        // /wallet/payment may settle synchronously ("success") or move to
-        // "processing" and finalise via webhook. Both non-terminal paths
-        // land through handleWebhook() which picks the Order row up by
-        // its order_number reference and advances the subscription.
-        return ChargeResult::ok($invoiceId);
+        return ChargeResult::noop();
     }
 
     public function cancelSubscription(Subscription $subscription): bool
     {
-        // Monobank has no server-side subscription entity. Cancelling on our
-        // side means "stop scheduling future wallet/payment calls", which
-        // happens implicitly once the Subscription row is marked Cancelled.
-        // Nothing to tell the bank — they never knew about a subscription.
-        Log::channel('payments')->info('monobank.subscription.cancelled', [
-            'subscription_id' => $subscription->id,
-        ]);
+        $subscriptionId = $subscription->payment_provider_subscription_id;
 
-        return true;
+        if ($subscriptionId === null || $subscriptionId === '') {
+            Log::channel('payments')->info('monobank.subscription.cancel_skipped', [
+                'subscription_id' => $subscription->id,
+                'reason' => 'no_provider_subscription_id',
+            ]);
+
+            return true;
+        }
+
+        try {
+            Monobank::deleteSubscription($subscriptionId);
+
+            Log::channel('payments')->info('monobank.subscription.cancelled', [
+                'subscription_id' => $subscription->id,
+                'monobank_subscription_id' => $subscriptionId,
+            ]);
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::channel('payments')->error('monobank.subscription.cancel_failed', [
+                'subscription_id' => $subscription->id,
+                'monobank_subscription_id' => $subscriptionId,
+                'error' => $e->getMessage(),
+            ]);
+
+            return false;
+        }
     }
 
     public function handleWebhook(Request $request): WebhookResult
@@ -318,6 +197,7 @@ class MonobankProvider implements PaymentProviderInterface
             'invoice_id' => $invoiceId,
             'status' => $status,
             'reference' => $reference,
+            'has_subscription_id' => isset($payload['subscriptionId']),
         ]);
 
         if ($invoiceId === null || $status === null) {
@@ -340,7 +220,6 @@ class MonobankProvider implements PaymentProviderInterface
      */
     private function handleSuccess(string $invoiceId, ?string $reference, array $payload): WebhookResult
     {
-        // Idempotency: skip if we already recorded a success for this invoice.
         $existing = Payment::where('transaction_id', $invoiceId)
             ->where('status', PaymentStatus::Success->value)
             ->first();
@@ -349,44 +228,59 @@ class MonobankProvider implements PaymentProviderInterface
             return WebhookResult::ignored($reference, 'success');
         }
 
-        $order = $reference !== null
+        // For recurring charge webhooks from Monobank subscriptions, the
+        // reference may be empty. Try to locate the subscription by
+        // subscriptionId from the payload.
+        $order = $reference !== null && $reference !== ''
             ? Order::where('order_number', $reference)->first()
             : null;
 
-        if ($order === null) {
-            Log::channel('payments')->error('monobank.webhook.order_not_found', [
-                'invoice_id' => $invoiceId,
-                'reference' => $reference,
-            ]);
+        $subscription = null;
 
-            return WebhookResult::ignored($reference, 'success');
-        }
+        if ($order !== null) {
+            if ($order->status === OrderStatus::Cancelled) {
+                Log::channel('payments')->warning('monobank.payment.success_for_cancelled_order', [
+                    'user_id' => $order->user_id,
+                    'order_number' => $order->order_number,
+                    'invoice_id' => $invoiceId,
+                ]);
 
-        // If the user started a new checkout after abandoning this one, the
-        // order was cancelled. Do not activate — flag for manual review.
-        if ($order->status === OrderStatus::Cancelled) {
-            Log::channel('payments')->warning('monobank.payment.success_for_cancelled_order', [
-                'user_id' => $order->user_id,
-                'order_number' => $order->order_number,
-                'invoice_id' => $invoiceId,
-            ]);
+                return WebhookResult::ignored($reference, 'success');
+            }
 
-            return WebhookResult::ignored($reference, 'success');
+            $subscription = Subscription::where('user_id', $order->user_id)->first();
+        } else {
+            // Recurring charge webhook — no order reference. Find subscription
+            // by the Monobank subscriptionId.
+            $monoSubId = isset($payload['subscriptionId']) ? (string) $payload['subscriptionId'] : null;
+
+            if ($monoSubId !== null) {
+                $subscription = Subscription::where('payment_provider_subscription_id', $monoSubId)->first();
+            }
+
+            if ($subscription === null) {
+                Log::channel('payments')->error('monobank.webhook.subscription_not_found', [
+                    'invoice_id' => $invoiceId,
+                    'reference' => $reference,
+                    'subscription_id_from_payload' => $monoSubId,
+                ]);
+
+                return WebhookResult::ignored($reference, 'success');
+            }
         }
 
         $amountCents = (int) ($payload['finalAmount'] ?? $payload['amount'] ?? 0);
         $amountUah = $amountCents / 100;
 
-        // Strip walletData from metadata: cardToken is stored on the
-        // Subscription row as the canonical recurring-charge credential,
-        // no need to duplicate it inside payments.metadata (widens the
-        // blast radius on any DB leak).
+        $userId = $order !== null ? $order->user_id : $subscription->user_id;
+
         $scrubbed = $payload;
         unset($scrubbed['walletData']);
 
         Payment::create([
-            'user_id' => $order->user_id,
-            'order_id' => $order->id,
+            'user_id' => $userId,
+            'order_id' => $order?->id,
+            'subscription_id' => $subscription?->id,
             'type' => 'charge',
             'amount' => $amountUah,
             'currency' => 'UAH',
@@ -398,15 +292,11 @@ class MonobankProvider implements PaymentProviderInterface
             'metadata' => $scrubbed,
         ]);
 
-        $subscription = Subscription::where('user_id', $order->user_id)->first();
-
         if ($subscription !== null) {
-            $billingPeriod = BillingPeriod::from($order->billing_period);
+            $billingPeriod = $order !== null
+                ? BillingPeriod::from($order->billing_period)
+                : BillingPeriod::from($subscription->billing_period);
 
-            // On renewal, extend from the existing period_end so paid-for
-            // time is never thrown away. On first activation (no Active
-            // sub, or its period has already lapsed), start a fresh clock
-            // from now. This matches SubscriptionService::renew().
             $isRenewal = $subscription->status === SubscriptionStatus::Active
                 && $subscription->current_period_end?->isFuture();
 
@@ -422,10 +312,6 @@ class MonobankProvider implements PaymentProviderInterface
                     : now()->addMonth();
             }
 
-            $cardToken = isset($payload['walletData']['cardToken'])
-                ? (string) $payload['walletData']['cardToken']
-                : $subscription->monobank_card_token;
-
             $subscription->update([
                 'status' => SubscriptionStatus::Active,
                 'is_trial' => false,
@@ -433,25 +319,26 @@ class MonobankProvider implements PaymentProviderInterface
                 'current_period_start' => $periodStart,
                 'current_period_end' => $periodEnd,
                 'payment_provider' => PaymentProvider::Monobank,
-                'payment_provider_subscription_id' => $invoiceId,
-                'monobank_card_token' => $cardToken,
                 'payment_retry_count' => 0,
                 'next_payment_retry_at' => null,
                 'grace_period_ends_at' => null,
             ]);
         }
 
-        $order->update([
-            'status' => OrderStatus::Paid,
-            'transaction_id' => $invoiceId,
-            'paid_at' => now(),
-        ]);
+        if ($order !== null) {
+            $order->update([
+                'status' => OrderStatus::Paid,
+                'transaction_id' => $invoiceId,
+                'paid_at' => now(),
+            ]);
+        }
 
         Log::channel('payments')->info('monobank.payment.success', [
-            'user_id' => $order->user_id,
-            'order_number' => $order->order_number,
+            'user_id' => $userId,
+            'order_number' => $order?->order_number,
             'invoice_id' => $invoiceId,
             'amount_uah' => $amountUah,
+            'is_renewal' => $order === null,
         ]);
 
         return WebhookResult::processed($reference, 'success');
@@ -462,13 +349,29 @@ class MonobankProvider implements PaymentProviderInterface
      */
     private function handleFailure(string $invoiceId, ?string $reference, string $status, array $payload): WebhookResult
     {
-        $order = $reference !== null
+        $order = $reference !== null && $reference !== ''
             ? Order::where('order_number', $reference)->first()
             : null;
 
-        if ($order === null) {
-            return WebhookResult::ignored($reference, $status);
+        // For recurring charge failures without a reference, find the
+        // subscription by Monobank's subscriptionId.
+        $subscription = null;
+
+        if ($order !== null) {
+            $subscription = Subscription::where('user_id', $order->user_id)->first();
+        } else {
+            $monoSubId = isset($payload['subscriptionId']) ? (string) $payload['subscriptionId'] : null;
+
+            if ($monoSubId !== null) {
+                $subscription = Subscription::where('payment_provider_subscription_id', $monoSubId)->first();
+            }
+
+            if ($subscription === null) {
+                return WebhookResult::ignored($reference, $status);
+            }
         }
+
+        $userId = $order !== null ? $order->user_id : $subscription->user_id;
 
         Payment::firstOrCreate(
             [
@@ -476,8 +379,9 @@ class MonobankProvider implements PaymentProviderInterface
                 'status' => PaymentStatus::Failed->value,
             ],
             [
-                'user_id' => $order->user_id,
-                'order_id' => $order->id,
+                'user_id' => $userId,
+                'order_id' => $order?->id,
+                'subscription_id' => $subscription->id,
                 'type' => 'charge',
                 'amount' => ((int) ($payload['amount'] ?? 0)) / 100,
                 'currency' => 'UAH',
@@ -487,13 +391,23 @@ class MonobankProvider implements PaymentProviderInterface
             ],
         );
 
-        $this->failureHandler->handle($order);
+        if ($order !== null) {
+            $this->failureHandler->handle($order);
+        } else {
+            // Recurring charge failure without an order — move to PastDue
+            // with a grace period directly.
+            $subscription->update([
+                'status' => SubscriptionStatus::PastDue,
+                'grace_period_ends_at' => now()->addDays(3),
+            ]);
+        }
 
         Log::channel('payments')->warning('monobank.payment.failed', [
-            'user_id' => $order->user_id,
-            'order_number' => $order->order_number,
+            'user_id' => $userId,
+            'order_number' => $order?->order_number,
             'invoice_id' => $invoiceId,
             'status' => $status,
+            'is_renewal' => $order === null,
         ]);
 
         return WebhookResult::processed($reference, $status);
@@ -523,9 +437,6 @@ class MonobankProvider implements PaymentProviderInterface
             return false;
         }
 
-        // Monobank's /pubkey endpoint returns the key as base64-encoded PEM
-        // (including headers). Decode to get the full PEM string and pass
-        // it directly to openssl_verify.
         $pemKey = base64_decode($pubKey, strict: true);
 
         if ($pemKey === false) {
@@ -533,7 +444,12 @@ class MonobankProvider implements PaymentProviderInterface
         }
 
         $body = $request->getContent();
-        $result = openssl_verify($body, $signature, $pemKey, OPENSSL_ALGO_SHA256);
+
+        try {
+            $result = openssl_verify($body, $signature, $pemKey, OPENSSL_ALGO_SHA256);
+        } catch (\Throwable) {
+            return false;
+        }
 
         return $result === 1;
     }

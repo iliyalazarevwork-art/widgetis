@@ -59,10 +59,10 @@ class ChargeRecurringSubscriptions extends Command
         foreach ($subscriptions as $subscription) {
             $provider = $registry->for($subscription);
 
-            // LiqPay and WayForPay both self-schedule recurring payments on
-            // their side and fire a webhook for each charge — running our
-            // own charge cron against them would double-bill the customer.
-            if (in_array($provider->name(), [PaymentProvider::LiqPay, PaymentProvider::WayForPay], true)) {
+            // LiqPay, WayForPay, and Monobank all self-schedule recurring
+            // payments on their side and fire a webhook for each charge —
+            // running our own charge cron against them would double-bill.
+            if (in_array($provider->name(), [PaymentProvider::LiqPay, PaymentProvider::WayForPay, PaymentProvider::Monobank], true)) {
                 $skipped++;
                 continue;
             }
