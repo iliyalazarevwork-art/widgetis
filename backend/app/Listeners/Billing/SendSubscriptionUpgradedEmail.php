@@ -5,23 +5,23 @@ declare(strict_types=1);
 namespace App\Listeners\Billing;
 
 use App\Events\Billing\SubscriptionUpgraded;
+use App\Listeners\SendEmailListener;
 use App\Mail\Billing\SubscriptionUpgradedMail;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Mail\Mailable;
 
-class SendSubscriptionUpgradedEmail implements ShouldQueue
+final class SendSubscriptionUpgradedEmail extends SendEmailListener
 {
-    use InteractsWithQueue;
-
-    public function handle(SubscriptionUpgraded $event): void
+    protected function resolveEmail(object $event): ?string
     {
-        $email = $event->subscription->user?->email;
+        assert($event instanceof SubscriptionUpgraded);
 
-        if (empty($email)) {
-            return;
-        }
+        return $event->subscription->user?->email;
+    }
 
-        Mail::to($email)->send(new SubscriptionUpgradedMail($event->subscription, $event->oldPlan));
+    protected function buildMailable(object $event): Mailable
+    {
+        assert($event instanceof SubscriptionUpgraded);
+
+        return new SubscriptionUpgradedMail($event->subscription, $event->oldPlan);
     }
 }

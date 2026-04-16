@@ -56,6 +56,8 @@ class User extends Authenticatable implements JWTSubject, FilamentUser
      */
     protected $hidden = [
         'password',
+        'phone',
+        'monobank_wallet_id',
     ];
 
     /**

@@ -5,23 +5,23 @@ declare(strict_types=1);
 namespace App\Listeners\Billing;
 
 use App\Events\Billing\PaymentFailed;
+use App\Listeners\SendEmailListener;
 use App\Mail\Billing\PaymentFailedMail;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Mail\Mailable;
 
-class SendPaymentFailedEmail implements ShouldQueue
+final class SendPaymentFailedEmail extends SendEmailListener
 {
-    use InteractsWithQueue;
-
-    public function handle(PaymentFailed $event): void
+    protected function resolveEmail(object $event): ?string
     {
-        $email = $event->order->user?->email;
+        assert($event instanceof PaymentFailed);
 
-        if (empty($email)) {
-            return;
-        }
+        return $event->order->user?->email;
+    }
 
-        Mail::to($email)->send(new PaymentFailedMail($event->order));
+    protected function buildMailable(object $event): Mailable
+    {
+        assert($event instanceof PaymentFailed);
+
+        return new PaymentFailedMail($event->order);
     }
 }

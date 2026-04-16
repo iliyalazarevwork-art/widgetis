@@ -4,20 +4,14 @@ declare(strict_types=1);
 
 namespace App\Mail\Billing;
 
+use App\Mail\AppMailable;
 use App\Models\Plan;
 use App\Models\Subscription;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Queue\SerializesModels;
 
-class SubscriptionUpgradedMail extends Mailable implements ShouldQueue
+final class SubscriptionUpgradedMail extends AppMailable
 {
-    use Queueable;
-    use SerializesModels;
-
     public function __construct(
         public readonly Subscription $subscription,
         public readonly ?Plan $oldPlan = null,
@@ -34,15 +28,15 @@ class SubscriptionUpgradedMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         $newPlan     = $this->subscription->plan;
-        $newPlanName = $newPlan ? ($newPlan->name['uk'] ?? $newPlan->name['en'] ?? '') : '';
-        $oldPlanName = $this->oldPlan ? ($this->oldPlan->name['uk'] ?? $this->oldPlan->name['en'] ?? '') : '';
+        $newPlanName = $newPlan ? $newPlan->getTranslation('name', 'uk', false) : '';
+        $oldPlanName = $this->oldPlan ? $this->oldPlan->getTranslation('name', 'uk', false) : '';
 
         return new Content(
             markdown: 'mail.billing.subscription-upgraded',
             with: [
-                'userName'    => $this->subscription->user->name ?? 'друже',
-                'oldPlanName' => $oldPlanName,
-                'newPlanName' => $newPlanName,
+                'userName'      => $this->subscription->user->name ?? 'друже',
+                'oldPlanName'   => $oldPlanName,
+                'newPlanName'   => $newPlanName,
                 'periodEndDate' => $this->subscription->current_period_end->format('d.m.Y'),
             ],
         );

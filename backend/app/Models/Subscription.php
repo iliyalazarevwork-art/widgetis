@@ -35,6 +35,12 @@ class Subscription extends Model
 
 
     /** @var list<string> */
+    protected $hidden = [
+        'monobank_card_token',
+        'wayforpay_rec_token',
+    ];
+
+    /** @var list<string> */
     protected $fillable = [
         'user_id',
         'plan_id',

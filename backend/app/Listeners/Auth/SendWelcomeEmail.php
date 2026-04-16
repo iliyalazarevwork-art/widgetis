@@ -5,23 +5,25 @@ declare(strict_types=1);
 namespace App\Listeners\Auth;
 
 use App\Events\Auth\UserRegistered;
+use App\Listeners\SendEmailListener;
 use App\Mail\Auth\WelcomeMail;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Mail\Mailable;
 
-class SendWelcomeEmail implements ShouldQueue
+final class SendWelcomeEmail extends SendEmailListener
 {
-    use InteractsWithQueue;
-
-    public function handle(UserRegistered $event): void
+    protected function resolveEmail(object $event): ?string
     {
+        assert($event instanceof UserRegistered);
+
         $email = $event->user->email;
 
-        if (empty($email)) {
-            return;
-        }
+        return $email !== '' ? $email : null;
+    }
 
-        Mail::to($email)->send(new WelcomeMail($event->user));
+    protected function buildMailable(object $event): Mailable
+    {
+        assert($event instanceof UserRegistered);
+
+        return new WelcomeMail($event->user);
     }
 }

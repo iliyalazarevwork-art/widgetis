@@ -5,23 +5,23 @@ declare(strict_types=1);
 namespace App\Listeners\Billing;
 
 use App\Events\Billing\SubscriptionRenewed;
+use App\Listeners\SendEmailListener;
 use App\Mail\Billing\SubscriptionRenewedMail;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Mail\Mailable;
 
-class SendSubscriptionRenewedEmail implements ShouldQueue
+final class SendSubscriptionRenewedEmail extends SendEmailListener
 {
-    use InteractsWithQueue;
-
-    public function handle(SubscriptionRenewed $event): void
+    protected function resolveEmail(object $event): ?string
     {
-        $email = $event->subscription->user?->email;
+        assert($event instanceof SubscriptionRenewed);
 
-        if (empty($email)) {
-            return;
-        }
+        return $event->subscription->user?->email;
+    }
 
-        Mail::to($email)->send(new SubscriptionRenewedMail($event->subscription));
+    protected function buildMailable(object $event): Mailable
+    {
+        assert($event instanceof SubscriptionRenewed);
+
+        return new SubscriptionRenewedMail($event->subscription);
     }
 }

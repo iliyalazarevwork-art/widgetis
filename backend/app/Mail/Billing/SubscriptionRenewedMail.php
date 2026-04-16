@@ -4,19 +4,13 @@ declare(strict_types=1);
 
 namespace App\Mail\Billing;
 
+use App\Mail\AppMailable;
 use App\Models\Subscription;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Queue\SerializesModels;
 
-class SubscriptionRenewedMail extends Mailable implements ShouldQueue
+final class SubscriptionRenewedMail extends AppMailable
 {
-    use Queueable;
-    use SerializesModels;
-
     public function __construct(public readonly Subscription $subscription)
     {
     }
@@ -31,7 +25,7 @@ class SubscriptionRenewedMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         $plan     = $this->subscription->plan;
-        $planName = $plan ? ($plan->name['uk'] ?? $plan->name['en'] ?? '') : '';
+        $planName = $plan ? $plan->getTranslation('name', 'uk', false) : '';
 
         return new Content(
             markdown: 'mail.billing.subscription-renewed',

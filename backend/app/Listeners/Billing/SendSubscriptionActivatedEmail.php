@@ -5,23 +5,23 @@ declare(strict_types=1);
 namespace App\Listeners\Billing;
 
 use App\Events\Billing\SubscriptionActivated;
+use App\Listeners\SendEmailListener;
 use App\Mail\Billing\SubscriptionActivatedMail;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Mail\Mailable;
 
-class SendSubscriptionActivatedEmail implements ShouldQueue
+final class SendSubscriptionActivatedEmail extends SendEmailListener
 {
-    use InteractsWithQueue;
-
-    public function handle(SubscriptionActivated $event): void
+    protected function resolveEmail(object $event): ?string
     {
-        $email = $event->subscription->user?->email;
+        assert($event instanceof SubscriptionActivated);
 
-        if (empty($email)) {
-            return;
-        }
+        return $event->subscription->user?->email;
+    }
 
-        Mail::to($email)->send(new SubscriptionActivatedMail($event->subscription));
+    protected function buildMailable(object $event): Mailable
+    {
+        assert($event instanceof SubscriptionActivated);
+
+        return new SubscriptionActivatedMail($event->subscription);
     }
 }

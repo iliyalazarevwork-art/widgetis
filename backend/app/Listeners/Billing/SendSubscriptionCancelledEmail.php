@@ -5,23 +5,23 @@ declare(strict_types=1);
 namespace App\Listeners\Billing;
 
 use App\Events\Billing\SubscriptionCancelled;
+use App\Listeners\SendEmailListener;
 use App\Mail\Billing\SubscriptionCancelledMail;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Mail\Mailable;
 
-class SendSubscriptionCancelledEmail implements ShouldQueue
+final class SendSubscriptionCancelledEmail extends SendEmailListener
 {
-    use InteractsWithQueue;
-
-    public function handle(SubscriptionCancelled $event): void
+    protected function resolveEmail(object $event): ?string
     {
-        $email = $event->subscription->user?->email;
+        assert($event instanceof SubscriptionCancelled);
 
-        if (empty($email)) {
-            return;
-        }
+        return $event->subscription->user?->email;
+    }
 
-        Mail::to($email)->send(new SubscriptionCancelledMail($event->subscription, $event->reason));
+    protected function buildMailable(object $event): Mailable
+    {
+        assert($event instanceof SubscriptionCancelled);
+
+        return new SubscriptionCancelledMail($event->subscription, $event->reason);
     }
 }

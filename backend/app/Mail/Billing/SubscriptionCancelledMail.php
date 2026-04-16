@@ -4,19 +4,14 @@ declare(strict_types=1);
 
 namespace App\Mail\Billing;
 
+use App\Mail\AppMailable;
 use App\Models\Subscription;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Str;
 
-class SubscriptionCancelledMail extends Mailable implements ShouldQueue
+final class SubscriptionCancelledMail extends AppMailable
 {
-    use Queueable;
-    use SerializesModels;
-
     public function __construct(
         public readonly Subscription $subscription,
         public readonly ?string $reason = null,
@@ -33,15 +28,17 @@ class SubscriptionCancelledMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         $plan     = $this->subscription->plan;
-        $planName = $plan ? ($plan->name['uk'] ?? $plan->name['en'] ?? '') : '';
+        $planName = $plan ? $plan->getTranslation('name', 'uk', false) : '';
 
         return new Content(
             markdown: 'mail.billing.subscription-cancelled',
             with: [
-                'userName'      => $this->subscription->user->name ?? 'друже',
-                'planName'      => $planName,
-                'reason'        => $this->reason,
-                'accessUntil'   => $this->subscription->current_period_end->format('d.m.Y'),
+                'userName'    => $this->subscription->user->name ?? 'друже',
+                'planName'    => $planName,
+                'reason'      => $this->reason !== null
+                    ? Str::limit(strip_tags((string) $this->reason), 255)
+                    : null,
+                'accessUntil' => $this->subscription->current_period_end->format('d.m.Y'),
             ],
         );
     }

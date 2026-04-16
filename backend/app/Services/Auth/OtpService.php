@@ -8,6 +8,7 @@ use App\Exceptions\OtpCooldownException;
 use App\Exceptions\TooManyOtpAttemptsException;
 use App\Mail\Auth\OtpMail;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
@@ -26,6 +27,12 @@ class OtpService
      */
     public function send(string $email): string
     {
+        Log::channel('auth')->info('auth.otp.send.in', [
+            'email' => $email,
+            'ip' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+
         $this->enforceCooldown($email);
 
         $code       = $this->generateCode();
@@ -44,14 +51,31 @@ class OtpService
 
         Mail::to($email)->queue(new OtpMail($code, $magicToken));
 
+        Log::channel('auth')->info('auth.otp.send.out', [
+            'email' => $email,
+            'expires_in_seconds' => self::TTL_SECONDS,
+            'cooldown_seconds' => self::COOLDOWN_SECONDS,
+        ]);
+
         return $magicToken;
     }
 
     public function verify(string $email, string $code): bool
     {
+        Log::channel('auth')->info('auth.otp.verify.in', [
+            'email' => $email,
+            'ip' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+
         // Dev bypass: accept master code without cache lookup (admin only)
         if ($this->isDevBypass($email, $code)) {
             $this->invalidate($email);
+            Log::channel('auth')->info('auth.otp.verify.out', [
+                'email' => $email,
+                'result' => 'success',
+                'mode' => 'dev_bypass',
+            ]);
             return true;
         }
 
@@ -59,6 +83,11 @@ class OtpService
 
         if ($attempts >= self::MAX_ATTEMPTS) {
             $this->invalidate($email);
+            Log::channel('auth')->warning('auth.otp.verify.out', [
+                'email' => $email,
+                'result' => 'too_many_attempts',
+                'max_attempts' => self::MAX_ATTEMPTS,
+            ]);
             throw new TooManyOtpAttemptsException();
         }
 
@@ -67,10 +96,19 @@ class OtpService
         $storedCode = Cache::get($this->codeKey($email));
 
         if ($storedCode === null || $storedCode !== $code) {
+            Log::channel('auth')->warning('auth.otp.verify.out', [
+                'email' => $email,
+                'result' => 'invalid_code',
+            ]);
             return false;
         }
 
         $this->invalidate($email);
+
+        Log::channel('auth')->info('auth.otp.verify.out', [
+            'email' => $email,
+            'result' => 'success',
+        ]);
 
         return true;
     }
@@ -95,8 +133,16 @@ class OtpService
 
     public function invalidate(string $email): void
     {
+        Log::channel('auth')->info('auth.otp.invalidate.in', [
+            'email' => $email,
+        ]);
+
         Cache::forget($this->codeKey($email));
         Cache::forget($this->attemptsKey($email));
+
+        Log::channel('auth')->info('auth.otp.invalidate.out', [
+            'email' => $email,
+        ]);
     }
 
     private function generateCode(): string
@@ -107,6 +153,11 @@ class OtpService
     private function enforceCooldown(string $email): void
     {
         if (Cache::has($this->cooldownKey($email))) {
+            Log::channel('auth')->warning('auth.otp.send.out', [
+                'email' => $email,
+                'result' => 'cooldown_active',
+                'cooldown_seconds' => self::COOLDOWN_SECONDS,
+            ]);
             throw new OtpCooldownException();
         }
     }

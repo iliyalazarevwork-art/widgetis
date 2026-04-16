@@ -4,20 +4,14 @@ declare(strict_types=1);
 
 namespace App\Mail\Billing;
 
+use App\Mail\AppMailable;
 use App\Models\Order;
 use App\Models\Payment;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Queue\SerializesModels;
 
-class PaymentSucceededMail extends Mailable implements ShouldQueue
+final class PaymentSucceededMail extends AppMailable
 {
-    use Queueable;
-    use SerializesModels;
-
     public function __construct(
         public readonly Payment $payment,
         public readonly ?Order $order = null,

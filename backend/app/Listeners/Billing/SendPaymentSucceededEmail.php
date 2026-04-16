@@ -5,30 +5,29 @@ declare(strict_types=1);
 namespace App\Listeners\Billing;
 
 use App\Events\Billing\PaymentSucceeded;
+use App\Listeners\SendEmailListener;
 use App\Mail\Billing\PaymentSucceededMail;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Mail\Mailable;
 
-class SendPaymentSucceededEmail implements ShouldQueue
+final class SendPaymentSucceededEmail extends SendEmailListener
 {
-    use InteractsWithQueue;
-
-    public function handle(PaymentSucceeded $event): void
+    protected function resolveEmail(object $event): ?string
     {
+        assert($event instanceof PaymentSucceeded);
+
         $order = $event->order ?? $event->payment->order;
-        $email = null;
 
         if ($order !== null && $order->user !== null) {
-            $email = $order->user->email;
-        } elseif ($event->payment->user !== null) {
-            $email = $event->payment->user->email;
+            return $order->user->email;
         }
 
-        if (empty($email)) {
-            return;
-        }
+        return $event->payment->user?->email;
+    }
 
-        Mail::to($email)->send(new PaymentSucceededMail($event->payment, $event->order));
+    protected function buildMailable(object $event): Mailable
+    {
+        assert($event instanceof PaymentSucceeded);
+
+        return new PaymentSucceededMail($event->payment, $event->order);
     }
 }

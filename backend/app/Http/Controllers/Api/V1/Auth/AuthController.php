@@ -76,6 +76,7 @@ class AuthController extends BaseController
             $user->email_verified_at = now()->toDateTimeString();
             $user->save();
             $user->assignRole(UserRole::Customer->value);
+            // TODO: extract to AuthRegistrationService
             UserRegistered::dispatch($user);
         }
 
@@ -154,6 +155,7 @@ class AuthController extends BaseController
             $user->email_verified_at = now()->toDateTimeString();
             $user->save();
             $user->assignRole(UserRole::Customer->value);
+            // TODO: extract to AuthRegistrationService
             UserRegistered::dispatch($user);
         }
 

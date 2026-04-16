@@ -10,6 +10,7 @@ use App\Enums\PaymentProvider;
 use App\Enums\PaymentStatus;
 use App\Enums\PaymentType;
 use App\Enums\SubscriptionStatus;
+use App\Events\Billing\PaymentSucceeded;
 use App\Events\Billing\SubscriptionActivated;
 use App\Events\Billing\SubscriptionRenewed;
 use App\Events\Billing\SubscriptionTrialStarted;
@@ -17,6 +18,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\Subscription;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Shared state-transition logic for every payment provider's webhook path.
@@ -58,9 +60,20 @@ class SubscriptionActivationService
      */
     public function isUpgradeOrder(Order $order): bool
     {
-        return Payment::where('order_id', $order->id)
+        Log::channel('payments')->info('subscription_activation.is_upgrade_order.in', [
+            'order_id' => $order->id,
+        ]);
+
+        $isUpgrade = Payment::where('order_id', $order->id)
             ->where('type', PaymentType::Upgrade->value)
             ->exists();
+
+        Log::channel('payments')->info('subscription_activation.is_upgrade_order.out', [
+            'order_id' => $order->id,
+            'is_upgrade_order' => $isUpgrade,
+        ]);
+
+        return $isUpgrade;
     }
 
     /**
@@ -84,7 +97,19 @@ class SubscriptionActivationService
         ?string $wayforpayRecToken = null,
         ?array $description = null,
     ): ?Subscription {
+        Log::channel('payments')->info('subscription_activation.apply_upgrade.in', [
+            'order_id' => $order->id,
+            'user_id' => $order->user_id,
+            'provider' => $provider->value,
+            'transaction_id' => $transactionId,
+            'amount_uah' => $amountUah,
+        ]);
+
         if ($order->status === OrderStatus::Cancelled) {
+            Log::channel('payments')->warning('subscription_activation.apply_upgrade.out', [
+                'order_id' => $order->id,
+                'result' => 'skipped_cancelled_order',
+            ]);
             return null;
         }
 
@@ -107,8 +132,9 @@ class SubscriptionActivationService
 
         if ($payment !== null) {
             $payment->update($paymentAttributes);
+            $payment->refresh();
         } else {
-            Payment::create(array_merge($paymentAttributes, [
+            $payment = Payment::create(array_merge($paymentAttributes, [
                 'user_id' => $order->user_id,
                 'order_id' => $order->id,
                 'type' => PaymentType::Upgrade->value,
@@ -119,9 +145,16 @@ class SubscriptionActivationService
             ]));
         }
 
+        PaymentSucceeded::dispatch($payment, $order);
+
         $subscription = Subscription::where('user_id', $order->user_id)->first();
 
         if ($subscription === null) {
+            Log::channel('payments')->warning('subscription_activation.apply_upgrade.out', [
+                'order_id' => $order->id,
+                'user_id' => $order->user_id,
+                'result' => 'subscription_not_found',
+            ]);
             return null;
         }
 
@@ -140,7 +173,7 @@ class SubscriptionActivationService
             'old_wayforpay_rec_token' => isset($notes['old_wayforpay_rec_token']) ? (string) $notes['old_wayforpay_rec_token'] : null,
         ];
 
-        return $this->subscriptionService()->applyUpgrade(
+        $upgradedSubscription = $this->subscriptionService()->applyUpgrade(
             subscription: $subscription,
             newPlan: $newPlan,
             newBillingPeriod: $billingPeriod,
@@ -150,6 +183,16 @@ class SubscriptionActivationService
             wayforpayRecToken: $wayforpayRecToken,
             oldProviderSnapshot: $snapshot,
         );
+
+        Log::channel('payments')->info('subscription_activation.apply_upgrade.out', [
+            'order_id' => $order->id,
+            'user_id' => $order->user_id,
+            'subscription_id' => $upgradedSubscription->id,
+            'plan_id' => $upgradedSubscription->plan_id,
+            'result' => 'success',
+        ]);
+
+        return $upgradedSubscription;
     }
 
     /**
@@ -177,9 +220,22 @@ class SubscriptionActivationService
         ?string $wayforpayRecToken = null,
         ?array $description = null,
     ): ?Subscription {
+        Log::channel('payments')->info('subscription_activation.activate_or_renew.in', [
+            'order_id' => $order->id,
+            'user_id' => $order->user_id,
+            'provider' => $provider->value,
+            'transaction_id' => $transactionId,
+            'amount_uah' => $amountUah,
+            'metadata_keys' => array_keys($metadata),
+        ]);
+
         // If the user started a new checkout after abandoning this one, the
         // order was cancelled. Do not activate — flag for manual review.
         if ($order->status === OrderStatus::Cancelled) {
+            Log::channel('payments')->warning('subscription_activation.activate_or_renew.out', [
+                'order_id' => $order->id,
+                'result' => 'skipped_cancelled_order',
+            ]);
             return null;
         }
 
@@ -205,8 +261,9 @@ class SubscriptionActivationService
 
         if ($payment !== null) {
             $payment->update($paymentAttributes);
+            $payment->refresh();
         } else {
-            Payment::create(array_merge($paymentAttributes, [
+            $payment = Payment::create(array_merge($paymentAttributes, [
                 'user_id' => $order->user_id,
                 'order_id' => $order->id,
                 'type' => PaymentType::Charge->value,
@@ -217,9 +274,16 @@ class SubscriptionActivationService
             ]));
         }
 
+        PaymentSucceeded::dispatch($payment, $order);
+
         $subscription = Subscription::where('user_id', $order->user_id)->first();
 
         if ($subscription === null) {
+            Log::channel('payments')->warning('subscription_activation.activate_or_renew.out', [
+                'order_id' => $order->id,
+                'user_id' => $order->user_id,
+                'result' => 'subscription_not_found',
+            ]);
             return null;
         }
 
@@ -287,7 +351,17 @@ class SubscriptionActivationService
             SubscriptionActivated::dispatch($subscription);
         }
 
-        return $subscription->refresh();
+        $updatedSubscription = $subscription->refresh();
+
+        Log::channel('payments')->info('subscription_activation.activate_or_renew.out', [
+            'order_id' => $order->id,
+            'user_id' => $order->user_id,
+            'subscription_id' => $updatedSubscription->id,
+            'status' => $updatedSubscription->status->value,
+            'result' => $isRenewal ? 'renewed' : 'activated',
+        ]);
+
+        return $updatedSubscription;
     }
 
     /**
@@ -309,6 +383,13 @@ class SubscriptionActivationService
         ?string $wayforpayRecToken = null,
         array $description = ['en' => 'Trial activation', 'uk' => 'Активація тріалу'],
     ): Subscription {
+        Log::channel('payments')->info('subscription_activation.activate_trial.in', [
+            'subscription_id' => $subscription->id,
+            'user_id' => $subscription->user_id,
+            'provider' => $provider->value,
+            'trial_days' => $trialDays,
+        ]);
+
         $trialEnd = now()->addDays(max(0, $trialDays));
 
         $updates = [
@@ -349,7 +430,17 @@ class SubscriptionActivationService
 
         SubscriptionTrialStarted::dispatch($subscription);
 
-        return $subscription->refresh();
+        $updatedSubscription = $subscription->refresh();
+
+        Log::channel('payments')->info('subscription_activation.activate_trial.out', [
+            'subscription_id' => $updatedSubscription->id,
+            'user_id' => $updatedSubscription->user_id,
+            'status' => $updatedSubscription->status->value,
+            'trial_ends_at' => $updatedSubscription->trial_ends_at?->toIso8601String(),
+            'result' => 'success',
+        ]);
+
+        return $updatedSubscription;
     }
 
     /**
@@ -371,7 +462,16 @@ class SubscriptionActivationService
         array $metadata,
         ?array $description = null,
     ): Subscription {
-        Payment::create([
+        Log::channel('payments')->info('subscription_activation.renew_by_subscription.in', [
+            'subscription_id' => $subscription->id,
+            'user_id' => $subscription->user_id,
+            'provider' => $provider->value,
+            'transaction_id' => $transactionId,
+            'amount_uah' => $amountUah,
+            'metadata_keys' => array_keys($metadata),
+        ]);
+
+        $payment = Payment::create([
             'user_id' => $subscription->user_id,
             'subscription_id' => $subscription->id,
             'type' => PaymentType::Charge->value,
@@ -384,6 +484,8 @@ class SubscriptionActivationService
             'description' => $description ?? [],
             'metadata' => $metadata,
         ]);
+
+        PaymentSucceeded::dispatch($payment);
 
         $billingPeriod = BillingPeriod::from($subscription->billing_period);
 
@@ -427,6 +529,15 @@ class SubscriptionActivationService
             SubscriptionActivated::dispatch($subscription);
         }
 
-        return $subscription->refresh();
+        $updatedSubscription = $subscription->refresh();
+
+        Log::channel('payments')->info('subscription_activation.renew_by_subscription.out', [
+            'subscription_id' => $updatedSubscription->id,
+            'user_id' => $updatedSubscription->user_id,
+            'status' => $updatedSubscription->status->value,
+            'result' => $isRenewal ? 'renewed' : 'activated',
+        ]);
+
+        return $updatedSubscription;
     }
 }
