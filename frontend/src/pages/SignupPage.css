@@ -864,17 +864,24 @@
     width: 44px;
     height: 44px;
     border-radius: 12px;
+  }
+
+  .signup__plan--basic .signup__plan-icon-wrap {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.22);
+    color: var(--plan-basic);
+  }
+
+  .signup__plan--pro .signup__plan-icon-wrap {
     background: rgba(59, 130, 246, 0.1);
     border: 1px solid rgba(59, 130, 246, 0.22);
     color: var(--accent);
   }
 
-  .signup__plan--basic .signup__plan-icon-wrap,
-  .signup__plan--pro   .signup__plan-icon-wrap,
-  .signup__plan--max   .signup__plan-icon-wrap {
-    background: rgba(59, 130, 246, 0.1);
-    border-color: rgba(59, 130, 246, 0.22);
-    color: var(--accent);
+  .signup__plan--max .signup__plan-icon-wrap {
+    background: rgba(168, 85, 247, 0.1);
+    border: 1px solid rgba(168, 85, 247, 0.22);
+    color: var(--plan-max);
   }
 
   .signup__plan-icon-wrap svg {

@@ -105,7 +105,6 @@ export function PricingPage() {
     get<{ data: Subscription }>('/profile/subscription')
       .then(res => {
         setSub(res.data)
-        setYearly(res.data.billing_period === 'yearly')
       })
       .catch(() => null)
       .finally(() => setSubLoading(false))

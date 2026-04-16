@@ -114,6 +114,38 @@ Plans MUST be defined in ONE place (`src/data/plans.ts`) and imported everywhere
 Each plan has: `id`, `name`, `color`, `icon`, `monthlyPrice`, `yearlyPrice`, `features[]`.
 **Never hardcode plan data in components. Always import from the single source.**
 
+### Plan Icons — canonical mapping
+
+Each plan is represented by a single Lucide icon. These icons are the visual identity of the plan and MUST be used consistently everywhere a plan is displayed (pricing cards, subscription screens, upgrade prompts, widget lock modals, etc.).
+
+| Plan  | Icon (Lucide) | Color      | CSS Variable | Background        |
+|-------|---------------|------------|--------------|-------------------|
+| Basic | `Sprout`      | `#10B981`  | `--green`    | `--green-dim`     |
+| Pro   | `Zap`         | `#3B82F6`  | `--blue`     | `--blue-dim`      |
+| Max   | `Crown`       | `#A855F7`  | `--purple`   | `--purple-dim`    |
+
+### Plan icon container — standard
+
+All plan icons render inside a rounded tile with the plan's tinted background:
+
+```
+width: 44px;
+height: 44px;
+border-radius: 10px;
+display: flex; align-items: center; justify-content: center;
+background: var(--{plan-color}-dim);   /* e.g. --green-dim for Basic */
+color:      var(--{plan-color});        /* icon inherits via currentColor */
+```
+
+Lucide icon inside: default `stroke-width`, size `20–22px`, `color` inherits from container.
+
+### Rules
+
+- **Never swap a plan's icon** — Basic = Sprout, Pro = Zap, Max = Crown. No substitutions.
+- **Never hardcode** the icon in a component — always read from `plan.icon` in `src/data/plans.ts`.
+- **Never recolor** the icon away from its plan color — Basic green, Pro blue, Max purple.
+- Use the same tile size (44×44, radius 10) on marketing pages. In cabinet / compact contexts a smaller variant (32×32, radius 8) is allowed, but colors and icons stay identical.
+
 ---
 
 ## 5. Layout — Global Structure
