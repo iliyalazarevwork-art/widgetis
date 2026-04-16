@@ -121,7 +121,7 @@ class Subscription extends Model
 
     public function daysRemainingInPeriod(): int
     {
-        return max(0, (int) now()->diffInDays($this->current_period_end, false));
+        return max(0, (int) ceil(now()->diffInDays($this->current_period_end, false)));
     }
 
     public function daysInPeriod(): int
