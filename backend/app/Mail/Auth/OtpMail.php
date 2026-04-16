@@ -44,6 +44,6 @@ class OtpMail extends Mailable implements ShouldQueue
     {
         $base = rtrim((string) config('app.url'), '/');
 
-        return "{$base}/api/v1/auth/link/{$this->magicToken}/confirm";
+        return "{$base}/auth/link/{$this->magicToken}/confirm";
     }
 }

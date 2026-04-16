@@ -304,6 +304,25 @@ class OtpAuthTest extends TestCase
         $this->assertTrue($user->hasRole(UserRole::Customer->value));
     }
 
+    public function test_magic_link_web_confirm_page_renders_html_and_confirms_token(): void
+    {
+        $email = 'magic-web@example.com';
+        $token = (string) Str::uuid();
+
+        Redis::setex("otp:link:{$token}", 600, json_encode([
+            'email'  => $email,
+            'status' => 'pending',
+        ]));
+
+        $this->get("/auth/link/{$token}/confirm")
+            ->assertStatus(200)
+            ->assertSee('Вхід підтверджено');
+
+        $this->getJson("/api/v1/auth/link/{$token}/status")
+            ->assertStatus(200)
+            ->assertJsonPath('status', 'confirmed');
+    }
+
     public function test_magic_link_confirm_returns_error_for_expired_token(): void
     {
         $this->getJson('/api/v1/auth/link/non-existent-token/confirm')

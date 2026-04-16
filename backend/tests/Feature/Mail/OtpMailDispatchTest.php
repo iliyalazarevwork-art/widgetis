@@ -52,8 +52,10 @@ class OtpMailDispatchTest extends TestCase
         $this->assertStringContainsString('код', mb_strtolower($envelope->subject));
     }
 
-    public function test_otp_mail_content_passes_the_code_into_the_markdown_view(): void
+    public function test_otp_mail_content_passes_the_code_and_web_magic_link_into_the_markdown_view(): void
     {
+        config(['app.url' => 'https://widgetis.com']);
+
         $mail    = new OtpMail('424242', 'fake-magic-token');
         $content = $mail->content();
 
@@ -61,6 +63,7 @@ class OtpMailDispatchTest extends TestCase
         $this->assertArrayHasKey('code', $content->with);
         $this->assertSame('424242', $content->with['code']);
         $this->assertArrayHasKey('magicLink', $content->with);
+        $this->assertSame('https://widgetis.com/auth/link/fake-magic-token/confirm', $content->with['magicLink']);
     }
 
     public function test_repeated_send_does_not_queue_two_mails_during_cooldown(): void
