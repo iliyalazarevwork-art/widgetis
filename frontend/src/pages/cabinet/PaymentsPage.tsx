@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom'
 import { get } from '../../api/client'
 import type { Payment, PaginatedResponse, Subscription } from '../../types'
 import { PageLoader } from '../../components/PageLoader'
-import liqpaySymbol from '../../assets/logo-liqpay-symbol.svg'
 import './styles/payments.css'
 
 export default function PaymentsPage() {
@@ -83,13 +82,7 @@ export default function PaymentsPage() {
                   {!trial && (
                     <>
                       {' · '}
-                      <img
-                        src={liqpaySymbol}
-                        alt=""
-                        className="pay-page__item-liqpay"
-                        aria-hidden="true"
-                      />
-                      LiqPay
+                      {p.provider || 'Картка'}
                     </>
                   )}
                 </span>

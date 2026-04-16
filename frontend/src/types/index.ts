@@ -96,6 +96,7 @@ export interface Payment {
   amount: number
   currency: string
   status: string
+  provider?: string
   created_at: string
 }
 

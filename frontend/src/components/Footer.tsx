@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
 import { BRAND_NAME } from '../constants/brand'
 import { useSettings } from '../context/SettingsContext'
-import liqpayLogo from '../assets/logo-liqpay-dark.svg'
 import plataLogo from '../assets/logo-plata-dark.svg'
 import visaLogo from '../assets/logo-visa-dark.svg'
 import mastercardLogo from '../assets/logo-mastercard-dark.svg'
@@ -113,11 +112,7 @@ export function Footer({ variant = 'full' }: FooterProps) {
                 alt="plata by mono"
                 className="footer__pay-logo footer__pay-logo--wordmark"
               />
-              <img
-                src={liqpayLogo}
-                alt="LiqPay"
-                className="footer__pay-logo footer__pay-logo--wordmark"
-              />
+              {/* LiqPay temporarily hidden — awaiting merchant activation */}
             </div>
             <span className="footer__pay-sep" aria-hidden="true" />
             <div className="footer__pay-group" aria-label="Способи оплати">

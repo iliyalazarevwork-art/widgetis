@@ -228,7 +228,7 @@ function activityTitle(item: DashboardData['recent_activity'][number]): string {
 function activitySubtitle(item: DashboardData['recent_activity'][number]): string {
   if (item.source === 'payment') {
     if (item.is_trial) return formatDate(item.created_at)
-    const provider = item.provider || 'LiqPay'
+    const provider = item.provider || 'Картка'
     return `${formatDate(item.created_at)} · ${provider}`
   }
 

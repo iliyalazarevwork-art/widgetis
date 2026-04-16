@@ -24,7 +24,6 @@ import { post } from '../api/client'
 import type { User } from '../types'
 import { useAuth } from '../context/AuthContext'
 import { toast } from 'sonner'
-import liqpaySymbol from '../assets/logo-liqpay-symbol.svg'
 import wayForPaySymbol from '../assets/logo-wayforpay-symbol.webp'
 import plataSymbol from '../assets/logo-plata-symbol-dark.svg'
 import './SignupPage.css'
@@ -158,13 +157,14 @@ interface PaymentMethod {
 }
 
 const PAYMENT_METHODS: readonly PaymentMethod[] = [
-  {
-    id: 'liqpay',
-    name: 'LiqPay',
-    symbol: liqpaySymbol,
-    hint: 'Visa · Mastercard · Apple Pay · Google Pay',
-    trial: true,
-  },
+  // LiqPay temporarily hidden — awaiting merchant activation
+  // {
+  //   id: 'liqpay',
+  //   name: 'LiqPay',
+  //   symbol: liqpaySymbol,
+  //   hint: 'Visa · Mastercard · Apple Pay · Google Pay',
+  //   trial: true,
+  // },
   {
     id: 'monobank',
     name: 'plata by mono',
@@ -248,7 +248,7 @@ export function SignupPage() {
   const [site, setSite] = useState('')
   const [siteError, setSiteError] = useState('')
   const [platform, setPlatform] = useState<Platform>('horoshop')
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodId>('liqpay')
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodId>('monobank')
   const [loading, setLoading] = useState(false)
   const [resending, setResending] = useState(false)
   const [resendCooldown, setResendCooldown] = useState(0)
@@ -308,7 +308,7 @@ export function SignupPage() {
       const savedPlatform = draft.site ? draft.platform : (getSavedSite().platform)
       setSite(savedSite)
       setPlatform(savedPlatform)
-      setPaymentMethod(draft.paymentMethod ?? 'liqpay')
+      setPaymentMethod(draft.paymentMethod ?? 'monobank')
 
       if (draft.resendAvailableAt && draft.resendAvailableAt > Date.now()) {
         setResendCooldown(Math.ceil((draft.resendAvailableAt - Date.now()) / 1000))
@@ -797,7 +797,7 @@ export function SignupPage() {
 
                 {!PAYMENT_METHODS.find(m => m.id === paymentMethod)?.trial && (
                   <p className="signup__payment-notice">
-                    plata by mono списує оплату одразу — тріал не підтримується. Для 7 безкоштовних днів оберіть LiqPay або WayForPay.
+                    plata by mono списує оплату одразу — тріал не підтримується. Для 7 безкоштовних днів оберіть WayForPay.
                   </p>
                 )}
               </div>
@@ -820,10 +820,10 @@ export function SignupPage() {
                     disabled={!isCtaActive}
                   >
                     {loading
-                      ? <><LoaderCircle size={17} strokeWidth={2.5} className="signup__spinner" /> {paymentMethod === 'liqpay' ? 'Активуємо тріал...' : 'Переходимо до оплати...'}</>
+                      ? <><LoaderCircle size={17} strokeWidth={2.5} className="signup__spinner" /> {paymentMethod === 'wayforpay' ? 'Активуємо тріал...' : 'Переходимо до оплати...'}</>
                       : !isCtaActive
                         ? <>Почати 7 днів безкоштовно <Lock size={14} strokeWidth={2} /></>
-                        : paymentMethod === 'liqpay'
+                        : paymentMethod === 'wayforpay'
                           ? <>Почати 7 днів безкоштовно <ArrowRight size={15} strokeWidth={2.5} /></>
                           : <>Перейти до оплати <ArrowRight size={15} strokeWidth={2.5} /></>
                     }
