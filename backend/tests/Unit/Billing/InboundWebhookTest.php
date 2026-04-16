@@ -2,51 +2,67 @@
 
 declare(strict_types=1);
 
+namespace Tests\Unit\Billing;
+
 use App\Exceptions\Billing\MalformedWebhookException;
 use App\Services\Billing\Webhooks\InboundWebhook;
+use Tests\TestCase;
 
-it('lowercases header keys on fromRaw', function (): void {
-    $webhook = InboundWebhook::fromRaw('{}', ['Content-Type' => 'application/json', 'X-Signature' => 'abc'], '127.0.0.1');
+final class InboundWebhookTest extends TestCase
+{
+    public function test_lowercases_header_keys_on_from_raw(): void
+    {
+        $webhook = InboundWebhook::fromRaw('{}', ['Content-Type' => 'application/json', 'X-Signature' => 'abc'], '127.0.0.1');
 
-    expect($webhook->headers)->toHaveKey('content-type');
-    expect($webhook->headers)->toHaveKey('x-signature');
-    expect($webhook->headers)->not->toHaveKey('Content-Type');
-});
+        $this->assertArrayHasKey('content-type', $webhook->headers);
+        $this->assertArrayHasKey('x-signature', $webhook->headers);
+        $this->assertArrayNotHasKey('Content-Type', $webhook->headers);
+    }
 
-it('decodes valid json body', function (): void {
-    $webhook = InboundWebhook::fromRaw('{"key":"value"}', [], '127.0.0.1');
-    expect($webhook->jsonBody())->toBe(['key' => 'value']);
-});
+    public function test_decodes_valid_json_body(): void
+    {
+        $webhook = InboundWebhook::fromRaw('{"key":"value"}', [], '127.0.0.1');
+        $this->assertSame(['key' => 'value'], $webhook->jsonBody());
+    }
 
-it('throws on malformed json body', function (): void {
-    $webhook = InboundWebhook::fromRaw('{invalid}', [], '127.0.0.1');
-    expect(fn () => $webhook->jsonBody())->toThrow(MalformedWebhookException::class);
-});
+    public function test_throws_on_malformed_json_body(): void
+    {
+        $this->expectException(MalformedWebhookException::class);
+        $webhook = InboundWebhook::fromRaw('{invalid}', [], '127.0.0.1');
+        $webhook->jsonBody();
+    }
 
-it('throws on non-array json body', function (): void {
-    $webhook = InboundWebhook::fromRaw('"just a string"', [], '127.0.0.1');
-    expect(fn () => $webhook->jsonBody())->toThrow(MalformedWebhookException::class);
-});
+    public function test_throws_on_non_array_json_body(): void
+    {
+        $this->expectException(MalformedWebhookException::class);
+        $webhook = InboundWebhook::fromRaw('"just a string"', [], '127.0.0.1');
+        $webhook->jsonBody();
+    }
 
-it('retrieves header case-insensitively', function (): void {
-    $webhook = InboundWebhook::fromRaw('{}', ['x-custom-header' => 'hello'], '127.0.0.1');
+    public function test_retrieves_header_case_insensitively(): void
+    {
+        $webhook = InboundWebhook::fromRaw('{}', ['x-custom-header' => 'hello'], '127.0.0.1');
 
-    expect($webhook->header('X-Custom-Header'))->toBe('hello');
-    expect($webhook->header('x-custom-header'))->toBe('hello');
-    expect($webhook->header('X-CUSTOM-HEADER'))->toBe('hello');
-});
+        $this->assertSame('hello', $webhook->header('X-Custom-Header'));
+        $this->assertSame('hello', $webhook->header('x-custom-header'));
+        $this->assertSame('hello', $webhook->header('X-CUSTOM-HEADER'));
+    }
 
-it('returns null for missing header', function (): void {
-    $webhook = InboundWebhook::fromRaw('{}', [], '127.0.0.1');
-    expect($webhook->header('x-missing'))->toBeNull();
-});
+    public function test_returns_null_for_missing_header(): void
+    {
+        $webhook = InboundWebhook::fromRaw('{}', [], '127.0.0.1');
+        $this->assertNull($webhook->header('x-missing'));
+    }
 
-it('stores ip address', function (): void {
-    $webhook = InboundWebhook::fromRaw('{}', [], '192.168.1.1');
-    expect($webhook->ip)->toBe('192.168.1.1');
-});
+    public function test_stores_ip_address(): void
+    {
+        $webhook = InboundWebhook::fromRaw('{}', [], '192.168.1.1');
+        $this->assertSame('192.168.1.1', $webhook->ip);
+    }
 
-it('stores raw body as-is', function (): void {
-    $webhook = InboundWebhook::fromRaw('raw content', [], '127.0.0.1');
-    expect($webhook->rawBody)->toBe('raw content');
-});
+    public function test_stores_raw_body_as_is(): void
+    {
+        $webhook = InboundWebhook::fromRaw('raw content', [], '127.0.0.1');
+        $this->assertSame('raw content', $webhook->rawBody);
+    }
+}

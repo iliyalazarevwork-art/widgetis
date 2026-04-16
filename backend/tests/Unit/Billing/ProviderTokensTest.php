@@ -2,34 +2,42 @@
 
 declare(strict_types=1);
 
+namespace Tests\Unit\Billing;
+
 use App\Services\Billing\ValueObjects\ProviderTokens;
+use Tests\TestCase;
 
-it('empty tokens has no any', function (): void {
-    expect(ProviderTokens::empty()->hasAny())->toBeFalse();
-});
+final class ProviderTokensTest extends TestCase
+{
+    public function test_empty_tokens_has_no_any(): void
+    {
+        $this->assertFalse(ProviderTokens::empty()->hasAny());
+    }
 
-it('tokens with subscription id has any', function (): void {
-    $tokens = ProviderTokens::of('sub_123', null);
-    expect($tokens->hasAny())->toBeTrue();
-});
+    public function test_tokens_with_subscription_id_has_any(): void
+    {
+        $this->assertTrue(ProviderTokens::of('sub_123', null)->hasAny());
+    }
 
-it('tokens with recurring token has any', function (): void {
-    $tokens = ProviderTokens::of(null, 'tok_abc');
-    expect($tokens->hasAny())->toBeTrue();
-});
+    public function test_tokens_with_recurring_token_has_any(): void
+    {
+        $this->assertTrue(ProviderTokens::of(null, 'tok_abc')->hasAny());
+    }
 
-it('tokens with both values has any', function (): void {
-    $tokens = ProviderTokens::of('sub_123', 'tok_abc');
-    expect($tokens->hasAny())->toBeTrue();
-});
+    public function test_tokens_with_both_values_has_any(): void
+    {
+        $this->assertTrue(ProviderTokens::of('sub_123', 'tok_abc')->hasAny());
+    }
 
-it('tokens with empty string values has no any', function (): void {
-    $tokens = ProviderTokens::of('', '');
-    expect($tokens->hasAny())->toBeFalse();
-});
+    public function test_tokens_with_empty_string_values_has_no_any(): void
+    {
+        $this->assertFalse(ProviderTokens::of('', '')->hasAny());
+    }
 
-it('exposes provider subscription id', function (): void {
-    $tokens = ProviderTokens::of('sub_abc', null);
-    expect($tokens->providerSubscriptionId)->toBe('sub_abc');
-    expect($tokens->recurringToken)->toBeNull();
-});
+    public function test_exposes_provider_subscription_id(): void
+    {
+        $tokens = ProviderTokens::of('sub_abc', null);
+        $this->assertSame('sub_abc', $tokens->providerSubscriptionId);
+        $this->assertNull($tokens->recurringToken);
+    }
+}

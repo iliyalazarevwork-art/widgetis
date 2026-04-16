@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Tests\Unit\Billing;
+
 use App\Services\Billing\Events\ChargeFailedEvent;
 use App\Services\Billing\Events\IgnoredEvent;
 use App\Services\Billing\Events\InvalidSignatureEvent;
@@ -12,84 +14,98 @@ use App\Services\Billing\Events\SubscriptionRenewedEvent;
 use App\Services\Billing\ValueObjects\Currency;
 use App\Services\Billing\ValueObjects\Money;
 use App\Services\Billing\ValueObjects\ProviderTokens;
+use DateTimeImmutable;
+use Tests\TestCase;
 
-it('invalid signature event has empty reference', function (): void {
-    $event = new InvalidSignatureEvent();
-    expect($event->reference)->toBe('');
-});
+final class PaymentEventTest extends TestCase
+{
+    public function test_invalid_signature_event_has_empty_reference(): void
+    {
+        $event = new InvalidSignatureEvent();
+        $this->assertSame('', $event->reference);
+    }
 
-it('ignored event exposes reference and reason', function (): void {
-    $event = new IgnoredEvent('ref-001', 'unknown status', 'PENDING');
-    expect($event->reference)->toBe('ref-001');
-    expect($event->reason)->toBe('unknown status');
-    expect($event->providerStatus)->toBe('PENDING');
-});
+    public function test_ignored_event_exposes_reference_and_reason(): void
+    {
+        $event = new IgnoredEvent('ref-001', 'unknown status', 'PENDING');
+        $this->assertSame('ref-001', $event->reference);
+        $this->assertSame('unknown status', $event->reason);
+        $this->assertSame('PENDING', $event->providerStatus);
+    }
 
-it('ignored event allows null provider status', function (): void {
-    $event = new IgnoredEvent('ref-001', 'no status', null);
-    expect($event->providerStatus)->toBeNull();
-});
+    public function test_ignored_event_allows_null_provider_status(): void
+    {
+        $event = new IgnoredEvent('ref-001', 'no status', null);
+        $this->assertNull($event->providerStatus);
+    }
 
-it('subscription activated event exposes all properties', function (): void {
-    $tokens = ProviderTokens::of('sub_123', 'tok_abc');
-    $amount = Money::fromMinor(100, Currency::UAH);
-    $paidAt = new DateTimeImmutable('2025-01-15 10:00:00');
+    public function test_subscription_activated_event_exposes_all_properties(): void
+    {
+        $tokens = ProviderTokens::of('sub_123', 'tok_abc');
+        $amount = Money::fromMinor(100, Currency::UAH);
+        $paidAt = new DateTimeImmutable('2025-01-15 10:00:00');
 
-    $event = new SubscriptionActivatedEvent('ref-001', $tokens, $amount, $paidAt, 'txn_001');
+        $event = new SubscriptionActivatedEvent('ref-001', $tokens, $amount, $paidAt, 'txn_001');
 
-    expect($event->reference)->toBe('ref-001');
-    expect($event->tokens)->toBe($tokens);
-    expect($event->paidAmount)->toBe($amount);
-    expect($event->paidAt)->toBe($paidAt);
-    expect($event->transactionId)->toBe('txn_001');
-});
+        $this->assertSame('ref-001', $event->reference);
+        $this->assertSame($tokens, $event->tokens);
+        $this->assertSame($amount, $event->paidAmount);
+        $this->assertSame($paidAt, $event->paidAt);
+        $this->assertSame('txn_001', $event->transactionId);
+    }
 
-it('subscription activated event allows null transaction id', function (): void {
-    $event = new SubscriptionActivatedEvent(
-        'ref-001',
-        ProviderTokens::empty(),
-        Money::fromMinor(100, Currency::UAH),
-        new DateTimeImmutable(),
-        null,
-    );
-    expect($event->transactionId)->toBeNull();
-});
+    public function test_subscription_activated_event_allows_null_transaction_id(): void
+    {
+        $event = new SubscriptionActivatedEvent(
+            'ref-001',
+            ProviderTokens::empty(),
+            Money::fromMinor(100, Currency::UAH),
+            new DateTimeImmutable(),
+            null,
+        );
+        $this->assertNull($event->transactionId);
+    }
 
-it('subscription renewed event exposes all properties', function (): void {
-    $amount = Money::fromMinor(79900, Currency::UAH);
-    $paidAt = new DateTimeImmutable('2025-02-15');
+    public function test_subscription_renewed_event_exposes_all_properties(): void
+    {
+        $amount = Money::fromMinor(79900, Currency::UAH);
+        $paidAt = new DateTimeImmutable('2025-02-15');
 
-    $event = new SubscriptionRenewedEvent('ref-002', $amount, $paidAt, 'txn_002');
+        $event = new SubscriptionRenewedEvent('ref-002', $amount, $paidAt, 'txn_002');
 
-    expect($event->reference)->toBe('ref-002');
-    expect($event->paidAmount)->toBe($amount);
-    expect($event->transactionId)->toBe('txn_002');
-});
+        $this->assertSame('ref-002', $event->reference);
+        $this->assertSame($amount, $event->paidAmount);
+        $this->assertSame('txn_002', $event->transactionId);
+    }
 
-it('subscription cancelled event exposes reference and cancelled at', function (): void {
-    $cancelledAt = new DateTimeImmutable('2025-03-01');
-    $event = new SubscriptionCancelledEvent('ref-003', $cancelledAt);
+    public function test_subscription_cancelled_event_exposes_reference_and_cancelled_at(): void
+    {
+        $cancelledAt = new DateTimeImmutable('2025-03-01');
+        $event = new SubscriptionCancelledEvent('ref-003', $cancelledAt);
 
-    expect($event->reference)->toBe('ref-003');
-    expect($event->cancelledAt)->toBe($cancelledAt);
-});
+        $this->assertSame('ref-003', $event->reference);
+        $this->assertSame($cancelledAt, $event->cancelledAt);
+    }
 
-it('charge failed event exposes code, message and attempted at', function (): void {
-    $attemptedAt = new DateTimeImmutable('2025-04-01');
-    $event = new ChargeFailedEvent('ref-004', 'INSUFFICIENT_FUNDS', 'Not enough balance', $attemptedAt);
+    public function test_charge_failed_event_exposes_code_message_and_attempted_at(): void
+    {
+        $attemptedAt = new DateTimeImmutable('2025-04-01');
+        $event = new ChargeFailedEvent('ref-004', 'INSUFFICIENT_FUNDS', 'Not enough balance', $attemptedAt);
 
-    expect($event->reference)->toBe('ref-004');
-    expect($event->code)->toBe('INSUFFICIENT_FUNDS');
-    expect($event->message)->toBe('Not enough balance');
-    expect($event->attemptedAt)->toBe($attemptedAt);
-});
+        $this->assertSame('ref-004', $event->reference);
+        $this->assertSame('INSUFFICIENT_FUNDS', $event->code);
+        $this->assertSame('Not enough balance', $event->message);
+        $this->assertSame($attemptedAt, $event->attemptedAt);
+    }
 
-it('refunded event exposes amount and refunded at', function (): void {
-    $amount = Money::fromMinor(5000, Currency::UAH);
-    $refundedAt = new DateTimeImmutable('2025-04-05');
-    $event = new RefundedEvent('ref-005', $amount, $refundedAt);
+    public function test_refunded_event_exposes_amount_and_refunded_at(): void
+    {
+        $amount = Money::fromMinor(5000, Currency::UAH);
+        $refundedAt = new DateTimeImmutable('2025-04-05');
+        $event = new RefundedEvent('ref-005', $amount, $refundedAt);
 
-    expect($event->reference)->toBe('ref-005');
-    expect($event->amount)->toBe($amount);
-    expect($event->refundedAt)->toBe($refundedAt);
-});
+        $this->assertSame('ref-005', $event->reference);
+        $this->assertSame($amount, $event->amount);
+        $this->assertSame($refundedAt, $event->refundedAt);
+    }
+}
