@@ -8,6 +8,7 @@ use App\Enums\BillingPeriod;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentProvider;
 use App\Enums\UserRole;
+use App\Events\Auth\UserRegistered;
 use App\Http\Requests\Api\V1\Public\GuestCheckoutRequest;
 use App\Models\Order;
 use App\Models\User;
@@ -55,6 +56,10 @@ class GuestCheckoutController
 
         if (! $user->hasRole(UserRole::Customer->value)) {
             $user->assignRole(UserRole::Customer->value);
+        }
+
+        if ($user->wasRecentlyCreated) {
+            UserRegistered::dispatch($user);
         }
 
         if ($user->subscription?->isActive()) {

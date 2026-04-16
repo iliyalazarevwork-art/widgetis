@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Web;
 
 use App\Enums\UserRole;
+use App\Events\Auth\UserRegistered;
 use App\Http\Controllers\Controller;
 use App\Models\SocialAccount;
 use App\Models\User;
@@ -90,6 +91,7 @@ class GoogleAuthController extends Controller
 
         if ($user->wasRecentlyCreated) {
             $user->assignRole(UserRole::Customer->value);
+            UserRegistered::dispatch($user);
         } else {
             if (! $user->email_verified_at) {
                 $user->email_verified_at = now()->toDateTimeString();

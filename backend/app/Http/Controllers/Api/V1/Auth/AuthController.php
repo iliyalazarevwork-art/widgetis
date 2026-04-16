@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
+use App\Events\Auth\UserRegistered;
 use App\Exceptions\Auth\LinkAlreadyUsedException;
 use App\Exceptions\Auth\LinkExpiredException;
 use App\Http\Controllers\Api\V1\BaseController;
@@ -75,6 +76,7 @@ class AuthController extends BaseController
             $user->email_verified_at = now()->toDateTimeString();
             $user->save();
             $user->assignRole(UserRole::Customer->value);
+            UserRegistered::dispatch($user);
         }
 
         $this->logAuth('otp.verified', [
@@ -152,6 +154,7 @@ class AuthController extends BaseController
             $user->email_verified_at = now()->toDateTimeString();
             $user->save();
             $user->assignRole(UserRole::Customer->value);
+            UserRegistered::dispatch($user);
         }
 
         $this->logAuth('magic_link.login', [
