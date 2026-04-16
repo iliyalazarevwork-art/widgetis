@@ -149,28 +149,6 @@
   text-align: center;
 }
 
-.simple-doc-page__offer .signature-block {
-  margin-top: 30px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.simple-doc-page__offer .signature-box {
-  width: 55%;
-}
-
-.simple-doc-page__offer .signature-box p {
-  margin-bottom: 4px;
-  text-align: left;
-}
-
-.simple-doc-page__offer .sig-line {
-  margin-top: 30px;
-  padding-top: 4px;
-  border-top: 1px solid #000;
-  font-size: 14px;
-  color: #000;
-}
 
 @media (max-width: 768px) {
   .simple-doc-page__title {
@@ -189,7 +167,4 @@
     font-size: 18px;
   }
 
-  .simple-doc-page__offer .signature-box {
-    width: 100%;
-  }
 }

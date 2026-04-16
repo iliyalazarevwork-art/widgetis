@@ -22,6 +22,8 @@ const PricingPage = lazy(() => import('./pages/PricingPage').then((m) => ({ defa
 const ContactsPage = lazy(() => import('./pages/ContactsPage').then((m) => ({ default: m.ContactsPage })))
 const LicensePage = lazy(() => import('./pages/LicensePage').then((m) => ({ default: m.LicensePage })))
 const OfferPage = lazy(() => import('./pages/OfferPage').then((m) => ({ default: m.OfferPage })))
+const TermsPage = lazy(() => import('./pages/TermsPage').then((m) => ({ default: m.TermsPage })))
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage').then((m) => ({ default: m.PrivacyPage })))
 const RefundPage = lazy(() => import('./pages/RefundPage').then((m) => ({ default: m.RefundPage })))
 const SecurityPage = lazy(() => import('./pages/SecurityPage').then((m) => ({ default: m.SecurityPage })))
 const CasesPage = lazy(() => import('./pages/CasesPage').then((m) => ({ default: m.CasesPage })))
@@ -280,6 +282,8 @@ function App() {
             <Route path="/contacts" element={<ContactsPage />} />
             <Route path="/license" element={<LicensePage />} />
             <Route path="/offer" element={<OfferPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/refund" element={<RefundPage />} />
             <Route path="/security" element={<SecurityPage />} />
             <Route path="/cases" element={<CasesPage />} />

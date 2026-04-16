@@ -6,7 +6,7 @@
   left: 0;
   right: 0;
   z-index: 100;
-  background: transparent;
+  background: var(--bg-deep);
   transition: background var(--transition-normal), backdrop-filter var(--transition-normal), border-color var(--transition-normal);
   border-bottom: 1px solid transparent;
 }

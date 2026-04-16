@@ -831,6 +831,8 @@ export function SignupPage() {
 
                   <p className="signup__terms">
                     Натискаючи, Ви погоджуєтесь з{' '}
+                    <a href="/offer" target="_blank" rel="noreferrer">публічною офертою</a>
+                    ,{' '}
                     <a href="/terms" target="_blank" rel="noreferrer">умовами використання</a>
                     {' '}та{' '}
                     <a href="/privacy" target="_blank" rel="noreferrer">політикою конфіденційності</a>
