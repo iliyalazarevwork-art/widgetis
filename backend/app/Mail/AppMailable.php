@@ -14,15 +14,18 @@ abstract class AppMailable extends Mailable implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
+    protected function frontendBaseUrl(): string
+    {
+        return rtrim((string) (config('app.frontend_url') ?? config('app.url')), '/');
+    }
+
     protected function cabinetUrl(): string
     {
-        $base = rtrim((string) (config('app.frontend_url') ?? config('app.url')), '/');
-
-        return "{$base}/profile";
+        return $this->frontendBaseUrl() . '/cabinet/profile';
     }
 
     protected function renewUrl(): string
     {
-        return $this->cabinetUrl() . '/billing';
+        return $this->frontendBaseUrl() . '/cabinet/plan';
     }
 }

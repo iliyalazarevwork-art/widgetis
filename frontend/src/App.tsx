@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Outlet, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Outlet, Navigate, useLocation } from 'react-router-dom'
 import { lazy, Suspense, useEffect, useState, type ReactElement } from 'react'
 import { Header } from './components/Header'
 import { Footer } from './components/Footer'
@@ -268,6 +268,22 @@ function RequireAdmin({ children }: { children: ReactElement }) {
   return children
 }
 
+function LegacyProfileRedirect() {
+  const location = useLocation()
+  const suffix = location.pathname.replace(/^\/profile/, '')
+
+  let targetPath = '/cabinet/profile'
+  if (suffix && suffix !== '/') {
+    if (suffix === '/billing') {
+      targetPath = '/cabinet/plan'
+    } else {
+      targetPath = `/cabinet${suffix}`
+    }
+  }
+
+  return <Navigate to={`${targetPath}${location.search}${location.hash}`} replace />
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -307,6 +323,7 @@ function App() {
 
           <Route path="/signup/success" element={<TrialSuccessPage />} />
           <Route path="/live-demo" element={<LiveDemoPage />} />
+          <Route path="/profile/*" element={<LegacyProfileRedirect />} />
 
           <Route
             path="/cabinet/choose-plan"
