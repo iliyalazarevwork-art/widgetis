@@ -18,6 +18,7 @@ use App\Models\Subscription;
 use App\Models\User;
 use App\Services\Billing\SubscriptionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
@@ -29,6 +30,15 @@ class SubscriptionUpgradeTest extends TestCase
     {
         parent::setUp();
         Queue::fake();
+        // Freeze on a mid-month day so subDays(15)+addMonth() lands on a
+        // stable 30-day period regardless of when the test runs.
+        Carbon::setTestNow('2026-04-17 12:00:00');
+    }
+
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+        parent::tearDown();
     }
 
     private function customer(): User
