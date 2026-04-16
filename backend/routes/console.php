@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Schedule;
 
-// Daily at 02:00: charge Monobank recurring renewals 24h before period end (LiqPay self-schedules)
+// Daily at 02:00: attempt recurring renewals for providers that support it.
 Schedule::command('subscriptions:charge-recurring')->dailyAt('02:00');
 
 // Daily at 03:30: move subscriptions past period end to PastDue (3-day grace period starts)

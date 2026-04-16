@@ -159,7 +159,7 @@ class NegativeInputTest extends TestCase
             ->postJson('/api/v1/profile/subscription/checkout', [
                 'plan_slug' => 'definitely-not-a-plan',
                 'billing_period' => 'monthly',
-                'provider' => 'liqpay',
+                'provider' => 'monobank',
             ]);
 
         $this->assertLessThan(500, $response->status());
@@ -181,7 +181,7 @@ class NegativeInputTest extends TestCase
             ->postJson('/api/v1/profile/subscription/checkout', [
                 'plan_slug' => $plan->slug,
                 'billing_period' => 'monthly',
-                'provider' => 'liqpay',
+                'provider' => 'monobank',
                 // Attempt to tamper with amount.
                 'amount' => 0.01,
                 'price_monthly' => 0.01,

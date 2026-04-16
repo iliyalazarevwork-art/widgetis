@@ -58,16 +58,16 @@ interface PlanWithFeatures extends Plan {
   feature_list: FeatureItem[]
 }
 
-interface ProrationData {
-  current_plan: string
-  target_plan: string
-  price_difference_monthly: number
+interface UpgradeQuote {
+  from_plan_slug: string
+  to_plan_slug: string
+  to_billing_period: 'monthly' | 'yearly'
+  target_amount: number
+  credit_applied: number
+  amount_due: number
   days_remaining: number
   days_total: number
-  prorate_percentage: number
-  amount_due_now: number
-  next_billing_amount: number
-  next_billing_date: string
+  new_period_end: string
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -78,7 +78,7 @@ export default function MyPlanPage() {
   const [sub, setSub]             = useState<Subscription | null>(null)
   const [plans, setPlans]         = useState<PlanWithFeatures[]>([])
   const [usage, setUsage]         = useState({ sites: 0, widgets: 0 })
-  const [proration, setProration] = useState<ProrationData | null>(null)
+  const [proration, setProration] = useState<UpgradeQuote | null>(null)
   const [loading, setLoading]     = useState(true)
   const [changing, setChanging]   = useState(false)
   const paymentToastRef = useRef<string | number | null>(null)
@@ -104,7 +104,10 @@ export default function MyPlanPage() {
         const currentIdx = sorted.findIndex(p => p.id === subscription.plan.id)
         const next       = sorted[currentIdx + 1]
         if (next) {
-          get<{ data: ProrationData }>(`/profile/subscription/prorate?target_plan_slug=${next.slug}`)
+          const period = subscription.billing_period ?? 'monthly'
+          get<{ data: UpgradeQuote }>(
+            `/profile/subscription/upgrade-preview?plan_slug=${next.slug}&billing_period=${period}`,
+          )
             .then(r => setProration(r.data))
             .catch(() => null)
         }
@@ -182,14 +185,59 @@ export default function MyPlanPage() {
 
   const handleUpgrade = async (slug: string) => {
     if (changing) return
+    if (!sub) return
     setChanging(true)
     try {
-      await post('/profile/subscription/change', { plan_slug: slug })
-      toast.success('План змінено!')
-      window.location.reload()
+      const period = sub.billing_period ?? 'monthly'
+      // Preview first so the user sees the prorated amount and any credit
+      // applied from the unused portion of their current plan before they
+      // commit to a payment.
+      const preview = await get<{ data: UpgradeQuote }>(
+        `/profile/subscription/upgrade-preview?plan_slug=${slug}&billing_period=${period}`,
+      )
+      const quote = preview.data
+      const confirmed = window.confirm(
+        `До оплати: ${quote.amount_due} грн\n` +
+        `Зараховано ${quote.credit_applied} грн за невикористаний період поточного плану.\n` +
+        `Новий план діятиме до ${new Date(quote.new_period_end).toLocaleDateString('uk-UA')}.\n\n` +
+        `Продовжити оплату?`,
+      )
+      if (!confirmed) {
+        setChanging(false)
+        return
+      }
+
+      const provider = 'monobank'
+      const redirectUrl = `${window.location.origin}/cabinet/plan?payment=processing`
+      const res = await post<{ data: { method: string; url: string; form_fields?: Record<string, string> } }>(
+        '/profile/subscription/upgrade',
+        {
+          plan_slug: slug,
+          billing_period: period,
+          provider,
+          redirect_url: redirectUrl,
+        },
+      )
+      const checkout = res.data
+
+      if (checkout.method === 'GET') {
+        window.location.href = checkout.url
+      } else {
+        const form = document.createElement('form')
+        form.method = 'POST'
+        form.action = checkout.url
+        Object.entries(checkout.form_fields ?? {}).forEach(([name, value]) => {
+          const input = document.createElement('input')
+          input.type = 'hidden'
+          input.name = name
+          input.value = String(value)
+          form.appendChild(input)
+        })
+        document.body.appendChild(form)
+        form.submit()
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Помилка')
-    } finally {
       setChanging(false)
     }
   }
@@ -391,17 +439,21 @@ export default function MyPlanPage() {
                 style={{ borderColor: `${nextColor}25`, background: `${nextColor}10` }}
               >
                 <div className="mplan__prorate-row">
-                  <span className="mplan__prorate-label">
-                    {nextPlan.name} – {sub.plan.name} різниця
-                  </span>
+                  <span className="mplan__prorate-label">Повна ціна {nextPlan.name}</span>
                   <span className="mplan__prorate-val">
-                    {proration.price_difference_monthly.toLocaleString('uk-UA')} ₴/міс
+                    {proration.target_amount.toLocaleString('uk-UA')} ₴
                   </span>
                 </div>
                 <div className="mplan__prorate-row">
                   <span className="mplan__prorate-label">Залишилось у циклі</span>
                   <span className="mplan__prorate-val">
-                    {proration.days_remaining} із {proration.days_total} днів ({proration.prorate_percentage}%)
+                    {proration.days_remaining} із {proration.days_total} днів
+                  </span>
+                </div>
+                <div className="mplan__prorate-row">
+                  <span className="mplan__prorate-label">Зараховано з поточного плану</span>
+                  <span className="mplan__prorate-val">
+                    −{proration.credit_applied.toLocaleString('uk-UA')} ₴
                   </span>
                 </div>
                 <div className="mplan__prorate-row mplan__prorate-row--total">
@@ -409,11 +461,11 @@ export default function MyPlanPage() {
                     До оплати зараз
                   </span>
                   <span className="mplan__prorate-amount" style={{ color: nextColor }}>
-                    {proration.amount_due_now.toLocaleString('uk-UA')} ₴
+                    {proration.amount_due.toLocaleString('uk-UA')} ₴
                   </span>
                 </div>
                 <span className="mplan__prorate-note">
-                  Далі {proration.next_billing_amount.toLocaleString('uk-UA')} ₴/міс з наступного циклу
+                  Новий період триватиме до {new Date(proration.new_period_end).toLocaleDateString('uk-UA')}
                 </span>
               </div>
             )}

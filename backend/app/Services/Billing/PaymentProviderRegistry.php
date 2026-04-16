@@ -12,7 +12,7 @@ use App\Services\Billing\Contracts\PaymentProviderInterface;
 /**
  * Strategy-pattern registry for payment providers.
  *
- * Concrete adapters (LiqPayProvider, MonobankProvider, ...) are registered
+ * Concrete adapters (MonobankProvider, WayForPayProvider, ...) are registered
  * from the service provider at boot. Business code resolves the right
  * adapter via get()/for() and never references concrete classes.
  */

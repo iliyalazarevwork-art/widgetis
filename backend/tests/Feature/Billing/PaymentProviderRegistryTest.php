@@ -15,17 +15,13 @@ use App\Models\User;
 use App\Services\Billing\DTO\CheckoutResult;
 use App\Services\Billing\DTO\WebhookResult;
 use App\Services\Billing\PaymentProviderRegistry;
-use App\Services\Billing\Providers\LiqPayProvider;
+use App\Services\Billing\Providers\MonobankProvider;
+use App\Services\Billing\Providers\WayForPayProvider;
 use App\Services\Billing\SubscriptionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
-/**
- * End-to-end verification that the new PaymentProvider abstraction correctly
- * wraps the legacy LiqPay services without regressing behaviour.
- */
 class PaymentProviderRegistryTest extends TestCase
 {
     use RefreshDatabase;
@@ -34,21 +30,35 @@ class PaymentProviderRegistryTest extends TestCase
     {
         parent::setUp();
 
-        Config::set('services.liqpay.public_key', 'sandbox_i12345678901');
-        Config::set('services.liqpay.private_key', 'sandbox_PrivateKeyXXX');
-        Config::set('services.liqpay.sandbox', true);
         Config::set('app.url', 'https://app.test');
+        Config::set('monobank.token', 'fake-merchant-token');
+        Config::set('monobank.webhook_url', 'https://app.test/api/v1/webhooks/monobank');
+        Config::set('monobank.redirect_url', 'https://app.test/cabinet/billing');
+        Config::set('services.wayforpay.merchant_account', 'test_merch_n1');
+        Config::set('services.wayforpay.secret_key', 'flk3409refn54t54t*FNJRET');
+        Config::set('services.wayforpay.merchant_domain_name', 'www.market.ua');
     }
 
-    public function test_registry_resolves_liqpay_provider(): void
+    public function test_registry_resolves_monobank_provider(): void
     {
         /** @var PaymentProviderRegistry $registry */
         $registry = $this->app->make(PaymentProviderRegistry::class);
 
-        $provider = $registry->get(PaymentProvider::LiqPay);
+        $provider = $registry->get(PaymentProvider::Monobank);
 
-        $this->assertInstanceOf(LiqPayProvider::class, $provider);
-        $this->assertSame(PaymentProvider::LiqPay, $provider->name());
+        $this->assertInstanceOf(MonobankProvider::class, $provider);
+        $this->assertSame(PaymentProvider::Monobank, $provider->name());
+    }
+
+    public function test_registry_resolves_wayforpay_provider(): void
+    {
+        /** @var PaymentProviderRegistry $registry */
+        $registry = $this->app->make(PaymentProviderRegistry::class);
+
+        $provider = $registry->get(PaymentProvider::WayForPay);
+
+        $this->assertInstanceOf(WayForPayProvider::class, $provider);
+        $this->assertSame(PaymentProvider::WayForPay, $provider->name());
     }
 
     public function test_registry_resolves_provider_for_subscription(): void
@@ -57,12 +67,12 @@ class PaymentProviderRegistryTest extends TestCase
         $registry = $this->app->make(PaymentProviderRegistry::class);
 
         $subscription = Subscription::factory()->create([
-            'payment_provider' => PaymentProvider::LiqPay,
+            'payment_provider' => PaymentProvider::WayForPay,
         ]);
 
         $provider = $registry->for($subscription);
 
-        $this->assertInstanceOf(LiqPayProvider::class, $provider);
+        $this->assertInstanceOf(WayForPayProvider::class, $provider);
     }
 
     public function test_registry_throws_when_subscription_has_no_provider(): void
@@ -81,14 +91,14 @@ class PaymentProviderRegistryTest extends TestCase
         $registry = new PaymentProviderRegistry();
 
         $this->expectException(UnknownPaymentProviderException::class);
-        $registry->get(PaymentProvider::LiqPay);
+        $registry->get(PaymentProvider::Monobank);
     }
 
-    public function test_liqpay_provider_returns_post_form_checkout_result(): void
+    public function test_wayforpay_provider_returns_post_form_checkout_result(): void
     {
         /** @var PaymentProviderRegistry $registry */
         $registry = $this->app->make(PaymentProviderRegistry::class);
-        $provider = $registry->get(PaymentProvider::LiqPay);
+        $provider = $registry->get(PaymentProvider::WayForPay);
 
         $user = User::factory()->create();
         $plan = Plan::factory()->pro()->create();
@@ -105,20 +115,20 @@ class PaymentProviderRegistryTest extends TestCase
 
         $this->assertInstanceOf(CheckoutResult::class, $result);
         $this->assertSame('POST', $result->method);
-        $this->assertSame('https://www.liqpay.ua/api/3/checkout', $result->url);
-        $this->assertArrayHasKey('data', $result->formFields);
-        $this->assertArrayHasKey('signature', $result->formFields);
+        $this->assertSame('https://secure.wayforpay.com/pay', $result->url);
+        $this->assertArrayHasKey('merchantAccount', $result->formFields);
+        $this->assertArrayHasKey('merchantSignature', $result->formFields);
         $this->assertSame($order->order_number, $result->providerReference);
     }
 
-    public function test_liqpay_provider_charge_recurring_is_noop(): void
+    public function test_monobank_provider_charge_recurring_is_noop(): void
     {
         /** @var PaymentProviderRegistry $registry */
         $registry = $this->app->make(PaymentProviderRegistry::class);
-        $provider = $registry->get(PaymentProvider::LiqPay);
+        $provider = $registry->get(PaymentProvider::Monobank);
 
         $subscription = Subscription::factory()->create([
-            'payment_provider' => PaymentProvider::LiqPay,
+            'payment_provider' => PaymentProvider::Monobank,
         ]);
 
         $result = $provider->chargeRecurring($subscription);
@@ -129,30 +139,21 @@ class PaymentProviderRegistryTest extends TestCase
 
     public function test_subscription_service_cancel_delegates_through_registry(): void
     {
-        Http::fake([
-            'liqpay.ua/api/request' => Http::response(['status' => 'ok']),
-        ]);
-
         /** @var SubscriptionService $service */
         $service = $this->app->make(SubscriptionService::class);
 
         $subscription = Subscription::factory()->create([
-            'payment_provider' => PaymentProvider::LiqPay,
-            'payment_provider_subscription_id' => 'SUB-123',
+            'payment_provider' => PaymentProvider::Monobank,
+            'payment_provider_subscription_id' => null,
         ]);
 
         $cancelled = $service->cancel($subscription, 'user requested');
 
         $this->assertSame(SubscriptionStatus::Cancelled, $cancelled->fresh()->status);
-        Http::assertSent(function ($request): bool {
-            return str_contains((string) $request->url(), 'liqpay.ua/api/request');
-        });
     }
 
     public function test_subscription_service_cancel_without_provider_does_not_call_registry(): void
     {
-        Http::fake();
-
         /** @var SubscriptionService $service */
         $service = $this->app->make(SubscriptionService::class);
 
@@ -161,19 +162,18 @@ class PaymentProviderRegistryTest extends TestCase
         $cancelled = $service->cancel($subscription);
 
         $this->assertSame(SubscriptionStatus::Cancelled, $cancelled->fresh()->status);
-        Http::assertNothingSent();
     }
 
-    public function test_liqpay_webhook_handles_invalid_signature(): void
+    public function test_wayforpay_webhook_handles_invalid_signature(): void
     {
         /** @var PaymentProviderRegistry $registry */
         $registry = $this->app->make(PaymentProviderRegistry::class);
-        $provider = $registry->get(PaymentProvider::LiqPay);
+        $provider = $registry->get(PaymentProvider::WayForPay);
 
-        $request = \Illuminate\Http\Request::create('/webhook', 'POST', [
-            'data' => base64_encode('{"order_id":"X"}'),
-            'signature' => 'definitely-wrong-signature',
-        ]);
+        $request = \Illuminate\Http\Request::create('/webhook', 'POST', [], [], [], [], json_encode([
+            'merchantSignature' => 'invalid',
+        ]));
+        $request->headers->set('CONTENT_TYPE', 'application/json');
 
         $result = $provider->handleWebhook($request);
 

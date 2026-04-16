@@ -7,41 +7,33 @@ namespace App\Http\Controllers\Api\V1\Profile;
 use App\Enums\BillingPeriod;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentProvider;
-use App\Enums\PaymentStatus;
-use App\Enums\PaymentType;
 use App\Enums\SiteStatus;
 use App\Enums\SubscriptionStatus;
 use App\Http\Controllers\Api\V1\BaseController;
+use App\Http\Requests\Api\V1\Billing\CancelSubscriptionRequest;
+use App\Http\Requests\Api\V1\Billing\CheckoutRequest;
+use App\Http\Requests\Api\V1\Billing\StartTrialRequest;
+use App\Http\Requests\Api\V1\Billing\UpgradePreviewRequest;
+use App\Http\Requests\Api\V1\Billing\UpgradeRequest;
 use App\Http\Resources\Api\V1\SubscriptionResource;
 use App\Models\Order;
-use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\Site;
-use App\Models\Subscription;
-use App\Models\User;
-use App\Services\Billing\PaymentProviderRegistry;
+use App\Services\Billing\CheckoutService;
 use App\Services\Billing\SubscriptionService;
-use App\Services\Billing\UniqueOrderNumberProvider;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class SubscriptionController extends BaseController
 {
     public function __construct(
         private readonly SubscriptionService $subscriptionService,
-        private readonly PaymentProviderRegistry $providers,
-        private readonly UniqueOrderNumberProvider $orderNumbers,
+        private readonly CheckoutService $checkoutService,
     ) {
     }
 
-    public function startTrial(Request $request): JsonResponse
+    public function startTrial(StartTrialRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'plan_slug'   => ['required', 'string', 'exists:plans,slug'],
-            'site_domain' => ['required', 'string', 'max:255'],
-            'platform'    => ['nullable', 'string', 'max:100'],
-        ]);
+        $validated = $request->validated();
 
         $user = $this->currentUser();
 
@@ -49,7 +41,6 @@ class SubscriptionController extends BaseController
             return $this->error('ALREADY_SUBSCRIBED', 'User already has a subscription.', 409);
         }
 
-        // Ensure site exists for this user.
         Site::firstOrCreate(
             ['user_id' => $user->id, 'domain' => $validated['site_domain']],
             [
@@ -84,11 +75,9 @@ class SubscriptionController extends BaseController
         ]);
     }
 
-    public function prorate(Request $request): JsonResponse
+    public function upgradePreview(UpgradePreviewRequest $request): JsonResponse
     {
-        $request->validate([
-            'target_plan_slug' => ['required', 'string', 'exists:plans,slug'],
-        ]);
+        $validated = $request->validated();
 
         $subscription = $this->currentUser()->subscription;
 
@@ -96,51 +85,67 @@ class SubscriptionController extends BaseController
             return $this->error('NO_SUBSCRIPTION', 'No active subscription.', 404);
         }
 
-        $targetPlan = Plan::where('slug', $request->input('target_plan_slug'))->firstOrFail();
-        $proration = $this->subscriptionService->calculateProration($subscription, $targetPlan);
+        $targetPlan = Plan::where('slug', $validated['plan_slug'])
+            ->where('is_active', true)
+            ->firstOrFail();
+        $targetPeriod = BillingPeriod::from($validated['billing_period']);
 
-        return $this->success(['data' => $proration]);
-    }
-
-    public function change(Request $request): JsonResponse
-    {
-        $request->validate([
-            'plan_slug' => ['required', 'string', 'exists:plans,slug'],
-        ]);
-
-        $subscription = $this->currentUser()->subscription;
-
-        if (!$subscription) {
-            return $this->error('NO_SUBSCRIPTION', 'No active subscription.', 404);
+        try {
+            $quote = $this->subscriptionService->calculateUpgrade(
+                $subscription->load('plan'),
+                $targetPlan,
+                $targetPeriod,
+            );
+        } catch (\App\Exceptions\UpgradeNotAllowedException $e) {
+            return $this->error($e->reason, $e->getMessage(), 422);
         }
 
-        $newPlan = Plan::where('slug', $request->input('plan_slug'))->firstOrFail();
-        $updated = $this->subscriptionService->changePlan($subscription, $newPlan);
-
-        return $this->success([
-            'data' => new SubscriptionResource($updated->load('plan')),
-        ]);
+        return $this->success(['data' => $quote->toArray()]);
     }
 
-    /**
-     * Start a paid subscription checkout against a specific provider.
-     *
-     * Creates Order + pending Subscription + pending Payment rows up
-     * front, then asks the chosen provider to build a checkout session.
-     * The frontend reads `method` + `url` (+ `form_fields` when POST) to
-     * decide whether to redirect the user (Monobank) or to submit a
-     * signed form (LiqPay).
-     */
-    public function checkout(Request $request): JsonResponse
+    public function upgrade(UpgradeRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'plan_slug'      => ['required', 'string', 'exists:plans,slug'],
-            'billing_period' => ['required', 'string', 'in:monthly,yearly'],
-            'provider'       => ['required', 'string', 'in:liqpay,monobank,wayforpay'],
-            'site_domain'    => ['required', 'string', 'max:255'],
-            'platform'       => ['nullable', 'string', 'max:100'],
-            'redirect_url'   => ['nullable', 'string', 'max:500'],
-        ]);
+        $validated = $request->validated();
+
+        $user = $this->currentUser();
+        $subscription = $user->subscription;
+
+        if (!$subscription) {
+            return $this->error('NO_SUBSCRIPTION', 'No active subscription to upgrade.', 404);
+        }
+
+        $targetPlan = Plan::where('slug', $validated['plan_slug'])
+            ->where('is_active', true)
+            ->firstOrFail();
+        $targetPeriod = BillingPeriod::from($validated['billing_period']);
+        $provider = PaymentProvider::from($validated['provider']);
+
+        try {
+            $quote = $this->subscriptionService->calculateUpgrade(
+                $subscription->load('plan'),
+                $targetPlan,
+                $targetPeriod,
+            );
+        } catch (\App\Exceptions\UpgradeNotAllowedException $e) {
+            return $this->error($e->reason, $e->getMessage(), 422);
+        }
+
+        $payload = $this->checkoutService->createUpgradeCheckout(
+            user: $user,
+            subscription: $subscription,
+            targetPlan: $targetPlan,
+            targetPeriod: $targetPeriod,
+            provider: $provider,
+            quote: $quote,
+            redirectUrl: isset($validated['redirect_url']) ? (string) $validated['redirect_url'] : null,
+        );
+
+        return $this->success(['data' => $payload->toResponseArray()]);
+    }
+
+    public function checkout(CheckoutRequest $request): JsonResponse
+    {
+        $validated = $request->validated();
 
         $user = $this->currentUser();
         $plan = Plan::where('slug', $validated['plan_slug'])->where('is_active', true)->firstOrFail();
@@ -151,117 +156,25 @@ class SubscriptionController extends BaseController
             return $this->error('ALREADY_SUBSCRIBED', 'User already has an active subscription.', 422);
         }
 
-        // Cancel any pending orders the user abandoned so the payment page
-        // they left can never activate the wrong subscription. If somehow a
-        // success webhook still arrives for a cancelled order, the webhook
-        // handler skips activation and flags it for review.
-        Order::where('user_id', $user->id)
-            ->where('status', OrderStatus::Pending)
-            ->each(function (Order $staleOrder): void {
-                $staleOrder->update(['status' => OrderStatus::Cancelled]);
-                $staleOrder->payments()
-                    ->where('status', PaymentStatus::Pending->value)
-                    ->update(['status' => PaymentStatus::Failed->value]);
-            });
+        $this->checkoutService->cancelStalePendingOrders($user->id);
 
-        // Reset a stuck pending subscription so the new checkout can proceed.
         if ($user->subscription?->status === SubscriptionStatus::Pending) {
             $user->subscription->update(['status' => SubscriptionStatus::Cancelled]);
         }
 
-        $siteDomain = $validated['site_domain'];
-
-        /** @var array{reference: string} $pending */
-        $pending = DB::transaction(function () use ($user, $plan, $billingPeriod, $siteDomain, $validated, $provider): array {
-            // Lock the user row to serialise concurrent checkout calls.
-            User::where('id', $user->id)->lockForUpdate()->first();
-
-            // Ensure site exists for this user.
-            Site::firstOrCreate(
-                ['user_id' => $user->id, 'domain' => $siteDomain],
-                [
-                    'name'     => $siteDomain,
-                    'url'      => 'https://' . $siteDomain,
-                    'platform' => $validated['platform'] ?? 'horoshop',
-                    'status'   => SiteStatus::Pending,
-                ],
-            );
-
-            $amount = $billingPeriod === BillingPeriod::Yearly
-                ? $plan->price_yearly
-                : $plan->price_monthly;
-
-            $order = Order::create([
-                'order_number' => $this->orderNumbers->get($siteDomain, $plan->slug),
-                'user_id' => $user->id,
-                'plan_id' => $plan->id,
-                'billing_period' => $billingPeriod->value,
-                'amount' => $amount,
-                'discount_amount' => 0,
-                'currency' => 'UAH',
-                'status' => OrderStatus::Pending,
-                'payment_provider' => $provider,
-            ]);
-
-            Subscription::updateOrCreate(
-                ['user_id' => $user->id],
-                [
-                    'plan_id' => $plan->id,
-                    'billing_period' => $billingPeriod->value,
-                    'status' => SubscriptionStatus::Pending,
-                    'is_trial' => false,
-                    'trial_ends_at' => null,
-                    'current_period_start' => now(),
-                    'current_period_end' => now()->addDays((int) ($plan->trial_days ?? 7)),
-                    'payment_provider' => $provider,
-                    'payment_provider_subscription_id' => null,
-                    'payment_retry_count' => 0,
-                ],
-            );
-
-            $subscription = Subscription::where('user_id', $user->id)->first();
-
-            Payment::create([
-                'user_id' => $user->id,
-                'order_id' => $order->id,
-                'subscription_id' => $subscription?->id,
-                'type' => PaymentType::Charge->value,
-                'amount' => (float) $amount,
-                'currency' => 'UAH',
-                'status' => PaymentStatus::Pending->value,
-                'payment_provider' => $provider,
-                'description' => [
-                    'en' => "Subscription: {$plan->slug} ({$billingPeriod->value})",
-                    'uk' => "Підписка: {$plan->slug} ({$billingPeriod->value})",
-                ],
-            ]);
-
-            return ['reference' => $order->order_number];
-        });
-
-        $result = $this->providers->get($provider)->createSubscriptionCheckout(
+        $payload = $this->checkoutService->createCheckout(
             user: $user,
             plan: $plan,
             billingPeriod: $billingPeriod,
-            reference: $pending['reference'],
+            provider: $provider,
+            siteDomain: $validated['site_domain'],
+            platform: $validated['platform'] ?? null,
             redirectUrl: isset($validated['redirect_url']) ? (string) $validated['redirect_url'] : null,
         );
 
-        return $this->success([
-            'data' => [
-                'provider' => $provider->value,
-                'reference' => $pending['reference'],
-                'method' => $result->method,
-                'url' => $result->url,
-                'form_fields' => (object) $result->formFields,
-                'provider_reference' => $result->providerReference,
-            ],
-        ]);
+        return $this->success(['data' => $payload->toResponseArray()]);
     }
 
-    /**
-     * Cancel any pending (unpaid) checkout so the user can start a new one.
-     */
     public function cancelPendingCheckout(): JsonResponse
     {
         $user = $this->currentUser();
@@ -274,12 +187,7 @@ class SubscriptionController extends BaseController
             return $this->error('NO_PENDING_CHECKOUT', 'No pending checkout to cancel.', 404);
         }
 
-        foreach ($cancelled as $order) {
-            $order->update(['status' => OrderStatus::Cancelled]);
-            $order->payments()
-                ->where('status', PaymentStatus::Pending->value)
-                ->update(['status' => PaymentStatus::Failed->value]);
-        }
+        $this->checkoutService->cancelStalePendingOrders($user->id);
 
         if ($user->subscription?->status === SubscriptionStatus::Pending) {
             $user->subscription->update(['status' => SubscriptionStatus::Cancelled]);
@@ -288,12 +196,8 @@ class SubscriptionController extends BaseController
         return $this->success(['message' => 'Pending checkout cancelled.']);
     }
 
-    public function cancel(Request $request): JsonResponse
+    public function cancel(CancelSubscriptionRequest $request): JsonResponse
     {
-        $request->validate([
-            'reason' => ['nullable', 'string', 'max:1000'],
-        ]);
-
         $subscription = $this->currentUser()->subscription;
 
         if (!$subscription || !$subscription->isActive()) {

@@ -8,6 +8,7 @@ use App\Enums\BillingPeriod;
 use App\Models\Order;
 use App\Models\Plan;
 use App\Models\User;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use WayForPay\SDK\Collection\ProductCollection;
 use WayForPay\SDK\Credential\AccountSecretCredential;
@@ -270,6 +271,69 @@ class WayForPayService
         }
 
         return true;
+    }
+
+    /**
+     * Stop WayForPay's bank-side recurring scheduler for a given order.
+     *
+     * WayForPay manages its own charge schedule when a PurchaseWizard is
+     * submitted with setRegular(). Cancelling our Subscription row stops our
+     * own cron from acting, but WayForPay would continue billing the customer
+     * on its own cadence unless we explicitly remove the regular payment via
+     * the regularApi endpoint.
+     *
+     * Returns true on a confirmed REMOVE response, false on any failure (HTTP
+     * error, non-200 status, or missing transactionStatus). Failures are
+     * non-fatal — the caller logs and continues so the subscription row is
+     * still marked cancelled even if the API call fails.
+     */
+    public function removeRegularPayment(string $orderReference): bool
+    {
+        $merchantAccount = (string) config('services.wayforpay.merchant_account');
+        $secretKey       = (string) config('services.wayforpay.secret_key');
+
+        /** @var string $signature */
+        $signature = SignatureHelper::calculateSignature(
+            [$merchantAccount, $orderReference],
+            $secretKey,
+        );
+
+        try {
+            $response = Http::timeout(15)
+                ->post('https://api.wayforpay.com/regularApi', [
+                    'transactionType'    => 'REMOVE',
+                    'merchantAccount'    => $merchantAccount,
+                    'orderReference'     => $orderReference,
+                    'merchantSignature'  => $signature,
+                ]);
+
+            if (! $response->successful()) {
+                Log::channel('payments')->warning('wayforpay.regular.remove_http_error', [
+                    'order_reference' => $orderReference,
+                    'http_status'     => $response->status(),
+                ]);
+
+                return false;
+            }
+
+            /** @var array<string, mixed> $body */
+            $body   = (array) $response->json();
+            $status = (string) ($body['transactionStatus'] ?? '');
+
+            Log::channel('payments')->info('wayforpay.regular.removed', [
+                'order_reference'    => $orderReference,
+                'transaction_status' => $status,
+            ]);
+
+            return $status === 'Removed';
+        } catch (\Throwable $e) {
+            Log::channel('payments')->warning('wayforpay.regular.remove_exception', [
+                'order_reference' => $orderReference,
+                'error'           => $e->getMessage(),
+            ]);
+
+            return false;
+        }
     }
 
     /**

@@ -54,12 +54,6 @@ return [
         'url' => env('WIDGET_BUILDER_URL', 'http://widget-builder:3200'),
     ],
 
-    'liqpay' => [
-        'public_key' => env('LIQPAY_PUBLIC_KEY', ''),
-        'private_key' => env('LIQPAY_PRIVATE_KEY', ''),
-        'sandbox' => env('LIQPAY_SANDBOX', true),
-    ],
-
     /*
     |--------------------------------------------------------------------------
     | WayForPay

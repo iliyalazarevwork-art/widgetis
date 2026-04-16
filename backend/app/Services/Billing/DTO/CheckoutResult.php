@@ -8,7 +8,7 @@ namespace App\Services\Billing\DTO;
  * Result of creating a checkout session on a payment provider.
  *
  * Some providers (Monobank) return a plain URL the client is redirected to
- * via GET. Others (LiqPay) require a POST form submission with signed data.
+ * via GET. Others (WayForPay) require a POST form submission with signed data.
  * The caller inspects $method to decide how to hand the payload to the user.
  */
 final readonly class CheckoutResult

@@ -33,8 +33,8 @@ class SubscriptionFactory extends Factory
             'trial_ends_at' => null,
             'current_period_start' => now()->subDay(),
             'current_period_end' => now()->addMonth(),
-            'payment_provider' => PaymentProvider::LiqPay,
-            'payment_provider_subscription_id' => 'TEST-SUBSCR-'.fake()->unique()->numerify('######'),
+            'payment_provider' => PaymentProvider::Monobank,
+            'payment_provider_subscription_id' => 'MONO-SUBSCR-'.fake()->unique()->numerify('######'),
         ];
     }
 

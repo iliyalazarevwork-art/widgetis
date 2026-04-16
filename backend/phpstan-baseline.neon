@@ -217,18 +217,6 @@ parameters:
 			path: app/Models/SocialAccount.php
 
 		-
-			message: '#^Using nullsafe method call on non\-nullable type Illuminate\\Support\\Carbon\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Services/Billing/LiqPayWebhookService.php
-
-		-
-			message: '#^Using nullsafe method call on non\-nullable type Illuminate\\Support\\Carbon\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Services/Billing/Providers/MonobankProvider.php
-
-		-
 			message: '#^Using nullsafe property access "\?\-\>max_sites" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1

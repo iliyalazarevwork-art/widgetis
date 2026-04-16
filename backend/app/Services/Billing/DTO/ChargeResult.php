@@ -24,7 +24,7 @@ final readonly class ChargeResult
 
     /**
      * Success result for providers that schedule recurring charges on
-     * their own (LiqPay) and therefore never return a transaction id
+     * their own and therefore never return a transaction id
      * to the caller at charge-time.
      */
     public static function noop(): self

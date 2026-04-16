@@ -4,10 +4,9 @@ import { Link, useNavigate } from 'react-router-dom'
 import { SeoHead } from '../components/SeoHead'
 import { InterestButton } from '../components/InterestButton'
 import { PlanCard, type PlanCardFeature } from '../components/PlanCard'
-import { get, post } from '../api/client'
+import { get } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import { useSettings } from '../context/SettingsContext'
-import { toast } from 'sonner'
 import { PLANS, COMPARISON_ROWS, type PlanSlug } from '../data/plans'
 import type { Subscription } from '../types'
 import './PricingPage.css'
@@ -118,15 +117,12 @@ export function PricingPage() {
 
   const handleUpgrade = async (planId: string) => {
     if (upgrading) return
-    setUpgrading(planId)
-    try {
-      await post('/profile/subscription/change', { plan_slug: planId })
-      toast.success('План змінено!')
-      navigate('/cabinet/plan')
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Помилка')
-      setUpgrading(null)
-    }
+    // Plan changes with an active subscription must go through the paid
+    // upgrade flow (prorated amount → provider checkout). The dedicated
+    // page handles the preview + redirect — PricingPage just sends the user
+    // there so the same UX is reused across entry points.
+    navigate(`/cabinet/plan?upgrade=${planId}`)
+    setUpgrading(null)
   }
 
   return (

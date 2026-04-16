@@ -5,17 +5,29 @@ declare(strict_types=1);
 namespace App\Services\Billing;
 
 use App\Enums\BillingPeriod;
+use App\Enums\OrderStatus;
 use App\Enums\PaymentProvider;
+use App\Enums\PaymentStatus;
+use App\Enums\PaymentType;
 use App\Enums\SubscriptionStatus;
+use App\Events\Billing\SubscriptionCancelled;
+use App\Events\Billing\SubscriptionExpired;
+use App\Events\Billing\SubscriptionTrialStarted;
+use App\Events\Billing\SubscriptionUpgraded;
+use App\Exceptions\UpgradeNotAllowedException;
 use App\Jobs\RebuildSiteScriptJob;
 use App\Models\ActivityLog;
+use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\SiteWidget;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Services\Billing\DTO\UpgradeQuote;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class SubscriptionService
 {
@@ -46,10 +58,10 @@ class SubscriptionService
             Payment::create([
                 'user_id' => $user->id,
                 'subscription_id' => $subscription->id,
-                'type' => 'trial_activation',
+                'type' => PaymentType::TrialActivation->value,
                 'amount' => 0,
                 'currency' => 'UAH',
-                'status' => 'success',
+                'status' => PaymentStatus::Success->value,
                 'description' => ['en' => 'Trial activation', 'uk' => 'Активація тріалу'],
             ]);
 
@@ -62,6 +74,8 @@ class SubscriptionService
             foreach ($user->sites as $site) {
                 RebuildSiteScriptJob::dispatch($site->id);
             }
+
+            SubscriptionTrialStarted::dispatch($subscription);
 
             return $subscription;
         });
@@ -114,61 +128,216 @@ class SubscriptionService
         });
     }
 
-    public function changePlan(Subscription $subscription, Plan $newPlan): Subscription
-    {
-        return DB::transaction(function () use ($subscription, $newPlan) {
-            $oldPlan = $subscription->plan;
-
-            $subscription->update([
-                'plan_id' => $newPlan->id,
-            ]);
-
-            Log::channel('payments')->info('subscription.plan_changed', [
-                'user_id' => $subscription->user_id,
-                'old_plan' => $oldPlan->slug,
-                'new_plan' => $newPlan->slug,
-            ]);
-
-            return $subscription->fresh('plan');
-        });
-    }
-
     /**
-     * @return array<string, mixed>
+     * Quote what the user owes to move from their current subscription to a
+     * strictly higher plan/period. Credits the unused portion of the last
+     * paid order against the target price, floored to whole UAH in the
+     * client's favour. Downgrades, no-op transitions, and trial upgrades
+     * are rejected here — callers must route them elsewhere.
      */
-    public function calculateProration(Subscription $subscription, Plan $targetPlan): array
-    {
+    public function calculateUpgrade(
+        Subscription $subscription,
+        Plan $targetPlan,
+        BillingPeriod $targetBillingPeriod,
+    ): UpgradeQuote {
+        if ($subscription->is_trial || $subscription->status === SubscriptionStatus::Trial) {
+            throw UpgradeNotAllowedException::trial();
+        }
+
         $currentPlan = $subscription->plan;
-        $billingPeriod = BillingPeriod::from($subscription->billing_period);
+        $currentBillingPeriod = BillingPeriod::from($subscription->billing_period);
 
-        $currentPrice = $billingPeriod === BillingPeriod::Yearly
-            ? (float) $currentPlan->price_yearly / 12
-            : (float) $currentPlan->price_monthly;
+        if (
+            $currentPlan->id === $targetPlan->id
+            && $currentBillingPeriod === $targetBillingPeriod
+        ) {
+            throw UpgradeNotAllowedException::samePlan();
+        }
 
-        $targetPrice = $billingPeriod === BillingPeriod::Yearly
-            ? (float) $targetPlan->price_yearly / 12
-            : (float) $targetPlan->price_monthly;
+        // Normalize tier comparison by the yearly sticker price — that is
+        // the stable signal for "is this plan higher tier". Switching the
+        // same plan from monthly to yearly is always allowed (it costs
+        // more upfront even though the per-month price drops).
+        if (
+            $currentPlan->id !== $targetPlan->id
+            && (float) $targetPlan->price_yearly <= (float) $currentPlan->price_yearly
+        ) {
+            throw UpgradeNotAllowedException::downgrade();
+        }
+
+        $targetAmount = (int) ($targetBillingPeriod === BillingPeriod::Yearly
+            ? (float) $targetPlan->price_yearly
+            : (float) $targetPlan->price_monthly);
 
         $daysRemaining = $subscription->daysRemainingInPeriod();
         $daysTotal = $subscription->daysInPeriod();
-        $proratePercentage = $daysTotal > 0 ? $daysRemaining / $daysTotal : 0;
+        $ratio = $daysTotal > 0 ? min(1.0, max(0.0, $daysRemaining / $daysTotal)) : 0.0;
 
-        $priceDifference = $targetPrice - $currentPrice;
-        $amountDueNow = max(0, round($priceDifference * $proratePercentage, 2));
+        $lastPaidOrder = Order::query()
+            ->where('user_id', $subscription->user_id)
+            ->where('plan_id', $currentPlan->id)
+            ->where('billing_period', $currentBillingPeriod->value)
+            ->where('status', OrderStatus::Paid)
+            ->orderByDesc('paid_at')
+            ->first();
 
-        return [
-            'current_plan' => $currentPlan->slug,
-            'target_plan' => $targetPlan->slug,
-            'price_difference_monthly' => round($priceDifference, 2),
-            'days_remaining' => $daysRemaining,
-            'days_total' => $daysTotal,
-            'prorate_percentage' => round($proratePercentage * 100, 1),
-            'amount_due_now' => $amountDueNow,
-            'next_billing_amount' => $billingPeriod === BillingPeriod::Yearly
-                ? (float) $targetPlan->price_yearly
-                : (float) $targetPlan->price_monthly,
-            'next_billing_date' => $subscription->current_period_end->toIso8601String(),
-        ];
+        $paidAmount = $lastPaidOrder !== null ? (float) $lastPaidOrder->amount : 0.0;
+        $creditApplied = (int) floor($paidAmount * $ratio);
+        $amountDue = max(0, $targetAmount - $creditApplied);
+
+        $newPeriodEnd = $targetBillingPeriod === BillingPeriod::Yearly
+            ? CarbonImmutable::now()->addYear()
+            : CarbonImmutable::now()->addMonth();
+
+        return new UpgradeQuote(
+            fromPlanSlug: $currentPlan->slug,
+            toPlanSlug: $targetPlan->slug,
+            toBillingPeriod: $targetBillingPeriod,
+            targetAmount: $targetAmount,
+            creditApplied: $creditApplied,
+            amountDue: $amountDue,
+            daysRemaining: $daysRemaining,
+            daysTotal: $daysTotal,
+            newPeriodEnd: $newPeriodEnd,
+        );
+    }
+
+    /**
+     * Apply a successful upgrade payment: cancel the previous provider-side
+     * recurring subscription (best effort), then swap the existing row to
+     * the new plan with a fresh period starting from now.
+     *
+     * Caller must already have recorded the successful Payment/Order; this
+     * method owns only the state transition on the subscription itself.
+     */
+    /**
+     * @param array{
+     *     old_payment_provider?: ?string,
+     *     old_payment_provider_subscription_id?: ?string,
+     *     old_monobank_card_token?: ?string,
+     *     old_wayforpay_rec_token?: ?string,
+     * }|null $oldProviderSnapshot
+     */
+    public function applyUpgrade(
+        Subscription $subscription,
+        Plan $newPlan,
+        BillingPeriod $newBillingPeriod,
+        PaymentProvider $paymentProvider,
+        ?string $providerSubscriptionId = null,
+        ?string $monobankCardToken = null,
+        ?string $wayforpayRecToken = null,
+        ?array $oldProviderSnapshot = null,
+    ): Subscription {
+        return DB::transaction(function () use (
+            $subscription,
+            $newPlan,
+            $newBillingPeriod,
+            $paymentProvider,
+            $providerSubscriptionId,
+            $monobankCardToken,
+            $wayforpayRecToken,
+            $oldProviderSnapshot,
+        ) {
+            $oldPlan = $subscription->plan;
+
+            // The snapshot captured at checkout time is the source of truth
+            // for "what recurring was active before this upgrade" — some
+            // providers overwrite subscription tokens during their checkout
+            // call, so reading them off the row now would be wrong.
+            $oldProviderValue = $oldProviderSnapshot['old_payment_provider']
+                ?? $subscription->payment_provider?->value;
+            $oldProvider = $oldProviderValue !== null
+                ? PaymentProvider::tryFrom($oldProviderValue)
+                : null;
+            $oldProviderSubscriptionId = $oldProviderSnapshot['old_payment_provider_subscription_id']
+                ?? $subscription->payment_provider_subscription_id;
+
+            // Best-effort cancellation of the previous recurring binding.
+            // We never let a provider error block the upgrade — the user
+            // has already paid, and leaving a dangling rec token is a
+            // recoverable accounting issue, not a functional failure.
+            if ($oldProvider !== null && $this->providers->has($oldProvider)) {
+                try {
+                    $snapshotModel = (new Subscription())->forceFill([
+                        'id' => $subscription->id,
+                        'user_id' => $subscription->user_id,
+                        'payment_provider' => $oldProvider,
+                        'payment_provider_subscription_id' => $oldProviderSubscriptionId,
+                        'monobank_card_token' => $oldProviderSnapshot['old_monobank_card_token']
+                            ?? $subscription->monobank_card_token,
+                        'wayforpay_rec_token' => $oldProviderSnapshot['old_wayforpay_rec_token']
+                            ?? $subscription->wayforpay_rec_token,
+                    ]);
+                    $snapshotModel->exists = true;
+
+                    $this->providers->get($oldProvider)->cancelSubscription($snapshotModel);
+                } catch (Throwable $e) {
+                    Log::channel('payments')->warning('subscription.upgrade.old_cancel_failed', [
+                        'user_id' => $subscription->user_id,
+                        'old_provider' => $oldProvider->value,
+                        'old_provider_subscription_id' => $oldProviderSubscriptionId,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+
+            $periodEnd = $newBillingPeriod === BillingPeriod::Yearly
+                ? now()->addYear()
+                : now()->addMonth();
+
+            $subscription->update([
+                'plan_id' => $newPlan->id,
+                'billing_period' => $newBillingPeriod->value,
+                'status' => SubscriptionStatus::Active,
+                'is_trial' => false,
+                'trial_ends_at' => null,
+                'current_period_start' => now(),
+                'current_period_end' => $periodEnd,
+                'cancelled_at' => null,
+                'cancel_reason' => null,
+                'grace_period_ends_at' => null,
+                'payment_retry_count' => 0,
+                'next_payment_retry_at' => null,
+                'payment_provider' => $paymentProvider,
+                'payment_provider_subscription_id' => $providerSubscriptionId,
+                'monobank_card_token' => $monobankCardToken,
+                'wayforpay_rec_token' => $wayforpayRecToken,
+            ]);
+
+            ActivityLog::create([
+                'user_id' => $subscription->user_id,
+                'action' => 'subscription.upgraded',
+                'entity_type' => 'subscription',
+                'entity_id' => $subscription->id,
+                'description' => [
+                    'en' => 'Subscription upgraded',
+                    'uk' => 'Підписку оновлено',
+                ],
+                'metadata' => [
+                    'old_plan' => $oldPlan?->slug,
+                    'new_plan' => $newPlan->slug,
+                    'new_billing_period' => $newBillingPeriod->value,
+                    'provider' => $paymentProvider->value,
+                ],
+                'created_at' => now(),
+            ]);
+
+            Log::channel('payments')->info('subscription.upgraded', [
+                'user_id' => $subscription->user_id,
+                'old_plan' => $oldPlan?->slug,
+                'new_plan' => $newPlan->slug,
+                'new_billing_period' => $newBillingPeriod->value,
+                'provider' => $paymentProvider->value,
+            ]);
+
+            foreach ($subscription->user->sites as $site) {
+                RebuildSiteScriptJob::dispatch($site->id);
+            }
+
+            SubscriptionUpgraded::dispatch($subscription, $oldPlan);
+
+            return $subscription->refresh();
+        });
     }
 
     public function cancel(Subscription $subscription, ?string $reason = null): Subscription
@@ -208,6 +377,8 @@ class SubscriptionService
             'provider' => $subscription->payment_provider?->value,
             'reason' => $reason,
         ]);
+
+        SubscriptionCancelled::dispatch($subscription, $reason);
 
         return $subscription;
     }
@@ -255,6 +426,8 @@ class SubscriptionService
         Log::channel('payments')->info('subscription.expired', [
             'user_id' => $subscription->user_id,
         ]);
+
+        SubscriptionExpired::dispatch($subscription);
     }
 
     public function renew(Subscription $subscription): Subscription

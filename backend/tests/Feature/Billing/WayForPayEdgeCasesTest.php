@@ -244,14 +244,14 @@ class WayForPayEdgeCasesTest extends TestCase
     public function test_wfp_webhook_does_not_pollute_subscription_owned_by_other_provider(): void
     {
         // Cross-provider pollution: user started a WayForPay checkout,
-        // abandoned it, then started a LiqPay one. The WFP webhook for
+        // abandoned it, then started a Monobank one. The WFP webhook for
         // the abandoned checkout arrives late. We must NOT flip the live
-        // LiqPay subscription to WayForPay or save a WFP rec token on it.
+        // Monobank subscription to WayForPay or save a WFP rec token on it.
         [$order, $subscription] = $this->seedPendingCheckout();
 
         // Simulate the second checkout overwriting the subscription's
         // provider (SubscriptionController::checkout does exactly this).
-        $subscription->update(['payment_provider' => PaymentProvider::LiqPay]);
+        $subscription->update(['payment_provider' => PaymentProvider::Monobank]);
 
         $this->postJson(self::WEBHOOK_URL, $this->signedWebhook($order->order_number, 'Approved', 1100, [
             'recToken' => 'REC-STALE-WFP',
@@ -259,7 +259,7 @@ class WayForPayEdgeCasesTest extends TestCase
 
         $subscription->refresh();
 
-        $this->assertSame(PaymentProvider::LiqPay, $subscription->payment_provider);
+        $this->assertSame(PaymentProvider::Monobank, $subscription->payment_provider);
         $this->assertNull($subscription->wayforpay_rec_token);
     }
 

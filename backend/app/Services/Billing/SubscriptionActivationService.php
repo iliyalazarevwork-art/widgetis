@@ -10,14 +10,18 @@ use App\Enums\PaymentProvider;
 use App\Enums\PaymentStatus;
 use App\Enums\PaymentType;
 use App\Enums\SubscriptionStatus;
+use App\Events\Billing\SubscriptionActivated;
+use App\Events\Billing\SubscriptionRenewed;
+use App\Events\Billing\SubscriptionTrialStarted;
 use App\Models\Order;
 use App\Models\Payment;
+use App\Models\Plan;
 use App\Models\Subscription;
 
 /**
  * Shared state-transition logic for every payment provider's webhook path.
  *
- * Each provider (LiqPay, Monobank, WayForPay) delivers slightly different
+ * Each provider (Monobank, WayForPay) delivers slightly different
  * webhook shapes but performs the same underlying action: "charge confirmed,
  * activate or renew the subscription, record the payment, mark the order
  * as paid". Keeping that logic in one place prevents the three providers
@@ -30,6 +34,124 @@ use App\Models\Subscription;
  */
 class SubscriptionActivationService
 {
+    /**
+     * Lazy-resolved to break the circular dependency:
+     * MonobankWebhookService → SubscriptionActivationService → SubscriptionService → PaymentProviderRegistry → MonobankProvider → MonobankWebhookService
+     */
+    public function __construct(
+        private readonly \Closure $subscriptionServiceResolver,
+    ) {
+    }
+
+    private function subscriptionService(): SubscriptionService
+    {
+        return ($this->subscriptionServiceResolver)();
+    }
+
+    /**
+     * Detect whether an order represents a plan upgrade paid in full.
+     *
+     * The upgrade flow marks the pending Payment row with PaymentType::Upgrade
+     * at checkout time; webhook handlers consult this before routing to the
+     * standard activate/renew path so the old plan's recurring binding can
+     * be cancelled and the subscription swapped atomically.
+     */
+    public function isUpgradeOrder(Order $order): bool
+    {
+        return Payment::where('order_id', $order->id)
+            ->where('type', PaymentType::Upgrade->value)
+            ->exists();
+    }
+
+    /**
+     * Finalize an upgrade after a confirmed charge: record the payment as
+     * success, mark the order paid, then let SubscriptionService swap the
+     * subscription to the target plan (which also cancels the old provider
+     * binding and restarts the period from now).
+     *
+     * @param array<string, mixed> $metadata
+     * @param array<string, string>|null $description
+     */
+    public function applyUpgrade(
+        Order $order,
+        string $transactionId,
+        float $amountUah,
+        PaymentProvider $provider,
+        ?string $paymentMethod,
+        array $metadata,
+        ?string $providerSubscriptionId = null,
+        ?string $monobankCardToken = null,
+        ?string $wayforpayRecToken = null,
+        ?array $description = null,
+    ): ?Subscription {
+        if ($order->status === OrderStatus::Cancelled) {
+            return null;
+        }
+
+        $order->update([
+            'status' => OrderStatus::Paid,
+            'transaction_id' => $transactionId,
+            'paid_at' => now(),
+        ]);
+
+        $payment = Payment::where('order_id', $order->id)
+            ->whereIn('status', [PaymentStatus::Pending->value, PaymentStatus::Success->value])
+            ->first();
+
+        $paymentAttributes = [
+            'status' => PaymentStatus::Success->value,
+            'payment_method' => $paymentMethod,
+            'transaction_id' => $transactionId,
+            'metadata' => $metadata,
+        ];
+
+        if ($payment !== null) {
+            $payment->update($paymentAttributes);
+        } else {
+            Payment::create(array_merge($paymentAttributes, [
+                'user_id' => $order->user_id,
+                'order_id' => $order->id,
+                'type' => PaymentType::Upgrade->value,
+                'amount' => $amountUah,
+                'currency' => 'UAH',
+                'payment_provider' => $provider,
+                'description' => $description ?? [],
+            ]));
+        }
+
+        $subscription = Subscription::where('user_id', $order->user_id)->first();
+
+        if ($subscription === null) {
+            return null;
+        }
+
+        $newPlan = Plan::findOrFail($order->plan_id);
+        $billingPeriod = BillingPeriod::from($order->billing_period);
+
+        // Notes were populated by the /upgrade controller before the provider
+        // could overwrite the subscription's recurring tokens, so they are
+        // the trustworthy view of the pre-upgrade provider binding.
+        /** @var array<string, mixed> $notes */
+        $notes = is_array($order->notes) ? $order->notes : [];
+        $snapshot = [
+            'old_payment_provider' => isset($notes['old_payment_provider']) ? (string) $notes['old_payment_provider'] : null,
+            'old_payment_provider_subscription_id' => isset($notes['old_payment_provider_subscription_id']) ? (string) $notes['old_payment_provider_subscription_id'] : null,
+            'old_monobank_card_token' => isset($notes['old_monobank_card_token']) ? (string) $notes['old_monobank_card_token'] : null,
+            'old_wayforpay_rec_token' => isset($notes['old_wayforpay_rec_token']) ? (string) $notes['old_wayforpay_rec_token'] : null,
+        ];
+
+        return $this->subscriptionService()->applyUpgrade(
+            subscription: $subscription,
+            newPlan: $newPlan,
+            newBillingPeriod: $billingPeriod,
+            paymentProvider: $provider,
+            providerSubscriptionId: $providerSubscriptionId,
+            monobankCardToken: $monobankCardToken,
+            wayforpayRecToken: $wayforpayRecToken,
+            oldProviderSnapshot: $snapshot,
+        );
+    }
+
     /**
      * Idempotently activate (first charge) or renew (subsequent charge) a
      * subscription after a confirmed provider-side success. Returns the
@@ -159,6 +281,12 @@ class SubscriptionActivationService
 
         $subscription->update($updates);
 
+        if ($isRenewal) {
+            SubscriptionRenewed::dispatch($subscription);
+        } else {
+            SubscriptionActivated::dispatch($subscription);
+        }
+
         return $subscription->refresh();
     }
 
@@ -167,7 +295,7 @@ class SubscriptionActivationService
      * and flip the subscription to Trial state with the configured window.
      *
      * Used by providers that capture a recurring token up front and defer
-     * the first real charge until the trial ends (LiqPay, WayForPay). Monobank
+     * the first real charge until the trial ends (WayForPay). Monobank
      * goes straight from Pending → Active via activateOrRenew since there is
      * no trial path on its side.
      *
@@ -218,6 +346,86 @@ class SubscriptionActivationService
                 'description' => $description,
             ],
         );
+
+        SubscriptionTrialStarted::dispatch($subscription);
+
+        return $subscription->refresh();
+    }
+
+    /**
+     * Renew a subscription from a recurring charge that arrives without an
+     * Order (e.g. Monobank scheduled renewals carry no reference).
+     *
+     * Records the payment against the subscription directly and extends
+     * the billing period using the same logic as activateOrRenew().
+     *
+     * @param array<string, mixed> $metadata
+     * @param array<string, string>|null $description
+     */
+    public function renewBySubscription(
+        Subscription $subscription,
+        string $transactionId,
+        float $amountUah,
+        PaymentProvider $provider,
+        ?string $paymentMethod,
+        array $metadata,
+        ?array $description = null,
+    ): Subscription {
+        Payment::create([
+            'user_id' => $subscription->user_id,
+            'subscription_id' => $subscription->id,
+            'type' => PaymentType::Charge->value,
+            'amount' => $amountUah,
+            'currency' => 'UAH',
+            'status' => PaymentStatus::Success->value,
+            'payment_provider' => $provider,
+            'payment_method' => $paymentMethod,
+            'transaction_id' => $transactionId,
+            'description' => $description ?? [],
+            'metadata' => $metadata,
+        ]);
+
+        $billingPeriod = BillingPeriod::from($subscription->billing_period);
+
+        $isRenewal = in_array(
+            $subscription->status,
+            [
+                SubscriptionStatus::Active,
+                SubscriptionStatus::PastDue,
+                SubscriptionStatus::Trial,
+            ],
+            true,
+        ) && $subscription->current_period_end->isFuture();
+
+        if ($isRenewal) {
+            $periodStart = $subscription->current_period_end;
+            $periodEnd = $billingPeriod === BillingPeriod::Yearly
+                ? $periodStart->copy()->addYear()
+                : $periodStart->copy()->addMonth();
+        } else {
+            $periodStart = now();
+            $periodEnd = $billingPeriod === BillingPeriod::Yearly
+                ? now()->addYear()
+                : now()->addMonth();
+        }
+
+        $subscription->update([
+            'status' => SubscriptionStatus::Active,
+            'is_trial' => false,
+            'trial_ends_at' => null,
+            'current_period_start' => $periodStart,
+            'current_period_end' => $periodEnd,
+            'payment_provider' => $provider,
+            'payment_retry_count' => 0,
+            'next_payment_retry_at' => null,
+            'grace_period_ends_at' => null,
+        ]);
+
+        if ($isRenewal) {
+            SubscriptionRenewed::dispatch($subscription);
+        } else {
+            SubscriptionActivated::dispatch($subscription);
+        }
 
         return $subscription->refresh();
     }

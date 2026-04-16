@@ -15,7 +15,7 @@ use App\Services\Billing\DTO\WebhookResult;
 use Illuminate\Http\Request;
 
 /**
- * Contract for a payment-subscription provider (LiqPay, Monobank, ...).
+ * Contract for a payment-subscription provider (Monobank, WayForPay, ...).
  *
  * The caller is responsible for persisting the Order / Payment / Subscription
  * rows before invoking createSubscriptionCheckout; the provider only knows
@@ -43,9 +43,9 @@ interface PaymentProviderInterface
 
     /**
      * Charge the stored payment instrument to renew an active subscription.
-     * Providers without native recurring (Monobank) perform a direct charge
-     * against a previously tokenised card/wallet; providers with native
-     * subscriptions (LiqPay) may no-op here and rely on provider-scheduled
+     * Providers without native recurring perform a direct charge against a
+     * previously tokenised card/wallet; providers with native subscriptions
+     * may no-op here and rely on provider-scheduled
      * webhooks instead — return ChargeResult::ok() in that case.
      */
     public function chargeRecurring(Subscription $subscription): ChargeResult;
@@ -58,8 +58,8 @@ interface PaymentProviderInterface
 
     /**
      * Verify and process an incoming webhook request. Providers implement
-     * their own signature scheme (LiqPay: HMAC-SHA1; Monobank: ECDSA) and
-     * mutate Payment/Subscription state inside this method.
+     * their own signature scheme and mutate Payment/Subscription state
+     * inside this method.
      */
     public function handleWebhook(Request $request): WebhookResult;
 }

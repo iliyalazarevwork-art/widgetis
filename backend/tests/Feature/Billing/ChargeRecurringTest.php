@@ -23,23 +23,6 @@ class ChargeRecurringTest extends TestCase
         Config::set('monobank.token', 'fake-merchant-token');
     }
 
-    public function test_liqpay_subscriptions_are_skipped(): void
-    {
-        Http::fake();
-
-        Subscription::factory()->create([
-            'payment_provider' => PaymentProvider::LiqPay,
-            'current_period_end' => now()->addHours(12),
-            'status' => SubscriptionStatus::Active,
-        ]);
-
-        $this->artisan('subscriptions:charge-recurring')
-            ->expectsOutputToContain('Skipped 1')
-            ->assertSuccessful();
-
-        Http::assertNothingSent();
-    }
-
     public function test_monobank_subscriptions_are_skipped(): void
     {
         Http::fake();

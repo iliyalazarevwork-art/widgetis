@@ -32,7 +32,7 @@ class PaymentFactory extends Factory
             'amount' => 499,
             'currency' => 'UAH',
             'status' => PaymentStatus::Pending->value,
-            'payment_provider' => PaymentProvider::LiqPay,
+            'payment_provider' => PaymentProvider::Monobank,
             'payment_method' => null,
             'transaction_id' => null,
             'description' => ['en' => 'Test payment', 'uk' => 'Тестова оплата'],

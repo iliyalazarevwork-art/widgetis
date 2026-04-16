@@ -6,14 +6,12 @@ namespace App\Enums;
 
 enum PaymentProvider: string
 {
-    case LiqPay = 'liqpay';
     case Monobank = 'monobank';
     case WayForPay = 'wayforpay';
 
     public function label(): string
     {
         return match ($this) {
-            self::LiqPay => 'LiqPay',
             self::Monobank => 'Monobank',
             self::WayForPay => 'WayForPay',
         };

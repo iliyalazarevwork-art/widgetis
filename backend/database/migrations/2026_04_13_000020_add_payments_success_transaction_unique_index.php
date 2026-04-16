@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * Enforces idempotency on successful payment webhooks at the DB level.
  *
- * Providers (both LiqPay and Monobank) retry success webhooks on
+ * Providers retry success webhooks on
  * timeout/error. The application-level `Payment::where(transaction_id,
  * status=success)` check is racy under concurrent delivery: two
  * simultaneous webhooks can both see no existing row and both insert,

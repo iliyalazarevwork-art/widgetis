@@ -21,7 +21,7 @@ use Tests\TestCase;
 /**
  * End-to-end tests for POST /api/v1/payments/wayforpay/callback.
  *
- * Money path — mirrors LiqPayWebhookTest, with the extra wrinkle that
+ * Money path with the extra wrinkle that
  * WayForPay expects a signed JSON acknowledgement in the response body
  * instead of a plain "OK".
  */

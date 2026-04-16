@@ -7,6 +7,7 @@ namespace App\Services\Billing\Providers;
 use App\Enums\BillingPeriod;
 use App\Enums\PaymentProvider;
 use App\Models\Order;
+use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Models\User;
@@ -22,7 +23,7 @@ use Illuminate\Support\Facades\Log;
 /**
  * Adapter wrapping WayForPayService / WayForPayWebhookService in the
  * PaymentProviderInterface contract so SubscriptionController and the
- * recurring-charge cron can treat all three providers uniformly.
+ * recurring-charge cron can treat providers uniformly.
  *
  * Trial model: the checkout creates a hosted Purchase for the configured
  * verify amount (default 1 UAH). Once the user enters their card, WFP
@@ -57,7 +58,7 @@ class WayForPayProvider implements PaymentProviderInterface
         ?string $redirectUrl = null,
     ): CheckoutResult {
         // Scope by user_id — defense in depth against any caller passing
-        // a user-supplied $reference. Mirrors LiqPay / Monobank providers.
+        // a user-supplied $reference. Mirrors Monobank provider behavior.
         $order = Order::where('order_number', $reference)
             ->where('user_id', $user->id)
             ->firstOrFail();
@@ -93,7 +94,7 @@ class WayForPayProvider implements PaymentProviderInterface
         }
 
         // Hosted checkout is a POST form — browser submits signed fields
-        // to secure.wayforpay.com/pay, same shape as LiqPay.
+        // to secure.wayforpay.com/pay.
         /** @var array<string, string> $formFields */
         $formFields = $this->flattenFormFields($checkout['form']);
 
@@ -118,13 +119,27 @@ class WayForPayProvider implements PaymentProviderInterface
 
     public function cancelSubscription(Subscription $subscription): bool
     {
-        // WayForPay exposes a "REMOVE" endpoint only for regular payment
-        // entities, which we deliberately don't create (we self-schedule
-        // via ChargeRecurringSubscriptions). "Cancel" here just means
-        // stop calling CHARGE — once the Subscription row is Cancelled,
-        // the cron will skip it and the saved recToken goes unused.
+        // Find the original order reference that set up the WayForPay regular
+        // payment. We need it to call regularApi REMOVE so WayForPay stops
+        // charging the customer on its own bank-side schedule.
+        $payment = Payment::where('subscription_id', $subscription->id)
+            ->whereNotNull('order_id')
+            ->with('order')
+            ->first();
+
+        $orderReference = $payment?->order?->order_number;
+
+        if ($orderReference === null || $orderReference === '') {
+            Log::channel('payments')->warning('wayforpay.subscription.cancel_no_order', [
+                'subscription_id' => $subscription->id,
+            ]);
+        } else {
+            $this->wayForPayService->removeRegularPayment($orderReference);
+        }
+
         Log::channel('payments')->info('wayforpay.subscription.cancelled', [
             'subscription_id' => $subscription->id,
+            'order_reference' => $orderReference,
         ]);
 
         return true;

@@ -9,6 +9,7 @@ enum PaymentType: string
     case Charge = 'charge';
     case Refund = 'refund';
     case TrialActivation = 'trial_activation';
+    case Upgrade = 'upgrade';
 
     public function label(): string
     {
@@ -16,6 +17,7 @@ enum PaymentType: string
             self::Charge => 'Charge',
             self::Refund => 'Refund',
             self::TrialActivation => 'Trial Activation',
+            self::Upgrade => 'Upgrade',
         };
     }
 }

@@ -33,7 +33,7 @@ class OrderFactory extends Factory
             'discount_amount' => 0,
             'currency' => 'UAH',
             'status' => OrderStatus::Pending,
-            'payment_provider' => PaymentProvider::LiqPay,
+            'payment_provider' => PaymentProvider::Monobank,
         ];
     }
 

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
-use App\Http\Controllers\Api\V1\Payment\CheckoutController;
 use App\Http\Controllers\Api\V1\Profile\DashboardController;
 use App\Http\Controllers\Api\V1\Profile\NotificationController;
 use App\Http\Controllers\Api\V1\Profile\ProfileController;
@@ -23,15 +22,11 @@ use App\Http\Controllers\Api\V1\Public\ProductController;
 use App\Http\Controllers\Api\V1\Public\SettingsController;
 use App\Http\Controllers\Api\V1\Public\SystemController;
 use App\Http\Controllers\Api\V1\Public\TagController;
-use App\Http\Controllers\Api\V1\Webhooks\LiqPayWebhookController;
 use App\Http\Controllers\Api\V1\Webhooks\MonobankWebhookController;
 use App\Http\Controllers\Api\V1\Webhooks\WayForPayWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
-
-    // --- LiqPay webhook (public, no auth — signature verified inside controller) ---
-    Route::post('payments/liqpay/callback', [LiqPayWebhookController::class, 'handle']);
 
     // --- Monobank webhook (public, ECDSA signature verified inside provider) ---
     Route::post('webhooks/monobank', MonobankWebhookController::class);
@@ -104,10 +99,10 @@ Route::prefix('v1')->group(function () {
         Route::post('notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
         Route::get('subscription', [SubscriptionController::class, 'show']);
         Route::post('subscription/start-trial', [SubscriptionController::class, 'startTrial']);
-        Route::get('subscription/prorate', [SubscriptionController::class, 'prorate']);
-        Route::post('subscription/change', [SubscriptionController::class, 'change']);
+        Route::get('subscription/upgrade-preview', [SubscriptionController::class, 'upgradePreview']);
+        Route::post('subscription/upgrade', [SubscriptionController::class, 'upgrade'])
+            ->middleware('throttle:5,60');
         Route::post('subscription/cancel', [SubscriptionController::class, 'cancel']);
-        Route::post('subscription/checkout/trial', [CheckoutController::class, 'startTrial']);
         Route::post('subscription/checkout/cancel', [SubscriptionController::class, 'cancelPendingCheckout']);
         Route::post('subscription/checkout', [SubscriptionController::class, 'checkout'])
             ->middleware('throttle:5,60');

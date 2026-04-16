@@ -7,6 +7,7 @@ namespace App\Console\Commands;
 use App\Enums\PaymentProvider;
 use App\Enums\SubscriptionStatus;
 use App\Models\Subscription;
+use App\Services\Billing\PaymentFailureHandler;
 use App\Services\Billing\PaymentProviderRegistry;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -15,8 +16,8 @@ use Illuminate\Support\Facades\Log;
  * Charges renewals for subscriptions whose current period is about to end.
  *
  * Only providers that expose merchant-initiated charging are invoked here:
- * LiqPay schedules recurring billing on its own and reports back via
- * webhook, so we explicitly skip it by checking provider.name().
+ * Monobank and WayForPay schedule recurring billing on their own and
+ * report back via webhook, so we explicitly skip them by provider.name().
  *
  * Failure handling: bump payment_retry_count and schedule next_payment_retry_at.
  * After three attempts we drop into a 3-day grace period; ProcessGracePeriod
@@ -24,7 +25,7 @@ use Illuminate\Support\Facades\Log;
  */
 class ChargeRecurringSubscriptions extends Command
 {
-    protected $signature = 'subscriptions:charge-recurring {--provider= : Limit to a single provider (liqpay|monobank)}';
+    protected $signature = 'subscriptions:charge-recurring {--provider= : Limit to a single provider (monobank|wayforpay)}';
     protected $description = 'Charge renewals for active subscriptions whose current period ends within 24h';
 
     private const MAX_RETRY_COUNT = 3;
@@ -59,10 +60,10 @@ class ChargeRecurringSubscriptions extends Command
         foreach ($subscriptions as $subscription) {
             $provider = $registry->for($subscription);
 
-            // LiqPay, WayForPay, and Monobank all self-schedule recurring
-            // payments on their side and fire a webhook for each charge —
-            // running our own charge cron against them would double-bill.
-            if (in_array($provider->name(), [PaymentProvider::LiqPay, PaymentProvider::WayForPay, PaymentProvider::Monobank], true)) {
+            // WayForPay and Monobank self-schedule recurring payments on
+            // their side and fire a webhook for each charge, so running our
+            // own charge cron against them would double-bill.
+            if (in_array($provider->name(), [PaymentProvider::WayForPay, PaymentProvider::Monobank], true)) {
                 $skipped++;
                 continue;
             }
@@ -100,7 +101,7 @@ class ChargeRecurringSubscriptions extends Command
 
             if ($retryCount >= self::MAX_RETRY_COUNT) {
                 $updates['status'] = SubscriptionStatus::PastDue;
-                $updates['grace_period_ends_at'] = now()->addDays(3);
+                $updates['grace_period_ends_at'] = now()->addDays(PaymentFailureHandler::GRACE_PERIOD_DAYS);
                 $updates['next_payment_retry_at'] = null;
             }
 

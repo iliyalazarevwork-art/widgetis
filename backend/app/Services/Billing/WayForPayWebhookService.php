@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Log;
  * WayForPay sends a single webhook format for Purchase, CHARGE, and REFUND
  * transactions — the `transactionStatus` field distinguishes them. We
  * dispatch on that value and delegate state transitions to the shared
- * SubscriptionActivationService so LiqPay / Monobank / WayForPay flows stay
+ * SubscriptionActivationService so Monobank / WayForPay flows stay
  * symmetric and cannot drift apart on period-extension math.
  *
  * After processing, WayForPay expects a signed JSON acknowledgement in
@@ -132,11 +132,11 @@ class WayForPayWebhookService
         $subscription = Subscription::where('user_id', $order->user_id)->first();
 
         // Cross-provider guard: the user may have cancelled this WayForPay
-        // checkout and started a LiqPay / Monobank one. In that case the
+        // checkout and started a different one. In that case the
         // Subscription row's payment_provider was overwritten, and we must
         // not paint our recToken onto a subscription that now belongs to
         // a different provider — a future cron run would think we can
-        // recurringly charge a LiqPay-managed sub through WayForPay.
+        // recurringly charge another provider's subscription through WayForPay.
         if (
             $subscription !== null
             && $subscription->payment_provider !== null
@@ -381,7 +381,7 @@ class WayForPayWebhookService
     /**
      * Emulate a full Approved webhook locally so /api/v1/profile/subscription/checkout
      * can advance the subscription to Trial without needing a reachable
-     * serviceUrl. Mirrors LiqPayWebhookService::simulateSuccess.
+     * serviceUrl.
      */
     public function simulateSuccess(Order $order): void
     {
