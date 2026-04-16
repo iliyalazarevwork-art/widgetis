@@ -25,6 +25,7 @@ import type { User } from '../types'
 import { useAuth } from '../context/AuthContext'
 import { toast } from 'sonner'
 import liqpaySymbol from '../assets/logo-liqpay-symbol.svg'
+import wayForPaySymbol from '../assets/logo-wayforpay-symbol.svg'
 import plataSymbol from '../assets/logo-plata-symbol-dark.svg'
 import './SignupPage.css'
 
@@ -146,7 +147,7 @@ function OtpInput({ value, onChange }: { value: string; onChange: (v: string) =>
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
 type EmailStatus = 'idle' | 'sent' | 'verified'
-type PaymentMethodId = 'liqpay' | 'monobank'
+type PaymentMethodId = 'liqpay' | 'monobank' | 'wayforpay'
 
 interface PaymentMethod {
   id: PaymentMethodId
@@ -170,6 +171,13 @@ const PAYMENT_METHODS: readonly PaymentMethod[] = [
     symbol: plataSymbol,
     hint: 'Apple Pay · Google Pay · картки будь-якого банку',
     trial: false,
+  },
+  {
+    id: 'wayforpay',
+    name: 'WayForPay',
+    symbol: wayForPaySymbol,
+    hint: 'Visa · Mastercard · Apple Pay · Google Pay',
+    trial: true,
   },
 ] as const
 
@@ -789,7 +797,7 @@ export function SignupPage() {
 
                 {!PAYMENT_METHODS.find(m => m.id === paymentMethod)?.trial && (
                   <p className="signup__payment-notice">
-                    plata by mono списує оплату одразу — тріал не підтримується. Для 7 безкоштовних днів оберіть LiqPay.
+                    plata by mono списує оплату одразу — тріал не підтримується. Для 7 безкоштовних днів оберіть LiqPay або WayForPay.
                   </p>
                 )}
               </div>

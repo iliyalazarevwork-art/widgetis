@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property ?PaymentProvider $payment_provider
  * @property ?string $payment_provider_subscription_id
  * @property ?string $monobank_card_token
+ * @property ?string $wayforpay_rec_token
  * @property string $user_id
  * @property SubscriptionStatus $status
  * @property \Illuminate\Support\Carbon $current_period_start
@@ -51,6 +52,7 @@ class Subscription extends Model
         'payment_provider',
         'payment_provider_subscription_id',
         'monobank_card_token',
+        'wayforpay_rec_token',
     ];
 
     /**

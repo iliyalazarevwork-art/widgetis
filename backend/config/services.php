@@ -60,4 +60,31 @@ return [
         'sandbox' => env('LIQPAY_SANDBOX', true),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | WayForPay
+    |--------------------------------------------------------------------------
+    |
+    | WayForPay has no "sandbox" mode flag: they expose a public test merchant
+    | whose credentials are documented at https://wiki.wayforpay.com/. In dev
+    | we fall back to those values so the flow works out of the box without
+    | real keys; prod must override every env var with production values.
+    |
+    | merchant_domain_name MUST match the domain registered in the WayForPay
+    | merchant cabinet, otherwise checkout requests are rejected with a 1117
+    | signature error even when the secret key is correct.
+    */
+    'wayforpay' => [
+        'merchant_account'     => env('WAYFORPAY_MERCHANT_ACCOUNT', 'test_merch_n1'),
+        'secret_key'           => env('WAYFORPAY_SECRET_KEY', 'flk3409refn54t54t*FNJRET'),
+        'merchant_domain_name' => env('WAYFORPAY_MERCHANT_DOMAIN_NAME', 'www.market.ua'),
+        'webhook_url'          => env('WAYFORPAY_WEBHOOK_URL'),
+        'return_url'           => env('WAYFORPAY_RETURN_URL'),
+        // Initial hosted-checkout amount. WayForPay Purchase does not allow
+        // zero, so we charge the minimum and refund it as soon as recToken
+        // is captured — net cost of activating the trial stays zero.
+        'trial_verify_amount'  => (float) env('WAYFORPAY_TRIAL_VERIFY_AMOUNT', 1.0),
+        'auto_refund_trial'    => (bool) env('WAYFORPAY_AUTO_REFUND_TRIAL', true),
+    ],
+
 ];

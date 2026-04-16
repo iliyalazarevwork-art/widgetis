@@ -136,7 +136,7 @@ class SubscriptionController extends BaseController
         $validated = $request->validate([
             'plan_slug'      => ['required', 'string', 'exists:plans,slug'],
             'billing_period' => ['required', 'string', 'in:monthly,yearly'],
-            'provider'       => ['required', 'string', 'in:liqpay,monobank'],
+            'provider'       => ['required', 'string', 'in:liqpay,monobank,wayforpay'],
             'site_domain'    => ['required', 'string', 'max:255'],
             'platform'       => ['nullable', 'string', 'max:100'],
             'redirect_url'   => ['nullable', 'string', 'max:500'],

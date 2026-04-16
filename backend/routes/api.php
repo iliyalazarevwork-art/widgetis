@@ -25,6 +25,7 @@ use App\Http\Controllers\Api\V1\Public\SystemController;
 use App\Http\Controllers\Api\V1\Public\TagController;
 use App\Http\Controllers\Api\V1\Webhooks\LiqPayWebhookController;
 use App\Http\Controllers\Api\V1\Webhooks\MonobankWebhookController;
+use App\Http\Controllers\Api\V1\Webhooks\WayForPayWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -34,6 +35,9 @@ Route::prefix('v1')->group(function () {
 
     // --- Monobank webhook (public, ECDSA signature verified inside provider) ---
     Route::post('webhooks/monobank', MonobankWebhookController::class);
+
+    // --- WayForPay webhook (public, HMAC-MD5 signature verified inside provider) ---
+    Route::post('payments/wayforpay/callback', WayForPayWebhookController::class);
 
     // --- Health check ---
     Route::get('health', [SystemController::class, 'health']);
