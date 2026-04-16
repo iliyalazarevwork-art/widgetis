@@ -25,7 +25,7 @@ import type { User } from '../types'
 import { useAuth } from '../context/AuthContext'
 import { toast } from 'sonner'
 import liqpaySymbol from '../assets/logo-liqpay-symbol.svg'
-import wayForPaySymbol from '../assets/logo-wayforpay-symbol.svg'
+import wayForPaySymbol from '../assets/logo-wayforpay-symbol.webp'
 import plataSymbol from '../assets/logo-plata-symbol-dark.svg'
 import './SignupPage.css'
 
@@ -789,7 +789,7 @@ export function SignupPage() {
                       <img
                         src={method.symbol}
                         alt={method.name}
-                        className="signup__payment-card-logo"
+                        className={`signup__payment-card-logo signup__payment-card-logo--${method.id}`}
                       />
                     </button>
                   ))}

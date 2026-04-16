@@ -603,10 +603,32 @@
 }
 
 .signup__payment-card-logo {
-  width: 28px;
-  height: 28px;
   object-fit: contain;
   flex-shrink: 0;
+  box-sizing: content-box;
+}
+
+/* LiqPay: square symbol, clear space per brandbook */
+.signup__payment-card-logo--liqpay {
+  width: 20px;
+  height: 20px;
+  padding: 20px;
+}
+
+/* plata by mono: wide text logo, white on transparent */
+.signup__payment-card-logo--monobank {
+  width: 64px;
+  height: 20px;
+  padding: 10px;
+}
+
+/* WayForPay: wide text logo on white bg */
+.signup__payment-card-logo--wayforpay {
+  width: 72px;
+  height: 18px;
+  padding: 12px;
+  background: #ffffff;
+  border-radius: 10px;
 }
 
 .signup__payment-card-info {
@@ -1080,11 +1102,22 @@
 
   .signup__payment-card-hint { font-size: 11px; }
 
-  .signup__payment-card-logo {
-    width: 48px;
-    height: 48px;
-    padding: 8px;
-    background: #ffffff;
+  .signup__payment-card-logo--liqpay {
+    width: 20px;
+    height: 20px;
+    padding: 20px;
+  }
+
+  .signup__payment-card-logo--monobank {
+    width: 72px;
+    height: 24px;
+    padding: 12px;
+  }
+
+  .signup__payment-card-logo--wayforpay {
+    width: 80px;
+    height: 20px;
+    padding: 14px;
     border-radius: 12px;
   }
 
