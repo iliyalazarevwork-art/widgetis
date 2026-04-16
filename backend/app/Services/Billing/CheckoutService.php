@@ -20,6 +20,7 @@ use App\Models\User;
 use App\Services\Billing\DTO\CheckoutPayload;
 use App\Services\Billing\DTO\UpgradeQuote;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Orchestrates the creation of Order + Subscription + Payment rows
@@ -47,14 +48,28 @@ class CheckoutService
      */
     public function cancelStalePendingOrders(string $userId): void
     {
+        Log::channel('payments')->info('checkout.cancel_stale_pending_orders.in', [
+            'user_id' => $userId,
+        ]);
+
+        $cancelledOrders = 0;
+        $failedPayments = 0;
+
         Order::where('user_id', $userId)
             ->where('status', OrderStatus::Pending)
-            ->each(function (Order $staleOrder): void {
+            ->each(function (Order $staleOrder) use (&$cancelledOrders, &$failedPayments): void {
                 $staleOrder->update(['status' => OrderStatus::Cancelled]);
-                $staleOrder->payments()
+                $cancelledOrders++;
+                $failedPayments += $staleOrder->payments()
                     ->where('status', PaymentStatus::Pending->value)
                     ->update(['status' => PaymentStatus::Failed->value]);
             });
+
+        Log::channel('payments')->info('checkout.cancel_stale_pending_orders.out', [
+            'user_id' => $userId,
+            'cancelled_orders' => $cancelledOrders,
+            'failed_pending_payments' => $failedPayments,
+        ]);
     }
 
     /**
@@ -70,6 +85,17 @@ class CheckoutService
         ?string $platform = null,
         ?string $redirectUrl = null,
     ): CheckoutPayload {
+        Log::channel('payments')->info('checkout.create.in', [
+            'user_id' => $user->id,
+            'plan_id' => $plan->id,
+            'plan_slug' => $plan->slug,
+            'billing_period' => $billingPeriod->value,
+            'provider' => $provider->value,
+            'site_domain' => $siteDomain,
+            'platform' => $platform,
+            'has_redirect_url' => $redirectUrl !== null,
+        ]);
+
         /** @var string $reference */
         $reference = DB::transaction(function () use ($user, $plan, $billingPeriod, $provider, $siteDomain, $platform): string {
             User::where('id', $user->id)->lockForUpdate()->first();
@@ -136,15 +162,39 @@ class CheckoutService
             return $order->order_number;
         });
 
-        $result = $this->providers->get($provider)->createSubscriptionCheckout(
-            user: $user,
-            plan: $plan,
-            billingPeriod: $billingPeriod,
-            reference: $reference,
-            redirectUrl: $redirectUrl,
-        );
+        try {
+            $result = $this->providers->get($provider)->createSubscriptionCheckout(
+                user: $user,
+                plan: $plan,
+                billingPeriod: $billingPeriod,
+                reference: $reference,
+                redirectUrl: $redirectUrl,
+            );
+        } catch (\Throwable $exception) {
+            Log::channel('payments')->error('checkout.create.out', [
+                'user_id' => $user->id,
+                'reference' => $reference,
+                'provider' => $provider->value,
+                'result' => 'error',
+                'exception_class' => $exception::class,
+                'exception_message' => $exception->getMessage(),
+            ]);
+            throw $exception;
+        }
 
-        return CheckoutPayload::fromCheckoutResult($result, $provider, $reference);
+        $payload = CheckoutPayload::fromCheckoutResult($result, $provider, $reference);
+
+        Log::channel('payments')->info('checkout.create.out', [
+            'user_id' => $user->id,
+            'reference' => $reference,
+            'provider' => $provider->value,
+            'method' => $payload->method,
+            'provider_reference_present' => $payload->providerReference !== null,
+            'form_fields_count' => count($payload->formFields),
+            'result' => 'success',
+        ]);
+
+        return $payload;
     }
 
     /**
@@ -160,6 +210,19 @@ class CheckoutService
         UpgradeQuote $quote,
         ?string $redirectUrl = null,
     ): CheckoutPayload {
+        Log::channel('payments')->info('checkout.upgrade.create.in', [
+            'user_id' => $user->id,
+            'subscription_id' => $subscription->id,
+            'from_plan_id' => $subscription->plan_id,
+            'target_plan_id' => $targetPlan->id,
+            'target_plan_slug' => $targetPlan->slug,
+            'target_period' => $targetPeriod->value,
+            'provider' => $provider->value,
+            'amount_due' => $quote->amountDue,
+            'credit_applied' => $quote->creditApplied,
+            'has_redirect_url' => $redirectUrl !== null,
+        ]);
+
         $firstSite = $user->sites()->first();
         $siteDomain = $firstSite !== null ? $firstSite->domain : $targetPlan->slug;
         $amountDue = $quote->amountDue;
@@ -212,20 +275,46 @@ class CheckoutService
             return $order->order_number;
         });
 
-        $result = $this->providers->get($provider)->createSubscriptionCheckout(
-            user: $user,
-            plan: $targetPlan,
-            billingPeriod: $targetPeriod,
-            reference: $reference,
-            redirectUrl: $redirectUrl,
-        );
+        try {
+            $result = $this->providers->get($provider)->createSubscriptionCheckout(
+                user: $user,
+                plan: $targetPlan,
+                billingPeriod: $targetPeriod,
+                reference: $reference,
+                redirectUrl: $redirectUrl,
+            );
+        } catch (\Throwable $exception) {
+            Log::channel('payments')->error('checkout.upgrade.create.out', [
+                'user_id' => $user->id,
+                'reference' => $reference,
+                'provider' => $provider->value,
+                'result' => 'error',
+                'exception_class' => $exception::class,
+                'exception_message' => $exception->getMessage(),
+            ]);
+            throw $exception;
+        }
 
-        return CheckoutPayload::fromCheckoutResult(
+        $payload = CheckoutPayload::fromCheckoutResult(
             $result,
             $provider,
             $reference,
             (float) $amountDue,
             $quote->creditApplied,
         );
+
+        Log::channel('payments')->info('checkout.upgrade.create.out', [
+            'user_id' => $user->id,
+            'reference' => $reference,
+            'provider' => $provider->value,
+            'method' => $payload->method,
+            'provider_reference_present' => $payload->providerReference !== null,
+            'form_fields_count' => count($payload->formFields),
+            'amount_due' => $payload->amountDue,
+            'credit_applied' => $payload->creditApplied,
+            'result' => 'success',
+        ]);
+
+        return $payload;
     }
 }

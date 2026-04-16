@@ -6,6 +6,7 @@ namespace App\Console\Commands;
 
 use App\Enums\SubscriptionStatus;
 use App\Models\Subscription;
+use App\Services\Billing\PaymentFailureHandler;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -26,7 +27,7 @@ class ExpireSubscriptions extends Command
 
         $count = 0;
         foreach ($expired as $subscription) {
-            $gracePeriodEnd = Carbon::parse($subscription->current_period_end)->addDays(3);
+            $gracePeriodEnd = Carbon::parse($subscription->current_period_end)->addDays(PaymentFailureHandler::GRACE_PERIOD_DAYS);
 
             $subscription->update([
                 'status' => SubscriptionStatus::PastDue,

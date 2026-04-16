@@ -13,12 +13,20 @@ use App\Models\SiteScript;
 use App\Models\SiteWidget;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class SiteService
 {
     public function create(User $user, string $url, string $platform, ?string $name = null): Site
     {
+        Log::info('site.create.in', [
+            'user_id' => $user->id,
+            'url' => $url,
+            'platform' => $platform,
+            'name' => $name,
+        ]);
+
         $domain = Site::domainFromUrl($url);
 
         $takenByAnother = Site::query()
@@ -27,6 +35,11 @@ class SiteService
             ->exists();
 
         if ($takenByAnother) {
+            Log::warning('site.create.out', [
+                'user_id' => $user->id,
+                'domain' => $domain,
+                'result' => 'domain_taken_by_another_account',
+            ]);
             throw ValidationException::withMessages([
                 'url' => [__('messages.site_taken_by_another_account')],
             ]);
@@ -38,6 +51,11 @@ class SiteService
             ->exists();
 
         if ($alreadyConnected) {
+            Log::warning('site.create.out', [
+                'user_id' => $user->id,
+                'domain' => $domain,
+                'result' => 'domain_already_connected',
+            ]);
             throw ValidationException::withMessages([
                 'url' => [__('messages.site_already_connected')],
             ]);
@@ -45,7 +63,7 @@ class SiteService
 
         $this->checkSiteLimit($user);
 
-        return DB::transaction(function () use ($user, $url, $platform, $name, $domain) {
+        $site = DB::transaction(function () use ($user, $url, $platform, $name, $domain) {
             $site = Site::create([
                 'user_id' => $user->id,
                 'name' => $name ?? $domain,
@@ -67,6 +85,16 @@ class SiteService
 
             return $site->load('script');
         });
+
+        Log::info('site.create.out', [
+            'user_id' => $user->id,
+            'site_id' => $site->id,
+            'domain' => $site->domain,
+            'status' => is_string($site->status) ? $site->status : $site->status->value,
+            'result' => 'success',
+        ]);
+
+        return $site;
     }
 
     public function checkSiteLimit(User $user): void
@@ -75,11 +103,30 @@ class SiteService
         $maxSites = $plan?->max_sites ?? 1;
         $currentCount = $user->sites()->count();
 
+        Log::info('site.limit.check.in', [
+            'user_id' => $user->id,
+            'current_count' => $currentCount,
+            'max_sites' => $maxSites,
+        ]);
+
         if ($currentCount >= $maxSites) {
+            Log::warning('site.limit.check.out', [
+                'user_id' => $user->id,
+                'current_count' => $currentCount,
+                'max_sites' => $maxSites,
+                'result' => 'limit_exceeded',
+            ]);
             throw new PlanLimitExceededException(
                 "Site limit reached ({$currentCount}/{$maxSites}). Upgrade your plan.",
             );
         }
+
+        Log::info('site.limit.check.out', [
+            'user_id' => $user->id,
+            'current_count' => $currentCount,
+            'max_sites' => $maxSites,
+            'result' => 'ok',
+        ]);
     }
 
     public function checkWidgetLimit(User $user): void
@@ -88,11 +135,30 @@ class SiteService
         $maxWidgets = $plan?->max_widgets ?? 2;
         $currentCount = $user->siteWidgets()->where('is_enabled', true)->count();
 
+        Log::info('site.widget_limit.check.in', [
+            'user_id' => $user->id,
+            'current_count' => $currentCount,
+            'max_widgets' => $maxWidgets,
+        ]);
+
         if ($currentCount >= $maxWidgets) {
+            Log::warning('site.widget_limit.check.out', [
+                'user_id' => $user->id,
+                'current_count' => $currentCount,
+                'max_widgets' => $maxWidgets,
+                'result' => 'limit_exceeded',
+            ]);
             throw new PlanLimitExceededException(
                 "Widget limit reached ({$currentCount}/{$maxWidgets}). Upgrade your plan.",
             );
         }
+
+        Log::info('site.widget_limit.check.out', [
+            'user_id' => $user->id,
+            'current_count' => $currentCount,
+            'max_widgets' => $maxWidgets,
+            'result' => 'ok',
+        ]);
     }
 
     /**
@@ -113,7 +179,20 @@ class SiteService
         int $productId,
         array $patch,
     ): SiteWidget {
+        Log::info('site.widget_config.apply.in', [
+            'user_id' => $user->id,
+            'site_id' => $site->id,
+            'product_id' => $productId,
+            'patch_keys' => array_keys($patch),
+        ]);
+
         if (!$user->hasActivePlan()) {
+            Log::warning('site.widget_config.apply.out', [
+                'user_id' => $user->id,
+                'site_id' => $site->id,
+                'product_id' => $productId,
+                'result' => 'subscription_required',
+            ]);
             throw new SubscriptionRequiredException(
                 'Widget configuration requires an active subscription.',
             );
@@ -153,6 +232,16 @@ class SiteService
 
         RebuildSiteScriptJob::dispatch($site->id);
 
+        Log::info('site.widget_config.apply.out', [
+            'user_id' => $user->id,
+            'site_id' => $site->id,
+            'product_id' => $productId,
+            'site_widget_id' => $siteWidget->id,
+            'is_enabled' => $siteWidget->is_enabled,
+            'config_keys' => array_keys($siteWidget->config ?? []),
+            'result' => 'success',
+        ]);
+
         return $siteWidget;
     }
 
@@ -182,7 +271,11 @@ class SiteService
      */
     public function getInstallInstructions(string $platform): array
     {
-        return match ($platform) {
+        Log::info('site.install_instructions.in', [
+            'platform' => $platform,
+        ]);
+
+        $instructions = match ($platform) {
             'horoshop' => [
                 ['step' => 1, 'title' => 'Open Horoshop admin panel', 'description' => 'Go to your store admin at admin.horoshop.ua'],
                 ['step' => 2, 'title' => 'Navigate to Scripts', 'description' => 'Go to Settings → Scripts → Scripts before </body>'],
@@ -196,5 +289,12 @@ class SiteService
                 ['step' => 4, 'title' => 'Save', 'description' => 'Save changes'],
             ],
         };
+
+        Log::info('site.install_instructions.out', [
+            'platform' => $platform,
+            'steps_count' => count($instructions),
+        ]);
+
+        return $instructions;
     }
 }

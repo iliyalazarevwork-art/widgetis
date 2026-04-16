@@ -76,6 +76,132 @@ docker compose -f docker-compose.dev.yml exec backend composer <command>
 - Use PHP enums for all status/type columns — never compare against raw strings
 - Use `$model->status === StatusEnum::Active` not `$model->status === 'active'`
 
+### OOP design rules
+
+**Every class must be either `final` or `abstract` — never neither.**
+- `final` by default: prevents unintended inheritance, forces composition, protects invariants.
+- `abstract` only when you deliberately design an extension point.
+- Never leave a class "open" by accident.
+
+**Composition over inheritance.**
+Inject collaborators via constructor. Extending a concrete class couples you to its implementation; injecting an interface lets you swap at the container level.
+
+**Depend on interfaces, not concrete classes.**
+Every constructor parameter should be type-hinted against an interface. This enforces Dependency Inversion and makes unit-testing trivial.
+
+**DTOs and value objects must be `readonly`.**
+Use `readonly class` + named constructors (`::fromRequest()`, `::fromModel()`). Immutable data cannot be mutated by accident; named constructors encode intent.
+
+```php
+final readonly class CreateSiteData
+{
+    private function __construct(
+        public string $url,
+        public string $name,
+    ) {}
+
+    public static function fromRequest(Request $request): self
+    {
+        return new self(url: $request->string('url'), name: $request->string('name'));
+    }
+}
+```
+
+**Guard clauses first — no deep nesting.**
+Validate preconditions at the top of every method and return/throw immediately. The happy path should be flat and unindented.
+
+```php
+// Bad
+public function activate(User $user): void {
+    if ($user->isActive()) {
+        if ($user->hasSubscription()) {
+            // ... 4 levels deep
+        }
+    }
+}
+
+// Good
+public function activate(User $user): void {
+    if (! $user->isActive()) {
+        throw new DomainException('User is not active');
+    }
+    if (! $user->hasSubscription()) {
+        throw new DomainException('No subscription');
+    }
+    // happy path here
+}
+```
+
+**Never return `null` — throw or use typed alternatives.**
+A `null` return forces every caller to add `null` checks. Instead: throw a domain exception, return a Null Object, or use `?Type` only when `null` has explicit semantic meaning (e.g. "not set yet").
+
+**No base classes for parallel hierarchies — extract a service instead.**
+If `ListenerA` and `ListenerB` share logic, put it in an injected service, not a `BaseListener`. Base classes create invisible coupling; services are explicit dependencies.
+
+### Principles: SOLID, DRY, KISS
+
+**SOLID** — apply at every class and method boundary:
+- **S** — Single Responsibility: one class, one reason to change. A `SubscriptionService` activates subscriptions; it does not send emails.
+- **O** — Open/Closed: extend behaviour via new classes (strategies, decorators), not by editing existing ones.
+- **L** — Liskov Substitution: any subtype must be substitutable for its parent without breaking callers. Prefer `final` to avoid violating this by accident.
+- **I** — Interface Segregation: small focused interfaces (`CanBeCancelled`, `HasTrialPeriod`) over one fat `SubscriptionInterface`.
+- **D** — Dependency Inversion: high-level modules depend on abstractions, not on concrete classes. Wire everything through the IoC container.
+
+**DRY — Don't Repeat Yourself.**
+Every piece of knowledge must have a single authoritative source. If the same logic appears twice — extract it to a method, service, or value object. Duplication of code leads to divergence: one copy gets fixed, the other doesn't.
+
+**KISS — Keep It Simple, Stupid.**
+Prefer the simplest solution that works. No speculative abstractions, no "we might need this later" layers. A plain method beats a pattern when there is only one use case. Complexity is a cost; always justify it.
+
+### Constants and enums
+
+**Use constants and enums — never magic strings or numbers.**
+- Use a PHP `enum` for any value that belongs to a closed set (statuses, types, roles).
+- Use a `class constant` for fixed scalar values (timeouts, limits, config keys).
+- Never hardcode a raw string or integer more than once — name it.
+
+```php
+// Bad
+if ($plan === 'pro') { ... }
+Cache::put('settings', $data, 300);
+
+// Good
+if ($plan === PlanSlug::Pro) { ... }
+Cache::put('settings', $data, CacheTtl::SETTINGS);
+```
+
+### Testing
+
+**Write tests for every feature — feature tests by default.**
+- Use **Pest** (Laravel 12 default). PHPUnit only when Pest lacks the capability.
+- Default to **feature tests** (full HTTP + DB stack). Drop to unit tests only for pure logic with no infrastructure.
+- Test names must read as plain English sentences: `it('returns 422 when email is missing')`.
+- One test — one assertion of behaviour. Don't test implementation details, test outcomes.
+- Tests live in `tests/Feature/` (HTTP flows) and `tests/Unit/` (pure classes).
+
+### More OOP rules
+
+**Tell, Don't Ask.**
+Don't read an object's state externally and then decide what to do. Tell the object to do it.
+```php
+// Bad — asking
+if ($subscription->getStatus() === 'active') { $subscription->setStatus('cancelled'); }
+// Good — telling
+$subscription->cancel();
+```
+
+**Command-Query Separation (CQS).**
+A method either mutates state (`void`) OR returns data — never both. If you need an ID after creation, query it separately.
+
+**Short methods — one level of abstraction.**
+Keep methods under ~15 lines. If a block needs a comment to explain it, extract it into a named private method.
+
+**No static methods for business logic.**
+Static calls cannot be injected, swapped, or mocked. The only allowed statics are named constructors on value objects (`public static function fromRequest(): self`).
+
+**Explicit domain exceptions — never throw `\Exception`.**
+Every `throw` must use a specific named class (`SubscriptionAlreadyCancelledException`). Generic exceptions communicate nothing; named exceptions are typed, monitorable, and PHPStan-analysable.
+
 ### Self-check after writing code
 
 After writing any PHP code, run these checks before committing:
