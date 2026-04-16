@@ -53,6 +53,10 @@ class WayForPayWebhookService
         $orderReference = isset($payload['orderReference']) ? (string) $payload['orderReference'] : null;
         $transactionStatus = isset($payload['transactionStatus']) ? (string) $payload['transactionStatus'] : '';
 
+        // Deliberately only log the small set of non-sensitive fields —
+        // the full payload carries a recToken which we persist as a
+        // first-class column on the subscription and must NOT copy into
+        // any log channel (widens the blast radius on any log leak).
         Log::channel('payments')->info('wayforpay.webhook.received', [
             'order_reference' => $orderReference,
             'transaction_status' => $transactionStatus,
@@ -109,7 +113,43 @@ class WayForPayWebhookService
      */
     private function handleApproved(Order $order, array $payload): string
     {
+        // Guard: a late Approved webhook can land for an Order the user
+        // already abandoned (they started a new checkout, which cancels
+        // stale pending orders). Re-activating from a cancelled order would
+        // either pollute a fresh Subscription with WayForPay state that
+        // belongs to a different checkout attempt, or silently flip a
+        // user's plan to one they walked away from. Either way it's wrong.
+        if ($order->status === OrderStatus::Cancelled) {
+            Log::channel('payments')->warning('wayforpay.payment.success_for_cancelled_order', [
+                'user_id' => $order->user_id,
+                'order_reference' => $order->order_number,
+                'auth_code' => $payload['authCode'] ?? null,
+            ]);
+
+            return 'ignored';
+        }
+
         $subscription = Subscription::where('user_id', $order->user_id)->first();
+
+        // Cross-provider guard: the user may have cancelled this WayForPay
+        // checkout and started a LiqPay / Monobank one. In that case the
+        // Subscription row's payment_provider was overwritten, and we must
+        // not paint our recToken onto a subscription that now belongs to
+        // a different provider — a future cron run would think we can
+        // recurringly charge a LiqPay-managed sub through WayForPay.
+        if (
+            $subscription !== null
+            && $subscription->payment_provider !== null
+            && $subscription->payment_provider !== PaymentProvider::WayForPay
+        ) {
+            Log::channel('payments')->warning('wayforpay.webhook.subscription_provider_mismatch', [
+                'user_id' => $order->user_id,
+                'order_reference' => $order->order_number,
+                'subscription_provider' => $subscription->payment_provider->value,
+            ]);
+
+            return 'ignored';
+        }
 
         // Idempotency: if we've already recorded a successful payment for
         // this exact orderReference AND this exact authCode, the webhook

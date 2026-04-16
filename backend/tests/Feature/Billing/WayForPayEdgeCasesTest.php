@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Billing;
 
 use App\Enums\OrderStatus;
+use App\Enums\PaymentProvider;
 use App\Enums\PaymentStatus;
 use App\Enums\PaymentType;
 use App\Enums\SubscriptionStatus;
@@ -226,15 +227,76 @@ class WayForPayEdgeCasesTest extends TestCase
         $order->update(['status' => OrderStatus::Cancelled]);
 
         // A late Approved webhook lands for the cancelled order.
-        $this->postJson(self::WEBHOOK_URL, $this->signedWebhook($order->order_number, 'Approved', 1100))
-            ->assertOk();
+        $this->postJson(self::WEBHOOK_URL, $this->signedWebhook($order->order_number, 'Approved', 1100, [
+            'recToken' => 'REC-LATE-ARRIVAL',
+        ]))->assertOk();
 
         $subscription->refresh();
 
-        // We pin the current behaviour: the subscription stays Pending.
-        // If we later decide to activate anyway and rely on the newer
-        // checkout superseding it, update this assertion.
-        $this->assertNotSame(SubscriptionStatus::Active, $subscription->status);
+        // Subscription stays Pending, no WFP state gets painted onto it.
+        // In particular, the rec token must NOT be saved — if it were, a
+        // future cron run could initiate unauthorised charges against a
+        // customer whose checkout they already abandoned.
+        $this->assertSame(SubscriptionStatus::Pending, $subscription->status);
+        $this->assertNull($subscription->wayforpay_rec_token);
+    }
+
+    public function test_wfp_webhook_does_not_pollute_subscription_owned_by_other_provider(): void
+    {
+        // Cross-provider pollution: user started a WayForPay checkout,
+        // abandoned it, then started a LiqPay one. The WFP webhook for
+        // the abandoned checkout arrives late. We must NOT flip the live
+        // LiqPay subscription to WayForPay or save a WFP rec token on it.
+        [$order, $subscription] = $this->seedPendingCheckout();
+
+        // Simulate the second checkout overwriting the subscription's
+        // provider (SubscriptionController::checkout does exactly this).
+        $subscription->update(['payment_provider' => PaymentProvider::LiqPay]);
+
+        $this->postJson(self::WEBHOOK_URL, $this->signedWebhook($order->order_number, 'Approved', 1100, [
+            'recToken' => 'REC-STALE-WFP',
+        ]))->assertOk();
+
+        $subscription->refresh();
+
+        $this->assertSame(PaymentProvider::LiqPay, $subscription->payment_provider);
+        $this->assertNull($subscription->wayforpay_rec_token);
+    }
+
+    public function test_past_due_subscription_is_extended_from_period_end_on_successful_retry(): void
+    {
+        [$order, $subscription] = $this->seedPendingCheckout();
+
+        // Setup: the sub was Active, then a renewal charge failed and
+        // PaymentFailureHandler flipped it to PastDue. A retry from
+        // WayForPay arrives a day later with a successful Approved.
+        $futureEnd = now()->addDays(5);
+        $subscription->update([
+            'status'               => SubscriptionStatus::PastDue,
+            'is_trial'             => false,
+            'current_period_start' => now()->subDays(25),
+            'current_period_end'   => $futureEnd,
+            'payment_provider'     => PaymentProvider::WayForPay,
+            'wayforpay_rec_token'  => 'REC-PAST-DUE',
+        ]);
+
+        $this->postJson(self::WEBHOOK_URL, $this->signedWebhook($order->order_number, 'Approved', 1100, [
+            'authCode' => 'AUTH-RETRY',
+        ]))->assertOk();
+
+        $subscription->refresh();
+
+        $this->assertSame(SubscriptionStatus::Active, $subscription->status);
+
+        // Critical: period_end must have advanced from $futureEnd by one
+        // month, not been reset to now() + 1 month. Otherwise the user
+        // loses the 5 days they already paid for on the previous cycle.
+        $expected = $futureEnd->copy()->addMonth();
+        $this->assertEqualsWithDelta(
+            $expected->timestamp,
+            $subscription->current_period_end->timestamp,
+            60,
+        );
     }
 
     // ─── Renewal webhook extends period end ────────────────────────────

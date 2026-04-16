@@ -104,10 +104,22 @@ class SubscriptionActivationService
         $billingPeriod = BillingPeriod::from($order->billing_period);
 
         // On renewal, extend from the existing period_end so any paid-for
-        // tail isn't thrown away (a monthly cycle fired at T-1d would
-        // otherwise silently lose 24h every renewal).
-        $isRenewal = $subscription->status === SubscriptionStatus::Active
-            && $subscription->current_period_end->isFuture();
+        // tail isn't thrown away. A subscription counts as a renewal as
+        // long as the paid-for window has not fully elapsed — including
+        // PastDue rows (a failed charge followed by a successful retry
+        // must still honour the days the customer already paid for) and
+        // Trial rows (the first scheduled regular charge lands while the
+        // trial is still nominally active and must extend the clock
+        // instead of resetting it).
+        $isRenewal = in_array(
+            $subscription->status,
+            [
+                SubscriptionStatus::Active,
+                SubscriptionStatus::PastDue,
+                SubscriptionStatus::Trial,
+            ],
+            true,
+        ) && $subscription->current_period_end->isFuture();
 
         if ($isRenewal) {
             $periodStart = $subscription->current_period_end;
