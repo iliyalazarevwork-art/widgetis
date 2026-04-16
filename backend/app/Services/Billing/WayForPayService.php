@@ -8,6 +8,9 @@ use App\Enums\BillingPeriod;
 use App\Models\Order;
 use App\Models\Plan;
 use App\Models\User;
+use App\Services\Billing\ValueObjects\CustomerProfile;
+use App\Services\Billing\ValueObjects\Money;
+use App\Services\Billing\ValueObjects\ProductLabel;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use WayForPay\SDK\Collection\ProductCollection;
@@ -487,6 +490,136 @@ class WayForPayService
         );
 
         return $signature;
+    }
+
+    /**
+     * Primitives-based variant of createVerifyCheckout for the V2 adapter.
+     * Takes DTOs instead of Eloquent models so the adapter stays pure.
+     *
+     * @return array{url: string, form: array<string, mixed>}
+     */
+    public function buildVerifyCheckoutForm(
+        string $reference,
+        Money $verifyMoney,
+        Money $recurringMoney,
+        BillingPeriod $period,
+        int $trialDays,
+        CustomerProfile $customer,
+        ProductLabel $label,
+        string $serviceUrl,
+        string $returnUrl,
+    ): array {
+        $verifyAmount   = $verifyMoney->toMajor() > 0 ? $verifyMoney->toMajor() : 1.0;
+        $regularAmount  = $recurringMoney->toMajor();
+        $firstCharge    = (new \DateTime())->modify('+' . max(0, $trialDays) . ' days');
+        $regularMode    = $period === BillingPeriod::Yearly ? Regular::MODE_YEARLY : Regular::MODE_MONTHLY;
+
+        $regular = new Regular(
+            modes: [$regularMode],
+            amount: $regularAmount,
+            dateNext: $firstCharge,
+            dateEnd: null,
+            count: null,
+            on: true,
+            behavior: Regular::BEHAVIOR_DEFAULT,
+        );
+
+        $form = PurchaseWizard::get($this->credential)
+            ->setOrderReference($reference)
+            ->setAmount($verifyAmount)
+            ->setCurrency('UAH')
+            ->setOrderDate(new \DateTime())
+            ->setMerchantDomainName($this->merchantDomainName)
+            ->setClient(new WayForPayClient(
+                $customer->firstName,
+                $customer->lastName,
+                $customer->email,
+                $customer->phone,
+                'UA',
+            ))
+            ->setProducts(new ProductCollection([
+                new Product($label->text, $verifyAmount, 1),
+            ]))
+            ->setRegular($regular)
+            ->setServiceUrl($serviceUrl)
+            ->setReturnUrl($returnUrl)
+            ->setLanguage('UA')
+            ->getForm();
+
+        /** @var array<string, mixed> $data */
+        $data = array_filter(
+            $form->getData(),
+            static fn ($value): bool => $value !== null && $value !== '' && $value !== 0 && $value !== 0.0 && $value !== [],
+        );
+
+        return [
+            'url'  => self::HOSTED_CHECKOUT_URL,
+            'form' => $data,
+        ];
+    }
+
+    /**
+     * Primitives-based variant of chargeByToken for the V2 adapter.
+     * Takes raw scalars/DTOs instead of Eloquent models.
+     *
+     * @return array{status: string, transaction_id: ?string, reason_code: ?string, raw: array<string, mixed>}
+     */
+    public function chargeByTokenRaw(
+        string $reference,
+        Money $amount,
+        string $recToken,
+        CustomerProfile $customer,
+        ProductLabel $label,
+    ): array {
+        $majorAmount = $amount->toMajor();
+
+        $request = ChargeWizard::get($this->credential)
+            ->setOrderReference($reference)
+            ->setAmount($majorAmount)
+            ->setCurrency('UAH')
+            ->setOrderDate(new \DateTime())
+            ->setMerchantDomainName($this->merchantDomainName)
+            ->setClient(new WayForPayClient(
+                $customer->firstName,
+                $customer->lastName,
+                $customer->email,
+                $customer->phone,
+                'UA',
+            ))
+            ->setProducts(new ProductCollection([
+                new Product($label->text, $majorAmount, 1),
+            ]))
+            ->setCardToken(new CardToken($recToken))
+            ->getRequest();
+
+        $this->useLaravelTransport($request);
+
+        try {
+            $response = $request->send();
+        } catch (WayForPaySDKException $e) {
+            return [
+                'status'         => 'Error',
+                'transaction_id' => null,
+                'reason_code'    => null,
+                'raw'            => ['error' => $e->getMessage()],
+            ];
+        }
+
+        $transaction    = $response->getTransaction();
+        $status         = (string) $transaction->getStatus();
+        $reasonCode     = (string) $response->getReason()->getCode();
+        $orderReference = (string) $transaction->getOrderReference();
+
+        return [
+            'status'         => $status,
+            'transaction_id' => $orderReference !== '' ? $orderReference : null,
+            'reason_code'    => $reasonCode !== '' ? $reasonCode : null,
+            'raw'            => [
+                'transactionStatus' => $status,
+                'reasonCode'        => $reasonCode,
+                'orderReference'    => $orderReference,
+            ],
+        ];
     }
 
     /**

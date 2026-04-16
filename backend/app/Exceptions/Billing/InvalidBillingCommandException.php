@@ -30,4 +30,9 @@ final class InvalidBillingCommandException extends \DomainException
     {
         return new self('ProviderTokens must have at least one non-empty token for this command.');
     }
+
+    public static function missingRecurringToken(string $reference): self
+    {
+        return new self("Recurring token is required for charge against reference '{$reference}'.");
+    }
 }
