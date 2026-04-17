@@ -23,7 +23,9 @@ use App\Models\Plan;
 use App\Models\SiteWidget;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Services\Billing\Commands\CancelSubscriptionCommand;
 use App\Services\Billing\DTO\UpgradeQuote;
+use App\Services\Billing\ValueObjects\ProviderTokens;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -258,19 +260,16 @@ class SubscriptionService
             // recoverable accounting issue, not a functional failure.
             if ($oldProvider !== null && $this->providers->has($oldProvider)) {
                 try {
-                    $snapshotModel = (new Subscription())->forceFill([
-                        'id' => $subscription->id,
-                        'user_id' => $subscription->user_id,
-                        'payment_provider' => $oldProvider,
-                        'payment_provider_subscription_id' => $oldProviderSubscriptionId,
-                        'monobank_card_token' => $oldProviderSnapshot['old_monobank_card_token']
-                            ?? $subscription->monobank_card_token,
-                        'wayforpay_rec_token' => $oldProviderSnapshot['old_wayforpay_rec_token']
-                            ?? $subscription->wayforpay_rec_token,
-                    ]);
-                    $snapshotModel->exists = true;
+                    $cancelCmd = new CancelSubscriptionCommand(
+                        reference: (string) $subscription->id,
+                        tokens: ProviderTokens::of(
+                            $oldProviderSubscriptionId,
+                            $oldProviderSnapshot['old_wayforpay_rec_token']
+                                ?? $subscription->wayforpay_rec_token,
+                        ),
+                    );
 
-                    $this->providers->get($oldProvider)->cancelSubscription($snapshotModel);
+                    $this->providers->get($oldProvider)->cancelSubscription($cancelCmd);
                 } catch (Throwable $e) {
                     Log::channel('payments')->warning('subscription.upgrade.old_cancel_failed', [
                         'user_id' => $subscription->user_id,
@@ -346,7 +345,14 @@ class SubscriptionService
         // adapter owns its own "stop future charges" semantics. Providers
         // without server-side subscriptions (Monobank) simply return true.
         if ($subscription->payment_provider !== null) {
-            $this->providers->for($subscription)->cancelSubscription($subscription);
+            $cancelCmd = new CancelSubscriptionCommand(
+                reference: (string) $subscription->id,
+                tokens: ProviderTokens::of(
+                    $subscription->payment_provider_subscription_id,
+                    $subscription->wayforpay_rec_token,
+                ),
+            );
+            $this->providers->for($subscription)->cancelSubscription($cancelCmd);
         }
 
         $subscription->update([

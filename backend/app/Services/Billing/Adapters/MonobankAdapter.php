@@ -10,7 +10,7 @@ use App\Exceptions\Billing\PaymentProviderConfigException;
 use App\Services\Billing\Commands\CancelSubscriptionCommand;
 use App\Services\Billing\Commands\RefundCommand;
 use App\Services\Billing\Commands\StartSubscriptionCommand;
-use App\Services\Billing\Contracts\PaymentProviderInterfaceV2;
+use App\Services\Billing\Contracts\PaymentProviderInterface;
 use App\Services\Billing\Contracts\ProviderCapabilities;
 use App\Services\Billing\Contracts\SupportsRefunds;
 use App\Services\Billing\Events\ChargeFailedEvent;
@@ -31,7 +31,7 @@ use AratKruglik\Monobank\Contracts\ClientInterface as MonobankClient;
 use AratKruglik\Monobank\DTO\SubscriptionRequestDTO;
 use AratKruglik\Monobank\DTO\SubscriptionResponseDTO;
 
-final class MonobankAdapter implements PaymentProviderInterfaceV2, SupportsRefunds
+final class MonobankAdapter implements PaymentProviderInterface, SupportsRefunds
 {
     public function __construct(
         private readonly MonobankClient $client,
@@ -124,10 +124,22 @@ final class MonobankAdapter implements PaymentProviderInterfaceV2, SupportsRefun
         $paidMoney = Money::fromMinor($amountMinor, Currency::UAH);
         $ref = $reference !== '' ? $reference : ($invoiceId !== '' ? $invoiceId : '');
 
+        // Ignore webhooks with no identifiable reference — nothing to match against.
+        if ($status === '' || ($invoiceId === '' && $reference === '' && $subscriptionId === null)) {
+            return new IgnoredEvent($ref, $status !== '' ? $status : 'no_reference', $status !== '' ? $status : null);
+        }
+
         return match ($status) {
             'success' => $this->classifySuccess($ref, $invoiceId, $subscriptionId, $paidMoney, $now, $payload),
-            'failure', 'reversed', 'expired' => new ChargeFailedEvent($ref, $status, $status, $now),
-            default => new IgnoredEvent($ref, $status !== '' ? $status : 'unknown', $status !== '' ? $status : null),
+            'failure', 'reversed', 'expired' => new ChargeFailedEvent(
+                reference: $ref,
+                code: $status,
+                message: $status,
+                attemptedAt: $now,
+                transactionId: $invoiceId !== '' ? $invoiceId : null,
+                providerSubscriptionId: $subscriptionId,
+            ),
+            default => new IgnoredEvent($ref, $status, $status),
         };
     }
 

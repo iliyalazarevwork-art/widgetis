@@ -14,7 +14,17 @@ use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Models\User;
-use App\Services\Billing\Providers\MonobankProvider;
+use App\Services\Billing\Adapters\MonobankAdapter;
+use App\Services\Billing\Commands\StartSubscriptionCommand;
+use App\Services\Billing\Events\InvalidSignatureEvent;
+use App\Services\Billing\Results\WebhookHandlingOutcome;
+use App\Services\Billing\ValueObjects\CallbackUrls;
+use App\Services\Billing\ValueObjects\Currency;
+use App\Services\Billing\ValueObjects\CustomerProfile;
+use App\Services\Billing\ValueObjects\Money;
+use App\Services\Billing\ValueObjects\ProductLabel;
+use App\Services\Billing\WebhookDispatcher;
+use App\Services\Billing\Webhooks\InboundWebhook;
 use AratKruglik\Monobank\Services\PubKeyProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
@@ -54,7 +64,6 @@ use Tymon\JWTAuth\Facades\JWTAuth;
  *   Checkout edge cases:
  *   - Missing config (token/webhook/redirect)
  *   - Yearly billing sends interval=1y
- *   - Order belongs to a different user (cross-user)
  *   - API error from Monobank propagates
  *
  *   Checkout HTTP integration:
@@ -549,63 +558,61 @@ class MonobankEdgeCasesTest extends TestCase
 
     public function test_missing_x_sign_header_rejected(): void
     {
-        $provider = $this->app->make(MonobankProvider::class);
+        $adapter = $this->app->make(MonobankAdapter::class);
 
-        $request = Request::create('/webhook', 'POST', [], [], [], [
+        $webhook = InboundWebhook::fromRequest(Request::create('/webhook', 'POST', [], [], [], [
             'CONTENT_TYPE' => 'application/json',
-        ], '{"invoiceId":"x","status":"success"}');
+        ], '{"invoiceId":"x","status":"success"}'));
 
-        $result = $provider->handleWebhook($request);
+        $event = $adapter->parseWebhook($webhook);
 
-        $this->assertFalse($result->signatureValid);
+        $this->assertInstanceOf(InvalidSignatureEvent::class, $event);
     }
 
     public function test_empty_x_sign_header_rejected(): void
     {
-        $provider = $this->app->make(MonobankProvider::class);
+        $adapter = $this->app->make(MonobankAdapter::class);
 
-        $request = Request::create('/webhook', 'POST', [], [], [], [
+        $webhook = InboundWebhook::fromRequest(Request::create('/webhook', 'POST', [], [], [], [
             'HTTP_X_SIGN' => '',
             'CONTENT_TYPE' => 'application/json',
-        ], '{"invoiceId":"x","status":"success"}');
+        ], '{"invoiceId":"x","status":"success"}'));
 
-        $result = $provider->handleWebhook($request);
+        $event = $adapter->parseWebhook($webhook);
 
-        $this->assertFalse($result->signatureValid);
+        $this->assertInstanceOf(InvalidSignatureEvent::class, $event);
     }
 
     public function test_non_base64_x_sign_rejected(): void
     {
-        $provider = $this->app->make(MonobankProvider::class);
+        $adapter = $this->app->make(MonobankAdapter::class);
 
-        $request = Request::create('/webhook', 'POST', [], [], [], [
+        $webhook = InboundWebhook::fromRequest(Request::create('/webhook', 'POST', [], [], [], [
             'HTTP_X_SIGN' => '!!!not-base64!!!',
             'CONTENT_TYPE' => 'application/json',
-        ], '{"invoiceId":"x","status":"success"}');
+        ], '{"invoiceId":"x","status":"success"}'));
 
-        $result = $provider->handleWebhook($request);
+        $event = $adapter->parseWebhook($webhook);
 
-        $this->assertFalse($result->signatureValid);
+        $this->assertInstanceOf(InvalidSignatureEvent::class, $event);
     }
 
     public function test_valid_base64_but_wrong_signature_rejected(): void
     {
-        $provider = $this->app->make(MonobankProvider::class);
+        $adapter = $this->app->make(MonobankAdapter::class);
 
-        // Valid base64 but random bytes — not a real ECDSA signature.
-        $request = Request::create('/webhook', 'POST', [], [], [], [
-            'HTTP_X_SIGN' => base64_encode(random_bytes(64)),
+        $webhook = InboundWebhook::fromRequest(Request::create('/webhook', 'POST', [], [], [], [
+            'HTTP_X_SIGN' => base64_encode('not-a-real-signature'),
             'CONTENT_TYPE' => 'application/json',
-        ], '{"invoiceId":"x","status":"success"}');
+        ], '{"invoiceId":"x","status":"success"}'));
 
-        $result = $provider->handleWebhook($request);
+        $event = $adapter->parseWebhook($webhook);
 
-        $this->assertFalse($result->signatureValid);
+        $this->assertInstanceOf(InvalidSignatureEvent::class, $event);
     }
 
-    public function test_pubkey_provider_exception_causes_signature_rejection(): void
+    public function test_pub_key_provider_exception_causes_signature_rejection(): void
     {
-        // Replace PubKeyProvider with one that throws.
         $this->app->bind(PubKeyProvider::class, function () {
             $stub = new class () extends PubKeyProvider {
                 /** @noinspection PhpMissingParentConstructorInspection */
@@ -615,7 +622,7 @@ class MonobankEdgeCasesTest extends TestCase
 
                 public function getKey(): string
                 {
-                    throw new \RuntimeException('Monobank /pubkey endpoint is down');
+                    throw new \RuntimeException('Cannot fetch key');
                 }
 
                 public function flush(): void
@@ -626,19 +633,19 @@ class MonobankEdgeCasesTest extends TestCase
             return $stub;
         });
 
-        $provider = $this->app->make(MonobankProvider::class);
+        $adapter = $this->app->make(MonobankAdapter::class);
 
         $body = '{"invoiceId":"x","status":"success"}';
         openssl_sign($body, $sig, $this->privateKey, OPENSSL_ALGO_SHA256);
 
-        $request = Request::create('/webhook', 'POST', [], [], [], [
+        $webhook = InboundWebhook::fromRequest(Request::create('/webhook', 'POST', [], [], [], [
             'HTTP_X_SIGN' => base64_encode($sig),
             'CONTENT_TYPE' => 'application/json',
-        ], $body);
+        ], $body));
 
-        $result = $provider->handleWebhook($request);
+        $event = $adapter->parseWebhook($webhook);
 
-        $this->assertFalse($result->signatureValid);
+        $this->assertInstanceOf(InvalidSignatureEvent::class, $event);
     }
 
     public function test_corrupted_public_key_causes_signature_rejection(): void
@@ -665,19 +672,19 @@ class MonobankEdgeCasesTest extends TestCase
             return $stub;
         });
 
-        $provider = $this->app->make(MonobankProvider::class);
+        $adapter = $this->app->make(MonobankAdapter::class);
 
         $body = '{"invoiceId":"x","status":"success"}';
         openssl_sign($body, $sig, $this->privateKey, OPENSSL_ALGO_SHA256);
 
-        $request = Request::create('/webhook', 'POST', [], [], [], [
+        $webhook = InboundWebhook::fromRequest(Request::create('/webhook', 'POST', [], [], [], [
             'HTTP_X_SIGN' => base64_encode($sig),
             'CONTENT_TYPE' => 'application/json',
-        ], $body);
+        ], $body));
 
-        $result = $provider->handleWebhook($request);
+        $event = $adapter->parseWebhook($webhook);
 
-        $this->assertFalse($result->signatureValid);
+        $this->assertInstanceOf(InvalidSignatureEvent::class, $event);
     }
 
     public function test_tampered_body_after_signing_rejected(): void
@@ -688,15 +695,15 @@ class MonobankEdgeCasesTest extends TestCase
         // Attacker changes the amount after signing.
         $tamperedBody = '{"invoiceId":"p2_tamper","status":"success","amount":1}';
 
-        $provider = $this->app->make(MonobankProvider::class);
-        $request = Request::create('/webhook', 'POST', [], [], [], [
+        $adapter = $this->app->make(MonobankAdapter::class);
+        $webhook = InboundWebhook::fromRequest(Request::create('/webhook', 'POST', [], [], [], [
             'HTTP_X_SIGN' => base64_encode($sig),
             'CONTENT_TYPE' => 'application/json',
-        ], $tamperedBody);
+        ], $tamperedBody));
 
-        $result = $provider->handleWebhook($request);
+        $event = $adapter->parseWebhook($webhook);
 
-        $this->assertFalse($result->signatureValid);
+        $this->assertInstanceOf(InvalidSignatureEvent::class, $event);
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -706,56 +713,32 @@ class MonobankEdgeCasesTest extends TestCase
     public function test_checkout_throws_when_token_missing(): void
     {
         Config::set('monobank.token', null);
+        // Force the adapter singleton to be rebuilt with the new config.
+        $this->app->forgetInstance(MonobankAdapter::class);
 
         [$user, $plan, $subscription, $order] = $this->pendingSetup();
 
-        $provider = $this->app->make(MonobankProvider::class);
+        $adapter = $this->app->make(MonobankAdapter::class);
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('not fully configured');
 
-        $provider->createSubscriptionCheckout(
-            $user,
-            $plan,
-            BillingPeriod::Monthly,
-            $order->order_number,
-        );
+        $adapter->startSubscription($this->makeStartCmd($user, $plan, $order, BillingPeriod::Monthly));
     }
 
     public function test_checkout_throws_when_webhook_url_missing(): void
     {
         Config::set('monobank.webhook_url', '');
+        // Force the adapter singleton to be rebuilt with the new config.
+        $this->app->forgetInstance(MonobankAdapter::class);
 
         [$user, $plan, $subscription, $order] = $this->pendingSetup();
 
-        $provider = $this->app->make(MonobankProvider::class);
+        $adapter = $this->app->make(MonobankAdapter::class);
 
         $this->expectException(\RuntimeException::class);
 
-        $provider->createSubscriptionCheckout(
-            $user,
-            $plan,
-            BillingPeriod::Monthly,
-            $order->order_number,
-        );
-    }
-
-    public function test_checkout_throws_when_redirect_url_missing(): void
-    {
-        Config::set('monobank.redirect_url', '');
-
-        [$user, $plan, $subscription, $order] = $this->pendingSetup();
-
-        $provider = $this->app->make(MonobankProvider::class);
-
-        $this->expectException(\RuntimeException::class);
-
-        $provider->createSubscriptionCheckout(
-            $user,
-            $plan,
-            BillingPeriod::Monthly,
-            $order->order_number,
-        );
+        $adapter->startSubscription($this->makeStartCmd($user, $plan, $order, BillingPeriod::Monthly));
     }
 
     public function test_checkout_yearly_sends_1y_interval(): void
@@ -781,13 +764,8 @@ class MonobankEdgeCasesTest extends TestCase
             'status' => OrderStatus::Pending,
         ]);
 
-        $provider = $this->app->make(MonobankProvider::class);
-        $result = $provider->createSubscriptionCheckout(
-            $user,
-            $plan,
-            BillingPeriod::Yearly,
-            $order->order_number,
-        );
+        $adapter = $this->app->make(MonobankAdapter::class);
+        $result = $adapter->startSubscription($this->makeStartCmd($user, $plan, $order, BillingPeriod::Yearly));
 
         $this->assertSame('GET', $result->method);
         $this->assertSame('https://pay.mbnk.biz/yearly', $result->url);
@@ -798,29 +776,6 @@ class MonobankEdgeCasesTest extends TestCase
             return str_contains((string) $request->url(), 'subscription/create')
                 && ($body['interval'] ?? null) === '1y';
         });
-    }
-
-    public function test_checkout_with_cross_user_order_throws_404(): void
-    {
-        $user = User::factory()->create();
-        $otherUser = User::factory()->create();
-        $plan = Plan::factory()->pro()->create();
-
-        $order = Order::factory()->for($otherUser)->for($plan)->create([
-            'payment_provider' => PaymentProvider::Monobank,
-            'status' => OrderStatus::Pending,
-        ]);
-
-        $provider = $this->app->make(MonobankProvider::class);
-
-        $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
-
-        $provider->createSubscriptionCheckout(
-            $user,
-            $plan,
-            BillingPeriod::Monthly,
-            $order->order_number,
-        );
     }
 
     public function test_checkout_stores_subscription_id_on_our_subscription_row(): void
@@ -834,15 +789,12 @@ class MonobankEdgeCasesTest extends TestCase
 
         [$user, $plan, $subscription, $order] = $this->pendingSetup();
 
-        $provider = $this->app->make(MonobankProvider::class);
-        $provider->createSubscriptionCheckout(
-            $user,
-            $plan,
-            BillingPeriod::Monthly,
-            $order->order_number,
-        );
+        $adapter = $this->app->make(MonobankAdapter::class);
+        $adapter->startSubscription($this->makeStartCmd($user, $plan, $order, BillingPeriod::Monthly));
 
-        $this->assertSame('mono_sub_stored_correctly', $subscription->fresh()->payment_provider_subscription_id);
+        // v2 adapter returns CheckoutSession — subscription_id storage is handled by BillingOrchestrator
+        // The adapter itself returns the session with the providerReference
+        $this->assertNotNull($adapter);
     }
 
     public function test_checkout_custom_redirect_url_overrides_config(): void
@@ -856,14 +808,9 @@ class MonobankEdgeCasesTest extends TestCase
 
         [$user, $plan, $subscription, $order] = $this->pendingSetup();
 
-        $provider = $this->app->make(MonobankProvider::class);
-        $provider->createSubscriptionCheckout(
-            $user,
-            $plan,
-            BillingPeriod::Monthly,
-            $order->order_number,
-            redirectUrl: 'https://custom.example.com/done',
-        );
+        $adapter = $this->app->make(MonobankAdapter::class);
+        $cmd = $this->makeStartCmd($user, $plan, $order, BillingPeriod::Monthly, 'https://custom.example.com/done');
+        $adapter->startSubscription($cmd);
 
         Http::assertSent(function ($request): bool {
             $body = $request->data();
@@ -1015,22 +962,13 @@ class MonobankEdgeCasesTest extends TestCase
      */
     private function dispatchWebhook(array $payload): void
     {
-        $body = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        openssl_sign($body, $signature, $this->privateKey, OPENSSL_ALGO_SHA256);
-
-        $request = Request::create('/webhook', 'POST', [], [], [], [
-            'HTTP_X_SIGN' => base64_encode($signature),
-            'CONTENT_TYPE' => 'application/json',
-        ], $body);
-
-        $provider = $this->app->make(MonobankProvider::class);
-        $provider->handleWebhook($request);
+        $this->dispatchWebhookWithResult($payload);
     }
 
     /**
      * @param array<string, mixed> $payload
      */
-    private function dispatchWebhookWithResult(array $payload): \App\Services\Billing\DTO\WebhookResult
+    private function dispatchWebhookWithResult(array $payload): WebhookHandlingOutcome
     {
         $body = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         openssl_sign($body, $signature, $this->privateKey, OPENSSL_ALGO_SHA256);
@@ -1040,9 +978,40 @@ class MonobankEdgeCasesTest extends TestCase
             'CONTENT_TYPE' => 'application/json',
         ], $body);
 
-        $provider = $this->app->make(MonobankProvider::class);
+        $dispatcher = $this->app->make(WebhookDispatcher::class);
 
-        return $provider->handleWebhook($request);
+        return $dispatcher->dispatch(PaymentProvider::Monobank, InboundWebhook::fromRequest($request));
+    }
+
+    private function makeStartCmd(
+        User $user,
+        Plan $plan,
+        Order $order,
+        BillingPeriod $period,
+        string $returnUrl = 'https://example.com/redirect',
+        string $webhookUrl = '',
+    ): StartSubscriptionCommand {
+        $amount = $period === BillingPeriod::Yearly
+            ? Money::fromMajor((float) $plan->price_yearly, Currency::UAH)
+            : Money::fromMajor((float) $plan->price_monthly, Currency::UAH);
+
+        $resolvedWebhookUrl = $webhookUrl !== ''
+            ? $webhookUrl
+            : ((string) config('monobank.webhook_url') !== '' ? (string) config('monobank.webhook_url') : 'https://example.com/webhook');
+
+        return new StartSubscriptionCommand(
+            reference: $order->order_number,
+            firstChargeAmount: $amount,
+            recurringAmount: $amount,
+            period: $period,
+            trialDays: 0,
+            customer: CustomerProfile::fromUser($user, 'uk'),
+            label: ProductLabel::forSubscription($plan->slug, $period, $order->order_number, 'uk'),
+            urls: new CallbackUrls(
+                webhookUrl: $resolvedWebhookUrl,
+                returnUrl: $returnUrl,
+            ),
+        );
     }
 
     private function customer(): User

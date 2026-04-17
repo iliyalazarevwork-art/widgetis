@@ -10,7 +10,7 @@ use App\Services\Billing\Commands\CancelSubscriptionCommand;
 use App\Services\Billing\Commands\ChargeCommand;
 use App\Services\Billing\Commands\RefundCommand;
 use App\Services\Billing\Commands\StartSubscriptionCommand;
-use App\Services\Billing\Contracts\PaymentProviderInterfaceV2;
+use App\Services\Billing\Contracts\PaymentProviderInterface;
 use App\Services\Billing\Contracts\ProviderCapabilities;
 use App\Services\Billing\Contracts\SupportsMerchantCharge;
 use App\Services\Billing\Contracts\SupportsRefunds;
@@ -32,7 +32,7 @@ use App\Services\Billing\WayForPayService;
 use App\Services\Billing\Webhooks\InboundWebhook;
 
 final class WayForPayAdapter implements
-    PaymentProviderInterfaceV2,
+    PaymentProviderInterface,
     SupportsRefunds,
     SupportsMerchantCharge
 {

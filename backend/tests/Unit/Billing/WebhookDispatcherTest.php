@@ -13,7 +13,7 @@ use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Models\User;
-use App\Services\Billing\Contracts\PaymentProviderInterfaceV2;
+use App\Services\Billing\Contracts\PaymentProviderInterface;
 use App\Services\Billing\Events\ChargeFailedEvent;
 use App\Services\Billing\Events\IgnoredEvent;
 use App\Services\Billing\Events\InvalidSignatureEvent;
@@ -22,7 +22,7 @@ use App\Services\Billing\Events\SubscriptionActivatedEvent;
 use App\Services\Billing\Events\SubscriptionCancelledEvent;
 use App\Services\Billing\Events\SubscriptionRenewedEvent;
 use App\Services\Billing\PaymentFailureHandler;
-use App\Services\Billing\PaymentProviderRegistryV2;
+use App\Services\Billing\PaymentProviderRegistry;
 use App\Services\Billing\SubscriptionActivationService;
 use App\Services\Billing\SubscriptionService;
 use App\Services\Billing\ValueObjects\Currency;
@@ -47,12 +47,12 @@ class WebhookDispatcherTest extends TestCase
     }
 
     private function makeDispatcher(
-        PaymentProviderInterfaceV2 $adapter,
+        PaymentProviderInterface $adapter,
         ?SubscriptionService $subscriptionService = null,
         ?SubscriptionActivationService $activationService = null,
         ?PaymentFailureHandler $failureHandler = null,
     ): WebhookDispatcher {
-        $registry = new PaymentProviderRegistryV2();
+        $registry = new PaymentProviderRegistry();
         $registry->register($adapter);
 
         return new WebhookDispatcher(
@@ -64,7 +64,7 @@ class WebhookDispatcherTest extends TestCase
         );
     }
 
-    private function adapterReturning(PaymentProviderInterfaceV2 $adapter, mixed $event): void
+    private function adapterReturning(PaymentProviderInterface $adapter, mixed $event): void
     {
         $adapter->allows('parseWebhook')->andReturn($event);
     }
@@ -73,7 +73,7 @@ class WebhookDispatcherTest extends TestCase
 
     public function test_invalid_signature_event_returns_outcome_with_signature_valid_false(): void
     {
-        $adapter = Mockery::mock(PaymentProviderInterfaceV2::class);
+        $adapter = Mockery::mock(PaymentProviderInterface::class);
         $adapter->allows('name')->andReturn(PaymentProvider::WayForPay);
         $this->adapterReturning($adapter, new InvalidSignatureEvent());
 
@@ -90,7 +90,7 @@ class WebhookDispatcherTest extends TestCase
 
     public function test_ignored_event_returns_valid_signature_not_processed(): void
     {
-        $adapter = Mockery::mock(PaymentProviderInterfaceV2::class);
+        $adapter = Mockery::mock(PaymentProviderInterface::class);
         $adapter->allows('name')->andReturn(PaymentProvider::WayForPay);
         $this->adapterReturning($adapter, new IgnoredEvent('REF-123', 'InProcessing', 'InProcessing'));
 
@@ -131,7 +131,7 @@ class WebhookDispatcherTest extends TestCase
             transactionId: 'AUTH-123',
         );
 
-        $adapter = Mockery::mock(PaymentProviderInterfaceV2::class);
+        $adapter = Mockery::mock(PaymentProviderInterface::class);
         $adapter->allows('name')->andReturn(PaymentProvider::WayForPay);
         $this->adapterReturning($adapter, $event);
 
@@ -158,7 +158,7 @@ class WebhookDispatcherTest extends TestCase
             transactionId: 'TXN-999',
         );
 
-        $adapter = Mockery::mock(PaymentProviderInterfaceV2::class);
+        $adapter = Mockery::mock(PaymentProviderInterface::class);
         $adapter->allows('name')->andReturn(PaymentProvider::Monobank);
         $this->adapterReturning($adapter, $event);
 
@@ -196,7 +196,7 @@ class WebhookDispatcherTest extends TestCase
             transactionId: 'TXN-RENEWAL',
         );
 
-        $adapter = Mockery::mock(PaymentProviderInterfaceV2::class);
+        $adapter = Mockery::mock(PaymentProviderInterface::class);
         $adapter->allows('name')->andReturn(PaymentProvider::WayForPay);
         $this->adapterReturning($adapter, $event);
 
@@ -232,7 +232,7 @@ class WebhookDispatcherTest extends TestCase
             cancelledAt: new \DateTimeImmutable(),
         );
 
-        $adapter = Mockery::mock(PaymentProviderInterfaceV2::class);
+        $adapter = Mockery::mock(PaymentProviderInterface::class);
         $adapter->allows('name')->andReturn(PaymentProvider::WayForPay);
         $this->adapterReturning($adapter, $event);
 
@@ -270,7 +270,7 @@ class WebhookDispatcherTest extends TestCase
             attemptedAt: new \DateTimeImmutable(),
         );
 
-        $adapter = Mockery::mock(PaymentProviderInterfaceV2::class);
+        $adapter = Mockery::mock(PaymentProviderInterface::class);
         $adapter->allows('name')->andReturn(PaymentProvider::WayForPay);
         $this->adapterReturning($adapter, $event);
 
@@ -310,7 +310,7 @@ class WebhookDispatcherTest extends TestCase
             refundedAt: new \DateTimeImmutable(),
         );
 
-        $adapter = Mockery::mock(PaymentProviderInterfaceV2::class);
+        $adapter = Mockery::mock(PaymentProviderInterface::class);
         $adapter->allows('name')->andReturn(PaymentProvider::WayForPay);
         $this->adapterReturning($adapter, $event);
 
@@ -354,7 +354,7 @@ class WebhookDispatcherTest extends TestCase
             refundedAt: new \DateTimeImmutable(),
         );
 
-        $adapter = Mockery::mock(PaymentProviderInterfaceV2::class);
+        $adapter = Mockery::mock(PaymentProviderInterface::class);
         $adapter->allows('name')->andReturn(PaymentProvider::WayForPay);
         $this->adapterReturning($adapter, $event);
 

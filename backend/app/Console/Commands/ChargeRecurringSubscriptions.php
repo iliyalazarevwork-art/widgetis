@@ -9,7 +9,7 @@ use App\Enums\SubscriptionStatus;
 use App\Models\Subscription;
 use App\Services\Billing\BillingOrchestrator;
 use App\Services\Billing\PaymentFailureHandler;
-use App\Services\Billing\PaymentProviderRegistryV2;
+use App\Services\Billing\PaymentProviderRegistry;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -39,7 +39,7 @@ class ChargeRecurringSubscriptions extends Command
      */
     private const DISPATCH_COOLDOWN_HOURS = 26;
 
-    public function handle(PaymentProviderRegistryV2 $registry, BillingOrchestrator $orchestrator): int
+    public function handle(PaymentProviderRegistry $registry, BillingOrchestrator $orchestrator): int
     {
         $query = Subscription::query()
             ->whereIn('status', [SubscriptionStatus::Active, SubscriptionStatus::PastDue])

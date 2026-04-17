@@ -11,6 +11,8 @@ final readonly class ChargeFailedEvent extends PaymentEvent
         public string $code,
         public string $message,
         public \DateTimeImmutable $attemptedAt,
+        public ?string $transactionId = null,
+        public ?string $providerSubscriptionId = null,
     ) {
         parent::__construct($reference);
     }

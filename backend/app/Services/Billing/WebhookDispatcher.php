@@ -37,7 +37,7 @@ use Illuminate\Support\Facades\Log;
 final class WebhookDispatcher
 {
     public function __construct(
-        private readonly PaymentProviderRegistryV2 $registry,
+        private readonly PaymentProviderRegistry $registry,
         private readonly SubscriptionService $subscriptionService,
         private readonly SubscriptionActivationService $activationService,
         private readonly PaymentFailureHandler $failureHandler,
@@ -62,13 +62,16 @@ final class WebhookDispatcher
             $rawPayload = [];
         }
 
+        // Scrub sensitive token fields that must never appear in stored metadata.
+        unset($rawPayload['walletData'], $rawPayload['recToken']);
+
         return match (true) {
             $event instanceof InvalidSignatureEvent => $this->handleInvalidSignature($provider),
             $event instanceof IgnoredEvent          => $this->handleIgnored($event, $provider),
             $event instanceof SubscriptionActivatedEvent => $this->handleActivated($event, $provider, $rawPayload),
             $event instanceof SubscriptionRenewedEvent   => $this->handleRenewed($event, $provider, $rawPayload),
             $event instanceof SubscriptionCancelledEvent => $this->handleCancelled($event),
-            $event instanceof ChargeFailedEvent          => $this->handleChargeFailed($event),
+            $event instanceof ChargeFailedEvent          => $this->handleChargeFailed($event, $provider),
             $event instanceof RefundedEvent              => $this->handleRefunded($event, $provider, $rawPayload),
             default                                      => $this->handleUnknown($event, $provider),
         };
@@ -210,7 +213,7 @@ final class WebhookDispatcher
                 transactionId: $transactionId,
                 amountUah: $amountUah,
                 provider: $provider,
-                paymentMethod: isset($rawPayload['paymentSystem']) ? (string) $rawPayload['paymentSystem'] : 'card',
+                paymentMethod: $this->resolvePaymentMethod($rawPayload),
                 metadata: $rawPayload,
                 providerSubscriptionId: $providerSubscriptionId,
             );
@@ -246,7 +249,7 @@ final class WebhookDispatcher
                     transactionId: $event->transactionId,
                     amountUah: $event->paidAmount->toMajor(),
                     provider: $provider,
-                    paymentMethod: isset($rawPayload['paymentSystem']) ? (string) $rawPayload['paymentSystem'] : 'card',
+                    paymentMethod: $this->resolvePaymentMethod($rawPayload),
                     metadata: $rawPayload,
                 );
 
@@ -276,7 +279,7 @@ final class WebhookDispatcher
                 transactionId: $event->transactionId,
                 amountUah: $event->paidAmount->toMajor(),
                 provider: $provider,
-                paymentMethod: isset($rawPayload['paymentSystem']) ? (string) $rawPayload['paymentSystem'] : 'card',
+                paymentMethod: $this->resolvePaymentMethod($rawPayload),
                 metadata: $rawPayload,
             );
 
@@ -331,16 +334,65 @@ final class WebhookDispatcher
         );
     }
 
-    private function handleChargeFailed(ChargeFailedEvent $event): WebhookHandlingOutcome
+    private function handleChargeFailed(ChargeFailedEvent $event, PaymentProvider $provider): WebhookHandlingOutcome
     {
         $reference = $event->reference;
+        $processed = false;
 
-        DB::transaction(function () use ($event): void {
+        DB::transaction(function () use ($event, $provider, &$processed): void {
+            // Try to find order via reference (order number or invoiceId used as fallback ref).
             $order = $event->reference !== ''
                 ? Order::where('order_number', $event->reference)->first()
                 : null;
 
-            if ($order === null) {
+            if ($order !== null) {
+                $processed = true;
+                $subscription = Subscription::where('user_id', $order->user_id)->first();
+
+                // Create or flip the failed payment record so the ledger tracks every attempt.
+                if ($event->transactionId !== null && $event->transactionId !== '') {
+                    Payment::firstOrCreate(
+                        [
+                            'transaction_id' => $event->transactionId,
+                            'status' => PaymentStatus::Failed->value,
+                        ],
+                        [
+                            'user_id' => $order->user_id,
+                            'order_id' => $order->id,
+                            'subscription_id' => $subscription?->id,
+                            'type' => PaymentType::Charge->value,
+                            'amount' => 0,
+                            'currency' => 'UAH',
+                            'payment_provider' => $provider,
+                            'description' => ['reason' => $event->code],
+                            'metadata' => [],
+                        ],
+                    );
+                } else {
+                    $payment = Payment::where('order_id', $order->id)
+                        ->where('status', PaymentStatus::Pending->value)
+                        ->first();
+
+                    if ($payment !== null) {
+                        $payment->update(['status' => PaymentStatus::Failed->value]);
+                    }
+                }
+
+                $this->failureHandler->handle($order);
+
+                Log::channel('payments')->warning('webhook.charge_failed.processed', [
+                    'reference' => $event->reference,
+                    'code' => $event->code,
+                    'message' => $event->message,
+                    'user_id' => $order->user_id,
+                ]);
+
+                return;
+            }
+
+            // No order found — try the subscription-only path (Monobank recurring failure
+            // without an order reference: the provider sends subscriptionId only).
+            if ($event->providerSubscriptionId === null || $event->providerSubscriptionId === '') {
                 Log::channel('payments')->warning('webhook.charge_failed.order_not_found', [
                     'reference' => $event->reference,
                     'code' => $event->code,
@@ -350,28 +402,52 @@ final class WebhookDispatcher
                 return;
             }
 
-            // Flip the pending payment row to failed status
-            $payment = Payment::where('order_id', $order->id)
-                ->where('status', PaymentStatus::Pending->value)
-                ->first();
+            $subscription = Subscription::where('payment_provider_subscription_id', $event->providerSubscriptionId)->first();
 
-            if ($payment !== null) {
-                $payment->update(['status' => PaymentStatus::Failed->value]);
+            if ($subscription === null) {
+                Log::channel('payments')->warning('webhook.charge_failed.subscription_not_found', [
+                    'provider_subscription_id' => $event->providerSubscriptionId,
+                    'code' => $event->code,
+                ]);
+
+                return;
             }
 
-            $this->failureHandler->handle($order);
+            $processed = true;
 
-            Log::channel('payments')->warning('webhook.charge_failed.processed', [
-                'reference' => $event->reference,
+            Payment::firstOrCreate(
+                [
+                    'transaction_id' => $event->transactionId ?? $event->reference,
+                    'status' => PaymentStatus::Failed->value,
+                ],
+                [
+                    'user_id' => $subscription->user_id,
+                    'order_id' => null,
+                    'subscription_id' => $subscription->id,
+                    'type' => PaymentType::Charge->value,
+                    'amount' => 0,
+                    'currency' => 'UAH',
+                    'payment_provider' => $provider,
+                    'description' => ['reason' => $event->code],
+                    'metadata' => [],
+                ],
+            );
+
+            $subscription->update([
+                'status' => SubscriptionStatus::PastDue,
+                'grace_period_ends_at' => now()->addDays(PaymentFailureHandler::GRACE_PERIOD_DAYS),
+            ]);
+
+            Log::channel('payments')->warning('webhook.charge_failed.subscription_only', [
+                'subscription_id' => $subscription->id,
+                'provider_subscription_id' => $event->providerSubscriptionId,
                 'code' => $event->code,
-                'message' => $event->message,
-                'user_id' => $order->user_id,
             ]);
         });
 
         return new WebhookHandlingOutcome(
             signatureValid: true,
-            processed: true,
+            processed: $processed,
             reference: $reference !== '' ? $reference : null,
             event: 'charge_failed',
         );
@@ -483,7 +559,7 @@ final class WebhookDispatcher
             $pending->update([
                 'status' => PaymentStatus::Success->value,
                 'amount' => $amountUah,
-                'payment_method' => isset($scrubbed['paymentSystem']) ? (string) $scrubbed['paymentSystem'] : 'card',
+                'payment_method' => $this->resolvePaymentMethod($scrubbed),
                 'transaction_id' => $transactionId,
                 'metadata' => $scrubbed,
             ]);
@@ -497,7 +573,7 @@ final class WebhookDispatcher
                 'currency' => 'UAH',
                 'status' => PaymentStatus::Success->value,
                 'payment_provider' => $provider,
-                'payment_method' => isset($scrubbed['paymentSystem']) ? (string) $scrubbed['paymentSystem'] : 'card',
+                'payment_method' => $this->resolvePaymentMethod($scrubbed),
                 'transaction_id' => $transactionId,
                 'description' => ['reason' => 'trial activation'],
                 'metadata' => $scrubbed,
@@ -536,5 +612,27 @@ final class WebhookDispatcher
             'user_id' => $order->user_id,
             'trial_ends_at' => $subscription->fresh()?->trial_ends_at?->toIso8601String(),
         ]);
+    }
+
+    /**
+     * Extract the payment method from a raw webhook payload.
+     *
+     * Handles both top-level `paymentSystem` (WayForPay) and nested
+     * `paymentInfo.paymentSystem` (Monobank) structures.
+     *
+     * @param array<string, mixed> $payload
+     */
+    private function resolvePaymentMethod(array $payload): string
+    {
+        if (isset($payload['paymentSystem']) && is_string($payload['paymentSystem'])) {
+            return $payload['paymentSystem'];
+        }
+
+        $paymentInfo = $payload['paymentInfo'] ?? null;
+        if (is_array($paymentInfo) && isset($paymentInfo['paymentSystem']) && is_string($paymentInfo['paymentSystem'])) {
+            return $paymentInfo['paymentSystem'];
+        }
+
+        return 'card';
     }
 }

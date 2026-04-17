@@ -14,9 +14,9 @@ use App\Services\Billing\BillingOrchestrator;
 use App\Services\Billing\Commands\CancelSubscriptionCommand;
 use App\Services\Billing\Commands\ChargeCommand;
 use App\Services\Billing\Commands\StartSubscriptionCommand;
-use App\Services\Billing\Contracts\PaymentProviderInterfaceV2;
+use App\Services\Billing\Contracts\PaymentProviderInterface;
 use App\Services\Billing\Contracts\SupportsMerchantCharge;
-use App\Services\Billing\PaymentProviderRegistryV2;
+use App\Services\Billing\PaymentProviderRegistry;
 use App\Services\Billing\Results\CancellationResult;
 use App\Services\Billing\Results\ChargeResult;
 use App\Services\Billing\Results\CheckoutSession;
@@ -45,7 +45,7 @@ class BillingOrchestratorTest extends TestCase
             providerReference: $order->order_number,
         );
 
-        $adapter = Mockery::mock(PaymentProviderInterfaceV2::class);
+        $adapter = Mockery::mock(PaymentProviderInterface::class);
         $adapter->shouldReceive('name')->andReturn(PaymentProvider::WayForPay);
         $adapter->shouldReceive('startSubscription')
             ->once()
@@ -54,7 +54,7 @@ class BillingOrchestratorTest extends TestCase
                 && $cmd->period === BillingPeriod::Monthly)
             ->andReturn($expectedSession);
 
-        $registry = new PaymentProviderRegistryV2();
+        $registry = new PaymentProviderRegistry();
         $registry->register($adapter);
 
         $subscriptionService = Mockery::mock(SubscriptionService::class);
@@ -87,14 +87,14 @@ class BillingOrchestratorTest extends TestCase
             'wayforpay_rec_token' => 'REC-TOKEN-123',
         ]);
 
-        $adapter = Mockery::mock(PaymentProviderInterfaceV2::class);
+        $adapter = Mockery::mock(PaymentProviderInterface::class);
         $adapter->shouldReceive('name')->andReturn(PaymentProvider::WayForPay);
         $adapter->shouldReceive('cancelSubscription')
             ->once()
             ->withArgs(fn (CancelSubscriptionCommand $cmd) => $cmd->tokens->recurringToken === 'REC-TOKEN-123')
             ->andReturn(CancellationResult::cancelled());
 
-        $registry = new PaymentProviderRegistryV2();
+        $registry = new PaymentProviderRegistry();
         $registry->register($adapter);
 
         $subscriptionService = Mockery::mock(SubscriptionService::class);
@@ -123,11 +123,11 @@ class BillingOrchestratorTest extends TestCase
         ]);
 
         // Adapter that does NOT implement SupportsMerchantCharge
-        $adapter = Mockery::mock(PaymentProviderInterfaceV2::class);
+        $adapter = Mockery::mock(PaymentProviderInterface::class);
         $adapter->shouldReceive('name')->andReturn(PaymentProvider::WayForPay);
         $adapter->shouldNotReceive('chargeSavedInstrument');
 
-        $registry = new PaymentProviderRegistryV2();
+        $registry = new PaymentProviderRegistry();
         $registry->register($adapter);
 
         $subscriptionService = Mockery::mock(SubscriptionService::class);
@@ -151,14 +151,14 @@ class BillingOrchestratorTest extends TestCase
             'wayforpay_rec_token' => 'REC-TOKEN-CHARGE',
         ]);
 
-        $adapter = Mockery::mock(PaymentProviderInterfaceV2::class, SupportsMerchantCharge::class);
+        $adapter = Mockery::mock(PaymentProviderInterface::class, SupportsMerchantCharge::class);
         $adapter->shouldReceive('name')->andReturn(PaymentProvider::WayForPay);
         $adapter->shouldReceive('chargeSavedInstrument')
             ->once()
             ->withArgs(fn (ChargeCommand $cmd) => $cmd->tokens->recurringToken === 'REC-TOKEN-CHARGE')
             ->andReturn(ChargeResult::ok('TXN-123'));
 
-        $registry = new PaymentProviderRegistryV2();
+        $registry = new PaymentProviderRegistry();
         $registry->register($adapter);
 
         $subscriptionService = Mockery::mock(SubscriptionService::class);

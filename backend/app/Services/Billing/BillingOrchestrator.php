@@ -35,7 +35,7 @@ use Illuminate\Support\Facades\Log;
 final class BillingOrchestrator
 {
     public function __construct(
-        private readonly PaymentProviderRegistryV2 $registry,
+        private readonly PaymentProviderRegistry $registry,
         private readonly SubscriptionService $subscriptionService,
         private readonly WayForPayWebhookService $wayForPayWebhookService,
     ) {

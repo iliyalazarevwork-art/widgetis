@@ -8,7 +8,7 @@ use App\Enums\PaymentProvider;
 use App\Exceptions\Billing\CapabilityNotSupportedException;
 use App\Services\Billing\Commands\CancelSubscriptionCommand;
 use App\Services\Billing\Commands\StartSubscriptionCommand;
-use App\Services\Billing\Contracts\PaymentProviderInterfaceV2;
+use App\Services\Billing\Contracts\PaymentProviderInterface;
 use App\Services\Billing\Contracts\ProviderCapabilities;
 use App\Services\Billing\Contracts\SupportsMerchantCharge;
 use App\Services\Billing\Contracts\SupportsPlanChange;
@@ -24,9 +24,9 @@ final class ContractsTest extends TestCase
 {
     public function test_interface_v2_is_interface(): void
     {
-        $this->assertTrue(interface_exists(PaymentProviderInterfaceV2::class));
+        $this->assertTrue(interface_exists(PaymentProviderInterface::class));
 
-        $reflection = new \ReflectionClass(PaymentProviderInterfaceV2::class);
+        $reflection = new \ReflectionClass(PaymentProviderInterface::class);
         $this->assertTrue($reflection->isInterface());
     }
 
@@ -39,7 +39,7 @@ final class ContractsTest extends TestCase
 
     public function test_capability_interfaces_are_not_required_by_core(): void
     {
-        $impl = new class () implements PaymentProviderInterfaceV2 {
+        $impl = new class () implements PaymentProviderInterface {
             public function name(): PaymentProvider
             {
                 return PaymentProvider::Monobank;
@@ -66,12 +66,12 @@ final class ContractsTest extends TestCase
             }
         };
 
-        $this->assertInstanceOf(PaymentProviderInterfaceV2::class, $impl);
+        $this->assertInstanceOf(PaymentProviderInterface::class, $impl);
 
         // Verify the core contract does not extend the capability interfaces.
         $reflection = new \ReflectionClass($impl);
         $interfaceNames = array_keys($reflection->getInterfaces());
-        $this->assertContains(PaymentProviderInterfaceV2::class, $interfaceNames);
+        $this->assertContains(PaymentProviderInterface::class, $interfaceNames);
         $this->assertNotContains(SupportsRefunds::class, $interfaceNames);
         $this->assertNotContains(SupportsMerchantCharge::class, $interfaceNames);
         $this->assertNotContains(SupportsPlanChange::class, $interfaceNames);

@@ -10,7 +10,7 @@ use App\Services\Billing\Results\CheckoutSession;
 /**
  * Complete checkout payload returned to the frontend.
  *
- * Wraps the provider's CheckoutResult with the order reference and
+ * Wraps the provider's CheckoutSession with the order reference and
  * optional upgrade pricing so the controller can serialize the response
  * in one shot without constructing the array manually.
  */
@@ -29,25 +29,6 @@ final readonly class CheckoutPayload
         public ?float $amountDue = null,
         public ?int $creditApplied = null,
     ) {
-    }
-
-    public static function fromCheckoutResult(
-        CheckoutResult $result,
-        PaymentProvider $provider,
-        string $reference,
-        ?float $amountDue = null,
-        ?int $creditApplied = null,
-    ): self {
-        return new self(
-            provider: $provider,
-            reference: $reference,
-            method: $result->method,
-            url: $result->url,
-            formFields: $result->formFields,
-            providerReference: $result->providerReference,
-            amountDue: $amountDue,
-            creditApplied: $creditApplied,
-        );
     }
 
     public static function fromCheckoutSession(

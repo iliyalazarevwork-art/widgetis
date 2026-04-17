@@ -10,13 +10,13 @@ use App\Models\Subscription;
 use App\Services\Billing\Contracts\PaymentProviderInterface;
 
 /**
- * Strategy-pattern registry for payment providers.
+ * V2 registry — typed against PaymentProviderInterface.
  *
- * Concrete adapters (MonobankProvider, WayForPayProvider, ...) are registered
- * from the service provider at boot. Business code resolves the right
- * adapter via get()/for() and never references concrete classes.
+ * Mirrors the v1 PaymentProviderRegistry pattern but operates with the
+ * new adapter contract so the BillingOrchestrator and WebhookDispatcher
+ * never touch v1 classes.
  */
-class PaymentProviderRegistry
+final class PaymentProviderRegistry
 {
     /** @var array<string, PaymentProviderInterface> keyed by PaymentProvider value */
     private array $providers = [];
