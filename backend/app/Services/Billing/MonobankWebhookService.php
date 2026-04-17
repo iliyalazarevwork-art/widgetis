@@ -306,10 +306,12 @@ class MonobankWebhookService
         return WebhookResult::processed($reference, $status);
     }
 
-    private function verifySignature(Request $request): bool
+    /**
+     * Verify a Monobank webhook signature given the raw body and X-Sign header value.
+     * Used by MonobankAdapter (pure DTO-in/DTO-out layer) that has no Laravel Request.
+     */
+    public function verifyRawSignature(string $rawBody, ?string $xSign): bool
     {
-        $xSign = $request->header('X-Sign');
-
         if (! is_string($xSign) || $xSign === '') {
             return false;
         }
@@ -322,11 +324,7 @@ class MonobankWebhookService
 
         try {
             $pubKey = $this->pubKeyProvider->getKey();
-        } catch (\Throwable $e) {
-            Log::channel('payments')->error('monobank.webhook.pubkey_failed', [
-                'error' => $e->getMessage(),
-            ]);
-
+        } catch (\Throwable) {
             return false;
         }
 
@@ -336,14 +334,20 @@ class MonobankWebhookService
             return false;
         }
 
-        $body = $request->getContent();
-
         try {
-            $result = openssl_verify($body, $signature, $pemKey, OPENSSL_ALGO_SHA256);
+            $result = openssl_verify($rawBody, $signature, $pemKey, OPENSSL_ALGO_SHA256);
         } catch (\Throwable) {
             return false;
         }
 
         return $result === 1;
+    }
+
+    private function verifySignature(Request $request): bool
+    {
+        return $this->verifyRawSignature(
+            rawBody: $request->getContent(),
+            xSign: $request->header('X-Sign'),
+        );
     }
 }
