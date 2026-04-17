@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Billing\DTO;
 
 use App\Enums\PaymentProvider;
+use App\Services\Billing\Results\CheckoutSession;
 
 /**
  * Complete checkout payload returned to the frontend.
@@ -44,6 +45,25 @@ final readonly class CheckoutPayload
             url: $result->url,
             formFields: $result->formFields,
             providerReference: $result->providerReference,
+            amountDue: $amountDue,
+            creditApplied: $creditApplied,
+        );
+    }
+
+    public static function fromCheckoutSession(
+        CheckoutSession $session,
+        PaymentProvider $provider,
+        string $reference,
+        ?float $amountDue = null,
+        ?int $creditApplied = null,
+    ): self {
+        return new self(
+            provider: $provider,
+            reference: $reference,
+            method: $session->method,
+            url: $session->url,
+            formFields: $session->formFields,
+            providerReference: $session->providerReference,
             amountDue: $amountDue,
             creditApplied: $creditApplied,
         );

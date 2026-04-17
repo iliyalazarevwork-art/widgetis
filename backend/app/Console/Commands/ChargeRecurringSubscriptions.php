@@ -7,8 +7,9 @@ namespace App\Console\Commands;
 use App\Enums\PaymentProvider;
 use App\Enums\SubscriptionStatus;
 use App\Models\Subscription;
+use App\Services\Billing\BillingOrchestrator;
 use App\Services\Billing\PaymentFailureHandler;
-use App\Services\Billing\PaymentProviderRegistry;
+use App\Services\Billing\PaymentProviderRegistryV2;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -38,7 +39,7 @@ class ChargeRecurringSubscriptions extends Command
      */
     private const DISPATCH_COOLDOWN_HOURS = 26;
 
-    public function handle(PaymentProviderRegistry $registry): int
+    public function handle(PaymentProviderRegistryV2 $registry, BillingOrchestrator $orchestrator): int
     {
         $query = Subscription::query()
             ->whereIn('status', [SubscriptionStatus::Active, SubscriptionStatus::PastDue])
@@ -58,17 +59,17 @@ class ChargeRecurringSubscriptions extends Command
         $skipped = 0;
 
         foreach ($subscriptions as $subscription) {
-            $provider = $registry->for($subscription);
+            $adapter = $registry->for($subscription);
 
             // WayForPay and Monobank self-schedule recurring payments on
             // their side and fire a webhook for each charge, so running our
             // own charge cron against them would double-bill.
-            if (in_array($provider->name(), [PaymentProvider::WayForPay, PaymentProvider::Monobank], true)) {
+            if (in_array($adapter->name(), [PaymentProvider::WayForPay, PaymentProvider::Monobank], true)) {
                 $skipped++;
                 continue;
             }
 
-            $result = $provider->chargeRecurring($subscription);
+            $result = $orchestrator->chargeRecurringIfSupported($subscription);
 
             if ($result->success) {
                 // Monobank dispatch was accepted; the actual success (and
@@ -84,7 +85,7 @@ class ChargeRecurringSubscriptions extends Command
 
                 Log::channel('payments')->info('recurring.charge.dispatched', [
                     'subscription_id' => $subscription->id,
-                    'provider' => $provider->name()->value,
+                    'provider' => $adapter->name()->value,
                     'transaction_id' => $result->transactionId,
                     'cooldown_until' => now()->addHours(self::DISPATCH_COOLDOWN_HOURS)->toIso8601String(),
                 ]);
@@ -109,7 +110,7 @@ class ChargeRecurringSubscriptions extends Command
 
             Log::channel('payments')->warning('recurring.charge.failed', [
                 'subscription_id' => $subscription->id,
-                'provider' => $provider->name()->value,
+                'provider' => $adapter->name()->value,
                 'retry_count' => $retryCount,
                 'failure_code' => $result->failureCode,
                 'failure_message' => $result->failureMessage,

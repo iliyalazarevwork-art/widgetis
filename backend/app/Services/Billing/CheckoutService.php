@@ -38,7 +38,7 @@ class CheckoutService
 {
     public function __construct(
         private readonly UniqueOrderNumberProvider $orderNumbers,
-        private readonly PaymentProviderRegistry $providers,
+        private readonly BillingOrchestrator $orchestrator,
     ) {
     }
 
@@ -163,10 +163,11 @@ class CheckoutService
         });
 
         try {
-            $result = $this->providers->get($provider)->createSubscriptionCheckout(
+            $session = $this->orchestrator->startSubscriptionCheckout(
                 user: $user,
                 plan: $plan,
-                billingPeriod: $billingPeriod,
+                period: $billingPeriod,
+                provider: $provider,
                 reference: $reference,
                 redirectUrl: $redirectUrl,
             );
@@ -182,7 +183,16 @@ class CheckoutService
             throw $exception;
         }
 
-        $payload = CheckoutPayload::fromCheckoutResult($result, $provider, $reference);
+        // For Monobank: the providerReference from the session is the
+        // subscriptionId returned by the provider. Persist it on the
+        // Subscription row so recurring webhooks can be matched back.
+        if ($session->providerReference !== null && $session->providerReference !== '') {
+            Subscription::where('user_id', $user->id)
+                ->whereNull('payment_provider_subscription_id')
+                ->update(['payment_provider_subscription_id' => $session->providerReference]);
+        }
+
+        $payload = CheckoutPayload::fromCheckoutSession($session, $provider, $reference);
 
         Log::channel('payments')->info('checkout.create.out', [
             'user_id' => $user->id,
@@ -276,10 +286,11 @@ class CheckoutService
         });
 
         try {
-            $result = $this->providers->get($provider)->createSubscriptionCheckout(
+            $session = $this->orchestrator->startSubscriptionCheckout(
                 user: $user,
                 plan: $targetPlan,
-                billingPeriod: $targetPeriod,
+                period: $targetPeriod,
+                provider: $provider,
                 reference: $reference,
                 redirectUrl: $redirectUrl,
             );
@@ -295,8 +306,8 @@ class CheckoutService
             throw $exception;
         }
 
-        $payload = CheckoutPayload::fromCheckoutResult(
-            $result,
+        $payload = CheckoutPayload::fromCheckoutSession(
+            $session,
             $provider,
             $reference,
             (float) $amountDue,
