@@ -221,7 +221,7 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
       if (!st) continue
       modules[id] = { config: deepClone(st.config), i18n: deepClone(st.i18n) }
     }
-    return { site: siteContext?.domain || 'default', modules, obfuscate }
+    return { modules, obfuscate }
   }
 
   async function buildWidget() {

@@ -69,6 +69,7 @@ services:
       - "3200:3200"
     volumes:
       - ./widget-builder/modules:/app/modules:ro
+      - ./widget-builder/index.ts:/app/index.ts:ro
       - ./widget-builder/demo-config.json:/app/demo-config.json:ro
       - ./widget-builder/build-demo.ts:/app/build-demo.ts:ro
     networks:

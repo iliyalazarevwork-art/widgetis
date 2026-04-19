@@ -5,7 +5,9 @@
   "type": "module",
   "packageManager": "pnpm@10.6.5",
   "scripts": {
-    "dev": "jiti server.ts"
+    "dev": "jiti server.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1028.0",
@@ -17,7 +19,9 @@
     "zod-to-json-schema": "^3.25.1"
   },
   "devDependencies": {
-    "jiti": "^2.0.0"
+    "jiti": "^2.0.0",
+    "vitest": "^3.0.0",
+    "happy-dom": "^17.0.0"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

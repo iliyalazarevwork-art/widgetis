@@ -8,7 +8,7 @@ export const stickyBuyButtonSchema = z.object({
   backgroundColor: z.string().default('#5c1f2e'),
   textColor: z.string().default('#ffffff'),
   borderRadius: z.string().default('8px'),
-  zIndex: z.number().default(9998),
+  zIndex: z.number().default(200),
   bottomOffset: z.number().default(0),
   safeAreaPadding: z.boolean().default(true),
 });

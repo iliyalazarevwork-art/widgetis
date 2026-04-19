@@ -51,7 +51,6 @@ class WidgetBuilderController extends BaseController
         $payload = (string) json_encode([
             'modules' => $request->input('modules'),
             'obfuscate' => $request->boolean('obfuscate', false),
-            'allowedDomain' => $request->input('site'),
         ], JSON_UNESCAPED_UNICODE);
 
         $ch = curl_init("{$url}/build");
