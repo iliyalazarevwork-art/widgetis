@@ -103,6 +103,38 @@
   width: 100%;
 }
 
+/* Domain suggestion tags */
+.demo__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.demo__tag {
+  padding: 5px 12px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--bg-input);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
+}
+
+.demo__tag:hover {
+  color: var(--text-primary);
+  border-color: var(--blue-border);
+  background: var(--blue-dim);
+}
+
+.demo__tag--active {
+  color: var(--blue);
+  border-color: var(--blue-border);
+  background: var(--blue-dim);
+}
+
 .demo__input {
   width: 100%;
   padding: 16px 20px;
@@ -135,21 +167,21 @@
   font-family: var(--font-display);
   font-size: 15px;
   font-weight: 700;
-  color: var(--bg-deep);
-  background: #32ffb6;
+  color: #fff;
+  background: var(--blue);
   border: none;
   border-radius: var(--radius-lg);
   cursor: pointer;
   text-decoration: none;
-  box-shadow: 0 6px 28px rgba(50, 255, 182, 0.3), 0 0 0 2px rgba(50, 255, 182, 0.12);
+  box-shadow: 0 6px 28px rgba(59, 130, 246, 0.3), 0 0 0 2px rgba(59, 130, 246, 0.12);
   transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
   animation: demo-cta-pulse 2.5s ease-in-out infinite;
 }
 
 .demo__submit:hover {
-  background: #28e6a0;
+  background: var(--blue-hover);
   transform: translateY(-2px);
-  box-shadow: 0 10px 36px rgba(50, 255, 182, 0.4), 0 0 0 3px rgba(50, 255, 182, 0.2);
+  box-shadow: 0 10px 36px rgba(59, 130, 246, 0.4), 0 0 0 3px rgba(59, 130, 246, 0.2);
   animation: none;
 }
 
@@ -173,8 +205,8 @@
 }
 
 @keyframes demo-cta-pulse {
-  0%, 100% { box-shadow: 0 6px 28px rgba(50, 255, 182, 0.3), 0 0 0 2px rgba(50, 255, 182, 0.12); }
-  50%      { box-shadow: 0 8px 40px rgba(50, 255, 182, 0.45), 0 0 0 5px rgba(50, 255, 182, 0.08); }
+  0%, 100% { box-shadow: 0 6px 28px rgba(59, 130, 246, 0.3), 0 0 0 2px rgba(59, 130, 246, 0.12); }
+  50%      { box-shadow: 0 8px 40px rgba(59, 130, 246, 0.45), 0 0 0 5px rgba(59, 130, 246, 0.08); }
 }
 
 /* Typewriter */
@@ -223,6 +255,18 @@
   color: var(--text-secondary);
   margin-top: 16px;
   letter-spacing: 0.3px;
+}
+
+/* ===== Mobile ===== */
+
+@media (max-width: 767px) {
+  .demo {
+    padding: 48px 0;
+  }
+
+  .demo__card {
+    padding: 24px 20px 20px;
+  }
 }
 
 /* ===== Tablet+ ===== */

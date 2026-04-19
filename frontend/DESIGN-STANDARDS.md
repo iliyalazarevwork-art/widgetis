@@ -28,7 +28,7 @@
 | Inputs     | `#1A1A1A` | `--bg-input`        | Input fields    |
 | Title      | `#F0F0F0` | `--text-primary`    | Primary text    |
 | Secondary  | `#888888` | `--text-secondary`  | Secondary text  |
-| Muted      | `#555555` | `--text-muted`      | Hints, disabled |
+| Muted      | `#777777` | `--text-muted`      | Hints, disabled |
 
 ### Derived (opacity-based)
 

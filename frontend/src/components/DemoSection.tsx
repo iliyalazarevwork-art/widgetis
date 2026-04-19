@@ -11,6 +11,8 @@ const EXAMPLES = [
   'store.com.ua',
 ]
 
+const DOMAIN_TAGS = ['.com.ua', '.com', '.ua', '.net']
+
 const TypewriterInput = forwardRef<HTMLInputElement, {
   value: string
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
@@ -82,6 +84,17 @@ export function DemoSection() {
   const [showDemo, setShowDemo] = useState(false)
   const inputEl = useRef<HTMLInputElement>(null)
 
+  function handleTagClick(tag: string) {
+    let base = url.trim()
+    for (const s of DOMAIN_TAGS) {
+      if (base.endsWith(s)) { base = base.slice(0, -s.length); break }
+    }
+    const newUrl = base + tag
+    setUrl(newUrl)
+    try { localStorage.setItem('wty_demo_url', newUrl) } catch { /* quota */ }
+    inputEl.current?.focus()
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
@@ -133,12 +146,28 @@ export function DemoSection() {
               }}
               disabled={creating}
             />
+            {url.trim() && <div className="demo__tags">
+              {(() => {
+                const activeTag = DOMAIN_TAGS.find(t => url.trim().endsWith(t)) ?? null
+                return DOMAIN_TAGS.map((tag) => (
+                  <button
+                    key={tag}
+                    type="button"
+                    className={`demo__tag${activeTag === tag ? ' demo__tag--active' : ''}`}
+                    onClick={() => handleTagClick(tag)}
+                    disabled={creating}
+                  >
+                    {tag}
+                  </button>
+                ))
+              })()}
+            </div>}
             <button type="submit" className="demo__submit" disabled={creating}>
               {creating ? (
                 <Loader size={16} strokeWidth={2} className="demo__spinner" />
               ) : (
                 <>
-                  <span>Спробувати</span>
+                  <span>Запустити демо</span>
                   <ArrowRight size={16} strokeWidth={2.5} />
                 </>
               )}

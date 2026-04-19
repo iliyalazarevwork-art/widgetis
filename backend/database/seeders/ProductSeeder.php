@@ -22,6 +22,7 @@ class ProductSeeder extends Seeder
             'one-plus-one-deal',
             'video-preview',
             'buyer-count',
+            'sticky-buy-button',
         ])->delete();
 
         $products = [
@@ -221,6 +222,28 @@ class ProductSeeder extends Seeder
                     'observeSpa' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Observe SPA navigation', 'uk' => 'Відстежувати SPA-навігацію']],
                     'showOnMobile' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Show on mobile', 'uk' => 'Показувати на мобільному']],
                     'showOnDesktop' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Show on desktop', 'uk' => 'Показувати на десктопі']],
+                ],
+            ],
+            [
+                'slug' => 'sticky-buy-button',
+                'name' => ['en' => 'Sticky Buy Button', 'uk' => 'Кнопка «Купити» знизу'],
+                'description' => ['en' => 'Fixed "Order" button at the bottom of the screen on mobile. Appears when the original button scrolls out of view.', 'uk' => 'Фіксована кнопка «Замовити» внизу екрану на мобільних. Зʼявляється, коли оригінальна кнопка прокручується з поля зору.'],
+                'icon' => 'cursor-arrow-rays',
+                'tag_slug' => 'conversion',
+                'is_popular' => true,
+                'is_new' => true,
+                'builder_module' => 'sticky-buy-button',
+                'sort_order' => 2,
+                'config_schema' => [
+                    'enabled' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Enabled', 'uk' => 'Увімкнено']],
+                    'buttonSelector' => ['type' => 'string', 'default' => '.j-buy-button-add', 'label' => ['en' => 'Original button CSS selector', 'uk' => 'CSS-селектор оригінальної кнопки']],
+                    'mobileBreakpoint' => ['type' => 'number', 'default' => 768, 'min' => 320, 'max' => 1280, 'label' => ['en' => 'Mobile breakpoint (px)', 'uk' => 'Межа мобільного (пкс)']],
+                    'backgroundColor' => ['type' => 'color', 'default' => '#5c1f2e', 'label' => ['en' => 'Button background', 'uk' => 'Фон кнопки']],
+                    'textColor' => ['type' => 'color', 'default' => '#ffffff', 'label' => ['en' => 'Button text color', 'uk' => 'Колір тексту кнопки']],
+                    'borderRadius' => ['type' => 'string', 'default' => '8px', 'label' => ['en' => 'Border radius', 'uk' => 'Радіус кутів']],
+                    'zIndex' => ['type' => 'number', 'default' => 9998, 'label' => ['en' => 'Z-index', 'uk' => 'Z-індекс']],
+                    'bottomOffset' => ['type' => 'number', 'default' => 0, 'min' => 0, 'label' => ['en' => 'Bottom offset (px)', 'uk' => 'Відступ знизу (пкс)']],
+                    'safeAreaPadding' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'iOS safe area padding', 'uk' => 'Відступ iOS safe area']],
                 ],
             ],
             [

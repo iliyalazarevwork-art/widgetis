@@ -19,6 +19,7 @@ export type BuildRequest = {
 
 const MODULES_ORDER = [
   'module-marquee',
+  'module-sticky-buy-button',
   'module-min-order',
   'module-cart-goal',
   'module-delivery-date',
@@ -137,7 +138,7 @@ export async function buildModules(request: BuildRequest): Promise<string> {
 
   let code = chunk.code;
 
-  if (request.allowedDomain) {
+  if (request.allowedDomain && request.allowedDomain.includes('.')) {
     const d = request.allowedDomain;
     code = `(function(){_c();${code}function _c(){var _h=window.location.hostname;if(_h!=="${d}"&&!_h.endsWith(".${d}"))throw new Error()}})();`;
   }

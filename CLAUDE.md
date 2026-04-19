@@ -272,3 +272,31 @@ Use standard Laravel logger. Separate channels for auth and payments:
 | `ensi/laravel-openapi-server-generator` | 4.x (dev) |
 | PostgreSQL | 15 |
 | Redis | 7 |
+
+## Site-proxy service
+
+`services/site-proxy/server.mjs` — Node.js HTTP proxy that fetches any external website and serves it through the Widgetis backend. Used to preview a customer's Horoshop store with demo widgets injected inline.
+
+**Port:** `3100` (env `PORT`)
+
+**Usage:**
+```
+GET /site/{domain}/path   — fetch and proxy that domain
+GET /path                 — implicit: reuse the last domain from the visitor session
+```
+
+**What it does:**
+- Rewrites all HTML links/forms/assets to go through `/site/{domain}/`
+- Injects `demo-bundle.js` (from `DEMO_BUNDLE_PATH`) as an inline `<script>` on every HTML response
+- Injects a runtime XHR/fetch patch so in-page JS requests are also proxied
+- Maintains a per-visitor cookie jar (keyed by `wgts_pv` cookie) with 1 h TTL
+- LRU response cache: HTML 60 s · text assets 1 h · binary assets 24 h (max 5 000 entries)
+- Handles Horoshop bot-challenge (`challenge_passed` cookie) automatically
+- Returns a friendly fallback page for Cloudflare-protected or 403/503 sites
+
+**SSRF protection** — blocked targets:
+- Raw IPv4/IPv6 addresses
+- `localhost`, `*.localhost`, `.local`, `.internal`, `.test`, `.invalid`, `.example`
+- `169.254.*` (link-local) and `metadata.google.internal`
+
+**Demo bundle path** (default): `./public/demo-bundle.js` — override via `DEMO_BUNDLE_PATH` env var.

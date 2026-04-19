@@ -152,11 +152,38 @@ tasks:
       - '{{.DC}} up -d'
       - mkdir -p frontend/.logs
       - |
-        if lsof -ti tcp:5173 >/dev/null 2>&1; then
-          echo "Vite уже запущен на :5173"
+        VITE_HOST="${VITE_HOST:-127.0.0.1}"
+        VITE_PORT="${VITE_PORT:-5173}"
+        VITE_LOG="frontend/.logs/vite.log"
+        VITE_PID_FILE="frontend/.logs/vite.pid"
+
+        if lsof -ti "tcp:${VITE_PORT}" >/dev/null 2>&1; then
+          echo "Порт :${VITE_PORT} уже занят, Vite не перезапускаем"
         else
-          (cd frontend && nohup npx vite --host 127.0.0.1 --port 5173 </dev/null > .logs/vite.log 2>&1 &) || true
-          echo "Vite запущен в фоне  ·  логи: frontend/.logs/vite.log  ·  http://localhost:5173"
+          : > "${VITE_LOG}"
+          rm -f "${VITE_PID_FILE}"
+          (
+            cd frontend
+            nohup npx vite --host "${VITE_HOST}" --port "${VITE_PORT}" </dev/null > .logs/vite.log 2>&1 &
+            echo $! > "${VITE_PID_FILE##frontend/}"
+          )
+
+          started=0
+          for _ in $(seq 1 40); do
+            if lsof -ti "tcp:${VITE_PORT}" >/dev/null 2>&1; then
+              started=1
+              break
+            fi
+            sleep 0.25
+          done
+
+          if [ "${started}" -eq 1 ]; then
+            echo "Vite запущен в фоне  ·  логи: ${VITE_LOG}  ·  http://localhost:${VITE_PORT}"
+          else
+            echo "❌ Vite не поднялся на :${VITE_PORT}. Последние строки лога:"
+            tail -n 60 "${VITE_LOG}" || true
+            exit 1
+          fi
         fi
 
   down:
@@ -164,8 +191,19 @@ tasks:
     cmds:
       - '{{.DC}} down'
       - |
-        if lsof -ti tcp:5173 >/dev/null 2>&1; then
-          lsof -ti tcp:5173 | xargs kill 2>/dev/null || true
+        VITE_PORT="${VITE_PORT:-5173}"
+        VITE_PID_FILE="frontend/.logs/vite.pid"
+
+        if [ -f "${VITE_PID_FILE}" ]; then
+          VITE_PID="$(cat "${VITE_PID_FILE}" 2>/dev/null || true)"
+          if [ -n "${VITE_PID}" ] && kill -0 "${VITE_PID}" >/dev/null 2>&1; then
+            kill "${VITE_PID}" 2>/dev/null || true
+          fi
+          rm -f "${VITE_PID_FILE}"
+        fi
+
+        if lsof -ti "tcp:${VITE_PORT}" >/dev/null 2>&1; then
+          lsof -ti "tcp:${VITE_PORT}" | xargs kill 2>/dev/null || true
           echo "Vite остановлен"
         fi
 
