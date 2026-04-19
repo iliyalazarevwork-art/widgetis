@@ -28,56 +28,12 @@ function setViewport(width: number) {
   Object.defineProperty(window, 'innerWidth', { value: width, configurable: true });
 }
 
-function addBuyButton(rectOverride?: Partial<DOMRect>): HTMLElement {
+function addBuyButton(): HTMLElement {
   const btn = document.createElement('button');
   btn.className = 'buy-btn';
   btn.textContent = 'Купити';
   document.body.appendChild(btn);
-
-  if (rectOverride) {
-    vi.spyOn(btn, 'getBoundingClientRect').mockReturnValue({
-      top: 0, bottom: 50, left: 0, right: 100, width: 100, height: 50, x: 0, y: 0,
-      toJSON: () => ({}),
-      ...rectOverride,
-    } as DOMRect);
-  }
-
   return btn;
-}
-
-type IoMock = {
-  callback: IntersectionObserverCallback | null;
-  observe: ReturnType<typeof vi.fn>;
-  disconnect: ReturnType<typeof vi.fn>;
-};
-
-function mockIntersectionObserver(): IoMock {
-  const mock: IoMock = { callback: null, observe: vi.fn(), disconnect: vi.fn() };
-  vi.stubGlobal(
-    'IntersectionObserver',
-    vi.fn((cb: IntersectionObserverCallback) => {
-      mock.callback = cb;
-      return mock;
-    }),
-  );
-  return mock;
-}
-
-function fireIo(
-  mock: IoMock,
-  target: Element,
-  isIntersecting: boolean,
-  rectTop: number,
-) {
-  if (!mock.callback) return;
-  vi.spyOn(target, 'getBoundingClientRect').mockReturnValue({
-    top: rectTop, bottom: rectTop + 50, left: 0, right: 100, width: 100, height: 50, x: 0, y: rectTop,
-    toJSON: () => ({}),
-  } as DOMRect);
-  mock.callback(
-    [{ isIntersecting, target, boundingClientRect: target.getBoundingClientRect() } as IntersectionObserverEntry],
-    mock as unknown as IntersectionObserver,
-  );
 }
 
 describe('stickyBuyButton', () => {
@@ -93,8 +49,7 @@ describe('stickyBuyButton', () => {
     vi.unstubAllGlobals();
   });
 
-  it('монтирует панель и скрывает её при инициализации', () => {
-    mockIntersectionObserver();
+  it('монтирует панель и скрывает её при инициализации (scrollY = 0)', () => {
     addBuyButton();
 
     const cleanup = stickyBuyButton(config, i18n);
@@ -106,87 +61,58 @@ describe('stickyBuyButton', () => {
     cleanup?.();
   });
 
-  it('не показывает панель при скроле < 300px', () => {
-    const io = mockIntersectionObserver();
-    const btn = addBuyButton({ top: -10 });
+  it('не показывает панель при scrollY <= 300', () => {
+    addBuyButton();
 
     const cleanup = stickyBuyButton(config, i18n);
     const bar = document.getElementById(WIDGET_ID)!;
 
     setScrollY(100);
     window.dispatchEvent(new Event('scroll'));
+    expect(bar.classList.contains(HIDDEN)).toBe(true);
 
-    // IO fires: button out of view above — but hasScrolled still false
-    fireIo(io, btn, false, -10);
-
+    setScrollY(300);
+    window.dispatchEvent(new Event('scroll'));
     expect(bar.classList.contains(HIDDEN)).toBe(true);
 
     cleanup?.();
   });
 
-  it('показывает панель сразу при скроле > 300px если кнопка уже выше вьюпорта', () => {
-    const io = mockIntersectionObserver();
-
-    // Button is above viewport when scroll happens
-    addBuyButton({ top: -200, bottom: -150 });
+  it('показывает панель при scrollY > 300', () => {
+    addBuyButton();
 
     const cleanup = stickyBuyButton(config, i18n);
     const bar = document.getElementById(WIDGET_ID)!;
-    expect(bar.classList.contains(HIDDEN)).toBe(true);
 
-    setScrollY(400);
+    setScrollY(301);
     window.dispatchEvent(new Event('scroll'));
+    expect(bar.classList.contains(HIDDEN)).toBe(false);
 
-    // Bar must be visible immediately — no need to wait for IO
+    setScrollY(1000);
+    window.dispatchEvent(new Event('scroll'));
     expect(bar.classList.contains(HIDDEN)).toBe(false);
 
     cleanup?.();
   });
 
-  it('не показывает панель при скроле > 300px если кнопка ещё видна', () => {
-    const io = mockIntersectionObserver();
-
-    // Button is still in viewport (top > 0)
-    addBuyButton({ top: 100, bottom: 150 });
+  it('скрывает панель когда пользователь скролит обратно вверх (<= 300)', () => {
+    addBuyButton();
 
     const cleanup = stickyBuyButton(config, i18n);
     const bar = document.getElementById(WIDGET_ID)!;
 
-    setScrollY(400);
+    setScrollY(500);
     window.dispatchEvent(new Event('scroll'));
-
-    expect(bar.classList.contains(HIDDEN)).toBe(true);
-
-    // IO also confirms: button visible → hide
-    const btn = document.querySelector('.buy-btn')!;
-    fireIo(io, btn, true, 100);
-    expect(bar.classList.contains(HIDDEN)).toBe(true);
-
-    cleanup?.();
-  });
-
-  it('скрывает панель когда пользователь скролит обратно к кнопке', () => {
-    const io = mockIntersectionObserver();
-    const btn = addBuyButton({ top: -200, bottom: -150 });
-
-    const cleanup = stickyBuyButton(config, i18n);
-    const bar = document.getElementById(WIDGET_ID)!;
-
-    setScrollY(400);
-    window.dispatchEvent(new Event('scroll'));
-
-    // Bar is now visible
     expect(bar.classList.contains(HIDDEN)).toBe(false);
 
-    // User scrolls back — button enters viewport
-    fireIo(io, btn, true, 50);
+    setScrollY(200);
+    window.dispatchEvent(new Event('scroll'));
     expect(bar.classList.contains(HIDDEN)).toBe(true);
 
     cleanup?.();
   });
 
   it('не монтирует панель на десктопе (> mobileBreakpoint)', () => {
-    mockIntersectionObserver();
     setViewport(1024);
     addBuyButton();
 
@@ -198,7 +124,6 @@ describe('stickyBuyButton', () => {
   });
 
   it('не монтирует панель если config.enabled = false', () => {
-    mockIntersectionObserver();
     addBuyButton();
 
     const result = stickyBuyButton({ ...config, enabled: false }, i18n);
@@ -208,8 +133,7 @@ describe('stickyBuyButton', () => {
   });
 
   it('cleanup удаляет панель и стили из DOM', () => {
-    mockIntersectionObserver();
-    addBuyButton({ top: -200, bottom: -150 });
+    addBuyButton();
 
     const cleanup = stickyBuyButton(config, i18n)!;
 
@@ -225,8 +149,7 @@ describe('stickyBuyButton', () => {
   });
 
   it('кнопка в панели кликает оригинальную кнопку', () => {
-    mockIntersectionObserver();
-    const btn = addBuyButton({ top: -200, bottom: -150 });
+    const btn = addBuyButton();
     const clickSpy = vi.spyOn(btn, 'click');
 
     const cleanup = stickyBuyButton(config, i18n);

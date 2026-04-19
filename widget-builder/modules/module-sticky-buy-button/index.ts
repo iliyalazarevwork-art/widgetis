@@ -6,6 +6,7 @@ import {
 import { getLanguage } from '@laxarevii/core';
 
 const WIDGET_ID = 'wdg-sticky-buy';
+const SPACER_ID = 'wdg-sticky-buy-spacer';
 const STYLES_ID = 'wdg-sticky-buy-styles';
 
 export default function stickyBuyButton(
@@ -22,14 +23,15 @@ export default function stickyBuyButton(
     i18nMap[lang] ?? i18nMap.ua ?? i18nMap.ru ?? Object.values(i18nMap)[0];
   if (!i18n) return;
 
+  const SCROLL_THRESHOLD = 300;
+
   let bar: HTMLElement | null = null;
-  let intersectionObserver: IntersectionObserver | null = null;
+  let spacer: HTMLElement | null = null;
   let mutationObserver: MutationObserver | null = null;
   let barResizeObserver: ResizeObserver | null = null;
   let retryTimer: ReturnType<typeof setTimeout> | null = null;
   let resizeTimer: ReturnType<typeof setTimeout> | null = null;
-  let hasScrolled = false;
-  let savedBodyPadding: string | null = null;
+  let originalEl: HTMLElement | null = null;
 
   function isMobile(): boolean {
     return window.innerWidth <= config.mobileBreakpoint;
@@ -95,7 +97,7 @@ export default function stickyBuyButton(
         opacity: 0.8;
       }
       @media (min-width: ${cfg.mobileBreakpoint + 1}px) {
-        #${WIDGET_ID} { display: none !important; }
+        #${WIDGET_ID}, #${SPACER_ID} { display: none !important; }
       }
     `;
     document.head.appendChild(s);
@@ -113,76 +115,73 @@ export default function stickyBuyButton(
     return el;
   }
 
-  function applyBodyPadding(): void {
-    if (!bar) return;
-    if (savedBodyPadding === null) {
-      savedBodyPadding = document.body.style.paddingBottom;
-    }
+  function syncSpacerHeight(): void {
+    if (!bar || !spacer) return;
     const h = bar.offsetHeight;
-    console.log(`[wdg-sticky-buy] bar height: ${h}px`);
-    document.body.style.paddingBottom = h + 'px';
-  }
-
-  function removeBodyPadding(): void {
-    if (savedBodyPadding !== null) {
-      document.body.style.paddingBottom = savedBodyPadding;
-      savedBodyPadding = null;
-    }
+    spacer.style.height = h + 'px';
+    console.log(`[wdg-sticky-buy] spacer height: ${h}px`);
   }
 
   function show(): void {
-    if (!hasScrolled) return;
     bar?.classList.remove('wdg-sbuy--hidden');
-    applyBodyPadding();
   }
 
   function hide(): void {
     bar?.classList.add('wdg-sbuy--hidden');
-    removeBodyPadding();
   }
 
-  function watchOriginal(original: HTMLElement): void {
-    intersectionObserver?.disconnect();
-    intersectionObserver = new IntersectionObserver(
-      (entries) => {
-        const rect = original.getBoundingClientRect();
-        if (entries[0].isIntersecting) {
-          hide();
-        } else {
-          if (rect.top < 0) show();
-          else hide();
-        }
-      },
-      { threshold: 0.2 },
-    );
-    intersectionObserver.observe(original);
+  function updateVisibility(): void {
+    if (!bar) return;
+    if (window.scrollY > SCROLL_THRESHOLD) show();
+    else hide();
   }
 
   function mount(): void {
+    console.log(`[wdg-sticky-buy] mount(): isMobile=${isMobile()} (width=${window.innerWidth})`);
     if (!isMobile()) return;
     if (document.getElementById(WIDGET_ID)) return;
 
     const original = findOriginal();
+    console.log(`[wdg-sticky-buy] findOriginal("${config.buttonSelector}"):`, original);
     if (!original) {
       retryTimer = setTimeout(mount, 600);
       return;
     }
 
+    originalEl = original;
     const text = readButtonText(original);
     injectStyles(config);
     bar = buildBar(text);
-
-    bar.querySelector('.wdg-sbuy__btn')!.addEventListener('click', () => {
-      original.click();
-    });
-
     bar.classList.add('wdg-sbuy--hidden');
     document.body.appendChild(bar);
-    watchOriginal(original);
+
+    // Spacer reserves space equal to bar height so content is never hidden under the bar.
+    // It lives for the entire widget lifetime — page height stays constant during show/hide
+    // cycles, which prevents scroll feedback loops with IntersectionObserver.
+    spacer = document.createElement('div');
+    spacer.id = SPACER_ID;
+    spacer.style.cssText = 'pointer-events:none;';
+    document.body.appendChild(spacer);
+
+    barResizeObserver = new ResizeObserver((entries) => {
+      const h = Math.round(entries[0].contentRect.height);
+      console.log(`[wdg-sticky-buy] bar height changed: ${h}px`);
+      syncSpacerHeight();
+    });
+    barResizeObserver.observe(bar);
+
+    // Initial height sync after first paint so offsetHeight is accurate
+    requestAnimationFrame(syncSpacerHeight);
+
+    bar.querySelector('.wdg-sbuy__btn')!.addEventListener('click', () => {
+      originalEl?.click();
+    });
+
+    updateVisibility();
 
     mutationObserver = new MutationObserver(() => {
       const fresh = findOriginal();
-      if (fresh && fresh !== original) watchOriginal(fresh);
+      if (fresh && fresh !== originalEl) originalEl = fresh;
     });
     mutationObserver.observe(document.body, { childList: true, subtree: true });
   }
@@ -192,7 +191,9 @@ export default function stickyBuyButton(
     resizeTimer = setTimeout(() => {
       if (!isMobile()) {
         document.getElementById(WIDGET_ID)?.remove();
+        document.getElementById(SPACER_ID)?.remove();
         bar = null;
+        spacer = null;
       } else if (!document.getElementById(WIDGET_ID)) {
         mount();
       }
@@ -205,36 +206,25 @@ export default function stickyBuyButton(
     mount();
   }
 
-  window.addEventListener('scroll', function onScrollThreshold() {
-    if (hasScrolled) return;
-    if (window.scrollY < 300) return;
+  function onScroll(): void {
+    updateVisibility();
+  }
 
-    hasScrolled = true;
-    window.removeEventListener('scroll', onScrollThreshold);
-    intersectionObserver?.disconnect();
-
-    const original = findOriginal();
-    if (!original) return;
-
-    // Immediately show if button is already above viewport — don't wait for IO callback
-    const rect = original.getBoundingClientRect();
-    if (rect.top < 0) show();
-
-    watchOriginal(original);
-  }, { passive: true });
-
+  window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onResize, { passive: true });
 
   return () => {
-    intersectionObserver?.disconnect();
     mutationObserver?.disconnect();
+    barResizeObserver?.disconnect();
     if (retryTimer) clearTimeout(retryTimer);
     if (resizeTimer) clearTimeout(resizeTimer);
+    window.removeEventListener('scroll', onScroll);
     window.removeEventListener('resize', onResize);
     document.getElementById(WIDGET_ID)?.remove();
+    document.getElementById(SPACER_ID)?.remove();
     document.getElementById(STYLES_ID)?.remove();
-    removeBodyPadding();
     bar = null;
-    hasScrolled = false;
+    spacer = null;
+    originalEl = null;
   };
 }
