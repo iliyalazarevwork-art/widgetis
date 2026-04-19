@@ -5,6 +5,7 @@ import {
 } from './schema';
 import { getLanguage } from '@laxarevii/core';
 
+const LOG = '[sticky-buy-button]';
 const WIDGET_ID = 'wdg-sticky-buy';
 const STYLES_ID = 'wdg-sticky-buy-styles';
 
@@ -12,15 +13,25 @@ export default function stickyBuyButton(
   rawConfig: unknown,
   rawI18n: Record<string, unknown>,
 ): (() => void) | void {
+  console.log(LOG, 'init', { rawConfig, rawI18n });
+
   const config = stickyBuyButtonSchema.parse(rawConfig);
   const i18nMap = stickyBuyButtonI18nSchema.parse(rawI18n);
 
-  if (!config.enabled) return;
+  if (!config.enabled) {
+    console.log(LOG, 'disabled — exit');
+    return;
+  }
 
   const lang = getLanguage();
+  console.log(LOG, 'lang:', lang);
+
   const i18n =
     i18nMap[lang] ?? i18nMap.ua ?? i18nMap.ru ?? Object.values(i18nMap)[0];
-  if (!i18n) return;
+  if (!i18n) {
+    console.warn(LOG, 'no i18n found — exit');
+    return;
+  }
 
   let bar: HTMLElement | null = null;
   let intersectionObserver: IntersectionObserver | null = null;
@@ -31,19 +42,24 @@ export default function stickyBuyButton(
   // ── Helpers ─────────────────────────────────────────────────
 
   function isMobile(): boolean {
-    return window.innerWidth <= config.mobileBreakpoint;
+    const result = window.innerWidth <= config.mobileBreakpoint;
+    console.log(LOG, `isMobile: ${result} (${window.innerWidth}px <= ${config.mobileBreakpoint}px)`);
+    return result;
   }
 
   function findOriginal(): HTMLElement | null {
-    return document.querySelector<HTMLElement>(config.buttonSelector);
+    const el = document.querySelector<HTMLElement>(config.buttonSelector);
+    console.log(LOG, `findOriginal("${config.buttonSelector}"):`, el ?? 'NOT FOUND');
+    return el;
   }
 
   function readButtonText(original: HTMLElement): string {
-    return (
+    const text =
       original.querySelector('.btn-content')?.textContent?.trim() ||
       original.textContent?.trim() ||
-      i18n.buttonText
-    );
+      i18n.buttonText;
+    console.log(LOG, 'button text:', text);
+    return text;
   }
 
   // ── DOM ──────────────────────────────────────────────────────
@@ -100,6 +116,7 @@ export default function stickyBuyButton(
       }
     `;
     document.head.appendChild(s);
+    console.log(LOG, 'styles injected');
   }
 
   function buildBar(text: string): HTMLElement {
@@ -117,10 +134,12 @@ export default function stickyBuyButton(
   // ── Visibility ────────────────────────────────────────────────
 
   function show(): void {
+    console.log(LOG, 'show bar');
     bar?.classList.remove('wdg-sbuy--hidden');
   }
 
   function hide(): void {
+    console.log(LOG, 'hide bar (original visible)');
     bar?.classList.add('wdg-sbuy--hidden');
   }
 
@@ -129,22 +148,33 @@ export default function stickyBuyButton(
     intersectionObserver = new IntersectionObserver(
       (entries) => {
         const visible = entries.some((e) => e.isIntersecting);
+        console.log(LOG, `IntersectionObserver: original isIntersecting=${visible}`);
         if (visible) hide();
         else show();
       },
       { threshold: 0.2 },
     );
     intersectionObserver.observe(original);
+    console.log(LOG, 'watching original button with IntersectionObserver');
   }
 
   // ── Init ──────────────────────────────────────────────────────
 
   function mount(): void {
-    if (!isMobile()) return;
-    if (document.getElementById(WIDGET_ID)) return;
+    console.log(LOG, 'mount() called, readyState:', document.readyState);
+
+    if (!isMobile()) {
+      console.log(LOG, 'not mobile — skip mount');
+      return;
+    }
+    if (document.getElementById(WIDGET_ID)) {
+      console.log(LOG, 'bar already exists — skip');
+      return;
+    }
 
     const original = findOriginal();
     if (!original) {
+      console.log(LOG, `button "${config.buttonSelector}" not found, retry in 600ms`);
       retryTimer = setTimeout(mount, 600);
       return;
     }
@@ -154,17 +184,21 @@ export default function stickyBuyButton(
     bar = buildBar(text);
 
     bar.querySelector('.wdg-sbuy__btn')!.addEventListener('click', () => {
+      console.log(LOG, 'sticky btn clicked → delegating to original');
       original.click();
     });
 
     bar.classList.add('wdg-sbuy--hidden');
     document.body.appendChild(bar);
+    console.log(LOG, 'bar mounted to body');
     watchOriginal(original);
 
-    // Re-watch if the original button is replaced by Horoshop JS
     mutationObserver = new MutationObserver(() => {
       const fresh = findOriginal();
-      if (fresh && fresh !== original) watchOriginal(fresh);
+      if (fresh && fresh !== original) {
+        console.log(LOG, 'original button replaced by Horoshop JS — re-watching');
+        watchOriginal(fresh);
+      }
     });
     mutationObserver.observe(document.body, { childList: true, subtree: true });
   }
@@ -173,10 +207,11 @@ export default function stickyBuyButton(
     if (resizeTimer) clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
       if (!isMobile()) {
-        // Desktop — unmount silently; don't destroy cleanup handles
+        console.log(LOG, 'resize → desktop, removing bar');
         document.getElementById(WIDGET_ID)?.remove();
         bar = null;
       } else if (!document.getElementById(WIDGET_ID)) {
+        console.log(LOG, 'resize → mobile, re-mounting');
         mount();
       }
     }, 200);
@@ -184,6 +219,7 @@ export default function stickyBuyButton(
 
   // ── Bootstrap ─────────────────────────────────────────────────
 
+  console.log(LOG, 'readyState at bootstrap:', document.readyState);
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', mount, { once: true });
   } else {
@@ -195,6 +231,7 @@ export default function stickyBuyButton(
   // ── Cleanup ───────────────────────────────────────────────────
 
   return () => {
+    console.log(LOG, 'cleanup');
     intersectionObserver?.disconnect();
     mutationObserver?.disconnect();
     if (retryTimer) clearTimeout(retryTimer);

@@ -138,7 +138,7 @@ export async function buildModules(request: BuildRequest): Promise<string> {
 
   let code = chunk.code;
 
-  if (request.allowedDomain && request.allowedDomain.includes('.')) {
+  if (request.allowedDomain) {
     const d = request.allowedDomain;
     code = `(function(){_c();${code}function _c(){var _h=window.location.hostname;if(_h!=="${d}"&&!_h.endsWith(".${d}"))throw new Error()}})();`;
   }
