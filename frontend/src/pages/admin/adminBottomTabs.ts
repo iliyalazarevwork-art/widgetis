@@ -1,4 +1,4 @@
-import { Banknote, Globe, LayoutDashboard, Receipt, Users, Wand2, type LucideIcon } from 'lucide-react'
+import { Banknote, Globe, LayoutDashboard, MessageSquare, Receipt, Users, Wand2, type LucideIcon } from 'lucide-react'
 
 export interface AdminBottomTab {
   to: string
@@ -14,4 +14,5 @@ export const ADMIN_BOTTOM_TABS: readonly AdminBottomTab[] = [
   { to: '/admin/sites', label: 'Сайти', icon: Globe, end: false },
   { to: '/admin/subscriptions', label: 'Підписки', icon: Banknote, end: false },
   { to: '/admin/configurator', label: 'Конфігур.', icon: Wand2, end: false },
+  { to: '/admin/widgets/sms-otp', label: 'SMS OTP', icon: MessageSquare, end: false },
 ]

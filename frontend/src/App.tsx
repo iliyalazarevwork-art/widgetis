@@ -68,6 +68,9 @@ const AdminSubscriptionsPage = lazy(() =>
 const AdminUsersPage = lazy(() =>
   import('./pages/admin/AdminPages').then((m) => ({ default: m.AdminUsersPage })),
 )
+const AdminSmsOtpPage = lazy(() =>
+  import('./pages/admin/AdminSmsOtpPage').then((m) => ({ default: m.AdminSmsOtpPage })),
+)
 
 const LoginPage = lazy(() => import('./pages/auth/LoginPage'))
 const LoginOtpPage = lazy(() => import('./pages/auth/LoginOtpPage'))
@@ -386,6 +389,7 @@ function App() {
             <Route path="users" element={<AdminUsersPage />} />
             <Route path="settings" element={<AdminSettingsPage />} />
             <Route path="manager-requests" element={<AdminManagerRequestsPage />} />
+            <Route path="widgets/sms-otp" element={<AdminSmsOtpPage />} />
           </Route>
         </Routes>
         </Suspense>
