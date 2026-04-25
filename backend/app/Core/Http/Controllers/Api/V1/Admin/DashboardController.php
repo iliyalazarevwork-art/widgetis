@@ -27,6 +27,7 @@ class DashboardController extends CoreBaseController
         $thisMonthEnd = $now->endOfMonth();
         $prevMonthStart = $thisMonthStart->subMonth()->startOfMonth();
         $prevMonthEnd = $thisMonthStart->subMonth()->endOfMonth();
+        $weekAgo = $now->subWeek();
 
         $ordersCount = Order::count();
         $ordersThisMonth = Order::whereBetween('created_at', [$thisMonthStart, $thisMonthEnd])->count();
@@ -56,7 +57,10 @@ class DashboardController extends CoreBaseController
                     'orders_this_month' => $ordersThisMonth,
                     'orders_growth_pct' => $this->percentChange((float) $ordersThisMonth, (float) $ordersPrevMonth),
                     'total_sites' => $this->runtimeStats->totalSites(),
+                    'active_sites' => $this->runtimeStats->activeSites(),
+                    'active_sites_new_week' => $this->runtimeStats->activeSitesCreatedSince($weekAgo),
                     'installed_widgets_count' => $installedWidgetsCount,
+                    'installed_widgets_new_week' => $this->runtimeStats->activeSiteWidgetsCreatedSince($weekAgo),
                     'active_subscriptions' => Subscription::active()->count(),
                     'revenue' => $revenueTotal,
                     'revenue_this_month' => $revenueThisMonth,

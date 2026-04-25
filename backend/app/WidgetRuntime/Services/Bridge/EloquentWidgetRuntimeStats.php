@@ -9,12 +9,23 @@ use App\Shared\ValueObjects\UserId;
 use App\WidgetRuntime\Models\DemoSession;
 use App\WidgetRuntime\Models\Site;
 use App\WidgetRuntime\Models\SiteWidget;
+use DateTimeInterface;
 
 final class EloquentWidgetRuntimeStats implements WidgetRuntimeStatsInterface
 {
     public function totalSites(): int
     {
         return Site::count();
+    }
+
+    public function activeSites(): int
+    {
+        return Site::active()->count();
+    }
+
+    public function activeSitesCreatedSince(DateTimeInterface $since): int
+    {
+        return Site::active()->where('created_at', '>=', $since)->count();
     }
 
     public function totalDemoSessions(): int
@@ -25,6 +36,13 @@ final class EloquentWidgetRuntimeStats implements WidgetRuntimeStatsInterface
     public function activeSiteWidgets(): int
     {
         return SiteWidget::where('is_enabled', true)->count();
+    }
+
+    public function activeSiteWidgetsCreatedSince(DateTimeInterface $since): int
+    {
+        return SiteWidget::where('is_enabled', true)
+            ->where('created_at', '>=', $since)
+            ->count();
     }
 
     public function sitesForUser(UserId $id): int

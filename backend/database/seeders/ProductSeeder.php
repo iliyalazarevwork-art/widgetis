@@ -241,7 +241,7 @@ class ProductSeeder extends Seeder
                     'backgroundColor' => ['type' => 'color', 'default' => '#5c1f2e', 'label' => ['en' => 'Button background', 'uk' => 'Фон кнопки']],
                     'textColor' => ['type' => 'color', 'default' => '#ffffff', 'label' => ['en' => 'Button text color', 'uk' => 'Колір тексту кнопки']],
                     'borderRadius' => ['type' => 'string', 'default' => '8px', 'label' => ['en' => 'Border radius', 'uk' => 'Радіус кутів']],
-                    'zIndex' => ['type' => 'number', 'default' => 9998, 'label' => ['en' => 'Z-index', 'uk' => 'Z-індекс']],
+                    'zIndex' => ['type' => 'number', 'default' => 200, 'label' => ['en' => 'Z-index', 'uk' => 'Z-індекс']],
                     'bottomOffset' => ['type' => 'number', 'default' => 0, 'min' => 0, 'label' => ['en' => 'Bottom offset (px)', 'uk' => 'Відступ знизу (пкс)']],
                     'safeAreaPadding' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'iOS safe area padding', 'uk' => 'Відступ iOS safe area']],
                 ],
