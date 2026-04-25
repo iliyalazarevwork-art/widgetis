@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\WidgetTag;
+use App\Core\Models\WidgetTag;
 use Illuminate\Database\Seeder;
 
 class WidgetTagSeeder extends Seeder

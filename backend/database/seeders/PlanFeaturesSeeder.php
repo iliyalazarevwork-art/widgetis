@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\Plan;
-use App\Models\PlanFeature;
-use App\Models\PlanFeatureValue;
+use App\Core\Models\Plan;
+use App\Core\Models\PlanFeature;
+use App\Core\Models\PlanFeatureValue;
 use Illuminate\Database\Seeder;
 
 class PlanFeaturesSeeder extends Seeder

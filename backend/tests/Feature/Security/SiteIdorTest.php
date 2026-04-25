@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Security;
 
+use App\Core\Models\User;
 use App\Enums\UserRole;
-use App\Models\User;
 use App\WidgetRuntime\Models\Site;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -75,7 +75,7 @@ class SiteIdorTest extends TestCase
         $bob = $this->customer();
 
         $aliceSite = $this->siteFor($alice, 'alice.example');
-        $product = \App\Models\Product::factory()->create();
+        $product = \App\Core\Models\Product::factory()->create();
 
         $response = $this->actingAs($bob, 'api')
             ->putJson("/api/v1/profile/sites/{$aliceSite->id}/widgets/{$product->id}", [

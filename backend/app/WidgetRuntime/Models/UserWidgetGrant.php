@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\WidgetRuntime\Models;
 
-use App\Models\Product;
-use App\Models\User;
+use App\Core\Models\Product;
+use App\Core\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;

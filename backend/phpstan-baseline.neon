@@ -4,49 +4,49 @@ parameters:
 			message: '#^Cannot access property \$value on string\.$#'
 			identifier: property.nonObject
 			count: 1
-			path: app/Http/Controllers/Api/V1/Admin/DashboardController.php
+			path: app/Core/Http/Controllers/Api/V1/Admin/DashboardController.php
 
 		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Order\>\:\:map\(\) contains unresolvable type\.$#'
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Core\\Models\\Order\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
-			path: app/Http/Controllers/Api/V1/Admin/DashboardController.php
+			path: app/Core/Http/Controllers/Api/V1/Admin/DashboardController.php
 
 		-
-			message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Order\>\:\:map\(\) contains unresolvable type\.$#'
+			message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Core\\Models\\Order\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: method.unresolvableReturnType
 			count: 1
-			path: app/Http/Controllers/Api/V1/Admin/DashboardController.php
+			path: app/Core/Http/Controllers/Api/V1/Admin/DashboardController.php
 
 		-
 			message: '#^Using nullsafe property access on non\-nullable type string\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Http/Controllers/Api/V1/Admin/DashboardController.php
+			path: app/Core/Http/Controllers/Api/V1/Admin/DashboardController.php
 
 		-
 			message: '#^Cannot access property \$value on string\.$#'
 			identifier: property.nonObject
 			count: 1
-			path: app/Http/Controllers/Api/V1/Admin/OrderController.php
+			path: app/Core/Http/Controllers/Api/V1/Admin/OrderController.php
 
 		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,App\\Models\\Order\>\:\:map\(\) contains unresolvable type\.$#'
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,App\\Core\\Models\\Order\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
-			path: app/Http/Controllers/Api/V1/Admin/OrderController.php
+			path: app/Core/Http/Controllers/Api/V1/Admin/OrderController.php
 
 		-
-			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,App\\Models\\Order\>\:\:map\(\) contains unresolvable type\.$#'
+			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,App\\Core\\Models\\Order\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: method.unresolvableReturnType
 			count: 1
-			path: app/Http/Controllers/Api/V1/Admin/OrderController.php
+			path: app/Core/Http/Controllers/Api/V1/Admin/OrderController.php
 
 		-
 			message: '#^Using nullsafe property access on non\-nullable type string\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Http/Controllers/Api/V1/Admin/OrderController.php
+			path: app/Core/Http/Controllers/Api/V1/Admin/OrderController.php
 
 		-
 			message: '#^Cannot access property \$value on string\.$#'
@@ -82,103 +82,103 @@ parameters:
 			message: '#^Using nullsafe property access on non\-nullable type App\\Enums\\SubscriptionStatus\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Http/Controllers/Api/V1/Admin/SubscriptionController.php
+			path: app/Core/Http/Controllers/Api/V1/Admin/SubscriptionController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
 			identifier: property.notFound
 			count: 2
-			path: app/Http/Controllers/Api/V1/Auth/AuthController.php
+			path: app/Core/Http/Controllers/Api/V1/Auth/AuthController.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 2
-			path: app/Http/Controllers/Api/V1/Auth/AuthController.php
+			path: app/Core/Http/Controllers/Api/V1/Auth/AuthController.php
 
 		-
 			message: '#^Cannot access property \$value on string\.$#'
 			identifier: property.nonObject
 			count: 1
-			path: app/Http/Controllers/Api/V1/Profile/DashboardController.php
+			path: app/Core/Http/Controllers/Api/V1/Profile/DashboardController.php
 
 		-
 			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
 			identifier: method.nonObject
 			count: 2
-			path: app/Http/Controllers/Api/V1/Profile/DashboardController.php
+			path: app/Core/Http/Controllers/Api/V1/Profile/DashboardController.php
 
 		-
 			message: '#^Offset ''plan'' on array\{\} in isset\(\) does not exist\.$#'
 			identifier: isset.offset
 			count: 1
-			path: app/Http/Controllers/Api/V1/Profile/DashboardController.php
+			path: app/Core/Http/Controllers/Api/V1/Profile/DashboardController.php
 
 		-
 			message: '#^Using nullsafe method call on non\-nullable type string\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 2
-			path: app/Http/Controllers/Api/V1/Profile/DashboardController.php
+			path: app/Core/Http/Controllers/Api/V1/Profile/DashboardController.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>plan" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Http/Controllers/Api/V1/Profile/DashboardController.php
+			path: app/Core/Http/Controllers/Api/V1/Profile/DashboardController.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>value" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Http/Controllers/Api/V1/Profile/DashboardController.php
+			path: app/Core/Http/Controllers/Api/V1/Profile/DashboardController.php
 
 		-
 			message: '#^Using nullsafe property access on non\-nullable type string\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Http/Controllers/Api/V1/Profile/DashboardController.php
+			path: app/Core/Http/Controllers/Api/V1/Profile/DashboardController.php
 
 		-
 			message: '#^Cannot access property \$value on string\.$#'
 			identifier: property.nonObject
 			count: 1
-			path: app/Http/Controllers/Api/V1/Profile/NotificationController.php
+			path: app/Core/Http/Controllers/Api/V1/Profile/NotificationController.php
 
 		-
 			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
 			identifier: method.nonObject
 			count: 1
-			path: app/Http/Controllers/Api/V1/Profile/NotificationController.php
+			path: app/Core/Http/Controllers/Api/V1/Profile/NotificationController.php
 
 		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,App\\Models\\AppNotification\>\:\:map\(\) contains unresolvable type\.$#'
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,App\\Core\\Models\\AppNotification\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
-			path: app/Http/Controllers/Api/V1/Profile/NotificationController.php
+			path: app/Core/Http/Controllers/Api/V1/Profile/NotificationController.php
 
 		-
-			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,App\\Models\\AppNotification\>\:\:map\(\) contains unresolvable type\.$#'
+			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,App\\Core\\Models\\AppNotification\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: method.unresolvableReturnType
 			count: 1
-			path: app/Http/Controllers/Api/V1/Profile/NotificationController.php
+			path: app/Core/Http/Controllers/Api/V1/Profile/NotificationController.php
 
 		-
 			message: '#^Using nullsafe method call on non\-nullable type string\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Http/Controllers/Api/V1/Profile/NotificationController.php
+			path: app/Core/Http/Controllers/Api/V1/Profile/NotificationController.php
 
 		-
 			message: '#^Using nullsafe property access on non\-nullable type string\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Http/Controllers/Api/V1/Profile/NotificationController.php
+			path: app/Core/Http/Controllers/Api/V1/Profile/NotificationController.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>max_widgets" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Http/Controllers/Api/V1/Profile/ProfileController.php
+			path: app/Core/Http/Controllers/Api/V1/Profile/ProfileController.php
 
 		-
 			message: '#^Cannot access property \$value on string\.$#'
@@ -211,10 +211,10 @@ parameters:
 			path: app/WidgetRuntime/Http/Controllers/Api/V1/Profile/SiteController.php
 
 		-
-			message: '#^Method App\\Models\\SocialAccount\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\SocialAccount\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\SocialAccount\)\>\.$#'
+			message: '#^Method App\\Core\\Models\\SocialAccount\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Core\\Models\\User, App\\Core\\Models\\SocialAccount\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Core\\Models\\User, \$this\(App\\Core\\Models\\SocialAccount\)\>\.$#'
 			identifier: return.type
 			count: 1
-			path: app/Models/SocialAccount.php
+			path: app/Core/Models/SocialAccount.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>max_sites" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'

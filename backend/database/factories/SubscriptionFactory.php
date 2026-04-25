@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Core\Models\Plan;
+use App\Core\Models\Subscription;
+use App\Core\Models\User;
 use App\Enums\BillingPeriod;
 use App\Enums\PaymentProvider;
 use App\Enums\SubscriptionStatus;
-use App\Models\Plan;
-use App\Models\Subscription;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Profile;
 
+use App\Core\Models\Payment;
+use App\Core\Models\Plan;
+use App\Core\Models\Subscription;
+use App\Core\Models\User;
 use App\Enums\UserRole;
-use App\Models\Payment;
-use App\Models\Plan;
-use App\Models\Subscription;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

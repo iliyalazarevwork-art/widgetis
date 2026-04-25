@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Core\Models\User;
 use App\Enums\UserRole;
-use App\Models\User;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Foundation\Testing\RefreshDatabase;

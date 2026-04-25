@@ -2,25 +2,25 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\Api\V1\Admin;
-use App\Http\Controllers\Api\V1\Auth\AuthController;
-use App\Http\Controllers\Api\V1\Profile\DashboardController;
-use App\Http\Controllers\Api\V1\Profile\NotificationController;
-use App\Http\Controllers\Api\V1\Profile\ProfileController;
-use App\Http\Controllers\Api\V1\Profile\SubscriptionController;
-use App\Http\Controllers\Api\V1\Public\CaseController;
-use App\Http\Controllers\Api\V1\Public\ConsultationController;
-use App\Http\Controllers\Api\V1\Public\FaqController;
-use App\Http\Controllers\Api\V1\Public\GuestCheckoutController;
-use App\Http\Controllers\Api\V1\Public\LeadRequestController;
-use App\Http\Controllers\Api\V1\Public\ManagerRequestController;
-use App\Http\Controllers\Api\V1\Public\PlanController;
-use App\Http\Controllers\Api\V1\Public\ProductController;
-use App\Http\Controllers\Api\V1\Public\SettingsController;
-use App\Http\Controllers\Api\V1\Public\SystemController;
-use App\Http\Controllers\Api\V1\Public\TagController;
-use App\Http\Controllers\Api\V1\Webhooks\MonobankWebhookController;
-use App\Http\Controllers\Api\V1\Webhooks\WayForPayWebhookController;
+use App\Core\Http\Controllers\Api\V1\Admin;
+use App\Core\Http\Controllers\Api\V1\Auth\AuthController;
+use App\Core\Http\Controllers\Api\V1\Profile\DashboardController;
+use App\Core\Http\Controllers\Api\V1\Profile\NotificationController;
+use App\Core\Http\Controllers\Api\V1\Profile\ProfileController;
+use App\Core\Http\Controllers\Api\V1\Profile\SubscriptionController;
+use App\Core\Http\Controllers\Api\V1\Public\CaseController;
+use App\Core\Http\Controllers\Api\V1\Public\ConsultationController;
+use App\Core\Http\Controllers\Api\V1\Public\FaqController;
+use App\Core\Http\Controllers\Api\V1\Public\GuestCheckoutController;
+use App\Core\Http\Controllers\Api\V1\Public\LeadRequestController;
+use App\Core\Http\Controllers\Api\V1\Public\ManagerRequestController;
+use App\Core\Http\Controllers\Api\V1\Public\PlanController;
+use App\Core\Http\Controllers\Api\V1\Public\ProductController;
+use App\Core\Http\Controllers\Api\V1\Public\SettingsController;
+use App\Core\Http\Controllers\Api\V1\Public\SystemController;
+use App\Core\Http\Controllers\Api\V1\Public\TagController;
+use App\Core\Http\Controllers\Api\V1\Webhooks\MonobankWebhookController;
+use App\Core\Http\Controllers\Api\V1\Webhooks\WayForPayWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {

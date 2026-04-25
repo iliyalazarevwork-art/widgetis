@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Billing;
 
+use App\Core\Services\Billing\ValueObjects\CallbackUrls;
 use App\Exceptions\Billing\InvalidCallbackUrlException;
-use App\Services\Billing\ValueObjects\CallbackUrls;
 use Tests\TestCase;
 
 final class CallbackUrlsTest extends TestCase

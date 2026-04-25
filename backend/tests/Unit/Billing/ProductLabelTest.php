@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Billing;
 
+use App\Core\Services\Billing\ValueObjects\ProductLabel;
 use App\Enums\BillingPeriod;
-use App\Services\Billing\ValueObjects\ProductLabel;
 use Tests\TestCase;
 
 final class ProductLabelTest extends TestCase

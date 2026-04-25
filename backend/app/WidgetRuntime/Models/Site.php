@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\WidgetRuntime\Models;
 
+use App\Core\Models\Concerns\HasUuidV7;
+use App\Core\Models\User;
 use App\Enums\SiteStatus;
-use App\Models\Concerns\HasUuidV7;
-use App\Models\User;
 use Database\Factories\SiteFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

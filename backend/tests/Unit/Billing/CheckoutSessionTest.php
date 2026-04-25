@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Billing;
 
-use App\Services\Billing\Results\CheckoutSession;
+use App\Core\Services\Billing\Results\CheckoutSession;
 use Tests\TestCase;
 
 final class CheckoutSessionTest extends TestCase

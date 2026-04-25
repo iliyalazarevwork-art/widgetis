@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\WidgetRuntime\Models;
 
-use App\Models\Concerns\HasUuidV7;
+use App\Core\Models\Concerns\HasUuidV7;
 use App\WidgetRuntime\Services\Widget\SmsOtp\Channel;
 use App\WidgetRuntime\Services\Widget\SmsOtp\OtpRequestStatus;
 use App\WidgetRuntime\Services\Widget\SmsOtp\Provider;

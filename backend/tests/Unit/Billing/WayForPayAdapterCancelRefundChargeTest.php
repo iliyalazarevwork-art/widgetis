@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Billing;
 
+use App\Core\Services\Billing\Adapters\WayForPayAdapter;
+use App\Core\Services\Billing\Commands\CancelSubscriptionCommand;
+use App\Core\Services\Billing\Commands\ChargeCommand;
+use App\Core\Services\Billing\Commands\RefundCommand;
+use App\Core\Services\Billing\Results\CancellationOutcome;
+use App\Core\Services\Billing\Results\CancellationResult;
+use App\Core\Services\Billing\Results\ChargeResult;
+use App\Core\Services\Billing\Results\RefundResult;
+use App\Core\Services\Billing\ValueObjects\Currency;
+use App\Core\Services\Billing\ValueObjects\CustomerProfile;
+use App\Core\Services\Billing\ValueObjects\Money;
+use App\Core\Services\Billing\ValueObjects\ProductLabel;
+use App\Core\Services\Billing\ValueObjects\ProviderTokens;
+use App\Core\Services\Billing\WayForPayService;
 use App\Enums\BillingPeriod;
 use App\Exceptions\Billing\InvalidBillingCommandException;
-use App\Services\Billing\Adapters\WayForPayAdapter;
-use App\Services\Billing\Commands\CancelSubscriptionCommand;
-use App\Services\Billing\Commands\ChargeCommand;
-use App\Services\Billing\Commands\RefundCommand;
-use App\Services\Billing\Results\CancellationOutcome;
-use App\Services\Billing\Results\CancellationResult;
-use App\Services\Billing\Results\ChargeResult;
-use App\Services\Billing\Results\RefundResult;
-use App\Services\Billing\ValueObjects\Currency;
-use App\Services\Billing\ValueObjects\CustomerProfile;
-use App\Services\Billing\ValueObjects\Money;
-use App\Services\Billing\ValueObjects\ProductLabel;
-use App\Services\Billing\ValueObjects\ProviderTokens;
-use App\Services\Billing\WayForPayService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 

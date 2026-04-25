@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Billing;
 
+use App\Core\Services\Billing\Webhooks\InboundWebhook;
 use App\Exceptions\Billing\MalformedWebhookException;
-use App\Services\Billing\Webhooks\InboundWebhook;
 use Tests\TestCase;
 
 final class InboundWebhookTest extends TestCase

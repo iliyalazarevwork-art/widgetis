@@ -34,13 +34,13 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::hex('#3B82F6'),
             ])
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
+            ->discoverResources(in: app_path('Core/Filament/Resources'), for: 'App\Core\Filament\Resources')
             ->discoverResources(in: app_path('WidgetRuntime/Filament/Resources'), for: 'App\WidgetRuntime\Filament\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
+            ->discoverPages(in: app_path('Core/Filament/Pages'), for: 'App\Core\Filament\Pages')
             ->pages([
                 Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
+            ->discoverWidgets(in: app_path('Core/Filament/Widgets'), for: 'App\Core\Filament\Widgets')
             ->widgets([
                 AccountWidget::class,
             ])

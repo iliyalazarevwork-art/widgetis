@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Auth;
 
+use App\Core\Mail\Auth\OtpMail;
+use App\Core\Models\Plan;
+use App\Core\Models\Subscription;
+use App\Core\Models\User;
 use App\Enums\UserRole;
-use App\Mail\Auth\OtpMail;
-use App\Models\Plan;
-use App\Models\Subscription;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;

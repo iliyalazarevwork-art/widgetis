@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Billing;
 
+use App\Core\Models\Order;
+use App\Core\Models\Payment;
+use App\Core\Models\Plan;
+use App\Core\Models\Subscription;
+use App\Core\Models\User;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentProvider;
 use App\Enums\PaymentStatus;
 use App\Enums\PaymentType;
 use App\Enums\SubscriptionStatus;
-use App\Models\Order;
-use App\Models\Payment;
-use App\Models\Plan;
-use App\Models\Subscription;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;

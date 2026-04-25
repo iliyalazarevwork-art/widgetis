@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\WidgetRuntime\Http\Controllers\Api\V1\Profile;
 
+use App\Core\Models\Product;
 use App\Http\Controllers\Api\V1\BaseController;
-use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 
 class WidgetController extends BaseController

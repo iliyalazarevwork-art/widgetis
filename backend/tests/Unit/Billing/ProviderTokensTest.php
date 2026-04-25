@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Billing;
 
-use App\Services\Billing\ValueObjects\ProviderTokens;
+use App\Core\Services\Billing\ValueObjects\ProviderTokens;
 use Tests\TestCase;
 
 final class ProviderTokensTest extends TestCase

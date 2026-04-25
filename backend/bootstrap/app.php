@@ -14,6 +14,15 @@ use Illuminate\Foundation\Configuration\Middleware;
 return Application::configure(basePath: dirname(__DIR__))
     ->withCommands([
         \App\WidgetRuntime\Console\Commands\CleanupDemoSessions::class,
+        \App\Core\Console\Commands\OtpLogin::class,
+        \App\Core\Console\Commands\GetOtpCode::class,
+        \App\Core\Console\Commands\PurgeNonAdminUsers::class,
+        \App\Core\Console\Commands\ExpireSubscriptions::class,
+        \App\Core\Console\Commands\SendTrialEndingReminders::class,
+        \App\Core\Console\Commands\CleanupNotifications::class,
+        \App\Core\Console\Commands\ExpireTrials::class,
+        \App\Core\Console\Commands\ProcessGracePeriod::class,
+        \App\Core\Console\Commands\ChargeRecurringSubscriptions::class,
     ])
     ->withRouting(
         web: __DIR__.'/../routes/web.php',

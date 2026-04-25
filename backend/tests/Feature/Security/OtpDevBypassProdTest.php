@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Security;
 
-use App\Models\User;
-use App\Services\Auth\OtpService;
+use App\Core\Models\User;
+use App\Core\Services\Auth\OtpService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;

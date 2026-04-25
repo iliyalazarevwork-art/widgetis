@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Services\Billing\Adapters\MonobankAdapter;
-use App\Services\Billing\Adapters\MonobankAdapterConfig;
-use App\Services\Billing\Adapters\WayForPayAdapter;
-use App\Services\Billing\BillingOrchestrator;
-use App\Services\Billing\MonobankWebhookService;
-use App\Services\Billing\PaymentProviderRegistry;
-use App\Services\Billing\SubscriptionActivationService;
-use App\Services\Billing\SubscriptionService;
-use App\Services\Billing\WebhookDispatcher;
+use App\Core\Services\Billing\Adapters\MonobankAdapter;
+use App\Core\Services\Billing\Adapters\MonobankAdapterConfig;
+use App\Core\Services\Billing\Adapters\WayForPayAdapter;
+use App\Core\Services\Billing\BillingOrchestrator;
+use App\Core\Services\Billing\MonobankWebhookService;
+use App\Core\Services\Billing\PaymentProviderRegistry;
+use App\Core\Services\Billing\SubscriptionActivationService;
+use App\Core\Services\Billing\SubscriptionService;
+use App\Core\Services\Billing\WebhookDispatcher;
 use AratKruglik\Monobank\Contracts\ClientInterface as MonobankClient;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;

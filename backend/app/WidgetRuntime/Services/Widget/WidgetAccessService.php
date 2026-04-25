@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\WidgetRuntime\Services\Widget;
 
+use App\Core\Models\Product;
+use App\Core\Models\User;
 use App\Enums\ProductAvailability;
-use App\Models\Product;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 
 class WidgetAccessService

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Exceptions\Billing;
 
-use App\Services\Billing\ValueObjects\Currency;
+use App\Core\Services\Billing\ValueObjects\Currency;
 
 final class CurrencyMismatchException extends \DomainException
 {

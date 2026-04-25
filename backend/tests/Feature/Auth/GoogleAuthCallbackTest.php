@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Auth;
 
-use App\Models\SocialAccount;
-use App\Models\User;
+use App\Core\Models\SocialAccount;
+use App\Core\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 use Laravel\Socialite\Facades\Socialite;

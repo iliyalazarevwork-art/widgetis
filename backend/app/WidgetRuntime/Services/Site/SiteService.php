@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\WidgetRuntime\Services\Site;
 
+use App\Core\Models\User;
 use App\Enums\SiteStatus;
 use App\Exceptions\PlanLimitExceededException;
 use App\Exceptions\SubscriptionRequiredException;
-use App\Models\User;
 use App\WidgetRuntime\Jobs\RebuildSiteScriptJob;
 use App\WidgetRuntime\Models\Site;
 use App\WidgetRuntime\Models\SiteScript;

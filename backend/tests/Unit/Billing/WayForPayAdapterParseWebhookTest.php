@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Billing;
 
-use App\Services\Billing\Adapters\WayForPayAdapter;
-use App\Services\Billing\Events\ChargeFailedEvent;
-use App\Services\Billing\Events\IgnoredEvent;
-use App\Services\Billing\Events\InvalidSignatureEvent;
-use App\Services\Billing\Events\RefundedEvent;
-use App\Services\Billing\Events\SubscriptionActivatedEvent;
-use App\Services\Billing\Events\SubscriptionRenewedEvent;
-use App\Services\Billing\WayForPayService;
-use App\Services\Billing\Webhooks\InboundWebhook;
+use App\Core\Services\Billing\Adapters\WayForPayAdapter;
+use App\Core\Services\Billing\Events\ChargeFailedEvent;
+use App\Core\Services\Billing\Events\IgnoredEvent;
+use App\Core\Services\Billing\Events\InvalidSignatureEvent;
+use App\Core\Services\Billing\Events\RefundedEvent;
+use App\Core\Services\Billing\Events\SubscriptionActivatedEvent;
+use App\Core\Services\Billing\Events\SubscriptionRenewedEvent;
+use App\Core\Services\Billing\WayForPayService;
+use App\Core\Services\Billing\Webhooks\InboundWebhook;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 

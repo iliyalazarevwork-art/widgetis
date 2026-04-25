@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Billing;
 
-use App\Services\Billing\Adapters\MonobankAdapter;
-use App\Services\Billing\Adapters\MonobankAdapterConfig;
-use App\Services\Billing\Events\ChargeFailedEvent;
-use App\Services\Billing\Events\IgnoredEvent;
-use App\Services\Billing\Events\InvalidSignatureEvent;
-use App\Services\Billing\Events\SubscriptionActivatedEvent;
-use App\Services\Billing\Events\SubscriptionRenewedEvent;
-use App\Services\Billing\MonobankWebhookService;
-use App\Services\Billing\Webhooks\InboundWebhook;
+use App\Core\Services\Billing\Adapters\MonobankAdapter;
+use App\Core\Services\Billing\Adapters\MonobankAdapterConfig;
+use App\Core\Services\Billing\Events\ChargeFailedEvent;
+use App\Core\Services\Billing\Events\IgnoredEvent;
+use App\Core\Services\Billing\Events\InvalidSignatureEvent;
+use App\Core\Services\Billing\Events\SubscriptionActivatedEvent;
+use App\Core\Services\Billing\Events\SubscriptionRenewedEvent;
+use App\Core\Services\Billing\MonobankWebhookService;
+use App\Core\Services\Billing\Webhooks\InboundWebhook;
 use AratKruglik\Monobank\Contracts\ClientInterface as MonobankClient;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;

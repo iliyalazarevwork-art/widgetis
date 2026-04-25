@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Billing;
 
+use App\Core\Models\Order;
+use App\Core\Models\Payment;
+use App\Core\Models\Plan;
+use App\Core\Models\Subscription;
+use App\Core\Models\User;
+use App\Core\Services\Billing\SubscriptionService;
 use App\Enums\BillingPeriod;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
@@ -11,12 +17,6 @@ use App\Enums\PaymentType;
 use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
 use App\Exceptions\UpgradeNotAllowedException;
-use App\Models\Order;
-use App\Models\Payment;
-use App\Models\Plan;
-use App\Models\Subscription;
-use App\Models\User;
-use App\Services\Billing\SubscriptionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Queue;
@@ -238,7 +238,7 @@ class SubscriptionUpgradeTest extends TestCase
             'status' => PaymentStatus::Pending->value,
         ]);
 
-        $activation = app(\App\Services\Billing\SubscriptionActivationService::class);
+        $activation = app(\App\Core\Services\Billing\SubscriptionActivationService::class);
         $this->assertTrue($activation->isUpgradeOrder($order));
 
         $result = $activation->applyUpgrade(

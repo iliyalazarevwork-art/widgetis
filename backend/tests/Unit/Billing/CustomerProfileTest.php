@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Billing;
 
-use App\Models\User;
-use App\Services\Billing\ValueObjects\CustomerProfile;
+use App\Core\Models\User;
+use App\Core\Services\Billing\ValueObjects\CustomerProfile;
 use Tests\TestCase;
 
 final class CustomerProfileTest extends TestCase

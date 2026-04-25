@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Widget\SmsOtp;
 
+use App\Core\Models\User;
 use App\Enums\UserRole;
-use App\Models\User;
 use App\WidgetRuntime\Models\OtpProviderConfig;
 use App\WidgetRuntime\Models\Site;
 use Illuminate\Foundation\Testing\RefreshDatabase;

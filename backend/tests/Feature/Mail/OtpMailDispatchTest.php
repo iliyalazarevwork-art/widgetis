@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Mail;
 
-use App\Mail\Auth\OtpMail;
+use App\Core\Mail\Auth\OtpMail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;

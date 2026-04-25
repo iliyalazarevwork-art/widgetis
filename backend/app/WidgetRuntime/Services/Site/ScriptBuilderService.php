@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\WidgetRuntime\Services\Site;
 
+use App\Core\Settings\GeneralSettings;
 use App\Enums\ScriptBuildStatus;
-use App\Settings\GeneralSettings;
 use App\WidgetRuntime\Models\Site;
 use App\WidgetRuntime\Models\SiteScriptBuild;
 use Illuminate\Support\Facades\Log;

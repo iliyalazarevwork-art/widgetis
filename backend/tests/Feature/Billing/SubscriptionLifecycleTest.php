@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Billing;
 
+use App\Core\Models\Plan;
+use App\Core\Models\Product;
+use App\Core\Models\Subscription;
+use App\Core\Models\User;
 use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
-use App\Models\Plan;
-use App\Models\Product;
-use App\Models\Subscription;
-use App\Models\User;
 use App\WidgetRuntime\Models\Site;
 use App\WidgetRuntime\Models\SiteWidget;
 use App\WidgetRuntime\Services\Widget\WidgetAccessService;

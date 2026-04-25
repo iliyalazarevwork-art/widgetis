@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Billing;
 
+use App\Core\Services\Billing\ValueObjects\Currency;
+use App\Core\Services\Billing\ValueObjects\Money;
 use App\Exceptions\Billing\CurrencyMismatchException;
 use App\Exceptions\Billing\InvalidMoneyException;
-use App\Services\Billing\ValueObjects\Currency;
-use App\Services\Billing\ValueObjects\Money;
 use Tests\TestCase;
 
 final class MoneyTest extends TestCase

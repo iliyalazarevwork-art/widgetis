@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Billing;
 
-use App\Services\Billing\WayForPayService;
+use App\Core\Services\Billing\WayForPayService;
 use Illuminate\Support\Facades\Config;
 use Tests\TestCase;
 

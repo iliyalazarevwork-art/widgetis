@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\Plan;
+use App\Core\Models\Plan;
 use Illuminate\Database\Seeder;
 
 class PlanSeeder extends Seeder

@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\Web\GoogleAuthController;
-use App\Http\Controllers\Web\MagicLinkController;
+use App\Core\Http\Controllers\Web\GoogleAuthController;
+use App\Core\Http\Controllers\Web\MagicLinkController;
 use Illuminate\Support\Facades\Route;
 
 // --- Google OAuth ---

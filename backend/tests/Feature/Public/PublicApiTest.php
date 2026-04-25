@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Public;
 
-use App\Models\CustomerCase;
-use App\Models\FaqItem;
-use App\Models\Plan;
-use App\Models\Product;
-use App\Models\WidgetTag;
+use App\Core\Models\CustomerCase;
+use App\Core\Models\FaqItem;
+use App\Core\Models\Plan;
+use App\Core\Models\Product;
+use App\Core\Models\WidgetTag;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;

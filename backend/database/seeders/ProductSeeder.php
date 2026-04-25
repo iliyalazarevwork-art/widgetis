@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Core\Models\Product;
 use App\Enums\ProductAvailability;
 use App\Enums\ProductStatus;
-use App\Models\Product;
 use Illuminate\Database\Seeder;
 
 class ProductSeeder extends Seeder

@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Billing;
 
-use App\Services\Billing\Adapters\MonobankAdapter;
-use App\Services\Billing\Adapters\MonobankAdapterConfig;
-use App\Services\Billing\Commands\CancelSubscriptionCommand;
-use App\Services\Billing\MonobankWebhookService;
-use App\Services\Billing\Results\CancellationOutcome;
-use App\Services\Billing\Results\CancellationResult;
-use App\Services\Billing\ValueObjects\ProviderTokens;
+use App\Core\Services\Billing\Adapters\MonobankAdapter;
+use App\Core\Services\Billing\Adapters\MonobankAdapterConfig;
+use App\Core\Services\Billing\Commands\CancelSubscriptionCommand;
+use App\Core\Services\Billing\MonobankWebhookService;
+use App\Core\Services\Billing\Results\CancellationOutcome;
+use App\Core\Services\Billing\Results\CancellationResult;
+use App\Core\Services\Billing\ValueObjects\ProviderTokens;
 use AratKruglik\Monobank\Contracts\ClientInterface as MonobankClient;
 use Illuminate\Http\Client\Response;
 use PHPUnit\Framework\MockObject\MockObject;

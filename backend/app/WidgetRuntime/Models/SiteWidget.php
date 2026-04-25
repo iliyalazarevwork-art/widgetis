@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\WidgetRuntime\Models;
 
-use App\Models\Product;
+use App\Core\Models\Product;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 

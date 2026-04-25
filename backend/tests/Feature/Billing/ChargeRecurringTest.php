@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Billing;
 
+use App\Core\Models\Subscription;
 use App\Enums\PaymentProvider;
 use App\Enums\SubscriptionStatus;
-use App\Models\Subscription;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
