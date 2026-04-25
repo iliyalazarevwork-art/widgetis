@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\WidgetRuntime\Http\Controllers\Api\V1\Profile;
 
-use App\Core\Models\Product;
 use App\Http\Controllers\Api\V1\BaseController;
+use App\Shared\Contracts\SubscriptionGateInterface;
+use App\Shared\Contracts\WidgetCatalogInterface;
+use App\Shared\ValueObjects\UserId;
 use Illuminate\Http\JsonResponse;
 
 class WidgetController extends BaseController
@@ -20,23 +22,29 @@ class WidgetController extends BaseController
 
     private const PRO_PLANS = ['pro', 'max'];
 
+    public function __construct(
+        private readonly WidgetCatalogInterface $widgetCatalog,
+        private readonly SubscriptionGateInterface $subscriptionGate,
+    ) {
+    }
+
     public function configSchema(string $productSlug): JsonResponse
     {
-        $product = Product::where('slug', $productSlug)->active()->firstOrFail();
+        if (! $this->widgetCatalog->widgetExistsBySlug($productSlug)) {
+            return $this->error('NOT_FOUND', 'Widget not found.', 404);
+        }
 
-        $user = $this->currentUser();
-        $plan = $user->currentPlan();
-        $planSlug = $plan?->slug;
-
+        $userId = UserId::fromString($this->authedUserId());
+        $planSlug = $this->subscriptionGate->activePlanSlugFor($userId);
         $canFullConfig = in_array($planSlug, self::PRO_PLANS, strict: true);
 
         $schema = $canFullConfig
-            ? ($product->config_schema ?? self::DEFAULT_SCHEMA)
+            ? ($this->widgetCatalog->getConfigSchemaBySlug($productSlug) ?? self::DEFAULT_SCHEMA)
             : self::DEFAULT_SCHEMA;
 
         return $this->success([
             'data' => [
-                'product_slug' => $product->slug,
+                'product_slug' => $productSlug,
                 'plan' => $planSlug,
                 'can_configure' => $canFullConfig,
                 'schema' => $schema,

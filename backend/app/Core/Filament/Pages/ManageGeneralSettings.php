@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core\Filament\Pages;
 
-use App\Core\Settings\GeneralSettings;
+use App\Shared\Settings\GeneralSettings;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\TextInput;
 use Filament\Pages\SettingsPage;

@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace App\WidgetRuntime\Models;
 
-use App\Core\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
@@ -36,12 +34,6 @@ class DemoSession extends Model
             'config' => 'array',
             'expires_at' => 'datetime',
         ];
-    }
-
-    /** @return BelongsTo<User, $this> */
-    public function creator(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'created_by');
     }
 
     /**

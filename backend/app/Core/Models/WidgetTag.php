@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core\Models;
 
-use App\Core\Models\Concerns\HasTranslations;
+use App\Shared\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 

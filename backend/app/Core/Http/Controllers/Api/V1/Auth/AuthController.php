@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Core\Http\Controllers\Api\V1\Auth;
 
 use App\Core\Events\Auth\UserRegistered;
+use App\Core\Http\Controllers\Api\V1\CoreBaseController;
 use App\Core\Http\Requests\Api\V1\Auth\SendOtpRequest;
 use App\Core\Models\User;
 use App\Core\Services\Auth\LinkService;
@@ -13,13 +14,12 @@ use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
 use App\Exceptions\Auth\LinkAlreadyUsedException;
 use App\Exceptions\Auth\LinkExpiredException;
-use App\Http\Controllers\Api\V1\BaseController;
 use App\Http\Traits\LogsActivity;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\JWTGuard;
 
-class AuthController extends BaseController
+class AuthController extends CoreBaseController
 {
     use LogsActivity;
 

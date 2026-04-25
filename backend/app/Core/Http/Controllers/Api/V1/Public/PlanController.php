@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Core\Http\Controllers\Api\V1\Public;
 
+use App\Core\Http\Controllers\Api\V1\CoreBaseController;
 use App\Core\Http\Resources\Api\V1\PlanResource;
 use App\Core\Models\Plan;
 use App\Core\Models\PlanFeature;
-use App\Http\Controllers\Api\V1\BaseController;
 use Illuminate\Http\JsonResponse;
 
-class PlanController extends BaseController
+class PlanController extends CoreBaseController
 {
     public function index(): JsonResponse
     {

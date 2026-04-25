@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Core\Models;
 
-use App\WidgetRuntime\Models\Site;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -33,9 +32,6 @@ class ManagerRequest extends Model
         return $this->belongsTo(User::class);
     }
 
-    /** @return BelongsTo<Site, $this> */
-    public function site(): BelongsTo
-    {
-        return $this->belongsTo(Site::class);
-    }
+    // Note: site() relationship removed to break Core→WidgetRuntime FK.
+    // site_id column is kept. Filament table shows site_id as raw text.
 }

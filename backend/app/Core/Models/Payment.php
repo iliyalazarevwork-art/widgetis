@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Core\Models;
 
-use App\Core\Models\Concerns\HasUuidV7;
 use App\Enums\PaymentProvider;
+use App\Shared\Concerns\HasUuidV7;
 use Database\Factories\PaymentFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

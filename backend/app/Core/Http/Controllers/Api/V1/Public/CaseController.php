@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Core\Http\Controllers\Api\V1\Public;
 
+use App\Core\Http\Controllers\Api\V1\CoreBaseController;
 use App\Core\Models\CustomerCase;
-use App\Http\Controllers\Api\V1\BaseController;
 use Illuminate\Http\JsonResponse;
 
-class CaseController extends BaseController
+class CaseController extends CoreBaseController
 {
     public function index(): JsonResponse
     {

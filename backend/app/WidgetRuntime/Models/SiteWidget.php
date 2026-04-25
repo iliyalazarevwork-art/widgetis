@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\WidgetRuntime\Models;
 
-use App\Core\Models\Product;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -48,11 +47,6 @@ class SiteWidget extends Model
         return $this->belongsTo(Site::class);
     }
 
-    /**
-     * @return BelongsTo<Product, $this>
-     */
-    public function product(): BelongsTo
-    {
-        return $this->belongsTo(Product::class);
-    }
+    // Note: product() relationship removed to break WidgetRuntime→Core FK.
+    // product_id column kept. Use product_id to look up product data via Core context.
 }

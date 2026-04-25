@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Core\Models\Concerns;
+namespace App\Shared\Concerns;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Support\Str;

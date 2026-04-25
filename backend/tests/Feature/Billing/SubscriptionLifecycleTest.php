@@ -8,8 +8,10 @@ use App\Core\Models\Plan;
 use App\Core\Models\Product;
 use App\Core\Models\Subscription;
 use App\Core\Models\User;
+use App\Enums\ProductAvailability;
 use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
+use App\Shared\ValueObjects\UserId;
 use App\WidgetRuntime\Models\Site;
 use App\WidgetRuntime\Models\SiteWidget;
 use App\WidgetRuntime\Services\Widget\WidgetAccessService;
@@ -147,9 +149,11 @@ class SubscriptionLifecycleTest extends TestCase
         /** @var WidgetAccessService $access */
         $access = app(WidgetAccessService::class);
 
+        $userId = UserId::fromString((string) $user->id);
+
         // While the trial is still live, the plan grants access.
         $this->assertTrue(
-            $access->canAccess($user->fresh(), $product),
+            $access->canAccessBySlug($userId, $product->slug, ProductAvailability::Available->value, $product->id),
             'active trial should grant access to plan products',
         );
 
@@ -160,7 +164,7 @@ class SubscriptionLifecycleTest extends TestCase
         // Eloquent relationships inside WidgetAccessService are not cached
         // across test phases once we reload the user from DB.
         $this->assertFalse(
-            $access->canAccess($user->fresh(), $product),
+            $access->canAccessBySlug($userId, $product->slug, ProductAvailability::Available->value, $product->id),
             'expired subscription must revoke access to plan products',
         );
 

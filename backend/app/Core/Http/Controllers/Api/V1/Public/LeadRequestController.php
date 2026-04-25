@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace App\Core\Http\Controllers\Api\V1\Public;
 
+use App\Core\Http\Controllers\Api\V1\CoreBaseController;
 use App\Core\Http\Requests\Api\V1\Public\StoreLeadRequest;
 use App\Core\Mail\Manager\LeadRequestMail;
 use App\Core\Models\ManagerRequest;
 use App\Core\Models\Plan;
 use App\Core\Models\Product;
 use App\Enums\ManagerRequestType;
-use App\Http\Controllers\Api\V1\BaseController;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
-class LeadRequestController extends BaseController
+class LeadRequestController extends CoreBaseController
 {
     public function store(StoreLeadRequest $request): JsonResponse
     {

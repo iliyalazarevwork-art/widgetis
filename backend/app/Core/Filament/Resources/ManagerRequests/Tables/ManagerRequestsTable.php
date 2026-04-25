@@ -26,7 +26,9 @@ class ManagerRequestsTable
             ->columns([
                 TextColumn::make('user.name')
                     ->searchable(),
-                TextColumn::make('site.domain'),
+                TextColumn::make('site_id')
+                    ->label('Site ID')
+                    ->limit(8),
                 TextColumn::make('type')
                     ->badge(),
                 TextColumn::make('messenger')

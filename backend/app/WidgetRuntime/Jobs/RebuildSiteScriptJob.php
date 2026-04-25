@@ -25,7 +25,7 @@ class RebuildSiteScriptJob implements ShouldQueue
 
     public function handle(ScriptBuilderService $builder): void
     {
-        $site = Site::with(['widgets.product', 'script.builds'])->find($this->siteId);
+        $site = Site::with(['widgets', 'script.builds'])->find($this->siteId);
 
         if ($site === null) {
             Log::warning("RebuildSiteScriptJob: site {$this->siteId} not found, skipping.");

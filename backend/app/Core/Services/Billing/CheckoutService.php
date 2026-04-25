@@ -16,9 +16,9 @@ use App\Enums\OrderStatus;
 use App\Enums\PaymentProvider;
 use App\Enums\PaymentStatus;
 use App\Enums\PaymentType;
-use App\Enums\SiteStatus;
 use App\Enums\SubscriptionStatus;
-use App\WidgetRuntime\Models\Site;
+use App\Shared\Events\Subscription\GuestSiteRequested;
+use App\Shared\ValueObjects\UserId;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -100,15 +100,15 @@ class CheckoutService
         $reference = DB::transaction(function () use ($user, $plan, $billingPeriod, $provider, $siteDomain, $platform): string {
             User::where('id', $user->id)->lockForUpdate()->first();
 
-            Site::firstOrCreate(
-                ['user_id' => $user->id, 'domain' => $siteDomain],
-                [
-                    'name'     => $siteDomain,
-                    'url'      => 'https://' . $siteDomain,
-                    'platform' => $platform ?? 'horoshop',
-                    'status'   => SiteStatus::Pending,
-                ],
-            );
+            // Site creation is delegated to WidgetRuntime via the GuestSiteRequested event.
+            // The event is dispatched after the transaction commits to avoid holding locks.
+            DB::afterCommit(function () use ($user, $siteDomain, $platform): void {
+                event(new GuestSiteRequested(
+                    UserId::fromString((string) $user->id),
+                    $siteDomain,
+                    $platform ?? 'horoshop',
+                ));
+            });
 
             $amount = $billingPeriod === BillingPeriod::Yearly
                 ? $plan->price_yearly
@@ -233,8 +233,8 @@ class CheckoutService
             'has_redirect_url' => $redirectUrl !== null,
         ]);
 
-        $firstSite = $user->sites()->first();
-        $siteDomain = $firstSite !== null ? $firstSite->domain : $targetPlan->slug;
+        $firstSite = DB::table('wgt_sites')->where('user_id', $user->id)->value('domain');
+        $siteDomain = $firstSite ?? $targetPlan->slug;
         $amountDue = $quote->amountDue;
 
         /** @var string $reference */

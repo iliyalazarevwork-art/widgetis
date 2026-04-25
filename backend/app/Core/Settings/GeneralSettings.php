@@ -4,22 +4,9 @@ declare(strict_types=1);
 
 namespace App\Core\Settings;
 
-use Spatie\LaravelSettings\Settings;
+// Kept as a compatibility shim. Use App\Shared\Settings\GeneralSettings in new code.
 
-class GeneralSettings extends Settings
+/** @deprecated Use \App\Shared\Settings\GeneralSettings instead */
+class GeneralSettings extends \App\Shared\Settings\GeneralSettings
 {
-    public string $phone;
-    public string $email;
-    public string $business_hours;
-    /** @var array<string, string> */
-    public array $socials;
-    /** @var array<string, string> */
-    public array $messengers;
-    /** @var array<string, int> */
-    public array $stats;
-
-    public static function group(): string
-    {
-        return 'general';
-    }
 }

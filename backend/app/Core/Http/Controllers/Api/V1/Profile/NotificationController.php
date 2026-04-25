@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Core\Http\Controllers\Api\V1\Profile;
 
+use App\Core\Http\Controllers\Api\V1\CoreBaseController;
 use App\Core\Models\AppNotification;
 use App\Core\Services\Notification\NotificationService;
-use App\Http\Controllers\Api\V1\BaseController;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class NotificationController extends BaseController
+class NotificationController extends CoreBaseController
 {
     public function __construct(
         private readonly NotificationService $notificationService,

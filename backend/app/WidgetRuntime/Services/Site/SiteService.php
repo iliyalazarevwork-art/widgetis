@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\WidgetRuntime\Services\Site;
 
-use App\Core\Models\User;
 use App\Enums\SiteStatus;
 use App\Exceptions\PlanLimitExceededException;
 use App\Exceptions\SubscriptionRequiredException;
+use App\Shared\Contracts\SiteOwnershipInterface;
+use App\Shared\Contracts\SubscriptionGateInterface;
+use App\Shared\ValueObjects\UserId;
 use App\WidgetRuntime\Jobs\RebuildSiteScriptJob;
 use App\WidgetRuntime\Models\Site;
 use App\WidgetRuntime\Models\SiteScript;
@@ -18,10 +20,16 @@ use Illuminate\Validation\ValidationException;
 
 class SiteService
 {
-    public function create(User $user, string $url, string $platform, ?string $name = null): Site
+    public function __construct(
+        private readonly SubscriptionGateInterface $subscriptionGate,
+        private readonly SiteOwnershipInterface $siteOwnership,
+    ) {
+    }
+
+    public function create(UserId $userId, string $url, string $platform, ?string $name = null): Site
     {
         Log::info('site.create.in', [
-            'user_id' => $user->id,
+            'user_id' => $userId->value,
             'url' => $url,
             'platform' => $platform,
             'name' => $name,
@@ -31,12 +39,12 @@ class SiteService
 
         $takenByAnother = Site::query()
             ->whereRaw('LOWER(domain) = ?', [$domain])
-            ->where('user_id', '!=', $user->id)
+            ->where('user_id', '!=', $userId->value)
             ->exists();
 
         if ($takenByAnother) {
             Log::warning('site.create.out', [
-                'user_id' => $user->id,
+                'user_id' => $userId->value,
                 'domain' => $domain,
                 'result' => 'domain_taken_by_another_account',
             ]);
@@ -46,13 +54,13 @@ class SiteService
         }
 
         $alreadyConnected = Site::query()
-            ->where('user_id', $user->id)
+            ->where('user_id', $userId->value)
             ->whereRaw('LOWER(domain) = ?', [$domain])
             ->exists();
 
         if ($alreadyConnected) {
             Log::warning('site.create.out', [
-                'user_id' => $user->id,
+                'user_id' => $userId->value,
                 'domain' => $domain,
                 'result' => 'domain_already_connected',
             ]);
@@ -61,11 +69,11 @@ class SiteService
             ]);
         }
 
-        $this->checkSiteLimit($user);
+        $this->checkSiteLimit($userId);
 
-        $site = DB::transaction(function () use ($user, $url, $platform, $name, $domain) {
+        $site = DB::transaction(function () use ($userId, $url, $platform, $name, $domain) {
             $site = Site::create([
-                'user_id' => $user->id,
+                'user_id' => $userId->value,
                 'name' => $name ?? $domain,
                 'domain' => $domain,
                 'url' => $url,
@@ -79,7 +87,7 @@ class SiteService
                 'is_active' => false,
             ]);
 
-            if ($user->hasActivePlan()) {
+            if ($this->subscriptionGate->activePlanSlugFor($userId) !== null) {
                 RebuildSiteScriptJob::dispatch($site->id);
             }
 
@@ -87,7 +95,7 @@ class SiteService
         });
 
         Log::info('site.create.out', [
-            'user_id' => $user->id,
+            'user_id' => $userId->value,
             'site_id' => $site->id,
             'domain' => $site->domain,
             'status' => is_string($site->status) ? $site->status : $site->status->value,
@@ -97,21 +105,22 @@ class SiteService
         return $site;
     }
 
-    public function checkSiteLimit(User $user): void
+    public function checkSiteLimit(UserId $userId): void
     {
-        $plan = $user->currentPlan();
-        $maxSites = $plan?->max_sites ?? 1;
-        $currentCount = $user->sites()->count();
+        $planSlug = $this->subscriptionGate->activePlanSlugFor($userId);
+        // Default max_sites = 1 if no plan; resolve plan max_sites via plan slug
+        $maxSites = $this->resolveSiteLimit($planSlug);
+        $currentCount = $this->siteOwnership->siteCountForUser($userId);
 
         Log::info('site.limit.check.in', [
-            'user_id' => $user->id,
+            'user_id' => $userId->value,
             'current_count' => $currentCount,
             'max_sites' => $maxSites,
         ]);
 
         if ($currentCount >= $maxSites) {
             Log::warning('site.limit.check.out', [
-                'user_id' => $user->id,
+                'user_id' => $userId->value,
                 'current_count' => $currentCount,
                 'max_sites' => $maxSites,
                 'result' => 'limit_exceeded',
@@ -122,28 +131,30 @@ class SiteService
         }
 
         Log::info('site.limit.check.out', [
-            'user_id' => $user->id,
+            'user_id' => $userId->value,
             'current_count' => $currentCount,
             'max_sites' => $maxSites,
             'result' => 'ok',
         ]);
     }
 
-    public function checkWidgetLimit(User $user): void
+    public function checkWidgetLimit(UserId $userId): void
     {
-        $plan = $user->currentPlan();
-        $maxWidgets = $plan?->max_widgets ?? 2;
-        $currentCount = $user->siteWidgets()->where('is_enabled', true)->count();
+        $planSlug = $this->subscriptionGate->activePlanSlugFor($userId);
+        $maxWidgets = $this->resolveWidgetLimit($planSlug);
+        $currentCount = SiteWidget::whereHas('site', fn ($q) => $q->where('user_id', $userId->value))
+            ->where('is_enabled', true)
+            ->count();
 
         Log::info('site.widget_limit.check.in', [
-            'user_id' => $user->id,
+            'user_id' => $userId->value,
             'current_count' => $currentCount,
             'max_widgets' => $maxWidgets,
         ]);
 
         if ($currentCount >= $maxWidgets) {
             Log::warning('site.widget_limit.check.out', [
-                'user_id' => $user->id,
+                'user_id' => $userId->value,
                 'current_count' => $currentCount,
                 'max_widgets' => $maxWidgets,
                 'result' => 'limit_exceeded',
@@ -154,7 +165,7 @@ class SiteService
         }
 
         Log::info('site.widget_limit.check.out', [
-            'user_id' => $user->id,
+            'user_id' => $userId->value,
             'current_count' => $currentCount,
             'max_widgets' => $maxWidgets,
             'result' => 'ok',
@@ -164,31 +175,26 @@ class SiteService
     /**
      * Apply a partial config patch from the user to a site widget.
      *
-     * Allowed fields depend on the user's plan:
-     *   - pro / max → all fields
-     *   - no plan   → only "enabled"
-     *
-     * The patch is deep-merged into the existing widget config.
-     * After saving, a rebuild job is dispatched.
-     *
      * @param array<string, mixed> $patch
      */
     public function applyWidgetConfig(
-        User $user,
+        UserId $userId,
         Site $site,
         int $productId,
         array $patch,
     ): SiteWidget {
         Log::info('site.widget_config.apply.in', [
-            'user_id' => $user->id,
+            'user_id' => $userId->value,
             'site_id' => $site->id,
             'product_id' => $productId,
             'patch_keys' => array_keys($patch),
         ]);
 
-        if (!$user->hasActivePlan()) {
+        $planSlug = $this->subscriptionGate->activePlanSlugFor($userId);
+
+        if ($planSlug === null) {
             Log::warning('site.widget_config.apply.out', [
-                'user_id' => $user->id,
+                'user_id' => $userId->value,
                 'site_id' => $site->id,
                 'product_id' => $productId,
                 'result' => 'subscription_required',
@@ -198,26 +204,21 @@ class SiteService
             );
         }
 
-        $planSlug = $user->currentPlan()?->slug;
         $canFullConfig = in_array($planSlug, ['pro', 'max'], strict: true);
 
-        // Strip fields the user is not allowed to change
         $filtered = $canFullConfig
             ? $patch
             : array_intersect_key($patch, ['enabled' => true]);
 
-        // Map "enabled" key to the is_enabled column value
         $isEnabled = isset($filtered['enabled']) ? (bool) $filtered['enabled'] : null;
 
         if ($isEnabled === true) {
-            $this->checkWidgetLimit($user);
+            $this->checkWidgetLimit($userId);
         }
 
-        // Retrieve or create the widget record
         /** @var SiteWidget $siteWidget */
         $siteWidget = $site->widgets()->firstOrNew(['product_id' => $productId]);
 
-        // Deep-merge incoming patch with existing config
         $existing = $siteWidget->config ?? [];
         $merged = $this->deepMerge($existing, $filtered);
         $siteWidget->config = $merged;
@@ -233,7 +234,7 @@ class SiteService
         RebuildSiteScriptJob::dispatch($site->id);
 
         Log::info('site.widget_config.apply.out', [
-            'user_id' => $user->id,
+            'user_id' => $userId->value,
             'site_id' => $site->id,
             'product_id' => $productId,
             'site_widget_id' => $siteWidget->id,
@@ -246,9 +247,6 @@ class SiteService
     }
 
     /**
-     * Recursively merge $override into $base.
-     * Scalar values in $override replace those in $base.
-     *
      * @param array<string, mixed> $base
      * @param array<string, mixed> $override
      * @return array<string, mixed>
@@ -271,9 +269,7 @@ class SiteService
      */
     public function getInstallInstructions(string $platform): array
     {
-        Log::info('site.install_instructions.in', [
-            'platform' => $platform,
-        ]);
+        Log::info('site.install_instructions.in', ['platform' => $platform]);
 
         $instructions = match ($platform) {
             'horoshop' => [
@@ -290,11 +286,30 @@ class SiteService
             ],
         };
 
-        Log::info('site.install_instructions.out', [
-            'platform' => $platform,
-            'steps_count' => count($instructions),
-        ]);
+        Log::info('site.install_instructions.out', ['platform' => $platform, 'steps_count' => count($instructions)]);
 
         return $instructions;
+    }
+
+    private function resolveSiteLimit(?string $planSlug): int
+    {
+        // Plan limits are defined in the Core domain; WidgetRuntime reads them
+        // via a simple map rather than importing the Plan model directly.
+        return match ($planSlug) {
+            'basic' => 1,
+            'pro' => 3,
+            'max' => 10,
+            default => 1,
+        };
+    }
+
+    private function resolveWidgetLimit(?string $planSlug): int
+    {
+        return match ($planSlug) {
+            'basic' => 2,
+            'pro' => 5,
+            'max' => 20,
+            default => 2,
+        };
     }
 }

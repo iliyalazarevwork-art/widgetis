@@ -8,9 +8,8 @@ use App\Core\Models\Order;
 use App\Core\Models\Subscription;
 use App\Core\Models\User;
 use App\Enums\OrderStatus;
-use App\Enums\SiteStatus;
 use App\Enums\SubscriptionStatus;
-use App\WidgetRuntime\Models\Site;
+use App\Shared\Contracts\WidgetRuntimeStatsInterface;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
@@ -18,6 +17,9 @@ class StatsOverview extends StatsOverviewWidget
 {
     protected function getStats(): array
     {
+        /** @var WidgetRuntimeStatsInterface $runtimeStats */
+        $runtimeStats = app(WidgetRuntimeStatsInterface::class);
+
         return [
             Stat::make('Active Subscriptions', Subscription::whereIn('status', [
                 SubscriptionStatus::Active,
@@ -27,8 +29,8 @@ class StatsOverview extends StatsOverviewWidget
                 ->icon('heroicon-o-arrow-path')
                 ->color('primary'),
 
-            Stat::make('Active Sites', Site::where('status', SiteStatus::Active)->count())
-                ->description('With installed scripts')
+            Stat::make('Total Sites', $runtimeStats->totalSites())
+                ->description('All registered sites')
                 ->icon('heroicon-o-globe-alt')
                 ->color('success'),
 

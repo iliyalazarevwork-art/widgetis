@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace App\WidgetRuntime\Models;
 
-use App\Core\Models\Product;
-use App\Core\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property Carbon|null $expires_at
@@ -36,30 +33,6 @@ class UserWidgetGrant extends Model
         return [
             'expires_at' => 'datetime',
         ];
-    }
-
-    /**
-     * @return BelongsTo<User, $this>
-     */
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    /**
-     * @return BelongsTo<Product, $this>
-     */
-    public function product(): BelongsTo
-    {
-        return $this->belongsTo(Product::class);
-    }
-
-    /**
-     * @return BelongsTo<User, $this>
-     */
-    public function grantedBy(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'granted_by_admin_id');
     }
 
     public function isActive(): bool

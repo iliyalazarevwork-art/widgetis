@@ -24,8 +24,8 @@ use App\Enums\PaymentStatus;
 use App\Enums\PaymentType;
 use App\Enums\SubscriptionStatus;
 use App\Exceptions\UpgradeNotAllowedException;
-use App\WidgetRuntime\Jobs\RebuildSiteScriptJob;
-use App\WidgetRuntime\Models\SiteWidget;
+use App\Shared\Events\Subscription\PlanChanged;
+use App\Shared\ValueObjects\UserId;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -73,9 +73,7 @@ class SubscriptionService
                 'trial_ends_at' => $subscription->trial_ends_at->toIso8601String(),
             ]);
 
-            foreach ($user->sites as $site) {
-                RebuildSiteScriptJob::dispatch($site->id);
-            }
+            event(new PlanChanged(UserId::fromString((string) $user->id), null, $plan->slug));
 
             SubscriptionTrialStarted::dispatch($subscription);
 
@@ -122,9 +120,7 @@ class SubscriptionService
                 'provider' => $paymentProvider->value,
             ]);
 
-            foreach ($user->sites as $site) {
-                RebuildSiteScriptJob::dispatch($site->id);
-            }
+            event(new PlanChanged(UserId::fromString((string) $user->id), null, $plan->slug));
 
             return $subscription;
         });
@@ -329,9 +325,11 @@ class SubscriptionService
                 'provider' => $paymentProvider->value,
             ]);
 
-            foreach ($subscription->user->sites as $site) {
-                RebuildSiteScriptJob::dispatch($site->id);
-            }
+            event(new PlanChanged(
+                UserId::fromString((string) $subscription->user_id),
+                $oldPlan?->slug,
+                $newPlan->slug,
+            ));
 
             SubscriptionUpgraded::dispatch($subscription, $oldPlan);
 
@@ -391,28 +389,19 @@ class SubscriptionService
 
     public function expire(Subscription $subscription): void
     {
+        $oldPlanSlug = $subscription->plan?->slug;
+
         $subscription->update([
             'status' => SubscriptionStatus::Expired,
         ]);
 
-        // Disable all widgets for all sites of this user
-        $widgetIds = SiteWidget::whereHas('site', function ($q) use ($subscription) {
-            $q->where('user_id', $subscription->user_id);
-        })
-            ->where('is_enabled', true)
-            ->pluck('id');
-
-        if ($widgetIds->isNotEmpty()) {
-            SiteWidget::whereIn('id', $widgetIds)->update([
-                'is_enabled' => false,
-                'disabled_at' => now(),
-            ]);
-
-            // Rebuild scripts for affected sites
-            $subscription->user->sites()->pluck('id')->each(
-                fn (string $siteId) => RebuildSiteScriptJob::dispatch($siteId),
-            );
-        }
+        // Notify WidgetRuntime: plan expired → disable widgets and rebuild scripts.
+        // The RebuildScriptOnPlanChanged listener handles this when newPlanSlug is null.
+        event(new PlanChanged(
+            UserId::fromString((string) $subscription->user_id),
+            $oldPlanSlug,
+            null,
+        ));
 
         ActivityLog::create([
             'user_id' => $subscription->user_id,

@@ -4,17 +4,26 @@ declare(strict_types=1);
 
 namespace App\Core\Http\Controllers\Api\V1\Profile;
 
+use App\Core\Http\Controllers\Api\V1\CoreBaseController;
 use App\Core\Models\ManagerRequest;
 use App\Core\Models\Product;
 use App\Core\Services\User\UserDeletionService;
-use App\Http\Controllers\Api\V1\BaseController;
-use App\WidgetRuntime\Models\Site;
+use App\Shared\Contracts\SiteOwnershipInterface;
+use App\Shared\Contracts\WidgetRuntimeStatsInterface;
+use App\Shared\ValueObjects\SiteId;
+use App\Shared\ValueObjects\UserId;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
-class ProfileController extends BaseController
+class ProfileController extends CoreBaseController
 {
+    public function __construct(
+        private readonly SiteOwnershipInterface $siteOwnership,
+        private readonly WidgetRuntimeStatsInterface $runtimeStats,
+    ) {
+    }
+
     public function show(): JsonResponse
     {
         $user = $this->currentUser();
@@ -98,20 +107,19 @@ class ProfileController extends BaseController
         $plan = $user->currentPlan();
         $availableProductIds = $plan?->products()->pluck('products.id')->toArray() ?? [];
         $allProducts = Product::active()->with('tag')->orderBy('sort_order')->get();
-        $activeWidgets = $user->siteWidgets()->where('is_enabled', true)->with(['product', 'site'])->get();
+        $userId = UserId::fromString((string) $user->id);
+        $activeSiteWidgets = $this->runtimeStats->activeSiteWidgets();
 
         $available = [];
         $locked = [];
 
         foreach ($allProducts as $product) {
             if (in_array($product->id, $availableProductIds)) {
-                $widget = $activeWidgets->firstWhere('product_id', $product->id);
                 $available[] = [
                     'product_id' => $product->id,
                     'slug' => $product->slug,
                     'name' => $product->translated('name'),
                     'icon' => $product->icon,
-                    'is_enabled' => $widget !== null && $widget->is_enabled,
                 ];
             } else {
                 $locked[] = [
@@ -127,7 +135,7 @@ class ProfileController extends BaseController
             'available' => $available,
             'locked' => $locked,
             'limits' => [
-                'used' => $activeWidgets->count(),
+                'used' => $this->runtimeStats->sitesForUser($userId),
                 'max' => $plan?->max_widgets ?? 2,
             ],
         ]);
@@ -155,7 +163,7 @@ class ProfileController extends BaseController
     {
         $request->validate([
             'type' => ['required', 'string', 'in:install_help,general'],
-            'site_id' => ['nullable', 'integer', Rule::exists(Site::class, 'id')],
+            'site_id' => ['nullable', 'string'],
             'messenger' => ['nullable', 'string', 'in:telegram,viber,whatsapp'],
             'phone' => ['required_if:type,install_help', 'nullable', 'string', 'max:20'],
             'name' => ['nullable', 'string', 'max:100'],
@@ -163,9 +171,21 @@ class ProfileController extends BaseController
         ]);
 
         $user = $this->currentUser();
+        $siteId = $request->input('site_id');
+
+        // Verify site ownership without importing WidgetRuntime models
+        if ($siteId !== null) {
+            $userId = UserId::fromString((string) $user->id);
+            $siteIdVO = SiteId::fromString((string) $siteId);
+
+            if (! $this->siteOwnership->userOwnsSite($userId, $siteIdVO)) {
+                return $this->error('SITE_NOT_FOUND', 'Site not found or not owned by user.', 422);
+            }
+        }
+
         $mr = ManagerRequest::create([
             'user_id' => $user->id,
-            'site_id' => $request->input('site_id'),
+            'site_id' => $siteId,
             'type' => $request->input('type'),
             'messenger' => $request->input('messenger'),
             'email' => $user->email,

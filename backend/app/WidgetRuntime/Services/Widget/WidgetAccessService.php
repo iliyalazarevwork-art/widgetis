@@ -4,97 +4,88 @@ declare(strict_types=1);
 
 namespace App\WidgetRuntime\Services\Widget;
 
-use App\Core\Models\Product;
-use App\Core\Models\User;
 use App\Enums\ProductAvailability;
-use Illuminate\Database\Eloquent\Collection;
+use App\Shared\Contracts\SubscriptionGateInterface;
+use App\Shared\Contracts\WidgetCatalogInterface;
+use App\Shared\ValueObjects\UserId;
+use App\WidgetRuntime\Models\UserWidgetGrant;
 
-class WidgetAccessService
+final class WidgetAccessService
 {
-    public function canAccess(User $user, Product $product): bool
-    {
-        if ($product->availability !== ProductAvailability::Available) {
-            return false;
-        }
-
-        if ($this->hasActiveGrant($user, $product)) {
-            return true;
-        }
-
-        return $this->isInActivePlan($user, $product);
-    }
-
-    public function hasActiveGrant(User $user, Product $product): bool
-    {
-        return $user->widgetGrants()
-            ->where('product_id', $product->id)
-            ->active()
-            ->exists();
-    }
-
-    public function isInActivePlan(User $user, Product $product): bool
-    {
-        $subscription = $user->subscription;
-
-        if ($subscription === null || ! $subscription->isActive()) {
-            return false;
-        }
-
-        $plan = $subscription->plan;
-
-        if ($plan === null) {
-            return false;
-        }
-
-        return $plan->products()
-            ->where('products.id', $product->id)
-            ->exists();
+    public function __construct(
+        private readonly SubscriptionGateInterface $subscriptionGate,
+        private readonly WidgetCatalogInterface $widgetCatalog,
+    ) {
     }
 
     /**
-     * @return Collection<int, Product>
+     * Check if a user can access a widget by slug.
+     * Uses subscription gate to resolve plan, widget catalog for plan access,
+     * and product_id for grant checks (product_id must be provided by caller).
      */
-    public function accessibleProducts(User $user): Collection
+    public function canAccessBySlug(UserId $userId, string $slug, string $availability, int $productId): bool
     {
-        $planProductIds = [];
-        $subscription = $user->subscription;
-
-        if ($subscription !== null && $subscription->isActive() && $subscription->plan !== null) {
-            $planProductIds = $subscription->plan->products()->pluck('products.id')->toArray();
+        if ($availability !== ProductAvailability::Available->value) {
+            return false;
         }
 
-        $grantedProductIds = $user->widgetGrants()
-            ->active()
-            ->pluck('product_id')
-            ->toArray();
-
-        $ids = array_values(array_unique([...$planProductIds, ...$grantedProductIds]));
-
-        if ($ids === []) {
-            return new Collection();
+        if ($this->hasActiveGrantByProductId($userId, $productId)) {
+            return true;
         }
 
-        return Product::query()
-            ->whereIn('id', $ids)
-            ->where('availability', ProductAvailability::Available->value)
-            ->get();
+        return $this->isInActivePlanBySlug($userId, $slug);
     }
 
-    public function getAccessState(?User $user, Product $product): ProductAccessState
+    public function isInActivePlanBySlug(UserId $userId, string $slug): bool
     {
-        if ($product->availability === ProductAvailability::ComingSoon) {
+        $planSlug = $this->subscriptionGate->activePlanSlugFor($userId);
+
+        if ($planSlug === null) {
+            return false;
+        }
+
+        return in_array($slug, $this->widgetCatalog->availableSlugsForPlan($planSlug), strict: true);
+    }
+
+    public function hasActiveGrantByProductId(UserId $userId, int $productId): bool
+    {
+        return UserWidgetGrant::where('user_id', $userId->value)
+            ->where('product_id', $productId)
+            ->active()
+            ->exists();
+    }
+
+    /** @return list<int> product IDs accessible to the user */
+    public function accessibleProductIds(UserId $userId): array
+    {
+        $planSlug = $this->subscriptionGate->activePlanSlugFor($userId);
+        $planProductSlugs = $planSlug !== null
+            ? $this->widgetCatalog->availableSlugsForPlan($planSlug)
+            : [];
+
+        $grantedProductIds = UserWidgetGrant::where('user_id', $userId->value)
+            ->active()
+            ->pluck('product_id')
+            ->all();
+
+        return array_values(array_unique($grantedProductIds));
+    }
+
+    public function getAccessState(?UserId $userId, string $slug, string $availability, int $productId): ProductAccessState
+    {
+        if ($availability === ProductAvailability::ComingSoon->value) {
             return ProductAccessState::ComingSoon;
         }
 
-        if ($product->availability === ProductAvailability::Archived) {
+        if ($availability === ProductAvailability::Archived->value) {
             return ProductAccessState::Archived;
         }
 
-        if ($user === null) {
+        if ($userId === null) {
             return ProductAccessState::Locked;
         }
 
-        return $this->canAccess($user, $product)
+        return $this->canAccessBySlug($userId, $slug, $availability, $productId)
             ? ProductAccessState::Available
             : ProductAccessState::Locked;
     }

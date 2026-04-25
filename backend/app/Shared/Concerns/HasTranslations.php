@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Core\Models\Concerns;
+namespace App\Shared\Concerns;
 
 use Spatie\Translatable\HasTranslations as SpatieHasTranslations;
 

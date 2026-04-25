@@ -10,18 +10,24 @@ use App\WidgetRuntime\Models\SiteWidget;
 use App\WidgetRuntime\Services\Site\ScriptBuilderService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SiteController extends BaseController
 {
     public function index(Request $request): JsonResponse
     {
-        $query = Site::with(['user.subscription.plan', 'script'])
+        $query = Site::with(['script'])
             ->orderByDesc('created_at');
 
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('domain', 'like', "%{$search}%")
-                  ->orWhereHas('user', fn ($u) => $u->where('email', 'like', "%{$search}%"));
+                  ->orWhere('user_id', function ($sub) use ($search) {
+                      $sub->select('id')
+                          ->from('users')
+                          ->where('email', 'like', "%{$search}%")
+                          ->limit(1);
+                  });
             });
         }
 
@@ -32,6 +38,20 @@ class SiteController extends BaseController
         $perPage = min((int) $request->input('per_page', 15), 100);
         $sites = $query->paginate($perPage);
 
+        // Fetch user data for all site owners in one query
+        $userIds = collect($sites->items())->pluck('user_id')->unique()->values()->all();
+        $users = DB::table('users')
+            ->whereIn('id', $userIds)
+            ->get(['id', 'email', 'name'])
+            ->keyBy('id');
+
+        // Fetch active subscription plan slugs for those users
+        $planSlugs = DB::table('subscriptions')
+            ->join('plans', 'subscriptions.plan_id', '=', 'plans.id')
+            ->whereIn('subscriptions.user_id', $userIds)
+            ->whereIn('subscriptions.status', ['active', 'trial'])
+            ->pluck('plans.slug', 'subscriptions.user_id');
+
         $totalActive = Site::where('status', 'active')->count();
         $totalPending = Site::where('status', 'pending')->count();
 
@@ -41,31 +61,46 @@ class SiteController extends BaseController
                 'active' => $totalActive,
                 'pending' => $totalPending,
             ],
-            'data' => collect($sites->items())->map(fn (Site $site) => [
-                'id' => $site->id,
-                'name' => $site->name,
-                'domain' => $site->domain,
-                'url' => $site->url,
-                'platform' => $site->platform,
-                'status' => $site->status?->value,
-                'script_installed' => $site->script_installed,
-                'widgets_count' => $site->widgets()->where('is_enabled', true)->count(),
-                'connected_at' => $site->connected_at?->toIso8601String(),
-                'created_at' => $site->created_at->toIso8601String(),
-                'user' => $site->user ? [
-                    'id' => $site->user->id,
-                    'email' => $site->user->email,
-                    'name' => $site->user->name,
-                ] : null,
-                'plan' => $site->user?->subscription?->plan?->slug,
-            ]),
+            'data' => collect($sites->items())->map(function (Site $site) use ($users, $planSlugs) {
+                $user = $users->get($site->user_id);
+
+                return [
+                    'id' => $site->id,
+                    'name' => $site->name,
+                    'domain' => $site->domain,
+                    'url' => $site->url,
+                    'platform' => $site->platform,
+                    'status' => $site->status?->value,
+                    'script_installed' => $site->script_installed,
+                    'widgets_count' => $site->widgets()->where('is_enabled', true)->count(),
+                    'connected_at' => $site->connected_at?->toIso8601String(),
+                    'created_at' => $site->created_at->toIso8601String(),
+                    'user' => $user ? [
+                        'id' => $user->id,
+                        'email' => $user->email,
+                        'name' => $user->name,
+                    ] : null,
+                    'plan' => $planSlugs->get($site->user_id),
+                ];
+            }),
         ]);
     }
 
     public function show(string $id): JsonResponse
     {
         /** @var Site $site */
-        $site = Site::with(['script', 'widgets.product', 'user'])->findOrFail($id);
+        $site = Site::with(['script', 'widgets'])->findOrFail($id);
+
+        $user = DB::table('users')
+            ->where('id', $site->user_id)
+            ->first(['id', 'email', 'name']);
+
+        // Fetch widget product slugs/icons from products table
+        $productIds = $site->widgets->pluck('product_id')->all();
+        $products = DB::table('products')
+            ->whereIn('id', $productIds)
+            ->get(['id', 'slug', 'name', 'icon'])
+            ->keyBy('id');
 
         return $this->success([
             'data' => [
@@ -82,17 +117,21 @@ class SiteController extends BaseController
                     'script_tag' => $site->script->script_tag,
                     'is_active' => $site->script->is_active,
                 ] : null,
-                'widgets' => $site->widgets->map(fn (SiteWidget $w) => [
-                    'product_id' => $w->product_id,
-                    'name' => $w->product?->translated('name'),
-                    'icon' => $w->product?->icon,
-                    'is_enabled' => $w->is_enabled,
-                    'config' => $w->config,
-                ]),
-                'user' => $site->user ? [
-                    'id' => $site->user->id,
-                    'email' => $site->user->email,
-                    'name' => $site->user->name,
+                'widgets' => $site->widgets->map(function (SiteWidget $w) use ($products) {
+                    $product = $products->get($w->product_id);
+
+                    return [
+                        'product_id' => $w->product_id,
+                        'name' => $product?->name,
+                        'icon' => $product?->icon,
+                        'is_enabled' => $w->is_enabled,
+                        'config' => $w->config,
+                    ];
+                }),
+                'user' => $user ? [
+                    'id' => $user->id,
+                    'email' => $user->email,
+                    'name' => $user->name,
                 ] : null,
             ],
         ]);

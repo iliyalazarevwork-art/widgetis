@@ -22,6 +22,12 @@ use App\Core\Listeners\Billing\SendSubscriptionExpiredEmail;
 use App\Core\Listeners\Billing\SendSubscriptionRenewedEmail;
 use App\Core\Listeners\Billing\SendSubscriptionTrialStartedEmail;
 use App\Core\Listeners\Billing\SendSubscriptionUpgradedEmail;
+use App\Shared\Events\Subscription\GuestSiteRequested;
+use App\Shared\Events\Subscription\PlanChanged;
+use App\Shared\Events\User\Deleted;
+use App\WidgetRuntime\Listeners\CreateSiteOnGuestSiteRequested;
+use App\WidgetRuntime\Listeners\PurgeSitesOnUserDeleted;
+use App\WidgetRuntime\Listeners\RebuildScriptOnPlanChanged;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -54,6 +60,15 @@ class EventServiceProvider extends ServiceProvider
         ],
         SubscriptionUpgraded::class => [
             SendSubscriptionUpgradedEmail::class,
+        ],
+        PlanChanged::class => [
+            RebuildScriptOnPlanChanged::class,
+        ],
+        Deleted::class => [
+            PurgeSitesOnUserDeleted::class,
+        ],
+        GuestSiteRequested::class => [
+            CreateSiteOnGuestSiteRequested::class,
         ],
     ];
 }

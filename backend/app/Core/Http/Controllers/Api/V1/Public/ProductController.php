@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Core\Http\Controllers\Api\V1\Public;
 
+use App\Core\Http\Controllers\Api\V1\CoreBaseController;
 use App\Core\Http\Resources\Api\V1\ProductDetailResource;
 use App\Core\Http\Resources\Api\V1\ProductResource;
 use App\Core\Models\Product;
-use App\Http\Controllers\Api\V1\BaseController;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class ProductController extends BaseController
+class ProductController extends CoreBaseController
 {
     public function index(Request $request): JsonResponse
     {

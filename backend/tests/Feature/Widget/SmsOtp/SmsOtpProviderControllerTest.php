@@ -34,7 +34,7 @@ class SmsOtpProviderControllerTest extends TestCase
     public function test_customer_can_list_providers_for_own_site(): void
     {
         $user = $this->makeCustomer();
-        $site = Site::factory()->for($user)->create();
+        $site = Site::factory()->create(['user_id' => $user->id]);
         OtpProviderConfig::factory()->for($site)->create();
 
         $response = $this->actingAs($user, 'api')
@@ -48,7 +48,7 @@ class SmsOtpProviderControllerTest extends TestCase
     {
         $user = $this->makeCustomer();
         $other = $this->makeCustomer();
-        $site = Site::factory()->for($other)->create();
+        $site = Site::factory()->create(['user_id' => $other->id]);
         OtpProviderConfig::factory()->for($site)->create();
 
         $response = $this->actingAs($user, 'api')
@@ -60,7 +60,7 @@ class SmsOtpProviderControllerTest extends TestCase
     public function test_customer_can_create_provider_config(): void
     {
         $user = $this->makeCustomer();
-        $site = Site::factory()->for($user)->create();
+        $site = Site::factory()->create(['user_id' => $user->id]);
 
         $response = $this->actingAs($user, 'api')
             ->postJson('/api/v1/profile/widgets/sms-otp/providers', [
@@ -89,7 +89,7 @@ class SmsOtpProviderControllerTest extends TestCase
     public function test_create_validates_turbosms_credential_token(): void
     {
         $user = $this->makeCustomer();
-        $site = Site::factory()->for($user)->create();
+        $site = Site::factory()->create(['user_id' => $user->id]);
 
         $response = $this->actingAs($user, 'api')
             ->postJson('/api/v1/profile/widgets/sms-otp/providers', [
@@ -112,7 +112,7 @@ class SmsOtpProviderControllerTest extends TestCase
     {
         $user = $this->makeCustomer();
         $other = $this->makeCustomer();
-        $site = Site::factory()->for($other)->create();
+        $site = Site::factory()->create(['user_id' => $other->id]);
 
         $response = $this->actingAs($user, 'api')
             ->postJson('/api/v1/profile/widgets/sms-otp/providers', [
@@ -129,7 +129,7 @@ class SmsOtpProviderControllerTest extends TestCase
     public function test_customer_can_update_own_provider(): void
     {
         $user = $this->makeCustomer();
-        $site = Site::factory()->for($user)->create();
+        $site = Site::factory()->create(['user_id' => $user->id]);
         $config = OtpProviderConfig::factory()->for($site)->create();
 
         $response = $this->actingAs($user, 'api')
@@ -147,7 +147,7 @@ class SmsOtpProviderControllerTest extends TestCase
     {
         $user = $this->makeCustomer();
         $other = $this->makeCustomer();
-        $site = Site::factory()->for($other)->create();
+        $site = Site::factory()->create(['user_id' => $other->id]);
         $config = OtpProviderConfig::factory()->for($site)->create();
 
         $response = $this->actingAs($user, 'api')
@@ -161,7 +161,7 @@ class SmsOtpProviderControllerTest extends TestCase
     public function test_customer_can_delete_own_provider(): void
     {
         $user = $this->makeCustomer();
-        $site = Site::factory()->for($user)->create();
+        $site = Site::factory()->create(['user_id' => $user->id]);
         $config = OtpProviderConfig::factory()->for($site)->create();
 
         $response = $this->actingAs($user, 'api')
@@ -175,7 +175,7 @@ class SmsOtpProviderControllerTest extends TestCase
     {
         $user = $this->makeCustomer();
         $other = $this->makeCustomer();
-        $site = Site::factory()->for($other)->create();
+        $site = Site::factory()->create(['user_id' => $other->id]);
         $config = OtpProviderConfig::factory()->for($site)->create();
 
         $response = $this->actingAs($user, 'api')
@@ -195,7 +195,7 @@ class SmsOtpProviderControllerTest extends TestCase
         ]);
 
         $user = $this->makeCustomer();
-        $site = Site::factory()->for($user)->create();
+        $site = Site::factory()->create(['user_id' => $user->id]);
         $config = OtpProviderConfig::factory()->for($site)->create();
 
         $response = $this->actingAs($user, 'api')
@@ -211,7 +211,7 @@ class SmsOtpProviderControllerTest extends TestCase
     {
         $user = $this->makeCustomer();
         $other = $this->makeCustomer();
-        $site = Site::factory()->for($other)->create();
+        $site = Site::factory()->create(['user_id' => $other->id]);
         $config = OtpProviderConfig::factory()->for($site)->create();
 
         $response = $this->actingAs($user, 'api')

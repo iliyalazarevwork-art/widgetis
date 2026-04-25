@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Core\Models;
 
-use App\Core\Models\Concerns\HasUuidV7;
 use App\Enums\PaymentProvider;
 use App\Enums\SubscriptionStatus;
+use App\Shared\Concerns\HasUuidV7;
 use Database\Factories\SubscriptionFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

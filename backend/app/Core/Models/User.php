@@ -4,17 +4,13 @@ declare(strict_types=1);
 
 namespace App\Core\Models;
 
-use App\Core\Models\Concerns\HasUuidV7;
 use App\Enums\UserRole;
-use App\WidgetRuntime\Models\Site;
-use App\WidgetRuntime\Models\SiteWidget;
-use App\WidgetRuntime\Models\UserWidgetGrant;
+use App\Shared\Concerns\HasUuidV7;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -130,22 +126,6 @@ class User extends Authenticatable implements JWTSubject, FilamentUser
     }
 
     /**
-     * @return HasMany<Site, $this>
-     */
-    public function sites(): HasMany
-    {
-        return $this->hasMany(Site::class);
-    }
-
-    /**
-     * @return HasManyThrough<SiteWidget, Site, $this>
-     */
-    public function siteWidgets(): HasManyThrough
-    {
-        return $this->hasManyThrough(SiteWidget::class, Site::class);
-    }
-
-    /**
      * @return HasMany<Order, $this>
      */
     public function orders(): HasMany
@@ -175,13 +155,5 @@ class User extends Authenticatable implements JWTSubject, FilamentUser
     public function appNotifications(): HasMany
     {
         return $this->hasMany(AppNotification::class);
-    }
-
-    /**
-     * @return HasMany<UserWidgetGrant, $this>
-     */
-    public function widgetGrants(): HasMany
-    {
-        return $this->hasMany(UserWidgetGrant::class);
     }
 }

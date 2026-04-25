@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace App\WidgetRuntime\Models;
 
-use App\Core\Models\Concerns\HasUuidV7;
-use App\Core\Models\User;
 use App\Enums\SiteStatus;
+use App\Shared\Concerns\HasUuidV7;
 use Database\Factories\SiteFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -59,14 +57,6 @@ class Site extends Model
             'status' => SiteStatus::class,
             'allowed_origins' => 'array',
         ];
-    }
-
-    /**
-     * @return BelongsTo<User, $this>
-     */
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
     }
 
     /**

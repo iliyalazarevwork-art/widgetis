@@ -205,25 +205,8 @@ parameters:
 			path: app/WidgetRuntime/Http/Controllers/Api/V1/Profile/SiteController.php
 
 		-
-			message: '#^Using nullsafe property access "\?\-\>max_sites" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/WidgetRuntime/Http/Controllers/Api/V1/Profile/SiteController.php
-
-		-
 			message: '#^Method App\\Core\\Models\\SocialAccount\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Core\\Models\\User, App\\Core\\Models\\SocialAccount\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Core\\Models\\User, \$this\(App\\Core\\Models\\SocialAccount\)\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Core/Models/SocialAccount.php
 
-		-
-			message: '#^Using nullsafe property access "\?\-\>max_sites" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/WidgetRuntime/Services/Site/SiteService.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>max_widgets" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/WidgetRuntime/Services/Site/SiteService.php

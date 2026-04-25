@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Core\Http\Controllers\Api\V1\Public;
 
-use App\Core\Settings\GeneralSettings;
-use App\Http\Controllers\Api\V1\BaseController;
+use App\Core\Http\Controllers\Api\V1\CoreBaseController;
+use App\Shared\Settings\GeneralSettings;
 use Illuminate\Http\JsonResponse;
 
-class SettingsController extends BaseController
+class SettingsController extends CoreBaseController
 {
     public function index(GeneralSettings $settings): JsonResponse
     {

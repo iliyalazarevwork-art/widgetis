@@ -6,6 +6,16 @@ namespace App\Providers;
 
 use App\Core\Models\Product;
 use App\Core\Models\User;
+use App\Core\Services\Bridge\EloquentSubscriptionGate;
+use App\Core\Services\Bridge\EloquentUserResolver;
+use App\Core\Services\Bridge\EloquentWidgetCatalog;
+use App\Shared\Contracts\SiteOwnershipInterface;
+use App\Shared\Contracts\SubscriptionGateInterface;
+use App\Shared\Contracts\UserResolverInterface;
+use App\Shared\Contracts\WidgetCatalogInterface;
+use App\Shared\Contracts\WidgetRuntimeStatsInterface;
+use App\WidgetRuntime\Services\Bridge\EloquentSiteOwnership;
+use App\WidgetRuntime\Services\Bridge\EloquentWidgetRuntimeStats;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 
@@ -16,7 +26,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(UserResolverInterface::class, EloquentUserResolver::class);
+        $this->app->singleton(SubscriptionGateInterface::class, EloquentSubscriptionGate::class);
+        $this->app->singleton(WidgetCatalogInterface::class, EloquentWidgetCatalog::class);
+        $this->app->singleton(SiteOwnershipInterface::class, EloquentSiteOwnership::class);
+        $this->app->singleton(WidgetRuntimeStatsInterface::class, EloquentWidgetRuntimeStats::class);
     }
 
     /**

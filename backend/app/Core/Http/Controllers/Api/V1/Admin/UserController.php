@@ -4,26 +4,42 @@ declare(strict_types=1);
 
 namespace App\Core\Http\Controllers\Api\V1\Admin;
 
+use App\Core\Http\Controllers\Api\V1\CoreBaseController;
 use App\Core\Models\User;
-use App\Http\Controllers\Api\V1\BaseController;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
-class UserController extends BaseController
+class UserController extends CoreBaseController
 {
     public function index(Request $request): JsonResponse
     {
         $query = User::query()
-            ->with(['subscription.plan', 'roles', 'sites:id,user_id,domain'])
-            ->withCount('sites');
+            ->with(['subscription.plan', 'roles'])
+            ->withCount(['subscription'])
+            ->addSelect([
+                'sites_count' => DB::table('wgt_sites')
+                    ->selectRaw('count(*)')
+                    ->whereColumn('wgt_sites.user_id', 'users.id'),
+                'primary_domain' => DB::table('wgt_sites')
+                    ->select('domain')
+                    ->whereColumn('wgt_sites.user_id', 'users.id')
+                    ->orderBy('created_at')
+                    ->limit(1),
+            ]);
 
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function (Builder $q) use ($search): void {
                 $q->where('email', 'ilike', "%{$search}%")
                     ->orWhere('name', 'ilike', "%{$search}%")
-                    ->orWhereHas('sites', fn (Builder $siteQ) => $siteQ->where('domain', 'ilike', "%{$search}%"));
+                    ->orWhereExists(function ($sub) use ($search): void {
+                        $sub->select(DB::raw(1))
+                            ->from('wgt_sites')
+                            ->whereColumn('wgt_sites.user_id', 'users.id')
+                            ->where('domain', 'ilike', "%{$search}%");
+                    });
             });
         }
 
@@ -59,8 +75,8 @@ class UserController extends BaseController
                 'roles' => $u->getRoleNames(),
                 'plan' => $u->subscription?->plan?->slug,
                 'subscription_status' => $u->subscription?->status?->value,
-                'sites_count' => $u->sites_count,
-                'primary_domain' => $u->sites->first()?->domain,
+                'sites_count' => (int) ($u->getAttribute('sites_count') ?? 0),
+                'primary_domain' => $u->getAttribute('primary_domain'),
                 'created_at' => $u->created_at->toIso8601String(),
             ]),
         ]);
@@ -68,8 +84,25 @@ class UserController extends BaseController
 
     public function show(string $id): JsonResponse
     {
-        $user = User::with('subscription.plan', 'roles', 'sites')->findOrFail($id);
+        $user = User::with('subscription.plan', 'roles')->findOrFail($id);
 
-        return $this->success(['data' => $user]);
+        $sites = DB::table('wgt_sites')
+            ->where('user_id', $id)
+            ->select(['id', 'domain', 'url', 'platform', 'status', 'created_at'])
+            ->orderByDesc('created_at')
+            ->get();
+
+        return $this->success([
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'roles' => $user->getRoleNames(),
+                'plan' => $user->subscription?->plan?->slug,
+                'subscription_status' => $user->subscription?->status?->value,
+                'sites' => $sites,
+                'created_at' => $user->created_at->toIso8601String(),
+            ],
+        ]);
     }
 }

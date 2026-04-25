@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core\Http\Controllers\Api\V1\Profile;
 
+use App\Core\Http\Controllers\Api\V1\CoreBaseController;
 use App\Core\Http\Requests\Api\V1\Billing\CancelSubscriptionRequest;
 use App\Core\Http\Requests\Api\V1\Billing\CheckoutRequest;
 use App\Core\Http\Requests\Api\V1\Billing\StartTrialRequest;
@@ -17,13 +18,12 @@ use App\Core\Services\Billing\SubscriptionService;
 use App\Enums\BillingPeriod;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentProvider;
-use App\Enums\SiteStatus;
 use App\Enums\SubscriptionStatus;
-use App\Http\Controllers\Api\V1\BaseController;
-use App\WidgetRuntime\Models\Site;
+use App\Shared\Events\Subscription\GuestSiteRequested;
+use App\Shared\ValueObjects\UserId;
 use Illuminate\Http\JsonResponse;
 
-class SubscriptionController extends BaseController
+class SubscriptionController extends CoreBaseController
 {
     public function __construct(
         private readonly SubscriptionService $subscriptionService,
@@ -41,15 +41,11 @@ class SubscriptionController extends BaseController
             return $this->error('ALREADY_SUBSCRIBED', 'User already has a subscription.', 409);
         }
 
-        Site::firstOrCreate(
-            ['user_id' => $user->id, 'domain' => $validated['site_domain']],
-            [
-                'name'     => $validated['site_domain'],
-                'url'      => 'https://' . $validated['site_domain'],
-                'platform' => $validated['platform'] ?? 'horoshop',
-                'status'   => SiteStatus::Pending,
-            ],
-        );
+        event(new GuestSiteRequested(
+            UserId::fromString((string) $user->id),
+            $validated['site_domain'],
+            $validated['platform'] ?? 'horoshop',
+        ));
 
         $plan = Plan::where('slug', $validated['plan_slug'])->firstOrFail();
 

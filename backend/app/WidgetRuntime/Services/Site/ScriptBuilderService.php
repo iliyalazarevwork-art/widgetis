@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\WidgetRuntime\Services\Site;
 
-use App\Core\Settings\GeneralSettings;
 use App\Enums\ScriptBuildStatus;
+use App\Shared\Settings\GeneralSettings;
 use App\WidgetRuntime\Models\Site;
 use App\WidgetRuntime\Models\SiteScriptBuild;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -24,7 +25,7 @@ class ScriptBuilderService
      */
     public function build(Site $site): SiteScriptBuild
     {
-        $site->loadMissing(['script', 'widgets.product']);
+        $site->loadMissing(['script', 'widgets']);
 
         $modules = $this->collectModules($site, $this->fetchModuleDefaults());
 
@@ -262,8 +263,14 @@ class ScriptBuilderService
     {
         $modules = [];
 
+        // Resolve product slugs by ID without crossing context boundary
+        $productIds = $site->widgets->where('is_enabled', true)->pluck('product_id')->unique()->all();
+        $productSlugs = DB::table('products')
+            ->whereIn('id', $productIds)
+            ->pluck('slug', 'id');
+
         foreach ($site->widgets->where('is_enabled', true) as $widget) {
-            $slug = $widget->product?->slug;
+            $slug = $productSlugs->get($widget->product_id);
 
             if ($slug === null) {
                 continue;

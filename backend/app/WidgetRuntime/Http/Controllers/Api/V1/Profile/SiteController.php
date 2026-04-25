@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace App\WidgetRuntime\Http\Controllers\Api\V1\Profile;
 
 use App\Http\Controllers\Api\V1\BaseController;
+use App\Shared\Contracts\SiteOwnershipInterface;
+use App\Shared\Contracts\SubscriptionGateInterface;
+use App\Shared\ValueObjects\SiteId;
+use App\Shared\ValueObjects\UserId;
 use App\WidgetRuntime\Models\Site;
 use App\WidgetRuntime\Services\Site\ScriptBuilderService;
 use App\WidgetRuntime\Services\Site\SiteService;
@@ -17,14 +21,16 @@ class SiteController extends BaseController
     public function __construct(
         private readonly SiteService $siteService,
         private readonly ScriptBuilderService $scriptBuilder,
+        private readonly SiteOwnershipInterface $siteOwnership,
+        private readonly SubscriptionGateInterface $subscriptionGate,
     ) {
     }
 
     public function index(): JsonResponse
     {
-        $user = $this->currentUser();
-        $sites = $user->sites()->with('script')->orderByDesc('created_at')->get();
-        $plan = $user->currentPlan();
+        $userId = UserId::fromString($this->authedUserId());
+        $sites = Site::where('user_id', $userId->value)->with('script')->orderByDesc('created_at')->get();
+        $planSlug = $this->subscriptionGate->activePlanSlugFor($userId);
 
         return $this->success([
             'data' => $sites->map(fn (Site $site) => [
@@ -41,8 +47,8 @@ class SiteController extends BaseController
             ]),
             'limits' => [
                 'used' => $sites->count(),
-                'max' => $plan?->max_sites ?? 1,
-                'plan' => $plan?->slug,
+                'max' => $this->resolveSiteLimit($planSlug),
+                'plan' => $planSlug,
             ],
         ]);
     }
@@ -55,8 +61,10 @@ class SiteController extends BaseController
             'name' => ['nullable', 'string', 'max:255'],
         ]);
 
+        $userId = UserId::fromString($this->authedUserId());
+
         $site = $this->siteService->create(
-            $this->currentUser(),
+            $userId,
             $request->input('url'),
             $request->input('platform'),
             $request->input('name'),
@@ -98,10 +106,13 @@ class SiteController extends BaseController
 
     public function show(string $id): JsonResponse
     {
-        $site = $this->currentUser()->sites()
-            ->with(['script', 'widgets.product'])
-            ->findOrFail($id);
+        $site = $this->findOwnedSite($id);
 
+        if ($site === null) {
+            return $this->error('NOT_FOUND', 'Site not found.', 404);
+        }
+
+        $site->load(['script', 'widgets']);
         $this->ensureScriptBuilt($site);
 
         return $this->success([
@@ -121,9 +132,6 @@ class SiteController extends BaseController
                 ] : null,
                 'widgets' => $site->widgets->map(fn ($w) => [
                     'product_id' => $w->product_id,
-                    'slug' => $w->product?->slug,
-                    'name' => $w->product?->translated('name'),
-                    'icon' => $w->product?->icon,
                     'is_enabled' => $w->is_enabled,
                     'config' => $w->config,
                 ]),
@@ -133,7 +141,12 @@ class SiteController extends BaseController
 
     public function destroy(string $id): JsonResponse
     {
-        $site = $this->currentUser()->sites()->findOrFail($id);
+        $site = $this->findOwnedSite($id);
+
+        if ($site === null) {
+            return $this->error('NOT_FOUND', 'Site not found.', 404);
+        }
+
         $site->delete();
 
         return $this->noContent();
@@ -141,8 +154,13 @@ class SiteController extends BaseController
 
     public function verify(string $id): JsonResponse
     {
-        $site = $this->currentUser()->sites()->with('script')->findOrFail($id);
+        $site = $this->findOwnedSite($id);
 
+        if ($site === null) {
+            return $this->error('NOT_FOUND', 'Site not found.', 404);
+        }
+
+        $site->loadMissing('script');
         $verified = $site->script !== null;
 
         if ($verified && !$site->script_installed) {
@@ -164,7 +182,13 @@ class SiteController extends BaseController
 
     public function script(string $id): JsonResponse
     {
-        $site = $this->currentUser()->sites()->with('script')->findOrFail($id);
+        $site = $this->findOwnedSite($id);
+
+        if ($site === null) {
+            return $this->error('NOT_FOUND', 'Site not found.', 404);
+        }
+
+        $site->loadMissing('script');
 
         if (!$site->script) {
             return $this->error('NO_SCRIPT', 'No script generated for this site.', 404);
@@ -188,13 +212,17 @@ class SiteController extends BaseController
             'config' => ['required', 'array'],
         ]);
 
-        $user = $this->currentUser();
-        $site = $user->sites()->findOrFail($siteId);
+        $userId = UserId::fromString($this->authedUserId());
+        $site = $this->findOwnedSiteByUserId($siteId, $userId);
+
+        if ($site === null) {
+            return $this->error('NOT_FOUND', 'Site not found.', 404);
+        }
 
         /** @var array<string, mixed> $config */
         $config = $request->input('config');
 
-        $siteWidget = $this->siteService->applyWidgetConfig($user, $site, $productId, $config);
+        $siteWidget = $this->siteService->applyWidgetConfig($userId, $site, $productId, $config);
 
         return $this->success([
             'data' => [
@@ -203,5 +231,34 @@ class SiteController extends BaseController
                 'config' => $siteWidget->config,
             ],
         ]);
+    }
+
+    private function findOwnedSite(string $siteId): ?Site
+    {
+        $userId = UserId::fromString($this->authedUserId());
+        return $this->findOwnedSiteByUserId($siteId, $userId);
+    }
+
+    private function findOwnedSiteByUserId(string $siteId, UserId $userId): ?Site
+    {
+        if ($siteId === '') {
+            return null;
+        }
+
+        if (! $this->siteOwnership->userOwnsSite($userId, SiteId::fromString($siteId))) {
+            return null;
+        }
+
+        return Site::find($siteId);
+    }
+
+    private function resolveSiteLimit(?string $planSlug): int
+    {
+        return match ($planSlug) {
+            'basic' => 1,
+            'pro' => 3,
+            'max' => 10,
+            default => 1,
+        };
     }
 }

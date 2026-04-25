@@ -9,36 +9,31 @@ use App\Core\Models\ManagerRequest;
 use App\Core\Models\Order;
 use App\Core\Models\Payment;
 use App\Core\Models\User;
-use App\WidgetRuntime\Models\Review;
-use App\WidgetRuntime\Models\Site;
+use App\Shared\Events\User\Deleted;
+use App\Shared\ValueObjects\UserId;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Throwable;
 
 class UserDeletionService
 {
     /**
-     * Permanently delete a user account, all related domain data,
-     * and every R2 bundle that belongs to the user's sites.
+     * Permanently delete a user account and all related domain data.
      *
-     * Handles both cascading FKs (sites → scripts/widgets/builds,
-     * notifications, subscriptions, social accounts) and non-cascading
-     * FKs (orders, payments, reviews, manager_requests, activity_log),
-     * which would otherwise block a hard delete.
+     * Runtime data (sites, reviews, widget grants, demo sessions, OTP records)
+     * is handled by the PurgeSitesOnUserDeleted listener via the Deleted event.
      */
     public function delete(User $user): void
     {
-        $sites = $user->sites()->with('script:id,site_id,token')->get(['id', 'domain']);
+        $userId = $user->id;
+        $email = $user->email;
 
-        foreach ($sites as $site) {
-            $this->deleteSiteBundleFromR2($site);
-        }
+        // Dispatch runtime purge event before deleting the user row so listeners
+        // can still resolve the user if needed.
+        event(new Deleted(UserId::fromString((string) $userId)));
 
         DB::transaction(function () use ($user): void {
             Payment::where('user_id', $user->id)->delete();
             Order::where('user_id', $user->id)->delete();
-            Review::where('user_id', $user->id)->delete();
             ManagerRequest::where('user_id', $user->id)->forceDelete();
             ActivityLog::where('user_id', $user->id)->delete();
 
@@ -46,28 +41,8 @@ class UserDeletionService
         });
 
         Log::info('UserDeletionService: user permanently deleted.', [
-            'user_id' => $user->id,
-            'email' => $user->email,
-            'sites' => $sites->pluck('domain')->all(),
+            'user_id' => $userId,
+            'email' => $email,
         ]);
-    }
-
-    private function deleteSiteBundleFromR2(Site $site): void
-    {
-        if ($site->domain === '' || $site->script === null) {
-            return;
-        }
-
-        $path = "sites/{$site->domain}/{$site->script->token}.js";
-
-        try {
-            Storage::disk('r2')->delete($path);
-        } catch (Throwable $e) {
-            Log::warning('UserDeletionService: failed to delete R2 bundle.', [
-                'site_id' => $site->id,
-                'path' => $path,
-                'error' => $e->getMessage(),
-            ]);
-        }
     }
 }

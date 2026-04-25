@@ -147,7 +147,7 @@ final class SmsOtpProviderController extends BaseController
         }
 
         return Site::where('id', $siteId)
-            ->where('user_id', $this->currentUser()->id)
+            ->where('user_id', $this->authedUserId())
             ->first();
     }
 
@@ -160,7 +160,7 @@ final class SmsOtpProviderController extends BaseController
         }
 
         $site = Site::where('id', $config->site_id)
-            ->where('user_id', $this->currentUser()->id)
+            ->where('user_id', $this->authedUserId())
             ->first();
 
         if ($site === null) {

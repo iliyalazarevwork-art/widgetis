@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Core\Http\Controllers\Api\V1\Public;
 
+use App\Core\Http\Controllers\Api\V1\CoreBaseController;
 use App\Core\Models\ManagerRequest;
-use App\Http\Controllers\Api\V1\BaseController;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class ManagerRequestController extends BaseController
+class ManagerRequestController extends CoreBaseController
 {
     public function store(Request $request): JsonResponse
     {

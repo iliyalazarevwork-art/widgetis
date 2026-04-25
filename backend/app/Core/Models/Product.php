@@ -4,17 +4,15 @@ declare(strict_types=1);
 
 namespace App\Core\Models;
 
-use App\Core\Models\Concerns\HasTranslations;
 use App\Enums\ProductAvailability;
 use App\Enums\ProductStatus;
-use App\WidgetRuntime\Models\SiteWidget;
+use App\Shared\Concerns\HasTranslations;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
@@ -82,14 +80,6 @@ class Product extends Model
     public function plans(): BelongsToMany
     {
         return $this->belongsToMany(Plan::class, 'product_plan_access');
-    }
-
-    /**
-     * @return HasMany<SiteWidget, $this>
-     */
-    public function siteWidgets(): HasMany
-    {
-        return $this->hasMany(SiteWidget::class);
     }
 
     /**

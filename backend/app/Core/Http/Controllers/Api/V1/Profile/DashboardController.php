@@ -4,15 +4,22 @@ declare(strict_types=1);
 
 namespace App\Core\Http\Controllers\Api\V1\Profile;
 
+use App\Core\Http\Controllers\Api\V1\CoreBaseController;
 use App\Core\Http\Resources\Api\V1\PlanResource;
 use App\Core\Models\ActivityLog;
 use App\Core\Models\AppNotification;
 use App\Core\Models\Payment;
-use App\Http\Controllers\Api\V1\BaseController;
+use App\Shared\Contracts\SiteOwnershipInterface;
+use App\Shared\ValueObjects\UserId;
 use Illuminate\Http\JsonResponse;
 
-class DashboardController extends BaseController
+class DashboardController extends CoreBaseController
 {
+    public function __construct(
+        private readonly SiteOwnershipInterface $siteOwnership,
+    ) {
+    }
+
     public function index(): JsonResponse
     {
         $user = $this->currentUser()->load('subscription.plan');
@@ -56,8 +63,8 @@ class DashboardController extends BaseController
                 'subscription_status' => $user->subscription?->status?->value,
                 'next_renewal_at' => $user->subscription?->current_period_end?->toIso8601String(),
                 'stats' => [
-                    'sites_count' => $user->sites()->count(),
-                    'widgets_count' => $user->siteWidgets()->where('is_enabled', true)->count(),
+                    'sites_count' => $this->siteOwnership->siteCountForUser(UserId::fromString((string) $user->id)),
+                    'widgets_count' => $this->siteOwnership->enabledWidgetCountForUser(UserId::fromString((string) $user->id)),
                 ],
                 'recent_activity' => $recentActivity,
             ],
