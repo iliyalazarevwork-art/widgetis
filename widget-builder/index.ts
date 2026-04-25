@@ -27,6 +27,7 @@ const MODULES_ORDER = [
   'module-social-proof',
   'module-one-plus-one',
   'module-photo-reviews',
+  'module-sms-otp-checkout',
 ];
 
 export function getAvailableModules(): string[] {

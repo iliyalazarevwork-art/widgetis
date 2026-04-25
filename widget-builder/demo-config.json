@@ -51,6 +51,64 @@
         }
       }
     },
+    "module-sms-otp-checkout": {
+      "config": {
+        "enabled": true,
+        "apiBaseUrl": "https://api.widgetis.com/api/v1",
+        "siteKey": "demo",
+        "triggerSources": ["all"],
+        "phoneInputSelector": "input[name*=\"phone\"], .j-phone-masked, input[type=\"tel\"]",
+        "submitButtonSelector": ".checkout-form__submit, [type=\"submit\"], .j-checkout-submit",
+        "codeLength": 6,
+        "resendCooldownSec": 60,
+        "codeTtlSec": 300,
+        "colors": {
+          "gradientStart": "#3B82F6",
+          "gradientEnd": "#A855F7"
+        }
+      },
+      "i18n": {
+        "ua": {
+          "enterFullPhone": "Введіть номер телефону повністю",
+          "getConfirmationCode": "Отримати код підтвердження",
+          "enterSmsCode": "Введіть код із SMS",
+          "confirm": "Підтвердити",
+          "sendAgain": "Надіслати знову",
+          "waitVerifying": "Зачекайте {sec} сек...",
+          "verifying": "Перевіряємо...",
+          "phoneConfirmed": "Телефон підтверджено",
+          "invalidCode": "Невірний код. Спробуйте ще раз.",
+          "sendFailed": "Не вдалося надіслати SMS. Спробуйте пізніше.",
+          "tooManyAttempts": "Забагато спроб. Зачекайте та спробуйте знову."
+        },
+        "ru": {
+          "enterFullPhone": "Введите номер телефона полностью",
+          "getConfirmationCode": "Получить код подтверждения",
+          "enterSmsCode": "Введите код из SMS",
+          "confirm": "Подтвердить",
+          "sendAgain": "Отправить снова",
+          "waitVerifying": "Подождите {sec} сек...",
+          "verifying": "Проверяем...",
+          "phoneConfirmed": "Телефон подтверждён",
+          "invalidCode": "Неверный код. Попробуйте ещё раз.",
+          "sendFailed": "Не удалось отправить SMS. Попробуйте позже.",
+          "tooManyAttempts": "Слишком много попыток. Подождите и попробуйте снова."
+        },
+        "en": {
+          "enterFullPhone": "Enter your full phone number",
+          "getConfirmationCode": "Get confirmation code",
+          "enterSmsCode": "Enter SMS code",
+          "confirm": "Confirm",
+          "sendAgain": "Send again",
+          "waitVerifying": "Wait {sec} sec...",
+          "verifying": "Verifying...",
+          "phoneConfirmed": "Phone confirmed",
+          "invalidCode": "Invalid code. Please try again.",
+          "sendFailed": "Failed to send SMS. Please try later.",
+          "tooManyAttempts": "Too many attempts. Please wait and try again."
+        }
+      }
+    },
     "module-marquee": {
       "config": {
         "enabled": true,
