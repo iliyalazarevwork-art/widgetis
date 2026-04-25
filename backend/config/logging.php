@@ -142,6 +142,14 @@ return [
             'days' => 90,
         ],
 
+        'widget' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/widget.log'),
+            'level' => 'info',
+            'days' => 14,
+            'replace_placeholders' => true,
+        ],
+
         'api' => [
             'driver' => 'daily',
             'path' => storage_path('logs/api.log'),
