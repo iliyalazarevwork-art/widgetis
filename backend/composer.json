@@ -32,7 +32,8 @@
         "laravel/sail": "^1.41",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",
-        "phpunit/phpunit": "^11.5.50"
+        "phpunit/phpunit": "^11.5.50",
+        "qossmic/deptrac": "^2"
     },
     "autoload": {
         "psr-4": {
@@ -50,6 +51,7 @@
         }
     },
     "scripts": {
+        "lint:arch": "vendor/bin/deptrac analyse --no-progress",
         "setup": [
             "composer install",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",

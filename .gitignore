@@ -14,6 +14,7 @@ backend/public/storage
 backend/bootstrap/cache/*
 !backend/bootstrap/cache/.gitkeep
 backend/.phpunit.result.cache
+backend/.deptrac.cache
 
 # Frontend
 frontend/node_modules/

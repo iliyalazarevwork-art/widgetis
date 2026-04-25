@@ -1,0 +1,69 @@
+deptrac:
+  # Scan only the application source directory (vendor is excluded automatically).
+  paths:
+    - app/
+
+  # ---------------------------------------------------------------------------
+  # Layers — four bounded contexts:
+  #   Core          — domain logic owned by the platform (e.g. subscriptions)
+  #   WidgetRuntime — isolated widget execution sandbox
+  #   Shared        — pure contracts/value-objects usable by everyone
+  #   Legacy        — everything still living under bare App\ (transitional)
+  # ---------------------------------------------------------------------------
+  layers:
+    - name: Core
+      collectors:
+        - type: classLike
+          value: App\\Core\\.*
+
+    - name: WidgetRuntime
+      collectors:
+        - type: classLike
+          value: App\\WidgetRuntime\\.*
+
+    - name: Shared
+      collectors:
+        - type: classLike
+          value: App\\Shared\\.*
+
+    # Legacy: any App\ class that is NOT in Core, WidgetRuntime, or Shared.
+    # We use the bool collector: must match App\ AND must_not match any bounded context.
+    - name: Legacy
+      collectors:
+        - type: bool
+          must:
+            - type: classLike
+              value: App\\.*
+          must_not:
+            - type: classLike
+              value: App\\Core\\.*
+            - type: classLike
+              value: App\\WidgetRuntime\\.*
+            - type: classLike
+              value: App\\Shared\\.*
+
+  # ---------------------------------------------------------------------------
+  # Ruleset — who may depend on whom.
+  #
+  # The hard invariant: Core ↔ WidgetRuntime must NEVER cross.
+  # Shared is a pure foundation — it must not import from any bounded context.
+  # Legacy is transitional — no direction constraints yet, but explicit.
+  # ---------------------------------------------------------------------------
+  ruleset:
+    Core:
+      - Shared
+      - Legacy
+
+    WidgetRuntime:
+      - Shared
+      - Legacy
+
+    # Shared depends on nothing — it is the bottom of the dependency graph.
+    Shared: ~
+
+    # Legacy may use anything during the migration period.
+    Legacy:
+      - Core
+      - WidgetRuntime
+      - Shared
+      - Legacy
