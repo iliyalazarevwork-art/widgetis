@@ -43,7 +43,7 @@ class WidgetBuilderAccessTest extends TestCase
         $customer = User::factory()->create();
         $customer->assignRole(UserRole::Customer->value);
 
-        $this->actingAs($customer, 'api')
+        $this->actingAs($customer, 'core')
             ->json($method, $url, ['modules' => ['m' => []]])
             ->assertStatus(403);
     }
@@ -55,7 +55,7 @@ class WidgetBuilderAccessTest extends TestCase
 
         // Missing `modules` → 422 (proves the route is reachable and validated,
         // not 401/403 and not a 500 bubbling up from the proxy call).
-        $this->actingAs($admin, 'api')
+        $this->actingAs($admin, 'core')
             ->postJson('/api/v1/admin/widget-builder/build', [])
             ->assertStatus(422);
     }
@@ -65,7 +65,7 @@ class WidgetBuilderAccessTest extends TestCase
         $admin = User::factory()->create();
         $admin->assignRole(UserRole::Admin->value);
 
-        $response = $this->actingAs($admin, 'api')
+        $response = $this->actingAs($admin, 'core')
             ->getJson('/api/v1/admin/widget-builder/modules');
 
         // In test env the widget-builder container isn't reachable — we only

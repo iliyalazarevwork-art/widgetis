@@ -36,6 +36,8 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverResources(in: app_path('Core/Filament/Resources'), for: 'App\Core\Filament\Resources')
             ->discoverResources(in: app_path('WidgetRuntime/Filament/Resources'), for: 'App\WidgetRuntime\Filament\Resources')
+            ->discoverClusters(in: app_path('Core/Filament/Clusters'), for: 'App\Core\Filament\Clusters')
+            ->discoverClusters(in: app_path('WidgetRuntime/Filament/Clusters'), for: 'App\WidgetRuntime\Filament\Clusters')
             ->discoverPages(in: app_path('Core/Filament/Pages'), for: 'App\Core\Filament\Pages')
             ->pages([
                 Dashboard::class,

@@ -28,7 +28,7 @@ class ProfileMassAssignmentTest extends TestCase
         ]);
         $user->assignRole(UserRole::Customer->value);
 
-        $response = $this->actingAs($user, 'api')->putJson('/api/v1/profile', [
+        $response = $this->actingAs($user, 'core')->putJson('/api/v1/profile', [
             'name' => 'New Name',
             // Privileged fields an attacker might hope get mass-assigned:
             'role' => 'admin',

@@ -16,7 +16,7 @@ abstract class CoreBaseController extends BaseController
     protected function currentUser(): User
     {
         /** @var User $user */
-        $user = auth('api')->user();
+        $user = auth('core')->user();
 
         return $user;
     }

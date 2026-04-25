@@ -63,7 +63,7 @@ class AdminAccessTest extends TestCase
     {
         $customer = $this->makeCustomer();
 
-        $this->actingAs($customer, 'api')->getJson($url)->assertStatus(403);
+        $this->actingAs($customer, 'core')->getJson($url)->assertStatus(403);
     }
 
     #[DataProvider('adminReadRoutes')]
@@ -71,7 +71,7 @@ class AdminAccessTest extends TestCase
     {
         $admin = $this->makeAdmin();
 
-        $response = $this->actingAs($admin, 'api')->getJson($url);
+        $response = $this->actingAs($admin, 'core')->getJson($url);
 
         // Some routes return a paginated envelope, others return {data: {...}}.
         // The invariant is: admin never gets 401/403.
@@ -84,7 +84,7 @@ class AdminAccessTest extends TestCase
     {
         $admin = $this->makeAdmin();
 
-        $response = $this->actingAs($admin, 'api')->getJson('/api/v1/admin/users/9999999');
+        $response = $this->actingAs($admin, 'core')->getJson('/api/v1/admin/users/9999999');
 
         $response->assertStatus(404);
     }
@@ -93,7 +93,7 @@ class AdminAccessTest extends TestCase
     {
         $admin = $this->makeAdmin();
 
-        $response = $this->actingAs($admin, 'api')->getJson('/api/v1/admin/orders/9999999');
+        $response = $this->actingAs($admin, 'core')->getJson('/api/v1/admin/orders/9999999');
 
         $response->assertStatus(404);
     }

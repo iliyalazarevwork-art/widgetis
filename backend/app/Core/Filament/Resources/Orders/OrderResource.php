@@ -19,6 +19,7 @@ use Filament\Tables\Table;
 class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
+    protected static ?string $cluster = \App\Core\Filament\Clusters\Business::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingBag;
 

@@ -18,6 +18,11 @@ return [
     */
 
     'defaults' => [
+        // Keep 'api' as default so Spatie permission role records (scoped to this
+        // guard name in the DB) remain valid. The semantic rename to 'core' is
+        // expressed in the route middleware (auth:core); the underlying JWT driver
+        // is identical. Changing this default would require a DB migration to
+        // rename all guard_name values in the roles/permissions tables.
         'guard' => 'api',
         'passwords' => 'users',
     ],
@@ -44,7 +49,27 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        // Canonical guard for Core users (customers + admins).
+        // Used on /api/v1/profile/* and /api/v1/admin/* routes.
+        'core' => [
+            'driver' => 'jwt',
+            'provider' => 'users',
+        ],
+
+        // Backwards-compatibility alias — nothing new should reference this.
+        // Will be removed once all legacy references are gone.
         'api' => [
+            'driver' => 'jwt',
+            'provider' => 'users',
+        ],
+
+        // Widget session guard placeholder.
+        // Widget JWTs are verified by VerifyWidgetSession middleware (custom logic,
+        // separate secret via JWT_WIDGET_SECRET). Registering the guard name here
+        // so it is discoverable by the framework, even though auth:widget is not
+        // used directly on routes today.
+        'widget' => [
             'driver' => 'jwt',
             'provider' => 'users',
         ],

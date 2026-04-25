@@ -233,7 +233,7 @@ class OtpAuthTest extends TestCase
         $user = User::factory()->create(['onboarding_completed_at' => null]);
         $user->assignRole(UserRole::Customer->value);
 
-        $response = $this->actingAs($user, 'api')
+        $response = $this->actingAs($user, 'core')
             ->getJson('/api/v1/auth/user');
 
         $response->assertStatus(200)
@@ -255,7 +255,7 @@ class OtpAuthTest extends TestCase
             'plan_id' => $plan->id,
         ]);
 
-        $response = $this->actingAs($user, 'api')
+        $response = $this->actingAs($user, 'core')
             ->getJson('/api/v1/auth/user');
 
         $response->assertStatus(200)

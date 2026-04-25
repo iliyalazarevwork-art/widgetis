@@ -19,6 +19,7 @@ use Filament\Tables\Table;
 class PlanResource extends Resource
 {
     protected static ?string $model = Plan::class;
+    protected static ?string $cluster = \App\Core\Filament\Clusters\Business::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCreditCard;
 

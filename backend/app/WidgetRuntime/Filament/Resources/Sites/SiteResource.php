@@ -20,6 +20,7 @@ use Filament\Tables\Table;
 class SiteResource extends Resource
 {
     protected static ?string $model = Site::class;
+    protected static ?string $cluster = \App\WidgetRuntime\Filament\Clusters\Runtime::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedGlobeAlt;
 

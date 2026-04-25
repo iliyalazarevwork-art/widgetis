@@ -50,7 +50,7 @@ class SiteIdorTest extends TestCase
 
         $aliceSite = $this->siteFor($alice, 'alice.example');
 
-        $this->actingAs($bob, 'api')
+        $this->actingAs($bob, 'core')
             ->getJson("/api/v1/profile/sites/{$aliceSite->id}")
             ->assertStatus(404);
     }
@@ -62,7 +62,7 @@ class SiteIdorTest extends TestCase
 
         $aliceSite = $this->siteFor($alice, 'alice.example');
 
-        $this->actingAs($bob, 'api')
+        $this->actingAs($bob, 'core')
             ->deleteJson("/api/v1/profile/sites/{$aliceSite->id}")
             ->assertStatus(404);
 
@@ -77,7 +77,7 @@ class SiteIdorTest extends TestCase
         $aliceSite = $this->siteFor($alice, 'alice.example');
         $product = \App\Core\Models\Product::factory()->create();
 
-        $response = $this->actingAs($bob, 'api')
+        $response = $this->actingAs($bob, 'core')
             ->putJson("/api/v1/profile/sites/{$aliceSite->id}/widgets/{$product->id}", [
                 'is_enabled' => true,
                 'config' => ['x' => 1],
@@ -107,7 +107,7 @@ class SiteIdorTest extends TestCase
         $this->siteFor($bob, 'bob.example');
         $this->siteFor($bob, 'bob-two.example');
 
-        $response = $this->actingAs($bob, 'api')->getJson('/api/v1/profile/sites');
+        $response = $this->actingAs($bob, 'core')->getJson('/api/v1/profile/sites');
         $response->assertStatus(200);
 
         $domains = array_column($response->json('data') ?? $response->json(), 'domain');

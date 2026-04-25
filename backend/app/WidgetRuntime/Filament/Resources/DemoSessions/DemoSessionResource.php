@@ -19,6 +19,7 @@ use Filament\Tables\Table;
 class DemoSessionResource extends Resource
 {
     protected static ?string $model = DemoSession::class;
+    protected static ?string $cluster = \App\WidgetRuntime\Filament\Clusters\Runtime::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPlay;
 

@@ -42,7 +42,7 @@ Route::prefix('v1')->group(function () {
     Route::post('demo-sessions', [DemoSessionController::class, 'store'])->middleware('throttle:10,1');
 
     // --- Profile (customer) — runtime routes only ---
-    Route::prefix('profile')->middleware(['auth:api', 'role:customer'])->group(function () {
+    Route::prefix('profile')->middleware(['auth:core', 'role:customer'])->group(function () {
         Route::get('sites', [ProfileSiteController::class, 'index']);
         Route::post('sites', [ProfileSiteController::class, 'store']);
         Route::get('sites/{id}', [ProfileSiteController::class, 'show']);
@@ -62,7 +62,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // --- Admin — runtime routes only ---
-    Route::prefix('admin')->middleware(['auth:api', 'role:admin'])->group(function () {
+    Route::prefix('admin')->middleware(['auth:core', 'role:admin'])->group(function () {
         Route::get('sites', [AdminSiteController::class, 'index']);
         Route::get('sites/{id}', [AdminSiteController::class, 'show']);
         Route::post('sites/{id}/deploy', [AdminSiteController::class, 'deploy'])

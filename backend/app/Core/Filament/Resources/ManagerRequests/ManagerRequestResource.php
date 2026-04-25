@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class ManagerRequestResource extends Resource
 {
     protected static ?string $model = ManagerRequest::class;
+    protected static ?string $cluster = \App\Core\Filament\Clusters\Business::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedWrenchScrewdriver;
 

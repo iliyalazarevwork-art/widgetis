@@ -37,7 +37,7 @@ class SmsOtpProviderControllerTest extends TestCase
         $site = Site::factory()->create(['user_id' => $user->id]);
         OtpProviderConfig::factory()->for($site)->create();
 
-        $response = $this->actingAs($user, 'api')
+        $response = $this->actingAs($user, 'core')
             ->getJson("/api/v1/profile/widgets/sms-otp/providers?site_id={$site->id}");
 
         $response->assertOk()
@@ -51,7 +51,7 @@ class SmsOtpProviderControllerTest extends TestCase
         $site = Site::factory()->create(['user_id' => $other->id]);
         OtpProviderConfig::factory()->for($site)->create();
 
-        $response = $this->actingAs($user, 'api')
+        $response = $this->actingAs($user, 'core')
             ->getJson("/api/v1/profile/widgets/sms-otp/providers?site_id={$site->id}");
 
         $response->assertNotFound();
@@ -62,7 +62,7 @@ class SmsOtpProviderControllerTest extends TestCase
         $user = $this->makeCustomer();
         $site = Site::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user, 'api')
+        $response = $this->actingAs($user, 'core')
             ->postJson('/api/v1/profile/widgets/sms-otp/providers', [
                 'site_id' => $site->id,
                 'provider' => 'turbosms',
@@ -80,7 +80,7 @@ class SmsOtpProviderControllerTest extends TestCase
     {
         $user = $this->makeCustomer();
 
-        $response = $this->actingAs($user, 'api')
+        $response = $this->actingAs($user, 'core')
             ->postJson('/api/v1/profile/widgets/sms-otp/providers', []);
 
         $response->assertUnprocessable();
@@ -91,7 +91,7 @@ class SmsOtpProviderControllerTest extends TestCase
         $user = $this->makeCustomer();
         $site = Site::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user, 'api')
+        $response = $this->actingAs($user, 'core')
             ->postJson('/api/v1/profile/widgets/sms-otp/providers', [
                 'site_id' => $site->id,
                 'provider' => 'turbosms',
@@ -114,7 +114,7 @@ class SmsOtpProviderControllerTest extends TestCase
         $other = $this->makeCustomer();
         $site = Site::factory()->create(['user_id' => $other->id]);
 
-        $response = $this->actingAs($user, 'api')
+        $response = $this->actingAs($user, 'core')
             ->postJson('/api/v1/profile/widgets/sms-otp/providers', [
                 'site_id' => $site->id,
                 'provider' => 'turbosms',
@@ -132,7 +132,7 @@ class SmsOtpProviderControllerTest extends TestCase
         $site = Site::factory()->create(['user_id' => $user->id]);
         $config = OtpProviderConfig::factory()->for($site)->create();
 
-        $response = $this->actingAs($user, 'api')
+        $response = $this->actingAs($user, 'core')
             ->putJson("/api/v1/profile/widgets/sms-otp/providers/{$config->id}", [
                 'sender_name' => 'NewName',
                 'is_active' => false,
@@ -150,7 +150,7 @@ class SmsOtpProviderControllerTest extends TestCase
         $site = Site::factory()->create(['user_id' => $other->id]);
         $config = OtpProviderConfig::factory()->for($site)->create();
 
-        $response = $this->actingAs($user, 'api')
+        $response = $this->actingAs($user, 'core')
             ->putJson("/api/v1/profile/widgets/sms-otp/providers/{$config->id}", [
                 'sender_name' => 'Hacked',
             ]);
@@ -164,7 +164,7 @@ class SmsOtpProviderControllerTest extends TestCase
         $site = Site::factory()->create(['user_id' => $user->id]);
         $config = OtpProviderConfig::factory()->for($site)->create();
 
-        $response = $this->actingAs($user, 'api')
+        $response = $this->actingAs($user, 'core')
             ->deleteJson("/api/v1/profile/widgets/sms-otp/providers/{$config->id}");
 
         $response->assertNoContent();
@@ -178,7 +178,7 @@ class SmsOtpProviderControllerTest extends TestCase
         $site = Site::factory()->create(['user_id' => $other->id]);
         $config = OtpProviderConfig::factory()->for($site)->create();
 
-        $response = $this->actingAs($user, 'api')
+        $response = $this->actingAs($user, 'core')
             ->deleteJson("/api/v1/profile/widgets/sms-otp/providers/{$config->id}");
 
         $response->assertNotFound();
@@ -198,7 +198,7 @@ class SmsOtpProviderControllerTest extends TestCase
         $site = Site::factory()->create(['user_id' => $user->id]);
         $config = OtpProviderConfig::factory()->for($site)->create();
 
-        $response = $this->actingAs($user, 'api')
+        $response = $this->actingAs($user, 'core')
             ->postJson("/api/v1/profile/widgets/sms-otp/providers/{$config->id}/test", [
                 'phone' => '+380501234567',
             ]);
@@ -214,7 +214,7 @@ class SmsOtpProviderControllerTest extends TestCase
         $site = Site::factory()->create(['user_id' => $other->id]);
         $config = OtpProviderConfig::factory()->for($site)->create();
 
-        $response = $this->actingAs($user, 'api')
+        $response = $this->actingAs($user, 'core')
             ->postJson("/api/v1/profile/widgets/sms-otp/providers/{$config->id}/test", [
                 'phone' => '+380501234567',
             ]);

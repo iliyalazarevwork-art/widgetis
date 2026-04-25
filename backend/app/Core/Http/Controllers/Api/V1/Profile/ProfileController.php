@@ -69,7 +69,7 @@ class ProfileController extends CoreBaseController
     {
         $user = $this->currentUser();
 
-        auth('api')->logout();
+        auth('core')->logout();
 
         $userDeletionService->delete($user);
 

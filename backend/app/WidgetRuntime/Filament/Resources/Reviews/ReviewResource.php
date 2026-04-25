@@ -19,6 +19,7 @@ use Filament\Tables\Table;
 class ReviewResource extends Resource
 {
     protected static ?string $model = Review::class;
+    protected static ?string $cluster = \App\WidgetRuntime\Filament\Clusters\Runtime::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedStar;
 

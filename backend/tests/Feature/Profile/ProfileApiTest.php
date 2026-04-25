@@ -51,7 +51,7 @@ class ProfileApiTest extends TestCase
     {
         $admin = $this->makeAdmin();
 
-        $response = $this->actingAs($admin, 'api')->getJson('/api/v1/profile');
+        $response = $this->actingAs($admin, 'core')->getJson('/api/v1/profile');
 
         $response->assertStatus(403);
     }
@@ -60,7 +60,7 @@ class ProfileApiTest extends TestCase
     {
         $user = $this->makeCustomer();
 
-        $response = $this->actingAs($user, 'api')->getJson('/api/v1/profile');
+        $response = $this->actingAs($user, 'core')->getJson('/api/v1/profile');
 
         $response->assertStatus(200);
         $response->assertJsonPath('data.id', $user->id);
@@ -74,7 +74,7 @@ class ProfileApiTest extends TestCase
     {
         $user = $this->makeCustomer();
 
-        $response = $this->actingAs($user, 'api')->getJson('/api/v1/profile');
+        $response = $this->actingAs($user, 'core')->getJson('/api/v1/profile');
 
         $response->assertStatus(200);
         $response->assertJsonPath('data.id', $user->id);
@@ -87,7 +87,7 @@ class ProfileApiTest extends TestCase
     {
         $user = $this->makeCustomer();
 
-        $response = $this->actingAs($user, 'api')->putJson('/api/v1/profile', [
+        $response = $this->actingAs($user, 'core')->putJson('/api/v1/profile', [
             'name' => 'New Name',
             'locale' => 'en',
         ]);
@@ -115,7 +115,7 @@ class ProfileApiTest extends TestCase
     {
         $user = $this->makeCustomer();
 
-        $response = $this->actingAs($user, 'api')->getJson('/api/v1/profile/dashboard');
+        $response = $this->actingAs($user, 'core')->getJson('/api/v1/profile/dashboard');
 
         $response->assertStatus(200);
     }
@@ -128,7 +128,7 @@ class ProfileApiTest extends TestCase
     {
         $user = $this->makeCustomer();
 
-        $response = $this->actingAs($user, 'api')->getJson('/api/v1/profile/subscription');
+        $response = $this->actingAs($user, 'core')->getJson('/api/v1/profile/subscription');
 
         // Controller returns 404 with error payload when no subscription exists
         $response->assertStatus(404);
@@ -140,7 +140,7 @@ class ProfileApiTest extends TestCase
         $plan = Plan::factory()->pro()->create();
         Subscription::factory()->for($user)->for($plan)->create();
 
-        $response = $this->actingAs($user, 'api')->getJson('/api/v1/profile/subscription');
+        $response = $this->actingAs($user, 'core')->getJson('/api/v1/profile/subscription');
 
         $response->assertStatus(200);
         $response->assertSee('pro');
@@ -161,7 +161,7 @@ class ProfileApiTest extends TestCase
     {
         $user = $this->makeCustomer();
 
-        $response = $this->actingAs($user, 'api')->getJson('/api/v1/profile/sites');
+        $response = $this->actingAs($user, 'core')->getJson('/api/v1/profile/sites');
 
         $response->assertStatus(200);
     }
@@ -181,7 +181,7 @@ class ProfileApiTest extends TestCase
     {
         $user = $this->makeCustomer();
 
-        $response = $this->actingAs($user, 'api')->getJson('/api/v1/profile/notifications');
+        $response = $this->actingAs($user, 'core')->getJson('/api/v1/profile/notifications');
 
         $response->assertStatus(200);
     }
@@ -198,7 +198,7 @@ class ProfileApiTest extends TestCase
         $payment1 = Payment::factory()->for($user1)->create();
         $payment2 = Payment::factory()->for($user2)->create();
 
-        $response = $this->actingAs($user1, 'api')->getJson('/api/v1/profile/payments');
+        $response = $this->actingAs($user1, 'core')->getJson('/api/v1/profile/payments');
 
         $response->assertStatus(200);
 

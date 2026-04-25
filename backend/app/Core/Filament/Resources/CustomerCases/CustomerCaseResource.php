@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class CustomerCaseResource extends Resource
 {
     protected static ?string $model = CustomerCase::class;
+    protected static ?string $cluster = \App\Core\Filament\Clusters\Business::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBriefcase;
 

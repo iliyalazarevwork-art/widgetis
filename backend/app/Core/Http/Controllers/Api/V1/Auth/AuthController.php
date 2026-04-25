@@ -220,7 +220,7 @@ class AuthController extends CoreBaseController
     private function guard(): JWTGuard
     {
         /** @var JWTGuard $guard */
-        $guard = auth('api');
+        $guard = auth('core');
 
         return $guard;
     }

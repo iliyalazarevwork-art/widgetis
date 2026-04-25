@@ -35,7 +35,7 @@ class CheckoutThrottleTest extends TestCase
         $hit429 = false;
 
         for ($i = 1; $i <= 7; $i++) {
-            $response = $this->actingAs($user, 'api')
+            $response = $this->actingAs($user, 'core')
                 ->postJson('/api/v1/profile/subscription/checkout', [
                     'plan_slug' => 'pro',
                     'billing_period' => 'monthly',

@@ -15,14 +15,14 @@ abstract class BaseController extends Controller
     protected function currentUser(): Authenticatable
     {
         /** @var Authenticatable $user */
-        $user = auth('api')->user();
+        $user = auth('core')->user();
 
         return $user;
     }
 
     protected function authedUserId(): string
     {
-        return (string) auth('api')->id();
+        return (string) auth('core')->id();
     }
 
     protected function locale(): string

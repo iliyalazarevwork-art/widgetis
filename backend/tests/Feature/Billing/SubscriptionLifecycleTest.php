@@ -186,7 +186,7 @@ class SubscriptionLifecycleTest extends TestCase
         ]);
 
         // Before expiration, /api/v1/auth/user reports trial.
-        $pre = $this->actingAs($user, 'api')->getJson('/api/v1/auth/user');
+        $pre = $this->actingAs($user, 'core')->getJson('/api/v1/auth/user');
         $pre->assertStatus(200);
         $this->assertSame('trial', $pre->json('data.subscription_status'));
 
@@ -194,7 +194,7 @@ class SubscriptionLifecycleTest extends TestCase
 
         $this->artisan('subscriptions:expire-trials')->assertExitCode(0);
 
-        $post = $this->actingAs($user->fresh(), 'api')->getJson('/api/v1/auth/user');
+        $post = $this->actingAs($user->fresh(), 'core')->getJson('/api/v1/auth/user');
         $post->assertStatus(200);
         $this->assertNotSame(
             'trial',

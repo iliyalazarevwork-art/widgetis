@@ -163,7 +163,7 @@ class SubscriptionUpgradeTest extends TestCase
 
         $this->seedSubscription($user, $pro, BillingPeriod::Monthly, 5);
 
-        $response = $this->actingAs($user, 'api')->postJson('/api/v1/profile/subscription/upgrade', [
+        $response = $this->actingAs($user, 'core')->postJson('/api/v1/profile/subscription/upgrade', [
             'plan_slug' => $basic->slug,
             'billing_period' => 'monthly',
             'provider' => 'monobank',
@@ -181,7 +181,7 @@ class SubscriptionUpgradeTest extends TestCase
 
         $this->seedSubscription($user, $basic, BillingPeriod::Monthly, 10);
 
-        $response = $this->actingAs($user, 'api')->getJson(
+        $response = $this->actingAs($user, 'core')->getJson(
             "/api/v1/profile/subscription/upgrade-preview?plan_slug={$pro->slug}&billing_period=monthly",
         );
 
@@ -195,12 +195,12 @@ class SubscriptionUpgradeTest extends TestCase
     {
         $user = $this->customer();
 
-        $change = $this->actingAs($user, 'api')->postJson('/api/v1/profile/subscription/change', [
+        $change = $this->actingAs($user, 'core')->postJson('/api/v1/profile/subscription/change', [
             'plan_slug' => 'pro',
         ]);
         $this->assertContains($change->status(), [404, 405]);
 
-        $prorate = $this->actingAs($user, 'api')->getJson(
+        $prorate = $this->actingAs($user, 'core')->getJson(
             '/api/v1/profile/subscription/prorate?target_plan_slug=pro',
         );
         $this->assertContains($prorate->status(), [404, 405]);

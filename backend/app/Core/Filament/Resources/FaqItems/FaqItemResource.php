@@ -19,6 +19,7 @@ use Filament\Tables\Table;
 class FaqItemResource extends Resource
 {
     protected static ?string $model = FaqItem::class;
+    protected static ?string $cluster = \App\Core\Filament\Clusters\Business::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedQuestionMarkCircle;
 

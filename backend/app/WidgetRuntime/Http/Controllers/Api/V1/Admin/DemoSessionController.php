@@ -34,7 +34,7 @@ class DemoSessionController extends BaseController
             'code' => DemoSession::generateCode(),
             'domain' => $domain,
             'config' => $validated['config'],
-            'created_by' => auth('api')->id(),
+            'created_by' => auth('core')->id(),
             'expires_at' => now()->addHours($expiresHours),
         ]);
 

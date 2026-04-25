@@ -69,7 +69,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // --- Auth (protected) ---
-    Route::prefix('auth')->middleware('auth:api')->group(function () {
+    Route::prefix('auth')->middleware('auth:core')->group(function () {
         Route::post('refresh', [AuthController::class, 'refresh']);
         Route::post('logout', [AuthController::class, 'logout']);
         Route::get('user', [AuthController::class, 'user']);
@@ -77,7 +77,7 @@ Route::prefix('v1')->group(function () {
 
     // --- Profile (customer) ---
     // Admin role is intentionally excluded: admins have no subscription and must not access cabinet routes.
-    Route::prefix('profile')->middleware(['auth:api', 'role:customer'])->group(function () {
+    Route::prefix('profile')->middleware(['auth:core', 'role:customer'])->group(function () {
         Route::get('dashboard', [DashboardController::class, 'index']);
         Route::get('/', [ProfileController::class, 'show']);
         Route::put('/', [ProfileController::class, 'update']);
@@ -102,7 +102,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // --- Admin ---
-    Route::prefix('admin')->middleware(['auth:api', 'role:admin'])->group(function () {
+    Route::prefix('admin')->middleware(['auth:core', 'role:admin'])->group(function () {
         Route::get('dashboard', [Admin\DashboardController::class, 'index']);
         Route::get('orders', [Admin\OrderController::class, 'index']);
         Route::get('orders/{id}', [Admin\OrderController::class, 'show']);

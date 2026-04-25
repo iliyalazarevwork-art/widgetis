@@ -59,7 +59,7 @@ class NegativeInputTest extends TestCase
     {
         $user = $this->customer();
 
-        $response = $this->actingAs($user, 'api')->postJson('/api/v1/profile/sites', [
+        $response = $this->actingAs($user, 'core')->postJson('/api/v1/profile/sites', [
             'url' => $badUrl,
             'platform' => 'horoshop',
             'name' => 'Test',
@@ -89,7 +89,7 @@ class NegativeInputTest extends TestCase
     {
         $user = $this->customer();
 
-        $response = $this->actingAs($user, 'api')->putJson('/api/v1/profile', [
+        $response = $this->actingAs($user, 'core')->putJson('/api/v1/profile', [
             'name' => "Evil\x00Name",
         ]);
 
@@ -107,7 +107,7 @@ class NegativeInputTest extends TestCase
     {
         $user = $this->customer();
 
-        $response = $this->actingAs($user, 'api')->putJson('/api/v1/profile', [
+        $response = $this->actingAs($user, 'core')->putJson('/api/v1/profile', [
             'name' => str_repeat('😈', 5000),
         ]);
 
@@ -143,7 +143,7 @@ class NegativeInputTest extends TestCase
         $admin = User::factory()->create();
         $admin->assignRole(UserRole::Admin->value);
 
-        $response = $this->actingAs($admin, 'api')
+        $response = $this->actingAs($admin, 'core')
             ->getJson('/api/v1/admin/users?search='.urlencode($hostile));
 
         $this->assertLessThan(500, $response->status());
@@ -155,7 +155,7 @@ class NegativeInputTest extends TestCase
     {
         $user = $this->customer();
 
-        $response = $this->actingAs($user, 'api')
+        $response = $this->actingAs($user, 'core')
             ->postJson('/api/v1/profile/subscription/checkout', [
                 'plan_slug' => 'definitely-not-a-plan',
                 'billing_period' => 'monthly',
@@ -177,7 +177,7 @@ class NegativeInputTest extends TestCase
             'is_active' => true,
         ]);
 
-        $this->actingAs($user, 'api')
+        $this->actingAs($user, 'core')
             ->postJson('/api/v1/profile/subscription/checkout', [
                 'plan_slug' => $plan->slug,
                 'billing_period' => 'monthly',
@@ -230,7 +230,7 @@ class NegativeInputTest extends TestCase
         ];
 
         foreach ($bad as $payload) {
-            $response = $this->actingAs($admin, 'api')
+            $response = $this->actingAs($admin, 'core')
                 ->postJson('/api/v1/admin/widget-builder/build', $payload);
 
             // 502 = widget-builder container unreachable in test env (legit).
