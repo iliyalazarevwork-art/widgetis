@@ -30,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'role' => RequireRole::class,
+            'widget.session' => \App\Http\Middleware\VerifyWidgetSession::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
