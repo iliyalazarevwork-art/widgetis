@@ -1,0 +1,401 @@
+/* =====================================================================
+   Admin SMS OTP Page
+   Follows admin design conventions: dark theme, CSS variables, BEM-ish.
+   ===================================================================== */
+
+/* ─ Page wrapper ─────────────────────────────────────────────────────────── */
+
+.smsotp-page {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ─ Site selector ────────────────────────────────────────────────────────── */
+
+.smsotp-page__site-select {
+  padding: 14px 16px;
+}
+
+.smsotp-page__site-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.smsotp-page__site-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.smsotp-page__site-dropdown {
+  flex: 1;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  padding: 0 10px;
+  outline: none;
+  cursor: pointer;
+}
+
+.smsotp-page__loading {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ─ Section header ───────────────────────────────────────────────────────── */
+
+.smsotp-page__section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+/* ─ Empty state ──────────────────────────────────────────────────────────── */
+
+.smsotp-page__empty {
+  padding: 28px 16px;
+  text-align: center;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.smsotp-page__empty p {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.smsotp-page__empty-sub {
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  color: var(--text-muted) !important;
+}
+
+/* ─ Provider list ────────────────────────────────────────────────────────── */
+
+.smsotp-page__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ─ Provider card ────────────────────────────────────────────────────────── */
+
+.smsotp-card {
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  background: var(--bg-surface);
+  padding: 14px 16px;
+}
+
+.smsotp-card__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.smsotp-card__icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--blue-dim);
+  color: var(--blue);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.smsotp-card__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.smsotp-card__info strong {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.smsotp-card__info span {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.smsotp-card__badges {
+  flex-shrink: 0;
+}
+
+.smsotp-card__actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.smsotp-card__action-btn {
+  font-size: 12px;
+  height: 34px;
+  padding: 0 10px;
+}
+
+.smsotp-card__action-btn--danger {
+  color: var(--red) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+.smsotp-card__action-btn--danger:hover {
+  background: rgba(239, 68, 68, 0.08) !important;
+}
+
+/* ─ Info card ────────────────────────────────────────────────────────────── */
+
+.smsotp-page__info {
+  padding: 16px;
+}
+
+.smsotp-page__steps {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.smsotp-page__steps li {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ─ Modal ────────────────────────────────────────────────────────────────── */
+
+.smsotp-modal__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px 0 0;
+}
+
+@media (min-width: 600px) {
+  .smsotp-modal__backdrop {
+    align-items: center;
+    padding: 0;
+  }
+}
+
+.smsotp-modal__dialog {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-height: 90dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+@media (min-width: 600px) {
+  .smsotp-modal__dialog {
+    max-width: 520px;
+    border-radius: 20px;
+    max-height: 85dvh;
+  }
+
+  .smsotp-modal__dialog--small {
+    max-width: 400px;
+  }
+}
+
+.smsotp-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.smsotp-modal__header h2 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.smsotp-modal__close {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.smsotp-modal__close:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.smsotp-modal__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.smsotp-modal__footer {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.smsotp-modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.smsotp-modal__field--toggle {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.smsotp-modal__label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.smsotp-modal__hint {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.smsotp-modal__field-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.smsotp-modal__input,
+.smsotp-modal__select {
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  padding: 0 12px;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.smsotp-modal__input:focus,
+.smsotp-modal__select:focus {
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.smsotp-modal__section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--blue);
+  margin-top: 4px;
+}
+
+.smsotp-modal__error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #f87171;
+}
+
+.smsotp-modal__success-msg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #34d399;
+}
+
+.smsotp-modal__desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ─ Toggle switch ────────────────────────────────────────────────────────── */
+
+.smsotp-modal__toggle {
+  width: 44px;
+  height: 24px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.smsotp-modal__toggle--on {
+  background: var(--blue);
+}
+
+.smsotp-modal__toggle-thumb {
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+  transform: translateX(0);
+}
+
+.smsotp-modal__toggle--on .smsotp-modal__toggle-thumb {
+  transform: translateX(20px);
+}
