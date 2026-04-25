@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Feature\Widget\SmsOtp;
 
 use App\Enums\UserRole;
-use App\Models\OtpProviderConfig;
-use App\Models\Site;
 use App\Models\User;
+use App\WidgetRuntime\Models\OtpProviderConfig;
+use App\WidgetRuntime\Models\Site;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Models\OtpProviderConfig;
-use App\Models\Site;
-use App\Services\Widget\SmsOtp\Channel;
-use App\Services\Widget\SmsOtp\Provider;
+use App\WidgetRuntime\Models\OtpProviderConfig;
+use App\WidgetRuntime\Models\Site;
+use App\WidgetRuntime\Services\Widget\SmsOtp\Channel;
+use App\WidgetRuntime\Services\Widget\SmsOtp\Provider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

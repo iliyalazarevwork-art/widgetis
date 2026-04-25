@@ -11,9 +11,9 @@ use App\Models\Plan;
 use App\Models\Product;
 use App\Models\Subscription;
 use App\Models\User;
-use App\Models\UserWidgetGrant;
-use App\Services\Widget\ProductAccessState;
-use App\Services\Widget\WidgetAccessService;
+use App\WidgetRuntime\Models\UserWidgetGrant;
+use App\WidgetRuntime\Services\Widget\ProductAccessState;
+use App\WidgetRuntime\Services\Widget\WidgetAccessService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

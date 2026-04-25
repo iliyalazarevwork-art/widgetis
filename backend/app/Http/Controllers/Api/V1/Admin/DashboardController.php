@@ -7,10 +7,10 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Api\V1\BaseController;
 use App\Models\Order;
 use App\Models\Payment;
-use App\Models\Site;
-use App\Models\SiteWidget;
 use App\Models\Subscription;
 use App\Models\User;
+use App\WidgetRuntime\Models\Site;
+use App\WidgetRuntime\Models\SiteWidget;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 

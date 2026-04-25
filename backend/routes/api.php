@@ -7,13 +7,9 @@ use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\Profile\DashboardController;
 use App\Http\Controllers\Api\V1\Profile\NotificationController;
 use App\Http\Controllers\Api\V1\Profile\ProfileController;
-use App\Http\Controllers\Api\V1\Profile\SiteController;
-use App\Http\Controllers\Api\V1\Profile\SmsOtpProviderController;
 use App\Http\Controllers\Api\V1\Profile\SubscriptionController;
-use App\Http\Controllers\Api\V1\Profile\WidgetController;
 use App\Http\Controllers\Api\V1\Public\CaseController;
 use App\Http\Controllers\Api\V1\Public\ConsultationController;
-use App\Http\Controllers\Api\V1\Public\DemoSessionController;
 use App\Http\Controllers\Api\V1\Public\FaqController;
 use App\Http\Controllers\Api\V1\Public\GuestCheckoutController;
 use App\Http\Controllers\Api\V1\Public\LeadRequestController;
@@ -25,21 +21,9 @@ use App\Http\Controllers\Api\V1\Public\SystemController;
 use App\Http\Controllers\Api\V1\Public\TagController;
 use App\Http\Controllers\Api\V1\Webhooks\MonobankWebhookController;
 use App\Http\Controllers\Api\V1\Webhooks\WayForPayWebhookController;
-use App\Http\Controllers\Api\V1\Widget\SmsOtpRequestController;
-use App\Http\Controllers\Api\V1\Widget\SmsOtpVerifyController;
-use App\Http\Controllers\Api\V1\Widget\WidgetSessionController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
-
-    // --- Public widget API (Origin-checked, returns short-lived JWT) ---
-    Route::prefix('widget')->group(function () {
-        Route::post('session', WidgetSessionController::class)->middleware('throttle:30,1');
-        Route::middleware('widget.session')->group(function () {
-            Route::post('sms-otp/request', SmsOtpRequestController::class)->middleware('throttle:60,1');
-            Route::post('sms-otp/verify', SmsOtpVerifyController::class)->middleware('throttle:60,1');
-        });
-    });
 
     // --- Monobank webhook (public, ECDSA signature verified inside provider) ---
     Route::post('webhooks/monobank', MonobankWebhookController::class);
@@ -64,10 +48,6 @@ Route::prefix('v1')->group(function () {
     Route::post('manager-requests', [ManagerRequestController::class, 'store'])->middleware('throttle:3,60');
     Route::post('lead-requests', [LeadRequestController::class, 'store'])->middleware('throttle:5,1');
     Route::post('public/checkout', GuestCheckoutController::class)->middleware('throttle:10,1');
-
-    // --- Demo sessions (public) ---
-    Route::get('demo-sessions/{code}', [DemoSessionController::class, 'show'])->middleware('throttle:30,1');
-    Route::post('demo-sessions', [DemoSessionController::class, 'store'])->middleware('throttle:10,1');
 
     // --- Auth (public) ---
     // In dev (OTP_DEV_BYPASS=true) the throttle caps are raised so the
@@ -119,22 +99,6 @@ Route::prefix('v1')->group(function () {
         Route::post('subscription/checkout/cancel', [SubscriptionController::class, 'cancelPendingCheckout']);
         Route::post('subscription/checkout', [SubscriptionController::class, 'checkout'])
             ->middleware('throttle:5,60');
-        Route::get('sites', [SiteController::class, 'index']);
-        Route::post('sites', [SiteController::class, 'store']);
-        Route::get('sites/{id}', [SiteController::class, 'show']);
-        Route::delete('sites/{id}', [SiteController::class, 'destroy']);
-        Route::post('sites/{id}/verify', [SiteController::class, 'verify']);
-        Route::get('sites/{id}/script', [SiteController::class, 'script']);
-        Route::put('sites/{siteId}/widgets/{productId}', [SiteController::class, 'updateWidget']);
-        Route::get('widgets/{productSlug}/config-schema', [WidgetController::class, 'configSchema']);
-
-        Route::prefix('widgets/sms-otp')->group(function () {
-            Route::get('providers', [SmsOtpProviderController::class, 'index']);
-            Route::post('providers', [SmsOtpProviderController::class, 'store']);
-            Route::put('providers/{configId}', [SmsOtpProviderController::class, 'update']);
-            Route::delete('providers/{configId}', [SmsOtpProviderController::class, 'destroy']);
-            Route::post('providers/{configId}/test', [SmsOtpProviderController::class, 'test'])->middleware('throttle:3,60');
-        });
     });
 
     // --- Admin ---
@@ -145,16 +109,5 @@ Route::prefix('v1')->group(function () {
         Route::get('users', [Admin\UserController::class, 'index']);
         Route::get('users/{id}', [Admin\UserController::class, 'show']);
         Route::get('subscriptions', [Admin\SubscriptionController::class, 'index']);
-        Route::get('sites', [Admin\SiteController::class, 'index']);
-        Route::get('sites/{id}', [Admin\SiteController::class, 'show']);
-        Route::post('sites/{id}/deploy', [Admin\SiteController::class, 'deploy'])
-            ->middleware('throttle:10,60');
-        Route::put('sites/{siteId}/widgets/{productId}', [Admin\SiteController::class, 'updateWidget']);
-        Route::post('demo-sessions', [Admin\DemoSessionController::class, 'store']);
-
-        // Widget-builder proxy — widget-builder itself is not exposed publicly.
-        Route::get('widget-builder/modules', [Admin\WidgetBuilderController::class, 'modules']);
-        Route::post('widget-builder/build', [Admin\WidgetBuilderController::class, 'build'])
-            ->middleware('throttle:30,60');
     });
 });

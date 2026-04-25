@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use App\Services\Widget\SmsOtp\Exceptions\OtpInvalidWidgetSessionException;
-use App\Services\Widget\SmsOtp\WidgetSessionTokenService;
+use App\WidgetRuntime\Services\Widget\SmsOtp\Exceptions\OtpInvalidWidgetSessionException;
+use App\WidgetRuntime\Services\Widget\SmsOtp\WidgetSessionTokenService;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;

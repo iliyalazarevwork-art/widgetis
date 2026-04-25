@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Widget\SmsOtp;
 
-use App\Models\OtpRequest;
-use App\Models\Site;
-use App\Services\Widget\SmsOtp\WidgetSessionTokenService;
+use App\WidgetRuntime\Models\OtpRequest;
+use App\WidgetRuntime\Models\Site;
+use App\WidgetRuntime\Services\Widget\SmsOtp\WidgetSessionTokenService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

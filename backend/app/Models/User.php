@@ -6,6 +6,9 @@ namespace App\Models;
 
 use App\Enums\UserRole;
 use App\Models\Concerns\HasUuidV7;
+use App\WidgetRuntime\Models\Site;
+use App\WidgetRuntime\Models\SiteWidget;
+use App\WidgetRuntime\Models\UserWidgetGrant;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;

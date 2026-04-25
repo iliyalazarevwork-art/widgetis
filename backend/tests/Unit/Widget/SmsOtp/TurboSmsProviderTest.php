@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Widget\SmsOtp;
 
-use App\Services\Widget\SmsOtp\Channel;
-use App\Services\Widget\SmsOtp\Data\SendOtpCommand;
-use App\Services\Widget\SmsOtp\Exceptions\OtpProviderException;
-use App\Services\Widget\SmsOtp\Providers\TurboSmsProvider;
+use App\WidgetRuntime\Services\Widget\SmsOtp\Channel;
+use App\WidgetRuntime\Services\Widget\SmsOtp\Data\SendOtpCommand;
+use App\WidgetRuntime\Services\Widget\SmsOtp\Exceptions\OtpProviderException;
+use App\WidgetRuntime\Services\Widget\SmsOtp\Providers\TurboSmsProvider;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 

@@ -8,9 +8,9 @@ use App\Enums\OrderStatus;
 use App\Enums\SiteStatus;
 use App\Enums\SubscriptionStatus;
 use App\Models\Order;
-use App\Models\Site;
 use App\Models\Subscription;
 use App\Models\User;
+use App\WidgetRuntime\Models\Site;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 

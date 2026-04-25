@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Feature\Security;
 
 use App\Enums\UserRole;
-use App\Models\Site;
 use App\Models\User;
+use App\WidgetRuntime\Models\Site;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

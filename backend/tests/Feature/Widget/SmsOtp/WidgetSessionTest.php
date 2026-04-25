@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Widget\SmsOtp;
 
-use App\Models\Site;
+use App\WidgetRuntime\Models\Site;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

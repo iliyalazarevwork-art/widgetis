@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Models\OtpRequest;
-use App\Models\Site;
-use App\Services\Widget\SmsOtp\Channel;
-use App\Services\Widget\SmsOtp\OtpRequestStatus;
-use App\Services\Widget\SmsOtp\Provider;
+use App\WidgetRuntime\Models\OtpRequest;
+use App\WidgetRuntime\Models\Site;
+use App\WidgetRuntime\Services\Widget\SmsOtp\Channel;
+use App\WidgetRuntime\Services\Widget\SmsOtp\OtpRequestStatus;
+use App\WidgetRuntime\Services\Widget\SmsOtp\Provider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;

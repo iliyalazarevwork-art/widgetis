@@ -52,31 +52,31 @@ parameters:
 			message: '#^Cannot access property \$value on string\.$#'
 			identifier: property.nonObject
 			count: 2
-			path: app/Http/Controllers/Api/V1/Admin/SiteController.php
+			path: app/WidgetRuntime/Http/Controllers/Api/V1/Admin/SiteController.php
 
 		-
 			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
 			identifier: method.nonObject
 			count: 2
-			path: app/Http/Controllers/Api/V1/Admin/SiteController.php
+			path: app/WidgetRuntime/Http/Controllers/Api/V1/Admin/SiteController.php
 
 		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,App\\Models\\Site\>\:\:map\(\) contains unresolvable type\.$#'
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,App\\WidgetRuntime\\Models\\Site\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
-			path: app/Http/Controllers/Api/V1/Admin/SiteController.php
+			path: app/WidgetRuntime/Http/Controllers/Api/V1/Admin/SiteController.php
 
 		-
-			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,App\\Models\\Site\>\:\:map\(\) contains unresolvable type\.$#'
+			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,App\\WidgetRuntime\\Models\\Site\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: method.unresolvableReturnType
 			count: 1
-			path: app/Http/Controllers/Api/V1/Admin/SiteController.php
+			path: app/WidgetRuntime/Http/Controllers/Api/V1/Admin/SiteController.php
 
 		-
 			message: '#^Using nullsafe property access on non\-nullable type string\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 2
-			path: app/Http/Controllers/Api/V1/Admin/SiteController.php
+			path: app/WidgetRuntime/Http/Controllers/Api/V1/Admin/SiteController.php
 
 		-
 			message: '#^Using nullsafe property access on non\-nullable type App\\Enums\\SubscriptionStatus\. Use \-\> instead\.$#'
@@ -184,31 +184,31 @@ parameters:
 			message: '#^Cannot access property \$value on string\.$#'
 			identifier: property.nonObject
 			count: 3
-			path: app/Http/Controllers/Api/V1/Profile/SiteController.php
+			path: app/WidgetRuntime/Http/Controllers/Api/V1/Profile/SiteController.php
 
 		-
 			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
 			identifier: method.nonObject
 			count: 2
-			path: app/Http/Controllers/Api/V1/Profile/SiteController.php
+			path: app/WidgetRuntime/Http/Controllers/Api/V1/Profile/SiteController.php
 
 		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Site\>\:\:map\(\) contains unresolvable type\.$#'
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\WidgetRuntime\\Models\\Site\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
-			path: app/Http/Controllers/Api/V1/Profile/SiteController.php
+			path: app/WidgetRuntime/Http/Controllers/Api/V1/Profile/SiteController.php
 
 		-
-			message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Site\>\:\:map\(\) contains unresolvable type\.$#'
+			message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<int,App\\WidgetRuntime\\Models\\Site\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: method.unresolvableReturnType
 			count: 1
-			path: app/Http/Controllers/Api/V1/Profile/SiteController.php
+			path: app/WidgetRuntime/Http/Controllers/Api/V1/Profile/SiteController.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>max_sites" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Http/Controllers/Api/V1/Profile/SiteController.php
+			path: app/WidgetRuntime/Http/Controllers/Api/V1/Profile/SiteController.php
 
 		-
 			message: '#^Method App\\Models\\SocialAccount\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\SocialAccount\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\SocialAccount\)\>\.$#'
@@ -220,10 +220,10 @@ parameters:
 			message: '#^Using nullsafe property access "\?\-\>max_sites" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Services/Site/SiteService.php
+			path: app/WidgetRuntime/Services/Site/SiteService.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>max_widgets" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Services/Site/SiteService.php
+			path: app/WidgetRuntime/Services/Site/SiteService.php

@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\ProductAvailability;
 use App\Enums\ProductStatus;
 use App\Models\Concerns\HasTranslations;
+use App\WidgetRuntime\Models\SiteWidget;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

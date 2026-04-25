@@ -18,9 +18,9 @@ use App\Http\Requests\Api\V1\Billing\UpgradeRequest;
 use App\Http\Resources\Api\V1\SubscriptionResource;
 use App\Models\Order;
 use App\Models\Plan;
-use App\Models\Site;
 use App\Services\Billing\CheckoutService;
 use App\Services\Billing\SubscriptionService;
+use App\WidgetRuntime\Models\Site;
 use Illuminate\Http\JsonResponse;
 
 class SubscriptionController extends BaseController

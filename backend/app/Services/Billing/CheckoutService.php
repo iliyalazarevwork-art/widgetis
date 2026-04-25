@@ -14,11 +14,11 @@ use App\Enums\SubscriptionStatus;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Plan;
-use App\Models\Site;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Services\Billing\DTO\CheckoutPayload;
 use App\Services\Billing\DTO\UpgradeQuote;
+use App\WidgetRuntime\Models\Site;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 

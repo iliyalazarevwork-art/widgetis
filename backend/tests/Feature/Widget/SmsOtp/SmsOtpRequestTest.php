@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Widget\SmsOtp;
 
-use App\Models\OtpProviderConfig;
-use App\Models\Site;
-use App\Services\Widget\SmsOtp\WidgetSessionTokenService;
+use App\WidgetRuntime\Models\OtpProviderConfig;
+use App\WidgetRuntime\Models\Site;
+use App\WidgetRuntime\Services\Widget\SmsOtp\WidgetSessionTokenService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\RateLimiter;
