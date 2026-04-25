@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\Profile\DashboardController;
 use App\Http\Controllers\Api\V1\Profile\NotificationController;
 use App\Http\Controllers\Api\V1\Profile\ProfileController;
 use App\Http\Controllers\Api\V1\Profile\SiteController;
+use App\Http\Controllers\Api\V1\Profile\SmsOtpProviderController;
 use App\Http\Controllers\Api\V1\Profile\SubscriptionController;
 use App\Http\Controllers\Api\V1\Profile\WidgetController;
 use App\Http\Controllers\Api\V1\Public\CaseController;
@@ -24,9 +25,21 @@ use App\Http\Controllers\Api\V1\Public\SystemController;
 use App\Http\Controllers\Api\V1\Public\TagController;
 use App\Http\Controllers\Api\V1\Webhooks\MonobankWebhookController;
 use App\Http\Controllers\Api\V1\Webhooks\WayForPayWebhookController;
+use App\Http\Controllers\Api\V1\Widget\SmsOtpRequestController;
+use App\Http\Controllers\Api\V1\Widget\SmsOtpVerifyController;
+use App\Http\Controllers\Api\V1\Widget\WidgetSessionController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
+
+    // --- Public widget API (Origin-checked, returns short-lived JWT) ---
+    Route::prefix('widget')->group(function () {
+        Route::post('session', WidgetSessionController::class)->middleware('throttle:30,1');
+        Route::middleware('widget.session')->group(function () {
+            Route::post('sms-otp/request', SmsOtpRequestController::class)->middleware('throttle:60,1');
+            Route::post('sms-otp/verify', SmsOtpVerifyController::class)->middleware('throttle:60,1');
+        });
+    });
 
     // --- Monobank webhook (public, ECDSA signature verified inside provider) ---
     Route::post('webhooks/monobank', MonobankWebhookController::class);
@@ -114,6 +127,14 @@ Route::prefix('v1')->group(function () {
         Route::get('sites/{id}/script', [SiteController::class, 'script']);
         Route::put('sites/{siteId}/widgets/{productId}', [SiteController::class, 'updateWidget']);
         Route::get('widgets/{productSlug}/config-schema', [WidgetController::class, 'configSchema']);
+
+        Route::prefix('widgets/sms-otp')->group(function () {
+            Route::get('providers', [SmsOtpProviderController::class, 'index']);
+            Route::post('providers', [SmsOtpProviderController::class, 'store']);
+            Route::put('providers/{configId}', [SmsOtpProviderController::class, 'update']);
+            Route::delete('providers/{configId}', [SmsOtpProviderController::class, 'destroy']);
+            Route::post('providers/{configId}/test', [SmsOtpProviderController::class, 'test'])->middleware('throttle:3,60');
+        });
     });
 
     // --- Admin ---
