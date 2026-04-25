@@ -25,6 +25,15 @@ class OtpProviderConfig extends Model
     use HasFactory;
     use HasUuidV7;
 
+    protected $connection = 'pgsql_runtime';
+
+    protected static function newFactory(): OtpProviderConfigFactory
+    {
+        return OtpProviderConfigFactory::new();
+    }
+
+    protected $table = 'wgt_otp_provider_configs';
+
     /** @var list<string> */
     protected $fillable = [
         'site_id',

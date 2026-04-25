@@ -11,6 +11,10 @@ class SiteScriptBuild extends Model
 {
     public $timestamps = false;
 
+    protected $connection = 'pgsql_runtime';
+
+    protected $table = 'wgt_site_script_builds';
+
     /** @var list<string> */
     protected $fillable = [
         'site_script_id',

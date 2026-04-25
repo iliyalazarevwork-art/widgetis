@@ -168,7 +168,7 @@ class SmsOtpProviderControllerTest extends TestCase
             ->deleteJson("/api/v1/profile/widgets/sms-otp/providers/{$config->id}");
 
         $response->assertNoContent();
-        $this->assertDatabaseMissing('otp_provider_configs', ['id' => $config->id]);
+        $this->assertDatabaseMissing('wgt_otp_provider_configs', ['id' => $config->id], 'pgsql_runtime');
     }
 
     public function test_customer_cannot_delete_other_user_provider(): void

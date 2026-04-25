@@ -102,9 +102,19 @@ return [
         ],
 
         // Intentional mirror of pgsql — same physical DB, separate Eloquent connection.
-        // Future WidgetRuntime models declare `protected $connection = 'pgsql_runtime'`
+        // WidgetRuntime models declare `protected $connection = 'pgsql_runtime'`
         // so Eloquent will refuse cross-connection JOINs between Core and WidgetRuntime.
-        'pgsql_runtime' => [
+        //
+        // In tests (phpunit.xml sets DB_CONNECTION=sqlite, DB_DATABASE=:memory:),
+        // the driver becomes sqlite automatically and both connections share the same
+        // in-memory database, so RefreshDatabase covers all tables in one migrate:fresh.
+        'pgsql_runtime' => env('DB_CONNECTION', 'pgsql') === 'sqlite' ? [
+            'driver' => 'sqlite',
+            'url' => env('DB_URL'),
+            'database' => env('DB_DATABASE', database_path('database.sqlite')),
+            'prefix' => '',
+            'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
+        ] : [
             'driver' => 'pgsql',
             'url' => env('DB_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),

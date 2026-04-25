@@ -66,7 +66,7 @@ class SiteIdorTest extends TestCase
             ->deleteJson("/api/v1/profile/sites/{$aliceSite->id}")
             ->assertStatus(404);
 
-        $this->assertDatabaseHas('sites', ['id' => $aliceSite->id]);
+        $this->assertDatabaseHas('wgt_sites', ['id' => $aliceSite->id], 'pgsql_runtime');
     }
 
     public function test_customer_cannot_update_a_widget_on_another_customers_site(): void
@@ -92,10 +92,10 @@ class SiteIdorTest extends TestCase
         );
 
         // And Alice's site got no new widget rows as a side effect.
-        $this->assertDatabaseMissing('site_widgets', [
+        $this->assertDatabaseMissing('wgt_site_widgets', [
             'site_id' => $aliceSite->id,
             'product_id' => $product->id,
-        ]);
+        ], 'pgsql_runtime');
     }
 
     public function test_sites_index_only_returns_own_sites(): void

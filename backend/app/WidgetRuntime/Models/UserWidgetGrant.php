@@ -16,6 +16,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class UserWidgetGrant extends Model
 {
+    protected $connection = 'pgsql_runtime';
+
+    protected $table = 'wgt_user_widget_grants';
+
     /** @var list<string> */
     protected $fillable = [
         'user_id',

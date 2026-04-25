@@ -18,6 +18,10 @@ class DemoSession extends Model
     /** Characters without ambiguous glyphs (no I, L, O, 0, 1) */
     private const CODE_CHARSET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 
+    protected $connection = 'pgsql_runtime';
+
+    protected $table = 'wgt_demo_sessions';
+
     /** @var list<string> */
     protected $fillable = [
         'code', 'domain', 'config', 'created_by', 'view_count', 'expires_at',

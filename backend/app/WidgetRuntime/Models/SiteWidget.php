@@ -13,6 +13,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class SiteWidget extends Model
 {
+    protected $connection = 'pgsql_runtime';
+
+    protected $table = 'wgt_site_widgets';
+
     /** @var list<string> */
     protected $fillable = [
         'site_id',

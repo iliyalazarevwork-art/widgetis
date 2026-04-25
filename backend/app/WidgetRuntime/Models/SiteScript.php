@@ -12,6 +12,10 @@ use Illuminate\Support\Str;
 
 class SiteScript extends Model
 {
+    protected $connection = 'pgsql_runtime';
+
+    protected $table = 'wgt_site_scripts';
+
     /** @var list<string> */
     protected $fillable = [
         'site_id',

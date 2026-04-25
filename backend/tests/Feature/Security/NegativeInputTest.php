@@ -81,7 +81,7 @@ class NegativeInputTest extends TestCase
             || str_starts_with($badUrl, 'data:')
             || str_starts_with($badUrl, 'file:')
         ) {
-            $this->assertDatabaseMissing('sites', ['user_id' => $user->id]);
+            $this->assertDatabaseMissing('wgt_sites', ['user_id' => $user->id], 'pgsql_runtime');
         }
     }
 

@@ -11,6 +11,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Review extends Model
 {
+    protected $connection = 'pgsql_runtime';
+
+    protected $table = 'wgt_reviews';
+
     /** @var list<string> */
     protected $fillable = ['user_id', 'rating', 'title', 'body', 'status'];
 

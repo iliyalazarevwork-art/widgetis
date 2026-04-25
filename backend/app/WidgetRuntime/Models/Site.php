@@ -21,6 +21,15 @@ class Site extends Model
     use HasFactory;
     use HasUuidV7;
 
+    protected $connection = 'pgsql_runtime';
+
+    protected static function newFactory(): SiteFactory
+    {
+        return SiteFactory::new();
+    }
+
+    protected $table = 'wgt_sites';
+
     /** @var list<string> */
     protected $fillable = [
         'user_id',

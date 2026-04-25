@@ -28,6 +28,15 @@ class OtpRequest extends Model
     use HasFactory;
     use HasUuidV7;
 
+    protected $connection = 'pgsql_runtime';
+
+    protected static function newFactory(): OtpRequestFactory
+    {
+        return OtpRequestFactory::new();
+    }
+
+    protected $table = 'wgt_otp_requests';
+
     /** @var list<string> */
     protected $fillable = [
         'site_id',

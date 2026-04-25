@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\BaseController;
 use App\Models\ManagerRequest;
 use App\Models\Product;
 use App\Services\User\UserDeletionService;
+use App\WidgetRuntime\Models\Site;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -154,7 +155,7 @@ class ProfileController extends BaseController
     {
         $request->validate([
             'type' => ['required', 'string', 'in:install_help,general'],
-            'site_id' => ['nullable', 'integer', 'exists:sites,id'],
+            'site_id' => ['nullable', 'integer', Rule::exists(Site::class, 'id')],
             'messenger' => ['nullable', 'string', 'in:telegram,viber,whatsapp'],
             'phone' => ['required_if:type,install_help', 'nullable', 'string', 'max:20'],
             'name' => ['nullable', 'string', 'max:100'],
