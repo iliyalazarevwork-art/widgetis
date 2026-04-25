@@ -6,7 +6,9 @@ namespace App\Models;
 
 use App\Enums\SiteStatus;
 use App\Models\Concerns\HasUuidV7;
+use Database\Factories\SiteFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -14,13 +16,17 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Site extends Model
 {
+    /** @use HasFactory<SiteFactory> */
+    use HasFactory;
     use HasUuidV7;
 
     /** @var list<string> */
     protected $fillable = [
         'user_id',
+        'site_key',
         'name',
         'domain',
+        'allowed_origins',
         'url',
         'platform',
         'status',
@@ -41,6 +47,7 @@ class Site extends Model
             'connected_at' => 'datetime',
             'deactivated_at' => 'datetime',
             'status' => SiteStatus::class,
+            'allowed_origins' => 'array',
         ];
     }
 
@@ -66,6 +73,14 @@ class Site extends Model
     public function widgets(): HasMany
     {
         return $this->hasMany(SiteWidget::class);
+    }
+
+    /**
+     * @return HasMany<OtpProviderConfig, $this>
+     */
+    public function otpProviderConfigs(): HasMany
+    {
+        return $this->hasMany(OtpProviderConfig::class);
     }
 
     /**
