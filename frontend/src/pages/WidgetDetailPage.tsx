@@ -13,7 +13,8 @@ import {
   X,
 } from 'lucide-react'
 import type { PlanDef } from '../data/plans'
-import { WidgetIcon, WIDGET_ICON_MAP } from '../components/WidgetIcon'
+import { WidgetIcon } from '../components/WidgetIcon'
+import { WIDGET_ICON_MAP } from '../components/widgetIconMap'
 import { Wrench } from 'lucide-react'
 import { PREVIEW_MAP } from '../components/WidgetPreviews'
 import { WidgetCard } from '../components/WidgetCard'

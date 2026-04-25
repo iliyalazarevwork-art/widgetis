@@ -42,6 +42,6 @@ backups/
 backend/.env.production
 backend/.env.prod.plain
 certbot/
-
+telegram-export
 # SOPS encrypted secrets ARE committed:
 # backend/.env.production.enc  ← tracked in git (encrypted)

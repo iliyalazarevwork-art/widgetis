@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Read(//Users/iliya/.claude/**)"
+      "Read(//Users/iliya/.claude/**)",
+      "Read(//private/tmp/xlsx_check/**)",
+      "Bash(rm -rf *)",
+      "Bash(unzip -q -o /Users/iliya/Documents/work/phpStormProjects/iliya/widgetis/.xxx/budget_2025.xlsx)"
     ]
   },
   "hooks": {

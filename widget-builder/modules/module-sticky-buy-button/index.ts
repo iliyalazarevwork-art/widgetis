@@ -3,7 +3,7 @@ import {
   stickyBuyButtonI18nSchema,
   type StickyBuyButtonConfig,
 } from './schema';
-import { getLanguage } from '@laxarevii/core';
+import { getLanguage, isHoroshopProductPage } from '@laxarevii/core';
 
 const WIDGET_ID = 'wdg-sticky-buy';
 const SPACER_ID = 'wdg-sticky-buy-spacer';
@@ -139,6 +139,10 @@ export default function stickyBuyButton(
   function mount(): void {
     console.log(`[wdg-sticky-buy] mount(): isMobile=${isMobile()} (width=${window.innerWidth})`);
     if (!isMobile()) return;
+    if (!isHoroshopProductPage()) {
+      console.warn('[wdg-sticky-buy] skipped — not a product page');
+      return;
+    }
     if (document.getElementById(WIDGET_ID)) return;
 
     const original = findOriginal();

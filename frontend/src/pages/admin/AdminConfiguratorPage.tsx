@@ -863,7 +863,8 @@ function GenericConfigForm({ config, schema, onChange }: {
   const numbers: [string, Record<string, unknown>][] = []
   const strings: [string, Record<string, unknown>][] = []
   const objects: [string, Record<string, unknown>][] = []
-  const arrays: [string, Record<string, unknown>][] = []
+  const arraysOfObjects: [string, Record<string, unknown>][] = []
+  const arraysOfStrings: [string, Record<string, unknown>][] = []
 
   for (const [key, prop] of Object.entries(properties)) {
     if (key === 'enabled') continue
@@ -872,8 +873,11 @@ function GenericConfigForm({ config, schema, onChange }: {
     else if (t === 'number') numbers.push([key, prop])
     else if (t === 'string') strings.push([key, prop])
     else if (t === 'object') objects.push([key, prop])
-    else if (t === 'array') arrays.push([key, prop])
-    else if (isOptionalObject(prop)) objects.push([key, prop])
+    else if (t === 'array') {
+      const items = prop.items as Record<string, unknown> | undefined
+      if (items && (items.type as string) === 'string') arraysOfStrings.push([key, prop])
+      else arraysOfObjects.push([key, prop])
+    } else if (isOptionalObject(prop)) objects.push([key, prop])
   }
 
   return (
@@ -947,10 +951,17 @@ function GenericConfigForm({ config, schema, onChange }: {
       })}
 
       {/* Arrays of objects */}
-      {arrays.map(([key, prop]) => {
+      {arraysOfObjects.map(([key, prop]) => {
         const items = (config[key] ?? []) as Record<string, unknown>[]
         const itemSchema = prop.items as Record<string, unknown> | undefined
         return <ArrayOfObjectsField key={key} keyName={key} items={items} itemSchema={itemSchema} parentPath={key} onChange={onChange} />
+      })}
+
+      {/* Arrays of strings */}
+      {arraysOfStrings.map(([key, prop]) => {
+        const items = (config[key] ?? []) as string[]
+        const itemSchema = prop.items as Record<string, unknown> | undefined
+        return <ArrayOfStringsField key={key} keyName={key} items={items} itemSchema={itemSchema} parentPath={key} onChange={onChange} />
       })}
     </>
   )
@@ -1091,6 +1102,42 @@ function ArrayOfObjectsField({ keyName, items, itemSchema, parentPath, onChange 
                 </div>
               )
             }
+            if ((fp.type as string) === 'array') {
+              const subItems = (fp.items as Record<string, unknown> | undefined)
+              const subType = subItems?.type as string | undefined
+              if (subType === 'string') {
+                const arr = Array.isArray(fVal) ? (fVal as string[]) : []
+                return (
+                  <ArrayOfStringsField
+                    key={fk}
+                    keyName={fk}
+                    items={arr}
+                    itemSchema={subItems}
+                    parentPath={`${parentPath}.${idx}.${fk}`}
+                    onChange={(_p, v) => updateField(idx, fk, v)}
+                  />
+                )
+              }
+            }
+            if ((fp.type as string) === 'boolean') {
+              return (
+                <div key={fk} className="cfg-m__toggle-row" style={{ marginTop: 6 }}>
+                  <span>{prettify(fk)}</span>
+                  <ToggleButton checked={(fVal ?? fp.default ?? false) as boolean} onChange={(v) => updateField(idx, fk, v)} />
+                </div>
+              )
+            }
+            if ((fp.type as string) === 'number') {
+              return (
+                <div key={fk} className="cfg-m__field">
+                  <div className="cfg-m__field-label">{prettify(fk)}</div>
+                  <input type="number" className="cfg-m__num-input"
+                    value={(fVal ?? fp.default ?? 0) as number}
+                    min={fp.minimum as number | undefined}
+                    onChange={(e) => updateField(idx, fk, Number(e.target.value))} />
+                </div>
+              )
+            }
             return (
               <div key={fk} className="cfg-m__field">
                 <div className="cfg-m__field-label">{prettify(fk)}</div>
@@ -1099,6 +1146,56 @@ function ArrayOfObjectsField({ keyName, items, itemSchema, parentPath, onChange 
               </div>
             )
           })}
+        </div>
+      ))}
+      <button type="button" className="cfg-m__add-btn" onClick={addItem}>
+        <Plus size={12} strokeWidth={2.5} /> Додати
+      </button>
+    </div>
+  )
+}
+
+// ─── Array of strings ─────────────────────────────────────────────────────────
+
+function ArrayOfStringsField({ keyName, items, itemSchema, parentPath, onChange }: {
+  keyName: string
+  items: string[]
+  itemSchema: Record<string, unknown> | undefined
+  parentPath: string
+  onChange: (path: string, val: unknown) => void
+}) {
+  const enumOpts = Array.isArray(itemSchema?.enum) ? (itemSchema!.enum as string[]) : null
+
+  function removeItem(idx: number) {
+    onChange(parentPath, items.filter((_, i) => i !== idx))
+  }
+
+  function addItem() {
+    const def = (itemSchema?.default as string | undefined) ?? (enumOpts ? enumOpts[0] : '')
+    onChange(parentPath, [...items, def])
+  }
+
+  function updateItem(idx: number, val: string) {
+    onChange(parentPath, items.map((s, i) => (i === idx ? val : s)))
+  }
+
+  return (
+    <div className="cfg-m__field">
+      <div className="cfg-m__field-label">{prettify(keyName)}</div>
+      {items.map((item, idx) => (
+        <div key={idx} className="cfg-m__array-card">
+          <div className="cfg-m__array-card-head">
+            <span>#{idx + 1}</span>
+            <button type="button" className="cfg-m__array-card-rm" onClick={() => removeItem(idx)}>×</button>
+          </div>
+          {enumOpts ? (
+            <select className="cfg-m__select" value={item} onChange={(e) => updateItem(idx, e.target.value)}>
+              {enumOpts.map(o => <option key={o} value={o}>{o}</option>)}
+            </select>
+          ) : (
+            <input type="text" className="cfg-m__item-input" style={{ width: '100%' }}
+              value={item} onChange={(e) => updateItem(idx, e.target.value)} />
+          )}
         </div>
       ))}
       <button type="button" className="cfg-m__add-btn" onClick={addItem}>

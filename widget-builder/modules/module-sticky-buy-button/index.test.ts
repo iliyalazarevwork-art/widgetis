@@ -1,7 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import stickyBuyButton from './index';
 
-vi.mock('@laxarevii/core', () => ({ getLanguage: () => 'ua' }));
+let productPageOverride: boolean | null = null;
+vi.mock('@laxarevii/core', () => ({
+  getLanguage: () => 'ua',
+  isHoroshopProductPage: () =>
+    productPageOverride ?? document.querySelector('.product-header, .j-product-block') !== null,
+}));
 
 const WIDGET_ID = 'wdg-sticky-buy';
 const HIDDEN = 'wdg-sbuy--hidden';
@@ -36,12 +41,20 @@ function addBuyButton(): HTMLElement {
   return btn;
 }
 
+function addProductMarker(): void {
+  const m = document.createElement('div');
+  m.className = 'product-header';
+  document.body.appendChild(m);
+}
+
 describe('stickyBuyButton', () => {
   beforeEach(() => {
     setViewport(375);
     setScrollY(0);
     document.body.innerHTML = '';
     document.head.innerHTML = '';
+    productPageOverride = null;
+    addProductMarker();
   });
 
   afterEach(() => {
@@ -162,6 +175,17 @@ describe('stickyBuyButton', () => {
 
     expect(clickSpy).toHaveBeenCalledOnce();
 
+    cleanup?.();
+  });
+
+  it('не монтирует панель на не-товарной странице (нет product-header / j-product-block)', () => {
+    document.body.innerHTML = '';
+    productPageOverride = false;
+    addBuyButton();
+
+    const cleanup = stickyBuyButton(config, i18n);
+
+    expect(document.getElementById(WIDGET_ID)).toBeNull();
     cleanup?.();
   });
 });

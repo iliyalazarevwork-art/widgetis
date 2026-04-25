@@ -78,8 +78,12 @@ export function Header() {
   }, [])
 
   useEffect(() => {
-    setMenuOpen(false)
-    setDropdownOpen(false)
+    const timeout = window.setTimeout(() => {
+      setMenuOpen(false)
+      setDropdownOpen(false)
+    }, 0)
+
+    return () => window.clearTimeout(timeout)
   }, [location.pathname])
 
   useEffect(() => {

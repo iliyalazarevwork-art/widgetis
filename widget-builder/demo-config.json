@@ -1,6 +1,56 @@
 {
   "$comment": "Hand-editable config for the public demo bundle. Edit this file, then run `task build:demo` to regenerate services/site-proxy/public/demo-bundle.js. Only modules that are platform-agnostic belong here — others (cart-goal, min-order, one-plus-one, social-proof, product-video-preview) depend on specific DOM/JS conventions (e.g. Horoshop) and won't render on an arbitrary shop.",
   "modules": {
+    "module-photo-reviews": {
+      "config": {
+        "enabled": true,
+        "showOnMobile": true,
+        "showOnDesktop": true,
+        "reviewSelector": ".review-item",
+        "bodySelector": ".review-item__body",
+        "authorSelector": ".review-item__name",
+        "aspectRatio": "4 / 5",
+        "borderRadius": 14,
+        "openInLightbox": true,
+        "fallbackUrls": [
+          "https://benihome.com.ua/content/images/36/copy_postilna-bilyzna-satyn-z-riushamy-ta-kantom-beni-86498242590995_+da0bf3dc68.jpg",
+          "https://benihome.com.ua/content/images/36/copy_postilna-bilyzna-satyn-z-riushamy-ta-kantom-beni-60046517875129_+66b4bd0aee.jpg",
+          "https://lzrv.agency/pila.mp4"
+        ],
+        "photos": [
+          {
+            "author": "Любов Олександрівна",
+            "alt": "Фото від Любов Олександрівна",
+            "urls": [
+              "https://benihome.com.ua/content/images/43/666x1000l80tr20/copy_prostyradlo-z-tkanyny-satyn-blush-petal-89282711835894.webp",
+              "https://benihome.com.ua/content/images/36/copy_postilna-bilyzna-satyn-z-riushamy-ta-kantom-beni-16160332287616_+c4872a18b5.jpg",
+              "https://benihome.com.ua/content/images/36/copy_postilna-bilyzna-satyn-z-riushamy-ta-kantom-beni-96920843064828_+883a493b90.jpg",
+              "https://lzrv.agency/pila.mp4"
+            ]
+          }
+        ]
+      },
+      "i18n": {
+        "ua": {
+          "viewPhotoLabel": "Фото від клієнта",
+          "closeLabel": "Закрити",
+          "prevLabel": "Попереднє",
+          "nextLabel": "Наступне"
+        },
+        "ru": {
+          "viewPhotoLabel": "Фото от клиента",
+          "closeLabel": "Закрыть",
+          "prevLabel": "Предыдущее",
+          "nextLabel": "Следующее"
+        },
+        "en": {
+          "viewPhotoLabel": "Customer photo",
+          "closeLabel": "Close",
+          "prevLabel": "Previous",
+          "nextLabel": "Next"
+        }
+      }
+    },
     "module-marquee": {
       "config": {
         "enabled": true,

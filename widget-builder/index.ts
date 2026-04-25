@@ -26,6 +26,7 @@ const MODULES_ORDER = [
   'module-product-video-preview',
   'module-social-proof',
   'module-one-plus-one',
+  'module-photo-reviews',
 ];
 
 export function getAvailableModules(): string[] {

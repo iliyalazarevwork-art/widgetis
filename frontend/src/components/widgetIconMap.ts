@@ -1,0 +1,38 @@
+import {
+  Megaphone,
+  Package,
+  ShoppingCart,
+  Snowflake,
+  Truck,
+  Eye,
+  Coins,
+  Gift,
+  Star,
+  Hourglass,
+  Camera,
+  Bell,
+  Disc3,
+  Puzzle,
+  BarChart3,
+  Wrench,
+} from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
+
+export const WIDGET_ICON_MAP: Record<string, LucideIcon> = {
+  megaphone: Megaphone,
+  package: Package,
+  cart: ShoppingCart,
+  snowflake: Snowflake,
+  truck: Truck,
+  eye: Eye,
+  coins: Coins,
+  gift: Gift,
+  star: Star,
+  hourglass: Hourglass,
+  camera: Camera,
+  bell: Bell,
+  wheel: Disc3,
+  puzzle: Puzzle,
+  'bar-chart': BarChart3,
+  wrench: Wrench,
+}

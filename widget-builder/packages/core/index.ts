@@ -87,3 +87,26 @@ export function resolveCurrency(currencyFromCart?: string): CurrencyContext {
   const symbol = global.symbol ?? getCurrencySymbol(code);
   return { code, symbol };
 }
+
+// ---------------------------------------------------------------------------
+// Horoshop page-type detection
+// ---------------------------------------------------------------------------
+
+const HOROSHOP_PRODUCT_PAGE_SELECTOR = [
+  '.product-header',
+  '.product__section--header',
+  '.j-product-block',
+  '.j-product-description',
+].join(',');
+
+/**
+ * Detects whether the current page is a Horoshop product detail page.
+ *
+ * Returns true only when the DOM contains class signatures that Horoshop
+ * renders on product pages and never on category, home, contacts, blog, or
+ * static pages. Same for desktop and mobile — Horoshop ships responsive CSS,
+ * not different markup.
+ */
+export function isHoroshopProductPage(doc: Document = document): boolean {
+  return doc.querySelector(HOROSHOP_PRODUCT_PAGE_SELECTOR) !== null;
+}
