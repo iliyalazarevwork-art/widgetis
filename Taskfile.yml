@@ -102,6 +102,12 @@ tasks:
     cmds:
       - npm run e2e
 
+  test:widgets:e2e:
+    desc: "Прогнати e2e-тести модулів проти site-proxy  ·  task test:widgets:e2e"
+    cmds:
+      - cd widget-builder && pnpm exec playwright install chromium --with-deps 2>&1 | tail -3
+      - cd widget-builder && pnpm exec playwright test --config tests/e2e/playwright.config.ts
+
   test:smoke:prod:
     desc: "Прод-смоук Playwright против https://widgetis.com (после деплоя)"
     dir: frontend

@@ -7,6 +7,7 @@ import {
 import { getLanguage, isHoroshopProductPage } from '@laxarevii/core';
 import GLightbox from 'glightbox';
 import glightboxCss from 'glightbox/dist/css/glightbox.min.css?inline';
+import { startUpload, type UploadSettings } from './upload';
 
 const STYLE_ID = 'hs-photo-reviews-styles';
 const GLB_STYLE_ID = 'hs-photo-reviews-glb-styles';
@@ -24,6 +25,15 @@ type I18n = {
   closeLabel: string;
   prevLabel: string;
   nextLabel: string;
+  addMediaLabel: string;
+  mediaHint: string;
+  errPhotoMime: string;
+  errPhotoSize: string;
+  errPhotoCount: string;
+  errVideoMime: string;
+  errVideoSize: string;
+  errMixed: string;
+  removeLabel: string;
 };
 
 type ResolvedSettings = PhotoReviewsConfig & I18n;
@@ -404,21 +414,38 @@ export default function photoReviews(
     console.warn('[widgetality] photo-reviews: ⚠️ disabled');
     return;
   }
-  if (!isHoroshopProductPage()) {
-    console.warn('[widgetality] photo-reviews: ⚠️ skipped — not a product page');
-    return;
-  }
-  console.log('[widgetality] photo-reviews: ✅ activated');
 
   const lang = getLanguage();
   const i18n = i18nMap[lang] ?? i18nMap.ua ?? i18nMap.ru ?? Object.values(i18nMap)[0]!;
 
-  settings = { ...config, ...i18n };
+  const resolvedSettings: ResolvedSettings = { ...config, ...i18n };
+
+  // Upload runs regardless of product-page detection — the form selector is
+  // its own strong-enough heuristic, and popup themes are unreliable to detect.
+  let stopUpload: (() => void) | null = null;
+  if (config.enableUpload) {
+    stopUpload = startUpload(resolvedSettings as UploadSettings);
+  }
+
+  // Render (gallery) is gated on product-page detection.
+  if (!isHoroshopProductPage()) {
+    console.warn('[widgetality] photo-reviews: ⚠️ render skipped — not a product page');
+    // Still return cleanup so upload observer is disconnected.
+    return () => {
+      stopUpload?.();
+    };
+  }
+
+  console.log('[widgetality] photo-reviews: ✅ activated');
+
+  settings = resolvedSettings;
   ensureStyles(settings);
   ensureObserver(settings);
   processReviews(settings);
 
   return () => {
+    stopUpload?.();
+
     if (observer) {
       observer.disconnect();
       observer = null;

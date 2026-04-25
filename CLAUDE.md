@@ -273,6 +273,30 @@ Use standard Laravel logger. Separate channels for auth and payments:
 | PostgreSQL | 15 |
 | Redis | 7 |
 
+## Widget modules — where they live
+
+**All client-side widget modules live under `widget-builder/modules/module-{name}/`.**
+
+This is a pnpm workspace (`widget-builder/pnpm-workspace.yaml`); each module is its own package (`@laxarevii/module-{name}`). The widget-builder service compiles them on demand for each merchant and is consumed by the backend via `WidgetBuilderController` (`GET /api/v1/admin/widget-builder/modules`, `POST /api/v1/admin/widget-builder/build`).
+
+**Do NOT** place widget code anywhere else — not in `services/`, not in `frontend/`, not in `backend/public/`. Putting it elsewhere breaks the build pipeline and the per-site config flow.
+
+**Module layout (canonical):**
+```
+widget-builder/modules/module-{name}/
+├── package.json     # name: "@laxarevii/module-{name}", dep: "@laxarevii/core: workspace:*"
+├── schema.ts        # Zod schema for config + i18n; exports {Name}Config type
+├── index.ts         # export default function {name}(config, i18n): void | (() => void)
+├── index.test.ts    # Vitest
+└── (optional) styles.ts, dom.ts, storage.ts, animation.ts, etc.
+```
+
+**Per-site configuration** lives in `widget-builder/sites/{site}/modules/module-{name}/{config,i18n}.ts`.
+
+**Existing modules** (April 2026): `module-cart-goal`, `module-delivery-date`, `module-marquee`, `module-min-order`, `module-one-plus-one`, `module-photo-reviews`, `module-product-video-preview`, `module-sms-otp-checkout`, `module-social-proof`, `module-sticky-buy-button`.
+
+**To add a new module** see `widget-builder/modules/README.md`.
+
 ## Site-proxy service
 
 `services/site-proxy/server.mjs` — Node.js HTTP proxy that fetches any external website and serves it through the Widgetis backend. Used to preview a customer's Horoshop store with demo widgets injected inline.

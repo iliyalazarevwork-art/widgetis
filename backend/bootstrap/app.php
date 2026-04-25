@@ -46,8 +46,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->alias([
-            'role' => RequireRole::class,
-            'widget.session' => \App\Http\Middleware\VerifyWidgetSession::class,
+            'role'                 => RequireRole::class,
+            'widget.session'       => \App\Http\Middleware\VerifyWidgetSession::class,
+            'resolve.site.origin'  => \App\WidgetRuntime\Http\Middleware\ResolveSiteFromOrigin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

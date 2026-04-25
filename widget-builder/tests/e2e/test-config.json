@@ -1,0 +1,252 @@
+{
+  "$comment": "Test-only config — all 10 modules enabled with minimal valid defaults. Used by global-setup.ts to build the demo bundle before the e2e suite runs.",
+  "modules": {
+    "module-marquee": {
+      "config": {
+        "enabled": true,
+        "speed": 80,
+        "height": 36,
+        "isFixed": true,
+        "mode": "shift",
+        "ttlHours": 0,
+        "colors": {
+          "desktop": { "backgroundColor": "#1e1b4b", "textColor": "#e0e7ff" },
+          "mobile":  { "backgroundColor": "#1e1b4b", "textColor": "#e0e7ff" }
+        }
+      },
+      "i18n": {
+        "ua": ["ТЕСТ — модуль marquee активовано", "Офіційний магазин"],
+        "en": ["TEST — marquee module activated", "Official store"]
+      }
+    },
+    "module-delivery-date": {
+      "config": {
+        "enabled": true,
+        "selectors": [
+          {
+            "selector": "#page > main > div > div.product__grid > div.product__column.product__column--right > div.product__block.product__block--orderBox.j-product-block > div > div.product-card.product-card--main > div",
+            "insert": "before"
+          },
+          {
+            "selector": "#main > div.wrapper > section > div > div.product__column.product__column--right.product__column--sticky > div > div:nth-child(1) > div > div:nth-child(5)",
+            "insert": "after"
+          },
+          {
+            "selector": ".j-product-block",
+            "insert": "before"
+          }
+        ],
+        "offsetDays": 3
+      },
+      "i18n": {
+        "ua": {
+          "prefix": "Очікувана доставка",
+          "tomorrow": "завтра",
+          "dayAfterTomorrow": "післязавтра",
+          "monday": "в понеділок",
+          "tuesday": "у вівторок",
+          "wednesday": "в середу",
+          "thursday": "в четвер",
+          "friday": "в п'ятницю",
+          "saturday": "в суботу",
+          "sunday": "в неділю"
+        }
+      }
+    },
+    "module-social-proof": {
+      "config": {
+        "enabled": true,
+        "selectors": [
+          {
+            "selector": "#page > main > div > div.product__grid > div.product__column.product__column--right > div.product__block.product__block--orderBox.j-product-block > div > div.product-card.product-card--main > div.product-card__body > div.product-card__price-box",
+            "insert": "after"
+          },
+          {
+            "selector": ".j-product-block",
+            "insert": "before"
+          }
+        ],
+        "minCount": 8,
+        "maxCount": 50,
+        "updateInterval": 45,
+        "showForOutOfStock": false,
+        "backgroundColor": "#4c1d95",
+        "textColor": "#ede9fe"
+      },
+      "i18n": {
+        "ua": { "label": "людей купили цей товар" }
+      }
+    },
+    "module-sticky-buy-button": {
+      "config": {
+        "enabled": true,
+        "buttonSelector": ".j-buy-button-add",
+        "mobileBreakpoint": 768,
+        "backgroundColor": "#5c1f2e",
+        "textColor": "#ffffff",
+        "borderRadius": "8px",
+        "zIndex": 200,
+        "bottomOffset": 0,
+        "safeAreaPadding": true
+      },
+      "i18n": {
+        "ua": { "buttonText": "Замовити" },
+        "ru": { "buttonText": "Заказать" },
+        "en": { "buttonText": "Order" }
+      }
+    },
+    "module-cart-goal": {
+      "config": {
+        "enabled": true,
+        "threshold": 500,
+        "minimum": 0,
+        "floatingWidget": true,
+        "background": "#172554",
+        "achievedBackground": "#14532d",
+        "textColor": "#bfdbfe",
+        "positionDesktop": { "right": 16, "bottom": 25 },
+        "positionMobile": { "left": 16, "bottom": 25 },
+        "shakeInterval": 3000,
+        "hideOnUtmSources": [],
+        "desktopIconOnly": false,
+        "zIndex": 999
+      },
+      "i18n": {
+        "ua": {
+          "text": "До безкоштовної доставки залишилось",
+          "achieved": "Вітаємо! Безкоштовна доставка!"
+        }
+      }
+    },
+    "module-min-order": {
+      "config": {
+        "enabled": true,
+        "threshold": 300,
+        "background": "#431407",
+        "achievedBackground": "#14532d",
+        "textColor": "#fed7aa",
+        "zIndex": 999,
+        "floatingWidget": true,
+        "positionDesktop": { "left": 16, "bottom": 65 },
+        "positionMobile": { "left": 16, "bottom": 65 },
+        "shakeInterval": 3000,
+        "desktopIconOnly": true
+      },
+      "i18n": {
+        "ua": {
+          "text": "До суми мінімального замовлення залишилось",
+          "achieved": "Мінімальну суму замовлення досягнуто!"
+        }
+      }
+    },
+    "module-one-plus-one": {
+      "config": {
+        "enabled": true,
+        "apiUrl": "https://widgetality.com",
+        "site": "demo"
+      },
+      "i18n": {
+        "ua": {
+          "badge": "1+1=3",
+          "tooltip": "Найдешевший товар у кошику — за 1 грн!"
+        }
+      }
+    },
+    "module-photo-reviews": {
+      "config": {
+        "enabled": true,
+        "uploadApiUrl": "http://localhost:9001/api/v1/widget/reviews",
+        "showOnMobile": true,
+        "showOnDesktop": true,
+        "reviewSelector": ".review-item",
+        "bodySelector": ".review-item__body",
+        "authorSelector": ".review-item__name",
+        "aspectRatio": "4 / 5",
+        "borderRadius": 14,
+        "openInLightbox": true,
+        "fallbackUrls": [
+          "https://benihome.com.ua/content/images/36/copy_postilna-bilyzna-satyn-z-riushamy-ta-kantom-beni-86498242590995_+da0bf3dc68.jpg"
+        ],
+        "photos": []
+      },
+      "i18n": {
+        "ua": {
+          "viewPhotoLabel": "Фото від клієнта",
+          "closeLabel": "Закрити",
+          "prevLabel": "Попереднє",
+          "nextLabel": "Наступне"
+        }
+      }
+    },
+    "module-product-video-preview": {
+      "config": {
+        "enabled": true,
+        "testVideoUrl": "https://lzrv.agency/pila.mp4",
+        "mp4Selector": "a[href$=\".mp4\"]",
+        "desktopSize": 180,
+        "mobileSize": 160,
+        "desktopMinimizedSize": 140,
+        "mobileMinimizedSize": 120,
+        "insetDesktop": 30,
+        "insetMobile": 15,
+        "borderColor": "#7c3aed",
+        "observeSpa": true,
+        "showOnMobile": true,
+        "showOnDesktop": true
+      },
+      "i18n": {
+        "ua": {
+          "tooltipText": "Відео товару",
+          "actionButtonText": "Дивитись відео",
+          "sizeGuideText": "",
+          "closeLabel": "Закрити"
+        }
+      }
+    },
+    "module-sms-otp-checkout": {
+      "config": {
+        "enabled": true,
+        "apiBaseUrl": "https://api.widgetis.com/api/v1",
+        "siteKey": "demo",
+        "triggerSources": ["all"],
+        "phoneInputSelector": "input[name*=\"phone\"], .j-phone-masked, input[type=\"tel\"]",
+        "submitButtonSelector": ".checkout-form__submit, [type=\"submit\"], .j-checkout-submit",
+        "codeLength": 6,
+        "resendCooldownSec": 60,
+        "codeTtlSec": 300,
+        "colors": {
+          "gradientStart": "#3B82F6",
+          "gradientEnd": "#A855F7"
+        }
+      },
+      "i18n": {
+        "ua": {
+          "enterFullPhone": "Введіть номер телефону повністю",
+          "getConfirmationCode": "Отримати код підтвердження",
+          "enterSmsCode": "Введіть код із SMS",
+          "confirm": "Підтвердити",
+          "sendAgain": "Надіслати знову",
+          "waitVerifying": "Зачекайте {sec} сек...",
+          "verifying": "Перевіряємо...",
+          "phoneConfirmed": "Телефон підтверджено",
+          "invalidCode": "Невірний код. Спробуйте ще раз.",
+          "sendFailed": "Не вдалося надіслати SMS. Спробуйте пізніше.",
+          "tooManyAttempts": "Забагато спроб. Зачекайте та спробуйте знову."
+        },
+        "en": {
+          "enterFullPhone": "Enter your full phone number",
+          "getConfirmationCode": "Get confirmation code",
+          "enterSmsCode": "Enter SMS code",
+          "confirm": "Confirm",
+          "sendAgain": "Send again",
+          "waitVerifying": "Wait {sec} sec...",
+          "verifying": "Verifying...",
+          "phoneConfirmed": "Phone confirmed",
+          "invalidCode": "Invalid code. Please try again.",
+          "sendFailed": "Failed to send SMS. Please try later.",
+          "tooManyAttempts": "Too many attempts. Please wait and try again."
+        }
+      }
+    }
+  }
+}

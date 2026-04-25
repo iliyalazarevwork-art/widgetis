@@ -4,6 +4,7 @@ export default defineConfig({
   test: {
     environment: 'happy-dom',
     globals: false,
+    exclude: ['**/node_modules/**', '**/dist/**', '**/e2e.test.ts', '**/tests/e2e/**'],
   },
   resolve: {
     alias: {

@@ -11,6 +11,7 @@ use App\WidgetRuntime\Http\Controllers\Api\V1\Profile\WidgetController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Public\DemoSessionController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Widget\SmsOtpRequestController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Widget\SmsOtpVerifyController;
+use App\WidgetRuntime\Http\Controllers\Api\V1\Widget\WidgetReviewController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Widget\WidgetSessionController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,7 +29,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
 
-    // --- Public widget API (Origin-checked, returns short-lived JWT) ---
+    // --- Public widget API (short-lived JWT session) ---
     Route::prefix('widget')->group(function () {
         Route::post('session', WidgetSessionController::class)->middleware('throttle:30,1');
         Route::middleware('widget.session')->group(function () {
@@ -36,6 +37,17 @@ Route::prefix('v1')->group(function () {
             Route::post('sms-otp/verify', SmsOtpVerifyController::class)->middleware('throttle:60,1');
         });
     });
+
+    // --- Photo-reviews widget API (Origin-checked, no JWT) ---
+    Route::prefix('widget')
+        ->middleware([
+            'resolve.site.origin',
+            \App\WidgetRuntime\Http\Middleware\SetWidgetCorsHeaders::class,
+        ])
+        ->group(function () {
+            Route::post('reviews', [WidgetReviewController::class, 'store'])->middleware('throttle:30,60');
+            Route::get('reviews', [WidgetReviewController::class, 'index'])->middleware('throttle:60,1');
+        });
 
     // --- Demo sessions (public) ---
     Route::get('demo-sessions/{code}', [DemoSessionController::class, 'show'])->middleware('throttle:30,1');

@@ -6,6 +6,7 @@ namespace App\WidgetRuntime\Filament\Resources\Reviews\Tables;
 
 use App\Enums\ReviewStatus;
 use App\WidgetRuntime\Models\Review;
+use App\WidgetRuntime\Models\Site;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -20,16 +21,39 @@ class ReviewsTable
     {
         return $table
             ->columns([
+                TextColumn::make('site.name')
+                    ->label('Site')
+                    ->searchable()
+                    ->sortable()
+                    ->placeholder('—'),
+                TextColumn::make('external_product_id')
+                    ->label('Product ID')
+                    ->searchable()
+                    ->limit(20)
+                    ->placeholder('—'),
+                TextColumn::make('visitor_name')
+                    ->label('Visitor')
+                    ->searchable()
+                    ->limit(30)
+                    ->placeholder('—'),
                 TextColumn::make('user.name')
-                    ->searchable(),
+                    ->label('Registered User')
+                    ->searchable()
+                    ->placeholder('—'),
                 TextColumn::make('rating')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('title')
                     ->searchable()
-                    ->limit(50),
+                    ->limit(50)
+                    ->placeholder('—'),
                 TextColumn::make('status')
                     ->badge(),
+                TextColumn::make('media_count')
+                    ->label('Media')
+                    ->state(fn (Review $record): string => count((array) $record->media) . ' file(s)')
+                    ->badge()
+                    ->color(fn (Review $record): string => count((array) $record->media) > 0 ? 'success' : 'gray'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable(),
@@ -37,6 +61,10 @@ class ReviewsTable
             ->filters([
                 SelectFilter::make('status')
                     ->options(ReviewStatus::class),
+                SelectFilter::make('site_id')
+                    ->label('Site')
+                    ->options(fn (): array => Site::query()->pluck('name', 'id')->all())
+                    ->searchable(),
                 SelectFilter::make('rating')
                     ->options([
                         1 => '1',

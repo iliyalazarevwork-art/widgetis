@@ -73,6 +73,11 @@ services:
       - ./widget-builder/index.ts:/app/index.ts:ro
       - ./widget-builder/demo-config.json:/app/demo-config.json:ro
       - ./widget-builder/build-demo.ts:/app/build-demo.ts:ro
+    environment:
+      # Default URL for the photo-reviews upload endpoint, read by the module's
+      # schema getDefaultConfig() and exposed to the configurator via /modules.
+      # Local: http://localhost:9001/...  |  Prod: https://<домен>/...
+      UPLOAD_API_URL: ${UPLOAD_API_URL:-http://localhost:9001/api/v1/widget/reviews}
     networks:
       - widgetis
 
