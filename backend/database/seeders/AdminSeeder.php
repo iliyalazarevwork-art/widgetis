@@ -38,7 +38,7 @@ class AdminSeeder extends Seeder
 
         if (!is_string($configuredPassword) || trim($configuredPassword) === '') {
             $this->command?->warn(
-                'FILAMENT_ADMIN_PASSWORD is not set. Admin user was created with a random password; OTP login still works for admin role.',
+                'ADMIN_PASSWORD is not set. Admin user was created with a random password; OTP login still works for admin role.',
             );
         }
     }

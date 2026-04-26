@@ -130,7 +130,7 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
-    'admin_email' => env('FILAMENT_ADMIN_EMAIL'),
-    'admin_password' => env('FILAMENT_ADMIN_PASSWORD'),
+    'admin_email' => env('ADMIN_EMAIL'),
+    'admin_password' => env('ADMIN_PASSWORD'),
 
 ];

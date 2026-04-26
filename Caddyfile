@@ -49,32 +49,11 @@ api.widgetis.com {
 }
 
 # ─────────────────────────────────────────────────────────────
-# manage.widgetis.com — Filament admin panel
-# ─────────────────────────────────────────────────────────────
-# Same backend container, dedicated origin. Filament owns this
-# domain entirely — any URL it generates (Livewire updates,
-# CSS/JS/font assets, custom plugin paths) just works because
-# we are not routing by path anymore.
-manage.widgetis.com {
-    encode gzip zstd
-    request_body {
-        max_size 20MB
-    }
-
-    root * /var/www/html/public
-    php_fastcgi backend:9000 {
-        import zdd_http
-    }
-    file_server
-}
-
-# ─────────────────────────────────────────────────────────────
 # preview.widgetis.com — live-demo site proxy (Node)
 # ─────────────────────────────────────────────────────────────
 # Isolated origin: any XSS in the proxied third-party content
 # is sandboxed to this subdomain and CANNOT reach localStorage
-# tokens or session cookies on widgetis.com / api.widgetis.com /
-# manage.widgetis.com.
+# tokens or session cookies on widgetis.com / api.widgetis.com.
 preview.widgetis.com {
     encode gzip zstd
 

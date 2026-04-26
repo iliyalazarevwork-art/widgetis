@@ -91,6 +91,26 @@ test.describe('prod-smoke', () => {
   // returning real JSON, our routing has changed and this test will
   // catch it. Conversely, if api.widgetis.com starts returning HTML,
   // the JSON tests above will catch it. Belt + suspenders.
+  // Filament admin panel was removed — manage.* must not serve a working
+  // app anymore. Either Caddy returns no certificate (TLS handshake fails)
+  // or the request errors out at connect. Anything else means the panel
+  // is back up by accident.
+  test('manage subdomain is dead (Filament admin removed)', async ({ request }) => {
+    if (!hasSeparateApiHost()) test.skip(true, 'only meaningful in deployed env')
+
+    const manageUrl = hosts().manage + '/login'
+    let reachable = false
+    try {
+      const res = await request.get(manageUrl, { maxRedirects: 0, timeout: 5_000 })
+      // Caddy with no matching site_block returns 308 from default catch-all
+      // OR connection fails. Either way: NOT a 200 with HTML form.
+      reachable = res.status() < 400
+    } catch {
+      reachable = false
+    }
+    expect(reachable, `${manageUrl} answered like a live app — Filament must be fully removed`).toBe(false)
+  })
+
   test('SPA host does not pretend to serve the JSON API', async ({ request }) => {
     if (!hasSeparateApiHost()) test.skip(true, 'only meaningful when SPA + API are on different origins')
 

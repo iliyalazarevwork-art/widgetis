@@ -7,8 +7,6 @@ namespace App\Core\Models;
 use App\Enums\UserRole;
 use App\Shared\Concerns\HasUuidV7;
 use Database\Factories\UserFactory;
-use Filament\Models\Contracts\FilamentUser;
-use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -20,7 +18,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 /**
  * @property ?string $monobank_wallet_id
  */
-class User extends Authenticatable implements JWTSubject, FilamentUser
+class User extends Authenticatable implements JWTSubject
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory;
@@ -90,11 +88,6 @@ class User extends Authenticatable implements JWTSubject, FilamentUser
     public function getJWTCustomClaims(): array
     {
         return [];
-    }
-
-    public function canAccessPanel(Panel $panel): bool
-    {
-        return $this->isAdmin();
     }
 
     public function isAdmin(): bool
