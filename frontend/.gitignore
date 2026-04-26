@@ -4,3 +4,9 @@ dist
 *.local
 .logs
 *.log
+
+# Playwright artifacts (videos, traces, error-context.md, .last-run.json)
+test-results/
+playwright-report/
+blob-report/
+.playwright/
