@@ -4,7 +4,6 @@
     "module-photo-reviews": {
       "config": {
         "enabled": true,
-        "uploadApiUrl": "http://localhost:9001/api/v1/widget/reviews",
         "showOnMobile": true,
         "showOnDesktop": true,
         "reviewSelector": ".review-item",
