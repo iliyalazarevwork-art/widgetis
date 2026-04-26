@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
+import { hasSeparateApiHost, hosts } from './hosts'
 
 /**
  * Post-deploy smoke tests.
@@ -9,6 +10,25 @@ import { test, expect, type Page } from '@playwright/test'
  *
  * If any of these red — the deploy is broken.
  */
+
+// In production the SPA lives on widgetis.com and the JSON API on
+// api.widgetis.com — two separate origins. If we hit /api/v1/* relative
+// to the SPA host we get a 200 HTML shell (the SPA fallback) which
+// silently makes API tests pass without ever touching the API.
+//
+// Host map (SPA / API / preview / manage) is centralised in ./hosts.ts —
+// edit there to rebrand or point at staging.
+const apiUrl = (path: string) => hosts().api + path
+const spaUrl = (path: string) => hosts().spa + path
+
+async function expectJsonContentType(res: { headers(): Record<string, string>; status(): number }, path: string) {
+  const ct = res.headers()['content-type'] ?? ''
+  expect(
+    ct.toLowerCase(),
+    `${path} returned non-JSON content-type "${ct}" (status ${res.status()}). ` +
+      `If this is HTML, the request was almost certainly served by the SPA, not the API.`,
+  ).toContain('application/json')
+}
 
 // A page is "OK" if it didn't 5xx and the document actually parsed a body.
 // We also fail on JS errors that aren't third-party noise, so a silent white
@@ -34,14 +54,21 @@ async function assertPageOk(page: Page, path: string) {
 
 test.describe('prod-smoke', () => {
   // ── API health ────────────────────────────────────────────────────────────
-  test('GET /api/v1/health returns 200', async ({ request }) => {
-    const res = await request.get('/api/v1/health')
-    expect(res.status(), `expected 200 from /api/v1/health, got ${res.status()}`).toBe(200)
+  // Every assertion below also checks content-type=application/json. Without
+  // that check the SPA fallback (text/html, 200) would silently make these
+  // tests pass even when the API is misrouted or completely down.
+  test('GET /api/v1/health returns 200 JSON', async ({ request }) => {
+    const url = apiUrl('/api/v1/health')
+    const res = await request.get(url)
+    expect(res.status(), `expected 200 from ${url}, got ${res.status()}`).toBe(200)
+    await expectJsonContentType(res, url)
   })
 
   test('GET /api/v1/plans returns at least one plan', async ({ request }) => {
-    const res = await request.get('/api/v1/plans')
+    const url = apiUrl('/api/v1/plans')
+    const res = await request.get(url)
     expect(res.ok(), `plans endpoint failed: ${res.status()}`).toBe(true)
+    await expectJsonContentType(res, url)
 
     const body = await res.json()
     const data = body?.data ?? body
@@ -52,9 +79,28 @@ test.describe('prod-smoke', () => {
     expect(plans.length).toBeGreaterThan(0)
   })
 
-  test('GET /api/v1/settings returns 200', async ({ request }) => {
-    const res = await request.get('/api/v1/settings')
+  test('GET /api/v1/settings returns 200 JSON', async ({ request }) => {
+    const url = apiUrl('/api/v1/settings')
+    const res = await request.get(url)
     expect(res.status()).toBe(200)
+    await expectJsonContentType(res, url)
+  })
+
+  // Guard against the false-positive class that broke today's deploy:
+  // if /api/v1/* on the SPA host ever stops returning HTML and starts
+  // returning real JSON, our routing has changed and this test will
+  // catch it. Conversely, if api.widgetis.com starts returning HTML,
+  // the JSON tests above will catch it. Belt + suspenders.
+  test('SPA host does not pretend to serve the JSON API', async ({ request }) => {
+    if (!hasSeparateApiHost()) test.skip(true, 'only meaningful when SPA + API are on different origins')
+
+    const res = await request.get(spaUrl('/api/v1/plans'))
+    const ct = (res.headers()['content-type'] ?? '').toLowerCase()
+    expect(
+      ct.includes('text/html'),
+      `${hosts().spa}/api/v1/plans should fall through to the SPA shell (text/html), got "${ct}". ` +
+        `If this changed, the API may now be reachable via the SPA host — update routing assumptions.`,
+    ).toBe(true)
   })
 
   // ── Public pages: render + no JS errors ──────────────────────────────────
@@ -145,8 +191,9 @@ test.describe('prod-smoke', () => {
     // The whole point of this morning's incident: a missing morph map
     // returned 500 when this URL was hit. The endpoint should redirect
     // (302) when called without a valid grant — never crash.
-    const res = await request.get('/auth/google/callback', { maxRedirects: 0 })
-    expect(res.status(), `expected redirect, got ${res.status()}`).toBeGreaterThanOrEqual(300)
+    const url = apiUrl('/auth/google/callback')
+    const res = await request.get(url, { maxRedirects: 0 })
+    expect(res.status(), `expected redirect from ${url}, got ${res.status()}`).toBeGreaterThanOrEqual(300)
     expect(res.status()).toBeLessThan(500)
   })
 
