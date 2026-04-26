@@ -258,7 +258,8 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
       setPreviewLoaded(false)
       const frame = iframeRef.current
       if (!frame) return
-      frame.src = `/site/${parsed.host}${parsed.pathname}${parsed.search}`
+      const previewBase = (import.meta.env.VITE_PREVIEW_BASE_URL as string | undefined ?? '').replace(/\/+$/, '')
+      frame.src = `${previewBase}/site/${parsed.host}${parsed.pathname}${parsed.search}`
       frame.onload = () => {
         setPreviewLoading(false)
         setPreviewLoaded(true)

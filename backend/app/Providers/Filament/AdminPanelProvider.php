@@ -21,14 +21,26 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use LaraZeus\SpatieTranslatable\SpatieTranslatablePlugin;
 
-class AdminPanelProvider extends PanelProvider
+final class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        return $panel
+        // In production the panel lives on its own subdomain
+        // (manage.widgetis.com) at the URL root. In local dev FILAMENT_DOMAIN
+        // is unset and the panel is served under /manage on the API origin.
+        $domain = config('filament.domain');
+        $path = $domain ? '/' : 'manage';
+
+        $panel = $panel
             ->default()
             ->id('admin')
-            ->path('manage')
+            ->path($path);
+
+        if ($domain) {
+            $panel->domain($domain);
+        }
+
+        return $panel
             ->login()
             ->authGuard('web')
             ->colors([

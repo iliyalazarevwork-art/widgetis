@@ -10,86 +10,71 @@
     fail_duration   10s
 }
 
+# ─────────────────────────────────────────────────────────────
+# widgetis.com — Frontend SPA (React) ONLY
+# ─────────────────────────────────────────────────────────────
+# Every other concern (JSON API, admin panel, live-demo proxy)
+# lives on a dedicated subdomain. The catch-all here is safe
+# because no Laravel/Livewire/Filament route can ever land on
+# this origin. No path matchers needed.
 widgetis.com, www.widgetis.com {
+    encode gzip zstd
+    request_body { max_size 20MB }
 
+    reverse_proxy frontend:80 {
+        import zdd_http
+    }
+}
+
+# ─────────────────────────────────────────────────────────────
+# api.widgetis.com — Laravel JSON API + OAuth + payment callbacks
+# ─────────────────────────────────────────────────────────────
+# Only HTTP routes that do NOT belong to the Filament admin panel.
+# Everything is served by php-fpm via FastCGI; static `public/`
+# files (e.g. uploaded images returned via direct URL) are also
+# available since they live on the same volume.
+api.widgetis.com {
+    encode gzip zstd
+    request_body { max_size 20MB }
+
+    root * /var/www/html/public
+    php_fastcgi backend:9000 {
+        import zdd_http
+    }
+    file_server
+}
+
+# ─────────────────────────────────────────────────────────────
+# manage.widgetis.com — Filament admin panel
+# ─────────────────────────────────────────────────────────────
+# Same backend container, dedicated origin. Filament owns this
+# domain entirely — any URL it generates (Livewire updates,
+# CSS/JS/font assets, custom plugin paths) just works because
+# we are not routing by path anymore.
+manage.widgetis.com {
+    encode gzip zstd
+    request_body { max_size 20MB }
+
+    root * /var/www/html/public
+    php_fastcgi backend:9000 {
+        import zdd_http
+    }
+    file_server
+}
+
+# ─────────────────────────────────────────────────────────────
+# preview.widgetis.com — live-demo site proxy (Node)
+# ─────────────────────────────────────────────────────────────
+# Isolated origin: any XSS in the proxied third-party content
+# is sandboxed to this subdomain and CANNOT reach localStorage
+# tokens or session cookies on widgetis.com / api.widgetis.com /
+# manage.widgetis.com.
+preview.widgetis.com {
     encode gzip zstd
 
-    request_body {
-        max_size 20MB
-    }
-
-    # ── Backend (Laravel via php-fpm over FastCGI) ──────────
-    # Production backend runs php-fpm in the `backend` container
-    # and Caddy serves static files from /var/www/html/public
-    # (mounted read-only from host ./backend via docker-compose).
-    @backend {
-        path /api/* /auth/* /liqpay/* /manage* /livewire/* /css/filament/* /js/filament/*
-    }
-    handle @backend {
-        root * /var/www/html/public
-        php_fastcgi backend:9000 {
-            import zdd_http
-        }
-        file_server
-    }
-
-    # ── Live-demo site proxy (Node service, not Laravel) ─────
-    # The dedicated site-proxy container handles iframe previews
-    # of remote shops with an in-memory LRU cache, per-visitor
-    # cookie jars and persistent keep-alive to upstream.
-    handle /site/* {
-        reverse_proxy site-proxy:3100 {
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-            import zdd_http
-        }
-    }
-    handle /content/* {
-        reverse_proxy site-proxy:3100 {
-            import zdd_http
-        }
-    }
-    handle /frontend/* {
-        reverse_proxy site-proxy:3100 {
-            import zdd_http
-        }
-    }
-    handle /bundles/* {
-        reverse_proxy site-proxy:3100 {
-            import zdd_http
-        }
-    }
-    handle /_widget/* {
-        reverse_proxy site-proxy:3100 {
-            import zdd_http
-        }
-    }
-    handle /seen_items/* {
-        reverse_proxy site-proxy:3100 {
-            import zdd_http
-        }
-    }
-
-    # ── Localized routes (/uk/_widget/, /en/_widget/, etc.) ───
-    @localized path_regexp ^/[a-z]{2}(-[A-Z]{2})?/(_widget|seen_items)
-    handle @localized {
-        reverse_proxy site-proxy:3100 {
-            import zdd_http
-        }
-    }
-
-    # ── Widget Builder (INTERNAL ONLY) ────────────────────────
-    # widget-builder:3200 is reachable only inside the Docker network.
-    # Admin UI must call /api/v1/admin/widget-builder/* instead —
-    # those routes are proxied by the Laravel backend under
-    # auth:api + role:admin. Never expose /build, /deploy, /modules,
-    # /build-demo through Caddy.
-
-    # ── Frontend SPA (catch-all) ──────────────────────────────
-    # Handles: /, /admin/*, /cabinet/*, /login, /pricing, etc.
-    handle {
-        reverse_proxy frontend:80 {
-            import zdd_http
-        }
+    reverse_proxy site-proxy:3100 {
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        import zdd_http
     }
 }

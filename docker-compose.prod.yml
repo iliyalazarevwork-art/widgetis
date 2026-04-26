@@ -8,10 +8,11 @@ services:
       - "443:443/udp"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      # Backend code mounted read-only so Caddy can serve Laravel
-      # static assets (public/) and route PHP requests to php-fpm
-      # via FastCGI. Path must match backend container WORKDIR.
-      - ./backend:/var/www/html:ro
+      # public/ comes from a named volume populated by the backend
+      # container on startup (see backend.command). Caddy serves
+      # Laravel static assets from here and proxies PHP via FastCGI.
+      # Path must match backend container WORKDIR + /public.
+      - backend_public:/var/www/html/public:ro
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
@@ -33,7 +34,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_BASE_URL: /api/v1
+        VITE_API_BASE_URL: https://api.widgetis.com/api/v1
+        VITE_PREVIEW_BASE_URL: https://preview.widgetis.com
     restart: always
     stop_grace_period: 30s
     healthcheck:
@@ -50,11 +52,16 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    command: ["sh", "-c", "php artisan config:cache && php artisan route:cache && php artisan view:cache && exec php-fpm -F"]
+    # Refresh public/ from the image-baked template on every start, then
+    # warm up Laravel caches and exec php-fpm. The cp keeps backend_public
+    # in sync with the latest image (named volumes don't auto-update).
+    command: ["sh", "-c", "cp -a /opt/public-template/. /var/www/html/public/ && php artisan config:cache && php artisan route:cache && php artisan view:cache && exec php-fpm -F"]
     expose:
       - "9000"
     env_file:
       - ./backend/.env
+    volumes:
+      - backend_public:/var/www/html/public
     depends_on:
       postgres:
         condition: service_healthy
@@ -179,6 +186,7 @@ volumes:
   redisdata:
   caddy_data:
   caddy_config:
+  backend_public:
 
 networks:
   widgetis:
