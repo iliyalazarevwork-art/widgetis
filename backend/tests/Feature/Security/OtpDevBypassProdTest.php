@@ -11,47 +11,104 @@ use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
 /**
- * Regression against the auth-bypass we shipped to production once:
- * OTP_DEV_BYPASS=true + OTP_DEV_CODE=121212 allowed anyone to log in as
- * any user by submitting the master code.
+ * The OTP dev bypass (OTP_DEV_BYPASS=true + OTP_DEV_CODE=121212) is allowed
+ * in production but ONLY for the configured admin email. For every other
+ * address the master code must be rejected — that's the regression we shipped
+ * once and never want to ship again (full auth-bypass for any account).
  *
- * Two-layer defence:
- *   1. OtpService::isDevBypass() short-circuits to false when
- *      APP_ENV=production, ignoring the env flag entirely.
- *   2. The actual HTTP verify endpoint must still reject `121212` when
- *      no real OTP was issued for the email.
+ * Outside production the bypass is wide open by design (local dev / CI).
  */
 class OtpDevBypassProdTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_otp_service_ignores_dev_bypass_in_production_even_when_flag_is_set(): void
+    public function test_master_code_is_rejected_for_non_admin_email_in_production(): void
     {
-        // Force production env AND turn bypass on. The guard in OtpService
-        // must refuse to honour the master code anyway.
         $this->app['env'] = 'production';
         config([
             'app.env' => 'production',
             'app.otp_dev_bypass' => true,
             'app.otp_dev_code' => '121212',
+            'app.admin_email' => 'admin@widgetis.com',
         ]);
 
         /** @var OtpService $service */
         $service = app(OtpService::class);
 
-        // No real code seeded → only the dev bypass could have let this through.
-        $result = $service->verify('attacker@example.com', '121212');
-
-        $this->assertFalse($result, 'OTP dev bypass must be inert in production');
+        // Random victim — not the admin. No real code was issued. The only
+        // way this could pass is via the bypass — and the bypass must refuse.
+        $this->assertFalse(
+            $service->verify('attacker@example.com', '121212'),
+            'OTP dev bypass must reject non-admin emails in production',
+        );
     }
 
-    public function test_otp_verify_endpoint_rejects_master_code_in_production(): void
+    public function test_master_code_works_for_admin_email_in_production(): void
     {
         $this->app['env'] = 'production';
         config([
             'app.env' => 'production',
             'app.otp_dev_bypass' => true,
             'app.otp_dev_code' => '121212',
+            'app.admin_email' => 'admin@widgetis.com',
+        ]);
+
+        /** @var OtpService $service */
+        $service = app(OtpService::class);
+
+        Cache::put('otp:attempts:admin@widgetis.com', 0, 600);
+
+        $this->assertTrue(
+            $service->verify('admin@widgetis.com', '121212'),
+            'Admin must still be able to log in via master code',
+        );
+    }
+
+    public function test_master_code_email_match_is_case_insensitive(): void
+    {
+        $this->app['env'] = 'production';
+        config([
+            'app.env' => 'production',
+            'app.otp_dev_bypass' => true,
+            'app.otp_dev_code' => '121212',
+            'app.admin_email' => 'Admin@Widgetis.com',
+        ]);
+
+        /** @var OtpService $service */
+        $service = app(OtpService::class);
+
+        Cache::put('otp:attempts:admin@widgetis.com', 0, 600);
+
+        $this->assertTrue($service->verify('admin@widgetis.com', '121212'));
+    }
+
+    public function test_master_code_blocked_when_admin_email_unset_in_production(): void
+    {
+        $this->app['env'] = 'production';
+        config([
+            'app.env' => 'production',
+            'app.otp_dev_bypass' => true,
+            'app.otp_dev_code' => '121212',
+            'app.admin_email' => '',
+        ]);
+
+        /** @var OtpService $service */
+        $service = app(OtpService::class);
+
+        $this->assertFalse(
+            $service->verify('anything@example.com', '121212'),
+            'Without ADMIN_EMAIL the prod bypass must refuse every email',
+        );
+    }
+
+    public function test_otp_verify_endpoint_rejects_master_code_for_random_email_in_production(): void
+    {
+        $this->app['env'] = 'production';
+        config([
+            'app.env' => 'production',
+            'app.otp_dev_bypass' => true,
+            'app.otp_dev_code' => '121212',
+            'app.admin_email' => 'admin@widgetis.com',
         ]);
 
         $response = $this->postJson('/api/v1/auth/otp/verify', [
@@ -66,14 +123,14 @@ class OtpDevBypassProdTest extends TestCase
         $this->assertSame(0, User::where('email', 'victim@example.com')->count());
     }
 
-    public function test_dev_bypass_still_works_when_explicitly_enabled_outside_production(): void
+    public function test_dev_bypass_still_works_for_any_email_outside_production(): void
     {
-        // Sanity check: local dev convenience is preserved.
         $this->app['env'] = 'local';
         config([
             'app.env' => 'local',
             'app.otp_dev_bypass' => true,
             'app.otp_dev_code' => '121212',
+            'app.admin_email' => 'admin@widgetis.com',
         ]);
 
         /** @var OtpService $service */
@@ -81,6 +138,9 @@ class OtpDevBypassProdTest extends TestCase
 
         Cache::put('otp:attempts:dev@example.com', 0, 600);
 
-        $this->assertTrue($service->verify('dev@example.com', '121212'));
+        $this->assertTrue(
+            $service->verify('dev@example.com', '121212'),
+            'Local dev convenience is preserved — bypass works for any email outside prod',
+        );
     }
 }

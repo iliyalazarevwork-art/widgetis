@@ -115,20 +115,36 @@ class OtpService
 
     private function isDevBypass(string $email, string $code): bool
     {
-        // Hard guard: in production the master OTP code is NEVER honoured, even
-        // if OTP_DEV_BYPASS somehow leaks into the production env file. A stale
-        // flag here used to be a full auth-bypass — see SecurityOtpDevBypassProdTest.
-        if (app()->environment('production')) {
-            return false;
-        }
-
         if (! (bool) config('app.otp_dev_bypass', false)) {
             return false;
         }
 
         $masterCode = (string) config('app.otp_dev_code', '121212');
+        if ($code !== $masterCode) {
+            return false;
+        }
 
-        return $code === $masterCode;
+        // In production the master code is honoured ONLY for the configured
+        // admin email — and only when ADMIN_EMAIL is set to a real address.
+        // This keeps the convenience of a fixed login for the operator while
+        // making the bypass useless to anyone who doesn't already know the
+        // admin's mailbox. Outside production the bypass works for any email
+        // (local dev / CI / staging seeded users).
+        if (app()->environment('production')) {
+            $adminEmail = (string) config('app.admin_email', '');
+            if ($adminEmail === '' || strcasecmp($email, $adminEmail) !== 0) {
+                Log::channel('auth')->warning('auth.otp.dev_bypass.denied_in_prod', [
+                    'email' => $email,
+                    'reason' => $adminEmail === '' ? 'admin_email_unset' : 'not_admin_email',
+                ]);
+                return false;
+            }
+            Log::channel('auth')->warning('auth.otp.dev_bypass.used_in_prod', [
+                'email' => $email,
+            ]);
+        }
+
+        return true;
     }
 
     public function invalidate(string $email): void
