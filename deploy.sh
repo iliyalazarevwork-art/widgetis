@@ -78,6 +78,22 @@ if [ "$LOCAL" = false ]; then
     git commit -m "chore(frontend): auto-fix eslint issues before deploy"
   fi
 
+  # ── Pre-flight: validate Caddyfile syntax ─────────────────────────────────
+  # A broken Caddyfile takes the whole edge offline (widgetis.com / api / manage)
+  # because Caddy refuses to start and the HTTPS port is left unbound.
+  # Catch it here, before we push.
+  if [ -f Caddyfile ]; then
+    echo "▶ Validating Caddyfile..."
+    if ! docker run --rm \
+           -v "$PWD/Caddyfile:/etc/caddy/Caddyfile:ro" \
+           caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile >/tmp/caddy-validate.log 2>&1; then
+      echo "❌ Caddyfile is invalid — aborting deploy:"
+      cat /tmp/caddy-validate.log
+      exit 1
+    fi
+    echo "   ✓ Caddyfile valid"
+  fi
+
   echo "▶ Pushing to GitHub..."
   git push origin main
 
