@@ -33,5 +33,5 @@ class ManagerRequest extends Model
     }
 
     // Note: site() relationship removed to break Core→WidgetRuntime FK.
-    // site_id column is kept. Filament table shows site_id as raw text.
+    // site_id column is kept; admin SPA renders it as raw text.
 }

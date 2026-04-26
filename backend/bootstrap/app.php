@@ -62,7 +62,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], 401);
             }
 
-            return null; // Let Laravel handle web redirects (Filament login)
+            return null; // Let Laravel handle web redirects (e.g. Google OAuth)
         });
 
         $exceptions->render(function (\Illuminate\Validation\ValidationException $e) {

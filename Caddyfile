@@ -13,10 +13,9 @@
 # ─────────────────────────────────────────────────────────────
 # widgetis.com — Frontend SPA (React) ONLY
 # ─────────────────────────────────────────────────────────────
-# Every other concern (JSON API, admin panel, live-demo proxy)
-# lives on a dedicated subdomain. The catch-all here is safe
-# because no Laravel/Livewire/Filament route can ever land on
-# this origin. No path matchers needed.
+# JSON API and the live-demo proxy live on dedicated subdomains.
+# The catch-all here is safe because no Laravel route can ever land
+# on this origin. No path matchers needed.
 widgetis.com, www.widgetis.com {
     encode gzip zstd
     request_body {
@@ -31,7 +30,7 @@ widgetis.com, www.widgetis.com {
 # ─────────────────────────────────────────────────────────────
 # api.widgetis.com — Laravel JSON API + OAuth + payment callbacks
 # ─────────────────────────────────────────────────────────────
-# Only HTTP routes that do NOT belong to the Filament admin panel.
+# All Laravel HTTP routes (JSON API, OAuth, payment callbacks).
 # Everything is served by php-fpm via FastCGI; static `public/`
 # files (e.g. uploaded images returned via direct URL) are also
 # available since they live on the same volume.

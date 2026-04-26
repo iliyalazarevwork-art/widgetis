@@ -1,6 +1,11 @@
 # Widgetis — Backend v2 Plan
 
-> Комплексний план бекенду на базі Laravel 12 + Filament 5 + JWT.
+> ⚠️ **Історичний документ.** Filament admin panel і фаза 8 знесені 2026-04-26
+> (commit 1379aaf). Адмін-панель — React SPA на `/admin`. Усі згадки
+> Filament / `manage.widgetis.com` / `lara-zeus/spatie-translatable` нижче —
+> застаріла історія.
+>
+> Комплексний план бекенду на базі Laravel 12 + JWT.
 > Бізнес-модель: підписки (без разових оплат).
 > Джерело правди: 53 екрани Pencil-дизайну + існуюча кодова база (main).
 > Дата: 2026-04-08

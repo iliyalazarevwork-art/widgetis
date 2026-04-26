@@ -3,7 +3,7 @@
 ## What is this
 
 Widgetis — a widget marketplace for e-commerce stores on Horoshop.
-This is the backend API built with Laravel 12, Filament 5, JWT auth.
+This is the backend API built with Laravel 12 + JWT auth. Admin UI is the React `/admin` SPA in `frontend/`.
 
 Business model: subscription plans (Free / Basic / Pro / Max).
 No one-time payments. No cart. Subscriptions only.
@@ -258,7 +258,6 @@ Use standard Laravel logger. Separate channels for auth and payments:
 | Package | Version |
 |---------|---------|
 | `laravel/framework` | 12.x |
-| `filament/filament` | 5.x |
 | `tymon/jwt-auth` | 2.3.x |
 | `spatie/laravel-permission` | 7.x |
 | `spatie/laravel-settings` | 3.7.x |

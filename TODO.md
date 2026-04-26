@@ -23,9 +23,9 @@
 
 ---
 
-## User SoftDeletes: привести модель и Filament к единому состоянию
+## User SoftDeletes: привести модель и колонку БД к единому состоянию
 
-**Проблема:** колонка `users.deleted_at` существует в БД (осталась от предыдущей версии модели), но `App\Models\User` **не** использует trait `SoftDeletes`. При этом `app/Filament/Resources/Users/Tables/UsersTable.php` содержит `DeleteBulkAction`, `ForceDeleteBulkAction`, `RestoreBulkAction` — они рассчитаны на soft-delete. Из-за этого:
+**Проблема:** колонка `users.deleted_at` существует в БД (осталась от предыдущей версии модели), но `App\Core\Models\User` **не** использует trait `SoftDeletes`. Из-за этого:
 - `deleted_at` у 8 юзеров был выставлен (был массовый delete), но Laravel-запросы его игнорируют — юзеры продолжают логиниться как «призраки».
 - `JWTAuth::fromUser()` и `auth:api` guard пропускают удалённых юзеров.
 - Произошла путаница при дебаге Google OAuth: фронтовой баг (`GoogleCallbackPage` не обновлял `AuthContext`) маскировался призрачным состоянием.
@@ -42,11 +42,10 @@
 - [ ] **Data migration**: восстановить `deleted_at = NULL` для реальных аккаунтов, которые попали под массовое удаление (проверить `users.id` 1, 9, 10 перед решением)
 
 ### Вариант B — убрать SoftDeletes окончательно
-- [ ] Удалить `DeleteBulkAction`, `ForceDeleteBulkAction`, `RestoreBulkAction` из `UsersTable.php`, оставить только обычный `DeleteAction` (hard delete через `UserDeletionService`)
 - [ ] Миграция: `Schema::table('users', fn ($t) => $t->dropColumn('deleted_at'));`
 - [ ] Убедиться, что `UserDeletionService::delete()` остаётся единственной точкой удаления (уже вызывает hard delete через `$user->delete()` без trait)
 
-**Почему важно:** без выравнивания модели и Filament-экшенов любой клик по «Delete» в админке повторно создаст призраков, и если кто-нибудь позже добавит `SoftDeletes` обратно — все накопленные записи молча исчезнут из выборок.
+**Почему важно:** если кто-нибудь позже добавит `SoftDeletes` обратно — все ранее «удалённые» записи молча исчезнут из выборок.
 
 ---
 

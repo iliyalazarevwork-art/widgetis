@@ -204,7 +204,7 @@ Lucide icon inside: default `stroke-width`, size `20–22px`, `color` inherits f
 - Cache TTL: 5 minutes (re-fetch on stale)
 - **Never hardcode** phone, email, social links in components
 - Empty string = hide that link (don't render)
-- Admin manages all values via Filament panel
+- Admin manages all values via the React `/admin` SPA
 
 ---
 

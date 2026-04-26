@@ -19,8 +19,7 @@ declare(strict_types=1);
 |     WidgetCorsMiddleware registered on the widget route group.
 |
 |   For all other API paths (profile, admin) the default fruitcake/cors
-|   config applies with an empty allowed_origins list (same-origin / Filament
-|   panel only).
+|   config applies with an empty allowed_origins list (same-origin only).
 |
 | See: App\WidgetRuntime\Http\Middleware\ResolveSiteFromOrigin
 |      App\WidgetRuntime\Http\Middleware\SetWidgetCorsHeaders
