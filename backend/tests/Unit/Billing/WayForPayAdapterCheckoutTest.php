@@ -14,6 +14,7 @@ use App\Core\Services\Billing\ValueObjects\Money;
 use App\Core\Services\Billing\ValueObjects\ProductLabel;
 use App\Core\Services\Billing\WayForPayService;
 use App\Enums\BillingPeriod;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -31,7 +32,7 @@ final class WayForPayAdapterCheckoutTest extends TestCase
         $this->adapter = new WayForPayAdapter($this->sdk);
     }
 
-    /** @test */
+    #[Test]
     public function it_builds_post_form_checkout_session_from_sdk_form_data(): void
     {
         $this->sdk
@@ -80,7 +81,7 @@ final class WayForPayAdapterCheckoutTest extends TestCase
         $this->assertSame('test_merch', $session->formFields['merchantAccount']);
     }
 
-    /** @test */
+    #[Test]
     public function it_passes_correct_parameters_to_sdk_build_method(): void
     {
         $this->sdk

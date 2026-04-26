@@ -13,6 +13,7 @@ use App\Core\Services\Billing\Events\SubscriptionActivatedEvent;
 use App\Core\Services\Billing\Events\SubscriptionRenewedEvent;
 use App\Core\Services\Billing\WayForPayService;
 use App\Core\Services\Billing\Webhooks\InboundWebhook;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -30,7 +31,7 @@ final class WayForPayAdapterParseWebhookTest extends TestCase
         $this->adapter = new WayForPayAdapter($this->sdk);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_invalid_signature_event_when_signature_verification_fails(): void
     {
         $this->sdk->method('verifyWebhookSignature')->willReturn(false);
@@ -41,7 +42,7 @@ final class WayForPayAdapterParseWebhookTest extends TestCase
         $this->assertInstanceOf(InvalidSignatureEvent::class, $event);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_subscription_activated_event_with_rec_token_when_small_approved_payload_has_rec_token(): void
     {
         $this->sdk->method('verifyWebhookSignature')->willReturn(true);
@@ -66,7 +67,7 @@ final class WayForPayAdapterParseWebhookTest extends TestCase
         $this->assertSame(100, $event->paidAmount->minorAmount);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_subscription_renewed_event_for_large_approved_without_rec_token(): void
     {
         $this->sdk->method('verifyWebhookSignature')->willReturn(true);
@@ -90,7 +91,7 @@ final class WayForPayAdapterParseWebhookTest extends TestCase
         $this->assertSame('AUTH-002', $event->transactionId);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_refunded_event_when_transaction_status_is_refunded(): void
     {
         $this->sdk->method('verifyWebhookSignature')->willReturn(true);
@@ -112,7 +113,7 @@ final class WayForPayAdapterParseWebhookTest extends TestCase
         $this->assertSame(100, $event->amount->minorAmount);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_charge_failed_event_when_transaction_status_is_declined(): void
     {
         $this->sdk->method('verifyWebhookSignature')->willReturn(true);
@@ -135,7 +136,7 @@ final class WayForPayAdapterParseWebhookTest extends TestCase
         $this->assertSame('Insufficient funds', $event->message);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_ignored_event_on_unknown_status(): void
     {
         $this->sdk->method('verifyWebhookSignature')->willReturn(true);

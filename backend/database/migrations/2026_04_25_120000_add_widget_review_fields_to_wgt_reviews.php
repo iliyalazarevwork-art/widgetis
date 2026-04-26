@@ -113,10 +113,6 @@ return new class () extends Migration {
      */
     private function dropFkIfExists(string $table, string $constraint): void
     {
-        try {
-            DB::statement("ALTER TABLE \"{$table}\" DROP CONSTRAINT \"{$constraint}\"");
-        } catch (\Throwable) {
-            // Constraint does not exist — nothing to do.
-        }
+        DB::statement("ALTER TABLE \"{$table}\" DROP CONSTRAINT IF EXISTS \"{$constraint}\"");
     }
 };

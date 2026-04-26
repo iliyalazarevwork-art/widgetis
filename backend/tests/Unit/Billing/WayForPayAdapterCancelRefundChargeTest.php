@@ -20,6 +20,7 @@ use App\Core\Services\Billing\ValueObjects\ProviderTokens;
 use App\Core\Services\Billing\WayForPayService;
 use App\Enums\BillingPeriod;
 use App\Exceptions\Billing\InvalidBillingCommandException;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -39,7 +40,7 @@ final class WayForPayAdapterCancelRefundChargeTest extends TestCase
 
     // ─── cancelSubscription ────────────────────────────────────────────
 
-    /** @test */
+    #[Test]
     public function it_returns_cancelled_result_when_remove_regular_payment_succeeds(): void
     {
         $this->sdk->method('removeRegularPayment')->with('ORDER-001')->willReturn(true);
@@ -51,7 +52,7 @@ final class WayForPayAdapterCancelRefundChargeTest extends TestCase
         $this->assertSame(CancellationOutcome::Cancelled, $result->outcome);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_failed_result_when_remove_regular_payment_returns_false(): void
     {
         $this->sdk->method('removeRegularPayment')->willReturn(false);
@@ -65,7 +66,7 @@ final class WayForPayAdapterCancelRefundChargeTest extends TestCase
 
     // ─── refund ────────────────────────────────────────────────────────
 
-    /** @test */
+    #[Test]
     public function it_returns_ok_refund_result_when_sdk_refund_succeeds(): void
     {
         $this->sdk->method('refund')
@@ -80,7 +81,7 @@ final class WayForPayAdapterCancelRefundChargeTest extends TestCase
         $this->assertSame('ORDER-003', $result->refundId);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_failed_refund_result_when_sdk_refund_returns_false(): void
     {
         $this->sdk->method('refund')->willReturn(false);
@@ -94,7 +95,7 @@ final class WayForPayAdapterCancelRefundChargeTest extends TestCase
 
     // ─── chargeSavedInstrument ─────────────────────────────────────────
 
-    /** @test */
+    #[Test]
     public function it_returns_ok_charge_result_when_sdk_charge_is_approved(): void
     {
         $this->sdk->method('chargeByTokenRaw')->willReturn([
@@ -112,7 +113,7 @@ final class WayForPayAdapterCancelRefundChargeTest extends TestCase
         $this->assertSame('TXN-123', $result->transactionId);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_failed_charge_result_when_sdk_charge_is_declined(): void
     {
         $this->sdk->method('chargeByTokenRaw')->willReturn([
@@ -130,7 +131,7 @@ final class WayForPayAdapterCancelRefundChargeTest extends TestCase
         $this->assertSame('Declined', $result->failureMessage);
     }
 
-    /** @test */
+    #[Test]
     public function it_throws_when_recurring_token_is_missing(): void
     {
         $this->expectException(InvalidBillingCommandException::class);
@@ -147,7 +148,7 @@ final class WayForPayAdapterCancelRefundChargeTest extends TestCase
         $this->adapter->chargeSavedInstrument($cmd);
     }
 
-    /** @test */
+    #[Test]
     public function it_falls_back_to_reference_as_transaction_id_when_sdk_returns_null(): void
     {
         $this->sdk->method('chargeByTokenRaw')->willReturn([
