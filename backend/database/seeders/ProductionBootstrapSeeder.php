@@ -13,6 +13,7 @@ class ProductionBootstrapSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             AdminSeeder::class,
+            AdminTestSitesSeeder::class,
             PlanSeeder::class,
             WidgetTagSeeder::class,
             ProductSeeder::class,

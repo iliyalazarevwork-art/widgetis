@@ -14,7 +14,7 @@ import {
   ExternalLink,
 } from 'lucide-react'
 import { HamburgerIcon } from '../../components/HamburgerIcon'
-import { BRAND_EMAIL, BRAND_NAME } from '../../constants/brand'
+import { BRAND_NAME } from '../../constants/brand'
 import { useAuth } from '../../context/AuthContext'
 import './admin.css'
 
@@ -33,7 +33,10 @@ export function AdminLayout() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const location = useLocation()
-  const { logout } = useAuth()
+  const { logout, user } = useAuth()
+  const displayName = user?.name?.trim() || user?.email || 'Admin'
+  const displayEmail = user?.email ?? ''
+  const avatarLetter = (displayName.charAt(0) || 'A').toUpperCase()
   const isMobileCanvasPage =
     location.pathname === '/admin' ||
     location.pathname.startsWith('/admin/configurator') ||
@@ -156,11 +159,11 @@ export function AdminLayout() {
           </button>
           <div className="admin__user">
             <div className="admin__avatar" aria-hidden="true">
-              И
+              {avatarLetter}
             </div>
             <div className="admin__user-info">
-              <strong>Ілля Л.</strong>
-              <span>{BRAND_EMAIL}</span>
+              <strong>{displayName}</strong>
+              <span>{displayEmail}</span>
             </div>
           </div>
         </header>

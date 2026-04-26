@@ -30,7 +30,7 @@ import { get } from '../../api/client'
 import { SocialIcon } from '../../components/SocialIcon'
 import { useAuth } from '../../context/AuthContext'
 import { useSettings } from '../../context/SettingsContext'
-import { BRAND_EMAIL, BRAND_NAME } from '../../constants/brand'
+import { BRAND_NAME } from '../../constants/brand'
 import type { PaginatedResponse } from '../../types'
 import { AdminConfiguratorPage } from './AdminConfiguratorPage'
 import { AdminScreenLayout } from './AdminScreenLayout'
@@ -1344,14 +1344,18 @@ export function AdminSiteConfiguratorPage() {
 }
 
 export function AdminSettingsPage() {
+  const { user } = useAuth()
+  const profileName = user?.name?.trim() || user?.email || '—'
+  const profileEmail = user?.email ?? '—'
+
   return (
     <AdminScreenLayout mode="dashboard" title="Налаштування" subtitle="Профіль та безпека">
       <div className="adminx-settings-grid mobile-plain__content">
         <section className="admin-card adminx-section">
           <h2 className="admin-card__title">Профіль</h2>
           <div className="adminx-form-list">
-            <div><span>Імʼя</span><strong>Ілля Л.</strong></div>
-            <div><span>Email</span><strong>{BRAND_EMAIL}</strong></div>
+            <div><span>Імʼя</span><strong>{profileName}</strong></div>
+            <div><span>Email</span><strong>{profileEmail}</strong></div>
             <div><span>Компанія</span><strong>{BRAND_NAME}</strong></div>
           </div>
           <button type="button" className="adminx-ghost-btn">Редагувати</button>
