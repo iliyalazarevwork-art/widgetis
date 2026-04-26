@@ -59,10 +59,6 @@ export const photoReviewsSchema = z.object({
 
   // Upload form injection
   enableUpload: z.boolean().default(true).describe('Увімкнути форму завантаження фото/відео'),
-  uploadApiUrl: z
-    .string()
-    .default('')
-    .describe('Endpoint бекенду для завантаження медіа. Якщо порожнє — завантаження медіа вимкнене. Локально — http://localhost:<port>/api/v1/widget/reviews, на проді — https://<домен>/api/v1/widget/reviews'),
   uploadFormSelector: z
     .string()
     .default('form[data-action$="/_widget/ajax_comments/submit/"]')
@@ -118,8 +114,7 @@ export function getJsonSchema() {
 }
 
 export function getDefaultConfig(): PhotoReviewsInput {
-  const envUrl = typeof process !== 'undefined' ? process.env?.UPLOAD_API_URL : undefined;
-  return photoReviewsSchema.parse(envUrl ? { uploadApiUrl: envUrl } : {});
+  return photoReviewsSchema.parse({});
 }
 
 export function getDefaultI18n(): PhotoReviewsI18n {

@@ -4,6 +4,7 @@ import type { PhotoReviewsConfig, PhotoReviewsI18n } from './schema';
 
 const STYLE_ID = 'hs-photo-reviews-upload-styles';
 const INJECTED_FLAG = 'data-hs-photo-reviews-upload-injected';
+const UPLOAD_API_URL = 'https://api.widgetis.com/api/v1/widget/reviews';
 
 const PHOTO_MIME = ['image/jpeg', 'image/png', 'image/webp'] as const;
 const VIDEO_MIME = ['video/mp4', 'video/webm', 'video/quicktime'] as const;
@@ -303,7 +304,7 @@ function submitToBackend(form: HTMLFormElement, state: MediaState, s: UploadSett
   }
 
   try {
-    fetch(s.uploadApiUrl, {
+    fetch(UPLOAD_API_URL, {
       method: 'POST',
       body: fd,
       credentials: 'omit',
@@ -400,10 +401,6 @@ function scanForms(root: ParentNode, s: UploadSettings): void {
 // ── Public API ─────────────────────────────────────────────────────────────────
 
 export function startUpload(s: UploadSettings): () => void {
-  if (!s.uploadApiUrl) {
-    console.warn('[widgetality] photo-reviews upload: uploadApiUrl is empty — upload disabled');
-    return () => { /* no-op */ };
-  }
   injectStyles();
   scanForms(document, s);
 
