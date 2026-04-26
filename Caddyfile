@@ -19,7 +19,9 @@
 # this origin. No path matchers needed.
 widgetis.com, www.widgetis.com {
     encode gzip zstd
-    request_body { max_size 20MB }
+    request_body {
+        max_size 20MB
+    }
 
     reverse_proxy frontend:80 {
         import zdd_http
@@ -35,7 +37,9 @@ widgetis.com, www.widgetis.com {
 # available since they live on the same volume.
 api.widgetis.com {
     encode gzip zstd
-    request_body { max_size 20MB }
+    request_body {
+        max_size 20MB
+    }
 
     root * /var/www/html/public
     php_fastcgi backend:9000 {
@@ -53,7 +57,9 @@ api.widgetis.com {
 # we are not routing by path anymore.
 manage.widgetis.com {
     encode gzip zstd
-    request_body { max_size 20MB }
+    request_body {
+        max_size 20MB
+    }
 
     root * /var/www/html/public
     php_fastcgi backend:9000 {
