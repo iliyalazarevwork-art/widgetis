@@ -278,29 +278,79 @@ tasks:
       - '{{.EXEC}} php artisan optimize:clear'
 
   # ── Deploy ─────────────────────────────────────────────
-  deploy:pre:
-    desc: "Предеплойные проверки: автофикс → статика → тесты  ·  task deploy:pre"
+  # ── Internal: одна проверка = одна задача (для параллелизации в deps) ──────
+  _deploy:pre:pint:
+    internal: true
     cmds:
-      - echo "── 1/6  PHP auto-fix (pint) ─────────────────────────────────────"
-      - '{{.EXEC}} ./vendor/bin/pint'
-      - echo "── 2/6  Frontend auto-fix (eslint --fix) ────────────────────────"
-      - (cd frontend && npx eslint --fix 'src/**/*.{ts,tsx}') || true
-      - echo "── 3/6  PHPStan static analysis ─────────────────────────────────"
-      - '{{.EXEC}} ./vendor/bin/phpstan analyse --memory-limit=512M'
-      - echo "── 4/6  TypeScript check (tsc --noEmit) ─────────────────────────"
-      - (cd frontend && npx tsc --noEmit)
-      - echo "── 5/6  Laravel tests ───────────────────────────────────────────"
-      - '{{.EXEC}} php artisan test'
-      - echo "── 6/6  Frontend vitest ─────────────────────────────────────────"
-      - (cd frontend && npm test)
+      - echo "[pint]    start" && time {{.EXEC}} ./vendor/bin/pint && echo "[pint]    done"
+  _deploy:pre:eslint:
+    internal: true
+    cmds:
+      - echo "[eslint]  start" && (cd frontend && time npx eslint --fix 'src/**/*.{ts,tsx}') || true; echo "[eslint]  done"
+  _deploy:pre:phpstan:
+    internal: true
+    cmds:
+      - echo "[phpstan] start" && time {{.EXEC}} ./vendor/bin/phpstan analyse --memory-limit=512M && echo "[phpstan] done"
+  _deploy:pre:tsc:
+    internal: true
+    cmds:
+      - echo "[tsc]     start" && (cd frontend && time npx tsc --noEmit) && echo "[tsc]     done"
+  _deploy:pre:phpunit:
+    internal: true
+    cmds:
+      - echo "[phpunit] start" && time {{.EXEC}} php artisan test && echo "[phpunit] done"
+  _deploy:pre:vitest:
+    internal: true
+    cmds:
+      - echo "[vitest]  start" && (cd frontend && time npm test) && echo "[vitest]  done"
+
+  # Phase A — auto-fixes (мутируют файлы; должны завершиться ДО проверок,
+  # которые читают те же файлы). Pint → PHP, ESLint → TS — не пересекаются,
+  # поэтому сами между собой идут параллельно.
+  _deploy:pre:fix:
+    internal: true
+    deps:
+      - _deploy:pre:pint
+      - _deploy:pre:eslint
+
+  # Phase B — независимые проверки + тесты, всё параллельно.
+  _deploy:pre:check:
+    internal: true
+    deps:
+      - _deploy:pre:phpstan
+      - _deploy:pre:tsc
+      - _deploy:pre:phpunit
+      - _deploy:pre:vitest
+
+  deploy:pre:
+    desc: "Предеплойные проверки (параллельно): pint+eslint → phpstan+tsc+phpunit+vitest"
+    cmds:
+      - echo "▶ Phase A — auto-fixes (pint + eslint, parallel)"
+      - task: _deploy:pre:fix
+      - echo "▶ Phase B — checks + tests (phpstan + tsc + phpunit + vitest, parallel)"
+      - task: _deploy:pre:check
 
   deploy:
     desc: "Полный деплой: проверки → бэкап → деплой → смоук  ·  task deploy"
     cmds:
-      - task: deploy:pre
-      - task: prod:db:dump
-      - bash deploy.sh
-      - task: test:smoke:prod
+      - |
+        T0=$(date +%s)
+        section() { echo ""; echo "═══ $1 ═══"; SEC_T0=$(date +%s); }
+        section_end() { echo "═══ $1: $(($(date +%s) - SEC_T0))s ═══"; }
+        section "1/4 deploy:pre"
+        task deploy:pre
+        section_end "1/4 deploy:pre"
+        section "2/4 prod:db:dump"
+        task prod:db:dump
+        section_end "2/4 prod:db:dump"
+        section "3/4 deploy.sh"
+        bash deploy.sh
+        section_end "3/4 deploy.sh"
+        section "4/4 test:smoke:prod"
+        task test:smoke:prod
+        section_end "4/4 test:smoke:prod"
+        echo ""
+        echo "✅ TOTAL deploy time: $(($(date +%s) - T0))s"
 
   d:
     desc: "Алиас: task d -> task deploy"

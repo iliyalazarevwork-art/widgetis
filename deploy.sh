@@ -1,6 +1,35 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# ── Phase timing helpers ─────────────────────────────────────────────────────
+# Each major step is wrapped in phase / phase_end. At script exit we print a
+# summary so it's obvious where the deploy is spending time.
+SCRIPT_T0=$(date +%s)
+TIMINGS=()
+PHASE_T0=0
+PHASE_LABEL=""
+phase() {
+  PHASE_LABEL=$1
+  PHASE_T0=$(date +%s)
+  echo ""
+  echo "▶▶▶ [+$((PHASE_T0 - SCRIPT_T0))s] $PHASE_LABEL"
+}
+phase_end() {
+  local now dur
+  now=$(date +%s)
+  dur=$((now - PHASE_T0))
+  TIMINGS+=("$(printf '%4ds  %s' "$dur" "$PHASE_LABEL")")
+  echo "◀◀◀ [${dur}s] $PHASE_LABEL"
+}
+print_timings() {
+  echo ""
+  echo "── Phase timings ──────────────────────────────"
+  for line in "${TIMINGS[@]}"; do echo "  $line"; done
+  echo "  ────────────────────────────────────────────"
+  echo "  TOTAL: $(($(date +%s) - SCRIPT_T0))s"
+}
+trap print_timings EXIT
+
 ###############################################################################
 # Widgetis — Zero-Downtime Remote Deploy Script
 #
@@ -50,11 +79,12 @@ done
 if [ "$LOCAL" = false ]; then
   # ── Pre-deploy: encrypt .env.production → .env.production.enc ────────────────
   if [ -f backend/.env.production ]; then
-    echo "▶ Encrypting backend/.env.production..."
+    phase "encrypt secrets (sops)"
     SOPS_AGE_KEY_FILE=.age-key.txt sops \
       --input-type dotenv --output-type dotenv \
       --encrypt backend/.env.production > backend/.env.production.enc
     echo "   ✓ backend/.env.production.enc updated"
+    phase_end
   fi
 
   # If .env.production.enc changed — commit it
@@ -67,9 +97,35 @@ if [ "$LOCAL" = false ]; then
     fi
   fi
 
-  # ── Pre-deploy: auto-fix unused imports ───────────────────────────────────────
-  echo "▶ Frontend: ESLint auto-fix (unused imports, style)..."
-  (cd frontend && npm run lint:fix) || true   # fixes what it can; non-fixable issues stay as warnings
+  # ── Pre-deploy: lint:fix + Caddyfile validate (parallel) ─────────────────
+  # Independent, both local — no reason to wait for one before the other.
+  phase "local pre-flight (lint:fix + Caddyfile validate, parallel)"
+  (
+    cd frontend && npm run lint:fix
+  ) >/tmp/lintfix.log 2>&1 &
+  LINT_PID=$!
+
+  CADDY_PID=""
+  if [ -f Caddyfile ]; then
+    docker run --rm \
+      -v "$PWD/Caddyfile:/etc/caddy/Caddyfile:ro" \
+      caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile \
+      >/tmp/caddy-validate.log 2>&1 &
+    CADDY_PID=$!
+  fi
+
+  # ESLint failures are non-fatal (warnings ok); we just collect output.
+  wait "$LINT_PID" || true
+  cat /tmp/lintfix.log
+  if [ -n "$CADDY_PID" ]; then
+    if ! wait "$CADDY_PID"; then
+      echo "❌ Caddyfile is invalid — aborting deploy:"
+      cat /tmp/caddy-validate.log
+      exit 1
+    fi
+    echo "   ✓ Caddyfile valid"
+  fi
+  phase_end
 
   # If lint:fix changed anything — commit those fixes before pushing
   if ! git diff --quiet frontend/; then
@@ -78,26 +134,11 @@ if [ "$LOCAL" = false ]; then
     git commit -m "chore(frontend): auto-fix eslint issues before deploy"
   fi
 
-  # ── Pre-flight: validate Caddyfile syntax ─────────────────────────────────
-  # A broken Caddyfile takes the whole edge offline (widgetis.com / api / manage)
-  # because Caddy refuses to start and the HTTPS port is left unbound.
-  # Catch it here, before we push.
-  if [ -f Caddyfile ]; then
-    echo "▶ Validating Caddyfile..."
-    if ! docker run --rm \
-           -v "$PWD/Caddyfile:/etc/caddy/Caddyfile:ro" \
-           caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile >/tmp/caddy-validate.log 2>&1; then
-      echo "❌ Caddyfile is invalid — aborting deploy:"
-      cat /tmp/caddy-validate.log
-      exit 1
-    fi
-    echo "   ✓ Caddyfile valid"
-  fi
-
-  echo "▶ Pushing to GitHub..."
+  phase "git push"
   git push origin main
+  phase_end
 
-  echo "▶ SSHing into $SERVER and running deploy..."
+  phase "remote deploy (ssh)"
   ssh "$SERVER" "
     cd $REMOTE_DIR &&
     git pull origin main &&
@@ -107,6 +148,7 @@ if [ "$LOCAL" = false ]; then
       $([ "$SEED_BASE"    = true ] && echo '--seed-base') \
       $([ "$MAINTENANCE"  = true ] && echo '--maintenance')
   "
+  phase_end
   echo ""
   echo "✅  Deploy complete! → https://widgetis.com"
   exit 0
@@ -116,11 +158,12 @@ fi
 cd "$REMOTE_DIR"
 
 # ── Decrypt secrets from encrypted .env.production.enc ───────────────────────
-echo "▶ Decrypting secrets..."
+phase "decrypt secrets"
 export SOPS_AGE_KEY_FILE=~/.config/sops/age/keys.txt
 sops --input-type dotenv --output-type dotenv --decrypt backend/.env.production.enc > backend/.env
 chmod 600 backend/.env
 echo "   ✓ backend/.env ready"
+phase_end
 
 DC="docker compose -f docker-compose.prod.yml --env-file .env.prod"
 
@@ -175,15 +218,20 @@ rolling_restart() {
 }
 
 # ── Step 1: Build all images first (no containers touched) ────────────────────
+# COMPOSE_BAKE=true → docker buildx bake under the hood, builds all services
+# in parallel (compose v2 build is sequential by default). BUILDKIT_INLINE_CACHE
+# embeds layer cache hints into images so re-builds reuse cached layers.
 if [ "$SKIP_BUILD" = false ]; then
-  echo "▶ Building images (containers keep running)..."
-  DOCKER_BUILDKIT=1 $DC build
+  phase "docker build (parallel via bake)"
+  DOCKER_BUILDKIT=1 BUILDKIT_INLINE_CACHE=1 COMPOSE_BAKE=true $DC build
+  phase_end
 fi
 
 # ── Step 2: Ensure infra (postgres, redis, caddy) is up ───────────────────────
-echo "▶ Ensuring infra services are up..."
+phase "infra up (postgres, redis)"
 $DC up -d --no-deps postgres redis
 wait_healthy postgres || true
+phase_end
 
 # Pre-deploy DB backup is triggered by Taskfile (`task prod:db:dump` runs
 # before this script). When deploy.sh is invoked directly with --local on the
@@ -193,52 +241,77 @@ wait_healthy postgres || true
 # First-ever deploy: if nothing is running at all, bring the full stack up
 # in one shot (honors depends_on + healthchecks) and skip the rolling dance.
 if [ -z "$($DC ps -q backend)" ]; then
-  echo "▶ First deploy / backend not running — starting full stack..."
+  phase "first deploy: full stack up"
   $DC up -d --remove-orphans
   wait_healthy backend
+  phase_end
 else
   # ── Step 3: Migrations (optionally behind maintenance mode) ────────────────
   if [ "$SKIP_MIGRATE" = false ]; then
+    phase "migrations"
     if [ "$MAINTENANCE" = true ]; then
       echo "▶ Enabling maintenance mode (--maintenance flag)..."
       $DC exec -T --user www-data backend php artisan down --retry=60 || true
     fi
 
-    echo "▶ Running migrations..."
     $DC exec -T --user www-data backend php artisan migrate --force
 
     if [ "$MAINTENANCE" = true ]; then
       echo "▶ Disabling maintenance mode..."
       $DC exec -T --user www-data backend php artisan up || true
     fi
+    phase_end
   fi
 
   if [ "$SEED_BASE" = true ]; then
-    echo "▶ Seeding production-safe reference data..."
+    phase "seed production reference data"
     $DC exec -T --user www-data backend php artisan db:seed --class=ProductionBootstrapSeeder --force
+    phase_end
   fi
 
-  # ── Step 4: Rolling restart of user-facing services ──────────────────────
-  # Order matters: backend first (API), then SPAs / proxies on top.
-  # Caddy's lb_try_duration absorbs the brief gap while each container swaps.
+  # ── Step 4a: Backend MUST go first (the others may depend on its API) ────
+  phase "rolling restart: backend"
   rolling_restart backend
+  phase_end
 
   # ── Pre-launch test mode: wipe every non-admin user on every deploy ──────
   # Remove this block before going live.
-  echo "▶ Purging non-admin users (test-mode cleanup)..."
+  phase "purge non-admin users (test mode)"
   $DC exec -T --user www-data backend php artisan users:purge-non-admin --force
+  phase_end
 
-  rolling_restart frontend
-  rolling_restart widget-builder
-  rolling_restart site-proxy
+  # ── Step 4b: Recreate frontend / widget-builder / site-proxy in parallel.
+  # They have no compose-level depends_on between them and Caddy holds client
+  # connections open via lb_try_duration during the swap.
+  phase "rolling restart: frontend + widget-builder + site-proxy (parallel)"
+  $DC up -d --no-deps --force-recreate frontend widget-builder site-proxy
+
+  pids=()
+  wait_healthy frontend       & pids+=("$!:frontend")
+  wait_healthy widget-builder & pids+=("$!:widget-builder")
+  wait_healthy site-proxy     & pids+=("$!:site-proxy")
+  fail=0
+  for entry in "${pids[@]}"; do
+    pid=${entry%%:*}
+    name=${entry#*:}
+    if ! wait "$pid"; then
+      echo "❌ $name failed to become healthy"
+      fail=1
+    fi
+  done
+  [ "$fail" -eq 0 ] || exit 1
+  phase_end
 
   # ── Step 5: Background workers — safe to hard-restart ────────────────────
-  echo "▶ Recreating queue worker and scheduler..."
+  phase "recreate queue-worker + scheduler"
   $DC up -d --no-deps --force-recreate queue-worker scheduler
+  phase_end
 
   # ── Step 6: Ensure Caddy is running (no restart needed — it auto-reresolves
   # upstreams thanks to Docker DNS + lb_try_duration retries).
+  phase "ensure caddy up"
   $DC up -d --no-deps caddy
+  phase_end
 fi
 
 echo ""
