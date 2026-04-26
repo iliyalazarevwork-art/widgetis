@@ -269,12 +269,6 @@ else
     phase_end
   fi
 
-  # Always run idempotent seeders that maintain runtime invariants
-  # (e.g. admin-owned test sites used by the widget Origin whitelist).
-  phase "seed admin test sites (idempotent)"
-  $DC exec -T --user www-data backend php artisan db:seed --class=AdminTestSitesSeeder --force
-  phase_end
-
   # ── Step 4a: Backend MUST go first (the others may depend on its API) ────
   phase "rolling restart: backend"
   rolling_restart backend
@@ -284,6 +278,14 @@ else
   # Remove this block before going live.
   phase "purge non-admin users (test mode)"
   $DC exec -T --user www-data backend php artisan users:purge-non-admin --force
+  phase_end
+
+  # Idempotent seeders that maintain runtime invariants (e.g. admin-owned
+  # test sites used by the widget Origin whitelist). Runs AFTER the backend
+  # rolling restart so the new image (with any newly-added seeder classes)
+  # is in the container.
+  phase "seed admin test sites (idempotent)"
+  $DC exec -T --user www-data backend php artisan db:seed --class=AdminTestSitesSeeder --force
   phase_end
 
   # ── Step 4b: Recreate frontend / widget-builder / site-proxy in parallel.
