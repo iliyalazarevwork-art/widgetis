@@ -25,16 +25,6 @@ RUN composer install --no-interaction --no-dev --optimize-autoloader --no-script
 
 COPY . .
 
-# Publish Filament + Livewire static assets into public/. Without this,
-# requests like /css/filament/..., /fonts/filament/..., /livewire/livewire.js
-# return 404 in production. Artisan needs a bootable app, so we briefly
-# materialize a throwaway .env (real secrets are mounted at runtime).
-RUN cp .env.example .env \
- && php artisan key:generate \
- && php artisan filament:assets \
- && php artisan vendor:publish --force --tag=livewire:assets \
- && rm .env
-
 # Stash a snapshot of public/ outside the path that will be overlaid by
 # the named volume at runtime. The container's start command copies this
 # into the volume on every boot so image rebuilds always refresh the
