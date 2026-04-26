@@ -269,6 +269,12 @@ else
     phase_end
   fi
 
+  # Always run idempotent seeders that maintain runtime invariants
+  # (e.g. admin-owned test sites used by the widget Origin whitelist).
+  phase "seed admin test sites (idempotent)"
+  $DC exec -T --user www-data backend php artisan db:seed --class=AdminTestSitesSeeder --force
+  phase_end
+
   # ── Step 4a: Backend MUST go first (the others may depend on its API) ────
   phase "rolling restart: backend"
   rolling_restart backend
