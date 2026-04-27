@@ -49,6 +49,12 @@ importers:
         specifier: workspace:*
         version: link:../../packages/core
 
+  modules/module-cart-recommender:
+    dependencies:
+      '@laxarevii/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+
   modules/module-delivery-date:
     dependencies:
       '@laxarevii/core':
@@ -68,6 +74,12 @@ importers:
         version: link:../../packages/core
 
   modules/module-one-plus-one:
+    dependencies:
+      '@laxarevii/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+
+  modules/module-phone-mask:
     dependencies:
       '@laxarevii/core':
         specifier: workspace:*

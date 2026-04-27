@@ -1,3 +1,18 @@
+# Widgetis
+
+Backend API for Widgetis — a widget marketplace for Horoshop e-commerce stores.
+See [`CLAUDE.md`](CLAUDE.md) for build instructions and conventions.
+
+## Documentation
+
+- [Backend plan v2](docs/v2-backend-plan.md) — full API + DB schema reference
+- [Widgets](docs/widgets/) — module-specific design docs
+  - [cart-recommender](docs/widgets/cart-recommender.md) — smart in-cart product recommender
+- [Deployment](docs/deployment.md)
+- [OpenAPI](docs/openapi.yaml) · [Postman collection](docs/Widgetis-API.postman_collection.json)
+
+---
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
