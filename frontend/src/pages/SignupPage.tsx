@@ -655,7 +655,9 @@ export function SignupPage() {
                       type="button"
                       onClick={() => {
                         sessionStorage.setItem('google_return_to', window.location.pathname + window.location.search)
-                        window.location.href = '/auth/google'
+                        const apiBase = import.meta.env.VITE_API_BASE_URL as string | undefined
+                        const backendUrl = apiBase ? apiBase.replace(/\/api\/v1\/?$/, '') : ''
+                        window.location.href = backendUrl + '/auth/google'
                       }}
                     >
                       <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
