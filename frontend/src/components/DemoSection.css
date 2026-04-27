@@ -289,16 +289,43 @@
   }
 
   .demo__input-wrap {
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: 12px;
+    row-gap: 12px;
+    max-width: 560px;
+    margin: 0 auto;
   }
 
-  .demo__input {
-    flex: 1;
+  .demo__typewriter {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .demo__typewriter .demo__input {
+    height: 56px;
+    padding: 0 20px;
+  }
+
+  .demo__placeholder {
+    top: 0;
+    bottom: 0;
+    padding: 0 20px;
   }
 
   .demo__submit {
+    grid-column: 2;
+    grid-row: 1;
     width: auto;
-    padding: 16px 30px;
+    padding: 0 28px;
+    height: 56px;
     flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .demo__tags {
+    grid-column: 1;
+    grid-row: 2;
+    justify-content: flex-start;
   }
 }
