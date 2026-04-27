@@ -98,7 +98,14 @@ describe('LoginPage', () => {
     })
   })
 
-  it('google button navigates window.location.href to /auth/google', async () => {
+  it('google button redirects to absolute backend URL (not the SPA origin)', async () => {
+    // Regression: SignupPage previously used a relative `/auth/google` URL,
+    // sending users to the SPA origin (widgetis.com) instead of the backend
+    // (api.widgetis.com), where they got a black screen because no SPA route
+    // matched. The redirect MUST be an absolute URL on the backend host
+    // derived from VITE_API_BASE_URL.
+    vi.stubEnv('VITE_API_BASE_URL', 'https://api.test.example/api/v1')
+
     const user = userEvent.setup()
 
     const originalLocation = window.location
@@ -111,12 +118,12 @@ describe('LoginPage', () => {
 
     await user.click(screen.getByRole('button', { name: /увійти через google/i }))
 
-    expect(window.location.href).toMatch(/\/auth\/google$/)
+    expect(window.location.href).toBe('https://api.test.example/auth/google')
 
-    // restore
     Object.defineProperty(window, 'location', {
       writable: true,
       value: originalLocation,
     })
+    vi.unstubAllEnvs()
   })
 })
