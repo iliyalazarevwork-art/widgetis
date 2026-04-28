@@ -26,6 +26,7 @@ final class CatalogProduct extends Model
         'sku',
         'parent_sku',
         'alias',
+        'horoshop_id',
         'external_url',
         'title_ua',
         'title_en',
@@ -57,6 +58,7 @@ final class CatalogProduct extends Model
         return [
             'price' => 'decimal:2',
             'old_price' => 'decimal:2',
+            'horoshop_id' => 'integer',
             'in_stock' => 'boolean',
             'image_urls' => 'array',
             'raw_attributes' => 'array',

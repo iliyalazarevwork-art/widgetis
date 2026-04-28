@@ -231,7 +231,7 @@ tasks:
 
   # ── Catalog Crawler ────────────────────────────────────
   catalog:fetch-ids:
-    desc: "Витягти Horoshop platform_id зі сторінок і записати в БД  ·  task catalog:fetch-ids -- --domain benihome.com.ua --xlsx /data/full.xlsx"
+    desc: "Витягти Horoshop horoshop_id зі сторінок і записати в БД  ·  task catalog:fetch-ids -- --domain benihome.com.ua --xlsx /data/full.xlsx --limit 0"
     cmds:
       - '{{.DC}} run --rm --no-deps catalog-crawler python fetch_platform_ids.py {{.CLI_ARGS}}'
 

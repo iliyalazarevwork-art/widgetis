@@ -10,15 +10,16 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::connection('pgsql_runtime')->table('wgt_catalog_products', function (Blueprint $table) {
-            $table->bigInteger('platform_id')->nullable()->after('alias');
-            $table->index('platform_id');
+            $table->bigInteger('horoshop_id')->nullable()->after('alias');
+            $table->index('horoshop_id');
         });
     }
 
     public function down(): void
     {
         Schema::connection('pgsql_runtime')->table('wgt_catalog_products', function (Blueprint $table) {
-            $table->dropColumn('platform_id');
+            $table->dropIndex(['horoshop_id']);
+            $table->dropColumn('horoshop_id');
         });
     }
 };

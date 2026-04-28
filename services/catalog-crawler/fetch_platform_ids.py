@@ -1,262 +1,248 @@
 #!/usr/bin/env python3
 """
-fetch_platform_ids.py
+Fetch Horoshop product IDs from product pages and save them to Widgetis.
 
-Reads an XLSX catalog export (Horoshop format), fetches each product page,
-extracts the Horoshop platform product ID from the HTML, and saves it to
-wgt_catalog_products.platform_id in PostgreSQL.
+This is a Python/Playwright port of the old `scrape:product-ids` workflow
+from service-catalog-refactor:
+  1. read a Horoshop XLSX export,
+  2. open every product page by alias,
+  3. extract the numeric ID from j-buy-button-counter/widget DOM IDs,
+  4. write it to wgt_catalog_products.horoshop_id by site + SKU.
 
 Usage:
-    python fetch_platform_ids.py --domain benihome.com.ua --xlsx /path/to/catalog.xlsx
-
-Options:
-    --domain    Site domain (must exist in wgt_sites.domain)
-    --xlsx      Path to Horoshop XLSX catalog export
-    --db        PostgreSQL DSN (default: from env PG_DSN or built from PG_* vars)
-    --delay     Seconds between requests (default: 0.5)
-    --limit     Process only first N products (for testing)
-    --dry-run   Fetch and print IDs without writing to DB
+    python fetch_platform_ids.py --domain benihome.com.ua --xlsx /data/full.xlsx
+    python fetch_platform_ids.py --domain benihome.com.ua --xlsx /data/full.xlsx --start 100 --limit 50 --dry-run
 """
 
 import argparse
 import os
 import re
-import sys
 import time
-import gzip
-import zlib
-from http.client import HTTPSConnection, HTTPConnection
-from urllib.parse import urlparse
+from collections.abc import Sequence
 
 import openpyxl
 import psycopg2
+from playwright.sync_api import Page, TimeoutError as PlaywrightTimeoutError, sync_playwright
 
-# ── Constants ────────────────────────────────────────────────────────────────
+HEADER_SKU_CANDIDATES = ("артикул", "article", "sku")
+HEADER_ALIAS_CANDIDATES = ("алиас", "alias", "slug", "url")
 
-USER_AGENT = (
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-    "AppleWebKit/537.36 (KHTML, like Gecko) "
-    "Chrome/120.0.0.0 Safari/537.36"
-)
-
-# Column indices in Horoshop XLSX export (0-based)
-COL_SKU   = 0   # Артикул
-COL_ALIAS = 7   # Алиас
-
-# Regex to extract Horoshop product ID from page HTML
-RE_PRODUCT_ID = re.compile(r'id="j-buy-button-(?:counter|widget)-(\d+)"')
-
-# Regex to detect the bot challenge page
-RE_CHALLENGE  = re.compile(r'defaultHash\s*=\s*"([0-9a-f]+)"')
+RE_PRODUCT_ID = re.compile(r'id=["\']j-buy-button-(?:counter|widget)-(\d+)["\']')
 
 
-# ── HTTP helpers ─────────────────────────────────────────────────────────────
+def cell_text(value: object) -> str:
+    if value is None:
+        return ""
 
-def _decompress(data: bytes, encoding: str | None) -> bytes:
-    if encoding == "gzip":
-        return gzip.decompress(data)
-    if encoding == "deflate":
-        return zlib.decompress(data)
-    return data
+    return str(value).strip()
 
 
-def fetch_html(url: str, cookies: dict[str, str], max_redirects: int = 6) -> tuple[str, dict[str, str]]:
-    """
-    Fetch URL and return (html_text, updated_cookies).
-    Follows redirects. Decompresses gzip/deflate.
-    """
-    for _ in range(max_redirects):
-        parsed = urlparse(url)
-        is_https = parsed.scheme == "https"
-        host = parsed.hostname or ""
-        port = parsed.port or (443 if is_https else 80)
-        path = (parsed.path or "/") + (("?" + parsed.query) if parsed.query else "")
+def normalize_header(value: object) -> str:
+    return cell_text(value).lower()
 
-        cookie_str = "; ".join(f"{k}={v}" for k, v in cookies.items())
 
-        headers = {
-            "User-Agent": USER_AGENT,
-            "Accept": "text/html,application/xhtml+xml,*/*;q=0.9",
-            "Accept-Encoding": "gzip, deflate",
-            "Accept-Language": "uk,ru;q=0.9,en;q=0.8",
-        }
-        if cookie_str:
-            headers["Cookie"] = cookie_str
+def find_column(headers: Sequence[object], candidates: Sequence[str]) -> int | None:
+    normalized_headers = [normalize_header(header) for header in headers]
 
-        Conn = HTTPSConnection if is_https else HTTPConnection
-        conn = Conn(host, port, timeout=15)
+    for candidate in candidates:
         try:
-            conn.request("GET", path, headers=headers)
-            resp = conn.getresponse()
-            raw = resp.read()
-        finally:
-            conn.close()
-
-        # Collect Set-Cookie headers
-        for name, value in resp.getheaders():
-            if name.lower() == "set-cookie":
-                m = re.match(r"^([^=]+)=([^;]*)", value)
-                if m:
-                    cookies[m.group(1)] = m.group(2)
-
-        # Follow redirects
-        if resp.status in (301, 302, 303, 307, 308):
-            location = resp.getheader("Location", "")
-            if location.startswith("/"):
-                location = f"{parsed.scheme}://{host}{location}"
-            url = location
+            return normalized_headers.index(candidate)
+        except ValueError:
             continue
 
-        encoding = resp.getheader("Content-Encoding")
-        try:
-            data = _decompress(raw, encoding)
-        except Exception:
-            data = raw
+    return None
 
-        return data.decode("utf-8", errors="replace"), cookies
-
-    raise RuntimeError(f"Too many redirects for {url}")
-
-
-def fetch_product_page(domain: str, alias: str, cookies: dict[str, str]) -> tuple[str, dict[str, str]]:
-    """
-    Fetch product page, handle Horoshop bot challenge, return (html, cookies).
-    """
-    url = f"https://{domain}/{alias.strip('/')}/"
-    html, cookies = fetch_html(url, cookies)
-
-    # Detect challenge page and retry
-    m = RE_CHALLENGE.search(html)
-    if m and "location.reload" in html:
-        cookies["challenge_passed"] = m.group(1)
-        print(f"  [challenge] solved for {domain}, retrying…")
-        html, cookies = fetch_html(url, cookies)
-
-    return html, cookies
-
-
-def extract_product_id(html: str) -> int | None:
-    m = RE_PRODUCT_ID.search(html)
-    return int(m.group(1)) if m else None
-
-
-# ── XLSX reader ──────────────────────────────────────────────────────────────
 
 def read_xlsx(path: str) -> list[tuple[str, str]]:
-    """
-    Returns list of (sku, alias) pairs from the XLSX, skipping header and blank aliases.
-    """
-    wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
-    ws = wb.active
-    rows = list(ws.iter_rows(min_row=2, values_only=True))
-    wb.close()
+    workbook = openpyxl.load_workbook(path, read_only=True, data_only=True)
+    sheet = workbook.active
 
-    result = []
-    for row in rows:
-        sku   = str(row[COL_SKU]).strip()   if row[COL_SKU]   is not None else ""
-        alias = str(row[COL_ALIAS]).strip() if row[COL_ALIAS] is not None else ""
+    try:
+        rows = list(sheet.iter_rows(values_only=True))
+    finally:
+        workbook.close()
+
+    if not rows:
+        return []
+
+    sku_col = find_column(rows[0], HEADER_SKU_CANDIDATES)
+    alias_col = find_column(rows[0], HEADER_ALIAS_CANDIDATES)
+
+    if sku_col is None or alias_col is None:
+        raise ValueError(
+            "XLSX must contain SKU/article and alias/url columns. "
+            f"SKU headers: {', '.join(HEADER_SKU_CANDIDATES)}; "
+            f"alias headers: {', '.join(HEADER_ALIAS_CANDIDATES)}"
+        )
+
+    products: list[tuple[str, str]] = []
+    for row in rows[1:]:
+        sku = cell_text(row[sku_col] if sku_col < len(row) else None)
+        alias = cell_text(row[alias_col] if alias_col < len(row) else None)
+
         if sku and alias:
-            result.append((sku, alias))
+            products.append((sku, alias))
 
-    return result
+    return products
 
-
-# ── Database ─────────────────────────────────────────────────────────────────
 
 def build_dsn(args_db: str | None) -> str:
     if args_db:
         return args_db
+
     dsn = os.environ.get("PG_DSN")
     if dsn:
         return dsn
-    host     = os.environ.get("PG_HOST",     "localhost")
-    port     = os.environ.get("PG_PORT",     "5435")
-    dbname   = os.environ.get("PG_DATABASE", "widgetis")
-    user     = os.environ.get("PG_USER",     "widgetis")
-    password = os.environ.get("PG_PASSWORD", "widgetis_secret")
-    return f"host={host} port={port} dbname={dbname} user={user} password={password}"
+
+    return (
+        f"host={os.environ.get('PG_HOST', 'localhost')} "
+        f"port={os.environ.get('PG_PORT', '5435')} "
+        f"dbname={os.environ.get('PG_DATABASE', 'widgetis')} "
+        f"user={os.environ.get('PG_USER', 'widgetis')} "
+        f"password={os.environ.get('PG_PASSWORD', 'widgetis_secret')}"
+    )
 
 
-def get_site_id(cur, domain: str) -> str:
-    cur.execute("SELECT id FROM wgt_sites WHERE domain = %s", (domain,))
-    row = cur.fetchone()
+def get_site_id(cursor, domain: str) -> str:
+    cursor.execute("SELECT id FROM wgt_sites WHERE domain = %s", (domain,))
+    row = cursor.fetchone()
+
     if not row:
-        raise ValueError(f"Site not found in wgt_sites: {domain}")
+        raise ValueError(f"Site not found: {domain}")
+
     return row[0]
 
 
-def save_platform_id(cur, site_id: str, sku: str, platform_id: int) -> bool:
-    cur.execute(
-        "UPDATE wgt_catalog_products SET platform_id = %s WHERE site_id = %s AND sku = %s",
-        (platform_id, site_id, sku),
+def save_horoshop_id(cursor, site_id: str, sku: str, horoshop_id: int) -> bool:
+    cursor.execute(
+        "UPDATE wgt_catalog_products SET horoshop_id = %s WHERE site_id = %s AND sku = %s",
+        (horoshop_id, site_id, sku),
     )
-    return cur.rowcount > 0
+
+    return cursor.rowcount > 0
 
 
-# ── Main ─────────────────────────────────────────────────────────────────────
+def extract_horoshop_id(html: str) -> int | None:
+    match = RE_PRODUCT_ID.search(html)
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Fetch Horoshop platform_id for catalog products.")
-    parser.add_argument("--domain", required=True, help="Site domain, e.g. benihome.com.ua")
-    parser.add_argument("--xlsx",   required=True, help="Path to Horoshop XLSX export")
-    parser.add_argument("--db",     default=None,  help="PostgreSQL DSN string")
-    parser.add_argument("--delay",  type=float, default=0.5, help="Delay between requests (sec)")
-    parser.add_argument("--limit",  type=int,   default=None, help="Max products to process")
-    parser.add_argument("--dry-run", action="store_true", help="Print IDs without saving to DB")
+    return int(match.group(1)) if match else None
+
+
+def fetch_product_html(page: Page, domain: str, alias: str) -> str:
+    url = f"https://{domain}/{alias.strip('/')}/"
+    page.goto(url, wait_until="domcontentloaded", timeout=20_000)
+
+    try:
+        page.wait_for_function(
+            """() => Boolean(
+                document.querySelector('[id^="j-buy-button-counter-"]')
+                || document.querySelector('[id^="j-buy-button-widget-"]')
+            )""",
+            timeout=10_000,
+        )
+    except PlaywrightTimeoutError:
+        # Keep the old scraper behaviour: if the marker is not immediately
+        # visible, still inspect the loaded HTML before declaring a miss.
+        pass
+
+    return page.content()
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Fetch Horoshop product IDs and save them to wgt_catalog_products.horoshop_id."
+    )
+    parser.add_argument("--domain", required=True, help="Site domain from wgt_sites.domain")
+    parser.add_argument("--xlsx", required=True, help="Path to a Horoshop XLSX export")
+    parser.add_argument("--db", default=None, help="PostgreSQL DSN. Defaults to PG_DSN or PG_* env vars.")
+    parser.add_argument("--start", type=int, default=0, help="0-based product offset to start from")
+    parser.add_argument("--limit", type=int, default=10, help="How many products to process. 0 means all.")
+    parser.add_argument("--delay", type=float, default=0.5, help="Delay between page requests, in seconds")
+    parser.add_argument("--dry-run", action="store_true", help="Fetch and print IDs without writing to DB")
     args = parser.parse_args()
+
+    if args.start < 0:
+        parser.error("--start must be >= 0")
+
+    if args.limit < 0:
+        parser.error("--limit must be >= 0")
 
     print(f"Reading XLSX: {args.xlsx}")
     products = read_xlsx(args.xlsx)
     print(f"Found {len(products)} products with aliases")
 
-    if args.limit:
+    products = products[args.start:]
+    if args.limit > 0:
         products = products[:args.limit]
-        print(f"Limited to {len(products)} products")
 
-    conn = cur = site_id = None
+    print(f"Processing {len(products)} products from offset {args.start}")
+
+    conn = cursor = site_id = None
     if not args.dry_run:
-        dsn = build_dsn(args.db)
-        conn = psycopg2.connect(dsn)
-        cur  = conn.cursor()
-        site_id = get_site_id(cur, args.domain)
+        conn = psycopg2.connect(build_dsn(args.db))
+        cursor = conn.cursor()
+        site_id = get_site_id(cursor, args.domain)
         print(f"Site ID: {site_id}")
 
-    cookies: dict[str, str] = {}
-    ok = skip = fail = 0
+    saved = not_found = failed = not_updated = 0
 
-    for i, (sku, alias) in enumerate(products, 1):
-        print(f"[{i}/{len(products)}] {sku} → /{alias}/", end="  ", flush=True)
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(headless=True)
+        context = browser.new_context(
+            user_agent="Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15",
+            viewport={"width": 390, "height": 844},
+        )
+        page = context.new_page()
 
-        try:
-            html, cookies = fetch_product_page(args.domain, alias, cookies)
-            pid = extract_product_id(html)
-        except Exception as e:
-            print(f"ERROR: {e}")
-            fail += 1
-            time.sleep(args.delay)
-            continue
+        for index, (sku, alias) in enumerate(products, 1):
+            url = f"https://{args.domain}/{alias.strip('/')}/"
+            print(f"[{index}/{len(products)}] {sku} -> {url}", end="  ", flush=True)
 
-        if pid is None:
-            print("ID not found in HTML")
-            skip += 1
-        else:
-            print(f"platform_id = {pid}")
-            if not args.dry_run:
-                saved = save_platform_id(cur, site_id, sku, pid)
-                if not saved:
-                    print(f"  WARNING: no row updated for sku={sku!r}")
-            ok += 1
+            try:
+                html = fetch_product_html(page, args.domain, alias)
+            except Exception as exc:
+                print(f"ERROR: {exc}")
+                failed += 1
+                if args.delay > 0:
+                    time.sleep(args.delay)
+                continue
 
-        if args.delay > 0:
-            time.sleep(args.delay)
+            product_id = extract_horoshop_id(html)
 
-    if conn:
+            if product_id is None:
+                print("ID not found")
+                not_found += 1
+                if args.delay > 0:
+                    time.sleep(args.delay)
+                continue
+
+            print(f"horoshop_id = {product_id}")
+
+            if args.dry_run:
+                saved += 1
+            elif save_horoshop_id(cursor, site_id, sku, product_id):
+                saved += 1
+            else:
+                print(f"  WARNING: no catalog row updated for sku={sku!r}")
+                not_updated += 1
+
+            if args.delay > 0:
+                time.sleep(args.delay)
+
+        browser.close()
+
+    if conn is not None:
         conn.commit()
-        cur.close()
+        cursor.close()
         conn.close()
 
-    print(f"\nDone. saved={ok}  not_found={skip}  errors={fail}")
+    print(
+        "\nDone. "
+        f"saved={saved}  not_found={not_found}  not_updated={not_updated}  errors={failed}"
+    )
+
+    return 1 if failed > 0 else 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
