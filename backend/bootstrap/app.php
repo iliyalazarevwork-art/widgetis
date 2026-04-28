@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         \App\WidgetRuntime\Console\Commands\CleanupDemoSessions::class,
         \App\WidgetRuntime\Console\Commands\Catalog\ImportXlsxCommand::class,
         \App\WidgetRuntime\Console\Commands\Catalog\TagCommand::class,
+        \App\WidgetRuntime\Console\Commands\Catalog\EmbedCommand::class,
         \App\Core\Console\Commands\OtpLogin::class,
         \App\Core\Console\Commands\GetOtpCode::class,
         \App\Core\Console\Commands\PurgeNonAdminUsers::class,
