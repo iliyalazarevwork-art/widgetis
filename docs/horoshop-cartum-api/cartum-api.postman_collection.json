@@ -1,0 +1,1031 @@
+{
+  "info": {
+    "_postman_id": "0a1b2c3d-4e5f-6789-abcd-cartum-api-001",
+    "name": "Cartum API (Horoshop)",
+    "description": "Cartum API documentation imported from https://horoshop.notion.site/cartum-api\n\nAll endpoints expect a Content-Type: application/json POST request and a \"token\" obtained via /api/auth/.\n\nSet `base_url` and `token` collection variables before running requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Cartum API update log",
+      "description": "## 2026\n\n### February 2026\n\nNew webhook: A new comment has been left on the website\n\n[📁🆕 New comment on the website](https://horoshop.notion.site/New-comment-on-the-website-310cc289707980a38216f9946230b222?pvs=24)\n\n## 2025\n\n### December 2025\n\nNew webhooks added: User info change and Order status change\n\n[📁🆕 Order status change](https://horoshop.notion.site/Order-status-change-310cc28970798027a30be3c52e333fd0?pvs=24)\n\n[📁🆕 User info change](https://horoshop.notion.site/User-info-change-310cc289707980dc9273f931d95b72d1?pvs=24)\n",
+      "item": [
+        {
+          "name": "Cartum API update log",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                ""
+              ]
+            },
+            "description": "## 2026\n\n### February 2026\n\nNew webhook: A new comment has been left on the website\n\n[📁🆕 New comment on the website](https://horoshop.notion.site/New-comment-on-the-website-310cc289707980a38216f9946230b222?pvs=24)\n\n## 2025\n\n### December 2025\n\nNew webhooks added: User info change and Order status change\n\n[📁🆕 Order status change](https://horoshop.notion.site/Order-status-change-310cc28970798027a30be3c52e333fd0?pvs=24)\n\n[📁🆕 User info change](https://horoshop.notion.site/User-info-change-310cc289707980dc9273f931d95b72d1?pvs=24)\n"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Web hooks",
+      "description": "Web-hooks allow receiving data about new records in Cartum when events are triggered on the site (e.g. Checkout).\n\nIt is convenient to use in order to reduce the load on the server on which the site is located and eliminate the need to make frequent requests for uploading new data (which may not even be updated) from the site, such as:\n\nOrder placement (order\\_created)\n\nUser registration (user\\_signup)\n\nCallback request (order\\_paid)\n\nPayment status changed (order\\_paid)\n\nUser info changed (user\\_update)\n\nOrder status changed (order\\_update)\n\n(soon) New comment on the website (comments\\_created)\n\nAfter subscribing to events, the system creates a queue for sending data to the links of event subscribers when the event is triggered. In case if a request for a subscriber link returned an HTTP code other than 20x (200, 201...), then Cartum will try to send data on the subscriber link again after a time (about 10 minutes) (maximum 10 times).\n\nℹ️\n\nNote\n\nThe hook queue is sent by the task scheduler (cron) every 5 minutes, so there may be delays in sending data.\n\nThis is done to avoid blocking the user interface when working with the site\n\nIf a subscriber is manually deleted in Cartum (available to developers), the system will automatically send a DELETE request to the link specified when subscribing to the hook, which will mean that the subscriber is no longer registered in the system.\n\nIt is recommended that developers who are developing integration with Cartum add HTTP DELETE method processing to the system.\n\nTable of Contents:\n\n[\n\n📁\n\nUnsubscription from an event\n\n\n\n\n\n\n\n](/Unsubscription-from-an-event-1b6cc289707981ba989fd1bb4d8e150f?pvs=25)\n\n[\n\n📁\n\nSubscription to an event\n\n\n\n\n\n\n\n](/Subscription-to-an-event-1b6cc28970798172b3b6d3a646051f7f?pvs=25)\n\n[\n\n📁\n\nEvents\n\n\n\n\n\n\n\n](/Events-1b6cc28970798107805bc0a572c26e0e?pvs=25)\n",
+      "item": [
+        {
+          "name": "Unsubscription from an event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"id\": 1,\n  \"target_url\": \"http://your_crm.com/order/created\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/hooks/unSubscribe/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "hooks",
+                "unSubscribe"
+              ]
+            },
+            "description": "Function hooks/unSubscribe (http://<DOMAIN>/api/hooks/unSubscribe/)\n\nParameters:\n\ntoken - authorization key received via the auth function\n\nid - subscription identifier received in the [📁Subscription to an event](https://horoshop.notion.site/Subscription-to-an-event-1b6cc28970798172b3b6d3a646051f7f?pvs=24) function\n\ntarget\\_url - link to which subscription data was sent\n\nResponse:\n\nstatus - Returns OK if the hook subscriber was unsubscribed successfully\n\nAlso, on successful unsubscription from the web-hook, the server will return the HTTP/1.1 410 Gone header which means that the web-hook link will no longer send the data.\n\nExample query to http://<DOMAIN>/api/hooks/unSubscribe/\n\n{ \"token\": \"<YOUR TOKEN>\", \"id\": 1, \"target\\_url\": \"http://your\\_crm.com/order/created\" }\n\n​\n\nExample of a response to a query\n\n{ \"status\": \"OK\" }\n\n​\n"
+          },
+          "response": []
+        },
+        {
+          "name": "Subscription to an event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"event\": \"order_created\",\n  \"target_url\": \"http://your_crm.com/order/created\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/hooks/subscribe/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "hooks",
+                "subscribe"
+              ]
+            },
+            "description": "Function hooks/subscribe (http://<DOMAIN>/api/hooks/subscribe/)\n\nParameters:\n\ntoken — authorization key obtained through the auth function\n\nevent — event name\n\norder\\_created — event triggered when a user places an order or shop admin creates an order in the admin panel\n\nuser\\_signup — event triggered at user registration\n\nrequest\\_call\\_me — event triggered when a callback request is made\n\norder\\_paid —event triggered when order payment status is changed\n\nuser\\_update — event triggered when user info is changed\n\norder\\_update — event triggered when order status is changer to any status except for New\n\ncomments\\_created — event triggered when the new comment is left on the website (the product or store review)\n\ntarget\\_url — link where data should be sent when the event is triggered\n\nResponse:\n\nid — hook identifier to be stored for unsubscribing from the webhook\n\nAlso, on successful subscription to the webhook, the server will return the HTTP/1.1 201 Created header, which means that the webhook was successfully created. For server response statuses other than 20x, it should be assumed that the subscription failed.\n\nThe maximum number of subscriptions per event is 5. When this limit is reached, the server response will be \"Subscriptions limit for current event has been reached\"\n\nExample of a query to http://<DOMAIN>/api/hooks/subscribe/\n\n{ \"token\": \"<YOUR TOKEN>\", \"event\": \"order\\_created\", \"target\\_url\": \"http://your\\_crm.com/order/created\" }\n\n​\n\nExample of a response to a query\n\n{ \"id\": 1 }\n\n​\n"
+          },
+          "response": []
+        },
+        {
+          "name": "Events",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                ""
+              ]
+            },
+            "description": "Available options:\n\n[\n\n📁\n\nOrder placement\n\n\n\n\n\n\n\n](/Order-placement-1b6cc289707981f48a9bdbabdeaf0bb9?pvs=25)\n\n[\n\n📁\n\nUser registration\n\n\n\n\n\n\n\n](/User-registration-1b6cc28970798167835dd44074ad6284?pvs=25)\n\n[\n\n📁\n\nCallback request\n\n\n\n\n\n\n\n](/Callback-request-1b6cc2897079818e9d06c4cf7cba7ee9?pvs=25)\n\n[\n\n📁\n\nPayment status change\n\n\n\n\n\n\n\n](/Payment-status-change-1b6cc28970798184bae9f521007e9bb0?pvs=25)\n\n[\n\n📁\n\n🆕 User info change\n\n\n\n\n\n\n\n](/User-info-change-310cc289707980dc9273f931d95b72d1?pvs=25)\n\n[\n\n📁\n\n🆕 New comment on the website\n\n\n\n\n\n\n\n](/New-comment-on-the-website-310cc289707980a38216f9946230b222?pvs=25)\n\n[\n\n📁\n\n🆕 Order status change\n\n\n\n\n\n\n\n](/Order-status-change-310cc28970798027a30be3c52e333fd0?pvs=25)\n"
+          },
+          "response": []
+        },
+        {
+          "name": "Events (webhook payloads)",
+          "description": "Available options:\n\n[\n\n📁\n\nOrder placement\n\n\n\n\n\n\n\n](/Order-placement-1b6cc289707981f48a9bdbabdeaf0bb9?pvs=25)\n\n[\n\n📁\n\nUser registration\n\n\n\n\n\n\n\n](/User-registration-1b6cc28970798167835dd44074ad6284?pvs=25)\n\n[\n\n📁\n\nCallback request\n\n\n\n\n\n\n\n](/Callback-request-1b6cc2897079818e9d06c4cf7cba7ee9?pvs=25)\n\n[\n\n📁\n\nPayment status change\n\n\n\n\n\n\n\n](/Payment-status-change-1b6cc28970798184bae9f521007e9bb0?pvs=25)\n\n[\n\n📁\n\n🆕 User info change\n\n\n\n\n\n\n\n](/User-info-change-310cc289707980dc9273f931d95b72d1?pvs=25)\n\n[\n\n📁\n\n🆕 New comment on the website\n\n\n\n\n\n\n\n](/New-comment-on-the-website-310cc289707980a38216f9946230b222?pvs=25)\n\n[\n\n📁\n\n🆕 Order status change\n\n\n\n\n\n\n\n](/Order-status-change-310cc28970798027a30be3c52e333fd0?pvs=25)\n",
+          "item": [
+            {
+              "name": "Callback request",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    ""
+                  ]
+                },
+                "description": "When making a callback request, JSON data will be sent to the link that was registered as a data recipient during the request\\_call\\_me event using the PUT method in the query body.\n\nData example\n\n{ \"call\\_id\": 115, \"call\\_title\": \"John\", \"call\\_phone\": \"+38 (012) 421-42-14\", \"call\\_date\": \"2022-09-08 20:04:48\", \"call\\_url\": \"https://site.com/en/buy/trampoline-atleto-140-cm-with-net-blue\", }\n\n​\n\nValues:\n\ncall\\_id — callback request ID\n\ncall\\_title — the value of the Name field in the callback request form on the website\n\ncall\\_phone — the value of the Phone field in the callback request form on the website\n\ncall\\_date — callback request creation date and time\n\ncall\\_url — a link to the page the customer was on when filling out the request\n"
+              },
+              "response": []
+            },
+            {
+              "name": "New comment on the website",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    ""
+                  ]
+                },
+                "description": "⚙\n\nName: comments\\_created\n\nIf a buyer leaves a comment on the website, JSON data will be sent via the PUT method in the request body to the links that were registered as data recipients during the comments\\_created event.\n\nThe webhook is not sent if the comment was left by the store admin.\n\nData example\n\n{ \"comment\\_id\": 1, \"user\\_name\": \"Reviwer\", \"user\\_email\": \"dasgdsga@zz.cc\", \"user\\_id\": 100, \"handler\\_type\": \"Store review\", \"date\": \"2022-07-01 11:11:00\", \"comment\\_text\": \"Pleasant experience, fast shipping, product of high quality\", \"rate\": 5 }\n\n​\n\nField descriptions:\n\ncomment\\_id — comment ID\n\nuser\\_name — comment author name\n\nuser\\_email — comment author email\n\nuser\\_id — comment author ID, if it is a registered customer\n\nhandler\\_type — comment type (review of a product or store)\n\ndate — comment creation date\n\ncomment\\_text — comment text\n\nrate — number of stars in a review\n"
+              },
+              "response": []
+            },
+            {
+              "name": "Order placement",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    ""
+                  ]
+                },
+                "description": "When placing an order, the order\\_created event will send JSON data using the PUT method in the body of the query to the links that were registered as data recipients.\n\nℹ️\n\nData added to the webhook\n\nStarting from 4.26, new parameters are added to the product data array:\n\nurl - link to the product on the website\n\nphoto\\_url link to the product photo\n\nData example\n\n{ \"order\\_id\": 115, \"user\": 99, \"delivery\\_name\": \"sdbgdasgdasg\", \"delivery\\_email\": \"dasgdsga@zz.cc\", \"delivery\\_phone\": \"+38 (012) 421-42-14\", \"delivery\\_city\": \"Kyiv\", \"delivery\\_address\": \"\", \"delivery\\_type\": { \"id\": 42, \"title\": \"Local pickup\" }, \"delivery\\_price\": 0, \"comment\": \"\", \"payment\\_type\": { \"id\": 13, \"title\": \"In cash\" }, \"payed\": 0, \"total\\_default\": 31799, \"total\\_sum\": 31799, \"total\\_quantity\": 1, \"discount\\_percent\": 0, \"discount\\_value\": 0, \"coupon\\_code\": \"\", \"coupon\\_percent\": 0, \"coupon\\_discount\\_value\": 0, \"coupon\\_type\": 0, \"stat\\_status\": 1, \"stat\\_created\": \"2016-12-05 15:46:40\", \"currency\": \"UAH\", \"order\\_without\\_callback\": true, \"products\": \\[ { \"title\": \"MacBook Air 11.6\\\\\" 128 GB, Green\", \"article\": \"MJVM2UAA\", \"price\": 31799, \"quantity\": 1, \"discount\\_marker\": \"DISCOUNT\\_CARD\", \"total\\_price\": 31799, \"url\": \"https://site.com.ua/ru/kupit/batut-atleto-140-sm-z-sitkoyu-synii\", \"photo\\_url\": \"https://site.com.ua/content/images/1/21893202338603\\_+09372ea19e.jpg\" } \\] }\n\n​\n\nFields (similar to [📁Get orders list](https://horoshop.notion.site/Get-orders-list-1b6cc289707981daaf84dea5c4b573c9?pvs=24) function fields)\n\norder\\_id - order number\n\nuser - user ID in the system (unique for each user)\n\ndelivery\\_name - recipient's full name\n\ndelivery\\_email - email (is unique for each user within the system, duplication is impossible)\n\ndelivery\\_phone - phone number\n\ndelivery\\_city - city\n\ndelivery\\_address - address (if UkrPoshta delivery option is selected, fields are separated by @ symbol)\n\ndelivery\\_type - delivery type\n\ndelivery\\_type.id - delivery identifier in API\n\n2 - By courier in Lutsk\n\n3 - Nova Posta\n\n7 - Mist Express\n\n8 - Self-delivery\n\n9 - UkrPoshta\n\ndelivery\\_type.title - delivery option name (of a string type)\n\ndelivery\\_price - shipping cost (Note: If delivery.price=-1; it means that the shipping cost is calculated according to the carrier's rates )\n\npayment\\_type - payment type\n\npayment\\_type.id - payment identifier in API\n\n11 - Payment to courier\n\n12 - Cashless payment\n\n13 - Cash\n\n14 - Online payment by credit card\n\n15 - Payment on receipt (cash on delivery)\n\npayment\\_type.title - payment option name (of a string type)\n\npayed - whether the order is paid (1 - yes; 0 - no)\n\ntotal\\_default - products cost (excluding discounts)\n\ntotal\\_sum - total cost (including all discounts, but excluding shipping costs)\n\ntotal\\_quantity - total number of items\n\ndiscount\\_percent - relative discount\n\ndiscount\\_value - discount amount\n\ncoupon\\_code - discount coupon code\n\ncoupon\\_percent - relative coupon discount\n\ncoupon\\_discount\\_value - coupon discount amount\n\ncoupon\\_type - coupon type\n\n0 - no coupon;\n\n1 - certificate for the amount;\n\n2 - reusable discount coupon\n\nstat\\_status - status\n\n1 - new\n\n2 - in process\n\n3 - delivered\n\n4 - not delivered\n\nstat\\_created - date and time of order placement (e.g. 2014-11-21 17:38:51)\n\ncurrency - currency in which the user made the order, in ISO format (for example: UAH - hryvnia, USD - dollar, EUR - euro, etc.)\n\norder\\_without\\_callback (true/false) - do not call back after order placement (yes/no) (added in version 3.32)\n\nproducts\\[i\\] - products in an order\n\ntitle - product name\n\narticle - product SKU\n\nprice - product unit cost for the user\n\nquantity - number of units ordered\n\ntotal\\_price - total cost of product unit considering the ordered quantity\n\ndiscount\\_marker - marker for used discount on product\n\nPRICE\\_OLD - old price/relative discount for the product\n\nPAGE\\_DISCOUNT - category discount\n\nDISCOUNT\\_CARD - cumulative discount\n\nDISCOUNT\\_NONE - without discount (under conditions of promotions, etc.)\n\nNONE - without discount\n\nurl - link to the product on the website\n\nphoto\\_url - link to the product photo\n"
+              },
+              "response": []
+            },
+            {
+              "name": "Order status change",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    ""
+                  ]
+                },
+                "description": "⚙\n\nName: order\\_update\n\nWhen changing the order status to any status other than 1 (New), JSON data will be sent via PUT in the request body to the link that was registered as the data recipient for the order\\_update event.\n\nData example\n\n{ \"order\\_id\": 115, \"user\": 99, \"stat\\_status\": 3 }\n\n​\n\nParameters:\n\norder\\_id — order number\n\nuser — user ID in the system (unique for each user)\n\nstat\\_status — new order status ID\n\n➡️\n\n[Get order statuses](/1b6cc28970798146b194e9bf256a6eb8?pvs=25)\n"
+              },
+              "response": []
+            },
+            {
+              "name": "Payment status change",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    ""
+                  ]
+                },
+                "description": "✅\n\nStarting with version 4.26\n\nWhen the payment status of an order is changed to Payed, JSON data will be sent to the link that was registered as a data recipient for the order\\_paid event using the PUT method in the request body:\n\nData example\n\n{ \"order\\_id\": 50, \"user\": 12, \"delivery\\_name\": \"Nataliia Ivanchenko\", \"delivery\\_email\": \"email@gmail.com\", \"delivery\\_phone\": \"+38 (050) 000-00-00\", \"payed\": 1 }\n\n​\n\nValues:\n\norder\\_id — order number\n\nuser — user ID in the system (unique for each user)\n\ndelivery\\_name — recipient full name\n\ndelivery\\_email — email (unique for each user within the system, duplication is not allowed)\n\ndelivery\\_phone — phone number\n\npayed — Payed status, always has the value 1.\n"
+              },
+              "response": []
+            },
+            {
+              "name": "User info change",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    ""
+                  ]
+                },
+                "description": "⚙\n\nName: user\\_update\n\nWhen changing user data in the admin panel, JSON data will be sent using the PUT method in the request body to the links that were registered as data recipients during the user\\_update event.\n\nThe event is triggered when a change is made in your personal account:\n\nuser's email address;\n\nphone numbers;\n\nusername;\n\nuser's country;\n\nuser's city.\n\nThe hook data transmits the complete user data array.\n\nData example\n\n{ \"id\": 99, \"title\": \"sdbgdasgdasg\", \"email\": \"dasgdsga@zz.cc\", \"phone\": \"\", \"country\": \"\", \"city\": \"\", \"address\": \"\", \"registered\": \"2016-12-05 15:46:23\" \"newsletter\\_subscription\": 1 }\n\n​\n\nFields (similar to [📁Export of active users](https://horoshop.notion.site/Export-of-active-users-1b6cc289707981ef9212c2f8f3430980?pvs=24) function)\n\nid - user ID\n\ntitle - user's full name\n\nemail - user's email address\n\nphone - user's phone number\n\ncountry - user's country (specified only if country selection is enabled)\n\ncity - user's city\n\naddress - user address\n\nregistered - user registration date\n\nnewsletter\\_subscription - consent to receive newsletters (0 - no, 1 - yes)\n"
+              },
+              "response": []
+            },
+            {
+              "name": "User registration",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    ""
+                  ]
+                },
+                "description": "Upon user registration, JSON data will be sent using the PUT method in the body of the request to links that were registered as data recipients in the user\\_signup event\n\nData example\n\n{ \"id\": 99, \"title\": \"sdbgdasgdasg\", \"email\": \"dasgdsga@zz.cc\", \"phone\": \"\", \"country\": \"\", \"city\": \"\", \"address\": \"\", \"registered\": \"2016-12-05 15:46:23\" \"newsletter\\_subscription\": 1 }\n\n​\n\nField description (similar to [📁Export of active users](https://horoshop.notion.site/Export-of-active-users-1b6cc289707981ef9212c2f8f3430980?pvs=24) function)\n\nid - user ID\n\ntitle - user full name\n\nemail - user email\n\nphone - user phone number\n\ncountry - user country (only if country selection is enabled)\n\ncity - user city\n\naddress - user address\n\nregistered - date of user registration\n\nnewsletter\\_subscription - consent to receive newsletters (0 - no, 1 - yes)\n\nℹ️\n\nImportant\n\nWhen a user registers via the registration form or social networks, some fields may not be filled in.\n\nTo download updated users data, use the [📁Export of active users](https://horoshop.notion.site/Export-of-active-users-1b6cc289707981ef9212c2f8f3430980?pvs=24) function\n"
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Authorisation",
+      "description": "To authorize, call the auth function (https://<DOMAIN>/api/auth/) with the parameters — login (user login) and password (user password).\n\nParameters:\n\nlogin - user login\n\npassword - user password\n\nResponse:\n\nstatus\n\nOK - authorisation was successful\n\nERROR - user with the specified login/password does not exist\n\nresponse.message - status explanation in case of error\n\nresponse.token - token for further authorisation for calling other functions (length 32 characters).\n\nToken lifetime is 600 seconds.\n\nℹ️\n\nAttention!\n\nExamples of GET queries have been removed as they are not secure and can be intercepted via MITM attacks or packet sniffing when using the HTTP protocol.\n\nThe GET query functionality remains, but may be removed in future releases.\n\nIt is strongly recommended to use exclusively JSON POST queries with Content-type: application/json header\n\nExample of POST query to http://<DOMAIN>/api/auth/\n\nPOST http://<DOMAIN\\>/api/auth/ Content-Type: application/json { \"login\": \"api\", \"password\": \"q4lrfb3\" }\n\n​\n\nExample of a successful authorisation response\n\n{ \"status\":\"OK\", \"response\": { \"token\": \"3199c39700714eec4f6ada0b4242335b\" } }\n\n​\n\nImportant!!!\n\nThe token parameter must be passed with the query when calling any API function except auth (in the format of the corresponding data transfer type (POST, GET, PUT)).\n\nExample of sending data by POST query to http://<DOMAIN>/api/<SOME\\_FUNC>/\n\nPOST http://<DOMAIN\\>/api/<SOME\\_FUNC\\>/ Content-Type: application/json { \"token\": \"<TOKEN>\", \"param\\_1\": \"a\", \"param\\_2\": \"b\" }\n\n​\n",
+      "item": [
+        {
+          "name": "Authorisation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"{{login}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth"
+              ]
+            },
+            "description": "To authorize, call the auth function (https://<DOMAIN>/api/auth/) with the parameters — login (user login) and password (user password).\n\nParameters:\n\nlogin - user login\n\npassword - user password\n\nResponse:\n\nstatus\n\nOK - authorisation was successful\n\nERROR - user with the specified login/password does not exist\n\nresponse.message - status explanation in case of error\n\nresponse.token - token for further authorisation for calling other functions (length 32 characters).\n\nToken lifetime is 600 seconds.\n\nℹ️\n\nAttention!\n\nExamples of GET queries have been removed as they are not secure and can be intercepted via MITM attacks or packet sniffing when using the HTTP protocol.\n\nThe GET query functionality remains, but may be removed in future releases.\n\nIt is strongly recommended to use exclusively JSON POST queries with Content-type: application/json header\n\nExample of POST query to http://<DOMAIN>/api/auth/\n\nPOST http://<DOMAIN\\>/api/auth/ Content-Type: application/json { \"login\": \"api\", \"password\": \"q4lrfb3\" }\n\n​\n\nExample of a successful authorisation response\n\n{ \"status\":\"OK\", \"response\": { \"token\": \"3199c39700714eec4f6ada0b4242335b\" } }\n\n​\n\nImportant!!!\n\nThe token parameter must be passed with the query when calling any API function except auth (in the format of the corresponding data transfer type (POST, GET, PUT)).\n\nExample of sending data by POST query to http://<DOMAIN>/api/<SOME\\_FUNC>/\n\nPOST http://<DOMAIN\\>/api/<SOME\\_FUNC\\>/ Content-Type: application/json { \"token\": \"<TOKEN>\", \"param\\_1\": \"a\", \"param\\_2\": \"b\" }\n\n​\n"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.status === 'OK' && res.response && res.response.token) {",
+                  "    pm.collectionVariables.set('token', res.response.token);",
+                  "    console.log('Token saved:', res.response.token);",
+                  "    pm.test('Auth OK', () => pm.expect(res.status).to.eql('OK'));",
+                  "} else {",
+                  "    pm.test('Auth failed', () => pm.expect.fail(JSON.stringify(res)));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Currencies",
+      "description": "Available options:\n\n[\n\n📁\n\nCurrency and exchange rate export\n\n\n\n\n\n\n\n](/Currency-and-exchange-rate-export-1b6cc2897079815ab4cfd73e6327ccdd?pvs=25)\n",
+      "item": [
+        {
+          "name": "Currency and exchange rate export",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"iso\": [\n    \"UAH\",\n    \"USD\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/currency/export/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "currency",
+                "export"
+              ]
+            },
+            "description": "Currency/export function (http://<DOMAIN>/api/currency/export/)\n\nParameters:\n\ntoken - authorisation key obtained through the auth function\n\niso - ISO code of currency or ISO codes of currencies (pass in array) for unloading - not obligatory parameter\n\nid - unload currencies by identifier(s) (pass in array in this case) - optional parameter\n\nenabledOnly - unload only currencies enabled in the frontend (by default this parameter is enabled). If this parameter is specified - the iso parameter will be ignored\n\nResponse:\n\nstatus - status of the function execution\n\nOK - currency rates were successfully unloaded\n\nEMPTY - the query failed\n\nresponse.currency\\[\\] - currency discount\n\nresponse.currency\\[i\\].id - currency identifier in the system\n\nresponse.currency\\[i\\].iso - international ISO code of currency\n\nresponse.currency\\[i\\].title - readable currency name\n\nresponse.currency\\[i\\].exchangeRates\\[\\] - currency rates\n\nresponse.currency\\[i\\].exchangeRates\\[n\\].relatedId - currency identifier for which the exchange rate is specified\n\nresponse.currency\\[i\\].exchangeRates\\[n\\].relatedIso - international ISO code of the currency against which the exchange rate is specified\n\nresponse.currency\\[i\\].exchangeRates\\[n\\].currentExchangeAmount - value of the amount of the source currency (response.currency\\[i\\].id) against which the exchange rate is calculated\n\nresponse.currency\\[i\\].exchangeRates\\[n\\].relatedExchangeAmount - value of the current currency amount (response.currency\\[i\\].exchangeRates\\[n\\].relatedId) against which the rate is calculated\n\nresponse.currency\\[i\\].exchangeRates\\[n\\].exchangeCourse - exchange rate of the currency relative to 1 currency unit of the original currency and the current currency (response.currency\\[i\\].exchangeRates\\[n\\].currentExchangeAmount / response.currency\\[i\\].exchangeRates\\[n\\].relatedExchangeAmount)\n\nQuery example to http://<DOMAIN>/api/currency/export/\n\n{ \"token\" : \"<YOUR TOKEN>\", \"iso\" : \\[\"UAH\", \"USD\"\\] }\n\n​\n\nResponse example\n\n{ \"status\": \"OK\", \"response\": { \"currency\": \\[ { \"id\": 1, \"iso\": \"UAH\", \"title\": \"Гривна\", \"exchangeRates\": \\[ { \"relatedId\": 2, \"relatedIso\": \"EUR\", \"currentExchangeAmount\": 26, \"relatedExchangeAmount\": 1, \"exchangeCourse\": 26 }, { \"relatedId\": 3, \"relatedIso\": \"USD\", \"currentExchangeAmount\": 22.5, \"relatedExchangeAmount\": 1, \"exchangeCourse\": 22.5 } \\] }, { \"id\": 2, \"iso\": \"EUR\", \"title\": \"Евро\", \"exchangeRates\": \\[ { \"relatedId\": 1, \"relatedIso\": \"UAH\", \"currentExchangeAmount\": 1, \"relatedExchangeAmount\": 26, \"exchangeCourse\": 0.038461538461538 }, { \"relatedId\": 3, \"relatedIso\": \"USD\", \"currentExchangeAmount\": 0.87, \"relatedExchangeAmount\": 1, \"exchangeCourse\": 0.87 } \\] } \\] } }\n\n​\n"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Delivery options",
+      "description": "Available options:\n\n[\n\n📁\n\nDelivery options export\n\n\n\n\n\n\n\n](/Delivery-options-export-1b6cc2897079817180f8d6b88223b7ca?pvs=25)\n\n[\n\n📁\n\nDelivery types export\n\n\n\n\n\n\n\n](/Delivery-types-export-1b6cc2897079817d9d38e65da64fb689?pvs=25)\n",
+      "item": [
+        {
+          "name": "Delivery options export",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"24a75d0678c49a34030e35baeb376ff3\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/delivery/export/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "delivery",
+                "export"
+              ]
+            },
+            "description": "Function delivery/export (http://<DOMAIN>/api/delivery/export/)\n\nParameters:\n\ntoken - authorisation key received through the auth function\n\nResponse:\n\nstatus - status of the function execution\n\nOK - data exported\n\nEMPTY - no data to export\n\nresponse.delivery - list of delivery options\n\nresponse.delivery\\[i\\].id - unique identifier of delivery variant\n\nresponse.delivery\\[i\\].title - delivery variant name\n\nresponse.delivery\\[i\\].title.en - delivery option name in English\n\nresponse.delivery\\[i\\].title.ro - name of delivery option in Romanian\n\n....\n\nresponse.delivery\\[i\\].title.<LN> is the name of the delivery option in the language. Where <LN> is the abbreviation of the language\n\nresponse.delivery\\[i\\].type - delivery type identifier (see delivery/exportTypes function)\n\nresponse.delivery\\[i\\].by\\_carrier - display \"at carrier rates\" instead of delivery cost (boolean). It is used only if the order amount does not match any shipping cost from the \"price\\_options\" parameter\n\nresponse.delivery\\[i\\].enabled - delivery option enabled\n\nresponse.delivery\\[i\\].payment\\[\\] - list of identifiers of available payment methods for this delivery option (see payment/export function).\n\nresponse.delivery\\[i\\].payment\\[n\\] - payment option identifier\n\nresponse.delivery\\[i\\].price\\_options\\[\\] - list of settings of delivery price formation. Price options take precedence over the standard \"by\\_carrier\" property\n\nresponse.delivery\\[i\\].price\\_options\\[n\\].min - threshold of the order amount at which the specified price starts to take effect.\n\nresponse.delivery\\[i\\].price\\_options\\[n\\].price - delivery cost\n\nresponse.delivery\\[i\\].price\\_options\\[n\\].by\\_carrier - if the current cost threshold is enabled, display \"at carrier rates\" instead of delivery cost\n\nQuery example to http://<DOMAIN>/api/delivery/export/\n\n{ \"token\": \"24a75d0678c49a34030e35baeb376ff3\" }\n\n​\n\nResponse example\n\n{ \"status\": \"OK\", \"response\": { \"delivery\": \\[ { \"id\": 11, \"title\": { \"en\": \"By courier\", \"ro\": \"Prin curier\" }, \"type\": 1, \"by\\_carrier\": false, \"enabled\": true, \"payment\": \\[ 13, 14, 15, 16 \\], \"price\\_options\": \\[ { \"min\": 0, \"price\": 45, \"by\\_carrier\": false }, { \"min\": 0, \"price\": 0, \"by\\_carrier\": false }, { \"min\": 1000, \"price\": 0, \"by\\_carrier\": false } \\] }, { \"id\": 10, \"title\": { \"en\": \"Delivery option not specified\", \"ro\": \"Opțiune de livrare nespecificată\" }, \"type\": 0, \"by\\_carrier\": false, \"enabled\": false, \"payment\": \\[\\], \"price\\_options\": \\[ { \"min\": 0, \"price\": 0, \"by\\_carrier\": false } \\] }, { \"id\": 8, \"title\": { \"en\": \"Local pickup\", \"ro\": \"Ridicare personală\" }, \"type\": 4, \"by\\_carrier\": false, \"enabled\": false, \"payment\": \\[ 13, 14, 16 \\], \"price\\_options\": \\[ { \"min\": 0, \"price\": 0, \"by\\_carrier\": false } \\] }, { \"id\": 9, \"title\": { \"en\": \"DPD\", \"ro\": \"DPD\" }, \"type\": 5, \"by\\_carrier\": false, \"enabled\": false, \"payment\": \\[ 13, 14, 16 \\], \"price\\_options\": \\[ { \"min\": 0, \"price\": 35, \"by\\_carrier\": false }, { \"min\": 100, \"price\": 0, \"by\\_carrier\": false } \\] }, { \"id\": 3, \"title\": { \"en\": \"Nova Post\", \"ro\": \"Nova Post\" }, \"type\": 2, \"by\\_carrier\": true, \"enabled\": true, \"payment\": \\[ 12, 13, 14, 15, 16 \\], \"price\\_options\": \\[ { \"min\": 0, \"price\": 35, \"by\\_carrier\": true }, { \"min\": 500, \"price\": 15, \"by\\_carrier\": false } \\] }, { \"id\": 12, \"title\": { \"en\": \"Sameday\", \"ro\": \"Sameday\" }, \"type\": 2, \"by\\_carrier\": false, \"enabled\": false, \"payment\": \\[\\], \"price\\_options\": \\[\\] }, { \"id\": 13, \"title\": { \"en\": \"FAN Courier (Moldova): Home Delivery\", \"ro\": \"FAN Courier (Moldova): Home Delivery\" }, \"type\": 2, \"by\\_carrier\": false, \"enabled\": true, \"payment\": \\[\\], \"price\\_options\": \\[ { \"min\": 0, \"price\": 0, \"by\\_carrier\": false } \\] }, { \"id\": 14, \"title\": { \"en\": \"InPost Parcel Locker\", \"ro\": \"InPost Parcel Locker\" }, \"type\": 5, \"by\\_carrier\": true, \"enabled\": true, \"payment\": \\[ 14, 15 \\], \"price\\_options\": \\[ { \"min\": 0, \"price\": 0, \"by\\_carrier\": false } \\] } \\] } }\n\n​\n"
+          },
+          "response": []
+        },
+        {
+          "name": "Delivery types export",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"24a75d0678c49a34030e35baeb376ff3\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/delivery/exportTypes/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "delivery",
+                "exportTypes"
+              ]
+            },
+            "description": "Function delivery/exportTypes (http://<DOMAIN>/api/delivery/exportTypes/)\n\nParameters:\n\ntoken - authorisation key obtained through the auth function\n\nResponse:\n\nstatus - status of the function execution\n\nOK - data exported\n\nEMPTY - no data to export\n\nresponse.deliveryTypes - list of delivery types\n\nresponse.deliveryTypes\\[i\\].id - unique identifier of delivery type\n\nresponse.deliveryTypes\\[i\\].title - delivery type name\n\nresponse.deliveryTypes\\[i\\].en - delivery type name in English\n\nresponse.deliveryTypes\\[i\\].ro - delivery type name in Romanian\n\n....\n\nresponse.deliveryTypes\\[i\\].<LN> - name of delivery type in language. Where <LN> is the abbreviation of the language\n\nQuery example to http://<DOMAIN>/api/delivery/exportTypes/\n\n{ \"token\": \"24a75d0678c49a34030e35baeb376ff3\" }\n\n​\n\nResponse example\n\n{ \"status\": \"OK\", \"response\": { \"deliveryTypes\": \\[ { \"id\": 1, \"title\": { \"en\": \"Downloadable content\", \"ro\": \"Conținut descărcabil\" } }, { \"id\": 2, \"title\": { \"en\": \"Entering an address\", \"ro\": \"Introducerea adresei\" } }, { \"id\": 3, \"title\": { \"en\": \"Entering an address in one row\", \"ro\": \"Introducerea unei adrese într-un rând\" } }, { \"id\": 4, \"title\": { \"en\": \"Local pickup\", \"ro\": \"Ridicare personală\" } }, { \"id\": 5, \"title\": { \"en\": \"Novapost\", \"ro\": \"Novapost\" } } \\] } }\n\n​\n"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "description": "Available options:\n\n[\n\n📁\n\nPayment options export\n\n\n\n\n\n\n\n](/Payment-options-export-1b6cc289707981c1bad8d32e07697ad3?pvs=25)\n\n[\n\n📁\n\nPayment methods export\n\n\n\n\n\n\n\n](/Payment-methods-export-1b6cc289707981938b59e869e53c5bc6?pvs=25)\n",
+      "item": [
+        {
+          "name": "Payment options export",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"24a75d0678c49a34030e35baeb376ff3\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/payment/export/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "payment",
+                "export"
+              ]
+            },
+            "description": "Function payment/export (http://<DOMAIN>/api/payment/export/)\n\nParameters:\n\ntoken - authorization key received through the auth function\n\nResponse:\n\nstatus - status of the function execution\n\nOK - data exported\n\nEMPTY - no data for export\n\nresponse.payment - list of payment options\n\nresponse.payment\\[i\\].id - unique identifier of payment option\n\nresponse.payment\\[i\\].title - name of payment option\n\nresponse.payment\\[i\\].title.en - name of payment option in English\n\nresponse.payment\\[i\\].title.ro - name of payment option in Romanian\n\n....\n\nresponse.payment\\[i\\].title.<LN> - name of the payment option in the particular language, where <LN> is the abbreviation of that language on the site\n\nresponse.payment\\[i\\].desc - description of the payment option\n\nresponse.payment\\[i\\].desc.en - description of payment option in English\n\nresponse.payment\\[i\\].desc.ro - description of payment option in Romanian\n\n....\n\nresponse.payment\\[i\\].desc.<LN> - description of the payment option in the particular language, where <LN> is the abbreviation of that language on the site\n\nresponse.payment\\[i\\].payment\\_method - payment method identifier (see [📁Payment methods export](https://horoshop.notion.site/Payment-methods-export-1b6cc289707981938b59e869e53c5bc6?pvs=24) function)\n\nresponse.payment\\[i\\].enabled - payment option enabled\n\nresponse.payment\\[i\\].icon - link to payment option icon (for footer)\n\nresponse.payment\\[i\\].link - link to payment gateway\n\nresponse.payment\\[i\\].icon\\_title - icon description\n\nresponse.payment\\[i\\].icon\\_title.en - icon description in English\n\nresponse.payment\\[i\\].icon\\_title.ro - description of icon in Romanian\n\n....\n\nresponse.payment\\[i\\].icon\\_title.<LN> - description of the icon in the particular language, where <LN> is the abbreviation of that language on the site\n\nresponse.payment\\[i\\].payment\\_instruction - payment instruction\n\nresponse.payment\\[i\\].payment\\_instruction.en - payment instruction in English\n\nresponse.payment\\[i\\].payment\\_instruction.ro - payment instruction in Romanian\n\n....\n\nresponse.payment\\[i\\].payment\\_instruction.<LN> - payment instruction in the particular language, where <LN> is the abbreviation of that language on the site\n\nQuery example to http://<DOMAIN>/api/payment/export/\n\n{ \"token\": \"24a75d0678c49a34030e35baeb376ff3\" }\n\n​\n\nResponse example\n\n{ \"status\": \"OK\", \"response\": { \"payment\": \\[ { \"id\": 12, \"title\": { \"en\": \"Cashless payment\", \"ro\": \"Transfer bancar\" }, \"desc\": { \"en\": \"\", \"ro\": \"\" }, \"payment\\_method\": 1, \"enabled\": true, \"icon\": null, \"link\": \"\", \"icon\\_title\": { \"en\": \"\", \"ro\": \"\" }, \"payment\\_instruction\": { \"en\": \"\", \"ro\": \"\" } }, { \"id\": 13, \"title\": { \"en\": \"In cash\", \"ro\": \"Numerar\" }, \"desc\": { \"en\": \"\", \"ro\": \"\" }, \"payment\\_method\": 1, \"enabled\": true, \"icon\": null, \"link\": \"\", \"icon\\_title\": { \"en\": \"\", \"ro\": \"\" }, \"payment\\_instruction\": { \"en\": \"\", \"ro\": \"\" } }, { \"id\": 14, \"title\": { \"en\": \"Online payment (Stripe)\", \"ro\": \"Plata online (Stripe)\" }, \"desc\": { \"en\": \"\", \"ro\": \"\" }, \"payment\\_method\": 2, \"enabled\": true, \"icon\": \"http:\\\\/\\\\/my.cartum.dev\\\\/content\\\\/images\\\\/50\\\\/34905029336611.jpg\", \"link\": \"\", \"icon\\_title\": { \"en\": \"We accept payments with Visa\\\\/Mastercard via Stripe\", \"ro\": \"Acceptăm plăți cu Visa\\\\/Mastercard prin Stripe\" }, \"payment\\_instruction\": { \"en\": \"\", \"ro\": \"\" } }, { \"id\": 15, \"title\": { \"en\": \"Cash on delivery\", \"ro\": \"Plată la livrare\" }, \"desc\": { \"en\": \"\", \"ro\": \"\" }, \"payment\\_method\": 1, \"enabled\": true, \"icon\": null, \"link\": \"\", \"icon\\_title\": { \"en\": \"\", \"ro\": \"\" }, \"payment\\_instruction\": { \"en\": \"\", \"ro\": \"\" } }, { \"id\": 16, \"title\": { \"en\": \"PayPal\", \"ro\": \"PayPal\" }, \"desc\": { \"en\": \"\", \"ro\": \"\" }, \"payment\\_method\": 4, \"enabled\": false, \"icon\": null, \"link\": \"https:\\\\/\\\\/www.paypal.com\\\\/\", \"icon\\_title\": { \"en\": \"PayPal\", \"ro\": \"PayPal\" }, \"payment\\_instruction\": { \"en\": \"\", \"ro\": \"\" } } \\] } }\n\n​\n"
+          },
+          "response": []
+        },
+        {
+          "name": "Payment methods export",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"24a75d0678c49a34030e35baeb376ff3\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/payment/exportMethods/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "payment",
+                "exportMethods"
+              ]
+            },
+            "description": "Function payment/exportMethods (http://<DOMAIN>/api/payment/exportMethods/)\n\nParameters:\n\ntoken - authorization key obtained through the auth function\n\nResponse:\n\nstatus - status of the function execution\n\nOK - data exported\n\nEMPTY - no data for export\n\nresponse.payment - list of delivery options\n\nresponse.paymentMethods\\[i\\].id - unique identifier of payment method\n\nresponse.paymentMethods\\[i\\].title - name of payment method\n\nresponse.paymentMethods\\[i\\].is\\_simple - payment method is simple (boolean)\n\ntrue - after placing an order the user will be immediately redirected to the page with a thank you about the order\n\nfalse - the user will be immediately redirected to the payment gateway (if the option to confirm the possibility of payment by the manager is disabled)\n\nQuery example to http://<DOMAIN>/api/payment/exportMethods/\n\n{ \"token\": \"24a75d0678c49a34030e35baeb376ff3\" }\n\n​\n\nResponse example\n\n{ \"status\": \"OK\", \"response\": { \"paymentMethods\": \\[ { \"id\": 1, \"title\": \"Manual payment\", \"is\\_simple\": 1 }, { \"id\": 2, \"title\": \"PayU\", \"is\\_simple\": 0 }, { \"id\": 3, \"title\": \"Stripe\", \"is\\_simple\": 0 }, { \"id\": 4, \"title\": \"PayPal Native\", \"is\\_simple\": 0 } \\] } }\n\n​\n"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "description": "Available options:\n\n[\n\n📁\n\nUsers import\n\n\n\n\n\n\n\n](/Users-import-1b6cc28970798113a62bdb38e879552c?pvs=25)\n\n[\n\n📁\n\nExport of active users\n\n\n\n\n\n\n\n](/Export-of-active-users-1b6cc289707981ef9212c2f8f3430980?pvs=25)\n",
+      "item": [
+        {
+          "name": "Users import",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                ""
+              ]
+            },
+            "description": "Function users/import\n\n🆕\n\nusers\\[i\\].note — note form manager about the customer, for inner use only\n\nQuery parameters:\n\ntoken - authorization key obtained through the auth function\n\nusers - users list for import\n\nusers\\[i\\].title - user full name (mandatory field)\n\nusers\\[i\\].email - user email (mandatory, unique field)\n\nusers\\[i\\].phone - phone number (with country code)\n\nusers\\[i\\].country - user's default delivery country (not used if country selection at checkout is disabled)\n\nusers\\[i\\].city - user's default delivery city\n\nusers\\[i\\].address - user's default delivery address\n\nusers\\[i\\].newsletter\\_subscription - consent to receive newsletters (0 - no, 1 - yes)\n\nusers\\[i\\].discount\\_card - user's personalized discount\n\nusers\\[i\\].discount\\_card.discount - discount amount (%)\n\nusers\\[i\\].discount\\_card.active - enable/disable personal discount\n\nusers\\[i\\].discount\\_card.date\\_limit - discount validity period (Format YYYYY-MM-DD)\n\nusers\\[i\\].discount\\_card.status - discount status\n\n1 - confirmed\n\n2 - pending confirmation\n\n3 - rejected\n\nusers\\[i\\].note — note about the customer\n\nℹ️\n\nParameters for Cartum b2b\n\nusers\\[i\\].customer\\_group\\_id - ID of the customer group to which the user belongs\n\nusers\\[i\\].balance - the amount of the user's balance, may be negative\n\nusers\\[i\\].balance\\_currency - user balance currency\n\nusers\\[i\\].manager\\_id- ID of the store manager assigned to the user\n\nusers\\[i\\].site\\_link - string, a link to the user's website\n\nusers\\[i\\].company - string, user's company name\n\nusers\\[i\\].role - string, user's position in the company\n\nResponse parameters:\n\nstatus - query execution status\n\nOK - all users of the request were successfully added/updated\n\nWARNING - some users weren't added/updated\n\nresponse.log - update log\n\nresponse.log\\[i\\].code - message code (see table below)\n\nresponse.log\\[i\\].message - message text value\n\nLog message codes\n\nCode\n\nValue\n\n0\n\nUser was successfully imported/updated\n\n1\n\nMissing mandatory fields\n\n2\n\nField validation error\n\n3\n\nUnhandled error\n\nQuery example\n\nPOST http://<DOMAIN\\>/api/users/import/ Content\\-Type: application/json { \"token\": \"<TOKEN>\", \"users\": \\[ { \"title\": \"Ivanov Ivan\", \"email\": \"ivan@mail.net\", \"phone\": \"+380631234567\", \"country\": \"Ukraine\", \"city\": \"Kyiv\", \"address\": \"Khreschatyk St, 22\", \"newsletter\\_subscription\": 1 \"discount\\_card\": { \"discount\": 3, \"active\": true, \"date\\_limit\": \"2019-01-01\", \"status\": 1 } }, { \"title\": \"Ivanova Elena\", \"email\": \"elena@mail.net\", \"phone\": \"+380631234567\", \"country\": \"Ukraine\", \"city\": \"Kyiv\", \"address\": \"Khreschatyk St, 1\", \"newsletter\\_subscription\": 0 \"discount\\_card\": { \"discount\": 3, \"active\": true, \"date\\_limit\": \"2020-01-01\", \"status\": 1 } }, { \"email\": \"some@email\" } \\] }\n\n​\n\nResponse example\n\n{ \"status\": \"WARNING\", \"response\": { \"log\": \\[ { \"info\": \\[ { \"code\": 0, \"message\": \"User ivan@mail.net update completed successfully!\" } \\] }, { \"info\": \\[ { \"code\": 0, \"message\": \"User elena@mail.net update completed successfully!\" } \\] }, { \"info\": \\[ { \"code\": 1, \"message\": \"The email field (some@email) is set incorrectly!\" } \\] } \\] } }\n\n​\n"
+          },
+          "response": []
+        },
+        {
+          "name": "Export of active users",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"from\": \"21.11.2016\",\n  \"to\": \"22.11.2016\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/export/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "export"
+              ]
+            },
+            "description": "Function users/export (http://<DOMAIN>/api/users/export/)\n\nParameters:\n\ntoken - authorization key obtained through the auth function\n\nfrom - downloading of users who registered after the specified date (e.g. 01.02.2015 14:15:00 - all users who registered starting from 14:15 February 1, 2015, will be downloaded) - optional parameter. Format:\n\nYYYY-MM-DD\n\nDD.MM.YYYY\n\nStarting with version 3.30\n\nYYYY-MM-DD HH:mm:ss\n\nDD.MM.YYYY HH:mm:ss\n\nto - downloading users who registered before the specified date (e.g. 01.02.2015 - all users who registered before February 1, 2015 will be downloaded) - optional parameter. Format:\n\nYYYY-MM-DD\n\nDD.MM.YYYY\n\nStarting with version 3.30\n\nYYYY-MM-DD HH:mm:ss\n\nDD.MM.YYYY HH:mm:ss\n\nStarting with version 3.30\n\noffset - offset of user selection relative to the start (works only in combination with the limit parameter)\n\nlimit - number of users displayed\n\nResponse:\n\nstatus - function execution status\n\nOK - users successfully downloaded\n\nEMPTY - the query was unsuccessful\n\nresponse.users\\[\\] - user list\n\nresponse.users\\[i\\].id - user ID in the system\n\nresponse.users\\[i\\].title - user name\n\nresponse.users\\[i\\].email - user email\n\nresponse.users\\[i\\].phone - user phone number\n\nresponse.users\\[i\\].country - user's delivery country (not blank if the site has country selection at checkout enabled)\n\nresponse.users\\[i\\].city - user's delivery city\n\nresponse.users\\[i\\].address - user's delivery address\n\nresponse.users\\[i\\].registered - user registration date (Format YYYYY-MM-DD HH:MM:SS, e.g. 2016-01-13 12:52:34)\n\nresponse.users\\[i\\].newsletter\\_subscription - consent to receive newsletters (0 - no, 1 - yes)\n\nresponse.users\\[i\\].note — note to customer\n\nFor Cartum B2B:\n\nresponse.users\\[i\\].customer\\_group\\_id - customer group assigned to the user\n\nresponse.users\\[i\\].balance - user balance\n\nresponse.users\\[i\\].manager - store manager assigned to the user\n\nresponse.users\\[i\\].manager.id - manager ID\n\nresponse.users\\[i\\].manager.name - manager name\n\nresponse.users\\[i\\].manager.phone - manager's phone number\n\nresponse.users\\[i\\].site\\_link - link to the user's website\n\nresponse.users\\[i\\].company - link to the user's company website\n\nresponse.users\\[i\\].role - user position in the company\n\nExample of a query to http://<DOMAIN>/api/users/export/\n\n{ \"token\" : \"<YOUR TOKEN>\", \"from\" : \"21.11.2016\", \"to\" : \"22.11.2016\" }\n\n​\n\nResponse example\n\n{ \"status\": \"OK\", \"response\": { \"users\": \\[ { \"id\": 176, \"title\": \"John Doe\", \"email\": \"test@gmail.com\", \"phone\": \"+38 (055) 555-55-55\", \"country\": \"Ukraine\", \"city\": \"Kyiv\", \"address\": \"\", \"registered\": \"2021-05-13 19:41:17\", \"newsletter\\_subscription\": 1 \"customer\\_group\\_id\": 1, \"balance\": \"0.00\", \"balance\\_currency\": \"1\", \"manager\": \"Nicolas\", \"site\\_link\": \"test.com\", \"company\": \"Test Company\", \"role\": \"customer\" } \\] } }\n\n​\n"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Pages Categories",
+      "description": "Available options:\n\n[\n\n📁\n\nCategories export\n\n\n\n\n\n\n\n](/Categories-export-1b6cc289707981329768c91a97e34e99?pvs=25)\n",
+      "item": [
+        {
+          "name": "Categories export",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"68c0a0142b175f711dc8143dbedb757c\",\n  \"parent\": 97\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/pages/export/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "pages",
+                "export"
+              ]
+            },
+            "description": "The function pages/export (<http://<DOMAIN>>/api/pages/export/)\n\nParameters:\n\ntoken - authorisation key obtained through the auth function\n\nparent - parent section relative to which pages should be searched (optional). Default is 0 (root partition). You can select any partition as parent\n\nResponse:\n\nstatus - status of the function execution\n\nOK - all records were updated successfully\n\nEMPTY - the query returned no results\n\nresponse.pages - list of pages\n\nresponse.pages\\[i\\].id - unique page identifier\n\nresponse.pages\\[i\\].parent - parent section identifier\n\nresponse.pages\\[i\\].title - array of section titles, where the array key is the language in which the title is specified.\n\nresponse.pages\\[i\\].discount - amount of discount for the section in percent\n\nQuery Example to http://<DOMAIN>/api/pages/export/\n\n{ \"token\": \"68c0a0142b175f711dc8143dbedb757c\", \"parent\": 97 }\n\n​\n\nResponse example\n\n{ \"status\": \"OK\", \"response\": { \"pages\": \\[ { \"id\": 993, \"parent\": 97, \"title\": { \"en\": \"Brands\", \"ro\": \"Mărci\" }, \"discount\": 10 }, { \"id\": 1121, \"parent\": 97, \"title\": { \"en\": \"iPhone 5s\", \"ro\": \"\" } }, { \"id\": 1122, \"parent\": 97, \"title\": { \"en\": \"iPad Air 2\", \"ro\": \"\" } }, { \"id\": 1123, \"parent\": 97, \"title\": { \"en\": \"iPod Nano\", \"ro\": \"\" } }, { \"id\": 1124, \"parent\": 97, \"title\": { \"en\": \"MacBook Air\", \"ro\": \"\" } } \\] } }\n\n​\n"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "description": "Available options:\n\n[\n\n📁\n\nUpdating Orders\n\n\n\n\n\n\n\n](/Updating-Orders-1b6cc2897079819d9456cf96ba3f99ed?pvs=25)\n\n[\n\n📁\n\nGet orders list\n\n\n\n\n\n\n\n](/Get-orders-list-1b6cc289707981daaf84dea5c4b573c9?pvs=25)\n\n[\n\n📁\n\nGet order statuses\n\n\n\n\n\n\n\n](/Get-order-statuses-1b6cc28970798146b194e9bf256a6eb8?pvs=25)\n",
+      "item": [
+        {
+          "name": "Updating Orders",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"7abd7fbadb3920e48b3961181b4cd3e5\",\n  \"orders\": [\n    {\n      \"order_id\": 24,\n      \"status\": 2\n    },\n    {\n      \"order_id\": 23,\n      \"status\": 4,\n      \"tracking_code\": \"123123123123\"\n    },\n    {\n      \"order_id\": 22,\n      \"status\": 3\n    },\n    {\n      \"order_id\": 26,\n      \"status\": 3123\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/orders/update/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "orders",
+                "update"
+              ]
+            },
+            "description": "Function orders/update (<http://<DOMAIN>>/api/orders/update/)\n\nParameters:\n\ntoken - authorization key obtained through the auth function.\n\norders\\[\\] - array of orders\n\norders\\[i\\].order\\_id - order number\n\norders\\[i\\].status - order status\n\n1 - New\n\n2 - In processing\n\n3 - Delivered\n\n4 - Not delivered\n\n6 - Delivering\n\norders\\[i\\].tracking\\_code - tracking code for UkrPochta (displayed in orders in user profile). Optional parameter.\n\norders\\[i\\].payed - fact of order payment\n\n0 - not paid\n\n1 - paid\n\nResponse:\n\nstatus - status of the function execution\n\nOK - all records were updated successfully\n\nWARNING - errors occurred while updating some records\n\nresponse.log - log of function execution for each record\n\nresponse.log\\[i\\].order\\_id - order number\n\nresponse.log\\[i\\].status - record update status\n\nOK - everything was updated successfully\n\nERROR - update error\n\nresponse.log\\[i\\].message - status explanation\n\nQuery example to http://<DOMAIN>/api/orders/update/\n\n{ \"token\": \"7abd7fbadb3920e48b3961181b4cd3e5\", \"orders\": \\[ { \"order\\_id\": 24, \"status\": 2 }, { \"order\\_id\": 23, \"status\": 4, \"tracking\\_code\": \"123123123123\" }, { \"order\\_id\": 22, \"status\": 3 }, { \"order\\_id\": 26, \"status\": 3123 } \\] }\n\n​\n\nResponse example\n\n{ \"status\": \"WARNING\", \"response\": { \"log\": \\[ { \"status\": \"OK\", \"messages\": \"UPDATED\" }, { \"status\": \"OK\", \"messages\": \"UPDATED\" }, { \"status\": \"OK\", \"messages\": \"UPDATED\" }, { \"status\": \"ERROR\", \"messages\": \"status is not defined or defined incorrectly\" } \\] } }\n\n​\n"
+          },
+          "response": []
+        },
+        {
+          "name": "Get orders list",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"c5bc0cd25647e701bc6427f3629b27b4\",\n  \"from\": \"01.04.2021\",\n  \"to\": \"03.04.2021\",\n  \"additionalData\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/orders/get/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "orders",
+                "get"
+              ]
+            },
+            "description": "Function orders/get (<http://<DOMAIN>>/api/orders/get/)\n\n🗒️\n\nBlock customer\\_details in Getting order list only for b2b projects\n\n🗒️\n\ndropshipping\\_details block and new ownTTNPicked parameter in the delivery\\_data array in the order list only for b2b projects\n\nParameters:\n\ntoken\n\n— authorization key obtained through the [auth](/wiki/pages/createpage.action?spaceKey=DOCS&title=EN_%D0%90%D0%B2%D1%82%D0%BE%D1%80%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F&linkCreation=true&fromPageId=3693183343) function.\n\nfrom\n\n— show orders from the specified date (inclusive). Optional parameter. Date format:\n\nYYYY-MM-DD\n\nDD.MM.YYYY\n\nStarting with version 3.30\n\nYYYY-MM-DD HH:mm:ss\n\nDD.MM.YYYY HH:mm:ss\n\nto\n\n— show orders up to the specified date (inclusive). Optional parameter. Date Format:\n\nYYYY-MM-DD\n\nDD.MM.YYYY\n\nStarting with version 3.30\n\nYYYY-MM-DD HH:mm:ss\n\nDD.MM.YYYY HH:mm:ss\n\nids\\[\\]\n\n— order numbers for display\n\nstatus\n\n— show orders with selected statuses (all statuses can be downloaded via the [📁Get order statuses](https://horoshop.notion.site/Get-order-statuses-1b6cc28970798146b194e9bf256a6eb8?pvs=24) function). Optional parameter. The parameter can be passed as an array or variable (status=1 or status\\[\\]=1&status\\[\\]=2, {status:1}, {status:\\[1, 2\\]}). Possible values:\n\n1 - new\n\n2 - in process\n\n3 - delivered\n\n4 - not delivered\n\n6 - delivering\n\nadditionalData\n\n— boolean value (true or false). Allows to upload additional information about the order, for example, tracking number, recipient's and sender's warehouse.\n\nStarting with version 3.30\n\noffset\n\n— offset of user selection relative to the start (works only in combination with the limit parameter)\n\nlimit\n\n— number of orders displayed\n\nResponse:\n\nstatus\n\nOK — orders found successfully\n\nEMPTY — orders not found\n\nresponse.orders\n\n— array containing orders\n\nresponse.orders\\[i\\]\n\norder\\_id\n\n— order number\n\nuser\n\n— user ID in the system (unique for each user)\n\ndelivery\\_name\n\n— recipient's full name\n\ndelivery\\_email\n\n— email (unique for each user within the system, duplication is not possible)\n\ndelivery\\_phone\n\n— phone number\n\ndelivery\\_city\n\n— city (the name from carrier’s database)\n\ndelivery\\_city\\_stable\n\n— city (the name from Cartum’s database)\n\ndelivery\\_address\n\n— delivery address (if UkrPoshta delivery option is selected, fields are separated by @ symbol)\n\ndelivery\\_type\n\n— delivery type\n\ndelivery\\_type.id\n\n— delivery type identifier in the API. You can get information about delivery options through the functions [📁Delivery options export](https://horoshop.notion.site/Delivery-options-export-1b6cc2897079817180f8d6b88223b7ca?pvs=24) and [📁Delivery types export](https://horoshop.notion.site/Delivery-types-export-1b6cc2897079817d9d38e65da64fb689?pvs=24).\n\n3 — Nova Post\n\n8 — Local pickup\n\n9 — UkrPoshta\n\netc. (delivery option identifiers may differ on each project)\n\ndelivery\\_type.title\n\n— delivery type name\n\ndelivery\\_price\n\n— delivery cost (\n\n\"delivery\\_price\": -1\n\n— means that the cost of delivery is calculated at the carrier's rates)\n\ncomment\n\n— customer comments on the order\n\npayment\\_type\n\n— payment type. You can get information about payment options through the [📁Payment options export](https://horoshop.notion.site/Payment-options-export-1b6cc289707981c1bad8d32e07697ad3?pvs=24) and [📁Payment methods export](https://horoshop.notion.site/Payment-methods-export-1b6cc289707981938b59e869e53c5bc6?pvs=24) functions.\n\npayment\\_type.id\n\n— payment type identifier in API\n\n11 — Cash on delivery\n\n12 — Cashless payment\n\n13 — In cash\n\n14 — Online payment (Stripe)\n\n15 — PayPal\n\netc.\n\npayment\\_type.title\n\n— payment type name\n\npayment\\_price\n\n— payment fee\n\npayed\n\n— paid (1 — yes; 0 — no)\n\ntotal\\_default\n\n— cost of goods (excluding discounts)\n\ntotal\\_sum\n\n— total cost (including all discounts, but excluding shipping costs)\n\ntotal\\_quantity\n\n— total number of items in the order\n\ndiscount\\_percent\n\n— relative discount\n\ndiscount\\_value\n\n— discount amount\n\ncoupon\\_code\n\n— discount coupon code\n\ncoupon\\_percent\n\n— relative discount of the coupon\n\ncoupon\\_discount\\_value\n\n— coupon discount amount\n\ncoupon\\_type\n\n— coupon type\n\n0 — without coupon\n\n1 — certificate for certain amount\n\n2 — reusable discount coupon\n\nstat\\_status\n\n— order status. You can get information about all order statuses via the [📁Get order statuses](https://horoshop.notion.site/Get-order-statuses-1b6cc28970798146b194e9bf256a6eb8?pvs=24) function (available since version 4.0).\n\n1 — new\n\n2 — in processing\n\n3 — delivered\n\n4 — not delivered\n\nstat\\_created\n\n— date and time of order placement (example: 2021-04-09 12:09:01)\n\ncurrency\n\n— currency in which the order was placed (in ISO format, for example: UAH — hryvnia, USD — dollar, EUR — euro, etc.). You can get information about all currencies through the [📁Currency and exchange rate export](https://horoshop.notion.site/Currency-and-exchange-rate-export-1b6cc2897079815ab4cfd73e6327ccdd?pvs=24) function.\n\norder\\_without\\_callback\n\n— boolean value (true or false). Whether the customer should be called back (added in version 3.32).\n\nmanager\\_id\n\n— id of the manager who processed the order\n\nmanager\\_comment\n\n— manager's comment\n\nmanager\\_discount\n\n— manager's discount\n\nmanager\\_discount\\_title\n\n— manager's discount name\n\ndelivery\\_country\n\n— country of delivery (if country selection is enabled on the checkout page)\n\nproducts\\[i\\]\n\n— products in an order\n\ntitle\n\n— product name\n\narticle\n\n— product SKU\n\nprice\n\n— product unit cost to the user\n\nquantity\n\n— number of product units ordered\n\ntotal\\_price\n\n— the total cost of goods, taking into account the quantity ordered\n\ndiscount\\_marker\n\n— marker for used discount on the product\n\nPRICE\\_OLD — old price / relative discount on the product\n\nPAGE\\_DISCOUNT — category discount\n\nDISCOUNT\\_CARD — cumulative discount\n\nDISCOUNT\\_NONE — no discount (under conditions of promotions, etc.)\n\nNONE — no discount\n\ntype\n\n— this parameter appeared in v4.7.0 and can contain such values (how to determine which product belongs to a set, or to which products belongs a gift can be seen on the example of this [screenshot](https://i.imgur.com/P5iC8L0.png)):\n\ngift\\_parent\n\n— the product to which the gift was added\n\ngift\n\n— gift itself\n\nset\\_main\n\n— product to which the set has been added\n\nset\\_item\n\n— product belonging to a set\n\nstorage\\_id\n\n— A unique identifier that is subsequently passed to the following parameter\n\nparent\\_storage\\_id\n\n, to indicate the relationship between items at the set/gift levels\n\nparent\\_storage\\_id\n\n— If the value is\n\nnull\n\n, it means that a gift or bundled items have been added to the product (this [screenshot](https://i.imgur.com/P5iC8L0.png) shows an example of a relation between items).\n\nadditional\\_data\n\n— additional order information (only displayed if you pass the\n\n\"additionalData\": true\n\nkey in the body of the query)\n\nnp\\_ref\n\n— electronic invoice (hereinafter referred to as EI) ID for Nova Poshta v.2 API\n\nnp\\_number\n\n— EI number\n\nsender\\_warehouse\\_ref\n\n— sender's warehouse ID in Nova Poshta API\n\nrecipient\\_warehouse\\_ref\n\n— recipient's warehouse ID in Nova Poshta API for the \"Nova Poshta Branch\" delivery method\n\nrecipient\\_address\n\n— data on the recipient's address for the “Nova Poshta Courier” delivery method:\n\nrecipient\\_address.street\\_id\n\n–– the recipient's street ID in Nova Poshta API\n\nrecipient\\_address.street\\_name\n\n–– street name\n\nrecipient\\_address.building\\_number\n\n–– building number\n\nrecipient\\_address.flat\n\n–– apartment number\n\ndelivery\\_data - array of data about delivery method\n\ndeliveryOperatorType - type of delivery operator. Possible values: nova\\_poshta, ukrposht\n\ntnID - unique identifier of electronic shipping note\n\ntnNumber - number of electronic shipping note\n\ntnStatusName - text of delivery note status with operator\n\ntnTrackingUpdateDate - time of last status change at the operator\n\nestimatedDeliveryDate - estimated delivery date\n\ndeparture\n\nsender - sender data array\n\nid - unique identifier of sender in the delivery operator's database\n"
+          },
+          "response": []
+        },
+        {
+          "name": "Get order statuses",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"c5bc0cd25647e701bc6427f3629b27b4\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/orders/get_available_statuses",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "orders",
+                "get_available_statuses"
+              ]
+            },
+            "description": "Function orders/get\\_available\\_statuses (<http://<DOMAIN>>/api/orders/get\\_available\\_statuses)\n\nParameters:\n\ntoken - authorization key obtained through the auth function\n\nResponse:\n\nstatus\n\nOK - statuses are unloaded successfully\n\nERROR - error\n\nresponse.statuses - object containing statuses\n\nresponse.statuses{i}\n\nid - status id\n\ntitle - object of status names in different languages\n\ntitle.en - status title in English\n\ntitle.ro - status title in Romanian\n\n...\n\nis\\_successful - whether the order has been delivered\n\nExample of POST query body\n\n{ \"token\": \"c5bc0cd25647e701bc6427f3629b27b4\" }\n\n​\n\nResponse example\n\n{ \"status\": \"OK\", \"response\": { \"statuses\": { \"1\": { \"id\": 1, \"title\": { \"en\": \"New\", \"ro\": \"Nou\" }, \"is\\_successful\": 0 }, \"2\": { \"id\": 2, \"title\": { \"en\": \"Processing\", \"ro\": \"Procesare\" }, \"is\\_successful\": 0 }, \"3\": { \"id\": 3, \"title\": { \"en\": \"Delivered\", \"ro\": \"Livrat\" }, \"is\\_successful\": 1 }, \"4\": { \"id\": 4, \"title\": { \"en\": \"Canceled\", \"ro\": \"Anulat\" }, \"is\\_successful\": 0 }, \"6\": { \"id\": 6, \"title\": { \"en\": \"Shipping\", \"ro\": \"În procesul de livrare\" }, \"is\\_successful\": 0 } } } }\n\n​\n"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Catalog",
+      "description": "Available options:\n\n[\n\n📁\n\nImport products into catalogue\n\n\n\n\n\n\n\n](/Import-products-into-catalogue-1b6cc289707981cab318fd38ce25f7de?pvs=25)\n\n[\n\n📁\n\nImport of product stock (old)\n\n\n\n\n\n\n\n](/Import-of-product-stock-old-1b6cc289707981df8e8ee88625e50a5a?pvs=25)\n\n[\n\n📁\n\nProcessing images uploaded via ftp\n\n\n\n\n\n\n\n](/Processing-images-uploaded-via-ftp-1b6cc2897079817daa95c5374d252325?pvs=25)\n\n[\n\n📁\n\nProduct export\n\n\n\n\n\n\n\n](/Product-export-1b6cc2897079819f96f2e1b25f93e555?pvs=25)\n\n[\n\n📁\n\nExport of stickers/icons\n\n\n\n\n\n\n\n](/Export-of-stickers-icons-1b6cc289707981fea828cf729649ae0d?pvs=25)\n",
+      "item": [
+        {
+          "name": "Import products into catalogue",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/catalog/import/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "catalog",
+                "import"
+              ]
+            },
+            "description": "Function catalog/import (\n\nhttp://<DOMAIN>/api/catalog/import/\n\n)\n\nParameters:\n\ntoken - authorization key obtained via the auth function\n\nproducts\\[\\] - product list\n\nproducts\\[i\\].title.en - value in English (optional)\n\nproducts\\[i\\].title.ro - value in Romanian (optional)\n\nproducts\\[i\\].title - common value for all languages\n\nproducts\\[i\\].description.en - value in English (optional)\n\nproducts\\[i\\].description.ro - value in Romanian (optional)\n\nproducts\\[i\\].description - common value for all languages\n\nproducts\\[i\\].seo\\_title.en - value in English (optional)\n\nproducts\\[i\\].seo\\_title.ro - value in Romanian (optional)\n\nproducts\\[i\\].seo\\_title - common value for all languages\n\nproducts\\[i\\].seo\\_keywords.en - value in English (optional)\n\nproducts\\[i\\].seo\\_keywords.ro - value in Romanian (optional)\n\nproducts\\[i\\].seo\\_keywords - common value for all languages\n\nproducts\\[i\\].seo\\_description.en - value in English (optional)\n\nproducts\\[i\\].seo\\_description.ro - value in Romanian (optional)\n\nproducts\\[i\\].seo\\_description - common value for all languages\n\nproducts\\[i\\].marketplace\\_description - description for marketplaces\n\nproducts\\[i\\].parent\\_article - article of the parent product. Necessary for creating/merging variants. If the product is a parent, thid field is not necessary (or specify the value of the product article). If you update an existing item but do not specify this field, the current parent article from the database will be taken as the value If the product is new and no value is specified, the parent article will be taken from the products\\[i\\].article field\n\nproducts\\[i\\].article - product article (mandatory parameter)\n\nproducts\\[i\\].article\\_for\\_display - SKU to view on storefront (optional). If filled in, it will be displayed on the site instead of the product article\n\nproducts\\[i\\].title - product name (mandatory parameter in case of adding a new product)\n\nproducts\\[i\\].mod\\_title - product variant name (optional)\n\nproducts\\[i\\].mod\\_title.en - value in English (optional)\n\nproducts\\[i\\].mod\\_title.ro - value in Romanian (optional)\n\nproducts\\[i\\].mod\\_title - common value for all languages\n\nproducts\\[i\\].display\\_in\\_showcase - display product (true|false|1|0)\n\nproducts\\[i\\].presence - product availability. Attention: availability statuses can be transferred only if the Stock Accounting function is disabled. Available values:\n\nin stock\n\nout of stock\n\ncoming soon\n\nAlso any other availability statuses added to your site\n\nproducts\\[i\\].price - product price\n\nproducts\\[i\\].price\\_old - product old price\n\nproducts\\[i\\].discount - relative discount on the product\n\nproducts\\[i\\].short\\_description — short description\n\nproducts\\[i\\].color — color\n\nproducts\\[i\\].gtin — barcode (GTIN (EAN, UPC, ISBN))\n\nproducts\\[i\\].mpn — manufacturer part number (MPN)\n\nproducts\\[i\\].popularity — popularity\n\nproducts\\[i\\].guarantee\\_shop — warranty type\n\nproducts\\[i\\].guarantee\\_length — warranty period, months.\n\nproducts\\[i\\].countdown\\_end\\_time — promotion end date and time\n\nproducts\\[i\\].countdown\\_description — promotion text\n\nproducts\\[i\\].currency - currency of the product. Available values (by default):\n\nUAH\n\nUSD\n\nEUR\n\nPLN\n\nRON\n\nMDL\n\nNote that the currency name may be different on your site, if you have renamed it. Before importing the currency you must check the currency name in the site admin panel\n\nproducts\\[i\\].parent - path / to / section (Educational toys / Toys for babies) (mandatory parameter when adding new products)\n\nproducts\\[i\\].parent.id - catalog section identifier (used instead of products\\[i\\].parent, recommended instead of just the section path). Section identifiers can be obtained with the [pages/export](/wiki/pages/createpage.action?spaceKey=DOCS&title=EN_%D0%AD%D0%BA%D1%81%D0%BF%D0%BE%D1%80%D1%82%20%D0%BA%D0%B0%D1%82%D0%B5%D0%B3%D0%BE%D1%80%D0%B8%D0%B9&linkCreation=true&fromPageId=3693183419) function\n\nproducts\\[i\\].alt\\_parent - array of additional sections. Each element is specified in the same way as the products\\[i\\].parent field\n\nproducts\\[i\\].alt\\_parent\\[n\\] - path / to / section (Educational toys / Toys for babies)\n\nproducts\\[i\\].alt\\_parent\\[n\\].id - catalog section identifier (used instead of products\\[i\\].alt\\_parent\\[n\\])\n\nthe above options for additional sections can be combined\n\nproducts\\[i\\].forceAliasUpdate - need to regenerate the product reference (boolean value, true/false)\n\nproducts\\[i\\].slug - product alias. Works only for new item, or if the parameter forceAliasUpdate == true. The alias will be inserted into the product link and converted according to the rules of forming product links\n\nproducts\\[i\\].brand - brand name\n\nproducts\\[i\\].description - product description\n\nproducts\\[i\\].adult - for adults only (Google Merchant Center)\n\nproducts\\[i\\].uktzed - “УКТ ЗЕД” (UCC FEA) code\n\nproducts\\[i\\].condition - product condition (e.g. \"New\", \"Used\", \"Refurbished\")\n\nproducts\\[i\\].condition.id - product condition ID (used instead of products\\[i\\].condition)\n\nproducts\\[i\\].icons - Icons (\\[\"Sale\", \"New\", \"Bestseller\"\\]). Also other parameters with the \"Multiselect\" type or \"Selection from list\" with the mark \"multi\" can be passed in the same format\n\nproducts\\[i\\].seo\\_title - SEO title for product\n\nproducts\\[i\\].seo\\_keywords - SEO keywords for product\n\nproducts\\[i\\].seo\\_description - SEO description for product\n\nproducts\\[i\\].h1\\_title.en - h1 header for the product (English version)\n\nproducts\\[i\\].h1\\_title.ro - h1 header for the product (Romanian version)\n\nproducts\\[i\\].export\\_to\\_marketplace - enable uploading to marketplaces. Specify names of marketplaces with semicolon: \"marketplace 1;marketplace2;...\".\n\nproducts\\[i\\].characteristics\\[\\] - product attributes (optional)\n\nproducts\\[i\\].characteristics.material - Material\n\nproducts\\[i\\].characteristics.weight - Weight\n\nproducts\\[i\\].characteristics.consist - Composition\n\nproducts\\[i\\].characteristics.country - Country\n\nproducts\\[i\\].characteristics.gender - Gender\n\nproducts\\[i\\].characteristics.age - Age\n\nproducts\\[i\\].characteristics.physics - Physical development (enter values with ;)\n\nproducts\\[i\\].characteristics.brain - Mental development (specify values with ;)\n\nproducts\\[i\\].characteristics.social - Social development (enter values with ;)\n\nℹ️\n\nNew parameters since version 3.15.15\n\nproducts\\[i\\].accessories - product accessories (array). Overwrites existing accessories\n\nproducts\\[i\\].accessories\\[n\\] - product article (string)\n\nproducts\\[i\\].accessories\\[n\\].article - direct indication of the product article\n\nproducts\\[i\\].accessories\\[n\\].page - path / to / section (Educational toys / Toys for babies)\n\nproducts\\[i\\].accessories\\[n\\].page.id - section ID\n\nproducts\\[i\\].gifts - gifts for the product (array). Will only work if the site has gifts enabled. Overwrites existing gifts\n\nproducts\\[i\\].gifts\\[n\\] - product article (string)\n\nproducts\\[i\\].gifts\\[n\\].article - явное указание артикула товара\n\nproducts\\[i\\].gifts\\[n\\].page - path / to / section (Educational toys / Toys for babies)\n\nproducts\\[i\\].gifts\\[n\\].page.id - section ID\n\nproducts\\[i\\].residues - product stock in warehouses. Works only if the site has stock accounting enabled\n\nproducts\\[i\\].residues\\[n\\].warehouse - Name for warehouse synchronization (value of the property \"Name for synchronization\" in the warehouse)\n\nproducts\\[i\\].residues\\[n\\].quantity - product stock in the warehouse\n\nproducts\\[i\\].images - product variant images\n\nproducts\\[i\\].images.links - links to the product images to be loaded (array). Photos are imported in the order in which they are in the array.\n\nproducts\\[i\\].images.links\\[n\\] - link to the image (image size should not exceed 5MB)\n\nproducts\\[i\\].images.override - need to delete current images before loading new ones (boolean). Default is \n\ntrue\n\n. If\n\nfalse\n\nis passed, images with the same or new links will be added to the product without overwriting the previously imported ones.\n\nproducts\\[i\\].images.removeAll - remove all images. WARNING! If you specify true in"
+          },
+          "response": []
+        },
+        {
+          "name": "Processing images uploaded via ftp",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"9948039e94ff867ecc75051bf99f12c6\",\n  \"removePrevImages\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/catalog/processImages/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "catalog",
+                "processImages"
+              ]
+            },
+            "description": "Function catalog/processImages (http://<DOMAIN>/api/catalog/processImages/)\n\nProcessing of images uploaded via ftp to the directory /content/import\\_images/\n\nParameters:\n\ntoken - authorization key obtained via auth function\n\nremovePrevImages - BOOL need to remove previous images in the product\n\nResponse:\n\nstatus - status of the function execution\n\nOK - all records were updated successfully\n\nresponse.log - log of function execution for each record\n\nresponse.log\\[i\\].fileName - name of the processed file\n\nresponse.log\\[i\\].code - code of image addition status\n\n0 - No errors\n\n1 - Incorrect file extension\n\n2 - Item by specified article is missing\n\n3 - Error when moving the image\n\n4 - Gallery with the specified name is missing\n\nresponse.log\\[i\\].message - status explanation\n\nQuery example to http://<DOMAIN>/api/catalog/processImages/\n\n{ \"token\": \"9948039e94ff867ecc75051bf99f12c6\", \"removePrevImages\": true }\n\n​\n\nResponse example\n\n{ \"status\": \"OK\", \"response\": { \"log\": \\[ { \"fileName\": \"123123.jpg\", \"code\": 0, \"message\": \"File 123123.jpg added to 123123 (gallery: images)\" }, { \"fileName\": \"123123@1.jpg\", \"code\": 0, \"message\": \"File 123123@1.jpg added to 123123 (gallery: images)\" }, { \"fileName\": \"123123@gallery\\_common@1.jpg\", \"code\": 0, \"message\": \"File 123123@gallery\\_common@1.jpg added to 123123 (gallery: gallery\\_common)\" }, { \"fileName\": \"123123@gallery\\_common@2.jpg\", \"code\": 0, \"message\": \"File 123123@gallery\\_common@2.jpg added to 123123 (gallery: gallery\\_common)\" }, { \"fileName\": \"afas32352.jpg\", \"code\": 0, \"message\": \"File afas32352.jpg added to afas32352 (gallery: images)\" }, { \"fileName\": \"afas32352@gallery\\_360@1.jpg\", \"code\": 0, \"message\": \"File afas32352@gallery\\_360@1.jpg added to afas32352 (gallery: gallery\\_360)\" }, { \"fileName\": \"afas32352@gallery\\_360@2.jpg\", \"code\": 0, \"message\": \"File afas32352@gallery\\_360@2.jpg added to afas32352 (gallery: gallery\\_360)\" }, { \"fileName\": \"afas32352@gallery\\_comasdgagasgmon@3.jpg\", \"code\": 4, \"message\": \"Gallery gallery\\_comasdgagasgmon does not exists\" }, { \"fileName\": \"afas32352@gallery\\_common@3.jpg\", \"code\": 0, \"message\": \"File afas32352@gallery\\_common@3.jpg added to afas32352 (gallery: gallery\\_common)\" }, { \"fileName\": \"asdgasdgasd325235235.jpg\", \"code\": 2, \"message\": \"Product with article asdgasdgasd325235235 does not exists\" } \\] } }\n\n​\n"
+          },
+          "response": []
+        },
+        {
+          "name": "Product export",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expr\": {\n    \"parent\": \"Mac\",\n    \"article\": [\n      \"sdgasdgsa\",\n      \"asfasgasdg\"\n    ]\n  },\n  \"limit\": 5,\n  \"token\": \"7189d5c9f5f469e8dbfdea1c2c33698c\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/catalog/export/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "catalog",
+                "export"
+              ]
+            },
+            "description": "Function catalog/export (http://<DOMAIN>/api/catalog/export/)\n\nParameters:\n\ntoken - authorization key obtained through the auth function\n\nexpr - condition of goods selection\n\nparent - path to the section (Toys\\\\Educational toys\\\\Toys for Kids) OR\n\nparent.id - section id for selection (or parent.id: {\"id\": \\[1,2,3,4\\]})\n\ndisplay\\_in\\_showcase - 0 or 1 for selection of products that are included\n\narticle - selection of products by article (string or array, for example: \\['SKU-1-BLACK', 'MF-2010'\\]). Not a mandatory parameter\n\noffset - offset relative to the beginning of the goods selection\n\nlimit - number of exported items (by default 500 records, more than 500 records cannot be exported to avoid server overload). It works together with the offset parameter. For example: offset=20&limit=10 - will output goods from the 20th to the 30th.\n\nincludedParams - list of fields to be selected (only the fields specified by you will be selected: parent\\_article, article, parent). see example below.\n\nexcludedParams - list of fields that should be excluded from export (also excluded are the fields specified in includedParams, if this parameter is filled). see example below.\n\nResponse:\n\nstatus - status of function execution\n\nOK - export was successful\n\nEXCEPTION - an error occurred\n\nproducts - exported goods\n\nproducts\\[i\\].title.en - value in English\n\nproducts\\[i\\].title.ro - value in Romanian\n\nproducts\\[i\\].article - product article\n\nproducts\\[i\\].parent\\_article - article of the parent product\n\nproducts\\[i\\].article\\_for\\_display - SKU to view on storefront\n\nproducts\\[i\\].creation\\_time - date of product addition\n\nproducts\\[i\\].title - product name\n\nproducts\\[i\\].display\\_in\\_showcase - display item (1|0)\n\nproducts\\[i\\].price - Price of the product\n\nproducts\\[i\\].price\\_old - Old price of the product\n\nproducts\\[i\\].discount - relative discount for the product\n\nproducts\\[i\\].parent - path to the \\\\ section (Developmental Toys\\\\ Toys for Kids) (mandatory parameter).\n\nproducts\\[i\\].brand - brand name\n\nproducts\\[i\\].description - product description\n\nproducts\\[i\\].description.en - value in English\n\nproducts\\[i\\].description.ro - value in Romanian\n\nproducts\\[i\\].we\\_recommended - we recommend (1|0)\n\nproducts\\[i\\].icons - Icons (\\[\"Sale\", \"Novelty\", \"Hit\"\\])\n\nproducts\\[i\\].seo\\_title - SEO title for the product\n\nproducts\\[i\\].seo\\_title.en - value in English\n\nproducts\\[i\\].seo\\_title.ro - value in Romanian\n\nproducts\\[i\\].seo\\_keywords - SEO keywords for the product\n\nproducts\\[i\\].seo\\_keywords.en - value in English\n\nproducts\\[i\\].seo\\_keywords.ro - value in Romanian\n\nproducts\\[i\\].seo\\_description - SEO description for the product\n\nproducts\\[i\\].seo\\_description.en - value in English\n\nproducts\\[i\\].seo\\_description.ro - value in Romanian\n\nproducts\\[i\\].mod\\_title - product variant name (optional)\n\nproducts\\[i\\].mod\\_title.en - value in English (optional)\n\nproducts\\[i\\].mod\\_title.ro - value in Romanian (optional)\n\nproducts\\[i\\].characteristics\\[\\] - product characteristics\n\nproducts\\[i\\].characteristics.material - Material\n\nproducts\\[i\\].characteristics.weight - Weight\n\nproducts\\[i\\].characteristics.consist - Composition\n\nproducts\\[i\\].characteristics.country - Country\n\nproducts\\[i\\].characteristics.gender - Gender\n\nproducts\\[i\\].characteristics.age - Age\n\nproducts\\[i\\].characteristics.physics - Physical development (specify values with ;)\n\nproducts\\[i\\].characteristics.brain - Mental development (specify values with ;)\n\nproducts\\[i\\].characteristics.social - Social development (specify values with ;)\n\nproducts\\[i\\].presence - product availability. Attention: availability statuses can be transferred only if the Stock Accounting function is disabled. Available values:\n\nin stock\n\nout of stock\n\ncoming soon\n\nAlso any other availability statuses added to your site\n\nproducts\\[i\\].short\\_description — short description\n\nproducts\\[i\\].color — color\n\nproducts\\[i\\].gtin — barcode (GTIN (EAN, UPC, ISBN))\n\nproducts\\[i\\].mpn — manufacturer part number (MPN)\n\nproducts\\[i\\].popularity — popularity\n\nproducts\\[i\\].images - links to images of the modification\n\nproducts\\[i\\].gallery\\_common - links to images common for all modifications\n\nproducts\\[i\\].gallery\\_360 - links to 360 gallery images\n\nproducts\\[i\\].slug - product alias or null if it is not specified\n\nproducts\\[i\\].link - absolute link with domain to the product or null if it is not specifie\n\nproducts\\[i\\].accessories - accessories for the product (array). Overwrite existing accessoriesproducts\\[i\\].accessories\\[n\\] - product article in a simple string\n\nproducts\\[i\\].accessories\\[n\\].article - explicit product article\n\nproducts\\[i\\].accessories\\[n\\].page - the path to the \\\\ section (Toys\\\\Educational toys\\\\Toys for Kids).\n\nproducts\\[i\\].accessories\\[n\\].page.id - section identifier\n\nproducts\\[i\\].gifts - gifts for the product (array). Will work only if gifts are enabled on the site. Overwrite existing gifts\n\nproducts\\[i\\].gifts\\[n\\] - product article in a simple string\n\nproducts\\[i\\].gifts\\[n\\].article - explicit product article\n\nproducts\\[i\\].gifts\\[n\\].page - the path to the section (Toys\\\\Educational toys\\\\Toys for Kids).\n\nproducts\\[i\\].gifts\\[n\\].page.id - section id\n\nproducts\\[i\\].residues - product residues in warehouses. It works only if the site has enabled the accounting of residues in warehouses.\n\nproducts\\[i\\].residues\\[n\\].warehouse - Name for warehouse synchronization (value of \"Name for synchronization\" property in warehouse)\n\nproducts\\[i\\].residues\\[n\\].quantity - quantity of goods in the warehouse\n\nproducts\\[i\\].unit\\_of\\_measurement - unit value\n\nproducts\\[i\\].unit\\_of\\_measurement.id - unit value identifier in the attribute list\n\nproducts\\[i\\].unit\\_of\\_measurement.value - unit value\n\nproducts\\[i\\].multiplicity — multiplicity (step of adding to cart). Integer number.\n\nproducts\\[i\\].minimal\\_order — minimum order. Integer, must be a multiple of the \"Multiplicity\" field.\n\nproducts\\[i\\].installments\\_payment\\[\\] - number of payments for \"Payment by installments by PrivatBank\"\n\nproducts\\[i\\].installments\\_payment.id - value identifier (1 — disabled, 2 — default, 3 and above — specified number of payments according to the position in the attribute list)\n\nproducts\\[i\\].installments\\_payment.value - value\n\nproducts\\[i\\].monobank\\_installments\\_payment\\[\\] - number of payments for \"Purchase by installments from monobank\"\n\nproducts\\[i\\].installments\\_payment.id - value identifier (1 — disabled, 2 — default, 3 and above — specified number of payments according to the position in the attribute list)\n\nproducts\\[i\\].installments\\_payment.value - value\n\nproducts\\[i\\].wholesale\\_prices\\[\\] — wholesale prices for the number of units in an order.\n\nproducts\\[i\\].wholesale\\_prices.minimal\\_threshold — number of units\n\nproducts\\[i\\].wholesale\\_prices.price — the price valid when adding this number of units to an order\n\nproducts\\[i\\].supplier\\[\\] — supplier\n\nproducts\\[i\\].supplier.id — unique supplier ID\n\nproducts\\[i\\].supplier.value — supplier name\n\nImportant note:\n\nIf a parameter has a value translation - it will be output in the format \"param\": { \"id\":1, \"value\": { \"lang\\_abbr\\_1\" : \"value\\_1\", \"lang\\_abbr\\_2\" : \"value\\_2\"}}\n\nThe exported parameters may vary depending on the parameters of the product-specific data template\n\nQuery example to http://<DOMAIN>/api/catalog/export/\n\n{ \"expr\" : { \"parent\":\"Mac\", \"article\": \\[\"sdgasdgsa\", \"asfasgasdg\"\\] }, \"limit\" : 5, \"token\":\"7189d5c9f5f469e8dbfdea1c2c33698c\" }\n\n​\n\nResponse example\n\n{ \"status\": \"OK\", \"response\": { \"products\": \\[ { \"parent\\_article\": \"sdgasdgsa\", \"article\": \"sdgasdgsa\", \"mod\\_title\": { \"en\": \"dgasdgasdg\", \"ro\": \"dgasdgasdg\" }, \"price\": 150, \"price\\_old\": 0, \"presence\": { \"id\": 2, \"value\": { \"en\": \"Out of stock\", \"ro\": \"Stoc epuizat\" } }, \"display\\_in\\_showcase\": 1, \"discount\": 0, \"quantity\": 0, \"short\\_description\": { \"en\": \"\", \"ro\": \"\" }, \"color\": { \"id\": 22, \"value\": { \"en: \"Gold\", \"ro\": \"Gold\" } }, \"title\": { \"en\": \"MacBook Air 11.6\\\\\" 128 GB\", \"ro\": \"MacBook Air 1"
+          },
+          "response": []
+        },
+        {
+          "name": "Export of stickers/icons",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"43af1b7c04ec1372683baf4ef6152639\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/icons/export/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "icons",
+                "export"
+              ]
+            },
+            "description": "Function icons/export/ (<http://<DOMAIN>>/api/icons/export/)\n\nParameters:\n\ntoken - authorization key obtained through the auth function\n\nResponse:\n\nstatus - status of the function execution\n\nOK - data exported\n\nEMPTY - no data to export\n\nresponse.icons - list of icons\n\nresponse.icons\\[i\\].id - unique identifier of sticker/icon\n\nresponse.icons\\[i\\].title - title of sticker/icon\n\nresponse.icons\\[i\\].enabled - sticker/icon enabled\n\nQuery example to http://<DOMAIN>/api/icons/export/\n\n{ \"token\": \"43af1b7c04ec1372683baf4ef6152639\" }\n\n​\n\nResponse example\n\n{ \"status\": \"OK\", \"response\": { \"icons\": \\[ { \"id\": 1, \"title\": \"Bestseller\", \"enabled\": 1 }, { \"id\": 3, \"title\": \"New\", \"enabled\": 1 }, { \"id\": 4, \"title\": \"Sale\", \"enabled\": 1 }, { \"id\": 5, \"title\": \"Discount value\", \"enabled\": 1 }, { \"id\": 6, \"title\": \"Video\", \"enabled\": 1 }, { \"id\": 7, \"title\": \"Promotion counter\", \"enabled\": 1 }, { \"id\": 8, \"title\": \"Privatbank Payment by installments\", \"enabled\": 1 } \\] } }\n\n​\n"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Product sets",
+      "description": "Available options:\n\n[\n\n📁\n\nProduct set import\n\n\n\n\n\n\n\n](/Product-set-import-1b6cc289707981a792a6eaa9be1065a4?pvs=25)\n\n[\n\n📁\n\nDeleting product sets\n\n\n\n\n\n\n\n](/Deleting-product-sets-1b6cc289707981b79df3dd92b4472328?pvs=25)\n",
+      "item": [
+        {
+          "name": "Product set import",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"24a75d0678c49a34030e35baeb376ff3\",\n  \"items\": [\n    {\n      \"article\": \"PRODUCT_SET_ARTICLE\",\n      \"title\": \"PRODUCT_SET_TITLE\",\n      \"discountPercent\": 5,\n      \"initialPrice\": 150,\n      \"discountedPrice\": 100,\n      \"currency\": \"UAH\",\n      \"enabled\": true,\n      \"sortOrder\": 1,\n      \"products\": [\n        \"2317217\",\n        \"MB829\",\n        \"MD810\"\n      ]\n    },\n    {\n      \"article\": \"2317217\",\n      \"title\": \"PRODUCT_SET_TITLE\",\n      \"discountPercent\": 5,\n      \"initialPrice\": 150,\n      \"discountedPrice\": 100,\n      \"currency\": \"USD\",\n      \"enabled\": false,\n      \"sortOrder\": 2,\n      \"products\": [\n        \"2317217\",\n        \"MB829\",\n        \"MD810\",\n        \"MGR32\",\n        \"MGTR2\",\n        \"MD565\"\n      ]\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/productSet/import/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "productSet",
+                "import"
+              ]
+            },
+            "description": "Function productSet/import (http://<DOMAIN>/api/productSet/import/)\n\nParameters:\n\ntoken - authorization key obtained through the auth function\n\nitems\\[\\] - list of sets\n\nitems\\[i\\].article - article of the set (mandatory parameter). It must be unique within sets and items\n\nitems\\[i\\].title - name of the set. The default is \"Cheaper Together\"\n\nitems\\[i\\].discountPercent - relative discount on the kit relative to the original price.\n\nitems\\[i\\].initialPrice (outdated) - initial price of the set (the Old price field in set properties). If not specified, the cost of all items in the set is summarized.\n\nPlease note: we will soon remove the separate Old price parameter from product sets. The initialPrice parameter will also no longer be transmitted via API. It will be automatically calculated as the total cost of all products in the set.\n\nitems\\[i\\].discountedPrice - the cost of the set with the discount taken into account. If not specified, it will be calculated automatically relative to the parameters \"initialPrice\" and \"discountPercent\".\n\nitems\\[i\\].currency - ISO currency code of the set\n\nitems\\[i\\].enabled - enable kit (boolean)\n\nitems\\[i\\].sortOrder - order of displaying the kit. The lower the value, the higher the priority\n\nitems\\[i\\].products\\[\\] - list of items that form the kit. Not less than two and, by default, not more than five items (the setting can be changed).\n\nitems\\[i\\].products\\[n\\] - article of the item in the set\n\nResponse:\n\nstatus - status of the function execution\n\nOK - all sets of goods were successfully added/updated\n\nWARNING - one or more sets of goods were not added/updated\n\nresponse.log - log of function execution for each record\n\nresponse.log\\[i\\].article - set article\n\nresponse.log\\[i\\]\\['info'\\]\\[n\\].code - record update status (see the code table below)\n\nresponse.log\\[i\\]\\['info'\\]\\[n\\].message - code explanation\n\nSet import log codes\n\nCodes\n\nDescription\n\n0\n\nSet imported\n\n1\n\nThe \"discountPercent\" parameter must be an integer between 0 and 100\n\n2\n\nThe parameter \"initialPrice\" must be a fractional number higher than 0\n\n3\n\nThe \"discountedPrice\" parameter must be a fractional number higher than O\n\n4\n\nThe number of items in the set must be between 2 and the \"maximum allowed number of items configured on the site\".\n\n5\n\nThe items in the set must not be repeated\n\n101\n\nThe parameter \"article\" is mandatory\n\n102\n\nThe set article cannot match the article of an existing product.\n\n103\n\nThe \"products\" parameter is mandatory\n\n104\n\nProduct with a certain article is not found\n\n105\n\nNo article is specified for one of the items in the set\n\n106\n\nCurrency not found\n\n400\n\n\"The payload is not JSON\". The request is made incorrectly.\n\n1000\n\nOne of the products has an incorrect object type\n\n2000\n\nUnknown error\n\nQuery example to http://<DOMAIN>/api/productSet/import/\n\n{ \"token\": \"24a75d0678c49a34030e35baeb376ff3\", \"items\":\\[ { \"article\":\"PRODUCT\\_SET\\_ARTICLE\", \"title\":\"PRODUCT\\_SET\\_TITLE\", \"discountPercent\":5, \"initialPrice\":150, \"discountedPrice\":100, \"currency\":\"UAH\", \"enabled\":true, \"sortOrder\":1, \"products\":\\[ \"2317217\", \"MB829\", \"MD810\" \\] }, { \"article\":\"2317217\", \"title\":\"PRODUCT\\_SET\\_TITLE\", \"discountPercent\":5, \"initialPrice\":150, \"discountedPrice\":100, \"currency\":\"USD\", \"enabled\":false, \"sortOrder\":2, \"products\":\\[ \"2317217\", \"MB829\", \"MD810\", \"MGR32\", \"MGTR2\", \"MD565\" \\] } \\] }\n\n​\n\nResponse example\n\n{ \"status\":\"WARNING\", \"response\":{ \"log\":\\[ { \"article\":\"PRODUCT\\_SET\\_ARTICLE\", \"info\":\\[ { \"code\":0, \"message\":\"Set imported\" } \\] }, { \"article\":\"2317217\", \"info\":\\[ { \"code\":102, \"message\":\"The set article \\\\\"2317217\\\\\" cannot match the article of an existing product\" } \\] } \\] } }\n\n​\n"
+          },
+          "response": []
+        },
+        {
+          "name": "Deleting product sets",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"24a75d0678c49a34030e35baeb376ff3\",\n  \"articles\": [\n    \"PRODUCT_SET_ARTICLE\",\n    \"0002317217.124000\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/productSet/remove",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "productSet",
+                "remove"
+              ]
+            },
+            "description": "Function http://<DOMAIN>/api/productSet/remove\n\nParameters:\n\ntoken - authorization key obtained through the auth function\n\narticles\\[\\] - array of articles of sets to be removed\n\narticles\\[n\\] - articles of the set\n\nResponse:\n\nstatus - status of the function execution\n\nOK - sets of articles were successfully deleted\n\nWARNING - one or more sets of goods were not deleted\n\nresponse.log - log of function execution for each record\n\nresponse.log\\[i\\].article - article of the set\n\nresponse.log\\[i\\].deleted - whether the product set was deleted or not\n\nresponse.log\\[i\\].message - explanation of the deleted set status\n\nQuery example to http://<DOMAIN>/api/productSet/remove/\n\n{ \"token\": \"24a75d0678c49a34030e35baeb376ff3\", \"articles\": \\[\"PRODUCT\\_SET\\_ARTICLE\", \"0002317217.124000\"\\] }\n\n​\n\nResponse example\n\n{ \"status\": \"WARNING\", \"response\": { \"log\": \\[ { \"article\": \"PRODUCT\\_SET\\_ARTICLE\", \"deleted\": true, \"message\": \"The product set deleted\" }, { \"article\": \"0002317217.124000\", \"deleted\": false, \"message\": \"Error when deleting a set. Set with the specified article was not found\" } \\] } }\n\n​\n"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cartum B2B features",
+      "description": "Table of contents\n\n[\n\nExport of customer groups\n\n\n\n](/Cartum-B2B-features-1b6cc289707981ca8ce2cac6ad5d4b43?pvs=25#1b6cc2897079816480b6d1490626da6b)\n\n[\n\nUsers import\n\n\n\n](/Cartum-B2B-features-1b6cc289707981ca8ce2cac6ad5d4b43?pvs=25#1b6cc2897079819ea1e9fc76f3c15c56)\n\n[\n\nExport users\n\n\n\n](/Cartum-B2B-features-1b6cc289707981ca8ce2cac6ad5d4b43?pvs=25#1b6cc28970798137b329f041aae8b442)\n\n[\n\nImport products into catalog\n\n\n\n](/Cartum-B2B-features-1b6cc289707981ca8ce2cac6ad5d4b43?pvs=25#1b6cc28970798124a653f8806b362cc9)\n\n[\n\nExport price levels\n\n\n\n](/Cartum-B2B-features-1b6cc289707981ca8ce2cac6ad5d4b43?pvs=25#1b6cc289707981e49736ddeaebb82fcb)\n\n[\n\nAdditional data in Get order list customer\\_details\n\n\n\n](/Cartum-B2B-features-1b6cc289707981ca8ce2cac6ad5d4b43?pvs=25#1b6cc2897079811cb27eef15b76262fa)\n\n[\n\nAdditional data in the Get order list dropshipping\\_details\n\n\n\n](/Cartum-B2B-features-1b6cc289707981ca8ce2cac6ad5d4b43?pvs=25#1b6cc289707981ef889dc4a6cca9d8a2)\n\n[\n\nOwn invoice in the order\n\n\n\n](/Cartum-B2B-features-1b6cc289707981ca8ce2cac6ad5d4b43?pvs=25#1b6cc28970798135b501ebef61cb4836)\n\n🗒️\n\nNew block customer\\_details in Get order list\n\n🗒️\n\nNew parameters for dropshipping orders\n\nFor\n\n/api/customer-groups/export\n\n:\n\ndropshipping - shows whether dropshipping options are enabled for this group\n\nFor [📁Get orders list](https://horoshop.notion.site/Get-orders-list-1b6cc289707981daaf84dea5c4b573c9?pvs=24):\n\nnew dropshipping\\_details parameter block\n\nin the delivery\\_data array, a new parameter ownTTNPicked indicates whether dropshipper has added the invoice number and/or uploaded the invoice file.\n\n### Export of customer groups\n\nFunction\n\n/api/customer-groups/export\n\nQuery example\n\n{ \"token\" : \"1b360dca3d4e837b6091fdb07470eaf3\" }\n\n​\n\nResponse example\n\n{ \"status\": \"OK\", \"response\": { \"customer\\_groups\": \\[ { \"id\": 1, \"title\": \"Unregistered visitors\", \"visible\\_price\\_level\": { \"id\": 2, \"title\": \"Retail price\" }, \"product\\_visibility\": { \"id\": 3, \"title\": \"Full access to products\" }, \"show\\_residues\\_near\\_status\": false, \"show\\_price\\_list\": false, \"dropshipping\": false, \"available\\_payment\\_methods\": \\[\"12\", \"13\"\\], \"available\\_delivery\\_methods\": \\[\"3\", \"8\"\\] }, { \"id\": 3, \"title\": \"Wholesale customers\", \"visible\\_price\\_level\": { \"id\": 2, \"title\": \"Retail price\" }, \"product\\_visibility\": { \"id\": 3, \"title\": \"Full access to products\" }, \"show\\_residues\\_near\\_status\": false, \"show\\_price\\_list\": false, \"dropshipping\": true, \"available\\_payment\\_methods\": \\[\"12\", \"13\", \"14\", \"15\", \"16\"\\], \"available\\_delivery\\_methods\": \\[\"3\", \"8\", \"22\"\\] } \\] } }\n\n​\n\n### Users import\n\nAdded parameters to [📁Users import](https://horoshop.notion.site/Users-import-1b6cc28970798113a62bdb38e879552c?pvs=24):\n\ncustomer group\n\naccount balance\n\nbalance currency\n\nmanager\n\nwebsite link\n\ncompany\n\nposition\n\nQuery example\n\n{ \"token\": \"4bb2ecabecb205256c20ac0d37c050e8\", \"users\": \\[{ \"email\": \"email.123@gmail.com\", \"customer\\_group\\_id\": 3, //customer group id \"balance\": 5000, \"balance\\_currency\": 1, \"manager\\_id\": 61, \"site\\_link\": \"url.com\", \"company\": \"Company name\", \"role\": \"Position\" }\\] }\n\n​\n\n### Export users\n\nAdded fields to [📁Export of active users](https://horoshop.notion.site/Export-of-active-users-1b6cc289707981ef9212c2f8f3430980?pvs=24):\n\ncustomer group\n\naccount balance\n\nbalance currency\n\nmanager\n\nwebsite link\n\ncompany\n\nposition\n\nResponse example\n\n{ \"status\": \"OK\", \"response\": { \"users\": \\[{ \"id\": 1, \"title\": \"asdasdasd\", \"email\": \"email.123@gmail.com\", \"phone\": \"\", \"country\": \"\", \"city\": \"\", \"address\": \"\", \"registered\": \"2020-01-16 15:42:27\", \"newsletter\\_subscription\": 1 \"customer\\_group\\_id\": 3, //customer group id \"balance\": 122, \"balance\\_currency\": 2, \"manager\": { \"id\": 61, \"name\": \"aasdasdasd\", \"phone\": 380994565789 }, \"site\\_link\": \"asdasdasd\", \"company\": \"dasdasdasd\", \"role\": \"\" }\\] } }\n\n​\n\n### Import products into catalog\n\nAdded import of prices of different types to [📁Import products into catalogue](https://horoshop.notion.site/Import-products-into-catalogue-1b6cc289707981cab318fd38ce25f7de?pvs=24).\n\nQuery example\n\n{ \"token\": \"{{token}}\", \"products\": \\[ { \"article\": \"BH-12345\", \"price\": 1500, \"price\\_old\": 1600, \"price\\_levels\": \\[ { \"level\\_id\": 3, \"price\": 1000 }, { \"level\\_id\": 4, \"price\": 900 }, { \"level\\_id\": 5, \"price\": 800 }, { \"level\\_id\": 6, \"price\": 700 } \\] } \\] }\n\n​\n\nPrice levels should be passed in a separate\n\nprice\\_levels\n\narray.\n\nℹ️\n\nPlease note: in the\n\nprice\\_levels\n\narray, only the price tiers you created in Customers → Price tiers need to be passed in.\n\nThe retail price still needs to be passed through the\n\nprice\n\nproperty. Otherwise, you will get an error:\n\nImport of prices for level \"2\" (\"level\\_id\") of the \"price\\_levels\" array object is performed in a different way\n\n### Export price levels\n\nFunction\n\n/api/price-levels/export\n\nQuery example\n\n{ \"token\" : \"1b360dca3d4e837b6091fdb07470eaf3\" }\n\n​\n\nResponse example\n\n{ \"status\": \"OK\", \"response\": { \"price\\_levels\": \\[ { \"id\": 1, \"title\": \"Hide prices\" }, { \"id\": 2, \"title\": \"Price\" }, { \"id\": 3, \"title\": \"Wholesale price 1\" }, { \"id\": 4, \"title\": \"Wholesale price 2\" } \\] } }\n\n​\n\n### Additional data in Get order list customer\\_details\n\nIn [📁Get orders list](https://horoshop.notion.site/Get-orders-list-1b6cc289707981daaf84dea5c4b573c9?pvs=24) additional data about the customer is added - the group he belongs to and the type of price assigned to this group.\n\ncustomer\\_details — array of additional customer data for B2B projects\n\ngroup\n\nid - ID of the customer group to which the customer belongs\n\ntitle - name of the customer group to which the customer belongs\n\nprice\\_level\n\nid - ID of the price tier for the customer group\n\ntitle - name of the price tier for the customer group\n\nResponse example\n\n{ \"status\": \"OK\", \"response\": { \"orders\": \\[ { \"order\\_id\": 7, \"user\": 6, \"delivery\\_name\": \"John Doe\", \"delivery\\_email\": \"john.doe@gmail.com\", \"delivery\\_phone\": \"+38 (055) 555-55-55\", \"delivery\\_city\": \"Kyiv\", \"delivery\\_address\": \"Branch №13: Dorohozhytska St, 4\", \"delivery\\_type\": { \"id\": 3, \"title\": \"Nova Poshta Branch\" }, \"delivery\\_price\": \\-1, \"comment\": \"Order comment\", \"payment\\_type\": { \"id\": 13, \"title\": \"In cash\" }, \"payment\\_price\": 0, \"payed\": 0, \"total\\_default\": 3413, \"total\\_sum\": 3413, \"total\\_quantity\": 2, \"discount\\_percent\": 0, \"discount\\_value\": 0, \"coupon\\_code\": \"\", \"coupon\\_percent\": 0, \"coupon\\_discount\\_value\": 0, \"coupon\\_type\": 0, \"stat\\_status\": 2, \"stat\\_created\": \"2021-04-09 12:09:01\", \"currency\": \"UAH\", \"order\\_without\\_callback\": false, \"customer\\_details\": { \"group\": { \"id\": 4, \"title\": \"Dealers\" }, \"price\\_level\": { \"id\": 3, \"title\": \"Wholesale price\" } ................\n\n​\n\n### Additional data in the Get order list dropshipping\\_details\n\nIn the [📁Get orders list](https://horoshop.notion.site/Get-orders-list-1b6cc289707981daaf84dea5c4b573c9?pvs=24) a new block of parameters was added for orders that were placed with the dropshipping option. The dropshipping\\_details block will be present only if the order was placed by a user from a group with dropshipping enabled.\n\nResponse example\n\n{ \"status\": \"OK\", \"response\": { \"orders\": \\[ { \"order\\_id\": 158, \"user\": 12, ... \"customer\\_details\": { \"group\": { \"id\": 2, \"title\": \"Registered customers\" }, \"price\\_level\": { \"id\": 2, \"title\": \"Retail price\" } }, \"dropshipping\\_details\": { \"recipient\\_payment\\_price\": 40211, \"dropshiper\": { \"name\": \"asdasdasd\", \"phone\": \"+38 (065) 465-46-54\" } } } \\] } }\n\n​\n\n### Own invoice in the order\n\nIn the [📁Get orders list](https://horoshop.notion.site/Get-orders-list-1b6cc289707981daaf84dea5c4b573c9?pvs=24) in the delivery\\_data array, a new parameter ownTTNPicked, which indicates whether the dropshipper has indicated his invoice number and/or uploaded his invoice file.\n\nResponse example\n\n\"delivery\\_data\": { \"ownTTNPicked\": true, }\n\n​\n",
+      "item": [
+        {
+          "name": "Cartum B2B features",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                ""
+              ]
+            },
+            "description": "Table of contents\n\n[\n\nExport of customer groups\n\n\n\n](/Cartum-B2B-features-1b6cc289707981ca8ce2cac6ad5d4b43?pvs=25#1b6cc2897079816480b6d1490626da6b)\n\n[\n\nUsers import\n\n\n\n](/Cartum-B2B-features-1b6cc289707981ca8ce2cac6ad5d4b43?pvs=25#1b6cc2897079819ea1e9fc76f3c15c56)\n\n[\n\nExport users\n\n\n\n](/Cartum-B2B-features-1b6cc289707981ca8ce2cac6ad5d4b43?pvs=25#1b6cc28970798137b329f041aae8b442)\n\n[\n\nImport products into catalog\n\n\n\n](/Cartum-B2B-features-1b6cc289707981ca8ce2cac6ad5d4b43?pvs=25#1b6cc28970798124a653f8806b362cc9)\n\n[\n\nExport price levels\n\n\n\n](/Cartum-B2B-features-1b6cc289707981ca8ce2cac6ad5d4b43?pvs=25#1b6cc289707981e49736ddeaebb82fcb)\n\n[\n\nAdditional data in Get order list customer\\_details\n\n\n\n](/Cartum-B2B-features-1b6cc289707981ca8ce2cac6ad5d4b43?pvs=25#1b6cc2897079811cb27eef15b76262fa)\n\n[\n\nAdditional data in the Get order list dropshipping\\_details\n\n\n\n](/Cartum-B2B-features-1b6cc289707981ca8ce2cac6ad5d4b43?pvs=25#1b6cc289707981ef889dc4a6cca9d8a2)\n\n[\n\nOwn invoice in the order\n\n\n\n](/Cartum-B2B-features-1b6cc289707981ca8ce2cac6ad5d4b43?pvs=25#1b6cc28970798135b501ebef61cb4836)\n\n🗒️\n\nNew block customer\\_details in Get order list\n\n🗒️\n\nNew parameters for dropshipping orders\n\nFor\n\n/api/customer-groups/export\n\n:\n\ndropshipping - shows whether dropshipping options are enabled for this group\n\nFor [📁Get orders list](https://horoshop.notion.site/Get-orders-list-1b6cc289707981daaf84dea5c4b573c9?pvs=24):\n\nnew dropshipping\\_details parameter block\n\nin the delivery\\_data array, a new parameter ownTTNPicked indicates whether dropshipper has added the invoice number and/or uploaded the invoice file.\n\n### Export of customer groups\n\nFunction\n\n/api/customer-groups/export\n\nQuery example\n\n{ \"token\" : \"1b360dca3d4e837b6091fdb07470eaf3\" }\n\n​\n\nResponse example\n\n{ \"status\": \"OK\", \"response\": { \"customer\\_groups\": \\[ { \"id\": 1, \"title\": \"Unregistered visitors\", \"visible\\_price\\_level\": { \"id\": 2, \"title\": \"Retail price\" }, \"product\\_visibility\": { \"id\": 3, \"title\": \"Full access to products\" }, \"show\\_residues\\_near\\_status\": false, \"show\\_price\\_list\": false, \"dropshipping\": false, \"available\\_payment\\_methods\": \\[\"12\", \"13\"\\], \"available\\_delivery\\_methods\": \\[\"3\", \"8\"\\] }, { \"id\": 3, \"title\": \"Wholesale customers\", \"visible\\_price\\_level\": { \"id\": 2, \"title\": \"Retail price\" }, \"product\\_visibility\": { \"id\": 3, \"title\": \"Full access to products\" }, \"show\\_residues\\_near\\_status\": false, \"show\\_price\\_list\": false, \"dropshipping\": true, \"available\\_payment\\_methods\": \\[\"12\", \"13\", \"14\", \"15\", \"16\"\\], \"available\\_delivery\\_methods\": \\[\"3\", \"8\", \"22\"\\] } \\] } }\n\n​\n\n### Users import\n\nAdded parameters to [📁Users import](https://horoshop.notion.site/Users-import-1b6cc28970798113a62bdb38e879552c?pvs=24):\n\ncustomer group\n\naccount balance\n\nbalance currency\n\nmanager\n\nwebsite link\n\ncompany\n\nposition\n\nQuery example\n\n{ \"token\": \"4bb2ecabecb205256c20ac0d37c050e8\", \"users\": \\[{ \"email\": \"email.123@gmail.com\", \"customer\\_group\\_id\": 3, //customer group id \"balance\": 5000, \"balance\\_currency\": 1, \"manager\\_id\": 61, \"site\\_link\": \"url.com\", \"company\": \"Company name\", \"role\": \"Position\" }\\] }\n\n​\n\n### Export users\n\nAdded fields to [📁Export of active users](https://horoshop.notion.site/Export-of-active-users-1b6cc289707981ef9212c2f8f3430980?pvs=24):\n\ncustomer group\n\naccount balance\n\nbalance currency\n\nmanager\n\nwebsite link\n\ncompany\n\nposition\n\nResponse example\n\n{ \"status\": \"OK\", \"response\": { \"users\": \\[{ \"id\": 1, \"title\": \"asdasdasd\", \"email\": \"email.123@gmail.com\", \"phone\": \"\", \"country\": \"\", \"city\": \"\", \"address\": \"\", \"registered\": \"2020-01-16 15:42:27\", \"newsletter\\_subscription\": 1 \"customer\\_group\\_id\": 3, //customer group id \"balance\": 122, \"balance\\_currency\": 2, \"manager\": { \"id\": 61, \"name\": \"aasdasdasd\", \"phone\": 380994565789 }, \"site\\_link\": \"asdasdasd\", \"company\": \"dasdasdasd\", \"role\": \"\" }\\] } }\n\n​\n\n### Import products into catalog\n\nAdded import of prices of different types to [📁Import products into catalogue](https://horoshop.notion.site/Import-products-into-catalogue-1b6cc289707981cab318fd38ce25f7de?pvs=24).\n\nQuery example\n\n{ \"token\": \"{{token}}\", \"products\": \\[ { \"article\": \"BH-12345\", \"price\": 1500, \"price\\_old\": 1600, \"price\\_levels\": \\[ { \"level\\_id\": 3, \"price\": 1000 }, { \"level\\_id\": 4, \"price\": 900 }, { \"level\\_id\": 5, \"price\": 800 }, { \"level\\_id\": 6, \"price\": 700 } \\] } \\] }\n\n​\n\nPrice levels should be passed in a separate\n\nprice\\_levels\n\narray.\n\nℹ️\n\nPlease note: in the\n\nprice\\_levels\n\narray, only the price tiers you created in Customers → Price tiers need to be passed in.\n\nThe retail price still needs to be passed through the\n\nprice\n\nproperty. Otherwise, you will get an error:\n\nImport of prices for level \"2\" (\"level\\_id\") of the \"price\\_levels\" array object is performed in a different way\n\n### Export price levels\n\nFunction\n\n/api/price-levels/export\n\nQuery example\n\n{ \"token\" : \"1b360dca3d4e837b6091fdb07470eaf3\" }\n\n​\n\nResponse example\n\n{ \"status\": \"OK\", \"response\": { \"price\\_levels\": \\[ { \"id\": 1, \"title\": \"Hide prices\" }, { \"id\": 2, \"title\": \"Price\" }, { \"id\": 3, \"title\": \"Wholesale price 1\" }, { \"id\": 4, \"title\": \"Wholesale price 2\" } \\] } }\n\n​\n\n### Additional data in Get order list customer\\_details\n\nIn [📁Get orders list](https://horoshop.notion.site/Get-orders-list-1b6cc289707981daaf84dea5c4b573c9?pvs=24) additional data about the customer is added - the group he belongs to and the type of price assigned to this group.\n\ncustomer\\_details — array of additional customer data for B2B projects\n\ngroup\n\nid - ID of the customer group to which the customer belongs\n\ntitle - name of the customer group to which the customer belongs\n\nprice\\_level\n\nid - ID of the price tier for the customer group\n\ntitle - name of the price tier for the customer group\n\nResponse example\n\n{ \"status\": \"OK\", \"response\": { \"orders\": \\[ { \"order\\_id\": 7, \"user\": 6, \"delivery\\_name\": \"John Doe\", \"delivery\\_email\": \"john.doe@gmail.com\", \"delivery\\_phone\": \"+38 (055) 555-55-55\", \"delivery\\_city\": \"Kyiv\", \"delivery\\_address\": \"Branch №13: Dorohozhytska St, 4\", \"delivery\\_type\": { \"id\": 3, \"title\": \"Nova Poshta Branch\" }, \"delivery\\_price\": \\-1, \"comment\": \"Order comment\", \"payment\\_type\": { \"id\": 13, \"title\": \"In cash\" }, \"payment\\_price\": 0, \"payed\": 0, \"total\\_default\": 3413, \"total\\_sum\": 3413, \"total\\_quantity\": 2, \"discount\\_percent\": 0, \"discount\\_value\": 0, \"coupon\\_code\": \"\", \"coupon\\_percent\": 0, \"coupon\\_discount\\_value\": 0, \"coupon\\_type\": 0, \"stat\\_status\": 2, \"stat\\_created\": \"2021-04-09 12:09:01\", \"currency\": \"UAH\", \"order\\_without\\_callback\": false, \"customer\\_details\": { \"group\": { \"id\": 4, \"title\": \"Dealers\" }, \"price\\_level\": { \"id\": 3, \"title\": \"Wholesale price\" } ................\n\n​\n\n### Additional data in the Get order list dropshipping\\_details\n\nIn the [📁Get orders list](https://horoshop.notion.site/Get-orders-list-1b6cc289707981daaf84dea5c4b573c9?pvs=24) a new block of parameters was added for orders that were placed with the dropshipping option. The dropshipping\\_details block will be present only if the order was placed by a user from a group with dropshipping enabled.\n\nResponse example\n\n{ \"status\": \"OK\", \"response\": { \"orders\": \\[ { \"order\\_id\": 158, \"user\": 12, ... \"customer\\_details\": { \"group\": { \"id\": 2, \"title\": \"Registered customers\" }, \"price\\_level\": { \"id\": 2, \"title\": \"Retail price\" } }, \"dropshipping\\_details\": { \"recipient\\_payment\\_price\": 40211, \"dropshiper\": { \"name\": \"asdasdasd\", \"phone\": \"+38 (065) 465-46-54\" } } } \\] } }\n\n​\n\n### Own invoice in the order\n\nIn the [📁Get orders list](https://horoshop.notion.site/Get-orders-list-1b6cc289707981daaf84dea5c4b573c9?pvs=24) in the delivery\\_data array, a new parameter ownTTNPicked, which indicates whether the dropshipper has indicated his invoice number and/or uploaded his invoice file.\n\nResponse example\n\n\"delivery\\_data\": { \"ownTTNPicked\": true, }\n\n​\n"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Possible API errors and their causes",
+      "description": "API Response\n\nDescription\n\nPossible reasons\n\n{\"status\":\"HTTP\\_ERROR\",\"response\":{\"code\":400,\"message\":\"The payload is not JSON\"}}\n\nInvalid JSON format\n\n1\\. An error in the query syntax. To rule out this cause, check the json with any validator. For example [https://jsonlint.com/](https://jsonlint.com/) 2. If the validator does not find errors in json, make sure that the encoding is passed in the request header and BOM is not present\n",
+      "item": [
+        {
+          "name": "Possible API errors and their causes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                ""
+              ]
+            },
+            "description": "API Response\n\nDescription\n\nPossible reasons\n\n{\"status\":\"HTTP\\_ERROR\",\"response\":{\"code\":400,\"message\":\"The payload is not JSON\"}}\n\nInvalid JSON format\n\n1\\. An error in the query syntax. To rule out this cause, check the json with any validator. For example [https://jsonlint.com/](https://jsonlint.com/) 2. If the validator does not find errors in json, make sure that the encoding is passed in the request header and BOM is not present\n"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Other",
+      "item": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://benihome.com.ua",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "login",
+      "value": "api",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-auth: if token is empty, fetch it before any request (except Authorisation itself)",
+          "if (pm.info.requestName === 'Authorisation') return;",
+          "const token = pm.collectionVariables.get('token');",
+          "if (token && token.length === 32) return;",
+          "const baseUrl = pm.collectionVariables.get('base_url');",
+          "const login = pm.collectionVariables.get('login');",
+          "const password = pm.collectionVariables.get('password');",
+          "pm.sendRequest({",
+          "    url: baseUrl + '/api/auth/',",
+          "    method: 'POST',",
+          "    header: { 'Content-Type': 'application/json' },",
+          "    body: { mode: 'raw', raw: JSON.stringify({ login, password }) }",
+          "}, (err, res) => {",
+          "    if (err) { console.error('Auto-auth error:', err); return; }",
+          "    const j = res.json();",
+          "    if (j.status === 'OK' && j.response && j.response.token) {",
+          "        pm.collectionVariables.set('token', j.response.token);",
+          "        console.log('Auto-auth: token refreshed');",
+          "    } else {",
+          "        console.error('Auto-auth failed:', j);",
+          "    }",
+          "});"
+        ]
+      }
+    }
+  ]
+}
