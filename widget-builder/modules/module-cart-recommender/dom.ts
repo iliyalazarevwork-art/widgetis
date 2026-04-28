@@ -1,6 +1,16 @@
-import type { CartRecommenderConfig } from './schema';
+// ─── Product interface ────────────────────────────────────────
 
-type Product = CartRecommenderConfig['products'][number];
+export interface Product {
+  id: number;
+  sku?: string;
+  url: string;
+  image: string;
+  title: { ua?: string; en?: string; ru?: string };
+  price_new: number;
+  price_old?: number;
+  currency: string;
+  rationale?: { ua?: string; en?: string; ru?: string };
+}
 
 // ─── Helpers ──────────────────────────────────────────────────
 
@@ -11,17 +21,17 @@ type Product = CartRecommenderConfig['products'][number];
  */
 export function formatPrice(n: number, currency: string): string {
   const formatted = n.toLocaleString('uk-UA').replace(/\s/g, ' ');
-  return `${formatted} ${currency}`;
+  return `${formatted} ${currency}`;
 }
 
 /**
  * Pick the best available locale string from a title object.
  */
-function pickTitle(
-  title: Product['title'],
+function pickLocale(
+  obj: { ua?: string; en?: string; ru?: string },
   lang: 'ua' | 'ru' | 'en',
 ): string {
-  return title[lang] ?? title.ua ?? title.en ?? title.ru ?? '';
+  return obj[lang] ?? obj.ua ?? obj.en ?? obj.ru ?? '';
 }
 
 // ─── Card builder ─────────────────────────────────────────────
@@ -38,7 +48,7 @@ export function buildCard(
   lang: 'ua' | 'ru' | 'en',
   buttonText: string,
 ): HTMLElement {
-  const title = pickTitle(product.title, lang);
+  const title = pickLocale(product.title, lang);
   const priceNew = formatPrice(product.price_new, product.currency);
 
   // ── Outer wrapper ──────────────────────────────────────────
@@ -125,4 +135,40 @@ export function buildCard(
   item.appendChild(card);
 
   return item;
+}
+
+/**
+ * Build a wrapper element containing all product cards.
+ */
+export function buildCards(
+  products: Product[],
+  lang: 'ua' | 'ru' | 'en',
+  buttonText: string,
+): HTMLElement {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'wdg-cart-rec__carousel';
+
+  for (const product of products) {
+    wrapper.appendChild(buildCard(product, lang, buttonText));
+  }
+
+  return wrapper;
+}
+
+/**
+ * Build the outer container block with heading and an inner grid/carousel area.
+ * Append the cards wrapper returned by buildCards() into the returned element.
+ */
+export function buildContainer(headingText: string): HTMLElement {
+  const container = document.createElement('div');
+  container.className = 'wdg-cart-recommender';
+  container.setAttribute('data-wdg-rec-container', '1');
+
+  const heading = document.createElement('div');
+  heading.className = 'wdg-cart-rec__heading';
+  heading.textContent = headingText;
+
+  container.appendChild(heading);
+
+  return container;
 }

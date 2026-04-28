@@ -137,6 +137,19 @@
         "en": { "label": "Only", "unit": "left" }
       }
     },
+    "module-cart-recommender": {
+      "config": {
+        "enabled": true,
+        "apiBaseUrl": "http://localhost:9001",
+        "mountSelector": ".b-product-info, .product-card, .b-product, .product, main",
+        "maxItems": 4
+      },
+      "i18n": {
+        "ua": { "buttonAddToCart": "До кошика", "heading": "Часто беруть разом" },
+        "en": { "buttonAddToCart": "Add to cart", "heading": "Often bought together" },
+        "ru": { "buttonAddToCart": "В корзину", "heading": "Часто покупают вместе" }
+      }
+    },
     "module-marquee": {
       "config": {
         "enabled": true,

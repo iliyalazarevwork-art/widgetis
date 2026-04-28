@@ -133,6 +133,7 @@ final class CartRecommenderSuggestController
         $sku       = $request->validated('sku');
         $productId = $request->validated('product_id');
 
+
         if ($alias !== null) {
             return CatalogProduct::query()
                 ->where('site_id', $site->id)

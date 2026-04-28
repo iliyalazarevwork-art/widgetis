@@ -1,6 +1,6 @@
 import { cartRecommenderSchema, cartRecommenderI18nSchema, type CartRecommenderInput, type CartRecommenderI18n } from './schema';
 import { getLanguage } from '@laxarevii/core';
-import { buildCard } from './dom';
+import { buildCard, buildCards, buildContainer, type Product } from './dom';
 
 const LOG = '[widgetality] cart-recommender:';
 
@@ -20,6 +20,66 @@ declare global {
   }
 }
 
+// ─── API response types ──────────────────────────────────────────────────────
+
+interface ApiProduct {
+  id: number;
+  sku?: string;
+  url: string;
+  image: string;
+  title: { ua?: string; en?: string; ru?: string };
+  price_new: number;
+  price_old?: number;
+  currency: string;
+  rationale?: { ua?: string; en?: string; ru?: string };
+  source?: string;
+}
+
+interface ApiResponse {
+  data: ApiProduct[];
+  meta?: {
+    source_product_id?: number;
+    source_sku?: string;
+    live?: boolean;
+  };
+}
+
+// ─── URL helpers ─────────────────────────────────────────────────────────────
+
+/**
+ * Extract the product URL alias from window.location.pathname.
+ *
+ * Site-proxy URL:  /site/benihome.com.ua/postilna-bilizna-.../
+ *   → alias: 'postilna-bilizna-...'
+ * Production URL: /postilna-bilizna-.../
+ *   → alias: 'postilna-bilizna-...'
+ */
+function extractAlias(pathname: string): string | null {
+  const segments = pathname.split('/').filter((s) => s.length > 0);
+
+  if (segments.length === 0) return null;
+
+  // Drop 'site' + hostname prefix when running through site-proxy
+  if (segments[0] === 'site' && segments.length >= 3) {
+    // segments[0] = 'site', segments[1] = hostname, segments[2] = alias
+    return segments[2] ?? null;
+  }
+
+  // Production: first (and typically only) segment is the alias
+  return segments[0] ?? null;
+}
+
+// ─── Mount target helpers ────────────────────────────────────────────────────
+
+function findMountTarget(mountSelector: string): Element | null {
+  const selectors = mountSelector.split(',').map((s) => s.trim()).filter(Boolean);
+  for (const sel of selectors) {
+    const el = document.querySelector(sel);
+    if (el) return el;
+  }
+  return null;
+}
+
 // ─── Main ────────────────────────────────────────────────────────────────────
 
 export default function cartRecommender(
@@ -31,8 +91,15 @@ export default function cartRecommender(
 
   console.log(LOG, 'init');
 
-  if (!config.enabled || config.products.length === 0) {
-    console.log(LOG, 'disabled or no products — skipping');
+  if (!config.enabled) {
+    console.log(LOG, 'disabled — skipping');
+    return;
+  }
+
+  // Extract alias from current URL
+  const alias = extractAlias(window.location.pathname);
+  if (!alias) {
+    console.log(LOG, 'no alias detected in pathname — skipping');
     return;
   }
 
@@ -51,40 +118,67 @@ export default function cartRecommender(
   const localeTexts =
     i18n[lang] ?? i18n['ua'] ?? i18n['ru'] ?? i18n['en'] ?? Object.values(i18n)[0];
   const buttonText = localeTexts?.buttonAddToCart ?? 'До кошика';
+  const headingText = localeTexts?.heading ?? 'Часто беруть разом';
 
-  const product = config.products[0];
+  // ─── Inserted nodes tracker ──────────────────────────────────────────────
 
-  // ─── Inject card into a wrapper ──────────────────────────────────────────
+  const insertedNodes: Element[] = [];
 
-  function inject(wrapper: Element): void {
-    if (wrapper.getAttribute('data-wdg-rec-injected') === '1') return;
+  // ─── Fetch + render ──────────────────────────────────────────────────────
 
-    const card = buildCard(product, lang, buttonText);
-    wrapper.prepend(card);
-    wrapper.setAttribute('data-wdg-rec-injected', '1');
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-    console.log(LOG, 'injected card for product', product.id, 'into wrapper', wrapper);
-  }
+  const apiUrl = `${config.apiBaseUrl}/api/v1/widget/cart-recommender/suggest?alias=${encodeURIComponent(alias)}`;
 
-  // ─── MutationObserver ────────────────────────────────────────────────────
+  console.log(LOG, 'fetching', apiUrl);
 
-  function findAndInject(): void {
-    const wrapper = document.querySelector<Element>(
-      '.j-cart-additional .carousel__wrapper',
-    );
-    if (!wrapper) return;
-    inject(wrapper);
-  }
+  fetch(apiUrl, {
+    credentials: 'omit',
+    signal: controller.signal,
+  })
+    .then((res) => {
+      clearTimeout(timeoutId);
+      if (!res.ok) {
+        console.log(LOG, 'API returned non-OK status', res.status);
+        return null;
+      }
+      return res.json() as Promise<ApiResponse>;
+    })
+    .then((json) => {
+      if (!json) return;
 
-  const observer = new MutationObserver(() => {
-    findAndInject();
-  });
+      const products = json.data;
+      if (!Array.isArray(products) || products.length === 0) {
+        console.log(LOG, 'empty data — nothing to render');
+        return;
+      }
 
-  observer.observe(document.body, { childList: true, subtree: true });
-  console.log(LOG, 'observer started');
+      const limited = products.slice(0, config.maxItems) as Product[];
 
-  // Run immediately in case the carousel is already in DOM
-  findAndInject();
+      const mountTarget = findMountTarget(config.mountSelector);
+      if (!mountTarget) {
+        console.log(LOG, 'mount target not found for selector', config.mountSelector);
+        return;
+      }
+
+      const container = buildContainer(headingText);
+      const cards = buildCards(limited, lang, buttonText);
+      container.appendChild(cards);
+
+      mountTarget.appendChild(container);
+      insertedNodes.push(container);
+
+      console.log(LOG, 'rendered', limited.length, 'cards into', mountTarget);
+    })
+    .catch((err: unknown) => {
+      clearTimeout(timeoutId);
+      if (err instanceof Error && err.name === 'AbortError') {
+        console.log(LOG, 'fetch aborted (timeout or cleanup)');
+      } else {
+        console.error(LOG, 'fetch failed', err);
+      }
+    });
 
   // ─── Click handler (delegated) ───────────────────────────────────────────
 
@@ -119,17 +213,18 @@ export default function cartRecommender(
   // ─── Cleanup ─────────────────────────────────────────────────────────────
 
   return () => {
-    observer.disconnect();
+    controller.abort();
+    clearTimeout(timeoutId);
+
     document.body.removeEventListener('click', onBodyClick);
 
-    // Remove all injected nodes
-    for (const node of document.querySelectorAll('[data-wdg-rec]')) {
+    for (const node of insertedNodes) {
       node.parentElement?.removeChild(node);
     }
 
-    // Remove injected marker so if re-mounted it can inject again
-    for (const wrapper of document.querySelectorAll('[data-wdg-rec-injected]')) {
-      wrapper.removeAttribute('data-wdg-rec-injected');
+    // Also remove any stray data-wdg-rec nodes (legacy cleanup)
+    for (const node of document.querySelectorAll('[data-wdg-rec]')) {
+      node.parentElement?.removeChild(node);
     }
 
     console.log(LOG, 'cleanup done');

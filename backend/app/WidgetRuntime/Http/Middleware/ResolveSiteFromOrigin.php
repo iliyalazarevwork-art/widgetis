@@ -13,9 +13,12 @@ use Symfony\Component\HttpFoundation\Response;
  * Resolves the Site model from the request's Origin (or Referer) header.
  *
  * Resolution order:
- *   1. Exact domain match against wgt_sites.domain (strips www., lowercases, no port).
- *   2. If miss: check wgt_sites.allowed_origins for the full normalised origin
- *      (scheme+host+port, e.g. "http://localhost:3100") OR the host-only value.
+ *   1. allowed_origins exact-URL match (full normalised origin including scheme+port,
+ *      e.g. "http://localhost:3100"). This wins over a bare-host domain lookup so
+ *      that adding "http://localhost:3100" to a real site's allowed_origins is not
+ *      pre-empted by a separate dev "localhost" site whose `domain` happens to match.
+ *   2. Exact domain match against wgt_sites.domain (strips www., lowercases, no port).
+ *   3. allowed_origins host-only match (e.g. "localhost").
  *
  * On a miss the request is rejected with 403 UNKNOWN_ORIGIN.
  * On a hit the Site model is stored in request attributes as 'site'.
@@ -34,10 +37,17 @@ final class ResolveSiteFromOrigin
             return $this->unknownOriginResponse('Origin header is missing.');
         }
 
-        // 1. Primary: exact domain match (existing behaviour).
-        $site = Site::where('domain', $hostOnly)->first();
+        // 1. allowed_origins exact-URL match wins first.
+        $site = $rawOriginUrl !== null
+            ? $this->findByExactAllowedOrigin($rawOriginUrl)
+            : null;
 
-        // 2. Fallback: check allowed_origins for full origin or host-only.
+        // 2. Fallback: exact domain match.
+        if ($site === null) {
+            $site = Site::where('domain', $hostOnly)->first();
+        }
+
+        // 3. Last resort: host-only allowed_origins match.
         if ($site === null) {
             $site = $this->findByAllowedOrigin($rawOriginUrl, $hostOnly);
         }
@@ -98,20 +108,36 @@ final class ResolveSiteFromOrigin
     }
 
     /**
+     * First step of allowed_origins matching: only accept the full URL form
+     * (scheme://host:port). Used before the domain match so that explicit
+     * dev origins (e.g. "http://localhost:3100" added to a real site) win
+     * over a host-only `domain` collision.
+     */
+    private function findByExactAllowedOrigin(string $rawOriginUrl): ?Site
+    {
+        return Site::query()->get()->first(
+            static fn (Site $site): bool => in_array($rawOriginUrl, $site->allowed_origins ?? [], true),
+        );
+    }
+
+    /**
      * Scan all sites and return the first one whose allowed_origins contains
      * either the full rawOriginUrl or the hostOnly value.
      *
      * Loading all rows in PHP avoids driver differences between pgsql (jsonb @>)
      * and sqlite (no native JSON contains), keeping tests simple and correct.
      */
-    private function findByAllowedOrigin(string $rawOriginUrl, string $hostOnly): ?Site
+    private function findByAllowedOrigin(?string $rawOriginUrl, string $hostOnly): ?Site
     {
         return Site::query()->get()->first(
             static function (Site $site) use ($rawOriginUrl, $hostOnly): bool {
                 $origins = $site->allowed_origins ?? [];
 
-                return in_array($rawOriginUrl, $origins, true)
-                    || in_array($hostOnly, $origins, true);
+                if ($rawOriginUrl !== null && in_array($rawOriginUrl, $origins, true)) {
+                    return true;
+                }
+
+                return in_array($hostOnly, $origins, true);
             },
         );
     }

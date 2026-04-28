@@ -29,6 +29,7 @@ const MODULES_ORDER = [
   'module-one-plus-one',
   'module-photo-reviews',
   'module-sms-otp-checkout',
+  'module-cart-recommender',
 ];
 
 export function getAvailableModules(): string[] {
