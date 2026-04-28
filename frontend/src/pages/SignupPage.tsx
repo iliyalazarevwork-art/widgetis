@@ -521,8 +521,8 @@ export function SignupPage() {
   return (
     <>
       <SeoHead
-        title="Початок тріалу — widgetis | 7 днів безкоштовно"
-        description="Зареєструйтесь у widgetis та отримайте 7 днів безкоштовного доступу до всіх віджетів."
+        title="Реєстрація — Widgetis | 7 днів безкоштовно для Horoshop"
+        description="Зареєструйтесь та отримайте 7 днів безкоштовного доступу до всіх маркетингових віджетів для Horoshop. Без карти — одразу встановлюй на магазин."
         path="/signup"
         noindex
       />

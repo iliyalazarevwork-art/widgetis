@@ -127,8 +127,8 @@ export function WidgetDetailPage() {
   return (
     <div className="widget-page">
       <SeoHead
-        title={`${widget.title} — віджет для інтернет-магазину | ${BRAND_NAME_UPPER}`}
-        description={`${widget.description} Встановлення за 2 хвилини без коду на Horoshop.`}
+        title={`${widget.title} для Horoshop — ${BRAND_NAME_UPPER} | Встановлення 3 хв`}
+        description={`${widget.description} Встановлення 3 хвилини без програміста на магазин у Horoshop.`}
         path={`/widgets/${widget.id}`}
         type="product"
         structuredData={{

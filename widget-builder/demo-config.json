@@ -140,8 +140,8 @@
     "module-cart-recommender": {
       "config": {
         "enabled": true,
-        "apiBaseUrl": "http://localhost:9001",
-        "mountSelector": ".b-product-info, .product-card, .b-product, .product, main",
+        "apiBaseUrl": "http://192.168.100.39:9001",
+        "mountSelector": "#cart .cart__summary, .cart__summary",
         "maxItems": 4
       },
       "i18n": {

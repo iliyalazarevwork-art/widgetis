@@ -8,6 +8,7 @@ type StructuredData = Record<string, unknown> | Record<string, unknown>[]
 interface SeoHeadProps {
   title: string
   description: string
+  keywords?: string
   path?: string
   image?: string
   type?: 'website' | 'article' | 'product'
@@ -18,6 +19,7 @@ interface SeoHeadProps {
 export function SeoHead({
   title,
   description,
+  keywords,
   path = '',
   image = DEFAULT_OG_IMAGE,
   type = 'website',
@@ -31,6 +33,7 @@ export function SeoHead({
     <Helmet>
       <title>{title}</title>
       <meta name="description" content={description} />
+      {keywords && <meta name="keywords" content={keywords} />}
       <link rel="canonical" href={url} />
       {noindex ? (
         <meta name="robots" content="noindex, nofollow" />

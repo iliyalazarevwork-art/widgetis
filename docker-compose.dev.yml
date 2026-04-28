@@ -98,6 +98,27 @@ services:
     networks:
       - widgetis
 
+  catalog-crawler:
+    build:
+      context: ./services/catalog-crawler
+      dockerfile: Dockerfile
+    volumes:
+      - ./services/catalog-crawler:/app
+      - ./.xxx:/data:ro
+    environment:
+      PG_HOST: postgres
+      PG_PORT: "5432"
+      PG_DATABASE: widgetis
+      PG_USER: widgetis
+      PG_PASSWORD: widgetis_secret
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - tools
+    networks:
+      - widgetis
+
   visual-check:
     image: mcr.microsoft.com/playwright:v1.59.1-noble
     working_dir: /work/backend/tools/visual-check

@@ -40,6 +40,9 @@ backups/
 
 # Production secrets — plain text, never commit
 .env.prod
+_bmad
+.agents
+.claude
 backend/.env.production
 backend/.env.prod.plain
 certbot/

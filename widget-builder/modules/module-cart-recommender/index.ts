@@ -1,17 +1,28 @@
-import { cartRecommenderSchema, cartRecommenderI18nSchema, type CartRecommenderInput, type CartRecommenderI18n } from './schema';
+import {
+  cartRecommenderSchema,
+  cartRecommenderI18nSchema,
+  type CartRecommenderInput,
+  type CartRecommenderI18n,
+} from './schema';
 import { getLanguage } from '@laxarevii/core';
-import { buildCard, buildCards, buildContainer, type Product } from './dom';
+import { buildPopup, animateOut, type Product } from './dom';
 
 const LOG = '[widgetality] cart-recommender:';
 
-// ─── AjaxCart types (minimal, mirrors module-one-plus-one/cart.ts) ──────────
-
 interface AjaxCartAppendProduct {
-  (product: { type: string; id: number }, related: undefined, openCart: boolean): void;
+  (
+    product: { type: string; id: number | string; article?: string },
+    related: undefined,
+    openCart: boolean,
+  ): void;
+}
+
+interface AjaxCartInstance {
+  appendProduct: AjaxCartAppendProduct;
 }
 
 interface AjaxCartStatic {
-  getInstance(): { appendProduct: AjaxCartAppendProduct };
+  getInstance(): AjaxCartInstance;
 }
 
 declare global {
@@ -19,8 +30,6 @@ declare global {
     AjaxCart?: AjaxCartStatic;
   }
 }
-
-// ─── API response types ──────────────────────────────────────────────────────
 
 interface ApiProduct {
   id: number;
@@ -37,50 +46,33 @@ interface ApiProduct {
 
 interface ApiResponse {
   data: ApiProduct[];
-  meta?: {
-    source_product_id?: number;
-    source_sku?: string;
-    live?: boolean;
-  };
 }
 
-// ─── URL helpers ─────────────────────────────────────────────────────────────
-
-/**
- * Extract the product URL alias from window.location.pathname.
- *
- * Site-proxy URL:  /site/benihome.com.ua/postilna-bilizna-.../
- *   → alias: 'postilna-bilizna-...'
- * Production URL: /postilna-bilizna-.../
- *   → alias: 'postilna-bilizna-...'
- */
 function extractAlias(pathname: string): string | null {
   const segments = pathname.split('/').filter((s) => s.length > 0);
-
   if (segments.length === 0) return null;
-
-  // Drop 'site' + hostname prefix when running through site-proxy
-  if (segments[0] === 'site' && segments.length >= 3) {
-    // segments[0] = 'site', segments[1] = hostname, segments[2] = alias
-    return segments[2] ?? null;
-  }
-
-  // Production: first (and typically only) segment is the alias
+  if (segments[0] === 'site' && segments.length >= 3) return segments[2] ?? null;
   return segments[0] ?? null;
 }
 
-// ─── Mount target helpers ────────────────────────────────────────────────────
-
-function findMountTarget(mountSelector: string): Element | null {
-  const selectors = mountSelector.split(',').map((s) => s.trim()).filter(Boolean);
-  for (const sel of selectors) {
-    const el = document.querySelector(sel);
-    if (el) return el;
+function buildProductFetchUrl(productUrl: string): string {
+  const segments = window.location.pathname.split('/').filter((s) => s.length > 0);
+  const cleanPath = productUrl.replace(/^\//, '');
+  if (segments[0] === 'site' && segments.length >= 2) {
+    return `${window.location.origin}/site/${segments[1]}/${cleanPath}`;
   }
-  return null;
+  return `${window.location.origin}/${cleanPath}`;
 }
 
-// ─── Main ────────────────────────────────────────────────────────────────────
+async function fetchHoroshopProductId(productUrl: string): Promise<number | null> {
+  const url = buildProductFetchUrl(productUrl);
+  console.log(LOG, 'fetching horoshop id from', url);
+  const html = await fetch(url, { credentials: 'include' }).then((r) => r.text());
+  const match = html.match(/id="j-buy-button-(?:counter|widget)-(\d+)"/);
+  const id = match ? parseInt(match[1], 10) : null;
+  console.log(LOG, 'horoshop product id =', id, 'for url', productUrl);
+  return id;
+}
 
 export default function cartRecommender(
   rawConfig: CartRecommenderInput,
@@ -96,16 +88,14 @@ export default function cartRecommender(
     return;
   }
 
-  // Extract alias from current URL
-  const alias = extractAlias(window.location.pathname);
-  if (!alias) {
-    console.log(LOG, 'no alias detected in pathname — skipping');
+  if (!matchMedia('(max-width: 768px)').matches) {
+    console.log(LOG, 'not mobile — skipping');
     return;
   }
 
-  // Mobile-only guard
-  if (!matchMedia('(max-width: 768px)').matches) {
-    console.log(LOG, 'not mobile — skipping');
+  const alias = extractAlias(window.location.pathname);
+  if (!alias) {
+    console.log(LOG, 'no alias detected in pathname — skipping');
     return;
   }
 
@@ -117,23 +107,20 @@ export default function cartRecommender(
 
   const localeTexts =
     i18n[lang] ?? i18n['ua'] ?? i18n['ru'] ?? i18n['en'] ?? Object.values(i18n)[0];
-  const buttonText = localeTexts?.buttonAddToCart ?? 'До кошика';
-  const headingText = localeTexts?.heading ?? 'Часто беруть разом';
-
-  // ─── Inserted nodes tracker ──────────────────────────────────────────────
-
-  const insertedNodes: Element[] = [];
-
-  // ─── Fetch + render ──────────────────────────────────────────────────────
+  const headingText = localeTexts?.heading ?? 'З цим товаром також беруть';
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 5000);
-
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
   const apiUrl = `${config.apiBaseUrl}/api/v1/widget/cart-recommender/suggest?alias=${encodeURIComponent(alias)}`;
+  console.log(LOG, 'prefetching', apiUrl);
 
-  console.log(LOG, 'fetching', apiUrl);
+  let cachedProducts: Product[] | null = null;
+  let fetchSettled = false;
+  let isOpen = false;
+  let patched = false;
+  let observer: MutationObserver | null = null;
 
-  fetch(apiUrl, {
+  const productsPromise: Promise<Product[]> = fetch(apiUrl, {
     credentials: 'omit',
     signal: controller.signal,
   })
@@ -141,35 +128,15 @@ export default function cartRecommender(
       clearTimeout(timeoutId);
       if (!res.ok) {
         console.log(LOG, 'API returned non-OK status', res.status);
-        return null;
+        return [] as Product[];
       }
-      return res.json() as Promise<ApiResponse>;
-    })
-    .then((json) => {
-      if (!json) return;
-
-      const products = json.data;
-      if (!Array.isArray(products) || products.length === 0) {
-        console.log(LOG, 'empty data — nothing to render');
-        return;
-      }
-
-      const limited = products.slice(0, config.maxItems) as Product[];
-
-      const mountTarget = findMountTarget(config.mountSelector);
-      if (!mountTarget) {
-        console.log(LOG, 'mount target not found for selector', config.mountSelector);
-        return;
-      }
-
-      const container = buildContainer(headingText);
-      const cards = buildCards(limited, lang, buttonText);
-      container.appendChild(cards);
-
-      mountTarget.appendChild(container);
-      insertedNodes.push(container);
-
-      console.log(LOG, 'rendered', limited.length, 'cards into', mountTarget);
+      return res.json().then((json: ApiResponse) => {
+        const products = Array.isArray(json.data) ? json.data : [];
+        const limited = products.slice(0, config.maxItems) as Product[];
+        cachedProducts = limited;
+        console.log(LOG, 'prefetch received', limited.length, 'products');
+        return limited;
+      });
     })
     .catch((err: unknown) => {
       clearTimeout(timeoutId);
@@ -178,55 +145,107 @@ export default function cartRecommender(
       } else {
         console.error(LOG, 'fetch failed', err);
       }
+      return [] as Product[];
+    })
+    .finally(() => {
+      fetchSettled = true;
     });
 
-  // ─── Click handler (delegated) ───────────────────────────────────────────
+  function showPopup(products: Product[]): void {
+    isOpen = true;
 
-  function onBodyClick(event: Event): void {
-    const target = event.target as HTMLElement | null;
-    if (!target) return;
+    function closePopup(root: HTMLElement): void {
+      isOpen = false;
+      void animateOut(root).then(() => {
+        root.parentElement?.removeChild(root);
+      });
+    }
 
-    const btn = target.closest<HTMLElement>('[data-wdg-rec-add]');
-    if (!btn) return;
+    async function onAddToCart(product: Product): Promise<void> {
+      const title = product.title?.ua ?? product.title?.en ?? product.sku ?? String(product.id);
+      console.log(LOG, 'add-to-cart clicked:', title, '| sku:', product.sku, '| url:', product.url);
 
-    const idStr = btn.getAttribute('data-wdg-rec-add');
-    if (!idStr) return;
+      let horoshopId: number | null = null;
+      if (product.url) {
+        horoshopId = await fetchHoroshopProductId(product.url);
+      }
 
-    const id = Number(idStr);
-    if (!Number.isFinite(id)) return;
+      if (horoshopId === null) {
+        console.error(LOG, 'could not resolve horoshop id for', product.url ?? product.sku);
+        throw new Error('no-horoshop-id');
+      }
 
-    console.log(LOG, 'add to cart clicked, product id', id);
+      try {
+        window.AjaxCart?.getInstance().appendProduct(
+          { type: 'product', id: horoshopId, article: product.sku },
+          undefined,
+          false,
+        );
+        console.log(LOG, 'appendProduct called: type=product, id=' + horoshopId + ', article=' + (product.sku ?? 'n/a'));
+      } catch (e) {
+        console.error(LOG, 'appendProduct failed', e);
+        throw e;
+      }
+    }
 
-    try {
-      window.AjaxCart?.getInstance().appendProduct(
-        { type: 'product', id },
-        undefined,
-        true,
-      );
-    } catch (e) {
-      console.error(LOG, 'appendProduct failed', e);
+    const root = buildPopup(products, lang, headingText, () => closePopup(root), onAddToCart);
+    document.body.appendChild(root);
+
+    function onKeyDown(e: KeyboardEvent): void {
+      if (e.key === 'Escape') {
+        closePopup(root);
+        document.removeEventListener('keydown', onKeyDown);
+      }
+    }
+    document.addEventListener('keydown', onKeyDown);
+
+    console.log(LOG, 'popup shown with', products.length, 'products');
+  }
+
+  function onProductAdded(): void {
+    if (isOpen) return;
+
+    if (cachedProducts !== null) {
+      if (cachedProducts.length > 0) showPopup(cachedProducts);
+      return;
+    }
+
+    if (!fetchSettled) {
+      void productsPromise.then((products) => {
+        if (isOpen) return;
+        if (products.length > 0) showPopup(products);
+      });
     }
   }
 
-  document.body.addEventListener('click', onBodyClick);
+  function patchAjaxCart(): boolean {
+    const ac = window.AjaxCart?.getInstance?.();
+    if (!ac || patched) return false;
+    const original = ac.appendProduct.bind(ac);
+    ac.appendProduct = function (...args: Parameters<AjaxCartAppendProduct>) {
+      original(...args);
+      onProductAdded();
+    };
+    patched = true;
+    console.log(LOG, 'AjaxCart patched');
+    return true;
+  }
 
-  // ─── Cleanup ─────────────────────────────────────────────────────────────
+  if (!patchAjaxCart()) {
+    observer = new MutationObserver(() => {
+      if (patchAjaxCart()) {
+        observer?.disconnect();
+        observer = null;
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    console.log(LOG, 'waiting for AjaxCart via MutationObserver');
+  }
 
   return () => {
     controller.abort();
     clearTimeout(timeoutId);
-
-    document.body.removeEventListener('click', onBodyClick);
-
-    for (const node of insertedNodes) {
-      node.parentElement?.removeChild(node);
-    }
-
-    // Also remove any stray data-wdg-rec nodes (legacy cleanup)
-    for (const node of document.querySelectorAll('[data-wdg-rec]')) {
-      node.parentElement?.removeChild(node);
-    }
-
+    observer?.disconnect();
     console.log(LOG, 'cleanup done');
   };
 }

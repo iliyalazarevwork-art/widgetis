@@ -173,7 +173,7 @@ export function Hero() {
         <div className="hero__content">
           <p className="hero__eyebrow">
             <Sparkles size={11} strokeWidth={2.5} />
-            Набір готових віджетів для e-commerce
+            Готові віджети для магазинів на Хорошоп
           </p>
           <h1 className="hero__title">
             <span>Віджети,</span>

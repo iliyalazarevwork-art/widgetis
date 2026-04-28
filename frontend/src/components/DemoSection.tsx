@@ -7,8 +7,8 @@ import './DemoSection.css'
 
 const EXAMPLES = [
   'store.horoshop.ua',
-  'store.myshopify.com',
-  'store.com.ua',
+  'myshop.com.ua',
+  'example.com.ua',
 ]
 
 const DOMAIN_TAGS = ['.com.ua', '.com', '.ua', '.net']

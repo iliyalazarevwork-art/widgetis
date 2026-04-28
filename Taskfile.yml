@@ -229,6 +229,17 @@ tasks:
     cmds:
       - '{{.EXEC}} sh'
 
+  # ── Catalog Crawler ────────────────────────────────────
+  catalog:fetch-ids:
+    desc: "Витягти Horoshop platform_id зі сторінок і записати в БД  ·  task catalog:fetch-ids -- --domain benihome.com.ua --xlsx /data/full.xlsx"
+    cmds:
+      - '{{.DC}} run --rm --no-deps catalog-crawler python fetch_platform_ids.py {{.CLI_ARGS}}'
+
+  catalog:fetch-ids:dry:
+    desc: "Dry-run (без запису в БД, перші 5 товарів)  ·  task catalog:fetch-ids:dry"
+    cmds:
+      - '{{.DC}} run --rm --no-deps catalog-crawler python fetch_platform_ids.py --domain benihome.com.ua --xlsx /data/full.xlsx --limit 5 --dry-run'
+
   # ── Demo Bundle ────────────────────────────────────────
   build:demo:
     desc: "Собрать обфусцированный demo-bundle.js из widget-builder/demo-config.json  ·  task build:demo"

@@ -1,4 +1,4 @@
-/* ===== PARTNERS — 4 platforms, 2×2 mobile / 4-in-row desktop ===== */
+/* ===== PARTNERS — Horoshop-only ===== */
 
 .partners {
   padding: 40px 20px;
@@ -18,7 +18,6 @@
   margin-bottom: 24px;
 }
 
-/* 2×2 on mobile, 4-in-row on tablet+ */
 .partners__grid {
   display: flex;
   flex-wrap: wrap;
@@ -28,11 +27,8 @@
   margin: 0 auto;
 }
 
-@media (min-width: 768px) {
-  .partners__grid {
-    max-width: 740px;
-    gap: 16px;
-  }
+.partners__grid--single {
+  max-width: 200px;
 }
 
 .partners__item {

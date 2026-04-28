@@ -154,8 +154,9 @@ export function DemoPage() {
   return (
     <div className="demo-page">
       <SeoHead
-        title={`Живе демо віджетів — ${BRAND_NAME_UPPER} | Подивись як працює`}
-        description={`Подивись на віджети ${BRAND_NAME_UPPER} в дії: бігуча стрічка, лічильник переглядів, таймер, прогрес-бар кошика, соціальний доказ — усе працює в реальному часі на демо-магазині.`}
+        title={`Демо віджетів для Horoshop — ${BRAND_NAME_UPPER} | Спробуй на своєму сайті`}
+        description={`Побач як виглядають маркетингові віджети на твоєму Horoshop-магазині. Безкоштовне живе демо за 10 секунд — без реєстрації та оплати.`}
+        keywords="демо віджетів Хорошоп, перевірити плагін Хорошоп, тест маркетингових інструментів Хорошоп, horoshop demo widgets"
         path="/demo"
       />
 
@@ -176,7 +177,7 @@ export function DemoPage() {
             <input
               className="demo-hero__input"
               type="text"
-              placeholder="store.myshopify.com"
+              placeholder="myshop.horoshop.ua"
               value={siteInput}
               onChange={(e) => setSiteInput(e.target.value)}
               autoComplete="url"

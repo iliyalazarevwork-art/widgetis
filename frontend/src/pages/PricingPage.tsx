@@ -128,8 +128,9 @@ export function PricingPage() {
   return (
     <>
       <SeoHead
-        title="Тарифи та ціни — widgetis | Від 0 грн, 7 днів безкоштовно"
-        description="Прозорі тарифи widgetis: Free, Basic, Pro і Max. Безкоштовний тріал 7 днів на будь-якому платному плані. Без прихованих платежів, скасувати можна в один клік."
+        title="Тарифи Widgetis для Horoshop — від 0 грн | 7 днів безкоштовно"
+        description="Тарифи на віджети для Horoshop: Free, Basic, Pro, Max. 7 днів безкоштовного тріалу на будь-якому плані. Без прихованих платежів — скасувати в один клік."
+        keywords="ціна віджети Хорошоп, тарифи Хорошоп плагіни, безкоштовні плагіни Хорошоп, підписка widgetis, horoshop widgets ціна"
         path="/pricing"
         structuredData={{
           '@context': 'https://schema.org',

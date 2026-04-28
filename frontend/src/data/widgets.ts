@@ -1,7 +1,7 @@
 // ===== Widget catalog — static data =====
 
 export type PriceTier = 'simple' | 'advanced' | 'complex'
-export type Platform = 'horoshop' | 'shopify' | 'woocommerce' | 'opencart'
+export type Platform = 'horoshop'
 export type Tag =
   | 'conversion'
   | 'trust'
@@ -45,9 +45,6 @@ export interface Widget {
 
 export const platformConfig: { id: Platform; label: string; available: boolean }[] = [
   { id: 'horoshop', label: 'Horoshop', available: true },
-  { id: 'shopify', label: 'Shopify', available: false },
-  { id: 'woocommerce', label: 'WooCommerce', available: false },
-  { id: 'opencart', label: 'OpenCart', available: false },
 ]
 
 export const widgets: Widget[] = [

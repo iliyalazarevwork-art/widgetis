@@ -28,7 +28,7 @@ function buildCSS(config: StockLeftConfig): string {
 .wty-stock-left {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 8px;
   width: 100%;
   padding: 8px 12px;
