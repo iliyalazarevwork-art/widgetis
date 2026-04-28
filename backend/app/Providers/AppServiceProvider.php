@@ -16,6 +16,8 @@ use App\Shared\Contracts\WidgetCatalogInterface;
 use App\Shared\Contracts\WidgetRuntimeStatsInterface;
 use App\WidgetRuntime\Services\Bridge\EloquentSiteOwnership;
 use App\WidgetRuntime\Services\Bridge\EloquentWidgetRuntimeStats;
+use App\WidgetRuntime\Services\Widget\CartRecommender\Composer\ComposerInterface;
+use App\WidgetRuntime\Services\Widget\CartRecommender\Composer\OnDemandComposer;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 
@@ -31,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(WidgetCatalogInterface::class, EloquentWidgetCatalog::class);
         $this->app->singleton(SiteOwnershipInterface::class, EloquentSiteOwnership::class);
         $this->app->singleton(WidgetRuntimeStatsInterface::class, EloquentWidgetRuntimeStats::class);
+        $this->app->singleton(ComposerInterface::class, OnDemandComposer::class);
     }
 
     /**

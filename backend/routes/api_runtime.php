@@ -9,6 +9,7 @@ use App\WidgetRuntime\Http\Controllers\Api\V1\Profile\SiteController as ProfileS
 use App\WidgetRuntime\Http\Controllers\Api\V1\Profile\SmsOtpProviderController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Profile\WidgetController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Public\DemoSessionController;
+use App\WidgetRuntime\Http\Controllers\Api\V1\Widget\CartRecommenderSuggestController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Widget\SmsOtpRequestController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Widget\SmsOtpVerifyController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Widget\WidgetReviewController;
@@ -47,6 +48,9 @@ Route::prefix('v1')->group(function () {
         ->group(function () {
             Route::post('reviews', [WidgetReviewController::class, 'store'])->middleware('throttle:30,60');
             Route::get('reviews', [WidgetReviewController::class, 'index'])->middleware('throttle:60,1');
+
+            Route::get('cart-recommender/suggest', CartRecommenderSuggestController::class)
+                ->middleware('throttle:60,1');
         });
 
     // --- Demo sessions (public) ---
