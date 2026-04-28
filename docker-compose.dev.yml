@@ -20,7 +20,7 @@ services:
       - widgetis
 
   postgres:
-    image: postgres:15-alpine
+    image: pgvector/pgvector:pg15
     environment:
       POSTGRES_DB: widgetis
       POSTGRES_USER: widgetis

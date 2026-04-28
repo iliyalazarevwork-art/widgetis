@@ -134,7 +134,7 @@ export function Header() {
           </nav>
 
           <div className="header__actions">
-            {!isAuthPage && isAuthenticated ? (
+            {isAuthenticated ? (
               <div className="header__user" ref={dropdownRef}>
                 <button
                   type="button"

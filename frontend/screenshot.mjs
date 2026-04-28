@@ -45,6 +45,8 @@ const { values, positionals } = parseArgs({
     "full-page":    { type: "boolean", short: "f", default: false },
     delay:          { type: "string",  default: "0" },
     "wait-for":     { type: "string" },
+    "wait-until":   { type: "string",  default: "networkidle" },
+    timeout:        { type: "string",  default: "30000" },
   },
 });
 
@@ -124,7 +126,10 @@ const browser = await chromium.launch();
 const context = await browser.newContext(contextOptions);
 const page = await context.newPage();
 
-await page.goto(url, { waitUntil: "networkidle" });
+const waitUntil = values["wait-until"];
+const navTimeout = parseInt(values.timeout, 10);
+console.log(`  Wait until: ${waitUntil} (timeout ${navTimeout}ms)`);
+await page.goto(url, { waitUntil, timeout: navTimeout });
 
 if (waitFor) {
   console.log(`  Waiting for selector: ${waitFor}`);
