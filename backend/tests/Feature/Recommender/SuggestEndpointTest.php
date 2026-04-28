@@ -426,4 +426,176 @@ final class SuggestEndpointTest extends TestCase
         $response->assertJsonPath('meta.source_product_id', null);
         $response->assertJsonPath('meta.live', false);
     }
+
+    // ------------------------------------------------------------------
+    // allowed_origins fallback (TASK 1)
+    // ------------------------------------------------------------------
+
+    #[Test]
+    public function it_returns_200_when_origin_matches_allowed_origins_full_url(): void
+    {
+        // Site whose domain does NOT match localhost but whose allowed_origins does.
+        $site = Site::factory()->create([
+            'domain'          => 'real-shop.example.com',
+            'allowed_origins' => ['http://localhost:3100'],
+        ]);
+
+        $response = $this->getJson(
+            self::ENDPOINT,
+            ['Origin' => 'http://localhost:3100/some/path'],
+        );
+
+        // No sku/product_id → empty data, but 200 means the site was resolved.
+        $response->assertOk();
+        $response->assertJsonPath('data', []);
+    }
+
+    #[Test]
+    public function it_returns_403_when_domain_mismatches_and_allowed_origins_has_no_overlap(): void
+    {
+        Site::factory()->create([
+            'domain'          => 'other-shop.example.com',
+            'allowed_origins' => ['http://localhost:9999'],
+        ]);
+
+        $response = $this->getJson(
+            self::ENDPOINT . '?sku=foo',
+            ['Origin' => 'http://localhost:3100'],
+        );
+
+        $response->assertStatus(403)
+            ->assertJsonPath('error.code', 'UNKNOWN_ORIGIN');
+    }
+
+    // ------------------------------------------------------------------
+    // alias resolution (TASK 2)
+    // ------------------------------------------------------------------
+
+    #[Test]
+    public function it_resolves_product_and_returns_suggestions_when_alias_matches(): void
+    {
+        $site = $this->makeSite('alias-shop.com');
+
+        $source = CatalogProduct::factory()->create([
+            'site_id'  => $site->id,
+            'sku'      => 'alias-src-sku',
+            'alias'    => 'my-product-alias',
+            'price'    => '100.00',
+            'in_stock' => true,
+            'currency' => 'UAH',
+        ]);
+
+        $related = CatalogProduct::factory()->create([
+            'site_id'  => $site->id,
+            'sku'      => 'alias-rel-sku',
+            'price'    => '90.00',
+            'in_stock' => true,
+            'currency' => 'UAH',
+        ]);
+
+        CartRecommenderRelation::factory()->create([
+            'site_id'            => $site->id,
+            'source_product_id'  => $source->id,
+            'related_product_id' => $related->id,
+            'score'              => 0.8,
+            'source'             => CartRecommenderRelationSource::LazyAi,
+            'expires_at'         => now()->addHours(24),
+        ]);
+
+        $this->fakeCartumFailing();
+
+        $response = $this->getJson(
+            self::ENDPOINT . '?alias=my-product-alias',
+            $this->originHeader($site->domain),
+        );
+
+        $response->assertOk();
+        $response->assertJsonPath('meta.source_product_id', $source->id);
+        $response->assertJsonPath('meta.source_sku', 'alias-src-sku');
+        $this->assertCount(1, $response->json('data'));
+    }
+
+    #[Test]
+    public function alias_is_normalised_to_lowercase_before_lookup(): void
+    {
+        $site = $this->makeSite('alias-case.com');
+
+        $source = CatalogProduct::factory()->create([
+            'site_id'  => $site->id,
+            'sku'      => 'case-sku',
+            'alias'    => 'existing-alias',  // stored lowercase
+            'price'    => '200.00',
+            'in_stock' => true,
+        ]);
+
+        $related = CatalogProduct::factory()->create([
+            'site_id'  => $site->id,
+            'sku'      => 'case-rel-sku',
+            'price'    => '180.00',
+            'in_stock' => true,
+        ]);
+
+        CartRecommenderRelation::factory()->create([
+            'site_id'            => $site->id,
+            'source_product_id'  => $source->id,
+            'related_product_id' => $related->id,
+            'score'              => 0.75,
+            'source'             => CartRecommenderRelationSource::LazyAi,
+            'expires_at'         => now()->addHours(24),
+        ]);
+
+        $this->fakeCartumFailing();
+
+        // Supply mixed-case alias — controller must normalise before query.
+        $response = $this->getJson(
+            self::ENDPOINT . '?alias=Existing-ALIAS',
+            $this->originHeader($site->domain),
+        );
+
+        $response->assertOk();
+        $response->assertJsonPath('meta.source_product_id', $source->id);
+        $this->assertCount(1, $response->json('data'));
+    }
+
+    #[Test]
+    public function alias_leading_and_trailing_slashes_are_stripped_before_lookup(): void
+    {
+        $site = $this->makeSite('alias-slashes.com');
+
+        $source = CatalogProduct::factory()->create([
+            'site_id'  => $site->id,
+            'sku'      => 'slash-sku',
+            'alias'    => 'foo',  // stored without slashes
+            'price'    => '300.00',
+            'in_stock' => true,
+        ]);
+
+        $related = CatalogProduct::factory()->create([
+            'site_id'  => $site->id,
+            'sku'      => 'slash-rel-sku',
+            'price'    => '270.00',
+            'in_stock' => true,
+        ]);
+
+        CartRecommenderRelation::factory()->create([
+            'site_id'            => $site->id,
+            'source_product_id'  => $source->id,
+            'related_product_id' => $related->id,
+            'score'              => 0.7,
+            'source'             => CartRecommenderRelationSource::LazyAi,
+            'expires_at'         => now()->addHours(24),
+        ]);
+
+        $this->fakeCartumFailing();
+
+        // Supply alias wrapped in slashes — controller must strip them.
+        $response = $this->getJson(
+            self::ENDPOINT . '?alias=' . urlencode('/foo/'),
+            $this->originHeader($site->domain),
+        );
+
+        $response->assertOk();
+        $response->assertJsonPath('meta.source_product_id', $source->id);
+        $this->assertCount(1, $response->json('data'));
+    }
 }

@@ -12,24 +12,38 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Resolves the Site model from the request's Origin (or Referer) header.
  *
- * Extracts the host, strips www., lowercases it, then looks up wgt_sites.domain.
+ * Resolution order:
+ *   1. Exact domain match against wgt_sites.domain (strips www., lowercases, no port).
+ *   2. If miss: check wgt_sites.allowed_origins for the full normalised origin
+ *      (scheme+host+port, e.g. "http://localhost:3100") OR the host-only value.
+ *
  * On a miss the request is rejected with 403 UNKNOWN_ORIGIN.
  * On a hit the Site model is stored in request attributes as 'site'.
+ *
+ * NOTE: The allowed_origins fallback loads all sites into PHP for filtering.
+ * This is acceptable while the sites table is small (<1 000 rows).
+ * TODO: Replace with a DB-level JSON index query when sites > 1 000.
  */
 final class ResolveSiteFromOrigin
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $host = $this->resolveHost($request);
+        [$rawOriginUrl, $hostOnly] = $this->resolveOriginParts($request);
 
-        if ($host === null) {
+        if ($hostOnly === null) {
             return $this->unknownOriginResponse('Origin header is missing.');
         }
 
-        $site = Site::where('domain', $host)->first();
+        // 1. Primary: exact domain match (existing behaviour).
+        $site = Site::where('domain', $hostOnly)->first();
+
+        // 2. Fallback: check allowed_origins for full origin or host-only.
+        if ($site === null) {
+            $site = $this->findByAllowedOrigin($rawOriginUrl, $hostOnly);
+        }
 
         if ($site === null) {
-            return $this->unknownOriginResponse("Origin '{$host}' is not registered.");
+            return $this->unknownOriginResponse("Origin '{$hostOnly}' is not registered.");
         }
 
         $request->attributes->set('site', $site);
@@ -37,32 +51,69 @@ final class ResolveSiteFromOrigin
         return $next($request);
     }
 
-    private function resolveHost(Request $request): ?string
+    /**
+     * Returns [rawOriginUrl, hostOnly] extracted and normalised from the request.
+     * rawOriginUrl: lowercased scheme+host+port (e.g. "http://localhost:3100").
+     * hostOnly: lowercased host without port and www. prefix.
+     * Both are null on parse failure.
+     *
+     * @return array{string|null, string|null}
+     */
+    private function resolveOriginParts(Request $request): array
     {
         $raw = $request->header('Origin') ?? $request->header('Referer');
 
         if ($raw === null || $raw === '') {
-            return null;
+            return [null, null];
         }
 
         $parsed = parse_url($raw);
 
-        if (!is_array($parsed)) {
-            return null;
+        if (! is_array($parsed)) {
+            return [null, null];
         }
 
         $host = $parsed['host'] ?? null;
 
         if ($host === null || $host === '') {
-            return null;
+            return [null, null];
         }
 
-        // Normalise: lowercase, strip port, strip www.
-        $host = strtolower($host);
-        $host = (string) preg_replace('/:\d+$/', '', $host);   // strip :port
-        $host = (string) preg_replace('/^www\./i', '', $host); // strip www.
+        $scheme = strtolower($parsed['scheme'] ?? 'https');
+        $hostLower = strtolower($host);
+        $port = isset($parsed['port']) ? ':' . $parsed['port'] : '';
 
-        return $host !== '' ? $host : null;
+        // Full normalised origin: scheme://host:port (no path).
+        $rawOriginUrl = $scheme . '://' . $hostLower . $port;
+
+        // Host-only: no port, no www.
+        $hostOnly = (string) preg_replace('/:\d+$/', '', $hostLower);   // strip :port
+        $hostOnly = (string) preg_replace('/^www\./i', '', $hostOnly);  // strip www.
+
+        if ($hostOnly === '') {
+            return [null, null];
+        }
+
+        return [$rawOriginUrl, $hostOnly];
+    }
+
+    /**
+     * Scan all sites and return the first one whose allowed_origins contains
+     * either the full rawOriginUrl or the hostOnly value.
+     *
+     * Loading all rows in PHP avoids driver differences between pgsql (jsonb @>)
+     * and sqlite (no native JSON contains), keeping tests simple and correct.
+     */
+    private function findByAllowedOrigin(string $rawOriginUrl, string $hostOnly): ?Site
+    {
+        return Site::query()->get()->first(
+            static function (Site $site) use ($rawOriginUrl, $hostOnly): bool {
+                $origins = $site->allowed_origins ?? [];
+
+                return in_array($rawOriginUrl, $origins, true)
+                    || in_array($hostOnly, $origins, true);
+            },
+        );
     }
 
     private function unknownOriginResponse(string $message): Response

@@ -19,10 +19,14 @@ use Illuminate\Http\JsonResponse;
  * `resolve.site.origin` middleware (stored in request attributes as 'site').
  *
  * Query parameters (at least one required for a non-empty response):
+ *   - `alias`      (string) — Horoshop product URL slug mapped to wgt_catalog_products.alias.
+ *                             Normalised before query: trimmed, lowercased, leading/trailing
+ *                             slashes stripped (e.g. "/Foo-Bar/" → "foo-bar").
  *   - `sku`        (string) — Horoshop SKU mapped to wgt_catalog_products.sku
  *   - `product_id` (int)   — internal wgt_catalog_products.id (Phase 1 compat)
  *
- * When both are supplied, `sku` takes precedence.
+ * Resolution priority: alias → sku → product_id.
+ * When multiple params are supplied, the highest-priority match wins.
  */
 final class CartRecommenderSuggestController
 {
@@ -118,13 +122,23 @@ final class CartRecommenderSuggestController
     }
 
     /**
-     * Resolve the source CatalogProduct from `sku` or `product_id`.
-     * `sku` takes precedence when both are present.
+     * Resolve the source CatalogProduct using priority: alias → sku → product_id.
+     *
+     * alias normalisation: trimmed, lowercased, leading/trailing slashes stripped.
+     * E.g. "/Foo-Bar/" → "foo-bar", "  /product  " → "product".
      */
     private function resolveSourceProduct(SuggestRequest $request, Site $site): ?CatalogProduct
     {
+        $alias     = $this->normaliseAlias($request->validated('alias'));
         $sku       = $request->validated('sku');
         $productId = $request->validated('product_id');
+
+        if ($alias !== null) {
+            return CatalogProduct::query()
+                ->where('site_id', $site->id)
+                ->where('alias', $alias)
+                ->first();
+        }
 
         if ($sku !== null) {
             return CatalogProduct::query()
@@ -141,5 +155,21 @@ final class CartRecommenderSuggestController
         }
 
         return null;
+    }
+
+    /**
+     * Normalise an alias value: trim whitespace, strip leading/trailing slashes,
+     * lowercase. Returns null when the result is an empty string.
+     */
+    private function normaliseAlias(mixed $raw): ?string
+    {
+        if ($raw === null) {
+            return null;
+        }
+
+        $alias = trim((string) $raw, '/ ');
+        $alias = strtolower($alias);
+
+        return $alias !== '' ? $alias : null;
     }
 }
