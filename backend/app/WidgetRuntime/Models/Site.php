@@ -6,6 +6,7 @@ namespace App\WidgetRuntime\Models;
 
 use App\Enums\SiteStatus;
 use App\Shared\Concerns\HasUuidV7;
+use App\WidgetRuntime\Enums\CatalogVertical;
 use Database\Factories\SiteFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -42,6 +43,9 @@ class Site extends Model
         'script_installed_at',
         'connected_at',
         'deactivated_at',
+        'recommender_vertical',
+        'cartum_login',
+        'cartum_password_encrypted',
     ];
 
     /**
@@ -56,6 +60,7 @@ class Site extends Model
             'deactivated_at' => 'datetime',
             'status' => SiteStatus::class,
             'allowed_origins' => 'array',
+            'recommender_vertical' => CatalogVertical::class,
         ];
     }
 
