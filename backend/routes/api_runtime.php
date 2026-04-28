@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\WidgetRuntime\Http\Controllers\Api\V1\Admin\DemoSessionController as AdminDemoSessionController;
+use App\WidgetRuntime\Http\Controllers\Api\V1\Admin\OnePlusOnePromoController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Admin\SiteController as AdminSiteController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Admin\WidgetBuilderController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Profile\SiteController as ProfileSiteController;
@@ -10,6 +11,7 @@ use App\WidgetRuntime\Http\Controllers\Api\V1\Profile\SmsOtpProviderController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Profile\WidgetController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Public\DemoSessionController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Widget\CartRecommenderSuggestController;
+use App\WidgetRuntime\Http\Controllers\Api\V1\Widget\OnePlusOneEvaluateController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Widget\SmsOtpRequestController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Widget\SmsOtpVerifyController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Widget\WidgetReviewController;
@@ -51,6 +53,9 @@ Route::prefix('v1')->group(function () {
 
             Route::get('cart-recommender/suggest', CartRecommenderSuggestController::class)
                 ->middleware('throttle:60,1');
+
+            Route::post('one-plus-one/evaluate', OnePlusOneEvaluateController::class)
+                ->middleware('throttle:120,1');
         });
 
     // --- Demo sessions (public) ---
@@ -89,6 +94,17 @@ Route::prefix('v1')->group(function () {
         // Widget-builder proxy — widget-builder itself is not exposed publicly.
         Route::get('widget-builder/modules', [WidgetBuilderController::class, 'modules']);
         Route::post('widget-builder/build', [WidgetBuilderController::class, 'build'])
+            ->middleware('throttle:30,60');
+
+        // 1+1=3 promos CRUD
+        Route::get('one-plus-one-promos', [OnePlusOnePromoController::class, 'index']);
+        Route::post('one-plus-one-promos', [OnePlusOnePromoController::class, 'store']);
+        Route::get('one-plus-one-promos/{id}', [OnePlusOnePromoController::class, 'show']);
+        Route::put('one-plus-one-promos/{id}', [OnePlusOnePromoController::class, 'update']);
+        Route::delete('one-plus-one-promos/{id}', [OnePlusOnePromoController::class, 'destroy']);
+        Route::post('one-plus-one-promos/{id}/rebuild-map', [OnePlusOnePromoController::class, 'rebuildMap'])
+            ->middleware('throttle:10,60');
+        Route::post('one-plus-one-promos/{id}/clear-cache', [OnePlusOnePromoController::class, 'clearCache'])
             ->middleware('throttle:30,60');
     });
 });
