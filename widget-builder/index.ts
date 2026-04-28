@@ -25,6 +25,7 @@ const MODULES_ORDER = [
   'module-delivery-date',
   'module-product-video-preview',
   'module-social-proof',
+  'module-stock-left',
   'module-one-plus-one',
   'module-photo-reviews',
   'module-sms-otp-checkout',

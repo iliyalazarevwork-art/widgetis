@@ -77,6 +77,34 @@
         "ua": { "label": "людей купили цей товар" }
       }
     },
+    "module-stock-left": {
+      "config": {
+        "enabled": true,
+        "selectors": [
+          { "selector": ".product__section--price", "insert": "after" },
+          { "selector": ".product-card__price-box", "insert": "after" },
+          { "selector": ".product-price", "insert": "after" },
+          { "selector": ".cart-buttons--full", "insert": "after" },
+          { "selector": ".cart-buttons", "insert": "after" },
+          { "selector": ".j-product-block", "insert": "after" }
+        ],
+        "minCount": 3,
+        "maxCount": 12,
+        "minRemaining": 1,
+        "decrementProbability": 0.6,
+        "updateInterval": 60,
+        "showForOutOfStock": false,
+        "pulse": true,
+        "backgroundColor": "#fef2f2",
+        "textColor": "#b91c1c",
+        "accentColor": "#dc2626"
+      },
+      "i18n": {
+        "ua": { "label": "Залишилось", "unit": "шт" },
+        "ru": { "label": "Осталось", "unit": "шт" },
+        "en": { "label": "Only", "unit": "left" }
+      }
+    },
     "module-sticky-buy-button": {
       "config": {
         "enabled": true,
