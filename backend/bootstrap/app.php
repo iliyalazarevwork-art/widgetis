@@ -14,6 +14,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 return Application::configure(basePath: dirname(__DIR__))
     ->withCommands([
         \App\WidgetRuntime\Console\Commands\CleanupDemoSessions::class,
+        \App\WidgetRuntime\Console\Commands\Catalog\ImportXlsxCommand::class,
         \App\Core\Console\Commands\OtpLogin::class,
         \App\Core\Console\Commands\GetOtpCode::class,
         \App\Core\Console\Commands\PurgeNonAdminUsers::class,
