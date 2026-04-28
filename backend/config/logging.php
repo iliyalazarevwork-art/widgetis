@@ -158,6 +158,14 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'cartum' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/cartum.log'),
+            'level' => env('LOG_LEVEL', 'info'),
+            'days' => 14,
+            'replace_placeholders' => true,
+        ],
+
     ],
 
 ];
