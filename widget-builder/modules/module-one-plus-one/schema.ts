@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
-const fallbackApiUrl = 'https://widgetality.com';
+const fallbackApiUrl = 'https://api.widgetis.com';
 
 export const onePlusOneSchema = z.object({
   enabled: z.boolean().default(true),
@@ -9,7 +9,6 @@ export const onePlusOneSchema = z.object({
     (v) => (v === '' || v == null) ? fallbackApiUrl : v,
     z.string().url(),
   ),
-  site: z.string().min(1),
 });
 
 export type OnePlusOneConfig = z.infer<typeof onePlusOneSchema>;
@@ -37,8 +36,7 @@ export function getJsonSchema() {
 export function getDefaultConfig(): OnePlusOneInput {
   return {
     enabled: true,
-    apiUrl: 'https://widgetality.com',
-    site: 'shop.roza.ua',
+    apiUrl: 'https://api.widgetis.com',
   };
 }
 

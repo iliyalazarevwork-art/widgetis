@@ -46,7 +46,7 @@ export default function onePlusOne(
   const config = onePlusOneSchema.parse(rawConfig);
   const i18n = onePlusOneI18nSchema.parse(rawI18n);
 
-  if (!config.enabled || !config.apiUrl || !config.site) return;
+  if (!config.enabled || !config.apiUrl) return;
 
   const lang = getLanguage();
   const texts = i18n[lang] ?? i18n.ua ?? i18n.ru ?? Object.values(i18n)[0];
@@ -293,10 +293,11 @@ export default function onePlusOne(
     busy = true;
     showSpinner();
     try {
-      const res = await fetch(`${config.apiUrl}/api/one-plus-one/evaluate`, {
+      const res = await fetch(`${config.apiUrl}/api/v1/widget/one-plus-one/evaluate`, {
         method: 'POST',
+        credentials: 'omit',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ site: config.site, cart: cartData }),
+        body: JSON.stringify({ cart: cartData }),
       });
       if (!res.ok) { console.error(LOG, `HTTP ${res.status}`); hideSpinner(); return; }
 
@@ -490,7 +491,7 @@ export default function onePlusOne(
     });
 
     timers.push(setTimeout(evaluate, 1000));
-    console.log(LOG, `active, site=${config.site}`);
+    console.log(LOG, `active, apiUrl=${config.apiUrl}`);
     if (texts) console.log(LOG, `"${texts.badge}" — ${texts.tooltip}`);
   }
 
