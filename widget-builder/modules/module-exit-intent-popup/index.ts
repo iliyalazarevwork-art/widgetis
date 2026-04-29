@@ -304,8 +304,14 @@ function injectStyles(config: ExitIntentPopupConfig): void {
   opacity: 0; transition: opacity .22s ease;
   -webkit-font-smoothing: antialiased;
 }
-.wdg-eip.wdg-eip--visible { opacity: 1; }
-.wdg-eip.wdg-eip--leaving { opacity: 0; }
+/*
+ * До добавления класса --visible (между append и rAF) и во время --leaving
+ * элемент невидим, но без pointer-events: none он всё ещё захватывает клики
+ * по подложке. Поэтому пропускаем клики в обоих этих состояниях.
+ */
+.wdg-eip { pointer-events: none; }
+.wdg-eip.wdg-eip--visible { opacity: 1; pointer-events: auto; }
+.wdg-eip.wdg-eip--leaving { opacity: 0; pointer-events: none; }
 .wdg-eip__backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.55); }
 .wdg-eip__card {
   position: relative;

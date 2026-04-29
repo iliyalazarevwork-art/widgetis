@@ -528,7 +528,9 @@ function buildStyles(config: SpinTheWheelConfig): string {
   opacity: 0; transition: opacity .25s ease;
   -webkit-font-smoothing: antialiased;
 }
-.wdg-stw.wdg-stw--visible { opacity: 1; }
+/* Между append и rAF элемент невидим, но без pointer-events: none захватывает клики. */
+.wdg-stw { pointer-events: none; }
+.wdg-stw.wdg-stw--visible { opacity: 1; pointer-events: auto; }
 .wdg-stw.wdg-stw--leaving { opacity: 0; pointer-events: none; }
 
 .wdg-stw__backdrop {

@@ -208,6 +208,18 @@ function injectStyles(config: FloatingMessengersConfig): void {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   padding-bottom: env(safe-area-inset-bottom, 0px);
+  /*
+   * Корневой контейнер физически перекрывает квадрат под раскрытую
+   * карточку (90vw / max-width 280px). Без pointer-events: none он
+   * захватывает клики по основному контенту даже когда карточка свёрнута.
+   * Снимаем перехват с root и возвращаем его только на интерактивных детях.
+   */
+  pointer-events: none;
+}
+#${WIDGET_ID} .wdg-fmsg__bubble,
+#${WIDGET_ID}.${EXPANDED_CLASS} .wdg-fmsg__card,
+#${WIDGET_ID}.${EXPANDED_CLASS} .wdg-fmsg__link {
+  pointer-events: auto;
 }
 .wdg-fmsg__bubble {
   width: 60px;

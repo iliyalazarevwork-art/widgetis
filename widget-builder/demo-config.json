@@ -152,7 +152,7 @@
     },
     "module-exit-intent-popup": {
       "config": {
-        "enabled": false,
+        "enabled": true,
         "cooldownHours": 24,
         "minTimeOnPageSec": 10,
         "promoCode": "WELCOME10",
@@ -335,7 +335,7 @@
     },
     "module-spin-the-wheel": {
       "config": {
-        "enabled": false,
+        "enabled": true,
         "delaySec": 12,
         "cooldownHours": 168,
         "triggerOnExitIntent": true,
