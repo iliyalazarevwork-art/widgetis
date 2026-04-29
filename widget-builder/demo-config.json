@@ -150,6 +150,130 @@
         "ru": { "buttonAddToCart": "В корзину", "heading": "Часто покупают вместе" }
       }
     },
+    "module-exit-intent-popup": {
+      "config": {
+        "enabled": true,
+        "cooldownHours": 24,
+        "minTimeOnPageSec": 10,
+        "promoCode": "WELCOME10",
+        "collectEmail": true,
+        "backgroundColor": "#ffffff",
+        "textColor": "#111827",
+        "accentColor": "#111827",
+        "accentTextColor": "#ffffff",
+        "borderColor": "#e5e7eb",
+        "borderRadius": 16,
+        "zIndex": 99999,
+        "imageUrl": "",
+        "hideOnUtmSources": []
+      },
+      "i18n": {
+        "ua": {
+          "title": "Зачекайте! Маємо для вас подарунок",
+          "subtitle": "Знижка 10% на ваше перше замовлення",
+          "emailPlaceholder": "Ваш e-mail",
+          "ctaButton": "Отримати знижку",
+          "copyButton": "Копіювати",
+          "copiedLabel": "Скопійовано!",
+          "promoLabel": "Промокод",
+          "noThanks": "Ні, дякую",
+          "successTitle": "Готово 🎉",
+          "successText": "Промокод скопійовано — застосуйте його в кошику"
+        },
+        "ru": {
+          "title": "Подождите! У нас для вас подарок",
+          "subtitle": "Скидка 10% на первый заказ",
+          "emailPlaceholder": "Ваш e-mail",
+          "ctaButton": "Получить скидку",
+          "copyButton": "Скопировать",
+          "copiedLabel": "Скопировано!",
+          "promoLabel": "Промокод",
+          "noThanks": "Нет, спасибо",
+          "successTitle": "Готово 🎉",
+          "successText": "Промокод скопирован — примените его в корзине"
+        },
+        "en": {
+          "title": "Wait! Here is a gift",
+          "subtitle": "Get 10% off your first order",
+          "emailPlaceholder": "Your email",
+          "ctaButton": "Get my discount",
+          "copyButton": "Copy",
+          "copiedLabel": "Copied!",
+          "promoLabel": "Promo code",
+          "noThanks": "No, thanks",
+          "successTitle": "Done 🎉",
+          "successText": "Promo code copied — apply it at checkout"
+        }
+      }
+    },
+    "module-trust-badges": {
+      "config": {
+        "enabled": true,
+        "selectors": [
+          { "selector": ".j-buy-button-add", "insert": "after" },
+          { "selector": ".cart-buttons--full", "insert": "after" },
+          { "selector": ".cart-buttons", "insert": "after" },
+          { "selector": ".product-card__price-box", "insert": "after" }
+        ],
+        "badges": [
+          { "icon": "shield" },
+          { "icon": "truck" },
+          { "icon": "return" },
+          { "icon": "card" }
+        ],
+        "layout": "grid",
+        "backgroundColor": "transparent",
+        "textColor": "#374151",
+        "iconColor": "#111827",
+        "borderColor": "#e5e7eb",
+        "borderRadius": 12,
+        "showBorder": true
+      },
+      "i18n": {
+        "ua": {
+          "titles": {
+            "shield": "Безпечна оплата",
+            "truck": "Швидка доставка",
+            "return": "14 днів на повернення",
+            "lock": "SSL шифрування",
+            "card": "Visa / Mastercard",
+            "guarantee": "Офіційна гарантія",
+            "support": "Підтримка 24/7",
+            "star": "Перевірений магазин",
+            "leaf": "Еко-упаковка",
+            "box": "Безкоштовна упаковка"
+          }
+        },
+        "ru": {
+          "titles": {
+            "shield": "Безопасная оплата",
+            "truck": "Быстрая доставка",
+            "return": "14 дней на возврат",
+            "lock": "SSL шифрование",
+            "card": "Visa / Mastercard",
+            "guarantee": "Официальная гарантия",
+            "support": "Поддержка 24/7",
+            "star": "Проверенный магазин",
+            "leaf": "Эко-упаковка",
+            "box": "Бесплатная упаковка"
+          }
+        },
+        "en": {
+          "titles": {
+            "shield": "Secure payment",
+            "truck": "Fast shipping",
+            "return": "14-day returns",
+            "lock": "SSL encryption",
+            "card": "Visa / Mastercard",
+            "guarantee": "Official warranty",
+            "support": "24/7 support",
+            "star": "Trusted store",
+            "leaf": "Eco packaging",
+            "box": "Free packaging"
+          }
+        }
+      }
+    },
     "module-marquee": {
       "config": {
         "enabled": true,

@@ -1,6 +1,73 @@
 {
   "$comment": "Test-only config — all 10 modules enabled with minimal valid defaults. Used by global-setup.ts to build the demo bundle before the e2e suite runs.",
   "modules": {
+    "module-exit-intent-popup": {
+      "config": {
+        "enabled": true,
+        "cooldownHours": 0,
+        "minTimeOnPageSec": 0,
+        "promoCode": "TEST10",
+        "collectEmail": true,
+        "backgroundColor": "#ffffff",
+        "textColor": "#111827",
+        "accentColor": "#111827",
+        "accentTextColor": "#ffffff",
+        "borderColor": "#e5e7eb",
+        "borderRadius": 16,
+        "zIndex": 99999,
+        "imageUrl": "",
+        "hideOnUtmSources": []
+      },
+      "i18n": {
+        "ua": {
+          "title": "ТЕСТ exit-intent",
+          "subtitle": "test",
+          "emailPlaceholder": "email",
+          "ctaButton": "ok",
+          "copyButton": "copy",
+          "copiedLabel": "copied",
+          "promoLabel": "promo",
+          "noThanks": "no",
+          "successTitle": "ok",
+          "successText": "ok"
+        }
+      }
+    },
+    "module-trust-badges": {
+      "config": {
+        "enabled": true,
+        "selectors": [
+          { "selector": ".j-buy-button-add", "insert": "after" },
+          { "selector": ".cart-buttons--full", "insert": "after" },
+          { "selector": ".cart-buttons", "insert": "after" },
+          { "selector": ".product-card__price-box", "insert": "after" },
+          { "selector": ".j-product-block", "insert": "after" }
+        ],
+        "badges": [
+          { "icon": "shield" },
+          { "icon": "truck" },
+          { "icon": "return" },
+          { "icon": "card" }
+        ],
+        "layout": "grid",
+        "backgroundColor": "transparent",
+        "textColor": "#374151",
+        "iconColor": "#111827",
+        "borderColor": "#e5e7eb",
+        "borderRadius": 12,
+        "showBorder": true
+      },
+      "i18n": {
+        "ua": {
+          "titles": {
+            "shield": "Безпечна оплата",
+            "truck": "Швидка доставка",
+            "return": "14 днів на повернення",
+            "card": "Visa / Mastercard"
+          }
+        }
+      }
+    },
     "module-marquee": {
       "config": {
         "enabled": true,
