@@ -397,9 +397,11 @@ function renderModal(
     unmountPreview();
     hostEl.classList.remove('stw--visible');
     hostEl.classList.add('stw--minimized');
+    hostEl.style.zIndex = '200';
   }
 
   function reopenFromTab(): void {
+    hostEl.style.zIndex = String(config.zIndex);
     hostEl.classList.remove('stw--minimized');
     renderInitialStage();
     requestAnimationFrame(() => requestAnimationFrame(() => {

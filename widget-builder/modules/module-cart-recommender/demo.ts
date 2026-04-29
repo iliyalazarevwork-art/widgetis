@@ -41,6 +41,35 @@ function detectCurrency(scope: HTMLElement): string {
   return 'UAH';
 }
 
+function scrapeCartRelated(limit: number): ScrapedSticker[] {
+  const items = document.querySelectorAll(
+    '#cart .cart__related-goods .carousel__item .catalog-card--small, ' +
+    '.j-cart-additional .carousel__item .catalog-card--small',
+  );
+
+  const results: ScrapedSticker[] = [];
+  for (const item of items) {
+    if (results.length >= limit) break;
+    if (!(item instanceof HTMLElement)) continue;
+
+    const img = item.querySelector('img') as HTMLImageElement | null;
+    const titleEl = item.querySelector('.catalog-card__title');
+    const priceEl = item.querySelector('.catalog-card__price');
+    const link = item.querySelector('a[href]') as HTMLAnchorElement | null;
+
+    const title = (titleEl?.textContent ?? '').trim();
+    if (!title) continue;
+
+    const image = img?.getAttribute('data-src') || img?.getAttribute('src') || '';
+    const priceText = (priceEl?.textContent ?? '').trim();
+    const priceNew = parsePrice(priceText);
+    const url = link?.getAttribute('href') ?? '#';
+
+    results.push({ url, image, title, priceNew, currency: detectCurrency(item) });
+  }
+  return results;
+}
+
 function scrapeStickers(limit: number): ScrapedSticker[] {
   // Horoshop product cards live under .productSticker (mobile + desktop).
   // Other themes may use generic .product, .product-card — try them as fallback.
@@ -116,11 +145,16 @@ function stickersToProducts(stickers: ScrapedSticker[]): Product[] {
   }));
 }
 
-/** Wait for `.productSticker` (or fallback selectors) to appear, polling. */
+/** Wait for product data to appear, polling. Cart related goods take priority. */
 function waitForStickers(maxItems: number, timeoutMs: number): Promise<ScrapedSticker[]> {
   return new Promise((resolve) => {
     const start = Date.now();
     const tick = (): void => {
+      const cartFound = scrapeCartRelated(maxItems);
+      if (cartFound.length > 0) {
+        resolve(cartFound);
+        return;
+      }
       const found = scrapeStickers(maxItems);
       if (found.length > 0) {
         resolve(found);

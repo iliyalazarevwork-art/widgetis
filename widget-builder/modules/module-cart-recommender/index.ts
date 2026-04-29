@@ -11,8 +11,9 @@ const LOG = '[widgetality] cart-recommender:';
 
 interface AjaxCartAppendProduct {
   (
-    product: { type: string; quantity: number; id: number },
-    related: unknown[],
+    product: { type: string; id: number; quantity?: number },
+    related: unknown,
+    isCallCart?: boolean,
   ): void;
 }
 
@@ -185,12 +186,8 @@ export default function cartRecommender(
 
       try {
         const ac = window.AjaxCart?.getInstance();
-        ac?.appendProduct({ type: 'product', quantity: 1, id: horoshopId }, []);
-        console.log(LOG, 'appendProduct called: type=product, id=' + horoshopId + ', quantity=1, sku=' + (product.sku ?? 'n/a'));
-        // Horoshop's appendProduct mutates the cart state but does NOT redraw
-        // the cart drawer. reloadHtml() forces re-render so the user sees the
-        // new item without a page reload.
-        ac?.reloadHtml?.();
+        ac?.appendProduct({ type: 'product', id: horoshopId }, undefined, true);
+        console.log(LOG, 'appendProduct called: type=product, id=' + horoshopId + ', sku=' + (product.sku ?? 'n/a'));
       } catch (e) {
         console.error(LOG, 'appendProduct failed', e);
         throw e;
@@ -232,7 +229,7 @@ export default function cartRecommender(
     if (!ac || patched) return false;
     const original = ac.appendProduct.bind(ac);
     ac.appendProduct = function (...args: Parameters<AjaxCartAppendProduct>) {
-      original(...args);
+      original.apply(ac, args);
       onProductAdded();
     };
     patched = true;
