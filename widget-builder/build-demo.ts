@@ -14,7 +14,10 @@
 
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { buildModules, type ModuleConfigs } from './index.js';
+import { buildModules, getAvailableModules, type ModuleConfigs } from './index.js';
+import { createJiti } from 'jiti';
+
+const _jiti = createJiti(import.meta.url);
 
 interface DemoConfig {
   modules: ModuleConfigs;
@@ -57,11 +60,49 @@ function loadConfig(): DemoConfig {
   return { modules: modules as ModuleConfigs };
 }
 
+/**
+ * Auto-fill any module not present in demo-config.json with its schema defaults.
+ * The hand-edited demo-config.json wins when a module is explicitly listed.
+ */
+function fillDefaultsForMissingModules(modules: ModuleConfigs): ModuleConfigs {
+  const merged: ModuleConfigs = { ...modules };
+  const modulesDir = resolve(process.cwd(), 'modules');
+
+  for (const moduleName of getAvailableModules()) {
+    if (merged[moduleName]) continue;
+
+    try {
+      const schemaPath = resolve(modulesDir, moduleName, 'schema.ts');
+      const schema = _jiti(schemaPath) as {
+        getDefaultConfig?: () => Record<string, unknown>;
+        getDefaultI18n?: () => Record<string, unknown>;
+      };
+      if (typeof schema.getDefaultConfig !== 'function' || typeof schema.getDefaultI18n !== 'function') {
+        process.stderr.write(`[build-demo] skip "${moduleName}": no default config/i18n exported\n`);
+        continue;
+      }
+      const config = schema.getDefaultConfig();
+      const i18n = schema.getDefaultI18n();
+      merged[moduleName] = {
+        config: { ...config, enabled: true } as Record<string, unknown>,
+        i18n: i18n as Record<string, unknown>,
+      };
+      process.stderr.write(`[build-demo] auto-included "${moduleName}" with defaults\n`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      process.stderr.write(`[build-demo] failed to auto-include "${moduleName}": ${msg}\n`);
+    }
+  }
+
+  return merged;
+}
+
 async function main(): Promise<void> {
-  const { modules } = loadConfig();
+  const explicit = loadConfig().modules;
+  const modules = fillDefaultsForMissingModules(explicit);
 
   if (Object.keys(modules).length === 0) {
-    throw new Error('demo-config.json contains zero modules');
+    throw new Error('demo-config.json contains zero modules and no defaults could be loaded');
   }
 
   const js = await buildModules({
@@ -69,6 +110,7 @@ async function main(): Promise<void> {
     obfuscate: true,
     site: 'demo',
     comment: buildHeader(),
+    demo: true,
   });
 
   process.stdout.write(js);

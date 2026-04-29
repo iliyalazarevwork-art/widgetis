@@ -15,6 +15,13 @@ export type BuildRequest = {
   allowedDomain?: string;
   site?: string;
   comment?: string;
+  /**
+   * When true, the build resolves each module's entry to `demo.ts` if present
+   * (otherwise falls back to `index.ts`). Demo entries scrape product data
+   * from the live page DOM instead of calling the production API — used for
+   * the public demo bundle injected by site-proxy on a merchant's own shop.
+   */
+  demo?: boolean;
 };
 
 const MODULES_ORDER = [
@@ -90,7 +97,10 @@ export async function buildModules(request: BuildRequest): Promise<string> {
     '@laxarevii/core': _require.resolve('@laxarevii/core'),
   };
   for (const moduleName of getAvailableModules()) {
-    moduleAliases[`@laxarevii/${moduleName}`] = resolve(modulesDir, moduleName, 'index.ts');
+    const demoEntry = resolve(modulesDir, moduleName, 'demo.ts');
+    const prodEntry = resolve(modulesDir, moduleName, 'index.ts');
+    moduleAliases[`@laxarevii/${moduleName}`] =
+      request.demo === true && existsSync(demoEntry) ? demoEntry : prodEntry;
   }
 
   const viteConfig: InlineConfig = {
