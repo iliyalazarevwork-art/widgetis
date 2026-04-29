@@ -149,11 +149,14 @@ final class CatalogImporterTest extends TestCase
         self::assertNull($product->embedded_at);
     }
 
-    public function test_skips_variants(): void
+    public function test_skips_variants_sharing_parent_alias(): void
     {
-        // One parent + one variant that points to the parent
-        $parent  = $this->makeProduct('PARENT-1');
-        $variant = $this->makeProduct('VARIANT-1', ['parentSku' => 'PARENT-1']);
+        // Real variant: same storefront page (same alias) as the parent.
+        $parent  = $this->makeProduct('PARENT-1', ['alias' => 'shared-page']);
+        $variant = $this->makeProduct('VARIANT-1', [
+            'parentSku' => 'PARENT-1',
+            'alias'     => 'shared-page',
+        ]);
 
         $result = $this->importer->import($this->site, new FakeReader([$parent, $variant]));
 
@@ -170,18 +173,40 @@ final class CatalogImporterTest extends TestCase
         self::assertNotNull($imported);
     }
 
-    public function test_skips_orphan_variants_with_log_warning(): void
+    public function test_imports_siblings_with_distinct_aliases_as_standalone(): void
     {
-        // Variant whose parent SKU doesn't exist in the batch at all
+        // parent_sku is set, but alias differs → it's a separate page on the
+        // storefront with its own platform id, so it must be imported, not skipped.
+        $parent  = $this->makeProduct('PARENT-1', ['alias' => 'parent-page']);
+        $sibling = $this->makeProduct('SIBLING-1', [
+            'parentSku' => 'PARENT-1',
+            'alias'     => 'sibling-page',
+        ]);
+
+        $result = $this->importer->import($this->site, new FakeReader([$parent, $sibling]));
+
+        self::assertSame(2, $result->inserted);
+        self::assertSame(0, $result->skippedVariants);
+
+        self::assertSame(2, CatalogProduct::query()->where('site_id', $this->site->getKey())->count());
+    }
+
+    public function test_imports_orphan_rows_as_standalone_with_log(): void
+    {
+        // Row whose parent SKU isn't in the batch — we can't decide variance,
+        // so default to "standalone product" (it has its own row, possibly its own page).
         Log::spy();
 
-        $orphan = $this->makeProduct('ORPHAN-1', ['parentSku' => 'NONEXISTENT-PARENT']);
+        $orphan = $this->makeProduct('ORPHAN-1', [
+            'parentSku' => 'NONEXISTENT-PARENT',
+            'alias'     => 'orphan-page',
+        ]);
 
         $result = $this->importer->import($this->site, new FakeReader([$orphan]));
 
-        self::assertSame(0, $result->inserted);
-        self::assertSame(1, $result->skippedVariants);
+        self::assertSame(1, $result->inserted);
+        self::assertSame(0, $result->skippedVariants);
 
-        self::assertSame(0, CatalogProduct::query()->where('site_id', $this->site->getKey())->count());
+        self::assertSame(1, CatalogProduct::query()->where('site_id', $this->site->getKey())->count());
     }
 }

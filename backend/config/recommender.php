@@ -26,7 +26,7 @@ return [
 
     'tagging' => [
         'batch_size' => 20,
-        'max_retries' => 3,
+        'max_retries' => 5,
     ],
 
     'composer' => [

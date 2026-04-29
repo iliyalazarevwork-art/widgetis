@@ -55,6 +55,16 @@ final readonly class TaggerPromptBuilder
             }
         }
 
+        if ($this->vertical->complementRules !== []) {
+            $lines[] = '';
+            $lines[] = 'Complement rules:';
+            $lines[] = '  complements must contain product types a shopper would buy together with the current product, not another copy of the same type.';
+
+            foreach ($this->vertical->complementRules as $sourceType => $targetTypes) {
+                $lines[] = "  {$sourceType} -> " . implode(', ', $targetTypes);
+            }
+        }
+
         return implode("\n", $lines);
     }
 

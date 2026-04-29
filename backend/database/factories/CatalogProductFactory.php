@@ -23,6 +23,8 @@ class CatalogProductFactory extends Factory
         return [
             'site_id' => Site::factory(),
             'sku' => $this->faker->unique()->bothify('SKU-####'),
+            'alias' => $this->faker->unique()->slug(),
+            'horoshop_id' => $this->faker->unique()->numberBetween(1000, 999999),
             'title_ua' => $this->faker->sentence(4),
             'price' => $this->faker->randomFloat(2, 100, 5000),
             'in_stock' => true,

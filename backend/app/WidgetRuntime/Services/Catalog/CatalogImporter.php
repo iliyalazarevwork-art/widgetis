@@ -23,14 +23,16 @@ final class CatalogImporter
         CatalogReader $reader,
         ?\Closure $onProgress = null,
     ): ImportResult {
-        // First pass: collect all SKUs so we can identify valid parents
-        /** @var array<string, true> $allSkus */
-        $allSkus = [];
-        $rows    = [];
+        // First pass: collect sku → alias so we can identify true variants
+        // (a row is a variant only if it shares the parent's page alias —
+        // otherwise it's its own product with its own URL on the storefront).
+        /** @var array<string, ?string> $skuToAlias */
+        $skuToAlias = [];
+        $rows       = [];
 
         foreach ($reader->read() as $product) {
-            $allSkus[$product->sku] = true;
-            $rows[]                 = $product;
+            $skuToAlias[$product->sku] = $product->alias;
+            $rows[]                    = $product;
         }
 
         $inserted        = 0;
@@ -44,7 +46,7 @@ final class CatalogImporter
         $this->runInTransaction(function () use (
             $site,
             $rows,
-            $allSkus,
+            $skuToAlias,
             &$inserted,
             &$updated,
             &$unchanged,
@@ -54,7 +56,7 @@ final class CatalogImporter
         ): void {
             foreach ($rows as $product) {
                 /** @var RawProduct $product */
-                if ($this->isVariant($product, $allSkus)) {
+                if ($this->isVariant($product, $skuToAlias)) {
                     $skippedVariants++;
                     $processed++;
 
@@ -135,23 +137,34 @@ final class CatalogImporter
     }
 
     /**
-     * @param array<string, true> $allSkus
+     * A row is a true variant only when it shares the parent's page alias.
+     * Different alias = its own product page on the storefront (and its own
+     * platform id), so it must be persisted as a standalone product.
+     *
+     * @param array<string, ?string> $skuToAlias
      */
-    private function isVariant(RawProduct $product, array $allSkus): bool
+    private function isVariant(RawProduct $product, array $skuToAlias): bool
     {
         if ($product->parentSku === null || $product->parentSku === $product->sku) {
             return false;
         }
 
-        if (! isset($allSkus[$product->parentSku])) {
+        if (! array_key_exists($product->parentSku, $skuToAlias)) {
             $this->logger->info(
-                'CatalogImporter: variant references unknown parent, skipping',
+                'CatalogImporter: row references unknown parent, treating as standalone',
                 ['sku' => $product->sku, 'parent_sku' => $product->parentSku],
             );
+
+            return false;
         }
 
-        // Either way: it's a variant row — skip it
-        return true;
+        $parentAlias = $skuToAlias[$product->parentSku];
+
+        // Same alias = same storefront page = real variant. Skip it.
+        // Different alias = its own page = own product. Keep it.
+        return $parentAlias !== null
+            && $product->alias !== null
+            && $parentAlias === $product->alias;
     }
 
     /**

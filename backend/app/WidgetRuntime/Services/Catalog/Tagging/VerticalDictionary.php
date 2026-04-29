@@ -11,10 +11,12 @@ final readonly class VerticalDictionary
 {
     /**
      * @param array<string, mixed> $fields
+     * @param array<string, list<string>> $complementRules
      */
     public function __construct(
         public string $name,
         public array $fields,
+        public array $complementRules = [],
     ) {
     }
 
@@ -26,10 +28,14 @@ final readonly class VerticalDictionary
             throw new VerticalNotFoundException("Vertical config not found: {$vertical->value}");
         }
 
-        /** @var array{name: string, fields: array<string, mixed>} $cfg */
+        /** @var array{name: string, fields: array<string, mixed>, complement_rules?: array<string, list<string>>} $cfg */
         $cfg = require $path;
 
-        return new self(name: $cfg['name'], fields: $cfg['fields']);
+        return new self(
+            name: $cfg['name'],
+            fields: $cfg['fields'],
+            complementRules: $cfg['complement_rules'] ?? [],
+        );
     }
 
     /**

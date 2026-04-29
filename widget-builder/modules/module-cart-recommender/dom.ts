@@ -1,6 +1,7 @@
 export interface Product {
   id: number;
   sku?: string;
+  horoshop_id?: number | null;
   url: string;
   image: string;
   title: { ua?: string; en?: string; ru?: string };
@@ -124,14 +125,12 @@ export function buildPopup(
       addBtn.style.opacity = '0.5';
 
       void onAddToCart(product).then(() => {
+        // Sticky success: button stays green with ✓ until popup closes.
+        // We don't re-enable it — the user already added this item, no
+        // reason to let them double-add from the same popup card.
         addBtn.textContent = '✓';
         addBtn.style.opacity = '';
         addBtn.classList.add('wgts-popup__add--done');
-        setTimeout(() => {
-          addBtn.textContent = '';
-          addBtn.classList.remove('wgts-popup__add--done');
-          addBtn.disabled = false;
-        }, 1500);
       }).catch(() => {
         addBtn.textContent = '✗';
         addBtn.style.opacity = '';

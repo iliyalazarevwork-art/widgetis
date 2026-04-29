@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
-        Schema::connection('pgsql_runtime')->table('wgt_catalog_products', function (Blueprint $table) {
+        Schema::table('wgt_catalog_products', function (Blueprint $table) {
             $table->bigInteger('horoshop_id')->nullable()->after('alias');
             $table->index('horoshop_id');
         });
@@ -17,7 +17,7 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::connection('pgsql_runtime')->table('wgt_catalog_products', function (Blueprint $table) {
+        Schema::table('wgt_catalog_products', function (Blueprint $table) {
             $table->dropIndex(['horoshop_id']);
             $table->dropColumn('horoshop_id');
         });

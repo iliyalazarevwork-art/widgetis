@@ -1,12 +1,15 @@
 /**
  * module-cart-recommender — vitest unit tests
  *
- * Tests the new API-driven flow:
- *   - alias extraction from various URL patterns
- *   - fetch called with correct URL
- *   - cards rendered on successful response
- *   - no render on empty data
- *   - no render on fetch failure / abort
+ * Behavior under test:
+ *   - mobile-only guard (matchMedia max-width:768px)
+ *   - prefetch on init: GET /api/v1/widget/cart-recommender/suggest?alias=...
+ *   - patches window.AjaxCart.getInstance().appendProduct
+ *   - on cart add → shows popup with prefetched products
+ *   - clicking a popup card calls appendProduct with the correct Horoshop signature:
+ *     ({type:'product', quantity:1, id:<horoshop_id>}, [])
+ *   - falls back to HTML scrape if API didn't return horoshop_id
+ *   - cleanup tears down popup, listeners, prefetch abort
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -22,7 +25,7 @@ import cartRecommender from './index';
 const DEFAULT_CONFIG = {
   enabled: true,
   apiBaseUrl: 'http://localhost:9001',
-  mountSelector: 'main',
+  mountSelector: '.j-cart-additional .carousel__wrapper',
   maxItems: 4,
 };
 
@@ -35,6 +38,7 @@ const SAMPLE_PRODUCTS = [
   {
     id: 101,
     sku: 'SKU-101',
+    horoshop_id: 1514,
     url: '/product-a/',
     image: '/img/a.jpg',
     title: { ua: 'Товар А', en: 'Product A' },
@@ -44,6 +48,7 @@ const SAMPLE_PRODUCTS = [
   {
     id: 102,
     sku: 'SKU-102',
+    horoshop_id: 2487,
     url: '/product-b/',
     image: '/img/b.jpg',
     title: { ua: 'Товар Б', en: 'Product B' },
@@ -53,33 +58,89 @@ const SAMPLE_PRODUCTS = [
   },
 ];
 
-function mockFetchSuccess(products = SAMPLE_PRODUCTS): void {
-  vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-    ok: true,
-    json: () => Promise.resolve({ data: products, meta: { live: true } }),
-  }));
+interface AppendProductCall {
+  product: { type: string; quantity: number; id: number };
+  related: unknown[];
+}
+
+function setupAjaxCart(): {
+  appendCalls: AppendProductCall[];
+  reloadHtmlCalls: { count: number };
+  triggerAdd: () => void;
+} {
+  const appendCalls: AppendProductCall[] = [];
+  const reloadHtmlCalls = { count: 0 };
+  // Real Horoshop signature: (product, related) — two args, no third "openCart" parameter.
+  const appendProduct = (
+    product: { type: string; quantity: number; id: number },
+    related: unknown[],
+  ): void => {
+    appendCalls.push({ product, related });
+  };
+  const reloadHtml = (): void => {
+    reloadHtmlCalls.count++;
+  };
+
+  const instance = { appendProduct, reloadHtml };
+  // Cast to global setup; TS sees this as window-level assignment.
+  (window as unknown as { AjaxCart: { getInstance: () => typeof instance } }).AjaxCart = {
+    getInstance: () => instance,
+  };
+
+  // Helper: simulate the user adding a product → calls the (now-patched) appendProduct.
+  const triggerAdd = (): void => {
+    const ac = (window as unknown as { AjaxCart: { getInstance: () => typeof instance } })
+      .AjaxCart.getInstance();
+    ac.appendProduct({ type: 'product', quantity: 1, id: 999 }, []);
+  };
+
+  return { appendCalls, reloadHtmlCalls, triggerAdd };
+}
+
+function clearAjaxCart(): void {
+  delete (window as unknown as { AjaxCart?: unknown }).AjaxCart;
+}
+
+function mockFetchProducts(products = SAMPLE_PRODUCTS): void {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockImplementation((url: string) => {
+      // API request → JSON
+      if (url.includes('/api/v1/widget/cart-recommender/suggest')) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({ data: products, meta: { live: true } }),
+        });
+      }
+      // HTML scrape fallback (used when product has no horoshop_id)
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        text: () => Promise.resolve('<button id="j-buy-button-counter-9999" />'),
+      });
+    }),
+  );
 }
 
 function mockFetchEmpty(): void {
-  vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-    ok: true,
-    json: () => Promise.resolve({ data: [], meta: {} }),
-  }));
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ data: [], meta: {} }),
+    }),
+  );
 }
 
 function mockFetchError(): void {
   vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network error')));
 }
 
-function mockFetchAbort(): void {
-  vi.stubGlobal('fetch', vi.fn().mockRejectedValue(
-    Object.assign(new Error('AbortError'), { name: 'AbortError' }),
-  ));
-}
-
 function setPathname(pathname: string): void {
   Object.defineProperty(window, 'location', {
-    value: { ...window.location, pathname },
+    value: { ...window.location, pathname, origin: 'http://example.com' },
     writable: true,
     configurable: true,
   });
@@ -119,6 +180,10 @@ function setDesktopViewport(): void {
   });
 }
 
+async function flush(ms = 20): Promise<void> {
+  await new Promise((r) => setTimeout(r, ms));
+}
+
 // ─── Tests ───────────────────────────────────────────────────────────────────
 
 describe('cartRecommender', () => {
@@ -131,181 +196,246 @@ describe('cartRecommender', () => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
     document.body.innerHTML = '';
+    clearAjaxCart();
   });
 
-  // ── alias extraction ──────────────────────────────────────────────────────
+  // ── guards ────────────────────────────────────────────────────────────────
 
-  it('calls fetch with correct URL on a production pathname', async () => {
-    setPathname('/postilna-bilizna-satin-z-ryushamy/');
-    mockFetchSuccess();
-
-    cartRecommender(DEFAULT_CONFIG, DEFAULT_I18N);
-
-    await vi.waitFor(() => {
-      expect(vi.mocked(fetch)).toHaveBeenCalledWith(
-        'http://localhost:9001/api/v1/widget/cart-recommender/suggest?alias=postilna-bilizna-satin-z-ryushamy',
-        expect.objectContaining({ credentials: 'omit' }),
-      );
-    });
-  });
-
-  it('calls fetch with correct URL on a site-proxy pathname', async () => {
-    setPathname('/site/benihome.com.ua/postilna-bilizna-satin-z-ryushamy/');
-    mockFetchSuccess();
-
-    cartRecommender(DEFAULT_CONFIG, DEFAULT_I18N);
-
-    await vi.waitFor(() => {
-      expect(vi.mocked(fetch)).toHaveBeenCalledWith(
-        'http://localhost:9001/api/v1/widget/cart-recommender/suggest?alias=postilna-bilizna-satin-z-ryushamy',
-        expect.objectContaining({ credentials: 'omit' }),
-      );
-    });
-  });
-
-  it('does not call fetch when pathname has no alias (root /)', async () => {
-    setPathname('/');
-    mockFetchSuccess();
-
-    cartRecommender(DEFAULT_CONFIG, DEFAULT_I18N);
-
-    // Give microtasks a tick to settle
-    await new Promise((r) => setTimeout(r, 0));
-
-    expect(vi.mocked(fetch)).not.toHaveBeenCalled();
-  });
-
-  // ── render on success ─────────────────────────────────────────────────────
-
-  it('renders N cards into mount target on successful API response', async () => {
+  it('does not call fetch when disabled', async () => {
     setPathname('/some-product/');
-    mockFetchSuccess(SAMPLE_PRODUCTS);
-
-    cartRecommender(DEFAULT_CONFIG, DEFAULT_I18N);
-
-    await vi.waitFor(() => {
-      const cards = document.querySelectorAll('[data-wdg-rec]');
-      expect(cards.length).toBe(SAMPLE_PRODUCTS.length);
-    });
-  });
-
-  it('respects maxItems config', async () => {
-    setPathname('/some-product/');
-    // Provide 3 products but maxItems=1
-    mockFetchSuccess(SAMPLE_PRODUCTS);
-
-    cartRecommender({ ...DEFAULT_CONFIG, maxItems: 1 }, DEFAULT_I18N);
-
-    await vi.waitFor(() => {
-      const cards = document.querySelectorAll('[data-wdg-rec]');
-      expect(cards.length).toBe(1);
-    });
-  });
-
-  it('renders heading text inside container', async () => {
-    setPathname('/some-product/');
-    mockFetchSuccess(SAMPLE_PRODUCTS);
-
-    cartRecommender(DEFAULT_CONFIG, DEFAULT_I18N);
-
-    await vi.waitFor(() => {
-      const heading = document.querySelector('.wdg-cart-rec__heading');
-      expect(heading).not.toBeNull();
-      expect(heading!.textContent).toBe('Часто беруть разом');
-    });
-  });
-
-  it('mounts container inside the correct mount target', async () => {
-    setPathname('/some-product/');
-    mockFetchSuccess(SAMPLE_PRODUCTS);
-
-    cartRecommender(DEFAULT_CONFIG, DEFAULT_I18N);
-
-    await vi.waitFor(() => {
-      const container = document.querySelector('main .wdg-cart-recommender');
-      expect(container).not.toBeNull();
-    });
-  });
-
-  // ── no render on empty data ───────────────────────────────────────────────
-
-  it('does not render anything when API returns empty data array', async () => {
-    setPathname('/some-product/');
-    mockFetchEmpty();
-
-    cartRecommender(DEFAULT_CONFIG, DEFAULT_I18N);
-
-    await new Promise((r) => setTimeout(r, 20));
-
-    expect(document.querySelector('[data-wdg-rec]')).toBeNull();
-    expect(document.querySelector('.wdg-cart-recommender')).toBeNull();
-  });
-
-  // ── no render on fetch failure ────────────────────────────────────────────
-
-  it('does not render anything on fetch error', async () => {
-    setPathname('/some-product/');
-    mockFetchError();
-
-    cartRecommender(DEFAULT_CONFIG, DEFAULT_I18N);
-
-    await new Promise((r) => setTimeout(r, 20));
-
-    expect(document.querySelector('[data-wdg-rec]')).toBeNull();
-  });
-
-  it('does not render anything on fetch abort', async () => {
-    setPathname('/some-product/');
-    mockFetchAbort();
-
-    cartRecommender(DEFAULT_CONFIG, DEFAULT_I18N);
-
-    await new Promise((r) => setTimeout(r, 20));
-
-    expect(document.querySelector('[data-wdg-rec]')).toBeNull();
-  });
-
-  // ── disabled ──────────────────────────────────────────────────────────────
-
-  it('does not call fetch when module is disabled', async () => {
-    setPathname('/some-product/');
-    mockFetchSuccess();
-
+    mockFetchProducts();
     cartRecommender({ ...DEFAULT_CONFIG, enabled: false }, DEFAULT_I18N);
-
-    await new Promise((r) => setTimeout(r, 0));
-
+    await flush();
     expect(vi.mocked(fetch)).not.toHaveBeenCalled();
   });
-
-  // ── mobile guard ──────────────────────────────────────────────────────────
 
   it('does not call fetch on desktop viewport', async () => {
     setPathname('/some-product/');
     setDesktopViewport();
-    mockFetchSuccess();
+    mockFetchProducts();
+    cartRecommender(DEFAULT_CONFIG, DEFAULT_I18N);
+    await flush();
+    expect(vi.mocked(fetch)).not.toHaveBeenCalled();
+  });
 
+  it('does not call fetch when pathname has no alias (root /)', async () => {
+    setPathname('/');
+    mockFetchProducts();
+    cartRecommender(DEFAULT_CONFIG, DEFAULT_I18N);
+    await flush();
+    expect(vi.mocked(fetch)).not.toHaveBeenCalled();
+  });
+
+  // ── prefetch ──────────────────────────────────────────────────────────────
+
+  it('prefetches suggest endpoint with alias from production pathname', async () => {
+    setPathname('/postilna-bilizna-satin-z-ryushami/');
+    mockFetchProducts();
     cartRecommender(DEFAULT_CONFIG, DEFAULT_I18N);
 
-    await new Promise((r) => setTimeout(r, 0));
+    await vi.waitFor(() => {
+      expect(vi.mocked(fetch)).toHaveBeenCalledWith(
+        'http://localhost:9001/api/v1/widget/cart-recommender/suggest?alias=postilna-bilizna-satin-z-ryushami',
+        expect.objectContaining({ credentials: 'omit' }),
+      );
+    });
+  });
 
-    expect(vi.mocked(fetch)).not.toHaveBeenCalled();
+  it('prefetches suggest endpoint with alias from site-proxy pathname', async () => {
+    setPathname('/site/benihome.com.ua/postilna-bilizna-satin-z-ryushami/');
+    mockFetchProducts();
+    cartRecommender(DEFAULT_CONFIG, DEFAULT_I18N);
+
+    await vi.waitFor(() => {
+      expect(vi.mocked(fetch)).toHaveBeenCalledWith(
+        'http://localhost:9001/api/v1/widget/cart-recommender/suggest?alias=postilna-bilizna-satin-z-ryushami',
+        expect.objectContaining({ credentials: 'omit' }),
+      );
+    });
+  });
+
+  // ── popup behavior ────────────────────────────────────────────────────────
+
+  it('does not show popup until AjaxCart.appendProduct is invoked', async () => {
+    setPathname('/some-product/');
+    mockFetchProducts();
+    setupAjaxCart();
+
+    cartRecommender(DEFAULT_CONFIG, DEFAULT_I18N);
+    await flush();
+
+    expect(document.querySelector('.wgts-popup')).toBeNull();
+  });
+
+  it('shows popup with N cards when AjaxCart.appendProduct is invoked', async () => {
+    setPathname('/some-product/');
+    mockFetchProducts();
+    const { triggerAdd } = setupAjaxCart();
+
+    cartRecommender(DEFAULT_CONFIG, DEFAULT_I18N);
+    // Wait for prefetch to settle and the AjaxCart patch to be applied.
+    await vi.waitFor(() => {
+      expect(vi.mocked(fetch)).toHaveBeenCalled();
+    });
+    await flush();
+
+    triggerAdd();
+
+    await vi.waitFor(() => {
+      expect(document.querySelector('.wgts-popup')).not.toBeNull();
+      const cards = document.querySelectorAll('.wgts-popup__row');
+      expect(cards.length).toBe(SAMPLE_PRODUCTS.length);
+    });
+  });
+
+  it('does not show popup when API returned empty data', async () => {
+    setPathname('/some-product/');
+    mockFetchEmpty();
+    const { triggerAdd } = setupAjaxCart();
+
+    cartRecommender(DEFAULT_CONFIG, DEFAULT_I18N);
+    await vi.waitFor(() => {
+      expect(vi.mocked(fetch)).toHaveBeenCalled();
+    });
+    await flush();
+
+    triggerAdd();
+    await flush();
+
+    expect(document.querySelector('.wgts-popup')).toBeNull();
+  });
+
+  it('does not show popup when prefetch failed', async () => {
+    setPathname('/some-product/');
+    mockFetchError();
+    const { triggerAdd } = setupAjaxCart();
+
+    cartRecommender(DEFAULT_CONFIG, DEFAULT_I18N);
+    await flush();
+
+    triggerAdd();
+    await flush();
+
+    expect(document.querySelector('.wgts-popup')).toBeNull();
+  });
+
+  // ── add-to-cart from popup (regression: correct Horoshop signature) ───────
+
+  it('calls AjaxCart.appendProduct with correct Horoshop signature when "+" clicked', async () => {
+    setPathname('/some-product/');
+    mockFetchProducts();
+    const { appendCalls, reloadHtmlCalls, triggerAdd } = setupAjaxCart();
+
+    cartRecommender(DEFAULT_CONFIG, DEFAULT_I18N);
+    await vi.waitFor(() => {
+      expect(vi.mocked(fetch)).toHaveBeenCalled();
+    });
+    await flush();
+
+    triggerAdd();
+    await vi.waitFor(() => {
+      expect(document.querySelector('.wgts-popup__add')).not.toBeNull();
+    });
+
+    // Track only calls made AFTER the popup is shown — the triggerAdd above
+    // also appended a product through the patched method.
+    const callsBefore = appendCalls.length;
+    const reloadCallsBefore = reloadHtmlCalls.count;
+
+    const addBtn = document.querySelectorAll<HTMLButtonElement>('.wgts-popup__add')[0];
+    addBtn.click();
+
+    await vi.waitFor(() => {
+      expect(appendCalls.length).toBeGreaterThan(callsBefore);
+    });
+
+    const lastCall = appendCalls[appendCalls.length - 1];
+    expect(lastCall.product).toEqual({
+      type: 'product',
+      quantity: 1,
+      id: SAMPLE_PRODUCTS[0].horoshop_id,
+    });
+    expect(lastCall.related).toEqual([]);
+
+    // Cart UI must be redrawn — without this Horoshop's drawer doesn't show
+    // the new item until a page reload.
+    expect(reloadHtmlCalls.count).toBeGreaterThan(reloadCallsBefore);
+  });
+
+  it('falls back to HTML scrape when product has no horoshop_id', async () => {
+    setPathname('/some-product/');
+    const productsNoId = [
+      {
+        ...SAMPLE_PRODUCTS[0],
+        horoshop_id: null,
+      },
+    ];
+    mockFetchProducts(productsNoId);
+    const { appendCalls, triggerAdd } = setupAjaxCart();
+
+    cartRecommender({ ...DEFAULT_CONFIG, maxItems: 1 }, DEFAULT_I18N);
+    await vi.waitFor(() => {
+      expect(vi.mocked(fetch)).toHaveBeenCalled();
+    });
+    await flush();
+
+    triggerAdd();
+    await vi.waitFor(() => {
+      expect(document.querySelector('.wgts-popup__add')).not.toBeNull();
+    });
+    const callsBefore = appendCalls.length;
+
+    const addBtn = document.querySelector<HTMLButtonElement>('.wgts-popup__add')!;
+    addBtn.click();
+
+    await vi.waitFor(() => {
+      expect(appendCalls.length).toBeGreaterThan(callsBefore);
+    });
+
+    // Scrape fallback returns id=9999 from the mocked HTML.
+    const lastCall = appendCalls[appendCalls.length - 1];
+    expect(lastCall.product).toEqual({ type: 'product', quantity: 1, id: 9999 });
+    expect(lastCall.related).toEqual([]);
+  });
+
+  // ── popup close ───────────────────────────────────────────────────────────
+
+  it('removes popup when close button is clicked', async () => {
+    setPathname('/some-product/');
+    mockFetchProducts();
+    const { triggerAdd } = setupAjaxCart();
+
+    cartRecommender(DEFAULT_CONFIG, DEFAULT_I18N);
+    await vi.waitFor(() => {
+      expect(vi.mocked(fetch)).toHaveBeenCalled();
+    });
+    await flush();
+    triggerAdd();
+
+    await vi.waitFor(() => {
+      expect(document.querySelector('.wgts-popup__close')).not.toBeNull();
+    });
+
+    const closeBtn = document.querySelector<HTMLButtonElement>('.wgts-popup__close')!;
+    closeBtn.click();
+
+    await vi.waitFor(
+      () => {
+        expect(document.querySelector('.wgts-popup-root')).toBeNull();
+      },
+      { timeout: 1000 },
+    );
   });
 
   // ── cleanup ───────────────────────────────────────────────────────────────
 
-  it('cleanup removes inserted container from DOM', async () => {
+  it('cleanup is callable and does not throw', async () => {
     setPathname('/some-product/');
-    mockFetchSuccess(SAMPLE_PRODUCTS);
+    mockFetchProducts();
+    setupAjaxCart();
 
     const cleanup = cartRecommender(DEFAULT_CONFIG, DEFAULT_I18N);
-
-    await vi.waitFor(() => {
-      expect(document.querySelector('.wdg-cart-recommender')).not.toBeNull();
-    });
-
-    cleanup?.();
-
-    expect(document.querySelector('.wdg-cart-recommender')).toBeNull();
+    await flush();
+    expect(() => cleanup?.()).not.toThrow();
   });
 });

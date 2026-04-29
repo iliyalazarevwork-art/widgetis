@@ -379,6 +379,7 @@ final class SuggestEndpointTest extends TestCase
                 [
                     'id',
                     'sku',
+                    'horoshop_id',
                     'url',
                     'image',
                     'title',

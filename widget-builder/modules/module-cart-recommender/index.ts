@@ -11,14 +11,14 @@ const LOG = '[widgetality] cart-recommender:';
 
 interface AjaxCartAppendProduct {
   (
-    product: { type: string; id: number | string; article?: string },
-    related: undefined,
-    openCart: boolean,
+    product: { type: string; quantity: number; id: number },
+    related: unknown[],
   ): void;
 }
 
 interface AjaxCartInstance {
   appendProduct: AjaxCartAppendProduct;
+  reloadHtml?: () => void;
 }
 
 interface AjaxCartStatic {
@@ -34,6 +34,7 @@ declare global {
 interface ApiProduct {
   id: number;
   sku?: string;
+  horoshop_id?: number | null;
   url: string;
   image: string;
   title: { ua?: string; en?: string; ru?: string };
@@ -166,7 +167,14 @@ export default function cartRecommender(
       console.log(LOG, 'add-to-cart clicked:', title, '| sku:', product.sku, '| url:', product.url);
 
       let horoshopId: number | null = null;
-      if (product.url) {
+
+      if (typeof product.horoshop_id === 'number' && Number.isFinite(product.horoshop_id)) {
+        horoshopId = product.horoshop_id;
+        console.log(LOG, 'horoshop id from API =', horoshopId);
+      }
+
+      if (horoshopId === null && product.url) {
+        console.log(LOG, 'no horoshop_id from API — falling back to HTML scrape');
         horoshopId = await fetchHoroshopProductId(product.url);
       }
 
@@ -176,12 +184,13 @@ export default function cartRecommender(
       }
 
       try {
-        window.AjaxCart?.getInstance().appendProduct(
-          { type: 'product', id: horoshopId, article: product.sku },
-          undefined,
-          false,
-        );
-        console.log(LOG, 'appendProduct called: type=product, id=' + horoshopId + ', article=' + (product.sku ?? 'n/a'));
+        const ac = window.AjaxCart?.getInstance();
+        ac?.appendProduct({ type: 'product', quantity: 1, id: horoshopId }, []);
+        console.log(LOG, 'appendProduct called: type=product, id=' + horoshopId + ', quantity=1, sku=' + (product.sku ?? 'n/a'));
+        // Horoshop's appendProduct mutates the cart state but does NOT redraw
+        // the cart drawer. reloadHtml() forces re-render so the user sees the
+        // new item without a page reload.
+        ac?.reloadHtml?.();
       } catch (e) {
         console.error(LOG, 'appendProduct failed', e);
         throw e;

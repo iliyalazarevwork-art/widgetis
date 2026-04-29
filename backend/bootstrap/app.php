@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         \App\WidgetRuntime\Console\Commands\Catalog\ImportXlsxCommand::class,
         \App\WidgetRuntime\Console\Commands\Catalog\TagCommand::class,
         \App\WidgetRuntime\Console\Commands\Catalog\EmbedCommand::class,
+        \App\WidgetRuntime\Console\Commands\Catalog\FetchHoroshopIdsCommand::class,
         \App\WidgetRuntime\Console\Commands\CartRecommender\OnboardCommand::class,
         \App\Core\Console\Commands\OtpLogin::class,
         \App\Core\Console\Commands\GetOtpCode::class,

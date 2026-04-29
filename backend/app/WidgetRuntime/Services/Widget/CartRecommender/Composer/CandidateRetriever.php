@@ -36,7 +36,7 @@ final class CandidateRetriever
         $query = CatalogProduct::on($connectionName)
             ->where('site_id', $source->site_id)
             ->where('id', '!=', $source->id)
-            ->where('in_stock', true)
+            ->purchasableForWidget()
             ->whereNotNull('ai_tagged_at');
 
         // Price band filter (only when source has a meaningful price)
@@ -47,13 +47,29 @@ final class CandidateRetriever
             $query->whereBetween('price', [$priceMin, $priceMax]);
         }
 
+        /** @var array<string, mixed> $aiTags */
+        $aiTags         = is_array($source->ai_tags) ? $source->ai_tags : [];
+        $rawComplements = $aiTags['complements'] ?? [];
+        $primaryType    = is_string($aiTags['primary_type'] ?? null) ? $aiTags['primary_type'] : '';
+
+        if ($primaryType !== '') {
+            $this->excludeSamePrimaryType($query, $driver, $primaryType);
+        }
+
         // Complement semantic filter — PostgreSQL JSONB only
         if ($isPgsql) {
-            $complements = $source->ai_tags['complements'] ?? [];
-            $primaryType = (string) ($source->ai_tags['primary_type'] ?? '');
+            $complements = [];
+            if (is_array($rawComplements)) {
+                /** @var mixed $type */
+                foreach ($rawComplements as $type) {
+                    if (is_string($type) && $type !== '' && $type !== $primaryType) {
+                        $complements[] = $type;
+                    }
+                }
+            }
 
-            $hasComplements  = count($complements) > 0;
-            $hasPrimaryType  = $primaryType !== '';
+            $hasComplements = count($complements) > 0;
+            $hasPrimaryType = $primaryType !== '';
 
             if ($hasComplements || $hasPrimaryType) {
                 $query->where(function ($q) use ($complements, $primaryType, $hasComplements, $hasPrimaryType): void {
@@ -101,5 +117,27 @@ final class CandidateRetriever
         ]);
 
         return $results;
+    }
+
+    /**
+     * @param \Illuminate\Database\Eloquent\Builder<CatalogProduct> $query
+     */
+    private function excludeSamePrimaryType(\Illuminate\Database\Eloquent\Builder $query, string $driver, string $primaryType): void
+    {
+        if ($driver === 'pgsql') {
+            $query->whereRaw(
+                "((ai_tags->>'primary_type') IS NULL OR (ai_tags->>'primary_type') <> ?)",
+                [$primaryType],
+            );
+
+            return;
+        }
+
+        if ($driver === 'sqlite') {
+            $query->whereRaw(
+                "(json_extract(ai_tags, '$.primary_type') IS NULL OR json_extract(ai_tags, '$.primary_type') <> ?)",
+                [$primaryType],
+            );
+        }
     }
 }

@@ -106,4 +106,19 @@ final class CatalogProduct extends Model
     {
         return $q->whereNull('embedded_at')->whereNotNull('ai_tagged_at');
     }
+
+    /**
+     * Products that can be rendered by the widget and added to a Horoshop cart.
+     *
+     * @param Builder<CatalogProduct> $q
+     * @return Builder<CatalogProduct>
+     */
+    public function scopePurchasableForWidget(Builder $q): Builder
+    {
+        return $q
+            ->where('in_stock', true)
+            ->whereNotNull('horoshop_id')
+            ->whereNotNull('alias')
+            ->where('alias', '!=', '');
+    }
 }

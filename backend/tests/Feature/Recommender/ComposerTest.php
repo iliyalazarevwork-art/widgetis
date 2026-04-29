@@ -262,12 +262,12 @@ final class ComposerTest extends TestCase
             'ai_tagged_at'    => now(),
         ]);
 
-        // Products in the same category (should be returned as fallback)
+        // Complementary products (should be returned as fallback)
         $sameCategoryProducts = CatalogProduct::factory()->count(3)->create([
             'site_id'       => $site->id,
             'price'         => 500.00,
             'in_stock'      => true,
-            'category_path' => 'Bedding > Sets',
+            'category_path' => 'Постільна білизна/Простирадла',
             'ai_tags'       => null,
             'ai_tagged_at'  => null,
         ]);
@@ -292,7 +292,7 @@ final class ComposerTest extends TestCase
         $service = new CartRecommenderService($failingComposer, new NullLogger());
         $results = $service->suggestForProduct($site, $source->id);
 
-        // Should return 3 same-category fallback products
+        // Should return 3 complementary fallback products
         $this->assertCount(3, $results);
 
         foreach ($results as $rel) {

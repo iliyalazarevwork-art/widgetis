@@ -75,6 +75,13 @@ final class CartRecommenderSuggestController
 
         $views = $this->enricher->enrich($site, $relatedProducts);
 
+        /** @var array<int, int|null> $horoshopIds */
+        $horoshopIds = [];
+        foreach ($relatedProducts as $p) {
+            $rawId = $p->getAttribute('horoshop_id');
+            $horoshopIds[$p->id] = $rawId === null ? null : (int) $rawId;
+        }
+
         $anyLive = false;
         $items   = [];
 
@@ -96,16 +103,17 @@ final class CartRecommenderSuggestController
             );
 
             $items[] = [
-                'id'        => $view->productId,
-                'sku'       => $view->sku,
-                'url'       => $view->url,
-                'image'     => $view->imageUrl,
-                'title'     => $titleFields ?: null,
-                'price_new' => $view->priceNew,
-                'price_old' => $view->priceOld,
-                'currency'  => $view->currency,
-                'rationale' => $rationaleFields !== [] ? $rationaleFields : null,
-                'source'    => $rel->source instanceof \BackedEnum
+                'id'          => $view->productId,
+                'sku'         => $view->sku,
+                'horoshop_id' => $horoshopIds[$view->productId] ?? null,
+                'url'         => $view->url,
+                'image'       => $view->imageUrl,
+                'title'       => $titleFields ?: null,
+                'price_new'   => $view->priceNew,
+                'price_old'   => $view->priceOld,
+                'currency'    => $view->currency,
+                'rationale'   => $rationaleFields !== [] ? $rationaleFields : null,
+                'source'      => $rel->source instanceof \BackedEnum
                     ? $rel->source->value
                     : (string) $rel->source,
             ];

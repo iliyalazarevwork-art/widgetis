@@ -21,9 +21,10 @@ final class TagCatalogProductJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public int $tries = 3;
+    public int $tries = 8;
 
-    public int $backoff = 5;
+    /** @var list<int> */
+    public array $backoff = [10, 30, 60, 120, 180, 300, 300];
 
     public function __construct(
         public readonly int $productId,

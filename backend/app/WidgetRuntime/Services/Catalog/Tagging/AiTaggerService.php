@@ -10,6 +10,7 @@ use App\WidgetRuntime\Services\Catalog\Exceptions\TaggerRefusalException;
 use Illuminate\Support\Facades\DB;
 use OpenAI\Contracts\ClientContract;
 use OpenAI\Exceptions\ErrorException;
+use OpenAI\Exceptions\RateLimitException;
 use OpenAI\Exceptions\TransporterException;
 use Psr\Log\LoggerInterface;
 
@@ -86,6 +87,23 @@ final class AiTaggerService
                 throw $e;
             } catch (TaggerException $e) {
                 throw $e;
+            } catch (RateLimitException $e) {
+                $lastException = $e;
+                $attempt++;
+
+                $this->logger->warning('AiTaggerService: rate limited, retrying', [
+                    'product_id' => $product->id,
+                    'attempt'    => $attempt,
+                    'message'    => $e->getMessage(),
+                ]);
+
+                if ($attempt > $maxRetries) {
+                    break;
+                }
+
+                sleep($this->retryDelaySeconds($attempt, rateLimited: true));
+
+                continue;
             } catch (ErrorException $e) {
                 $statusCode = $e->getStatusCode();
 
@@ -112,8 +130,7 @@ final class AiTaggerService
                     break;
                 }
 
-                // Exponential backoff: 1s, 2s, 4s
-                sleep(2 ** ($attempt - 1));
+                sleep($this->retryDelaySeconds($attempt, rateLimited: $statusCode === 429));
 
                 continue;
             } catch (TransporterException $e) {
@@ -131,7 +148,7 @@ final class AiTaggerService
                     break;
                 }
 
-                sleep(2 ** ($attempt - 1));
+                sleep($this->retryDelaySeconds($attempt));
 
                 continue;
             }
@@ -141,6 +158,13 @@ final class AiTaggerService
             "Failed to tag product #{$product->id} after {$maxRetries} retries",
             previous: $lastException instanceof \Throwable ? $lastException : null,
         );
+    }
+
+    private function retryDelaySeconds(int $attempt, bool $rateLimited = false): int
+    {
+        $base = $rateLimited ? 10 : 2;
+
+        return min(60, $base * (2 ** max(0, $attempt - 1)));
     }
 
     /**
