@@ -274,6 +274,36 @@
         }
       }
     },
+    "module-free-delivery-bar": {
+      "config": {
+        "enabled": true,
+        "threshold": 1500,
+        "position": "top",
+        "height": 44,
+        "zIndex": 9998,
+        "backgroundColor": "#0f172a",
+        "textColor": "#f8fafc",
+        "progressColor": "#22c55e",
+        "achievedColor": "#16a34a",
+        "borderRadius": 0,
+        "hideOnCheckout": false,
+        "pulseOnUpdate": true
+      },
+      "i18n": {
+        "ua": {
+          "remaining": "Додайте ще {amount} до безкоштовної доставки",
+          "achieved": "Безкоштовна доставка ваша 🎉"
+        },
+        "ru": {
+          "remaining": "Добавьте ещё {amount} до бесплатной доставки",
+          "achieved": "Бесплатная доставка ваша 🎉"
+        },
+        "en": {
+          "remaining": "Add {amount} more for FREE shipping",
+          "achieved": "Free shipping unlocked 🎉"
+        }
+      }
+    },
     "module-floating-messengers": {
       "config": {
         "enabled": true,
