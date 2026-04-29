@@ -6,9 +6,28 @@ import {
   type SpinTheWheelInput,
   type SpinSegment,
 } from './schema';
+import { ICONS, type IconType } from './icons';
 import { getLanguage } from '@laxarevii/core';
-// @ts-ignore — spin-wheel ships no TypeScript declarations
-import { Wheel } from 'spin-wheel';
+// @ts-ignore — lucky-canvas ships TypeScript declarations but the import path needs ts-ignore
+import { LuckyWheel } from 'lucky-canvas';
+
+// ---------------------------------------------------------------------------
+// SVG-icon → data-URL string, used in lucky-canvas imgs[].src.
+// Icons in icons.ts use currentColor; we replace it with the segment text
+// color to get white silhouettes on top of vivid segment backgrounds.
+// ---------------------------------------------------------------------------
+
+export function buildIconDataUrl(iconType: IconType, color: string): string {
+  if (typeof btoa === 'undefined') return '';
+  const svgRaw = ICONS[iconType];
+  if (!svgRaw) return '';
+  const svgColored = svgRaw.replace(/currentColor/g, color);
+  try {
+    return `data:image/svg+xml;base64,${btoa(svgColored)}`;
+  } catch {
+    return '';
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -175,29 +194,75 @@ function buildPointerSvg(color: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// Build spin-wheel props from config
+// Build lucky-canvas prize data from config
 // ---------------------------------------------------------------------------
 
-function buildWheelProps(config: SpinTheWheelConfig): Record<string, unknown> {
+function buildLuckyWheelData(
+  config: SpinTheWheelConfig,
+  size: string,
+  onEnd: (prize: object) => void,
+): object {
   return {
-    items: config.segments.map((s, i) => ({
-      label: s.label,
-      backgroundColor: config.palette[i % config.palette.length],
-      labelColor: config.wheelTextColor,
-    })),
-    pointerAngle: 0,
-    lineWidth: 1,
-    lineColor: 'rgba(255,255,255,0.4)',
-    radius: 0.92,
-    itemLabelFont: 'system-ui, -apple-system, sans-serif',
-    itemLabelFontSizeMax: 22,
-    itemLabelRadius: 0.85,
-    itemLabelAlign: 'right',
-    itemLabelBaselineOffset: -0.1,
-    borderColor: config.decorativeColor,
-    borderWidth: 4,
-    isInteractive: false,
-    rotationResistance: 0,
+    width: size,
+    height: size,
+    blocks: [
+      {
+        padding: '8px',
+        background: config.decorativeColor,
+      },
+      {
+        padding: '4px',
+        background: '#ffffff',
+      },
+    ],
+    prizes: config.segments.map((s, i) => {
+      const bg = config.palette[i % config.palette.length];
+      const iconDataUrl = s.iconType
+        ? buildIconDataUrl(s.iconType as IconType, config.wheelTextColor)
+        : '';
+
+      return {
+        background: bg,
+        fonts: [
+          {
+            text: s.label,
+            top: iconDataUrl ? '10%' : '20%',
+            fontColor: config.wheelTextColor,
+            fontSize: '13px',
+            fontWeight: 'bold',
+            wordWrap: true,
+            lineClamp: 2,
+          },
+        ],
+        imgs: iconDataUrl
+          ? [
+              {
+                src: iconDataUrl,
+                top: '52%',
+                width: '30%',
+              },
+            ]
+          : [],
+      };
+    }),
+    buttons: [
+      {
+        radius: '32%',
+        background: '#ffffff',
+        pointer: true,
+      },
+      {
+        radius: '24%',
+        background: config.decorativeColor,
+        fonts: [{ text: '✦', fontColor: '#ffffff', fontSize: '24px' }],
+      },
+    ],
+    defaultStyle: {
+      background: '#ffffff',
+      fontColor: config.wheelTextColor,
+      fontSize: '13px',
+    },
+    end: onEnd,
   };
 }
 
@@ -217,19 +282,38 @@ function renderModal(
 
   wrapper.innerHTML = buildEmailGateHtml(config, i18n);
 
-  // Render the preview wheel in email gate using spin-wheel
-  const previewContainer = wrapper.querySelector<HTMLElement>('.stw__wheel-container--preview');
-  let previewWheel: InstanceType<typeof Wheel> | null = null;
-  if (previewContainer) {
+  // Render the preview wheel in email gate using lucky-canvas.
+  // ВАЖНО: lucky-canvas требует пиксельных размеров и отрисованного парента.
+  // Откладываем создание до следующего кадра (когда модал отлайаутился),
+  // и измеряем фактический размер контейнера в px.
+  const previewContainer = wrapper.querySelector<HTMLDivElement>('.stw__wheel-container--preview');
+  let previewWheel: InstanceType<typeof LuckyWheel> | null = null;
+  function mountPreviewWheel(): void {
+    if (!previewContainer || previewWheel) return;
+    const rect = previewContainer.getBoundingClientRect();
+    const sizePx = Math.round(Math.max(rect.width, rect.height));
+    if (sizePx <= 0) {
+      // Парент ещё не отлайаутился — пробуем на следующем кадре
+      requestAnimationFrame(mountPreviewWheel);
+      return;
+    }
     try {
-      previewWheel = new Wheel(previewContainer, buildWheelProps(config));
+      previewWheel = new LuckyWheel(
+        previewContainer,
+        buildLuckyWheelData(config, `${sizePx}px`, () => {}),
+      );
+      previewWheel.init?.();
     } catch {
-      // Canvas may not be supported in test environment — degrade gracefully
+      // Canvas может быть не поддержан в тестовой среде
     }
   }
+  requestAnimationFrame(() => requestAnimationFrame(mountPreviewWheel));
 
   function close(): void {
-    previewWheel?.remove?.();
+    if (previewWheel) {
+      try { previewWheel.stop?.(); } catch { /* ignore */ }
+      previewWheel = null;
+    }
     hostEl.classList.remove('stw--visible');
     hostEl.classList.add('stw--leaving');
     setTimeout(() => hostEl.remove(), 350);
@@ -265,7 +349,10 @@ function renderModal(
       }
     }
 
-    previewWheel?.remove?.();
+    if (previewWheel) {
+      try { previewWheel.stop?.(); } catch { /* ignore */ }
+      previewWheel = null;
+    }
     showWheelStage(wrapper, hostEl, config, i18n, close);
   });
 }
@@ -352,7 +439,6 @@ function showWheelStage(
         <div class="stw__pointer stw__pointer--top">${buildPointerSvg(config.decorativeColor)}</div>
         <div class="stw__wheel-ring stw__wheel-ring--full">
           <div class="stw__wheel-container" id="stw-wheel-container"></div>
-          <div class="stw__hub" aria-hidden="true">✦</div>
         </div>
       </div>
       <p class="stw__spinning-label">${escapeHtml(i18n.spinningLabel)}</p>
@@ -361,32 +447,50 @@ function showWheelStage(
 
   card.querySelector('.stw__close')!.addEventListener('click', close);
 
-  const container = card.querySelector<HTMLElement>('#stw-wheel-container')!;
-  let wheelInstance: InstanceType<typeof Wheel> | null = null;
+  const container = card.querySelector<HTMLDivElement>('#stw-wheel-container')!;
+  let wheelInstance: InstanceType<typeof LuckyWheel> | null = null;
 
-  try {
-    wheelInstance = new Wheel(container, {
-      ...buildWheelProps(config),
-      onRest: () => {
-        setTimeout(() => showResultStage(wrapper, card, config, i18n, winSegment, close), 200);
-      },
-    });
+  function startWheel(): void {
+    const rect = container.getBoundingClientRect();
+    const sizePx = Math.round(Math.max(rect.width, rect.height));
+    if (sizePx <= 0) {
+      requestAnimationFrame(startWheel);
+      return;
+    }
+    try {
+      wheelInstance = new LuckyWheel(
+        container,
+        buildLuckyWheelData(config, `${sizePx}px`, (_prize: object) => {
+          setTimeout(() => showResultStage(wrapper, card, config, i18n, winSegment, close), 200);
+        }),
+      );
 
-    // Start spinning after rAF so the wheel is fully rendered
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        wheelInstance!.spinToItem(winIndex, spinDurationMs, true, 4);
-      });
-    });
-  } catch {
-    // Canvas not supported (e.g. test environment) — advance to result after timeout
-    setTimeout(() => showResultStage(wrapper, card, config, i18n, winSegment, close), spinDurationMs + 200);
+      const initRes = wheelInstance.init?.();
+      const startSpin = (): void => {
+        wheelInstance!.play();
+        setTimeout(() => wheelInstance!.stop(winIndex), spinDurationMs);
+      };
+      if (initRes && typeof (initRes as Promise<unknown>).then === 'function') {
+        (initRes as Promise<unknown>)
+          .then(startSpin)
+          .catch(() => {
+            setTimeout(() => showResultStage(wrapper, card, config, i18n, winSegment, close), spinDurationMs + 200);
+          });
+      } else {
+        startSpin();
+      }
+    } catch {
+      setTimeout(() => showResultStage(wrapper, card, config, i18n, winSegment, close), spinDurationMs + 200);
+    }
   }
+  requestAnimationFrame(() => requestAnimationFrame(startWheel));
 
   // Cleanup wheel on close
-  const origClose = close;
   card.querySelector<HTMLElement>('.stw__close')!.addEventListener('click', () => {
-    wheelInstance?.remove?.();
+    if (wheelInstance) {
+      try { wheelInstance.stop?.(); } catch { /* ignore */ }
+      wheelInstance = null;
+    }
   }, { once: true });
 }
 
@@ -669,19 +773,29 @@ function buildStyles(config: SpinTheWheelConfig): string {
 
 .stw__wheel-ring {
   width: 100%; height: 100%;
+  /* lucky-canvas рисует обводку и фон сам через "blocks" — нам тут только
+     контейнер для канваса, без своего background/border (иначе перекрывает
+     сегменты). Glow оставляем — он на host-уровне виджета. */
+  position: relative;
   border-radius: 50%;
-  box-shadow: 0 0 40px rgba(239,68,68,.45), 0 0 0 8px transparent;
-  background:
-    linear-gradient(#fff,#fff) content-box,
-    linear-gradient(135deg, ${config.decorativeColor}, ${config.palette[1] ?? '#f59e0b'}) border-box;
-  border: 8px solid transparent;
-  overflow: hidden;
+  box-shadow: 0 0 40px rgba(239, 68, 68, .35);
+  overflow: visible;
+}
+.stw__wheel-ring canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .stw__wheel-ring--full {
   position: relative;
   width: min(300px, 70vw);
   height: min(300px, 70vw);
+  border-radius: 0;
+  box-shadow: none;
+  background: none;
+  border: none;
+  overflow: visible;
 }
 
 .stw__pointer {
@@ -790,23 +904,6 @@ function buildStyles(config: SpinTheWheelConfig): string {
   width: min(300px, 70vw);
   height: min(300px, 70vw);
   will-change: transform;
-}
-
-/* ── Center hub overlay on top of the canvas ── */
-.stw__hub {
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 48px; height: 48px;
-  background: white;
-  border-radius: 50%;
-  border: 3px solid ${config.decorativeColor};
-  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px;
-  z-index: 5;
-  pointer-events: none;
-  user-select: none;
 }
 
 .stw__spinning-label {

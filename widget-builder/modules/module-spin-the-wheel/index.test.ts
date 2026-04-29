@@ -6,18 +6,14 @@ vi.mock('@laxarevii/core', () => ({
   getLanguage: () => 'ua',
 }));
 
-vi.mock('spin-wheel', () => ({
-  Wheel: class {
-    constructor(_container: unknown, props: Record<string, unknown> = {}) {
-      if (props?.onRest) {
-        // Simulate the wheel completing a spin so result stage is reachable in tests
-        // Do NOT call onRest synchronously — tests that submit the form and check
-        // for the wheel-stage elements should not immediately see the result stage.
-      }
-    }
-    spinToItem() {}
-    remove() {}
-    onCurrentIndexChange: null = null;
+vi.mock('lucky-canvas', () => ({
+  LuckyWheel: class {
+    constructor() {}
+    init() { return Promise.resolve(); }
+    play() {}
+    stop() {}
+    endCallback: ((prize: unknown) => void) | null = null;
+    startCallback: (() => void) | null = null;
   },
 }));
 

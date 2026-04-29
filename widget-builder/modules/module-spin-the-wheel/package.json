@@ -18,6 +18,6 @@
   },
   "dependencies": {
     "@laxarevii/core": "workspace:*",
-    "spin-wheel": "^5.0.2"
+    "lucky-canvas": "^1.7.27"
   }
 }
