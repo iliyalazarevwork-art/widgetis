@@ -130,10 +130,15 @@
         "requireEmail": true,
         "requireConsent": false,
         "segments": [
-          { "label": "10%", "code": "X1", "weight": 1 },
-          { "label": "20%", "code": "X2", "weight": 1 }
+          { "label": "10% знижка", "code": "SPIN10", "weight": 4, "iconType": "percent" },
+          { "label": "Безкошт. доставка", "code": "FREESHIP", "weight": 3, "iconType": "truck" },
+          { "label": "5% знижка", "code": "SPIN5", "weight": 5, "iconType": "percent" },
+          { "label": "Спробуйте ще", "code": "", "weight": 2, "iconType": "try-again" },
+          { "label": "15% знижка", "code": "SPIN15", "weight": 1, "iconType": "fire" },
+          { "label": "Подарунок", "code": "GIFT", "weight": 1, "iconType": "gift" }
         ],
-        "palette": ["#111827", "#374151"],
+        "palette": ["#ef4444", "#f59e0b", "#fbbf24", "#10b981", "#3b82f6", "#8b5cf6"],
+        "decorativeColor": "#ef4444",
         "wheelTextColor": "#ffffff",
         "backgroundColor": "#ffffff",
         "textColor": "#111827",

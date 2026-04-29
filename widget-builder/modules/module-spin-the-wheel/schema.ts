@@ -1,14 +1,27 @@
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
+import type { IconType } from './icons';
 
 // ---------------------------------------------------------------------------
 // Segment schema
 // ---------------------------------------------------------------------------
 
+const iconTypeSchema = z.enum([
+  'percent',
+  'gift',
+  'truck',
+  'star',
+  'fire',
+  'crown',
+  'sparkle',
+  'try-again',
+]);
+
 export const spinSegmentSchema = z.object({
   label: z.string(),
   code: z.string(),
   weight: z.number().min(0),
+  iconType: iconTypeSchema.optional(),
 });
 
 export type SpinSegment = z.infer<typeof spinSegmentSchema>;
@@ -16,6 +29,15 @@ export type SpinSegment = z.infer<typeof spinSegmentSchema>;
 // ---------------------------------------------------------------------------
 // Config schema
 // ---------------------------------------------------------------------------
+
+const VIBRANT_PALETTE = [
+  '#ef4444',
+  '#f59e0b',
+  '#fbbf24',
+  '#10b981',
+  '#3b82f6',
+  '#8b5cf6',
+] as const;
 
 export const spinTheWheelSchema = z.object({
   enabled: z.boolean().default(true),
@@ -34,15 +56,18 @@ export const spinTheWheelSchema = z.object({
     .array(spinSegmentSchema)
     .min(2)
     .default([
-      { label: '10% off', code: 'SPIN10', weight: 4 },
-      { label: 'Free shipping', code: 'FREESHIP', weight: 3 },
-      { label: '5% off', code: 'SPIN5', weight: 5 },
-      { label: 'Try again', code: '', weight: 2 },
-      { label: '15% off', code: 'SPIN15', weight: 1 },
-      { label: 'Mystery gift', code: 'GIFT', weight: 1 },
+      { label: '10% знижка', code: 'SPIN10', weight: 4, iconType: 'percent' as IconType },
+      { label: 'Безкошт. доставка', code: 'FREESHIP', weight: 3, iconType: 'truck' as IconType },
+      { label: '5% знижка', code: 'SPIN5', weight: 5, iconType: 'percent' as IconType },
+      { label: 'Спробуйте ще', code: '', weight: 2, iconType: 'try-again' as IconType },
+      { label: '15% знижка', code: 'SPIN15', weight: 1, iconType: 'fire' as IconType },
+      { label: 'Подарунок', code: 'GIFT', weight: 1, iconType: 'gift' as IconType },
     ]),
-  /** Two alternating segment background colors */
-  palette: z.array(z.string()).length(2).default(['#111827', '#374151']),
+  /** Segment background colors — cycles through all segments */
+  palette: z
+    .array(z.string())
+    .min(2)
+    .default([...VIBRANT_PALETTE]),
   wheelTextColor: z.string().default('#ffffff'),
   backgroundColor: z.string().default('#ffffff'),
   textColor: z.string().default('#111827'),
@@ -51,6 +76,8 @@ export const spinTheWheelSchema = z.object({
   borderColor: z.string().default('#e5e7eb'),
   borderRadius: z.number().default(16),
   zIndex: z.number().default(99998),
+  /** Color used for the pointer triangle and decorative ring gradient */
+  decorativeColor: z.string().default('#ef4444'),
   /** UTM sources for which the popup should be hidden */
   hideOnUtmSources: z.array(z.string()).default([]),
 });

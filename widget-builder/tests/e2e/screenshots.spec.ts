@@ -78,10 +78,10 @@ for (const site of TEST_SITES) {
           await page.waitForTimeout(400);
         }
 
-        // 3. Spin-the-wheel — проверка попапа
+        // 3. Spin-the-wheel — теперь живёт в shadow DOM #wdg-stw-host
         await page.waitForTimeout(500);
-        const stw = page.locator('.wdg-stw, [class*="stw"]').first();
-        if (await stw.count()) {
+        const stwHost = page.locator('#wdg-stw-host');
+        if (await stwHost.count()) {
           await page.screenshot({
             path: resolve(OUT_DIR, `${site.name}-${variant.name}-spin-wheel.png`),
             fullPage: false,

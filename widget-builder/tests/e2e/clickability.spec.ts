@@ -11,7 +11,9 @@ test.describe.configure({ mode: 'serial' });
 
 async function closeAnyOpenPopups(page: import('@playwright/test').Page): Promise<void> {
   await page.evaluate(() => {
-    document.querySelectorAll('#wdg-exit-intent, .wdg-stw, .wdg-eip').forEach((el) => el.remove());
+    document
+      .querySelectorAll('#wdg-exit-intent, #wdg-stw-host, .wdg-stw, .wdg-eip')
+      .forEach((el) => el.remove());
   });
   await page.waitForTimeout(300);
 }

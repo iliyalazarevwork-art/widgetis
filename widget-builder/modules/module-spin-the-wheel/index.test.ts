@@ -6,8 +6,17 @@ vi.mock('@laxarevii/core', () => ({
   getLanguage: () => 'ua',
 }));
 
-const ROOT = '#wdg-spin-the-wheel';
-const STYLES_ID = 'wdg-spin-the-wheel-styles';
+const HOST_SELECTOR = '#wdg-stw-host';
+
+/** Convenience: get the shadow root of the host element */
+function getShadow(): ShadowRoot | null {
+  return document.getElementById('wdg-stw-host')?.shadowRoot ?? null;
+}
+
+/** Query inside the shadow root */
+function sq<T extends Element = Element>(selector: string): T | null {
+  return getShadow()?.querySelector<T>(selector) ?? null;
+}
 
 const baseConfig = getDefaultConfig();
 const i18n = getDefaultI18n();
@@ -31,16 +40,15 @@ describe('spinTheWheel module', () => {
   afterEach(() => {
     vi.useRealTimers();
     vi.restoreAllMocks();
-    // Remove any lingering modal
-    document.getElementById('wdg-spin-the-wheel')?.remove();
-    document.getElementById('wdg-spin-the-wheel-styles')?.remove();
+    // Remove any lingering host element
+    document.getElementById('wdg-stw-host')?.remove();
   });
 
   // ── 1. disabled ──────────────────────────────────────────────────────────────
   it('returns undefined when enabled=false', () => {
     const result = spinTheWheel({ ...baseConfig, enabled: false }, i18n);
     expect(result).toBeUndefined();
-    expect(document.querySelector(ROOT)).toBeNull();
+    expect(document.querySelector(HOST_SELECTOR)).toBeNull();
   });
 
   // ── 2. cooldown ───────────────────────────────────────────────────────────────
@@ -67,14 +75,14 @@ describe('spinTheWheel module', () => {
   it('does NOT show popup before delaySec elapses', () => {
     const cleanup = spinTheWheel({ ...baseConfig, delaySec: 5, triggerOnExitIntent: false }, i18n);
     vi.advanceTimersByTime(4000);
-    expect(document.querySelector(ROOT)).toBeNull();
+    expect(document.querySelector(HOST_SELECTOR)).toBeNull();
     cleanup?.();
   });
 
   it('shows popup after delaySec elapses', () => {
     const cleanup = spinTheWheel({ ...baseConfig, delaySec: 2, triggerOnExitIntent: false }, i18n);
     vi.advanceTimersByTime(2100);
-    expect(document.querySelector(ROOT)).not.toBeNull();
+    expect(document.querySelector(HOST_SELECTOR)).not.toBeNull();
     cleanup?.();
   });
 
@@ -85,7 +93,7 @@ describe('spinTheWheel module', () => {
       i18n,
     );
     fireMouseLeave();
-    expect(document.querySelector(ROOT)).not.toBeNull();
+    expect(document.querySelector(HOST_SELECTOR)).not.toBeNull();
     cleanup?.();
   });
 
@@ -95,7 +103,7 @@ describe('spinTheWheel module', () => {
       i18n,
     );
     fireMouseLeave();
-    expect(document.querySelector(ROOT)).toBeNull();
+    expect(document.querySelector(HOST_SELECTOR)).toBeNull();
     cleanup?.();
   });
 
@@ -103,14 +111,9 @@ describe('spinTheWheel module', () => {
   it('renders title and spin button in email-gate stage', () => {
     const cleanup = spinTheWheel({ ...baseConfig, delaySec: 0 }, i18n);
     vi.advanceTimersByTime(50);
-    const modal = document.querySelector(ROOT)!;
-    expect(modal).not.toBeNull();
-    expect(modal.querySelector('.wdg-stw__title')?.textContent).toContain(
-      i18n.ua.title,
-    );
-    expect(modal.querySelector('.wdg-stw__cta')?.textContent).toContain(
-      i18n.ua.spinButton,
-    );
+    expect(document.querySelector(HOST_SELECTOR)).not.toBeNull();
+    expect(sq('.stw__title')?.textContent).toContain(i18n.ua.title);
+    expect(sq('.stw__cta')?.textContent).toContain(i18n.ua.spinButton);
     cleanup?.();
   });
 
@@ -121,16 +124,16 @@ describe('spinTheWheel module', () => {
       i18n,
     );
     vi.advanceTimersByTime(50);
-    const input = document.querySelector<HTMLInputElement>('.wdg-stw__email-input')!;
+    const input = sq<HTMLInputElement>('.stw__email-input')!;
     input.value = 'not-an-email';
-    document.querySelector<HTMLFormElement>('.wdg-stw__email-form')!.dispatchEvent(
+    sq<HTMLFormElement>('.stw__email-form')!.dispatchEvent(
       new Event('submit', { bubbles: true, cancelable: true }),
     );
-    const errEl = document.querySelector<HTMLElement>('.wdg-stw__email-error')!;
+    const errEl = sq<HTMLElement>('.stw__email-error')!;
     expect(errEl.style.display).toBe('block');
     expect(errEl.textContent?.length).toBeGreaterThan(0);
     // Still on email-gate (wheel not shown yet)
-    expect(document.querySelector('.wdg-stw__email-form')).not.toBeNull();
+    expect(sq('.stw__email-form')).not.toBeNull();
     cleanup?.();
   });
 
@@ -141,9 +144,9 @@ describe('spinTheWheel module', () => {
       i18n,
     );
     vi.advanceTimersByTime(50);
-    const input = document.querySelector<HTMLInputElement>('.wdg-stw__email-input')!;
+    const input = sq<HTMLInputElement>('.stw__email-input')!;
     input.value = 'winner@example.com';
-    document.querySelector<HTMLFormElement>('.wdg-stw__email-form')!.dispatchEvent(
+    sq<HTMLFormElement>('.stw__email-form')!.dispatchEvent(
       new Event('submit', { bubbles: true, cancelable: true }),
     );
     expect(window.localStorage.getItem('wty_spin_email')).toBe('winner@example.com');
@@ -157,30 +160,31 @@ describe('spinTheWheel module', () => {
       i18n,
     );
     vi.advanceTimersByTime(50);
-    const checkbox = document.querySelector<HTMLInputElement>('.wdg-stw__consent-input')!;
+    const checkbox = sq<HTMLInputElement>('.stw__consent-input')!;
     expect(checkbox).not.toBeNull();
     expect(checkbox.checked).toBe(true);
     cleanup?.();
   });
 
-  // ── 10. cleanup removes popup and styles ──────────────────────────────────────
-  it('cleanup removes modal and style tag', () => {
+  // ── 10. cleanup removes popup ─────────────────────────────────────────────────
+  it('cleanup removes host element', () => {
     const cleanup = spinTheWheel({ ...baseConfig, delaySec: 0 }, i18n)!;
     vi.advanceTimersByTime(50);
-    expect(document.querySelector(ROOT)).not.toBeNull();
+    expect(document.querySelector(HOST_SELECTOR)).not.toBeNull();
     cleanup();
-    expect(document.querySelector(ROOT)).toBeNull();
-    expect(document.getElementById(STYLES_ID)).toBeNull();
+    expect(document.querySelector(HOST_SELECTOR)).toBeNull();
   });
 
-  // ── 11. injects style tag ─────────────────────────────────────────────────────
-  it('injects a <style> tag with CSS vars from config', () => {
+  // ── 11. styles are inside shadow root ─────────────────────────────────────────
+  it('injects a <style> tag with CSS vars inside shadow root', () => {
     const cleanup = spinTheWheel(
       { ...baseConfig, delaySec: 0, accentColor: '#ff0000' },
       i18n,
     );
     vi.advanceTimersByTime(50);
-    const style = document.getElementById(STYLES_ID);
+    const shadow = getShadow();
+    expect(shadow).not.toBeNull();
+    const style = shadow!.querySelector('style[data-stw]');
     expect(style).not.toBeNull();
     expect(style?.textContent).toContain('#ff0000');
     cleanup?.();
@@ -203,7 +207,30 @@ describe('spinTheWheel module', () => {
     vi.advanceTimersByTime(50);
     fireMouseLeave();
     fireMouseLeave();
-    expect(document.querySelectorAll(ROOT).length).toBe(1);
+    expect(document.querySelectorAll(HOST_SELECTOR).length).toBe(1);
+    cleanup?.();
+  });
+
+  // ── 14. shadow DOM — new test ─────────────────────────────────────────────────
+  it('mounts a shadow root on the host', () => {
+    const cleanup = spinTheWheel({ ...baseConfig, delaySec: 0 }, i18n);
+    vi.advanceTimersByTime(50);
+    const host = document.getElementById('wdg-stw-host');
+    expect(host).not.toBeNull();
+    expect(host!.shadowRoot).not.toBeNull();
+    cleanup?.();
+  });
+
+  // ── 15. styles scoped to shadow root only — new test ──────────────────────────
+  it('styles are scoped to shadow root, not document', () => {
+    const cleanup = spinTheWheel({ ...baseConfig, delaySec: 0 }, i18n);
+    vi.advanceTimersByTime(50);
+    // No style tag should leak into document.head
+    expect(document.head.querySelector('style[data-stw]')).toBeNull();
+    // But shadow root must have at least one <style>
+    const shadow = getShadow();
+    expect(shadow).not.toBeNull();
+    expect(shadow!.querySelectorAll('style').length).toBeGreaterThanOrEqual(1);
     cleanup?.();
   });
 });
