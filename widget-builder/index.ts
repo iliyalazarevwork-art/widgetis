@@ -29,6 +29,7 @@ const MODULES_ORDER = [
   'module-sticky-buy-button',
   'module-min-order',
   'module-cart-goal',
+  'module-progressive-discount',
   'module-delivery-date',
   'module-product-video-preview',
   'module-social-proof',

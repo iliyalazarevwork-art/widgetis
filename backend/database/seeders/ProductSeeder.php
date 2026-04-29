@@ -23,6 +23,7 @@ class ProductSeeder extends Seeder
             'video-preview',
             'buyer-count',
             'sticky-buy-button',
+            'progressive-discount',
         ])->delete();
 
         $products = [
@@ -274,6 +275,42 @@ class ProductSeeder extends Seeder
                     'showForOutOfStock' => ['type' => 'boolean', 'default' => false, 'label' => ['en' => 'Show for out-of-stock', 'uk' => 'Показувати для товарів не в наявності']],
                     'backgroundColor' => ['type' => 'color', 'default' => '#4c1d95', 'label' => ['en' => 'Background', 'uk' => 'Фон']],
                     'textColor' => ['type' => 'color', 'default' => '#ede9fe', 'label' => ['en' => 'Text color', 'uk' => 'Колір тексту']],
+                ],
+            ],
+            [
+                'slug' => 'progressive-discount',
+                'name' => ['en' => 'Progressive Discount', 'uk' => 'Прогресивна знижка'],
+                'description' => [
+                    'en' => 'Auto-applies an escalating cashback coupon based on the number of items in the cart',
+                    'uk' => 'Автоматично застосовує купон з прогресивним кешбеком залежно від кількості товарів у кошику',
+                ],
+                'icon' => 'percent',
+                'tag_slug' => 'conversion',
+                'is_popular' => true,
+                'is_new' => true,
+                'builder_module' => 'progressive-discount',
+                'sort_order' => 4,
+                'config_schema' => [
+                    'enabled' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Enabled', 'uk' => 'Увімкнено']],
+                    'tiers' => [
+                        'type' => 'tiers',
+                        'label' => ['en' => 'Discount tiers', 'uk' => 'Рівні знижки'],
+                        'default' => [
+                            ['minItems' => 2, 'percent' => 5,  'coupon' => 'CASH5'],
+                            ['minItems' => 3, 'percent' => 10, 'coupon' => 'CASH10'],
+                            ['minItems' => 5, 'percent' => 20, 'coupon' => 'CASH20'],
+                        ],
+                        'fields' => [
+                            'minItems' => ['type' => 'number', 'default' => 2, 'min' => 1, 'label' => ['en' => 'Min items', 'uk' => 'Мін. товарів']],
+                            'percent' => ['type' => 'number', 'default' => 5, 'min' => 0, 'label' => ['en' => 'Discount %', 'uk' => 'Знижка %']],
+                            'coupon' => ['type' => 'string', 'default' => '', 'label' => ['en' => 'Coupon code', 'uk' => 'Код купона']],
+                        ],
+                    ],
+                    'background' => ['type' => 'color', 'default' => '#0f172a', 'label' => ['en' => 'Background', 'uk' => 'Фон']],
+                    'achievedBackground' => ['type' => 'color', 'default' => '#14532d', 'label' => ['en' => 'Background (top tier)', 'uk' => 'Фон (макс. рівень)']],
+                    'textColor' => ['type' => 'color', 'default' => '#f8fafc', 'label' => ['en' => 'Text color', 'uk' => 'Колір тексту']],
+                    'accentColor' => ['type' => 'color', 'default' => '#fbbf24', 'label' => ['en' => 'Accent color', 'uk' => 'Акцентний колір']],
+                    'zIndex' => ['type' => 'number', 'default' => 50, 'label' => ['en' => 'Z-index', 'uk' => 'Z-індекс']],
                 ],
             ],
         ];
