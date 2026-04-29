@@ -1,5 +1,5 @@
 import { socialProofSchema, socialProofI18nSchema, type SocialProofInput } from './schema';
-import { getLanguage } from '@laxarevii/core';
+import { getLanguage, isHoroshopProductPage } from '@laxarevii/core';
 import { injectStyles } from './styles';
 import { createBadge, insertElement, removeExisting, updateCount } from './dom';
 import { calculateRange, pickNextTarget, nextInterval } from './generator';
@@ -16,6 +16,7 @@ export default function socialProof(
   const i18nMap = socialProofI18nSchema.parse(rawI18n);
   if (!config.enabled) { console.warn('[widgetality] social-proof: ⚠️ disabled'); return; }
   if (config.selectors.length === 0) { console.warn('[widgetality] social-proof: ⚠️ no selectors configured — widget skipped'); return; }
+  if (!isHoroshopProductPage()) { console.warn('[widgetality] social-proof: ⚠️ skipped — not a product page'); return; }
   console.log('[widgetality] social-proof: ✅ activated');
 
   if (!config.showForOutOfStock) {

@@ -4,12 +4,16 @@ import { getDefaultConfig, getDefaultI18n } from './schema';
 
 vi.mock('@laxarevii/core', () => ({
   getLanguage: () => 'ua',
+  isHoroshopProductPage: vi.fn(() => true),
 }));
+
+import { isHoroshopProductPage } from '@laxarevii/core';
 
 describe('trustBadges', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
     document.head.innerHTML = '';
+    vi.mocked(isHoroshopProductPage).mockReturnValue(true);
   });
 
   afterEach(() => {
@@ -34,6 +38,18 @@ describe('trustBadges', () => {
     document.body.appendChild(ref);
 
     const result = trustBadges({ ...getDefaultConfig(), enabled: false }, getDefaultI18n());
+    expect(document.querySelector('.wdg-trust')).toBeNull();
+    expect(result).toBeUndefined();
+  });
+
+  it('не монтирует на не-товарной странице, даже если есть кнопка покупки в карточке', () => {
+    vi.mocked(isHoroshopProductPage).mockReturnValue(false);
+    const card = document.createElement('div');
+    card.className = 'product-card__price-box';
+    document.body.appendChild(card);
+
+    const result = trustBadges(getDefaultConfig(), getDefaultI18n());
+
     expect(document.querySelector('.wdg-trust')).toBeNull();
     expect(result).toBeUndefined();
   });

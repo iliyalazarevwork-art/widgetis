@@ -105,6 +105,8 @@ async function main(): Promise<void> {
     throw new Error('demo-config.json contains zero modules and no defaults could be loaded');
   }
 
+  const buildId = String(Date.now());
+
   const js = await buildModules({
     modules,
     obfuscate: true,
@@ -113,8 +115,39 @@ async function main(): Promise<void> {
     demo: true,
   });
 
+  process.stdout.write(buildResetPrelude(buildId));
   process.stdout.write(js);
   if (!js.endsWith('\n')) process.stdout.write('\n');
+}
+
+/**
+ * Prelude injected before the main demo bundle.
+ *
+ * On every new build, the embedded buildId changes. When a visitor loads the
+ * page after a fresh build, this snippet clears all widget-related localStorage
+ * keys so the demo starts from a clean slate (no stuck cooldowns, seen-flags,
+ * stored emails, applied coupons, etc.). Within a single build, state
+ * persists normally between page loads.
+ */
+function buildResetPrelude(buildId: string): string {
+  const bid = JSON.stringify(buildId);
+  const parts = [
+    '(function(){try{',
+    'var BID=' + bid + ';',
+    "var KEY='wty_demo_build_id';",
+    'if(localStorage.getItem(KEY)===BID)return;',
+    "var P=['wty_','wdg_','wdg-','widgetis','interest:','stw_'];",
+    'var del=[];',
+    'for(var i=0;i<localStorage.length;i++){',
+    'var k=localStorage.key(i);',
+    'if(k&&P.some(function(p){return k.indexOf(p)===0;}))del.push(k);',
+    '}',
+    'del.forEach(function(k){localStorage.removeItem(k);});',
+    'localStorage.setItem(KEY,BID);',
+    "console.log('[widgetality] demo build changed, cleared '+del.length+' localStorage keys');",
+    '}catch(e){}})();\n',
+  ];
+  return parts.join('');
 }
 
 function buildHeader(): string {

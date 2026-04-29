@@ -75,7 +75,9 @@ export const spinTheWheelSchema = z.object({
   accentTextColor: z.string().default('#ffffff'),
   borderColor: z.string().default('#e5e7eb'),
   borderRadius: z.number().default(16),
-  zIndex: z.number().default(99998),
+  /** Highest layer used in the widget, sits above typical host-site chat
+   *  popups (which usually park around 999999) while leaving headroom. */
+  zIndex: z.number().default(9999999),
   /** Color used for the pointer triangle and decorative ring gradient */
   decorativeColor: z.string().default('#ef4444'),
   /** UTM sources for which the popup should be hidden */
@@ -106,6 +108,12 @@ const spinI18nEntrySchema = z.object({
   closeLabel: z.string(),
   errorEmptyEmail: z.string().default('Будь ласка, введіть e-mail'),
   errorInvalidEmail: z.string().default('Перевірте формат e-mail'),
+  /** Vertical label shown on the side tab when the modal is minimized. */
+  tabLabel: z.string().default('Промокод'),
+  /** Aria-label for the tab (used by screen readers, also tooltip). */
+  tabAriaLabel: z.string().default('Відкрити колесо фортуни'),
+  /** Aria-label for the small × on the tab that dismisses the widget. */
+  tabCloseAriaLabel: z.string().default('Сховати на цій сесії'),
 });
 
 export const spinTheWheelI18nSchema = z

@@ -95,18 +95,33 @@ export function resolveCurrency(currencyFromCart?: string): CurrencyContext {
 const HOROSHOP_PRODUCT_PAGE_SELECTOR = [
   '.product-header',
   '.product__section--header',
-  '.j-product-block',
   '.j-product-description',
+  '#productPage',
+  '.product__buy-button',
 ].join(',');
 
 /**
  * Detects whether the current page is a Horoshop product detail page.
  *
- * Returns true only when the DOM contains class signatures that Horoshop
- * renders on product pages and never on category, home, contacts, blog, or
- * static pages. Same for desktop and mobile — Horoshop ships responsive CSS,
- * not different markup.
+ * Strategy (in order of reliability):
+ *  1. <meta property="og:type"> — Horoshop sets "product" on product pages,
+ *     "website" / "product.group" / "article" elsewhere. Most reliable signal.
+ *  2. Product-only DOM selectors — fallback when og:type is absent.
+ *
+ * Note: ".j-product-block" intentionally excluded — some Horoshop themes
+ * reuse it on catalog cards (home/category pages) which produced false
+ * positives.
  */
 export function isHoroshopProductPage(doc: Document = document): boolean {
+  const ogType = doc
+    .querySelector('meta[property="og:type"]')
+    ?.getAttribute('content')
+    ?.trim()
+    .toLowerCase();
+
+  if (ogType) {
+    return ogType === 'product';
+  }
+
   return doc.querySelector(HOROSHOP_PRODUCT_PAGE_SELECTOR) !== null;
 }

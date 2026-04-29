@@ -38,6 +38,7 @@ const MODULES_ORDER = [
   'module-photo-reviews',
   'module-sms-otp-checkout',
   'module-cart-recommender',
+  'module-promo-auto-apply',
 ];
 
 export function getAvailableModules(): string[] {

@@ -1,5 +1,5 @@
 import { trustBadgesSchema, trustBadgesI18nSchema, type TrustBadgesConfig, type TrustBadgesInput } from './schema';
-import { getLanguage } from '@laxarevii/core';
+import { getLanguage, isHoroshopProductPage } from '@laxarevii/core';
 import { ICONS } from './icons';
 
 const ROOT_CLASS = 'wdg-trust';
@@ -23,6 +23,11 @@ export default function trustBadges(
 
   if (config.badges.length === 0 || config.selectors.length === 0) {
     console.warn('[widgetality] trust-badges: ⚠️ no badges/selectors configured');
+    return;
+  }
+
+  if (!isHoroshopProductPage()) {
+    console.warn('[widgetality] trust-badges: ⚠️ skipped — not a product page');
     return;
   }
 

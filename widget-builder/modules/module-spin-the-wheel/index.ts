@@ -249,12 +249,17 @@ function buildLuckyWheelData(
       {
         radius: '32%',
         background: '#ffffff',
-        pointer: true,
       },
       {
         radius: '24%',
         background: config.decorativeColor,
-        fonts: [{ text: '✦', fontColor: '#ffffff', fontSize: '24px' }],
+        imgs: [
+          {
+            src: buildIconDataUrl('gift', '#ffffff'),
+            top: '-7%',
+            width: '14%',
+          },
+        ],
       },
     ],
     defaultStyle: {
@@ -280,20 +285,43 @@ function renderModal(
   wrapper.className = 'stw-wrapper';
   shadow.appendChild(wrapper);
 
-  wrapper.innerHTML = buildEmailGateHtml(config, i18n);
+  // Side tab (visible only when modal is minimized).
+  // It is a non-button container so the inner × close button isn't a nested
+  // <button> (invalid HTML); the open click is bound to the body element.
+  const tab = document.createElement('div');
+  tab.className = 'stw__tab';
+  const tabBody = document.createElement('button');
+  tabBody.type = 'button';
+  tabBody.className = 'stw__tab-body';
+  tabBody.setAttribute('aria-label', i18n.tabAriaLabel);
+  tabBody.innerHTML = `
+    <span class="stw__tab-icon" aria-hidden="true">${ICONS.gift}</span>
+    <span class="stw__tab-label">${escapeHtml(i18n.tabLabel)}</span>
+  `;
+  const tabClose = document.createElement('button');
+  tabClose.type = 'button';
+  tabClose.className = 'stw__tab-close';
+  tabClose.setAttribute('aria-label', i18n.tabCloseAriaLabel);
+  tabClose.innerHTML = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+  tab.appendChild(tabBody);
+  tab.appendChild(tabClose);
+  shadow.appendChild(tab);
 
-  // Render the preview wheel in email gate using lucky-canvas.
-  // ВАЖНО: lucky-canvas требует пиксельных размеров и отрисованного парента.
-  // Откладываем создание до следующего кадра (когда модал отлайаутился),
-  // и измеряем фактический размер контейнера в px.
-  const previewContainer = wrapper.querySelector<HTMLDivElement>('.stw__wheel-container--preview');
   let previewWheel: InstanceType<typeof LuckyWheel> | null = null;
+
+  function unmountPreview(): void {
+    if (previewWheel) {
+      try { previewWheel.stop?.(); } catch { /* ignore */ }
+      previewWheel = null;
+    }
+  }
+
   function mountPreviewWheel(): void {
+    const previewContainer = wrapper.querySelector<HTMLDivElement>('.stw__wheel-container--preview');
     if (!previewContainer || previewWheel) return;
     const rect = previewContainer.getBoundingClientRect();
     const sizePx = Math.round(Math.max(rect.width, rect.height));
     if (sizePx <= 0) {
-      // Парент ещё не отлайаутился — пробуем на следующем кадре
       requestAnimationFrame(mountPreviewWheel);
       return;
     }
@@ -304,57 +332,116 @@ function renderModal(
       );
       previewWheel.init?.();
     } catch {
-      // Canvas может быть не поддержан в тестовой среде
+      // Canvas may not be supported in test environment
     }
   }
-  requestAnimationFrame(() => requestAnimationFrame(mountPreviewWheel));
+
+  function attachEmailGateHandlers(): void {
+    wrapper.querySelector('.stw__backdrop')!.addEventListener('click', close);
+    wrapper.querySelector('.stw__close')!.addEventListener('click', close);
+
+    const form = wrapper.querySelector<HTMLFormElement>('.stw__email-form')!;
+    form.addEventListener('submit', (e: Event) => {
+      e.preventDefault();
+      const emailInput = wrapper.querySelector<HTMLInputElement>('.stw__email-input')!;
+      const email = emailInput.value.trim();
+
+      if (config.requireEmail && !EMAIL_RE.test(email)) {
+        showEmailError(wrapper, email, i18n);
+        return;
+      }
+
+      if (email) {
+        try {
+          window.localStorage.setItem(STORAGE_EMAIL_KEY, email);
+        } catch {
+          // ignore
+        }
+      }
+
+      unmountPreview();
+      showWheelStage(wrapper, hostEl, config, i18n, close);
+    });
+  }
+
+  function renderEmailGate(): void {
+    wrapper.innerHTML = buildEmailGateHtml(config, i18n);
+    requestAnimationFrame(() => requestAnimationFrame(mountPreviewWheel));
+    attachEmailGateHandlers();
+  }
+
+  function renderActivePrizeIfAny(): boolean {
+    const prize = readActivePrize();
+    if (!prize) return false;
+    // Render the result stage directly so user can re-see their won code.
+    wrapper.innerHTML = '<div class="stw__backdrop"></div><div class="stw__card" role="document"></div>';
+    const card = wrapper.querySelector<HTMLElement>('.stw__card')!;
+    const segment: SpinSegment = {
+      code: prize.code,
+      label: prize.label,
+      weight: 1,
+      iconType: prize.iconType ?? undefined,
+    };
+    showResultStage(wrapper, card, config, i18n, segment, close);
+    wrapper.querySelector('.stw__backdrop')!.addEventListener('click', close);
+    return true;
+  }
+
+  function renderInitialStage(): void {
+    if (!renderActivePrizeIfAny()) {
+      renderEmailGate();
+    }
+  }
 
   function close(): void {
-    if (previewWheel) {
-      try { previewWheel.stop?.(); } catch { /* ignore */ }
-      previewWheel = null;
-    }
+    unmountPreview();
     hostEl.classList.remove('stw--visible');
-    hostEl.classList.add('stw--leaving');
-    setTimeout(() => hostEl.remove(), 350);
+    hostEl.classList.add('stw--minimized');
   }
 
-  // Activate visibility
+  function reopenFromTab(): void {
+    hostEl.classList.remove('stw--minimized');
+    renderInitialStage();
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      hostEl.classList.add('stw--visible');
+    }));
+  }
+
+  tabBody.addEventListener('click', reopenFromTab);
+
+  // Tab close: fully dismiss the widget for this session — no tab, no modal.
+  tabClose.addEventListener('click', (e) => {
+    e.stopPropagation();
+    unmountPreview();
+    hostEl.remove();
+  });
+
+  // Initial render + activate visibility
+  renderInitialStage();
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       hostEl.classList.add('stw--visible');
       hostEl.style.removeProperty('pointer-events');
     });
   });
+}
 
-  wrapper.querySelector('.stw__backdrop')!.addEventListener('click', close);
-  wrapper.querySelector('.stw__close')!.addEventListener('click', close);
-
-  const form = wrapper.querySelector<HTMLFormElement>('.stw__email-form')!;
-  form.addEventListener('submit', (e: Event) => {
-    e.preventDefault();
-    const emailInput = wrapper.querySelector<HTMLInputElement>('.stw__email-input')!;
-    const email = emailInput.value.trim();
-
-    if (config.requireEmail && !EMAIL_RE.test(email)) {
-      showEmailError(wrapper, email, i18n);
-      return;
-    }
-
-    if (email) {
-      try {
-        window.localStorage.setItem(STORAGE_EMAIL_KEY, email);
-      } catch {
-        // ignore
-      }
-    }
-
-    if (previewWheel) {
-      try { previewWheel.stop?.(); } catch { /* ignore */ }
-      previewWheel = null;
-    }
-    showWheelStage(wrapper, hostEl, config, i18n, close);
-  });
+function readActivePrize(): { code: string; label: string; iconType?: string | null } | null {
+  try {
+    const raw = window.localStorage.getItem('wty_active_prize');
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { code?: unknown; label?: unknown; iconType?: unknown; expiresAt?: unknown };
+    if (typeof parsed.code !== 'string' || parsed.code.length === 0) return null;
+    if (typeof parsed.label !== 'string') return null;
+    if (typeof parsed.expiresAt === 'number' && Date.now() > parsed.expiresAt) return null;
+    return {
+      code: parsed.code,
+      label: parsed.label,
+      iconType: typeof parsed.iconType === 'string' ? parsed.iconType : null,
+    };
+  } catch {
+    return null;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -394,7 +481,7 @@ function buildEmailGateHtml(
       <form class="stw__email-form" novalidate>
         <div class="stw__wheel-preview" aria-hidden="true">
           <div class="stw__wheel-ring">
-            <div class="stw__wheel-container--preview" style="width:100%;height:100%;"></div>
+            <div class="stw__wheel-container--preview"></div>
           </div>
           <div class="stw__pointer">${buildPointerSvg(config.decorativeColor)}</div>
         </div>
@@ -699,7 +786,8 @@ function buildStyles(config: SpinTheWheelConfig): string {
   justify-content: center;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.25s ease;
+  transform: translateX(0);
+  transition: opacity 0.25s ease, transform 0.4s cubic-bezier(.16,1,.3,1);
   z-index: 1;
 }
 
@@ -707,10 +795,108 @@ function buildStyles(config: SpinTheWheelConfig): string {
 :host(.stw--visible) .stw-wrapper {
   opacity: 1;
   pointer-events: auto;
+  transform: translateX(0);
 }
-:host(.stw--leaving) .stw-wrapper {
+:host(.stw--minimized) .stw-wrapper {
   opacity: 0;
   pointer-events: none;
+  transform: translateX(-30%);
+  transition: opacity 0.25s ease, transform 0.4s cubic-bezier(.16,1,.3,1);
+}
+
+/* ── Side tab (visible when minimized) ── */
+.stw__tab {
+  position: fixed;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%) translateX(-110%);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  pointer-events: none;
+  z-index: 2;
+  transition: transform 0.4s cubic-bezier(.16,1,.3,1);
+}
+/* When the modal is fully visible — fully remove the tab from layout: no
+   transform-flicker, nothing peeking from behind the card. */
+:host(.stw--visible) .stw__tab {
+  display: none;
+}
+:host(.stw--minimized) .stw__tab {
+  transform: translateY(-50%) translateX(0);
+  pointer-events: auto;
+}
+
+.stw__tab-body {
+  all: unset;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 12px 16px 10px;
+  background: var(--stw-decorative, ${config.decorativeColor});
+  color: #ffffff;
+  border-radius: 0 14px 14px 0;
+  box-shadow: 4px 6px 18px rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+  pointer-events: auto;
+  font-family: system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.stw__tab-body:hover {
+  transform: translateX(4px);
+  box-shadow: 6px 8px 22px rgba(0, 0, 0, 0.28);
+}
+.stw__tab-body:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+.stw__tab-icon {
+  display: block;
+  width: 22px;
+  height: 22px;
+}
+.stw__tab-icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  color: #ffffff;
+}
+.stw__tab-label {
+  display: block;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  white-space: nowrap;
+}
+
+/* Small × to dismiss the tab entirely for the session */
+.stw__tab-close {
+  all: unset;
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #111827;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.stw__tab-close:hover {
+  background: #f3f4f6;
+  transform: scale(1.08);
+}
+.stw__tab-close:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
 }
 
 /* ── Backdrop ── */
@@ -781,10 +967,12 @@ function buildStyles(config: SpinTheWheelConfig): string {
   box-shadow: 0 0 40px rgba(239, 68, 68, .35);
   overflow: visible;
 }
+.stw__wheel-container--preview {
+  width: 100%;
+  height: 100%;
+}
 .stw__wheel-ring canvas {
   display: block;
-  width: 100% !important;
-  height: 100% !important;
 }
 
 .stw__wheel-ring--full {
@@ -1023,9 +1211,10 @@ function buildStyles(config: SpinTheWheelConfig): string {
   .stw__email-form { flex-direction: column; }
   .stw__wheel-preview {
     flex: none;
-    width: 200px; height: 200px;
+    width: 92vw;
+    height: 92vw;
     align-self: center;
-    margin: 20px auto 0;
+    margin: 16px auto 0;
   }
   .stw__body { padding: 16px 20px 20px 20px; }
   .stw__title { font-size: 19px; }

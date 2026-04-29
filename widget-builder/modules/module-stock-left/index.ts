@@ -1,5 +1,5 @@
 import { stockLeftSchema, stockLeftI18nSchema, type StockLeftInput } from './schema';
-import { getLanguage } from '@laxarevii/core';
+import { getLanguage, isHoroshopProductPage } from '@laxarevii/core';
 import { injectStyles } from './styles';
 import { createBadge, insertElement, removeExisting, updateCount } from './dom';
 import { loadState, saveState, type StockState } from './state';
@@ -19,6 +19,10 @@ export default function stockLeft(
   }
   if (config.selectors.length === 0) {
     console.warn('[widgetality] stock-left: ⚠️ no selectors configured — widget skipped');
+    return;
+  }
+  if (!isHoroshopProductPage()) {
+    console.warn('[widgetality] stock-left: ⚠️ skipped — not a product page');
     return;
   }
   if (!config.showForOutOfStock) {

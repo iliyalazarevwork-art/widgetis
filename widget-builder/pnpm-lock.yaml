@@ -130,6 +130,12 @@ importers:
         specifier: workspace:*
         version: link:../../packages/core
 
+  modules/module-promo-auto-apply:
+    dependencies:
+      '@laxarevii/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+
   modules/module-recently-viewed:
     dependencies:
       '@laxarevii/core':
