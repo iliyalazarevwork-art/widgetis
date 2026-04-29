@@ -1,0 +1,162 @@
+import { z } from 'zod';
+import { zodToJsonSchema } from 'zod-to-json-schema';
+
+// ---------------------------------------------------------------------------
+// Segment schema
+// ---------------------------------------------------------------------------
+
+export const spinSegmentSchema = z.object({
+  label: z.string(),
+  code: z.string(),
+  weight: z.number().min(0),
+});
+
+export type SpinSegment = z.infer<typeof spinSegmentSchema>;
+
+// ---------------------------------------------------------------------------
+// Config schema
+// ---------------------------------------------------------------------------
+
+export const spinTheWheelSchema = z.object({
+  enabled: z.boolean().default(true),
+  /** Seconds on page before showing (whichever trigger fires first) */
+  delaySec: z.number().default(8),
+  /** Hours before showing popup again */
+  cooldownHours: z.number().default(168),
+  /** Also trigger on mouse-leave top edge (desktop exit intent) */
+  triggerOnExitIntent: z.boolean().default(true),
+  /** Require email before showing wheel */
+  requireEmail: z.boolean().default(true),
+  /** Show marketing consent checkbox */
+  requireConsent: z.boolean().default(true),
+  /** Wheel segments */
+  segments: z
+    .array(spinSegmentSchema)
+    .min(2)
+    .default([
+      { label: '10% off', code: 'SPIN10', weight: 4 },
+      { label: 'Free shipping', code: 'FREESHIP', weight: 3 },
+      { label: '5% off', code: 'SPIN5', weight: 5 },
+      { label: 'Try again', code: '', weight: 2 },
+      { label: '15% off', code: 'SPIN15', weight: 1 },
+      { label: 'Mystery gift', code: 'GIFT', weight: 1 },
+    ]),
+  /** Two alternating segment background colors */
+  palette: z.array(z.string()).length(2).default(['#111827', '#374151']),
+  wheelTextColor: z.string().default('#ffffff'),
+  backgroundColor: z.string().default('#ffffff'),
+  textColor: z.string().default('#111827'),
+  accentColor: z.string().default('#111827'),
+  accentTextColor: z.string().default('#ffffff'),
+  borderColor: z.string().default('#e5e7eb'),
+  borderRadius: z.number().default(16),
+  zIndex: z.number().default(99998),
+  /** UTM sources for which the popup should be hidden */
+  hideOnUtmSources: z.array(z.string()).default([]),
+});
+
+export type SpinTheWheelConfig = z.infer<typeof spinTheWheelSchema>;
+export type SpinTheWheelInput = z.input<typeof spinTheWheelSchema>;
+
+// ---------------------------------------------------------------------------
+// i18n schema
+// ---------------------------------------------------------------------------
+
+const spinI18nEntrySchema = z.object({
+  title: z.string(),
+  subtitle: z.string(),
+  emailPlaceholder: z.string(),
+  consentText: z.string(),
+  spinButton: z.string(),
+  spinningLabel: z.string(),
+  resultTitleWin: z.string(),
+  resultTitleLose: z.string(),
+  resultSubtitleWin: z.string(),
+  resultSubtitleLose: z.string(),
+  copyButton: z.string(),
+  copiedLabel: z.string(),
+  promoLabel: z.string(),
+  closeLabel: z.string(),
+});
+
+export const spinTheWheelI18nSchema = z
+  .record(z.string(), spinI18nEntrySchema)
+  .refine((obj) => Object.keys(obj).length > 0, {
+    message: 'At least one language must be provided',
+  });
+
+export type SpinTheWheelI18nEntry = z.infer<typeof spinI18nEntrySchema>;
+export type SpinTheWheelI18n = z.infer<typeof spinTheWheelI18nSchema>;
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+export function validate(config: unknown, i18n: unknown): void {
+  spinTheWheelSchema.parse(config);
+  spinTheWheelI18nSchema.parse(i18n);
+}
+
+export function getJsonSchema() {
+  return {
+    config: zodToJsonSchema(spinTheWheelSchema, 'SpinTheWheelConfig'),
+    i18n: zodToJsonSchema(spinTheWheelI18nSchema, 'SpinTheWheelI18n'),
+  };
+}
+
+export function getDefaultConfig(): SpinTheWheelInput {
+  return spinTheWheelSchema.parse({});
+}
+
+export function getDefaultI18n(): SpinTheWheelI18n {
+  return {
+    ua: {
+      title: 'Крутіть колесо та виграйте!',
+      subtitle: 'Введіть email і отримайте шанс виграти знижку або подарунок',
+      emailPlaceholder: 'Ваш e-mail',
+      consentText: 'Я погоджуюся отримувати маркетингові листи',
+      spinButton: 'Крутити колесо!',
+      spinningLabel: 'Крутимо...',
+      resultTitleWin: 'Вітаємо! Ви виграли!',
+      resultTitleLose: 'Спробуйте ще раз!',
+      resultSubtitleWin: 'Ваш промокод — скопіюйте та застосуйте в кошику',
+      resultSubtitleLose: 'На жаль, цього разу не пощастило',
+      copyButton: 'Копіювати код',
+      copiedLabel: 'Скопійовано!',
+      promoLabel: 'Промокод',
+      closeLabel: 'Закрити',
+    },
+    ru: {
+      title: 'Крутите колесо и выиграйте!',
+      subtitle: 'Введите email и получите шанс выиграть скидку или подарок',
+      emailPlaceholder: 'Ваш e-mail',
+      consentText: 'Я соглашаюсь получать маркетинговые письма',
+      spinButton: 'Крутить колесо!',
+      spinningLabel: 'Крутим...',
+      resultTitleWin: 'Поздравляем! Вы выиграли!',
+      resultTitleLose: 'Попробуйте ещё раз!',
+      resultSubtitleWin: 'Ваш промокод — скопируйте и применив в корзине',
+      resultSubtitleLose: 'К сожалению, на этот раз не повезло',
+      copyButton: 'Скопировать код',
+      copiedLabel: 'Скопировано!',
+      promoLabel: 'Промокод',
+      closeLabel: 'Закрыть',
+    },
+    en: {
+      title: 'Spin the wheel and win!',
+      subtitle: 'Enter your email for a chance to win a discount or gift',
+      emailPlaceholder: 'Your email',
+      consentText: 'I agree to receive marketing emails',
+      spinButton: 'Spin to win!',
+      spinningLabel: 'Spinning...',
+      resultTitleWin: 'Congratulations! You won!',
+      resultTitleLose: 'Try again!',
+      resultSubtitleWin: 'Your promo code — copy and apply at checkout',
+      resultSubtitleLose: 'Better luck next time!',
+      copyButton: 'Copy code',
+      copiedLabel: 'Copied!',
+      promoLabel: 'Promo code',
+      closeLabel: 'Close',
+    },
+  };
+}
