@@ -12,23 +12,14 @@
         "aspectRatio": "4 / 5",
         "borderRadius": 14,
         "openInLightbox": true,
+        "$fallbackUrlsComment": "Lorem-ipsum-for-photos via picsum.photos. ?random=N keeps each URL stable & distinct so the gallery is not all-same-image.",
         "fallbackUrls": [
-          "https://benihome.com.ua/content/images/36/copy_postilna-bilyzna-satyn-z-riushamy-ta-kantom-beni-86498242590995_+da0bf3dc68.jpg",
-          "https://benihome.com.ua/content/images/36/copy_postilna-bilyzna-satyn-z-riushamy-ta-kantom-beni-60046517875129_+66b4bd0aee.jpg",
-          "https://lzrv.agency/pila.mp4"
+          "https://picsum.photos/seed/wty-demo-1/600/750",
+          "https://picsum.photos/seed/wty-demo-2/600/750",
+          "https://picsum.photos/seed/wty-demo-3/600/750",
+          "https://picsum.photos/seed/wty-demo-4/600/750"
         ],
-        "photos": [
-          {
-            "author": "Любов Олександрівна",
-            "alt": "Фото від Любов Олександрівна",
-            "urls": [
-              "https://benihome.com.ua/content/images/43/666x1000l80tr20/copy_prostyradlo-z-tkanyny-satyn-blush-petal-89282711835894.webp",
-              "https://benihome.com.ua/content/images/36/copy_postilna-bilyzna-satyn-z-riushamy-ta-kantom-beni-16160332287616_+c4872a18b5.jpg",
-              "https://benihome.com.ua/content/images/36/copy_postilna-bilyzna-satyn-z-riushamy-ta-kantom-beni-96920843064828_+883a493b90.jpg",
-              "https://lzrv.agency/pila.mp4"
-            ]
-          }
-        ]
+        "photos": []
       },
       "i18n": {
         "ua": {
@@ -334,10 +325,11 @@
       }
     },
     "module-spin-the-wheel": {
+      "$comment": "Demo overrides: delaySec=0 fires the popup right after init, cooldownHours=0 disables once-per-week throttle so visitors always see it.",
       "config": {
         "enabled": true,
-        "delaySec": 12,
-        "cooldownHours": 168,
+        "delaySec": 0,
+        "cooldownHours": 0,
         "triggerOnExitIntent": true,
         "requireEmail": true,
         "requireConsent": true,
@@ -418,8 +410,9 @@
       }
     },
     "module-prize-banner": {
+      "$comment": "Disabled in demo — after the wheel popup writes a prize, this floating ribbon would overlap the cart-recommender popup and produce two close-X buttons next to each other (UX confusion).",
       "config": {
-        "enabled": true,
+        "enabled": false,
         "storageKey": "wty_active_prize",
         "hideOnCheckout": false,
         "zIndex": 8800,
@@ -485,6 +478,46 @@
           "Official store",
           "Shipping across Ukraine"
         ]
+      }
+    },
+    "module-one-plus-one": {
+      "$comment": "Disabled in the public demo — the cheapest-as-gift logic and Horoshop AjaxCart phasing look clumsy on a third-party shop without proper backend orchestration.",
+      "config": {
+        "enabled": false,
+        "apiUrl": "https://api.widgetis.com"
+      },
+      "i18n": {
+        "ua": { "badge": "1+1=3", "tooltip": "Найдешевший товар у кошику — за 1 грн!" },
+        "ru": { "badge": "1+1=3", "tooltip": "Самый дешёвый товар в корзине — за 1 грн!" },
+        "en": { "badge": "1+1=3", "tooltip": "The cheapest item in your cart — for 1 UAH!" }
+      }
+    },
+    "module-phone-mask": {
+      "config": {
+        "enabled": true,
+        "defaultCountry": "UA",
+        "rememberLastChoice": true,
+        "geoip": true,
+        "geoipUrl": "https://ipapi.co/json/",
+        "hidePicker": false,
+        "blockSubmitOnInvalid": true
+      },
+      "i18n": {
+        "ua": {
+          "searchPlaceholder": "Пошук країни або коду…",
+          "hint": "Введіть номер у форматі країни",
+          "invalid": "Невірний формат номера"
+        },
+        "ru": {
+          "searchPlaceholder": "Поиск страны или кода…",
+          "hint": "Введите номер в формате страны",
+          "invalid": "Неверный формат номера"
+        },
+        "en": {
+          "searchPlaceholder": "Search country or code…",
+          "hint": "Enter the number for the selected country",
+          "invalid": "Invalid phone number"
+        }
       }
     }
   }

@@ -116,6 +116,96 @@ function stickersToProducts(stickers: ScrapedSticker[]): Product[] {
   }));
 }
 
+/** Wait for `.productSticker` (or fallback selectors) to appear, polling. */
+function waitForStickers(maxItems: number, timeoutMs: number): Promise<ScrapedSticker[]> {
+  return new Promise((resolve) => {
+    const start = Date.now();
+    const tick = (): void => {
+      const found = scrapeStickers(maxItems);
+      if (found.length > 0) {
+        resolve(found);
+        return;
+      }
+      if (Date.now() - start >= timeoutMs) {
+        resolve([]);
+        return;
+      }
+      window.setTimeout(tick, 200);
+    };
+    tick();
+  });
+}
+
+/**
+ * Demo product placeholder icons. Each entry gets a unique gradient backdrop
+ * with a crisp white package-with-ribbon glyph on top — reads as a marketing
+ * tile rather than a stock photo, but stays visually consistent across the
+ * popup. Used as a last-resort fallback when the page has no scrapeable
+ * product cards.
+ */
+const DEMO_GRADIENTS: Array<readonly [string, string]> = [
+  ['#F4B58E', '#C77A5C'], // terracotta — matches popup palette
+  ['#A78BFA', '#6D5BD0'], // indigo / violet
+  ['#5EEAD4', '#0D9488'], // teal / mint
+  ['#FDA4AF', '#E11D48'], // rose / peach
+  ['#FCD34D', '#D97706'], // amber / gold
+  ['#93C5FD', '#2563EB'], // sky / blue
+];
+
+function buildDemoIcon(gradStart: string, gradEnd: string, idx: number): string {
+  const id = `g${idx}`;
+  const svg =
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">' +
+      '<defs>' +
+        `<linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1">` +
+          `<stop offset="0%" stop-color="${gradStart}"/>` +
+          `<stop offset="100%" stop-color="${gradEnd}"/>` +
+        '</linearGradient>' +
+      '</defs>' +
+      `<rect width="64" height="64" fill="url(#${id})"/>` +
+      // soft inner highlight
+      '<circle cx="20" cy="18" r="14" fill="#fff" fill-opacity="0.15"/>' +
+      // package box (front face) with subtle drop-shadow via offset
+      '<g fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round">' +
+        '<path d="M32 14 L50 22 L50 42 L32 50 L14 42 L14 22 Z"/>' +
+        '<path d="M14 22 L32 30 L50 22"/>' +
+        '<path d="M32 30 L32 50"/>' +
+      '</g>' +
+      // gift ribbon
+      '<g stroke="#fff" stroke-width="2.2" stroke-linecap="round" fill="none">' +
+        '<path d="M32 14 L32 30"/>' +
+      '</g>' +
+      // bow knot
+      '<circle cx="32" cy="14" r="3" fill="#fff"/>' +
+      // tiny sparkle
+      '<circle cx="46" cy="18" r="1.2" fill="#fff" fill-opacity="0.9"/>' +
+      '<circle cx="50" cy="22" r="0.7" fill="#fff" fill-opacity="0.7"/>' +
+    '</svg>';
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+}
+
+function buildPicsumFallback(maxItems: number): ScrapedSticker[] {
+  const samples: Array<{ title: string; price: number }> = [
+    { title: 'Стильний аксесуар', price: 499 },
+    { title: 'Хіт продажу', price: 899 },
+    { title: 'Подарунок до замовлення', price: 199 },
+    { title: 'Топ-вибір клієнтів', price: 1299 },
+    { title: 'Новинка тижня', price: 749 },
+    { title: 'Зі знижкою', price: 599 },
+  ];
+  const count = Math.max(1, Math.min(maxItems, samples.length));
+  return samples.slice(0, count).map((s, i) => {
+    const [a, b] = DEMO_GRADIENTS[i % DEMO_GRADIENTS.length]!;
+    return {
+      url: `#wty-demo-${i + 1}`,
+      image: buildDemoIcon(a, b, i),
+      title: s.title,
+      priceNew: s.price,
+      currency: 'UAH',
+    };
+  });
+}
+
 function patchFetchForSuggest(maxItems: number): void {
   const original = window.fetch;
   if (!original) return;
@@ -127,30 +217,69 @@ function patchFetchForSuggest(maxItems: number): void {
     else if (input && typeof input === 'object' && 'url' in input) url = (input as Request).url;
 
     if (url.includes(SUGGEST_PATH)) {
-      const scraped = scrapeStickers(maxItems);
-      const data = stickersToProducts(scraped);
-      console.log(LOG, 'shimmed suggest endpoint with', data.length, 'scraped products');
-      return Promise.resolve(
-        new Response(JSON.stringify({ data }), {
+      return waitForStickers(maxItems, 2500).then((stickers) => {
+        let source = 'scraped';
+        let final = stickers;
+        if (final.length === 0) {
+          final = buildPicsumFallback(maxItems);
+          source = 'picsum-fallback';
+        }
+        const data = stickersToProducts(final);
+        console.log(LOG, `shimmed suggest endpoint with ${data.length} ${source} products`);
+        return new Response(JSON.stringify({ data }), {
           status: 200,
           headers: { 'Content-Type': 'application/json' },
-        }),
-      );
+        });
+      });
     }
 
     return original.call(window, input as RequestInfo, init);
   } as typeof window.fetch;
 }
 
+/**
+ * Temporarily forces `matchMedia('(max-width: 768px)').matches` to `true`
+ * so the production module — which gates itself on a mobile viewport — also
+ * activates on desktop during the demo. The override is restored immediately
+ * after the synchronous init returns; cleanup paths and runtime code are
+ * unaffected.
+ */
+function withMobileForced<T>(fn: () => T): T {
+  const original = window.matchMedia;
+  if (typeof original !== 'function') return fn();
+
+  window.matchMedia = function patchedMatchMedia(query: string): MediaQueryList {
+    if (/max-width:\s*768px/i.test(query)) {
+      return {
+        matches: true,
+        media: query,
+        onchange: null,
+        addListener: () => {},
+        removeListener: () => {},
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        dispatchEvent: () => false,
+      } as MediaQueryList;
+    }
+    return original.call(window, query);
+  } as typeof window.matchMedia;
+
+  try {
+    return fn();
+  } finally {
+    window.matchMedia = original;
+  }
+}
+
 export default function cartRecommenderDemo(
   rawConfig: CartRecommenderInput,
   rawI18n: Record<string, CartRecommenderI18n[string]>,
 ): (() => void) | void {
-  console.log(LOG, 'init — patching fetch for suggest endpoint');
+  console.log(LOG, 'init — patching fetch for suggest endpoint + forcing mobile gate');
   // maxItems comes from the validated config, but at this point we only have
   // raw input. The real number is enforced inside the production module via
   // schema parsing; we just need a generous upper bound for scraping.
   const maxItems = typeof rawConfig?.maxItems === 'number' ? rawConfig.maxItems : 4;
   patchFetchForSuggest(maxItems);
-  return cartRecommender(rawConfig, rawI18n);
+  return withMobileForced(() => cartRecommender(rawConfig, rawI18n));
 }
