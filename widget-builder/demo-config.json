@@ -375,7 +375,9 @@
           "copyButton": "Копіювати",
           "copiedLabel": "Скопійовано!",
           "promoLabel": "Промокод",
-          "closeLabel": "Закрити"
+          "closeLabel": "Закрити",
+          "errorEmptyEmail": "Будь ласка, введіть e-mail",
+          "errorInvalidEmail": "Перевірте формат e-mail"
         },
         "ru": {
           "title": "Крутите колесо и выигрывайте!",
@@ -391,7 +393,9 @@
           "copyButton": "Копировать",
           "copiedLabel": "Скопировано!",
           "promoLabel": "Промокод",
-          "closeLabel": "Закрыть"
+          "closeLabel": "Закрыть",
+          "errorEmptyEmail": "Пожалуйста, введите e-mail",
+          "errorInvalidEmail": "Проверьте формат e-mail"
         },
         "en": {
           "title": "Spin the wheel to win!",
@@ -407,6 +411,41 @@
           "copyButton": "Copy",
           "copiedLabel": "Copied!",
           "promoLabel": "Promo code",
+          "closeLabel": "Close",
+          "errorEmptyEmail": "Please enter your email",
+          "errorInvalidEmail": "Please enter a valid email"
+        }
+      }
+    },
+    "module-prize-banner": {
+      "config": {
+        "enabled": true,
+        "storageKey": "wty_active_prize",
+        "hideOnCheckout": false,
+        "zIndex": 8800,
+        "backgroundColor": "#f0fdf4",
+        "textColor": "#064e3b",
+        "accentColor": "#10b981",
+        "borderColor": "#a7f3d0",
+        "borderRadius": 12
+      },
+      "i18n": {
+        "ua": {
+          "message": "У вас активний приз: {label} — код {code}. Скажіть менеджеру при оформленні замовлення.",
+          "copyLabel": "Копіювати код",
+          "copiedLabel": "Скопійовано!",
+          "closeLabel": "Закрити"
+        },
+        "ru": {
+          "message": "У вас активный приз: {label} — код {code}. Скажите менеджеру при оформлении заказа.",
+          "copyLabel": "Копировать код",
+          "copiedLabel": "Скопировано!",
+          "closeLabel": "Закрыть"
+        },
+        "en": {
+          "message": "You have an active prize: {label} — code {code}. Mention it to the manager at checkout.",
+          "copyLabel": "Copy code",
+          "copiedLabel": "Copied!",
           "closeLabel": "Close"
         }
       }

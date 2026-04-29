@@ -1,5 +1,5 @@
 {
-  "name": "@laxarevii/module-spin-the-wheel",
+  "name": "@laxarevii/module-prize-banner",
   "version": "1.0.0",
   "type": "module",
   "main": "index.ts",
@@ -14,10 +14,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/Laxarevii/horoshop-plugin-manager-v2.git",
-    "directory": "modules/module-spin-the-wheel"
+    "directory": "modules/module-prize-banner"
   },
   "dependencies": {
-    "@laxarevii/core": "workspace:*",
-    "spin-wheel": "^5.0.2"
+    "@laxarevii/core": "workspace:*"
   }
 }

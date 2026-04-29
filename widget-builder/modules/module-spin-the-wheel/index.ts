@@ -6,8 +6,9 @@ import {
   type SpinTheWheelInput,
   type SpinSegment,
 } from './schema';
-import { ICONS, type IconType } from './icons';
 import { getLanguage } from '@laxarevii/core';
+// @ts-ignore — spin-wheel ships no TypeScript declarations
+import { Wheel } from 'spin-wheel';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -160,162 +161,9 @@ function isHiddenByUtm(sources: string[]): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// SVG Wheel
+// Pointer overlay — chunky red triangle with drop shadow
 // ---------------------------------------------------------------------------
 
-function buildSegmentIconSvg(iconType: IconType | undefined): string {
-  if (!iconType) return '';
-  const svgContent = ICONS[iconType];
-  // Wrap in a sized container positioned at the text-r inner zone
-  return svgContent;
-}
-
-function buildWheelSvg(config: SpinTheWheelConfig): string {
-  const { segments, palette, wheelTextColor } = config;
-  const n = segments.length;
-  const anglePerSlice = (2 * Math.PI) / n;
-  const r = 150; // SVG radius (viewBox 320x320, center 160,160)
-  const cx = 160;
-  const cy = 160;
-
-  let paths = '';
-
-  for (let i = 0; i < n; i++) {
-    const startAngle = i * anglePerSlice - Math.PI / 2; // start at top
-    const endAngle = startAngle + anglePerSlice;
-
-    const x1 = cx + r * Math.cos(startAngle);
-    const y1 = cy + r * Math.sin(startAngle);
-    const x2 = cx + r * Math.cos(endAngle);
-    const y2 = cy + r * Math.sin(endAngle);
-
-    const largeArc = anglePerSlice > Math.PI ? 1 : 0;
-    // Cycle through full palette
-    const fill = palette[i % palette.length];
-
-    const midAngle = startAngle + anglePerSlice / 2;
-    // Icon at 72% radius, label at 52% radius
-    const iconR = r * 0.72;
-    const textR = r * 0.50;
-    const ix = cx + iconR * Math.cos(midAngle);
-    const iy = cy + iconR * Math.sin(midAngle);
-    const tx = cx + textR * Math.cos(midAngle);
-    const ty = cy + textR * Math.sin(midAngle);
-    const rotDeg = (midAngle * 180) / Math.PI + 90;
-
-    const label = escapeHtml(segments[i].label);
-    const iconType = segments[i].iconType;
-
-    // Build the inner SVG icon as a foreignObject is too risky cross-browser;
-    // instead we embed a simplified path for each icon directly in the SVG.
-    const iconSvgContent = iconType ? buildInlineSegmentIcon(iconType, ix, iy, rotDeg, escapeAttr(wheelTextColor)) : '';
-
-    paths += `
-      <path
-        d="M ${cx},${cy} L ${x1},${y1} A ${r},${r} 0 ${largeArc},1 ${x2},${y2} Z"
-        fill="${escapeAttr(fill)}"
-        stroke="rgba(255,255,255,0.25)"
-        stroke-width="1.5"
-      />
-      ${iconSvgContent}
-      <text
-        x="${tx}"
-        y="${ty}"
-        text-anchor="middle"
-        dominant-baseline="middle"
-        transform="rotate(${rotDeg}, ${tx}, ${ty})"
-        font-size="10"
-        font-weight="700"
-        fill="${escapeAttr(wheelTextColor)}"
-        font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif"
-        style="pointer-events:none;user-select:none;"
-      >${label}</text>
-    `;
-  }
-
-  // Center hub — decorative white circle with star
-  paths += `
-    <circle cx="${cx}" cy="${cy}" r="30" fill="white" stroke="${escapeAttr(config.decorativeColor)}" stroke-width="3" filter="url(#hub-shadow)"/>
-    <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle" font-size="20" style="pointer-events:none;user-select:none;">✦</text>
-  `;
-
-  return `
-    <svg
-      id="wdg-stw-wheel-svg"
-      viewBox="0 0 320 320"
-      xmlns="http://www.w3.org/2000/svg"
-      style="width:100%;height:100%;display:block;overflow:visible;"
-    >
-      <defs>
-        <filter id="hub-shadow" x="-50%" y="-50%" width="200%" height="200%">
-          <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="rgba(0,0,0,0.25)"/>
-        </filter>
-        <filter id="wheel-glow" x="-15%" y="-15%" width="130%" height="130%">
-          <feGaussianBlur stdDeviation="8" result="blur"/>
-          <feComposite in="SourceGraphic" in2="blur" operator="over"/>
-        </filter>
-      </defs>
-      <!-- Outer glow ring -->
-      <circle cx="${cx}" cy="${cy}" r="154" fill="none"
-        stroke="url(#ring-gradient)" stroke-width="8"
-        filter="url(#wheel-glow)"
-      />
-      <defs>
-        <linearGradient id="ring-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="${escapeAttr(config.decorativeColor)}" stop-opacity="0.9"/>
-          <stop offset="100%" stop-color="${escapeAttr(config.palette[1] ?? '#f59e0b')}" stop-opacity="0.9"/>
-        </linearGradient>
-      </defs>
-      <g id="wdg-stw-wheel-group">
-        ${paths}
-      </g>
-    </svg>
-  `;
-}
-
-function buildInlineSegmentIcon(
-  iconType: IconType,
-  cx: number,
-  cy: number,
-  rotDeg: number,
-  color: string,
-): string {
-  // Build a small 24px icon centered at (cx,cy), rotated by rotDeg
-  // We map each icon type to a minimal SVG path/shape
-  const size = 12; // half of 24px icon
-  const iconMap: Record<IconType, string> = {
-    percent: `<line x1="${cx - size * 0.6}" y1="${cy + size * 0.6}" x2="${cx + size * 0.6}" y2="${cy - size * 0.6}" stroke="${color}" stroke-width="2.5" stroke-linecap="round"/>
-              <circle cx="${cx - size * 0.35}" cy="${cy - size * 0.35}" r="3.5" fill="${color}"/>
-              <circle cx="${cx + size * 0.35}" cy="${cy + size * 0.35}" r="3.5" fill="${color}"/>`,
-
-    gift: `<rect x="${cx - size * 0.8}" y="${cy - size * 0.1}" width="${size * 1.6}" height="${size}" fill="${color}" rx="1"/>
-           <rect x="${cx - size * 0.8}" y="${cy - size * 0.55}" width="${size * 1.6}" height="${size * 0.45}" fill="${color}" rx="1"/>
-           <line x1="${cx}" y1="${cy - size * 0.55}" x2="${cx}" y2="${cy + size * 0.9}" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
-           <path d="M${cx} ${cy - size * 0.55} C${cx} ${cy - size * 1.1} ${cx - size * 0.8} ${cy - size * 1.1} ${cx - size * 0.8} ${cy - size * 0.55}" fill="none" stroke="${color}" stroke-width="1.5"/>
-           <path d="M${cx} ${cy - size * 0.55} C${cx} ${cy - size * 1.1} ${cx + size * 0.8} ${cy - size * 1.1} ${cx + size * 0.8} ${cy - size * 0.55}" fill="none" stroke="${color}" stroke-width="1.5"/>`,
-
-    truck: `<rect x="${cx - size}" y="${cy - size * 0.6}" width="${size * 1.2}" height="${size}" fill="${color}" rx="1.5"/>
-            <path d="M${cx + size * 0.2} ${cy - size * 0.6} L${cx + size * 0.2} ${cy + size * 0.4} L${cx + size} ${cy + size * 0.4} L${cx + size} ${cy - size * 0.15} L${cx + size * 0.6} ${cy - size * 0.6} Z" fill="${color}"/>
-            <circle cx="${cx - size * 0.5}" cy="${cy + size * 0.5}" r="${size * 0.35}" fill="rgba(255,255,255,0.7)" stroke="${color}" stroke-width="1"/>
-            <circle cx="${cx + size * 0.65}" cy="${cy + size * 0.5}" r="${size * 0.35}" fill="rgba(255,255,255,0.7)" stroke="${color}" stroke-width="1"/>`,
-
-    star: `<polygon points="${cx},${cy - size} ${cx + size * 0.35},${cy - size * 0.25} ${cx + size},${cy - size * 0.25} ${cx + size * 0.5},${cy + size * 0.2} ${cx + size * 0.6},${cy + size} ${cx},${cy + size * 0.6} ${cx - size * 0.6},${cy + size} ${cx - size * 0.5},${cy + size * 0.2} ${cx - size},${cy - size * 0.25} ${cx - size * 0.35},${cy - size * 0.25}" fill="${color}"/>`,
-
-    fire: `<path d="M${cx} ${cy - size} C${cx} ${cy - size} ${cx - size * 0.6} ${cy - size * 0.3} ${cx - size * 0.6} ${cy + size * 0.2} C${cx - size * 0.6} ${cy + size * 0.8} ${cx} ${cy + size} ${cx} ${cy + size} C${cx} ${cy + size} ${cx + size * 0.6} ${cy + size * 0.8} ${cx + size * 0.6} ${cy + size * 0.2} C${cx + size * 0.6} ${cy - size * 0.3} ${cx} ${cy - size} ${cx} ${cy - size} Z" fill="${color}"/>`,
-
-    crown: `<polygon points="${cx - size},${cy + size * 0.6} ${cx - size},${cy - size * 0.6} ${cx - size * 0.3},${cy + size * 0.1} ${cx},${cy - size} ${cx + size * 0.3},${cy + size * 0.1} ${cx + size},${cy - size * 0.6} ${cx + size},${cy + size * 0.6}" fill="${color}"/>`,
-
-    sparkle: `<polygon points="${cx},${cy - size} ${cx + size * 0.25},${cy - size * 0.25} ${cx + size},${cy} ${cx + size * 0.25},${cy + size * 0.25} ${cx},${cy + size} ${cx - size * 0.25},${cy + size * 0.25} ${cx - size},${cy} ${cx - size * 0.25},${cy - size * 0.25}" fill="${color}"/>`,
-
-    'try-again': `<path d="M${cx + size * 0.8} ${cy - size * 0.8} A${size} ${size} 0 1 0 ${cx + size} ${cy}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round"/>
-                  <polygon points="${cx + size},${cy - size * 0.5} ${cx + size},${cy + size * 0.2} ${cx + size * 0.3},${cy - size * 0.15}" fill="${color}"/>`,
-  };
-
-  const iconPaths = iconMap[iconType];
-  return `<g transform="rotate(${rotDeg}, ${cx}, ${cy})" style="pointer-events:none;">${iconPaths}</g>`;
-}
-
-// Pointer/arrow above the wheel — chunky red triangle with drop shadow
 function buildPointerSvg(color: string): string {
   return `
     <svg viewBox="0 0 32 36" xmlns="http://www.w3.org/2000/svg"
@@ -324,6 +172,33 @@ function buildPointerSvg(color: string): string {
       <polygon points="16,26 8,8 24,8" fill="rgba(255,255,255,0.25)"/>
     </svg>
   `;
+}
+
+// ---------------------------------------------------------------------------
+// Build spin-wheel props from config
+// ---------------------------------------------------------------------------
+
+function buildWheelProps(config: SpinTheWheelConfig): Record<string, unknown> {
+  return {
+    items: config.segments.map((s, i) => ({
+      label: s.label,
+      backgroundColor: config.palette[i % config.palette.length],
+      labelColor: config.wheelTextColor,
+    })),
+    pointerAngle: 0,
+    lineWidth: 1,
+    lineColor: 'rgba(255,255,255,0.4)',
+    radius: 0.92,
+    itemLabelFont: 'system-ui, -apple-system, sans-serif',
+    itemLabelFontSizeMax: 22,
+    itemLabelRadius: 0.85,
+    itemLabelAlign: 'right',
+    itemLabelBaselineOffset: -0.1,
+    borderColor: config.decorativeColor,
+    borderWidth: 4,
+    isInteractive: false,
+    rotationResistance: 0,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -342,7 +217,19 @@ function renderModal(
 
   wrapper.innerHTML = buildEmailGateHtml(config, i18n);
 
+  // Render the preview wheel in email gate using spin-wheel
+  const previewContainer = wrapper.querySelector<HTMLElement>('.stw__wheel-container--preview');
+  let previewWheel: InstanceType<typeof Wheel> | null = null;
+  if (previewContainer) {
+    try {
+      previewWheel = new Wheel(previewContainer, buildWheelProps(config));
+    } catch {
+      // Canvas may not be supported in test environment — degrade gracefully
+    }
+  }
+
   function close(): void {
+    previewWheel?.remove?.();
     hostEl.classList.remove('stw--visible');
     hostEl.classList.add('stw--leaving');
     setTimeout(() => hostEl.remove(), 350);
@@ -366,7 +253,7 @@ function renderModal(
     const email = emailInput.value.trim();
 
     if (config.requireEmail && !EMAIL_RE.test(email)) {
-      showEmailError(wrapper, email);
+      showEmailError(wrapper, email, i18n);
       return;
     }
 
@@ -378,6 +265,7 @@ function renderModal(
       }
     }
 
+    previewWheel?.remove?.();
     showWheelStage(wrapper, hostEl, config, i18n, close);
   });
 }
@@ -419,7 +307,7 @@ function buildEmailGateHtml(
       <form class="stw__email-form" novalidate>
         <div class="stw__wheel-preview" aria-hidden="true">
           <div class="stw__wheel-ring">
-            ${buildWheelSvg(config)}
+            <div class="stw__wheel-container--preview" style="width:100%;height:100%;"></div>
           </div>
           <div class="stw__pointer">${buildPointerSvg(config.decorativeColor)}</div>
         </div>
@@ -435,11 +323,11 @@ function buildEmailGateHtml(
   `;
 }
 
-function showEmailError(wrapper: HTMLElement, email: string): void {
+function showEmailError(wrapper: HTMLElement, email: string, i18n: SpinTheWheelI18nEntry): void {
   const errEl = wrapper.querySelector<HTMLElement>('.stw__email-error');
   const inputEl = wrapper.querySelector<HTMLInputElement>('.stw__email-input');
   if (!errEl || !inputEl) return;
-  errEl.textContent = email.length === 0 ? 'Please enter your email' : 'Please enter a valid email';
+  errEl.textContent = email.length === 0 ? i18n.errorEmptyEmail : i18n.errorInvalidEmail;
   errEl.style.display = 'block';
   inputEl.classList.add('stw__email-input--error');
 }
@@ -453,6 +341,7 @@ function showWheelStage(
 ): void {
   const card = wrapper.querySelector<HTMLElement>('.stw__card')!;
   const { index: winIndex, segment: winSegment } = pickSegment(config.segments);
+  const spinDurationMs = 4500;
 
   card.innerHTML = `
     <button class="stw__close" aria-label="${escapeAttr(i18n.closeLabel)}" type="button">
@@ -462,9 +351,8 @@ function showWheelStage(
       <div class="stw__wheel-wrap">
         <div class="stw__pointer stw__pointer--top">${buildPointerSvg(config.decorativeColor)}</div>
         <div class="stw__wheel-ring stw__wheel-ring--full">
-          <div class="stw__wheel-container" id="stw-wheel-container">
-            ${buildWheelSvg(config)}
-          </div>
+          <div class="stw__wheel-container" id="stw-wheel-container"></div>
+          <div class="stw__hub" aria-hidden="true">✦</div>
         </div>
       </div>
       <p class="stw__spinning-label">${escapeHtml(i18n.spinningLabel)}</p>
@@ -473,26 +361,33 @@ function showWheelStage(
 
   card.querySelector('.stw__close')!.addEventListener('click', close);
 
-  const n = config.segments.length;
-  const anglePerSlice = 360 / n;
-  const extraSpins = 4 + Math.floor(Math.random() * 3); // 4–6
-  const targetAngle = -(winIndex * anglePerSlice + anglePerSlice / 2);
-  const totalRotation = extraSpins * 360 + targetAngle;
-
   const container = card.querySelector<HTMLElement>('#stw-wheel-container')!;
+  let wheelInstance: InstanceType<typeof Wheel> | null = null;
 
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      container.style.transition = `transform 4.5s cubic-bezier(0.17, 0.67, 0.12, 0.99)`;
-      container.style.transform = `rotate(${totalRotation}deg)`;
+  try {
+    wheelInstance = new Wheel(container, {
+      ...buildWheelProps(config),
+      onRest: () => {
+        setTimeout(() => showResultStage(wrapper, card, config, i18n, winSegment, close), 200);
+      },
     });
-  });
 
-  // Show result after spin, then small bounce
-  setTimeout(() => {
-    container.classList.add('stw__wheel--bouncing');
-    setTimeout(() => showResultStage(wrapper, card, config, i18n, winSegment, close), 250);
-  }, 4500);
+    // Start spinning after rAF so the wheel is fully rendered
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        wheelInstance!.spinToItem(winIndex, spinDurationMs, true, 4);
+      });
+    });
+  } catch {
+    // Canvas not supported (e.g. test environment) — advance to result after timeout
+    setTimeout(() => showResultStage(wrapper, card, config, i18n, winSegment, close), spinDurationMs + 200);
+  }
+
+  // Cleanup wheel on close
+  const origClose = close;
+  card.querySelector<HTMLElement>('.stw__close')!.addEventListener('click', () => {
+    wheelInstance?.remove?.();
+  }, { once: true });
 }
 
 function showResultStage(
@@ -508,6 +403,19 @@ function showResultStage(
   if (isWin) {
     try {
       window.localStorage.setItem(STORAGE_WON_KEY, segment.code);
+      // Зв'язок приза з реальною вигодою: цей запис читає module-prize-banner
+      // і показує тонку плашку «У вас активний приз» на всіх сторінках,
+      // поки приз не закінчиться. Так клієнт бачить постійне нагадування про вигоду.
+      const prize = {
+        code: segment.code,
+        label: segment.label,
+        iconType: segment.iconType ?? null,
+        awardedAt: Date.now(),
+        // За замовчуванням приз діє 7 днів
+        expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000,
+        source: 'spin-the-wheel',
+      };
+      window.localStorage.setItem('wty_active_prize', JSON.stringify(prize));
     } catch {
       // ignore
     }
@@ -771,6 +679,7 @@ function buildStyles(config: SpinTheWheelConfig): string {
 }
 
 .stw__wheel-ring--full {
+  position: relative;
   width: min(300px, 70vw);
   height: min(300px, 70vw);
 }
@@ -875,22 +784,31 @@ function buildStyles(config: SpinTheWheelConfig): string {
   position: absolute;
   top: -20px; left: 50%;
   transform: translateX(-50%);
-  z-index: 2;
+  z-index: 10;
 }
 .stw__wheel-container {
   width: min(300px, 70vw);
   height: min(300px, 70vw);
   will-change: transform;
 }
-@keyframes stw-bounce {
-  0%  { transform: rotate(var(--final-rot,0deg)) scale(1); }
-  40% { transform: rotate(var(--final-rot,0deg)) scale(1.04); }
-  70% { transform: rotate(var(--final-rot,0deg)) scale(0.97); }
-  100%{ transform: rotate(var(--final-rot,0deg)) scale(1); }
+
+/* ── Center hub overlay on top of the canvas ── */
+.stw__hub {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 48px; height: 48px;
+  background: white;
+  border-radius: 50%;
+  border: 3px solid ${config.decorativeColor};
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  z-index: 5;
+  pointer-events: none;
+  user-select: none;
 }
-.stw__wheel--bouncing {
-  animation: stw-bounce 200ms ease-out forwards;
-}
+
 .stw__spinning-label {
   margin: 0; font-size: 15px; opacity: .65;
   animation: stw-pulse 1s ease-in-out infinite;

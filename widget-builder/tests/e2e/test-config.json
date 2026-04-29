@@ -151,20 +151,43 @@
       },
       "i18n": {
         "ua": {
-          "title": "test",
-          "subtitle": "test",
-          "emailPlaceholder": "email",
-          "consentText": "ok",
-          "spinButton": "Spin",
-          "spinningLabel": "...",
-          "resultTitleWin": "Win",
-          "resultTitleLose": "Lose",
-          "resultSubtitleWin": "ok",
-          "resultSubtitleLose": "ok",
-          "copyButton": "copy",
-          "copiedLabel": "copied",
-          "promoLabel": "code",
-          "closeLabel": "close"
+          "title": "Крутіть колесо та виграйте!",
+          "subtitle": "Введіть e-mail і отримайте шанс на знижку чи подарунок",
+          "emailPlaceholder": "Ваш e-mail",
+          "consentText": "Згоден отримувати маркетингові листи",
+          "spinButton": "Крутити!",
+          "spinningLabel": "Крутимо...",
+          "resultTitleWin": "Вітаємо! Ви виграли",
+          "resultTitleLose": "Спробуйте ще раз",
+          "resultSubtitleWin": "Скопіюйте промокод і застосуйте в кошику",
+          "resultSubtitleLose": "Цього разу не пощастило — повертайтесь",
+          "copyButton": "Копіювати код",
+          "copiedLabel": "Скопійовано!",
+          "promoLabel": "Промокод",
+          "closeLabel": "Закрити",
+          "errorEmptyEmail": "Будь ласка, введіть e-mail",
+          "errorInvalidEmail": "Перевірте формат e-mail"
+        }
+      }
+    },
+    "module-prize-banner": {
+      "config": {
+        "enabled": true,
+        "storageKey": "wty_active_prize",
+        "hideOnCheckout": false,
+        "zIndex": 8800,
+        "backgroundColor": "#f0fdf4",
+        "textColor": "#064e3b",
+        "accentColor": "#10b981",
+        "borderColor": "#a7f3d0",
+        "borderRadius": 12
+      },
+      "i18n": {
+        "ua": {
+          "message": "У вас активний приз: {label} — код {code}. Скажіть менеджеру при оформленні замовлення.",
+          "copyLabel": "Копіювати код",
+          "copiedLabel": "Скопійовано!",
+          "closeLabel": "Закрити"
         }
       }
     },

@@ -104,6 +104,8 @@ const spinI18nEntrySchema = z.object({
   copiedLabel: z.string(),
   promoLabel: z.string(),
   closeLabel: z.string(),
+  errorEmptyEmail: z.string().default('Будь ласка, введіть e-mail'),
+  errorInvalidEmail: z.string().default('Перевірте формат e-mail'),
 });
 
 export const spinTheWheelI18nSchema = z
@@ -152,6 +154,8 @@ export function getDefaultI18n(): SpinTheWheelI18n {
       copiedLabel: 'Скопійовано!',
       promoLabel: 'Промокод',
       closeLabel: 'Закрити',
+      errorEmptyEmail: 'Будь ласка, введіть e-mail',
+      errorInvalidEmail: 'Перевірте формат e-mail',
     },
     ru: {
       title: 'Крутите колесо и выиграйте!',
@@ -168,6 +172,8 @@ export function getDefaultI18n(): SpinTheWheelI18n {
       copiedLabel: 'Скопировано!',
       promoLabel: 'Промокод',
       closeLabel: 'Закрыть',
+      errorEmptyEmail: 'Пожалуйста, введите e-mail',
+      errorInvalidEmail: 'Проверьте формат e-mail',
     },
     en: {
       title: 'Spin the wheel and win!',
@@ -184,6 +190,8 @@ export function getDefaultI18n(): SpinTheWheelI18n {
       copiedLabel: 'Copied!',
       promoLabel: 'Promo code',
       closeLabel: 'Close',
+      errorEmptyEmail: 'Please enter your email',
+      errorInvalidEmail: 'Please enter a valid email',
     },
   };
 }
