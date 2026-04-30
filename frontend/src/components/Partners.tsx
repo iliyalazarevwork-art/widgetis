@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from 'react'
 import './Partners.css'
 
 function HoroshopLogo() {
@@ -11,22 +10,8 @@ function HoroshopLogo() {
 }
 
 export function Partners() {
-  const sectionRef = useRef<HTMLElement>(null)
-  const [visible, setVisible] = useState(false)
-
-  useEffect(() => {
-    const node = sectionRef.current
-    if (!node) return
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true) },
-      { threshold: 0.3 },
-    )
-    observer.observe(node)
-    return () => observer.disconnect()
-  }, [])
-
   return (
-    <section ref={sectionRef} className={`partners ${visible ? 'partners--visible' : ''}`}>
+    <section className="partners">
       <p className="partners__label">Працює з Хорошоп</p>
       <div className="partners__grid partners__grid--single">
         <div

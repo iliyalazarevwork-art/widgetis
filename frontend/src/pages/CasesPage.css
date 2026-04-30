@@ -102,6 +102,39 @@
   max-width: 560px;
 }
 
+.cases-page__proof {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cases-page__proof-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: #f5b400;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cases-page__proof-stars span {
+  color: var(--text-secondary);
+  margin-left: 3px;
+  font-size: 13px;
+}
+
+.cases-page__proof-div {
+  width: 1px;
+  height: 14px;
+  background: var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.cases-page__proof-trust {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
 /* ── Content ── */
 .cases-page__content {
   padding: 40px 0 96px;
@@ -413,6 +446,107 @@
 .case-card__link:hover {
   color: var(--case-color);
   gap: 9px;
+}
+
+/* ── My Sites section ── */
+.cases-page__mysites {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.cases-page__mysites-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cases-page__mysites-title {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.6px;
+  line-height: 1.1;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* From-scratch badge */
+.case-card__from-scratch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--case-color) 8%, var(--bg-surface));
+  border: 1px solid color-mix(in srgb, var(--case-color) 22%, transparent);
+  color: var(--case-color);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* ── Pagination ── */
+.cases-page__pagination-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.cases-page__pagination {
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(3px, 1.2vw, 6px);
+}
+
+.cases-page__pag-btn,
+.cases-page__pag-num,
+.cases-page__pag-dots {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(32px, 8.5vw, 48px);
+  height: clamp(32px, 8.5vw, 48px);
+  border-radius: clamp(9px, 2.5vw, 14px);
+  font-size: clamp(12px, 3vw, 15px);
+  flex-shrink: 0;
+}
+
+.cases-page__pag-btn,
+.cases-page__pag-num {
+  border: none;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  font-family: var(--font-display);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+
+.cases-page__pag-btn:hover:not(:disabled),
+.cases-page__pag-num:hover {
+  background: color-mix(in srgb, var(--accent) 14%, var(--bg-elevated));
+  color: var(--accent);
+}
+
+.cases-page__pag-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.cases-page__pag-num--active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.cases-page__pag-num--active:hover {
+  background: var(--accent-hover);
+  color: #fff;
+}
+
+.cases-page__pag-dots {
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 1px;
 }
 
 /* ── CTA ── */

@@ -3,7 +3,6 @@ import { lazy, Suspense, useEffect, useState, type ReactElement } from 'react'
 import { Header } from './components/Header'
 import { Footer } from './components/Footer'
 import { Hero } from './components/Hero'
-import { Partners } from './components/Partners'
 import { DemoSection } from './components/DemoSection'
 import { WidgetsShowcase } from './components/WidgetsShowcase'
 import { WidgetsList } from './components/WidgetsList'
@@ -155,7 +154,6 @@ function HomePage() {
       <WidgetsList />
       <HowItWorks />
       <Testimonials />
-      <Partners />
       <CTABanner onConsultation={() => setShowConsultation(true)} />
       <Faq />
       {showConsultation && (
