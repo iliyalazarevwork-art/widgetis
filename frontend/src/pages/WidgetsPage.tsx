@@ -12,7 +12,7 @@ import {
   Crown,
   ChevronRight,
 } from 'lucide-react'
-import { widgets, tagLabels, type Tag } from '../data/widgets'
+import { availableWidgetTags, widgets, tagLabels, type Tag } from '../data/widgets'
 import { PREVIEW_MAP } from '../components/WidgetPreviews'
 import './WidgetsPage.css'
 
@@ -27,35 +27,29 @@ const WIDGET_CASES: Record<string, { store: string; metric: string; color: strin
   'delivery-date':      [
     { store: 'modnakasta.ua', metric: '−40% питань до чату', color: '#22C55E' },
   ],
-  'purchase-counter':   [
+  'social-proof':       [
     { store: 'kyivfit.store', metric: '+42% email-база', color: '#22C55E' },
   ],
-  'free-delivery':      [
+  'cart-goal':          [
     { store: 'homedetail.ua', metric: '+15% середній чек', color: '#22C55E' },
   ],
-  'live-viewers':       [
-    { store: 'benihome.com.ua', metric: '+24% конверсія', color: '#22C55E' },
-  ],
-  cashback:             [
-    { store: 'brewco.kyiv.ua', metric: '+28% повторних', color: '#22C55E' },
-  ],
-  countdown:            [
+  'stock-left':         [
     { store: 'ballistic.com.ua', metric: '−31% відмов', color: '#3B82F6' },
   ],
   'photo-reviews':      [
     { store: 'kyivfit.store', metric: '+42% email-база', color: '#22C55E' },
   ],
-  'recent-purchase':    [
-    { store: 'homedetail.ua', metric: '+15% середній чек', color: '#22C55E' },
-  ],
-  'spin-wheel':         [
+  'spin-the-wheel':     [
     { store: 'kyivfit.store', metric: '+42% email-база', color: '#22C55E' },
-  ],
-  quiz:                 [
-    { store: 'stylehub.com.ua', metric: '+33% конверсія', color: '#22C55E' },
   ],
   'progressive-discount': [
     { store: 'homedetail.ua', metric: '+15% середній чек', color: '#22C55E' },
+  ],
+  'exit-intent-popup':  [
+    { store: 'stylehub.com.ua', metric: '+33% конверсія', color: '#22C55E' },
+  ],
+  'one-plus-one':       [
+    { store: 'benihome.com.ua', metric: '+24% середній чек', color: '#22C55E' },
   ],
 }
 
@@ -184,7 +178,7 @@ const FEATURED_CASES = [
 
 // ─── Page ────────────────────────────────────────────────────────────────────
 
-const ALL_TAGS: (Tag | 'all')[] = ['all', 'conversion', 'trust', 'social-proof', 'avg-order', 'urgency', 'loyalty', 'engagement', 'visual']
+const ALL_TAGS: (Tag | 'all')[] = ['all', ...availableWidgetTags]
 const TAG_LABELS_WITH_ALL: Record<string, string> = { all: 'Всі', ...tagLabels }
 
 export function WidgetsPage() {
@@ -195,8 +189,8 @@ export function WidgetsPage() {
   return (
     <div className="wp">
       <SeoHead
-        title="Віджети для Horoshop — 15 готових інструментів | Widgetis"
-        description="15 маркетингових віджетів для Horoshop: бігуча стрічка, таймер, дата доставки, фотовідгуки, колесо фортуни, прогресивна знижка. Підвищують конверсію та середній чек без програміста."
+        title="Віджети для Horoshop — 21 готовий інструмент | Widgetis"
+        description="21 маркетинговий віджет для Horoshop: бігуча стрічка, дата доставки, фотовідгуки, колесо фортуни, прогресивна знижка, SMS-верифікація та інші. Підвищують конверсію та середній чек без програміста."
         keywords="віджети Хорошоп, плагіни для Хорошоп, таймер зворотного відліку Хорошоп, бігуча стрічка Хорошоп, фотовідгуки Хорошоп, конверсія інтернет-магазину Хорошоп, horoshop widgets"
         path="/widgets"
         structuredData={{

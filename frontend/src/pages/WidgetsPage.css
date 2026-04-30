@@ -144,11 +144,14 @@
 .wc__preview {
   display: flex;
   align-items: center;
+  justify-content: center;
   overflow: hidden;
   border-radius: 12px;
-  min-height: 52px;
+  height: 80px;
   width: 100%;
   border: 1px solid #3B82F640;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 /* ── Context overrides: vivid previews inside widget cards ── */
@@ -193,26 +196,46 @@
   color: rgba(180,215,255,0.75);
 }
 
-/* Spin wheel — larger */
-.wc__preview .wpr__wheel-wrap { width: 100%; align-items: center; }
-.wc__preview .wpr__wheel {
-  width: 80px;
-  height: 80px;
-}
+/* Spin wheel — compact, centered, no subtitle */
+.wc__preview .wpr__wheel-wrap { width: 100%; align-items: center; justify-content: center; }
+.wc__preview .wpr__wheel { width: 56px; height: 56px; }
+.wc__preview .wpr__wheel-wrap .wpr__sub { display: none; }
 .wc__preview .wpr__wheel-center { font-size: 0; }
-.wc__preview .wpr__wheel-center svg { width: 22px; height: 22px; color: #f0f0f0; }
+.wc__preview .wpr__wheel-center svg { width: 18px; height: 18px; color: #f0f0f0; }
 
-/* Reviews — fill */
-.wc__preview .wpr__reviews { width: 100%; }
+/* Reviews — fill, hide quote, add perimeter padding */
+.wc__preview .wpr__reviews { width: 100%; padding: 8px 12px; box-sizing: border-box; }
+.wc__preview .wpr__review-quote { display: none; }
 
 /* Quiz — fill */
 .wc__preview .wpr__quiz { width: 100%; }
 
 .wc__preview .wpr__popup,
 .wc__preview .wpr__opo {
-  background: #1A1A1A;
-  border-radius: 14px;
-  border: 1px solid #FFFFFF0A;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0 16px;
+  height: 100%;
+}
+
+/* Spin wheel — compact */
+.wc__preview .wpr__wheel-wrap { width: 100%; align-items: center; }
+.wc__preview .wpr__wheel {
+  width: 56px;
+  height: 56px;
+}
+
+/* New previews — fill card width */
+.wc__preview .wpr__sticky {
+  width: 100%;
+  padding: 8px;
+}
+.wc__preview .wpr__phone  { width: 100%; padding: 0 14px; }
+
+/* Video bubble — edge-to-edge */
+.wc__preview .wpr__vscene {
+  border-radius: 0;
 }
 
 .wc__preview .wpr__text p {

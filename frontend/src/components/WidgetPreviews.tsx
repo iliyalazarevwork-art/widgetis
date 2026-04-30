@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { Eye, Gift, Flame, PartyPopper, Truck, Coins, HelpCircle, Tag, Star, ShoppingBag, Ticket, Snowflake } from 'lucide-react'
+import {
+  Eye, Gift, Flame, PartyPopper, Truck, Coins, HelpCircle, Tag, Star, ShoppingBag, Ticket, Snowflake,
+  ShoppingCart, Shield, RefreshCcw, Headphones, MessageCircle, Send, Phone,
+} from 'lucide-react'
 import { useVisible } from '../hooks/useVisible'
 import './WidgetPreviews.css'
 
@@ -15,8 +18,9 @@ const Popup = React.forwardRef<HTMLDivElement, {
   icon: React.ReactNode
   iconClass: string
   children: React.ReactNode
-}>(({ icon, iconClass, children }, ref) => (
-  <div className="wpr__popup" ref={ref}>
+  active?: boolean
+}>(({ icon, iconClass, children, active }, ref) => (
+  <div className={`wpr__popup${active ? ' wpr__popup--visible' : ''}`} ref={ref}>
     <div className={`wpr__icon ${iconClass}`}>{icon}</div>
     <div className="wpr__text">{children}</div>
   </div>
@@ -43,12 +47,19 @@ export function PreviewPhotoReviews() {
     <div className="wpr__reviews" ref={ref}>
       <div className="wpr__stars-row">★★★★★ <span>47 відгуків</span></div>
       <div className="wpr__photos-row">
-        {[1,2,3,4].map(i => (
-          <div key={i} className={`wpr__photo wpr__photo--${i} ${visible >= i ? 'wpr__photo--in' : ''}`} />
-        ))}
+        {[1,2,3,4].map(i => {
+          const isVideo = i % 2 === 0
+          return (
+            <div
+              key={i}
+              className={`wpr__photo wpr__photo--${i}${visible >= i ? ' wpr__photo--in' : ''}${isVideo ? ' wpr__photo--video' : ''}`}
+            >
+              {isVideo && <div className="wpr__photo-play" />}
+            </div>
+          )
+        })}
         <span className="wpr__photos-more">+43</span>
       </div>
-      <p className="wpr__review-quote">"Якість відмінна, фото відповідає" — <strong>Марія К.</strong></p>
     </div>
   )
 }
@@ -64,7 +75,7 @@ export function PreviewViewers() {
   }, [active])
 
   return (
-    <Popup ref={ref} icon={<Eye size={20} strokeWidth={2} />} iconClass="wpr__icon--blue">
+    <Popup ref={ref} active={active} icon={<Eye size={20} strokeWidth={2} />} iconClass="wpr__icon--blue">
       <p><strong key={count} className="wpr__num-pop">{count} людей</strong> дивляться зараз</p>
       <span className="wpr__sub wpr__sub--live"><span className="wpr__dot" />В прямому ефірі</span>
     </Popup>
@@ -82,7 +93,7 @@ export function PreviewStock() {
   }, [active])
 
   return (
-    <Popup ref={ref} icon={<Flame size={20} strokeWidth={2} />} iconClass="wpr__icon--orange">
+    <Popup ref={ref} active={active} icon={<Flame size={20} strokeWidth={2} />} iconClass="wpr__icon--orange">
       <p>Залишилось <strong key={stock}>{stock} шт</strong> на складі</p>
       <span className="wpr__sub">Купують активно — може скінчитись</span>
     </Popup>
@@ -109,6 +120,7 @@ export function PreviewCartGoal() {
   return (
     <Popup
       ref={ref}
+      active={active}
       icon={achieved ? <PartyPopper size={20} strokeWidth={2} /> : <Gift size={20} strokeWidth={2} />}
       iconClass={achieved ? 'wpr__icon--green' : 'wpr__icon--amber'}
     >
@@ -146,7 +158,7 @@ export function PreviewDelivery() {
   const ss = String(secs % 60).padStart(2, '0')
 
   return (
-    <Popup ref={ref} icon={<Truck size={20} strokeWidth={2} />} iconClass="wpr__icon--green">
+    <Popup ref={ref} active={active} icon={<Truck size={20} strokeWidth={2} />} iconClass="wpr__icon--green">
       <p>Доставка <strong style={{ color: '#22c55e' }}>завтра, {getTomorrow()}</strong></p>
       <span className="wpr__sub wpr__sub--timer">
         Замов до 18:00 — залишилось <span className="wpr__timer">{hh}:{mm}:{ss}</span>
@@ -171,7 +183,7 @@ export function PreviewCashback() {
   }, [amount, active])
 
   return (
-    <Popup ref={ref} icon={<Coins size={20} strokeWidth={2} />} iconClass="wpr__icon--purple">
+    <Popup ref={ref} active={active} icon={<Coins size={20} strokeWidth={2} />} iconClass="wpr__icon--purple">
       <p>Ваш кешбек: <strong className="wpr__cashback-num">{amount}&nbsp;грн</strong></p>
       <span className="wpr__sub">Нараховується автоматично</span>
     </Popup>
@@ -204,7 +216,7 @@ export function PreviewPurchaseCounter() {
   }, [active])
 
   return (
-    <Popup ref={ref} icon={<ShoppingBag size={20} strokeWidth={2} />} iconClass="wpr__icon--orange">
+    <Popup ref={ref} active={active} icon={<ShoppingBag size={20} strokeWidth={2} />} iconClass="wpr__icon--orange">
       <p><strong key={count} className="wpr__num-pop">{count} людей</strong> купили цей товар</p>
       <span className="wpr__sub">За останні 24 години</span>
     </Popup>
@@ -229,7 +241,7 @@ export function PreviewRecentPurchase() {
   }, [active])
 
   return (
-    <Popup ref={ref} icon={<Star size={20} strokeWidth={2} />} iconClass="wpr__icon--amber">
+    <Popup ref={ref} active={active} icon={<Star size={20} strokeWidth={2} />} iconClass="wpr__icon--amber">
       <p className={`wpr__fade ${show ? 'wpr__fade--in' : ''}`}><strong>{NAMES[idx]}</strong> купила це</p>
       <span className="wpr__sub">2 хвилини тому</span>
     </Popup>
@@ -251,7 +263,7 @@ export function PreviewCountdown() {
   const ss = String(secs % 60).padStart(2, '0')
 
   return (
-    <Popup ref={ref} icon={<Flame size={20} strokeWidth={2} />} iconClass="wpr__icon--rose">
+    <Popup ref={ref} active={active} icon={<Flame size={20} strokeWidth={2} />} iconClass="wpr__icon--rose">
       <p>До кінця акції: <strong className="wpr__timer wpr__timer--red">{hh}:{mm}:{ss}</strong></p>
       <span className="wpr__sub">Поспішайте — залишилось мало</span>
     </Popup>
@@ -274,7 +286,7 @@ export function PreviewBonus() {
   }, [pts, active])
 
   return (
-    <Popup ref={ref} icon={<Ticket size={20} strokeWidth={2} />} iconClass="wpr__icon--purple">
+    <Popup ref={ref} active={active} icon={<Ticket size={20} strokeWidth={2} />} iconClass="wpr__icon--purple">
       <p>Бонусів за покупку: <strong className="wpr__cashback-num">{pts}&nbsp;балів</strong></p>
       <span className="wpr__sub">Витрать на наступне замовлення</span>
     </Popup>
@@ -292,7 +304,7 @@ export function PreviewOnePlusOne() {
   }, [active])
 
   return (
-    <div className="wpr__opo" ref={ref}>
+    <div className={`wpr__opo${active ? ' wpr__opo--visible' : ''}`} ref={ref}>
       <div className={`wpr__opo-badge ${on ? 'wpr__opo-badge--on' : ''}`}>1+1</div>
       <div className="wpr__text">
         <p><strong>Акція: 1+1=3</strong></p>
@@ -316,7 +328,7 @@ export function PreviewProgressiveDiscount() {
 
   const cur = STEPS[step]
   return (
-    <Popup ref={ref} icon={<Tag size={20} strokeWidth={2} />} iconClass="wpr__icon--green">
+    <Popup ref={ref} active={active} icon={<Tag size={20} strokeWidth={2} />} iconClass="wpr__icon--green">
       <p key={step} className="wpr__fade wpr__fade--in">
         Від <strong>{cur.qty} шт</strong> — знижка <strong style={{ color: '#22c55e' }}>{cur.pct}%</strong>
       </p>
@@ -399,24 +411,320 @@ export function PreviewSnow() {
   )
 }
 
+// ─── NEW: previously missing widget previews ──────────────────────────────────
+
+export function PreviewStickyBuyButton() {
+  const { ref, active } = useVisible<HTMLDivElement>()
+  const [glow, setGlow] = useState(false)
+
+  useEffect(() => {
+    if (!active) return
+    const t = setInterval(() => setGlow(g => !g), 1800)
+    return () => clearInterval(t)
+  }, [active])
+
+  return (
+    <div className="wpr__sticky" ref={ref}>
+      <div className="wpr__sticky-bar">
+        <div className="wpr__sticky-info">
+          <span className="wpr__sticky-name">Кросівки Nike Air</span>
+          <strong className="wpr__sticky-price">1 590 грн</strong>
+        </div>
+        <button className={`wpr__sticky-btn${glow ? ' wpr__sticky-btn--glow' : ''}`} type="button">
+          Купити
+        </button>
+      </div>
+    </div>
+  )
+}
+
+const TRUST_ITEMS = [
+  { icon: <Shield size={16} strokeWidth={2} />, label: 'Безпечна оплата', color: '#3b82f6', bg: '#091A35' },
+  { icon: <RefreshCcw size={16} strokeWidth={2} />, label: 'Повернення 14 днів', color: '#22c55e', bg: '#0A2D1A' },
+  { icon: <Headphones size={16} strokeWidth={2} />, label: 'Підтримка 24/7', color: '#a78bfa', bg: '#1E0D35' },
+]
+
+export function PreviewTrustBadges() {
+  const { ref, active } = useVisible<HTMLDivElement>()
+  const [idx, setIdx] = useState(0)
+  const [show, setShow] = useState(true)
+
+  useEffect(() => {
+    if (!active) return
+    const t = setInterval(() => {
+      setShow(false)
+      setTimeout(() => { setIdx(i => (i + 1) % TRUST_ITEMS.length); setShow(true) }, 280)
+    }, 1800)
+    return () => clearInterval(t)
+  }, [active])
+
+  const b = TRUST_ITEMS[idx]
+  return (
+    <div ref={ref} className={`wpr__popup${show && active ? ' wpr__popup--visible' : ''}`}>
+      <div className="wpr__icon" style={{ background: b.bg, color: b.color }}>{b.icon}</div>
+      <div className="wpr__text"><p>{b.label}</p></div>
+    </div>
+  )
+}
+
+const PHONE_FULL = '+38 (050) 123-45-67'
+
+export function PreviewPhoneMask() {
+  const { ref, active } = useVisible<HTMLDivElement>()
+  const [len, setLen] = useState(0)
+
+  useEffect(() => {
+    if (!active) return
+    if (len >= PHONE_FULL.length) {
+      const t = setTimeout(() => setLen(0), 2200)
+      return () => clearTimeout(t)
+    }
+    const t = setTimeout(() => setLen(l => l + 1), 90)
+    return () => clearTimeout(t)
+  }, [len, active])
+
+  return (
+    <div className="wpr__phone" ref={ref}>
+      <div className="wpr__phone-field">
+        <span className="wpr__phone-flag">🇺🇦</span>
+        <span className="wpr__phone-text">
+          {PHONE_FULL.slice(0, len)}
+          <span className="wpr__phone-cursor" />
+        </span>
+      </div>
+    </div>
+  )
+}
+
+const MIN_STEPS = [130, 215, 310, 380, 455, 500, 320]
+const MIN_TARGET = 500
+
+export function PreviewMinOrder() {
+  const { ref, active } = useVisible<HTMLDivElement>()
+  const [step, setStep] = useState(0)
+  const cart = MIN_STEPS[step]
+  const remaining = Math.max(0, MIN_TARGET - cart)
+  const pct = Math.min(100, (cart / MIN_TARGET) * 100)
+  const achieved = cart >= MIN_TARGET
+
+  useEffect(() => {
+    if (!active) return
+    const t = setTimeout(() => setStep(s => (s + 1) % MIN_STEPS.length), 1400)
+    return () => clearTimeout(t)
+  }, [step, active])
+
+  return (
+    <Popup ref={ref} active={active} icon={<ShoppingCart size={20} strokeWidth={2} />} iconClass="wpr__icon--amber">
+      {achieved
+        ? <p><strong>Мінімальне замовлення досягнуто!</strong></p>
+        : <p>Ще <strong key={remaining}>{remaining} грн</strong> до мінімуму</p>
+      }
+      <div className="wpr__bar">
+        <div className="wpr__bar-fill" style={{ transform: `scaleX(${pct / 100})`, background: achieved ? '#22c55e' : '#f59e0b' }} />
+      </div>
+    </Popup>
+  )
+}
+
+const RECENT_PRODUCTS = [
+  { bg: 'linear-gradient(135deg,#f0c8dc,#e8a8c8)', price: '890 грн' },
+  { bg: 'linear-gradient(135deg,#c8daf0,#a8c4e8)', price: '1 200 грн' },
+  { bg: 'linear-gradient(135deg,#f0e8c0,#e8d898)', price: '540 грн' },
+  { bg: 'linear-gradient(135deg,#c8f0dc,#a8e8c4)', price: '1 890 грн' },
+]
+
+export function PreviewRecentlyViewed() {
+  const { ref, active } = useVisible<HTMLDivElement>()
+  const [vis, setVis] = useState(0)
+
+  useEffect(() => {
+    if (!active) return
+    if (vis >= RECENT_PRODUCTS.length) {
+      const t = setTimeout(() => setVis(0), 2200)
+      return () => clearTimeout(t)
+    }
+    const t = setTimeout(() => setVis(v => v + 1), 260)
+    return () => clearTimeout(t)
+  }, [vis, active])
+
+  return (
+    <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center', width: '100%' }} ref={ref}>
+      {RECENT_PRODUCTS.map((p, i) => (
+        <div
+          key={i}
+          className="wpr__recent-img"
+          style={{
+            background: p.bg,
+            opacity: vis > i ? 1 : 0,
+            transform: vis > i ? 'scale(1)' : 'scale(0.75)',
+            transition: 'opacity 0.25s ease, transform 0.32s cubic-bezier(0.34,1.56,0.64,1)',
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
+export function PreviewVideoPreview() {
+  const { ref, active } = useVisible<HTMLDivElement>()
+  // 0=right-idle, 1=right-grab, 2=left-grab, 3=left-idle, 4=left-grab, 5=right-grab
+  const [phase, setPhase] = useState(0)
+
+  const DELAYS = [1400, 220, 650, 1400, 220, 650]
+
+  useEffect(() => {
+    if (!active) return
+    const t = setTimeout(() => setPhase(p => (p + 1) % 6), DELAYS[phase])
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, active])
+
+  const onLeft  = phase >= 2 && phase <= 4
+  const grabbed = phase === 1 || phase === 2 || phase === 4 || phase === 5
+
+  return (
+    <div className={`wpr__vscene${active ? ' wpr__vscene--visible' : ''}`} ref={ref}>
+      <div className="wpr__vscene-page">
+        <div className="wpr__vscene-line" />
+        <div className="wpr__vscene-line wpr__vscene-line--s" />
+        <div className="wpr__vscene-line" />
+      </div>
+      <div className={`wpr__vbubble${onLeft ? ' wpr__vbubble--left' : ''}${grabbed ? ' wpr__vbubble--grab' : ''}`}>
+        <div className="wpr__vbubble-fill" />
+        {!grabbed && <span className="wpr__vbubble-label">▶</span>}
+      </div>
+    </div>
+  )
+}
+
+const MESSENGERS = [
+  { label: 'WhatsApp', color: '#25D366', bg: '#0a2d15', icon: <MessageCircle size={16} strokeWidth={2} /> },
+  { label: 'Telegram', color: '#2AABEE', bg: '#091a2e', icon: <Send size={16} strokeWidth={2} /> },
+  { label: 'Дзвінок',  color: '#9ca3af', bg: '#1c1c1c', icon: <Phone size={16} strokeWidth={2} /> },
+]
+
+export function PreviewFloatingMessengers() {
+  const { ref, active } = useVisible<HTMLDivElement>()
+  const [vis, setVis] = useState(0)
+
+  useEffect(() => {
+    if (!active) return
+    if (vis >= MESSENGERS.length) {
+      const t = setTimeout(() => setVis(0), 2500)
+      return () => clearTimeout(t)
+    }
+    const t = setTimeout(() => setVis(v => v + 1), 200)
+    return () => clearTimeout(t)
+  }, [vis, active])
+
+  return (
+    <div ref={ref} style={{ display: 'flex', gap: 20, alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+      {MESSENGERS.map((m, i) => (
+        <div key={i} style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5,
+          opacity: vis > i ? 1 : 0,
+          transform: vis > i ? 'scale(1) translateY(0)' : 'scale(0.65) translateY(8px)',
+          transition: 'opacity 0.3s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1)',
+        }}>
+          <div className="wpr__messenger-ico" style={{ background: m.bg, color: m.color }}>{m.icon}</div>
+          <span style={{ fontSize: 10, color: '#888' }}>{m.label}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+const CREC_PRODUCTS = [
+  { bg: 'linear-gradient(135deg,#f0c8dc,#e8a8c8)', name: 'Сумка шкіряна',    price: '1 890 грн' },
+  { bg: 'linear-gradient(135deg,#c8daf0,#a8c4e8)', name: 'Ремінь чоловічий', price: '890 грн'   },
+  { bg: 'linear-gradient(135deg,#f0e8c0,#e8d898)', name: 'Гаманець',         price: '540 грн'   },
+]
+
+export function PreviewCartRecommender() {
+  const { ref, active } = useVisible<HTMLDivElement>()
+  const [idx, setIdx] = useState(0)
+  const [show, setShow] = useState(true)
+
+  useEffect(() => {
+    if (!active) return
+    const t = setInterval(() => {
+      setShow(false)
+      setTimeout(() => { setIdx(i => (i + 1) % CREC_PRODUCTS.length); setShow(true) }, 320)
+    }, 2000)
+    return () => clearInterval(t)
+  }, [active])
+
+  const p = CREC_PRODUCTS[idx]
+  return (
+    <div ref={ref} className={`wpr__popup${show && active ? ' wpr__popup--visible' : ''}`}>
+      <div className="wpr__icon" style={{ background: p.bg, borderRadius: 10 }} />
+      <div className="wpr__text">
+        <p><strong>{p.name}</strong></p>
+        <span className="wpr__sub">{p.price}</span>
+      </div>
+      <span style={{ fontSize: 20, color: '#C77A5C', fontWeight: 700, flexShrink: 0 }}>+</span>
+    </div>
+  )
+}
+
+const OTP_DIGITS = ['3', '7', '2', '9']
+
+export function PreviewSmsOtp() {
+  const { ref, active } = useVisible<HTMLDivElement>()
+  const [filled, setFilled] = useState(0)
+  const [verified, setVerified] = useState(false)
+
+  useEffect(() => {
+    if (!active) return
+    if (verified) {
+      const t = setTimeout(() => { setFilled(0); setVerified(false) }, 2200)
+      return () => clearTimeout(t)
+    }
+    if (filled >= OTP_DIGITS.length) {
+      const t = setTimeout(() => setVerified(true), 500)
+      return () => clearTimeout(t)
+    }
+    const t = setTimeout(() => setFilled(f => f + 1), 480)
+    return () => clearTimeout(t)
+  }, [filled, verified, active])
+
+  return (
+    <div ref={ref} style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+      {OTP_DIGITS.map((d, i) => (
+        <div
+          key={i}
+          className={`wpr__otp-box${filled > i ? ' wpr__otp-box--filled' : ''}${verified ? ' wpr__otp-box--ok' : ''}`}
+        >
+          {filled > i ? d : ''}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 // ─── Map: widget id → preview component ──────────────────────────────────────
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const PREVIEW_MAP: Record<string, React.FC> = {
-  'photo-reviews':        PreviewPhotoReviews,
-  'live-viewers':         PreviewViewers,
-  'purchase-counter':     PreviewPurchaseCounter,
-  'free-delivery':        PreviewCartGoal,
-  'delivery-date':        PreviewDelivery,
-  'cashback':             PreviewCashback,
-  'marquee':              PreviewMarquee,
-  'stock-counter':        PreviewStock,
-  'recent-purchase':      PreviewRecentPurchase,
-  'countdown':            PreviewCountdown,
-  'bonus':                PreviewBonus,
-  'one-plus-one':         PreviewOnePlusOne,
-  'progressive-discount': PreviewProgressiveDiscount,
-  'spin-wheel':           PreviewSpinWheel,
-  'quiz':                 PreviewQuiz,
-  'snow':                 PreviewSnow,
+  'marquee':               PreviewMarquee,
+  'delivery-date':         PreviewDelivery,
+  'cart-goal':             PreviewCartGoal,
+  'social-proof':          PreviewPurchaseCounter,
+  'stock-left':            PreviewStock,
+  'photo-reviews':         PreviewPhotoReviews,
+  'one-plus-one':          PreviewOnePlusOne,
+  'progressive-discount':  PreviewProgressiveDiscount,
+  'spin-the-wheel':        PreviewSpinWheel,
+  'exit-intent-popup':     PreviewRecentPurchase,
+  'prize-banner':          PreviewBonus,
+  'promo-auto-apply':      PreviewCashback,
+  'sticky-buy-button':     PreviewStickyBuyButton,
+  'trust-badges':          PreviewTrustBadges,
+  'phone-mask':            PreviewPhoneMask,
+  'min-order':             PreviewMinOrder,
+  'recently-viewed':       PreviewRecentlyViewed,
+  'product-video-preview': PreviewVideoPreview,
+  'floating-messengers':   PreviewFloatingMessengers,
+  'cart-recommender':      PreviewCartRecommender,
+  'sms-otp-checkout':      PreviewSmsOtp,
 }

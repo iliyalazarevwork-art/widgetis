@@ -22,6 +22,7 @@ import {
   widgets,
   packages,
   tagLabels,
+  RELATED_WIDGETS_MAP,
   type Tag,
 } from '../data/widgets'
 import { cases } from '../data/cases'
@@ -77,16 +78,15 @@ const BENEFIT_ICONS = [Zap, ShieldCheck, HeartHandshake]
 const WIDGET_CASE_MAP: Record<string, string[]> = {
   marquee: ['ptashkin', 'beni-home', 'ballistic'],
   'delivery-date': ['ptashkin', 'brewco'],
-  'free-delivery': ['ptashkin', 'homedetail'],
-  'live-viewers': ['beni-home'],
-  countdown: ['ballistic'],
-  'purchase-counter': ['kyivfit'],
+  'cart-goal': ['ptashkin', 'homedetail'],
+  'social-proof': ['kyivfit'],
+  'stock-left': ['ballistic'],
   'photo-reviews': ['kyivfit'],
-  'spin-wheel': ['kyivfit'],
-  'recent-purchase': ['homedetail'],
+  'spin-the-wheel': ['kyivfit'],
+  'exit-intent-popup': ['homedetail'],
   'progressive-discount': ['homedetail'],
-  quiz: ['brewco'],
-  cashback: ['brewco'],
+  'one-plus-one': ['beni-home'],
+  'promo-auto-apply': ['brewco'],
 }
 
 export function WidgetDetailPage() {
@@ -96,9 +96,10 @@ export function WidgetDetailPage() {
 
   const relatedWidgets = useMemo(() => {
     if (!widget) return []
-    return widgets
-      .filter((w) => w.id !== widget.id && w.tag === widget.tag)
-      .slice(0, 3)
+    const ids = RELATED_WIDGETS_MAP[widget.id] ?? []
+    return ids
+      .map((id) => widgets.find((w) => w.id === id))
+      .filter((w): w is (typeof widgets)[number] => Boolean(w))
   }, [widget])
 
   const usedInCases = useMemo(() => {

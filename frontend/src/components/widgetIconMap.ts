@@ -2,7 +2,6 @@ import {
   Megaphone,
   Package,
   ShoppingCart,
-  Snowflake,
   Truck,
   Eye,
   Coins,
@@ -15,6 +14,13 @@ import {
   Puzzle,
   BarChart3,
   Wrench,
+  MessageCircle,
+  Phone,
+  Video,
+  Smartphone,
+  Shield,
+  Layers,
+  Target,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -22,7 +28,6 @@ export const WIDGET_ICON_MAP: Record<string, LucideIcon> = {
   megaphone: Megaphone,
   package: Package,
   cart: ShoppingCart,
-  snowflake: Snowflake,
   truck: Truck,
   eye: Eye,
   coins: Coins,
@@ -34,5 +39,12 @@ export const WIDGET_ICON_MAP: Record<string, LucideIcon> = {
   wheel: Disc3,
   puzzle: Puzzle,
   'bar-chart': BarChart3,
+  'message-circle': MessageCircle,
+  phone: Phone,
+  video: Video,
+  smartphone: Smartphone,
+  shield: Shield,
+  layers: Layers,
+  target: Target,
   wrench: Wrench,
 }
