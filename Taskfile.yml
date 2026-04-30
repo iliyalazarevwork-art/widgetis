@@ -241,6 +241,21 @@ tasks:
       - '{{.DC}} run --rm --no-deps catalog-crawler python fetch_platform_ids.py --domain benihome.com.ua --xlsx /data/full.xlsx --limit 5 --dry-run'
 
   # ── Demo Bundle ────────────────────────────────────────
+  demo:theme:
+    desc: |
+      Применить цветовую тему к demo-config.json, затем пересобрать: task build:demo
+
+      Использование:
+        task demo:theme              — применить активную тему из demo-themes.json
+        task demo:theme THEME=mist  — нейтральный серо-синий (подходит любому магазину)
+        task demo:theme THEME=rosé  — пыльная роза (косметика, мода, украшения)
+        task demo:theme THEME=sage  — шалфей (эко, еда, натуральные товары)
+
+      Редактировать палитры: widget-builder/demo-themes.json
+    cmds:
+      - |
+        cd widget-builder && node_modules/.bin/jiti apply-theme.ts {{if .THEME}}--theme {{.THEME}}{{end}}
+
   build:demo:
     desc: "Собрать обфусцированный demo-bundle.js из widget-builder/demo-config.json  ·  task build:demo"
     cmds:

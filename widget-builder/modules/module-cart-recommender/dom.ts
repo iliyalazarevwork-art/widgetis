@@ -34,7 +34,7 @@ const STYLES = `.wgts-popup-overlay{position:fixed;inset:0;background:rgba(0,0,0
 .wgts-popup__close{width:32px;height:32px;border-radius:999px;border:1.5px solid #d8c9b4;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:#3E2A1F;flex-shrink:0;line-height:1;font-weight:400;transition:background 150ms ease}
 .wgts-popup__list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
 .wgts-popup__row{display:flex;align-items:center;gap:12px}
-.wgts-popup__img{width:56px;height:56px;border-radius:12px;object-fit:contain;box-sizing:border-box;padding:9px;flex-shrink:0;background:radial-gradient(circle at 28% 24%,#fff7d6 0,#fff7d6 24%,transparent 25%),linear-gradient(135deg,#FCE7F3 0%,#E0F2FE 52%,#DCFCE7 100%);border:1px solid rgba(199,122,92,.22);box-shadow:0 8px 18px rgba(62,42,31,.12)}
+.wgts-popup__img{width:56px;height:56px;border-radius:12px;object-fit:cover;box-sizing:border-box;flex-shrink:0;border:1px solid rgba(199,122,92,.22);box-shadow:0 8px 18px rgba(62,42,31,.12)}
 .wgts-popup__body{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
 .wgts-popup__name{font-size:13px;line-height:1.3;color:#3E2A1F;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .wgts-popup__price{font-size:12px;color:#7A5C4D}

@@ -1,10 +1,54 @@
 import { useEffect, useState } from 'react'
 import { SeoHead } from '../components/SeoHead'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, ExternalLink, Star, TrendingUp } from 'lucide-react'
+import {
+  ArrowLeft,
+  BarChart3,
+  Bell,
+  Camera,
+  Coins,
+  Disc3,
+  ExternalLink,
+  Eye,
+  Gift,
+  Hourglass,
+  Megaphone,
+  Package,
+  Puzzle,
+  ShoppingCart,
+  Star,
+  TrendingUp,
+  Truck,
+  type LucideIcon,
+} from 'lucide-react'
 import { BRAND_NAME_UPPER } from '../constants/brand'
 import { get } from '../api/client'
+import { PLAN_ICONS, PLAN_COLORS, type PlanSlug } from '../data/plans'
 import './CasesPage.css'
+
+const WIDGET_TAG_ICONS: Record<string, { icon: LucideIcon; color: string }> = {
+  'Бігуча стрічка': { icon: Megaphone, color: '#7C3AED' },
+  'Дата доставки': { icon: Package, color: '#059669' },
+  'Ціль кошика': { icon: ShoppingCart, color: '#EA580C' },
+  "Відео-прев'ю": { icon: Camera, color: '#6366F1' },
+  'Хто зараз дивиться': { icon: Eye, color: '#EC4899' },
+  'Таймер': { icon: Hourglass, color: '#8B5CF6' },
+  'Дефіцит товару': { icon: Bell, color: '#14B8A6' },
+  'Лічильник покупок': { icon: ShoppingCart, color: '#EA580C' },
+  'Фотовідгуки': { icon: Camera, color: '#6366F1' },
+  'Колесо фортуни': { icon: Disc3, color: '#F97316' },
+  'Безкоштовна доставка': { icon: Truck, color: '#16A34A' },
+  'Хтось щойно купив': { icon: Bell, color: '#14B8A6' },
+  'Прогресивна знижка': { icon: BarChart3, color: '#22C55E' },
+  'Квіз-рекомендатор': { icon: Puzzle, color: '#3B82F6' },
+  'Кешбек': { icon: Coins, color: '#F59E0B' },
+  'Акція 1+1=3': { icon: Gift, color: '#F43F5E' },
+}
+
+interface CaseWidget {
+  name: string
+  slug: string | null
+}
 
 interface ApiCase {
   id: number
@@ -18,7 +62,8 @@ interface ApiCase {
   result_metric: string | null
   result_period: string | null
   color: string | null
-  widgets: string[]
+  plan: string | null
+  widgets: CaseWidget[]
 }
 
 interface CasesResponse {
@@ -84,11 +129,8 @@ export function CasesPage() {
               <div key={i} className="case-card case-card--skeleton" aria-hidden="true" />
             ))}
             {!loading && cases.map((c, i) => (
-              <a
+              <div
                 key={c.id}
-                href={isSafeUrl(c.store_url) ? c.store_url : '#'}
-                target="_blank"
-                rel="noopener noreferrer"
                 className="case-card"
                 style={
                   {
@@ -135,8 +177,21 @@ export function CasesPage() {
                     </div>
                   )}
 
-                  {c.review_text && (
-                    <blockquote className="case-card__review">
+                  {c.plan && PLAN_ICONS[c.plan as PlanSlug] && (() => {
+                    const PlanIcon = PLAN_ICONS[c.plan as PlanSlug]
+                    const planColor = PLAN_COLORS[c.plan as PlanSlug]
+                    const planName = c.plan.charAt(0).toUpperCase() + c.plan.slice(1)
+                    return (
+                      <div className="case-card__plan" style={{ '--plan-color': planColor } as React.CSSProperties}>
+                        <PlanIcon size={11} strokeWidth={2.25} />
+                        <span>{planName}</span>
+                        <span className="case-card__plan-widgets">{c.widgets.length} з {c.plan === 'basic' ? 4 : c.plan === 'pro' ? 8 : 17} віджетів</span>
+                      </div>
+                    )
+                  })()}
+
+                  {c.review_rating && (
+                    <div className="case-card__rating">
                       <div className="case-card__stars" aria-label={`${c.review_rating} з 5`}>
                         {Array.from({ length: 5 }).map((_, j) => (
                           <Star
@@ -147,26 +202,56 @@ export function CasesPage() {
                           />
                         ))}
                       </div>
-                      <p className="case-card__review-text">«{c.review_text}»</p>
-                    </blockquote>
+                      <span className="case-card__rating-value">{Number(c.review_rating).toFixed(1)}</span>
+                    </div>
                   )}
 
                   {c.widgets.length > 0 && (
                     <div className="case-card__widgets">
-                      {c.widgets.map((w) => (
-                        <span key={w} className="case-card__widget-tag">
-                          {w}
-                        </span>
-                      ))}
+                      {c.widgets.map((w) => {
+                        const entry = WIDGET_TAG_ICONS[w.name]
+                        const IconComp = entry?.icon
+                        const inner = (
+                          <>
+                            {IconComp && (
+                              <IconComp
+                                size={10}
+                                strokeWidth={2}
+                                color={entry.color}
+                                className="case-card__widget-tag-icon"
+                              />
+                            )}
+                            {w.name}
+                          </>
+                        )
+                        return w.slug ? (
+                          <Link
+                            key={w.name}
+                            to={`/widgets/${w.slug}`}
+                            className="case-card__widget-tag case-card__widget-tag--link"
+                          >
+                            {inner}
+                          </Link>
+                        ) : (
+                          <span key={w.name} className="case-card__widget-tag">
+                            {inner}
+                          </span>
+                        )
+                      })}
                     </div>
                   )}
 
-                  <div className="case-card__link">
+                  <a
+                    href={isSafeUrl(c.store_url) ? c.store_url : '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="case-card__link"
+                  >
                     <span>Перейти на сайт</span>
                     <ExternalLink size={14} strokeWidth={2.25} />
-                  </div>
+                  </a>
                 </div>
-              </a>
+              </div>
             ))}
           </div>
 

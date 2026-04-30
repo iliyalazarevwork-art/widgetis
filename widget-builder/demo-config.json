@@ -47,15 +47,17 @@
         "enabled": true,
         "apiBaseUrl": "https://api.widgetis.com/api/v1",
         "siteKey": "demo",
-        "triggerSources": ["all"],
+        "triggerSources": [
+          "all"
+        ],
         "phoneInputSelector": "input[name*=\"phone\"], .j-phone-masked, input[type=\"tel\"]",
         "submitButtonSelector": ".checkout-form__submit, [type=\"submit\"], .j-checkout-submit",
         "codeLength": 6,
         "resendCooldownSec": 60,
         "codeTtlSec": 300,
         "colors": {
-          "gradientStart": "#3B82F6",
-          "gradientEnd": "#A855F7"
+          "gradientStart": "#f9a8d4",
+          "gradientEnd": "#be7094"
         }
       },
       "i18n": {
@@ -104,12 +106,30 @@
       "config": {
         "enabled": true,
         "selectors": [
-          { "selector": ".product__section--price", "insert": "after" },
-          { "selector": ".product-card__price-box", "insert": "after" },
-          { "selector": ".product-price", "insert": "after" },
-          { "selector": ".cart-buttons--full", "insert": "after" },
-          { "selector": ".cart-buttons", "insert": "after" },
-          { "selector": ".j-product-block", "insert": "after" }
+          {
+            "selector": ".product__section--price",
+            "insert": "after"
+          },
+          {
+            "selector": ".product-card__price-box",
+            "insert": "after"
+          },
+          {
+            "selector": ".product-price",
+            "insert": "after"
+          },
+          {
+            "selector": ".cart-buttons--full",
+            "insert": "after"
+          },
+          {
+            "selector": ".cart-buttons",
+            "insert": "after"
+          },
+          {
+            "selector": ".j-product-block",
+            "insert": "after"
+          }
         ],
         "minCount": 3,
         "maxCount": 12,
@@ -118,14 +138,23 @@
         "updateInterval": 60,
         "showForOutOfStock": false,
         "pulse": true,
-        "backgroundColor": "#fef2f2",
-        "textColor": "#b91c1c",
-        "accentColor": "#dc2626"
+        "backgroundColor": "#fff1f5",
+        "textColor": "#9d174d",
+        "accentColor": "#f472b6"
       },
       "i18n": {
-        "ua": { "label": "Залишилось", "unit": "шт" },
-        "ru": { "label": "Осталось", "unit": "шт" },
-        "en": { "label": "Only", "unit": "left" }
+        "ua": {
+          "label": "Залишилось",
+          "unit": "шт"
+        },
+        "ru": {
+          "label": "Осталось",
+          "unit": "шт"
+        },
+        "en": {
+          "label": "Only",
+          "unit": "left"
+        }
       }
     },
     "module-cart-recommender": {
@@ -136,9 +165,18 @@
         "maxItems": 4
       },
       "i18n": {
-        "ua": { "buttonAddToCart": "До кошика", "heading": "Часто беруть разом" },
-        "en": { "buttonAddToCart": "Add to cart", "heading": "Often bought together" },
-        "ru": { "buttonAddToCart": "В корзину", "heading": "Часто покупают вместе" }
+        "ua": {
+          "buttonAddToCart": "До кошика",
+          "heading": "Часто беруть разом"
+        },
+        "en": {
+          "buttonAddToCart": "Add to cart",
+          "heading": "Often bought together"
+        },
+        "ru": {
+          "buttonAddToCart": "В корзину",
+          "heading": "Часто покупают вместе"
+        }
       }
     },
     "module-exit-intent-popup": {
@@ -149,10 +187,10 @@
         "promoCode": "WELCOME10",
         "collectEmail": true,
         "backgroundColor": "#ffffff",
-        "textColor": "#111827",
-        "accentColor": "#111827",
+        "textColor": "#4b2535",
+        "accentColor": "#be7094",
         "accentTextColor": "#ffffff",
-        "borderColor": "#e5e7eb",
+        "borderColor": "#fce7f3",
         "borderRadius": 16,
         "zIndex": 99999,
         "imageUrl": "",
@@ -201,22 +239,42 @@
       "config": {
         "enabled": true,
         "selectors": [
-          { "selector": ".j-buy-button-add", "insert": "after" },
-          { "selector": ".cart-buttons--full", "insert": "after" },
-          { "selector": ".cart-buttons", "insert": "after" },
-          { "selector": ".product-card__price-box", "insert": "after" }
+          {
+            "selector": ".j-buy-button-add",
+            "insert": "after"
+          },
+          {
+            "selector": ".cart-buttons--full",
+            "insert": "after"
+          },
+          {
+            "selector": ".cart-buttons",
+            "insert": "after"
+          },
+          {
+            "selector": ".product-card__price-box",
+            "insert": "after"
+          }
         ],
         "badges": [
-          { "icon": "shield" },
-          { "icon": "truck" },
-          { "icon": "return" },
-          { "icon": "card" }
+          {
+            "icon": "shield"
+          },
+          {
+            "icon": "truck"
+          },
+          {
+            "icon": "return"
+          },
+          {
+            "icon": "card"
+          }
         ],
         "layout": "grid",
         "backgroundColor": "transparent",
-        "textColor": "#374151",
-        "iconColor": "#111827",
-        "borderColor": "#e5e7eb",
+        "textColor": "#4b2535",
+        "iconColor": "#be7094",
+        "borderColor": "#fce7f3",
         "borderRadius": 12,
         "showBorder": true
       },
@@ -273,16 +331,28 @@
         "bottomOffsetMobile": 80,
         "sideOffset": 20,
         "channels": [
-          { "type": "telegram", "value": "widgetis" },
-          { "type": "whatsapp", "value": "+380501234567" },
-          { "type": "viber", "value": "+380501234567" },
-          { "type": "phone", "value": "+380501234567" }
+          {
+            "type": "telegram",
+            "value": "widgetis"
+          },
+          {
+            "type": "whatsapp",
+            "value": "+380501234567"
+          },
+          {
+            "type": "viber",
+            "value": "+380501234567"
+          },
+          {
+            "type": "phone",
+            "value": "+380501234567"
+          }
         ],
-        "bubbleColor": "#111827",
+        "bubbleColor": "#be7094",
         "bubbleIconColor": "#ffffff",
         "expandedBackground": "#ffffff",
-        "expandedTextColor": "#111827",
-        "borderColor": "#e5e7eb",
+        "expandedTextColor": "#4b2535",
+        "borderColor": "#fce7f3",
         "borderRadius": 16,
         "zIndex": 9000,
         "showLabels": true,
@@ -290,18 +360,36 @@
         "pulseAnimation": true
       },
       "i18n": {
-        "ua": { "greeting": "Зв'яжіться з нами", "closeLabel": "Закрити" },
-        "ru": { "greeting": "Свяжитесь с нами", "closeLabel": "Закрыть" },
-        "en": { "greeting": "Contact us", "closeLabel": "Close" }
+        "ua": {
+          "greeting": "Зв'яжіться з нами",
+          "closeLabel": "Закрити"
+        },
+        "ru": {
+          "greeting": "Свяжитесь с нами",
+          "closeLabel": "Закрыть"
+        },
+        "en": {
+          "greeting": "Contact us",
+          "closeLabel": "Close"
+        }
       }
     },
     "module-recently-viewed": {
       "config": {
         "enabled": true,
         "selectors": [
-          { "selector": ".j-product-block", "insert": "after" },
-          { "selector": "#cart .cart__summary", "insert": "after" },
-          { "selector": "main", "insert": "after" }
+          {
+            "selector": ".j-product-block",
+            "insert": "after"
+          },
+          {
+            "selector": "#cart .cart__summary",
+            "insert": "after"
+          },
+          {
+            "selector": "main",
+            "insert": "after"
+          }
         ],
         "minItems": 3,
         "maxItems": 12,
@@ -309,19 +397,25 @@
         "cardWidthDesktop": 200,
         "cardWidthMobile": 150,
         "backgroundColor": "transparent",
-        "textColor": "#111827",
-        "priceColor": "#111827",
-        "mutedColor": "#6b7280",
-        "borderColor": "#e5e7eb",
+        "textColor": "#4b2535",
+        "priceColor": "#be7094",
+        "mutedColor": "#9ca3af",
+        "borderColor": "#fce7f3",
         "borderRadius": 12,
         "showOnProductPage": true,
         "showOnCartPage": true,
         "showOnAnyPage": true
       },
       "i18n": {
-        "ua": { "heading": "Ви нещодавно дивились" },
-        "ru": { "heading": "Вы недавно смотрели" },
-        "en": { "heading": "Recently viewed" }
+        "ua": {
+          "heading": "Ви нещодавно дивились"
+        },
+        "ru": {
+          "heading": "Вы недавно смотрели"
+        },
+        "en": {
+          "heading": "Recently viewed"
+        }
       }
     },
     "module-spin-the-wheel": {
@@ -334,20 +428,58 @@
         "requireEmail": true,
         "requireConsent": true,
         "segments": [
-          { "label": "10% знижка", "code": "SPIN10", "weight": 4, "iconType": "percent" },
-          { "label": "Безкошт. доставка", "code": "FREESHIP", "weight": 3, "iconType": "truck" },
-          { "label": "5% знижка", "code": "SPIN5", "weight": 5, "iconType": "percent" },
-          { "label": "Спробуйте ще", "code": "", "weight": 2, "iconType": "try-again" },
-          { "label": "15% знижка", "code": "SPIN15", "weight": 1, "iconType": "fire" },
-          { "label": "Подарунок", "code": "GIFT", "weight": 1, "iconType": "gift" }
+          {
+            "label": "10% знижка",
+            "code": "SPIN10",
+            "weight": 4,
+            "iconType": "percent"
+          },
+          {
+            "label": "Безкошт. доставка",
+            "code": "FREESHIP",
+            "weight": 3,
+            "iconType": "truck"
+          },
+          {
+            "label": "5% знижка",
+            "code": "SPIN5",
+            "weight": 5,
+            "iconType": "percent"
+          },
+          {
+            "label": "Спробуйте ще",
+            "code": "",
+            "weight": 2,
+            "iconType": "try-again"
+          },
+          {
+            "label": "15% знижка",
+            "code": "SPIN15",
+            "weight": 1,
+            "iconType": "fire"
+          },
+          {
+            "label": "Подарунок",
+            "code": "GIFT",
+            "weight": 1,
+            "iconType": "gift"
+          }
         ],
-        "palette": ["#ef4444", "#f59e0b", "#fbbf24", "#10b981", "#3b82f6", "#8b5cf6"],
+        "palette": [
+          "#ef4444",
+          "#f59e0b",
+          "#fbbf24",
+          "#10b981",
+          "#3b82f6",
+          "#8b5cf6"
+        ],
         "wheelTextColor": "#ffffff",
+        "decorativeColor": "#ef4444",
         "backgroundColor": "#ffffff",
-        "textColor": "#111827",
-        "accentColor": "#111827",
+        "textColor": "#4b2535",
+        "accentColor": "#be7094",
         "accentTextColor": "#ffffff",
-        "borderColor": "#e5e7eb",
+        "borderColor": "#fce7f3",
         "borderRadius": 16,
         "zIndex": 9999999,
         "hideOnUtmSources": []
@@ -416,10 +548,10 @@
         "storageKey": "wty_active_prize",
         "hideOnCheckout": false,
         "zIndex": 8800,
-        "backgroundColor": "#f0fdf4",
-        "textColor": "#064e3b",
-        "accentColor": "#10b981",
-        "borderColor": "#a7f3d0",
+        "backgroundColor": "#fdf2f8",
+        "textColor": "#9d174d",
+        "accentColor": "#be7094",
+        "borderColor": "#fbcfe8",
         "borderRadius": 12
       },
       "i18n": {
@@ -453,12 +585,12 @@
         "ttlHours": 24,
         "colors": {
           "desktop": {
-            "backgroundColor": "#1e1b4b",
-            "textColor": "#e0e7ff"
+            "backgroundColor": "#4b2535",
+            "textColor": "#fce7f3"
           },
           "mobile": {
-            "backgroundColor": "#1e1b4b",
-            "textColor": "#e0e7ff"
+            "backgroundColor": "#4b2535",
+            "textColor": "#fce7f3"
           }
         }
       },
@@ -487,9 +619,103 @@
         "apiUrl": "https://api.widgetis.com"
       },
       "i18n": {
-        "ua": { "badge": "1+1=3", "tooltip": "Найдешевший товар у кошику — за 1 грн!" },
-        "ru": { "badge": "1+1=3", "tooltip": "Самый дешёвый товар в корзине — за 1 грн!" },
-        "en": { "badge": "1+1=3", "tooltip": "The cheapest item in your cart — for 1 UAH!" }
+        "ua": {
+          "badge": "1+1=3",
+          "tooltip": "Найдешевший товар у кошику — за 1 грн!"
+        },
+        "ru": {
+          "badge": "1+1=3",
+          "tooltip": "Самый дешёвый товар в корзине — за 1 грн!"
+        },
+        "en": {
+          "badge": "1+1=3",
+          "tooltip": "The cheapest item in your cart — for 1 UAH!"
+        }
+      }
+    },
+    "module-cart-goal": {
+      "config": {
+        "enabled": true,
+        "threshold": 1000,
+        "minimum": 0,
+        "floatingWidget": true,
+        "background": "#2d1a25",
+        "achievedBackground": "#14532d",
+        "textColor": "#f8fafc",
+        "positionDesktop": {
+          "right": 16,
+          "bottom": 25
+        },
+        "positionMobile": {
+          "left": 16,
+          "bottom": 25
+        },
+        "shakeInterval": 3000,
+        "zIndex": 999
+      },
+      "i18n": {
+        "ua": {
+          "text": "До безкоштовної доставки залишилось",
+          "achieved": "🎉 Вітаємо! Ви отримали безкоштовну доставку!"
+        },
+        "ru": {
+          "text": "До бесплатной доставки осталось",
+          "achieved": "🎉 Поздравляем! Вы получили бесплатную доставку!"
+        },
+        "en": {
+          "text": "Until free shipping",
+          "achieved": "🎉 Congrats! You got free shipping!"
+        }
+      }
+    },
+    "module-progressive-discount": {
+      "config": {
+        "enabled": true,
+        "tiers": [
+          {
+            "minItems": 2,
+            "percent": 5,
+            "coupon": "CASH5"
+          },
+          {
+            "minItems": 3,
+            "percent": 10,
+            "coupon": "CASH10"
+          },
+          {
+            "minItems": 5,
+            "percent": 20,
+            "coupon": "CASH20"
+          }
+        ],
+        "background": "#2d1a25",
+        "achievedBackground": "#14532d",
+        "textColor": "#f8fafc",
+        "accentColor": "#f9a8d4",
+        "zIndex": 50
+      },
+      "i18n": {
+        "ua": {
+          "intro": "Прогресивна знижка",
+          "currentLevel": "Ваша знижка {percent}%",
+          "nextHint": "Додайте ще {remaining} {items} — отримаєте {percent}%",
+          "topReached": "🎉 Максимальна знижка {percent}% активована!",
+          "itemsWord": "товар|товари|товарів"
+        },
+        "ru": {
+          "intro": "Прогрессивная скидка",
+          "currentLevel": "Ваша скидка {percent}%",
+          "nextHint": "Добавьте ещё {remaining} {items} — получите {percent}%",
+          "topReached": "🎉 Максимальная скидка {percent}% активирована!",
+          "itemsWord": "товар|товара|товаров"
+        },
+        "en": {
+          "intro": "Progressive discount",
+          "currentLevel": "Your discount {percent}%",
+          "nextHint": "Add {remaining} more {items} — get {percent}%",
+          "topReached": "🎉 Maximum discount {percent}% activated!",
+          "itemsWord": "item|items|items"
+        }
       }
     },
     "module-phone-mask": {

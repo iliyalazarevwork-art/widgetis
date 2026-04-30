@@ -923,7 +923,7 @@
 /* ── Responsive ── */
 @media (max-width: 960px) {
   .widget-page__hero-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 32px;
   }
   .widget-page__buy {

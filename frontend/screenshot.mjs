@@ -45,6 +45,7 @@ const { values, positionals } = parseArgs({
     "full-page":    { type: "boolean", short: "f", default: false },
     delay:          { type: "string",  default: "0" },
     "wait-for":     { type: "string" },
+    "click":        { type: "string" },
     "wait-until":   { type: "string",  default: "networkidle" },
     timeout:        { type: "string",  default: "30000" },
   },
@@ -139,6 +140,17 @@ if (waitFor) {
 if (delay > 0) {
   console.log(`  Waiting ${delay}ms...`);
   await new Promise((r) => setTimeout(r, delay));
+}
+
+const clickSelector = values["click"];
+if (clickSelector) {
+  console.log(`  Clicking: ${clickSelector}`);
+  try {
+    await page.click(clickSelector, { timeout: 5000 });
+    await new Promise((r) => setTimeout(r, 300));
+  } catch {
+    console.log(`  (selector not found, skipping click)`);
+  }
 }
 
 await page.screenshot({ path: output, fullPage });

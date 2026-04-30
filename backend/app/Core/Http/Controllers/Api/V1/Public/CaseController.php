@@ -22,13 +22,17 @@ class CaseController extends CoreBaseController
                 'store_logo_url' => $c->store_logo_url,
                 'owner' => $c->owner,
                 'platform' => $c->platform,
+                'plan' => $c->plan,
                 'description' => $c->translated('description'),
                 'review_text' => $c->review_text,
                 'review_rating' => $c->review_rating,
                 'result_metric' => $c->result_metric,
                 'result_period' => $c->result_period,
                 'color' => $c->color,
-                'widgets' => $c->widgets ?? [],
+                'widgets' => array_map(
+                    static fn (array $w) => ['name' => $w['name'], 'slug' => $w['slug'] ?? null],
+                    $c->widgets ?? []
+                ),
             ]);
 
         return $this->success(['data' => $cases]);

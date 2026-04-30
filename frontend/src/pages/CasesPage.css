@@ -320,12 +320,28 @@
   font-weight: 500;
 }
 
-/* Review */
-.case-card__review {
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
+/* Plan badge */
+.case-card__plan {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--plan-color);
+}
+
+.case-card__plan-widgets {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--text-ghost);
+  padding-left: 4px;
+  border-left: 1px solid var(--border-subtle);
+}
+
+/* Rating */
+.case-card__rating {
+  display: inline-flex;
+  align-items: center;
   gap: 6px;
 }
 
@@ -335,15 +351,11 @@
   color: #f5b400;
 }
 
-.case-card__review-text {
-  font-size: 12.5px;
-  line-height: 1.55;
-  color: var(--text-secondary);
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+.case-card__rating-value {
+  font-size: 11px;
+  font-weight: 700;
+  color: #f5b400;
+  letter-spacing: 0.01em;
 }
 
 /* Widgets list */
@@ -354,14 +366,33 @@
 }
 
 .case-card__widget-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 10.5px;
   font-weight: 600;
-  padding: 3px 9px;
+  padding: 3px 9px 3px 7px;
   border-radius: 999px;
   background: var(--bg-surface);
   color: var(--text-secondary);
   border: 1px solid var(--border-subtle);
   white-space: nowrap;
+  text-decoration: none;
+}
+
+.case-card__widget-tag--link {
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, color 0.18s;
+}
+
+.case-card__widget-tag--link:hover {
+  background: color-mix(in srgb, var(--case-color) 12%, var(--bg-surface));
+  border-color: color-mix(in srgb, var(--case-color) 40%, transparent);
+  color: var(--case-color);
+}
+
+.case-card__widget-tag-icon {
+  flex-shrink: 0;
 }
 
 /* Link footer */
@@ -375,10 +406,11 @@
   font-size: 12px;
   font-weight: 700;
   color: var(--text-muted);
+  text-decoration: none;
   transition: color 0.2s, gap 0.2s;
 }
 
-.case-card:hover .case-card__link {
+.case-card__link:hover {
   color: var(--case-color);
   gap: 9px;
 }

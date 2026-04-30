@@ -8,6 +8,9 @@ use App\Shared\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property list<array{name: string, slug: string|null}> $widgets
+ */
 class CustomerCase extends Model
 {
     use HasTranslations;
@@ -20,7 +23,7 @@ class CustomerCase extends Model
 
     /** @var list<string> */
     protected $fillable = [
-        'store', 'store_url', 'store_logo_url', 'owner', 'platform',
+        'store', 'store_url', 'store_logo_url', 'owner', 'platform', 'plan',
         'description', 'review_text', 'review_rating', 'result_metric', 'result_period',
         'color', 'screenshot_urls', 'widgets', 'is_published', 'sort_order',
     ];

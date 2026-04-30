@@ -199,6 +199,8 @@
 /* ── Marquee ── */
 
 .wpr__marquee-wrap {
+  width: 100%;
+  min-width: 0;
   overflow: hidden;
   border-radius: 6px;
   background: var(--bg-surface);
