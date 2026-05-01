@@ -64,8 +64,10 @@ final class BillingOrchestrator
         // Local-only payment mock: never hit a real provider in dev. Activate
         // the subscription with a fake transaction id and redirect the
         // browser straight to the success page so the cabinet polling loop
-        // can see the active subscription on its first tick.
-        if (app()->environment('local')) {
+        // can see the active subscription on its first tick. Gated by an
+        // explicit config flag so prod/staging can never accidentally enable
+        // the mock by being misconfigured to look "local".
+        if ((bool) config('services.billing_mock.enabled', false)) {
             return $this->simulateLocalCheckout($order, $provider, $urls->returnUrl);
         }
 

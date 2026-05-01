@@ -18,6 +18,7 @@ use App\Core\Services\Billing\PaymentProviderRegistry;
 use App\Core\Services\Billing\Results\CancellationResult;
 use App\Core\Services\Billing\Results\ChargeResult;
 use App\Core\Services\Billing\Results\CheckoutSession;
+use App\Core\Services\Billing\SubscriptionActivationService;
 use App\Core\Services\Billing\SubscriptionService;
 use App\Enums\BillingPeriod;
 use App\Enums\PaymentProvider;
@@ -74,6 +75,49 @@ class BillingOrchestratorTest extends TestCase
         );
 
         $this->assertSame($expectedSession, $session);
+    }
+
+    public function test_local_mock_skips_adapter_and_returns_redirect_to_return_url(): void
+    {
+        $user = User::factory()->create();
+        $plan = Plan::factory()->pro()->create(['trial_days' => 7]);
+        $order = Order::factory()->for($user)->for($plan)->create([
+            'billing_period' => BillingPeriod::Monthly->value,
+            'payment_provider' => PaymentProvider::WayForPay,
+        ]);
+
+        $adapter = Mockery::mock(PaymentProviderInterface::class);
+        $adapter->shouldReceive('name')->andReturn(PaymentProvider::WayForPay);
+        $adapter->shouldNotReceive('startSubscription');
+
+        $registry = new PaymentProviderRegistry();
+        $registry->register($adapter);
+
+        $subscriptionService = Mockery::mock(SubscriptionService::class);
+        $activation = Mockery::mock(SubscriptionActivationService::class);
+        $activation->shouldReceive('isUpgradeOrder')->once()->with(Mockery::on(fn (Order $o) => $o->id === $order->id))->andReturnFalse();
+        $activation->shouldReceive('activateOrRenew')
+            ->once()
+            ->withArgs(fn (Order $o, string $tx) => $o->id === $order->id && str_starts_with($tx, 'LOCAL-MOCK-'))
+            ->andReturn(null);
+
+        $orchestrator = new BillingOrchestrator($registry, $subscriptionService, $activation);
+
+        config()->set('services.billing_mock.enabled', true);
+        config()->set('services.wayforpay.return_url', 'https://app.test/cabinet/plan?payment=processing');
+
+        $session = $orchestrator->startSubscriptionCheckout(
+            user: $user,
+            plan: $plan,
+            period: BillingPeriod::Monthly,
+            provider: PaymentProvider::WayForPay,
+            reference: $order->order_number,
+        );
+
+        $this->assertSame('GET', $session->method);
+        $this->assertSame('https://app.test/cabinet/plan?payment=processing', $session->url);
+        $this->assertSame($order->order_number, $session->providerReference);
+        $this->assertSame([], $session->formFields);
     }
 
     public function test_cancel_subscription_resolves_adapter_and_delegates_to_subscription_service(): void

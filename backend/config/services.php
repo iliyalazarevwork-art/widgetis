@@ -68,6 +68,23 @@ return [
     | merchant cabinet, otherwise checkout requests are rejected with a 1117
     | signature error even when the secret key is correct.
     */
+    /*
+    |--------------------------------------------------------------------------
+    | Local payment mock
+    |--------------------------------------------------------------------------
+    |
+    | When enabled, BillingOrchestrator skips the real provider HTTP call and
+    | activates the subscription with a fake transaction id, then redirects
+    | the browser straight to the cabinet success URL. Intended for local
+    | development only — MUST be off in staging and production so real
+    | WayForPay/Monobank webhooks remain the source of truth.
+    |
+    */
+
+    'billing_mock' => [
+        'enabled' => (bool) env('BILLING_MOCK_PAYMENTS', env('APP_ENV') === 'local'),
+    ],
+
     'wayforpay' => [
         'merchant_account'     => env('WAYFORPAY_MERCHANT_ACCOUNT', 'test_merch_n1'),
         'secret_key'           => env('WAYFORPAY_SECRET_KEY', 'flk3409refn54t54t*FNJRET'),

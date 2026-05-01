@@ -12,12 +12,6 @@ ARG VITE_API_BASE_URL=/api/v1
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ARG VITE_PREVIEW_BASE_URL=
 ENV VITE_PREVIEW_BASE_URL=$VITE_PREVIEW_BASE_URL
-ARG VITE_GA_MEASUREMENT_ID=
-ENV VITE_GA_MEASUREMENT_ID=$VITE_GA_MEASUREMENT_ID
-ARG VITE_META_PIXEL_ID=
-ENV VITE_META_PIXEL_ID=$VITE_META_PIXEL_ID
-ARG VITE_CLARITY_PROJECT_ID=
-ENV VITE_CLARITY_PROJECT_ID=$VITE_CLARITY_PROJECT_ID
 
 RUN npm run build
 
@@ -25,7 +19,10 @@ RUN npm run build
 FROM nginx:1.27-alpine
 
 COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=build /app/analytics.production.js /usr/share/nginx/html/analytics.js
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+RUN sed -i 's#</head>#<script defer src="/analytics.js"></script></head>#' /usr/share/nginx/html/index.html
 
 EXPOSE 80
 
