@@ -37,7 +37,7 @@ final class BillingOrchestrator
     public function __construct(
         private readonly PaymentProviderRegistry $registry,
         private readonly SubscriptionService $subscriptionService,
-        private readonly WayForPayWebhookService $wayForPayWebhookService,
+        private readonly SubscriptionActivationService $activation,
     ) {
     }
 
@@ -59,6 +59,16 @@ final class BillingOrchestrator
             ->where('user_id', $user->id)
             ->firstOrFail();
 
+        $urls = $this->buildCallbackUrls($provider, $redirectUrl);
+
+        // Local-only payment mock: never hit a real provider in dev. Activate
+        // the subscription with a fake transaction id and redirect the
+        // browser straight to the success page so the cabinet polling loop
+        // can see the active subscription on its first tick.
+        if (app()->environment('local')) {
+            return $this->simulateLocalCheckout($order, $provider, $urls->returnUrl);
+        }
+
         $adapter = $this->registry->get($provider);
 
         $planAmount = $period === BillingPeriod::Yearly
@@ -73,8 +83,6 @@ final class BillingOrchestrator
             suffix: $reference,
             locale: 'uk',
         );
-
-        $urls = $this->buildCallbackUrls($provider, $redirectUrl);
 
         $firstChargeAmount = $this->resolveFirstChargeAmount($provider, $planAmount);
 
@@ -101,11 +109,62 @@ final class BillingOrchestrator
             'method' => $session->method,
         ]);
 
-        if ($provider === PaymentProvider::WayForPay && app()->environment('local')) {
-            $this->wayForPayWebhookService->simulateSuccess($order);
+        return $session;
+    }
+
+    /**
+     * Local-environment payment mock. Activates the subscription against the
+     * order with a fake transaction id and returns a GET redirect to the
+     * success URL. Skips every real provider HTTP call so dev work doesn't
+     * depend on WayForPay/Monobank credentials being available.
+     */
+    private function simulateLocalCheckout(
+        Order $order,
+        PaymentProvider $provider,
+        string $returnUrl,
+    ): CheckoutSession {
+        $effectiveReturnUrl = $returnUrl !== ''
+            ? $returnUrl
+            : rtrim((string) config('app.url'), '/') . '/cabinet/plan?payment=processing';
+
+        $transactionId = 'LOCAL-MOCK-' . strtoupper(substr(md5($order->order_number), 0, 12));
+        $amountUah = (float) $order->amount;
+        $metadata = ['local_mock' => true, 'provider' => $provider->value];
+
+        if ($this->activation->isUpgradeOrder($order)) {
+            $this->activation->applyUpgrade(
+                order: $order,
+                transactionId: $transactionId,
+                amountUah: $amountUah,
+                provider: $provider,
+                paymentMethod: 'local-mock',
+                metadata: $metadata,
+                providerSubscriptionId: $transactionId,
+                description: ['en' => 'Local mock upgrade', 'uk' => 'Локальний мок апгрейду'],
+            );
+        } else {
+            $this->activation->activateOrRenew(
+                order: $order,
+                transactionId: $transactionId,
+                amountUah: $amountUah,
+                provider: $provider,
+                paymentMethod: 'local-mock',
+                metadata: $metadata,
+                providerSubscriptionId: $transactionId,
+                description: ['en' => 'Local mock charge', 'uk' => 'Локальний мок оплати'],
+            );
         }
 
-        return $session;
+        Log::channel('payments')->info('billing.checkout.local_mock', [
+            'order_reference' => $order->order_number,
+            'provider' => $provider->value,
+            'return_url' => $effectiveReturnUrl,
+        ]);
+
+        return CheckoutSession::redirect(
+            url: $effectiveReturnUrl,
+            providerReference: $order->order_number,
+        );
     }
 
     /**

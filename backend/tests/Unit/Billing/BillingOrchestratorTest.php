@@ -19,7 +19,6 @@ use App\Core\Services\Billing\Results\CancellationResult;
 use App\Core\Services\Billing\Results\ChargeResult;
 use App\Core\Services\Billing\Results\CheckoutSession;
 use App\Core\Services\Billing\SubscriptionService;
-use App\Core\Services\Billing\WayForPayWebhookService;
 use App\Enums\BillingPeriod;
 use App\Enums\PaymentProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -58,10 +57,9 @@ class BillingOrchestratorTest extends TestCase
         $registry->register($adapter);
 
         $subscriptionService = Mockery::mock(SubscriptionService::class);
-        $webhookService = Mockery::mock(WayForPayWebhookService::class);
-        $webhookService->allows('simulateSuccess'); // allowed in local env
+        $activation = Mockery::mock(SubscriptionActivationService::class);
 
-        $orchestrator = new BillingOrchestrator($registry, $subscriptionService, $webhookService);
+        $orchestrator = new BillingOrchestrator($registry, $subscriptionService, $activation);
 
         config()->set('services.wayforpay.webhook_url', 'https://app.test/api/v1/payments/wayforpay/callback');
         config()->set('services.wayforpay.return_url', 'https://app.test/cabinet/plan');
@@ -103,9 +101,9 @@ class BillingOrchestratorTest extends TestCase
             ->with($subscription, null)
             ->andReturn($subscription);
 
-        $webhookService = Mockery::mock(WayForPayWebhookService::class);
+        $activation = Mockery::mock(SubscriptionActivationService::class);
 
-        $orchestrator = new BillingOrchestrator($registry, $subscriptionService, $webhookService);
+        $orchestrator = new BillingOrchestrator($registry, $subscriptionService, $activation);
 
         $result = $orchestrator->cancelSubscription($subscription);
 
@@ -131,9 +129,9 @@ class BillingOrchestratorTest extends TestCase
         $registry->register($adapter);
 
         $subscriptionService = Mockery::mock(SubscriptionService::class);
-        $webhookService = Mockery::mock(WayForPayWebhookService::class);
+        $activation = Mockery::mock(SubscriptionActivationService::class);
 
-        $orchestrator = new BillingOrchestrator($registry, $subscriptionService, $webhookService);
+        $orchestrator = new BillingOrchestrator($registry, $subscriptionService, $activation);
 
         $result = $orchestrator->chargeRecurringIfSupported($subscription);
 
@@ -162,9 +160,9 @@ class BillingOrchestratorTest extends TestCase
         $registry->register($adapter);
 
         $subscriptionService = Mockery::mock(SubscriptionService::class);
-        $webhookService = Mockery::mock(WayForPayWebhookService::class);
+        $activation = Mockery::mock(SubscriptionActivationService::class);
 
-        $orchestrator = new BillingOrchestrator($registry, $subscriptionService, $webhookService);
+        $orchestrator = new BillingOrchestrator($registry, $subscriptionService, $activation);
 
         $result = $orchestrator->chargeRecurringIfSupported($subscription);
 
