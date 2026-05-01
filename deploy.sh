@@ -263,16 +263,16 @@ else
     phase_end
   fi
 
+  # ── Step 4a: Backend MUST go first (the others may depend on its API) ────
+  phase "rolling restart: backend"
+  rolling_restart backend
+  phase_end
+
   if [ "$SEED_BASE" = true ]; then
     phase "seed production reference data"
     $DC exec -T --user www-data backend php artisan db:seed --class=ProductionBootstrapSeeder --force
     phase_end
   fi
-
-  # ── Step 4a: Backend MUST go first (the others may depend on its API) ────
-  phase "rolling restart: backend"
-  rolling_restart backend
-  phase_end
 
   # ── Pre-launch test mode: wipe every non-admin user on every deploy ──────
   # Remove this block before going live.
@@ -312,6 +312,7 @@ else
 
   # ── Step 5: Background workers — safe to hard-restart ────────────────────
   phase "recreate queue-worker + scheduler"
+  $DC rm -f -s queue-worker scheduler >/dev/null 2>&1 || true
   $DC up -d --no-deps --force-recreate queue-worker scheduler
   phase_end
 
