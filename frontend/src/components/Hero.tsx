@@ -103,8 +103,16 @@ export function Hero() {
   }
 
   useEffect(() => {
-    const onResize = () => setSlots(getWidgetSlots(window.innerHeight, window.innerWidth))
-    onResize()
+    let lastWidth = window.innerWidth
+    const onResize = () => {
+      const newWidth = window.innerWidth
+      // Ignore height-only changes (mobile browser URL bar show/hide on scroll)
+      if (newWidth !== lastWidth) {
+        lastWidth = newWidth
+        setSlots(getWidgetSlots(window.innerHeight, newWidth))
+      }
+    }
+    setSlots(getWidgetSlots(window.innerHeight, window.innerWidth))
     window.addEventListener('resize', onResize, { passive: true })
     return () => window.removeEventListener('resize', onResize)
   }, [])
