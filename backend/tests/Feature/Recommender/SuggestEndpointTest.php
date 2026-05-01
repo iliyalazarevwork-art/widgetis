@@ -15,7 +15,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
- * Feature tests for GET /api/v1/widget/cart-recommender/suggest
+ * Feature tests for GET /api/v1/widgets/cart-recommender/suggest
  *
  * LiveProductEnricher is mocked via the container so Cartum HTTP is never hit.
  * CartRecommenderRelation rows are pre-seeded to exercise the cache-hit path.
@@ -24,7 +24,7 @@ final class SuggestEndpointTest extends TestCase
 {
     use RefreshDatabase;
 
-    private const ENDPOINT = '/api/v1/widget/cart-recommender/suggest';
+    private const ENDPOINT = '/api/v1/widgets/cart-recommender/suggest';
 
     // ------------------------------------------------------------------
     // Set up

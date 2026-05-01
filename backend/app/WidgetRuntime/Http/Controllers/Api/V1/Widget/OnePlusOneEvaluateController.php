@@ -11,7 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 
 /**
- * POST /api/v1/widget/one-plus-one/evaluate
+ * POST /api/v1/widgets/one-plus-one/evaluate
  *
  * Evaluates the visitor's cart against the site's 1+1=3 promo and returns
  * swap instructions (which line items to replace with their 1 UAH clones).

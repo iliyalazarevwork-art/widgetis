@@ -109,5 +109,14 @@ Route::prefix('v1')->group(function () {
         Route::get('users', [Admin\UserController::class, 'index']);
         Route::get('users/{id}', [Admin\UserController::class, 'show']);
         Route::get('subscriptions', [Admin\SubscriptionController::class, 'index']);
+
+        // Smart search admin
+        Route::prefix('sites/{site_id}/smart-search')->group(function () {
+            Route::get('feed', [\App\SmartSearch\Http\Controllers\AdminFeedController::class, 'index']);
+            Route::put('feed', [\App\SmartSearch\Http\Controllers\AdminFeedController::class, 'update']);
+            Route::delete('feed/{lang}', [\App\SmartSearch\Http\Controllers\AdminFeedController::class, 'destroy']);
+            Route::post('feed/{lang}/sync', [\App\SmartSearch\Http\Controllers\AdminFeedController::class, 'sync']);
+            Route::get('stats', [\App\SmartSearch\Http\Controllers\AdminFeedController::class, 'stats']);
+        });
     });
 });

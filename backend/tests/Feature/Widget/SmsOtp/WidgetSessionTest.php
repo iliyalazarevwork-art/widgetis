@@ -17,7 +17,7 @@ class WidgetSessionTest extends TestCase
         $origin = 'https://myshop.com';
         $site = Site::factory()->withOrigin($origin)->create();
 
-        $response = $this->postJson('/api/v1/widget/session', [
+        $response = $this->postJson('/api/v1/widgets/session', [
             'siteKey' => $site->site_key,
         ], ['Origin' => $origin]);
 
@@ -27,7 +27,7 @@ class WidgetSessionTest extends TestCase
 
     public function test_returns_404_for_unknown_site_key(): void
     {
-        $response = $this->postJson('/api/v1/widget/session', [
+        $response = $this->postJson('/api/v1/widgets/session', [
             'siteKey' => '00000000-0000-0000-0000-000000000000',
         ], ['Origin' => 'https://myshop.com']);
 
@@ -38,7 +38,7 @@ class WidgetSessionTest extends TestCase
     {
         $site = Site::factory()->withOrigin('https://allowed.com')->create();
 
-        $response = $this->postJson('/api/v1/widget/session', [
+        $response = $this->postJson('/api/v1/widgets/session', [
             'siteKey' => $site->site_key,
         ], ['Origin' => 'https://evil.com']);
 
@@ -49,7 +49,7 @@ class WidgetSessionTest extends TestCase
     {
         $site = Site::factory()->withOrigin('https://myshop.com')->create();
 
-        $response = $this->postJson('/api/v1/widget/session', [
+        $response = $this->postJson('/api/v1/widgets/session', [
             'siteKey' => $site->site_key,
         ]);
 
@@ -58,14 +58,14 @@ class WidgetSessionTest extends TestCase
 
     public function test_returns_422_when_site_key_missing(): void
     {
-        $response = $this->postJson('/api/v1/widget/session', [], ['Origin' => 'https://myshop.com']);
+        $response = $this->postJson('/api/v1/widgets/session', [], ['Origin' => 'https://myshop.com']);
 
         $response->assertUnprocessable();
     }
 
     public function test_returns_422_when_site_key_not_uuid(): void
     {
-        $response = $this->postJson('/api/v1/widget/session', [
+        $response = $this->postJson('/api/v1/widgets/session', [
             'siteKey' => 'not-a-uuid',
         ], ['Origin' => 'https://myshop.com']);
 

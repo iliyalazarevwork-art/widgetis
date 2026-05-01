@@ -1,7 +1,7 @@
 /**
  * Demo entry for module-cart-recommender.
  *
- * In production, the widget calls /api/v1/widget/cart-recommender/suggest to
+ * In production, the widget calls /api/v1/widgets/cart-recommender/suggest to
  * fetch personalized recommendations from the merchant's catalog. In demo we
  * have no catalog — so we shim window.fetch for that specific URL and return
  * products scraped from the live page DOM (Horoshop product stickers).
@@ -14,7 +14,7 @@ import type { Product } from './dom';
 import cartRecommender from './index';
 
 const LOG = '[widgetality] cart-recommender (demo):';
-const SUGGEST_PATH = '/api/v1/widget/cart-recommender/suggest';
+const SUGGEST_PATH = '/api/v1/widgets/cart-recommender/suggest';
 
 interface ScrapedSticker {
   url: string;

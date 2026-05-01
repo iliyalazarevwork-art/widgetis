@@ -4,7 +4,7 @@ import type { PhotoReviewsConfig, PhotoReviewsI18n } from './schema';
 
 const STYLE_ID = 'hs-photo-reviews-upload-styles';
 const INJECTED_FLAG = 'data-hs-photo-reviews-upload-injected';
-const UPLOAD_API_URL = 'https://api.widgetis.com/api/v1/widget/reviews';
+const UPLOAD_API_URL = 'https://api.widgetis.com/api/v1/widgets/reviews';
 
 const PHOTO_MIME = ['image/jpeg', 'image/png', 'image/webp'] as const;
 const VIDEO_MIME = ['video/mp4', 'video/webm', 'video/quicktime'] as const;

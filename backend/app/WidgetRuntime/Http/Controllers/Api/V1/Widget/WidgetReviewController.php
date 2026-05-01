@@ -16,7 +16,7 @@ use Illuminate\Http\Request;
 final class WidgetReviewController extends BaseController
 {
     /**
-     * POST api/v1/widget/reviews
+     * POST api/v1/widgets/reviews
      *
      * Receives a photo-review submission from a merchant's storefront.
      * The Site is resolved by ResolveSiteFromOrigin middleware.
@@ -65,7 +65,7 @@ final class WidgetReviewController extends BaseController
     }
 
     /**
-     * GET api/v1/widget/reviews?external_product_id=…
+     * GET api/v1/widgets/reviews?external_product_id=…
      *
      * Returns approved reviews with media for a specific product.
      */

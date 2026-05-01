@@ -226,7 +226,7 @@ describe('photo-reviews upload injection', () => {
 
     expect(globalThis.fetch).toHaveBeenCalledTimes(1);
     const [url, opts] = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0] as [string, RequestInit];
-    expect(url).toBe('https://api.widgetis.com/api/v1/widget/reviews');
+    expect(url).toBe('https://api.widgetis.com/api/v1/widgets/reviews');
     expect(opts.method).toBe('POST');
     expect(opts.body).toBeInstanceOf(FormData);
     expect(defaultPrevented).toBe(false);

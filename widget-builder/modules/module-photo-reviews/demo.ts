@@ -2,7 +2,7 @@
  * Demo entry for module-photo-reviews.
  *
  * Production module POSTs uploaded photos/videos to
- * https://api.widgetis.com/api/v1/widget/reviews. On the public demo we have
+ * https://api.widgetis.com/api/v1/widgets/reviews. On the public demo we have
  * no merchant context — so we shim that endpoint and pretend the upload was
  * accepted. This lets visitors play with the «add photo» form without errors.
  *
@@ -14,7 +14,7 @@
 import photoReviews from './index';
 
 const LOG = '[widgetality] photo-reviews (demo):';
-const UPLOAD_URL_FRAGMENT = '/api/v1/widget/reviews';
+const UPLOAD_URL_FRAGMENT = '/api/v1/widgets/reviews';
 
 function shimFetch(): void {
   const original = window.fetch;

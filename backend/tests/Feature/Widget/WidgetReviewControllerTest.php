@@ -43,7 +43,7 @@ class WidgetReviewControllerTest extends TestCase
     public function test_returns_403_when_origin_not_registered(): void
     {
         $response = $this->postJson(
-            '/api/v1/widget/reviews',
+            '/api/v1/widgets/reviews',
             [
                 'visitor_name'        => 'Alice',
                 'text'                => 'Great product!',
@@ -66,7 +66,7 @@ class WidgetReviewControllerTest extends TestCase
         $photo2 = UploadedFile::fake()->create('back.png', 80, 'image/png');
 
         $response = $this->postJson(
-            '/api/v1/widget/reviews',
+            '/api/v1/widgets/reviews',
             [
                 'visitor_name'        => 'Alice',
                 'visitor_email'       => 'alice@example.com',
@@ -102,7 +102,7 @@ class WidgetReviewControllerTest extends TestCase
         $site = $this->createSiteWithDomain('shop.ua');
 
         $response = $this->postJson(
-            '/api/v1/widget/reviews',
+            '/api/v1/widgets/reviews',
             [
                 'visitor_name'        => 'Bob',
                 'text'                => 'Nice',
@@ -122,7 +122,7 @@ class WidgetReviewControllerTest extends TestCase
         $this->createSiteWithDomain('shop.ua');
 
         $response = $this->postJson(
-            '/api/v1/widget/reviews',
+            '/api/v1/widgets/reviews',
             // Missing text, external_product_id, and any media
             ['visitor_name' => 'Bob'],
             ['Origin' => $this->originHeader('shop.ua')],
@@ -164,7 +164,7 @@ class WidgetReviewControllerTest extends TestCase
         ]);
 
         $response = $this->getJson(
-            '/api/v1/widget/reviews?external_product_id=prod-1',
+            '/api/v1/widgets/reviews?external_product_id=prod-1',
             ['Origin' => $this->originHeader('store.com')],
         );
 
@@ -177,7 +177,7 @@ class WidgetReviewControllerTest extends TestCase
     public function test_index_returns_403_for_unknown_origin(): void
     {
         $response = $this->getJson(
-            '/api/v1/widget/reviews?external_product_id=prod-1',
+            '/api/v1/widgets/reviews?external_product_id=prod-1',
             ['Origin' => 'https://not-registered.com'],
         );
 
@@ -189,7 +189,7 @@ class WidgetReviewControllerTest extends TestCase
         $this->createSiteWithDomain('store.com');
 
         $response = $this->getJson(
-            '/api/v1/widget/reviews',
+            '/api/v1/widgets/reviews',
             ['Origin' => $this->originHeader('store.com')],
         );
 

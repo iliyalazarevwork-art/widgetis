@@ -3,7 +3,7 @@
  *
  * Behavior under test:
  *   - mobile-only guard (matchMedia max-width:768px)
- *   - prefetch on init: GET /api/v1/widget/cart-recommender/suggest?alias=...
+ *   - prefetch on init: GET /api/v1/widgets/cart-recommender/suggest?alias=...
  *   - patches window.AjaxCart.getInstance().appendProduct
  *   - on cart add → shows popup with prefetched products
  *   - clicking a popup card calls appendProduct with the correct Horoshop signature:
@@ -106,7 +106,7 @@ function mockFetchProducts(products = SAMPLE_PRODUCTS): void {
     'fetch',
     vi.fn().mockImplementation((url: string) => {
       // API request → JSON
-      if (url.includes('/api/v1/widget/cart-recommender/suggest')) {
+      if (url.includes('/api/v1/widgets/cart-recommender/suggest')) {
         return Promise.resolve({
           ok: true,
           status: 200,
@@ -235,7 +235,7 @@ describe('cartRecommender', () => {
 
     await vi.waitFor(() => {
       expect(vi.mocked(fetch)).toHaveBeenCalledWith(
-        'http://localhost:9001/api/v1/widget/cart-recommender/suggest?alias=postilna-bilizna-satin-z-ryushami',
+        'http://localhost:9001/api/v1/widgets/cart-recommender/suggest?alias=postilna-bilizna-satin-z-ryushami',
         expect.objectContaining({ credentials: 'omit' }),
       );
     });
@@ -248,7 +248,7 @@ describe('cartRecommender', () => {
 
     await vi.waitFor(() => {
       expect(vi.mocked(fetch)).toHaveBeenCalledWith(
-        'http://localhost:9001/api/v1/widget/cart-recommender/suggest?alias=postilna-bilizna-satin-z-ryushami',
+        'http://localhost:9001/api/v1/widgets/cart-recommender/suggest?alias=postilna-bilizna-satin-z-ryushami',
         expect.objectContaining({ credentials: 'omit' }),
       );
     });

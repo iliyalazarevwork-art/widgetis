@@ -195,7 +195,7 @@ async function bootstrap(apiBaseUrl: string, siteKey: string): Promise<string> {
 
   log('bootstrapping widget session...');
 
-  const res = await fetch(`${apiBaseUrl}/widget/session`, {
+  const res = await fetch(`${apiBaseUrl}/widgets/session`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     body: JSON.stringify({ siteKey }),
@@ -224,7 +224,7 @@ async function requestOtp(
   phone: string,
   locale: string,
 ): Promise<{ requestId: string; expiresAt: string }> {
-  const res = await fetch(`${apiBaseUrl}/widget/sms-otp/request`, {
+  const res = await fetch(`${apiBaseUrl}/widgets/sms-otp/request`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -256,7 +256,7 @@ async function verifyOtp(
   requestId: string,
   code: string,
 ): Promise<void> {
-  const res = await fetch(`${apiBaseUrl}/widget/sms-otp/verify`, {
+  const res = await fetch(`${apiBaseUrl}/widgets/sms-otp/verify`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

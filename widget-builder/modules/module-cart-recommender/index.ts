@@ -113,7 +113,7 @@ export default function cartRecommender(
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 10000);
-  const apiUrl = `${config.apiBaseUrl}/api/v1/widget/cart-recommender/suggest?alias=${encodeURIComponent(alias)}`;
+  const apiUrl = `${config.apiBaseUrl}/api/v1/widgets/cart-recommender/suggest?alias=${encodeURIComponent(alias)}`;
   console.log(LOG, 'prefetching', apiUrl);
 
   let cachedProducts: Product[] | null = null;

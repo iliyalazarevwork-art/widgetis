@@ -294,7 +294,7 @@ describe('API flow (happy path)', () => {
     vi.restoreAllMocks();
   });
 
-  it('bootstrap calls POST /widget/session and caches token', async () => {
+  it('bootstrap calls POST /widgets/session and caches token', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ data: { token: 'tok-abc', expires_in: 3600 } }),
@@ -314,7 +314,7 @@ describe('API flow (happy path)', () => {
     await Promise.resolve();
 
     const bootstrapCall = fetchMock.mock.calls.find(
-      (call) => (call[0] as string).includes('/widget/session'),
+      (call) => (call[0] as string).includes('/widgets/session'),
     );
     expect(bootstrapCall).toBeDefined();
 
@@ -326,7 +326,7 @@ describe('API flow (happy path)', () => {
     let fetchCallCount = 0;
     const fetchMock = vi.fn().mockImplementation(async (url: string) => {
       fetchCallCount++;
-      if ((url as string).includes('/widget/session')) {
+      if ((url as string).includes('/widgets/session')) {
         return { ok: true, json: async () => ({ data: { token: 'tok-abc', expires_in: 3600 } }) };
       }
       if ((url as string).includes('/sms-otp/request')) {
@@ -366,7 +366,7 @@ describe('API flow (happy path)', () => {
 
   it('verifyOtp transitions to verified state and persists to localStorage', async () => {
     const fetchMock = vi.fn().mockImplementation(async (url: string) => {
-      if ((url as string).includes('/widget/session')) {
+      if ((url as string).includes('/widgets/session')) {
         return { ok: true, json: async () => ({ data: { token: 'tok-abc', expires_in: 3600 } }) };
       }
       if ((url as string).includes('/sms-otp/request')) {

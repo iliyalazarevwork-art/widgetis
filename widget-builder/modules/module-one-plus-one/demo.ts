@@ -1,7 +1,7 @@
 /**
  * Demo entry for module-one-plus-one.
  *
- * The production module POSTs the cart to /api/v1/widget/one-plus-one/evaluate
+ * The production module POSTs the cart to /api/v1/widgets/one-plus-one/evaluate
  * to learn which item should be marked as the "1+1" gift. In demo we have no
  * widgetis backend — so we shim that endpoint and compute the response right
  * here from the cart payload: the cheapest item in the cart becomes a gift
@@ -12,7 +12,7 @@
 import onePlusOne from './index';
 
 const LOG = '[widgetality] 1+1=3 (demo):';
-const ENDPOINT = '/api/v1/widget/one-plus-one/evaluate';
+const ENDPOINT = '/api/v1/widgets/one-plus-one/evaluate';
 
 interface CartItem {
   id: number;

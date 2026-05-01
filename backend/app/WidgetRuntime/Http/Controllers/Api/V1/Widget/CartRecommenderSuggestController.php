@@ -12,7 +12,7 @@ use App\WidgetRuntime\Services\Widget\CartRecommender\CartRecommenderService;
 use Illuminate\Http\JsonResponse;
 
 /**
- * GET /api/v1/widget/cart-recommender/suggest
+ * GET /api/v1/widgets/cart-recommender/suggest
  *
  * Returns up to top_n recommended products for a source product.
  * The site is resolved from the Origin/Referer header by the

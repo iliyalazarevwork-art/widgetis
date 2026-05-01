@@ -3,9 +3,9 @@
  *
  * Shims the three backend endpoints used by the production module so the demo
  * shows the full UX without sending real SMS or hitting widgetis.com:
- *   POST /widget/session              → returns a fake token
- *   POST /widget/sms-otp/request      → returns a fake request_id
- *   POST /widget/sms-otp/verify       → accepts ANY 6-digit code as valid
+ *   POST /widgets/session              → returns a fake token
+ *   POST /widgets/sms-otp/request      → returns a fake request_id
+ *   POST /widgets/sms-otp/verify       → accepts ANY 6-digit code as valid
  *
  * Settings (config + i18n) are passed through unchanged to the production
  * default export.
@@ -27,8 +27,8 @@ function shimFetch(): void {
         ? input.toString()
         : (input as Request)?.url ?? '';
 
-    if (url.endsWith('/widget/session')) {
-      console.log(LOG, 'shimmed /widget/session');
+    if (url.endsWith('/widgets/session')) {
+      console.log(LOG, 'shimmed /widgets/session');
       return Promise.resolve(
         new Response(
           JSON.stringify({ data: { token: DEMO_TOKEN, expires_in: 3600 } }),
@@ -37,8 +37,8 @@ function shimFetch(): void {
       );
     }
 
-    if (url.endsWith('/widget/sms-otp/request')) {
-      console.log(LOG, 'shimmed /widget/sms-otp/request — code will be accepted');
+    if (url.endsWith('/widgets/sms-otp/request')) {
+      console.log(LOG, 'shimmed /widgets/sms-otp/request — code will be accepted');
       const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
       return Promise.resolve(
         new Response(
@@ -48,8 +48,8 @@ function shimFetch(): void {
       );
     }
 
-    if (url.endsWith('/widget/sms-otp/verify')) {
-      console.log(LOG, 'shimmed /widget/sms-otp/verify — accepting any code');
+    if (url.endsWith('/widgets/sms-otp/verify')) {
+      console.log(LOG, 'shimmed /widgets/sms-otp/verify — accepting any code');
       return Promise.resolve(
         new Response(
           JSON.stringify({ data: { verified: true } }),

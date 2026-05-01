@@ -43,7 +43,7 @@ class SmsOtpRequestTest extends TestCase
         OtpProviderConfig::factory()->for($site)->create();
         $token = $this->makeWidgetToken($site);
 
-        $response = $this->postJson('/api/v1/widget/sms-otp/request', [
+        $response = $this->postJson('/api/v1/widgets/sms-otp/request', [
             'phone' => '+380501234567',
             'locale' => 'uk',
         ], ['Authorization' => "Bearer {$token}"]);
@@ -54,7 +54,7 @@ class SmsOtpRequestTest extends TestCase
 
     public function test_returns_401_without_jwt(): void
     {
-        $response = $this->postJson('/api/v1/widget/sms-otp/request', [
+        $response = $this->postJson('/api/v1/widgets/sms-otp/request', [
             'phone' => '+380501234567',
         ]);
 
@@ -78,7 +78,7 @@ class SmsOtpRequestTest extends TestCase
 
         $token = \Firebase\JWT\JWT::encode($payload, (string) $secret, 'HS256');
 
-        $response = $this->postJson('/api/v1/widget/sms-otp/request', [
+        $response = $this->postJson('/api/v1/widgets/sms-otp/request', [
             'phone' => '+380501234567',
         ], ['Authorization' => "Bearer {$token}"]);
 
@@ -91,7 +91,7 @@ class SmsOtpRequestTest extends TestCase
         // No provider config created
         $token = $this->makeWidgetToken($site);
 
-        $response = $this->postJson('/api/v1/widget/sms-otp/request', [
+        $response = $this->postJson('/api/v1/widgets/sms-otp/request', [
             'phone' => '+380501234567',
         ], ['Authorization' => "Bearer {$token}"]);
 
@@ -111,7 +111,7 @@ class SmsOtpRequestTest extends TestCase
         RateLimiter::hit('otp:phone:+380501234567', 3600);
         RateLimiter::hit('otp:phone:+380501234567', 3600);
 
-        $response = $this->postJson('/api/v1/widget/sms-otp/request', [
+        $response = $this->postJson('/api/v1/widgets/sms-otp/request', [
             'phone' => '+380501234567',
         ], ['Authorization' => "Bearer {$token}"]);
 
@@ -124,7 +124,7 @@ class SmsOtpRequestTest extends TestCase
         OtpProviderConfig::factory()->for($site)->create();
         $token = $this->makeWidgetToken($site);
 
-        $response = $this->postJson('/api/v1/widget/sms-otp/request', [
+        $response = $this->postJson('/api/v1/widgets/sms-otp/request', [
             'phone' => 'not-a-phone',
         ], ['Authorization' => "Bearer {$token}"]);
 

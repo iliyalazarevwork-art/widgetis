@@ -293,7 +293,7 @@ export default function onePlusOne(
     busy = true;
     showSpinner();
     try {
-      const res = await fetch(`${config.apiUrl}/api/v1/widget/one-plus-one/evaluate`, {
+      const res = await fetch(`${config.apiUrl}/api/v1/widgets/one-plus-one/evaluate`, {
         method: 'POST',
         credentials: 'omit',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },

@@ -7,7 +7,7 @@ declare(strict_types=1);
 | Cross-Origin Resource Sharing (CORS) Configuration
 |--------------------------------------------------------------------------
 |
-| Strategy for widget endpoints (api/v1/widget/*):
+| Strategy for widget endpoints (api/v1/widgets/*):
 |   • We do NOT allow '*' — that would expose widget endpoints to any site.
 |   • Instead we use a runtime-reflection approach: the ResolveSiteFromOrigin
 |     middleware (registered as 'resolve.site.origin') validates that the

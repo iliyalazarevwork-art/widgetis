@@ -32,7 +32,7 @@ class SmsOtpVerifyTest extends TestCase
             ->withCode('654321')
             ->create();
 
-        $response = $this->postJson('/api/v1/widget/sms-otp/verify', [
+        $response = $this->postJson('/api/v1/widgets/sms-otp/verify', [
             'requestId' => $otpRequest->request_id,
             'code' => '654321',
         ], ['Authorization' => "Bearer {$token}"]);
@@ -51,7 +51,7 @@ class SmsOtpVerifyTest extends TestCase
             ->withCode('654321')
             ->create();
 
-        $response = $this->postJson('/api/v1/widget/sms-otp/verify', [
+        $response = $this->postJson('/api/v1/widgets/sms-otp/verify', [
             'requestId' => $otpRequest->request_id,
             'code' => '000000',
         ], ['Authorization' => "Bearer {$token}"]);
@@ -70,7 +70,7 @@ class SmsOtpVerifyTest extends TestCase
             ->withCode('654321')
             ->create();
 
-        $response = $this->postJson('/api/v1/widget/sms-otp/verify', [
+        $response = $this->postJson('/api/v1/widgets/sms-otp/verify', [
             'requestId' => $otpRequest->request_id,
             'code' => '654321',
         ], ['Authorization' => "Bearer {$token}"]);
@@ -90,7 +90,7 @@ class SmsOtpVerifyTest extends TestCase
             ->withCode('654321')
             ->create();
 
-        $response = $this->postJson('/api/v1/widget/sms-otp/verify', [
+        $response = $this->postJson('/api/v1/widgets/sms-otp/verify', [
             'requestId' => $otpRequest->request_id,
             'code' => '654321',
         ], ['Authorization' => "Bearer {$token}"]);
@@ -104,7 +104,7 @@ class SmsOtpVerifyTest extends TestCase
         $site = Site::factory()->create();
         $token = $this->makeWidgetToken($site);
 
-        $response = $this->postJson('/api/v1/widget/sms-otp/verify', [
+        $response = $this->postJson('/api/v1/widgets/sms-otp/verify', [
             'requestId' => '00000000-0000-0000-0000-000000000000',
             'code' => '123456',
         ], ['Authorization' => "Bearer {$token}"]);
@@ -118,7 +118,7 @@ class SmsOtpVerifyTest extends TestCase
         $site = Site::factory()->create();
         $token = $this->makeWidgetToken($site);
 
-        $response = $this->postJson('/api/v1/widget/sms-otp/verify', [
+        $response = $this->postJson('/api/v1/widgets/sms-otp/verify', [
             'requestId' => '00000000-0000-0000-0000-000000000000',
             'code' => 'abc123',
         ], ['Authorization' => "Bearer {$token}"]);
