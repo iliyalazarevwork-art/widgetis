@@ -745,6 +745,101 @@
           "invalid": "Invalid phone number"
         }
       }
+    },
+    "module-smart-search": {
+      "$comment": "Smart search overlay — replaces Horoshop native search with a Spotlight-style command palette. Backed by App\\SmartSearch (PG pg_trgm + tsvector + Redis cache); site is resolved from Origin/Referer via resolve.site.origin middleware.",
+      "config": {
+        "enabled": true,
+        "apiUrl": "https://api.widgetis.com/api/v1/widgets/smart-search",
+        "accentColor": "#c20f5d",
+        "currency": "грн",
+        "searchHistory": true,
+        "minQueryLength": 2,
+        "debounceMs": 220,
+        "limitPreview": 4,
+        "limitExpanded": 50,
+        "popularQueries": ["крем", "масло", "мило", "парфум", "шампунь"],
+        "defaultLang": "auto",
+        "theme": "light"
+      },
+      "i18n": {
+        "ua": {
+          "search_placeholder": "Пошук товарів...",
+          "no_results": "Нічого не знайдено",
+          "loading_text": "Шукаємо...",
+          "out_of_stock": "Немає в наявності",
+          "history_title": "Нещодавні пошуки",
+          "history_clear": "Очистити",
+          "results_count": "Показано {count}",
+          "all_results": "Всі результати",
+          "correction_text": "Можливо, ви мали на увазі",
+          "error_text": "Помилка. Спробуйте ще раз.",
+          "collapse": "Згорнути",
+          "more": "Більше",
+          "popular_title": "Популярне",
+          "discount_label": "-{percent}%",
+          "view_all": "Всі →",
+          "kbd_hint": "ESC",
+          "empty_subtitle": "Спробуйте змінити запит або перегляньте каталог"
+        },
+        "ru": {
+          "search_placeholder": "Поиск товаров...",
+          "no_results": "Ничего не найдено",
+          "loading_text": "Ищем...",
+          "out_of_stock": "Нет в наличии",
+          "history_title": "Недавние поиски",
+          "history_clear": "Очистить",
+          "results_count": "Показано {count}",
+          "all_results": "Все результаты",
+          "correction_text": "Возможно, вы имели в виду",
+          "error_text": "Ошибка. Попробуйте ещё раз.",
+          "collapse": "Свернуть",
+          "more": "Больше",
+          "popular_title": "Популярное",
+          "discount_label": "-{percent}%",
+          "view_all": "Все →",
+          "kbd_hint": "ESC",
+          "empty_subtitle": "Попробуйте изменить запрос или просмотрите каталог"
+        },
+        "en": {
+          "search_placeholder": "Search products...",
+          "no_results": "Nothing found",
+          "loading_text": "Searching...",
+          "out_of_stock": "Out of stock",
+          "history_title": "Recent searches",
+          "history_clear": "Clear",
+          "results_count": "Showing {count}",
+          "all_results": "All results",
+          "correction_text": "Did you mean",
+          "error_text": "Error. Please try again.",
+          "collapse": "Collapse",
+          "more": "More",
+          "popular_title": "Popular",
+          "discount_label": "-{percent}%",
+          "view_all": "All →",
+          "kbd_hint": "ESC",
+          "empty_subtitle": "Try a different query or browse the catalog"
+        },
+        "pl": {
+          "search_placeholder": "Szukaj produktów...",
+          "no_results": "Nic nie znaleziono",
+          "loading_text": "Szukamy...",
+          "out_of_stock": "Brak w magazynie",
+          "history_title": "Ostatnie wyszukiwania",
+          "history_clear": "Wyczyść",
+          "results_count": "Wyświetlono {count}",
+          "all_results": "Wszystkie wyniki",
+          "correction_text": "Czy chodziło Ci o",
+          "error_text": "Błąd. Spróbuj ponownie.",
+          "collapse": "Zwiń",
+          "more": "Więcej",
+          "popular_title": "Popularne",
+          "discount_label": "-{percent}%",
+          "view_all": "Wszystkie →",
+          "kbd_hint": "ESC",
+          "empty_subtitle": "Spróbuj zmienić zapytanie lub przeglądaj katalog"
+        }
+      }
     }
   }
 }

@@ -115,7 +115,7 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
   const [demoLinkCopied, setDemoLinkCopied] = useState(false)
   const [deploying, setDeploying] = useState(false)
   const [deployedUrl, setDeployedUrl] = useState<string | null>(siteContext?.deployedScriptUrl ?? null)
-  const [hasChanges, setHasChanges] = useState(false)
+  const [snippetCopied, setSnippetCopied] = useState(false)
 
   const [previewOpen, setPreviewOpen] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string>('')
@@ -193,7 +193,6 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
       ...prev,
       [activeModule]: { ...prev[activeModule], config: deepSet(prev[activeModule].config, path, value) },
     }))
-    setHasChanges(true)
   }
 
   function updateI18nDirect(newI18n: Record<string, unknown>) {
@@ -201,7 +200,6 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
       ...prev,
       [activeModule]: { ...prev[activeModule], i18n: newI18n },
     }))
-    setHasChanges(true)
   }
 
   function setI18nValue(path: string, value: unknown) {
@@ -209,7 +207,6 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
       ...prev,
       [activeModule]: { ...prev[activeModule], i18n: deepSet(prev[activeModule].i18n, path, value) },
     }))
-    setHasChanges(true)
   }
 
   // ─── Build ─────────────────────────────────────────────────────────
@@ -234,8 +231,7 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
       )
       const js = res.data.js
       setBuiltJs(js)
-      setHasChanges(false)
-      try { await navigator.clipboard.writeText(js) } catch { /* */ }
+        try { await navigator.clipboard.writeText(js) } catch { /* */ }
       toast.success(`Збудовано! ${Math.round(js.length / 1024)} KB`)
     } catch (err) {
       const msg = (err as Error).message || 'Помилка build'
@@ -410,8 +406,7 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
         }
         return next
       })
-      setHasChanges(true)
-      toast.success('Імпортовано!')
+        toast.success('Імпортовано!')
       closeJsonPanel()
     } catch (err) {
       toast.error('Помилка: ' + (err as Error).message)
@@ -427,7 +422,6 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
     setModuleStates(fresh)
     setBuiltJs(null)
     setBuildError(null)
-    setHasChanges(true)
     localStorage.removeItem(storageKey)
     toast.success('Скинуто')
   }
@@ -444,35 +438,49 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
 
   // ─── Deploy to R2 ─────────────────────────────────────────────────
 
-  async function deployToR2() {
+  function buildModulesPayload() {
+    const { modules: rawModules, obfuscate: shouldObfuscate } = getBuildRequest()
+    const modules = Object.fromEntries(
+      Object.entries(rawModules).map(([id, m]) => {
+        const { enabled, ...config } = m.config as Record<string, unknown> & { enabled?: unknown }
+        return [id, { is_enabled: Boolean(enabled), config, i18n: m.i18n }]
+      })
+    )
+    return { modules, obfuscate: shouldObfuscate }
+  }
+
+  async function buildAndDeploy() {
     if (!siteContext) return
     setDeploying(true)
+    setBuildError(null)
     setDeployedUrl(null)
     try {
-      const { modules: rawModules, obfuscate: shouldObfuscate } = getBuildRequest()
-
-      // Align with DB format: extract `enabled` from config → separate `is_enabled`
-      const modules = Object.fromEntries(
-        Object.entries(rawModules).map(([id, m]) => {
-          const { enabled, ...config } = m.config as Record<string, unknown> & { enabled?: unknown }
-          return [id, { is_enabled: Boolean(enabled), config, i18n: m.i18n }]
-        })
-      )
-
-      const data = await post<{ data?: { url?: string } }>(`/admin/sites/${siteContext.id}/deploy`, {
-        modules,
-        obfuscate: shouldObfuscate,
-      })
-      const url = data.data?.url || `https://cdn.widgetis.com/${siteContext.domain}/widget.js`
+      const payload = buildModulesPayload()
+      const data = await post<{ data?: { url?: string } }>(`/admin/sites/${siteContext.id}/deploy`, payload)
+      const url = data.data?.url || `https://cdn.widgetis.com/sites/${siteContext.domain}/widget.js`
       setDeployedUrl(url)
       setBuiltJs(null)
-      await navigator.clipboard.writeText(url).catch(() => {})
-      toast.success('Задеплоєно на R2! Посилання скопійовано.')
+      const snippet = `<script src="${url}"></script>`
+      await navigator.clipboard.writeText(snippet).catch(() => {})
+      toast.success('Збілджено і задеплоєно! Тег <script> скопійовано.')
     } catch (err) {
-      toast.error((err as Error).message || 'Помилка деплою на R2')
+      const msg = (err as Error).message || 'Помилка деплою'
+      setBuildError(msg)
+      toast.error(msg)
     } finally {
       setDeploying(false)
     }
+  }
+
+  async function copySnippet() {
+    if (!deployedUrl) return
+    const snippet = `<script src="${deployedUrl}"></script>`
+    try {
+      await navigator.clipboard.writeText(snippet)
+      setSnippetCopied(true)
+      toast.success('Тег скопійовано')
+      setTimeout(() => setSnippetCopied(false), 2500)
+    } catch { toast.error('Не вдалося скопіювати') }
   }
 
   // ─── Render ────────────────────────────────────────────────────────
@@ -523,16 +531,32 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
             <div style={{ fontSize: 11, color: '#6ee7b7', fontWeight: 600, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               Задеплоєний скрипт
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <code style={{ fontSize: 12, color: '#a7f3d0', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+              <code style={{ fontSize: 11, color: '#a7f3d0', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {deployedUrl}
               </code>
               <button
                 type="button"
                 style={{ flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', color: '#6ee7b7', padding: 4 }}
-                onClick={async () => { await navigator.clipboard.writeText(deployedUrl); toast.success('Скопійовано') }}
+                onClick={async () => { await navigator.clipboard.writeText(deployedUrl); toast.success('URL скопійовано') }}
               >
                 <Copy size={13} strokeWidth={2} />
+              </button>
+            </div>
+            <div style={{ fontSize: 11, color: '#6ee7b7', fontWeight: 600, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Код для вставки в сайт
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <code style={{ fontSize: 11, color: '#a7f3d0', flex: 1, padding: '6px 8px', background: 'rgba(0,0,0,0.25)', borderRadius: 6, wordBreak: 'break-all' }}>
+                {`<script src="${deployedUrl}"></script>`}
+              </code>
+              <button
+                type="button"
+                style={{ flexShrink: 0, background: snippetCopied ? 'rgba(16,185,129,0.3)' : 'none', border: 'none', cursor: 'pointer', color: '#6ee7b7', padding: 4, borderRadius: 4 }}
+                onClick={copySnippet}
+                title="Копіювати тег <script>"
+              >
+                {snippetCopied ? <Check size={13} strokeWidth={2.5} /> : <Copy size={13} strokeWidth={2} />}
               </button>
             </div>
           </div>
@@ -640,26 +664,21 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
             </div>
           )}
           {siteContext && (
-            <>
-              <button
-                type="button"
-                className="cfg-m__action-build"
-                style={{
-                  background: deploying || !builtJs || hasChanges
-                    ? '#374151'
-                    : 'linear-gradient(135deg, #0f766e 0%, #0369a1 100%)',
-                  marginTop: 6,
-                  opacity: deploying || !builtJs || hasChanges ? 0.5 : 1,
-                  cursor: deploying || !builtJs || hasChanges ? 'not-allowed' : 'pointer',
-                }}
-                onClick={deployToR2}
-                disabled={deploying || !builtJs || hasChanges}
-                title={hasChanges ? 'Є незбережені зміни — спочатку зберіть скрипт' : !builtJs ? 'Спочатку зберіть скрипт, а потім деплойте' : undefined}
-              >
-                {deploying ? <Loader size={15} strokeWidth={2} className="cfg-m__spin" /> : <Plus size={15} strokeWidth={2} />}
-                {deploying ? 'Деплой...' : 'Задеплоїти на R2'}
-              </button>
-            </>
+            <button
+              type="button"
+              className="cfg-m__action-build"
+              style={{
+                background: deploying ? '#374151' : 'linear-gradient(135deg, #0f766e 0%, #0369a1 100%)',
+                marginTop: 6,
+                opacity: deploying ? 0.5 : 1,
+                cursor: deploying ? 'not-allowed' : 'pointer',
+              }}
+              onClick={buildAndDeploy}
+              disabled={deploying}
+            >
+              {deploying ? <Loader size={15} strokeWidth={2} className="cfg-m__spin" /> : <Plus size={15} strokeWidth={2} />}
+              {deploying ? 'Збірка і деплой...' : 'Збілдити і задеплоїти'}
+            </button>
           )}
           {buildError && <div className="cfg-m__build-error">Помилка: {buildError}</div>}
         </div>

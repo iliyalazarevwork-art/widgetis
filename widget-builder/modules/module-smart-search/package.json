@@ -1,0 +1,22 @@
+{
+  "name": "@laxarevii/module-smart-search",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.ts",
+  "types": "index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./schema": "./schema.ts"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Laxarevii/horoshop-plugin-manager-v2.git",
+    "directory": "modules/module-smart-search"
+  },
+  "dependencies": {
+    "@laxarevii/core": "workspace:*"
+  }
+}

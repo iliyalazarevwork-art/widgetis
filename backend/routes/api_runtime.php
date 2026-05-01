@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\SmartSearch\Http\Controllers\PublicSearchController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Admin\DemoSessionController as AdminDemoSessionController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Admin\OnePlusOnePromoController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Admin\SiteController as AdminSiteController;
@@ -33,7 +34,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function () {
 
     // --- Public widget API (short-lived JWT session) ---
-    Route::prefix('widget')->group(function () {
+    Route::prefix('widgets')->group(function () {
         Route::post('session', WidgetSessionController::class)->middleware('throttle:30,1');
         Route::middleware('widget.session')->group(function () {
             Route::post('sms-otp/request', SmsOtpRequestController::class)->middleware('throttle:60,1');
@@ -41,8 +42,8 @@ Route::prefix('v1')->group(function () {
         });
     });
 
-    // --- Photo-reviews widget API (Origin-checked, no JWT) ---
-    Route::prefix('widget')
+    // --- Widgets collection (Origin-checked, no JWT) ---
+    Route::prefix('widgets')
         ->middleware([
             'resolve.site.origin',
             \App\WidgetRuntime\Http\Middleware\SetWidgetCorsHeaders::class,
@@ -56,6 +57,10 @@ Route::prefix('v1')->group(function () {
 
             Route::post('one-plus-one/evaluate', OnePlusOneEvaluateController::class)
                 ->middleware('throttle:120,1');
+
+            Route::get('smart-search/feed', \App\SmartSearch\Http\Controllers\PublicFeedController::class)
+                ->middleware('throttle:30,1');
+            Route::get('smart-search', PublicSearchController::class)->middleware('throttle:60,1');
         });
 
     // --- Demo sessions (public) ---

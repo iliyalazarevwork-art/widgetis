@@ -1,0 +1,14 @@
+{
+  "name": "loyalshop-loader-bench",
+  "private": true,
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "bench": "node bench.mjs",
+    "bench:sweep": "node bench.mjs sweep 10",
+    "bench:one": "node bench.mjs"
+  },
+  "dependencies": {
+    "undici": "^6.21.0"
+  }
+}

@@ -7,4 +7,5 @@ return [
     App\Providers\EventServiceProvider::class,
     App\Providers\PaymentProviderServiceProvider::class,
     App\Providers\PgvectorServiceProvider::class,
+    App\SmartSearch\Providers\SmartSearchServiceProvider::class,
 ];
