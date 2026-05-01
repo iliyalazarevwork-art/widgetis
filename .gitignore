@@ -47,5 +47,6 @@ backend/.env.production
 backend/.env.prod.plain
 certbot/
 telegram-export
+hr_sites/analysis
 # SOPS encrypted secrets ARE committed:
 # backend/.env.production.enc  ← tracked in git (encrypted)

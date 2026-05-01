@@ -7,11 +7,16 @@ use Illuminate\Database\Connection;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     public function up(): void
     {
         $connection = DB::connection('pgsql_runtime');
+
+        if (! Schema::connection('pgsql_runtime')->hasTable('wgt_sites')) {
+            return;
+        }
 
         $rows = $connection->table('wgt_sites')
             ->select('id', 'user_id', 'domain', 'created_at')
