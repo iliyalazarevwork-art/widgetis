@@ -134,6 +134,10 @@ if [ "$LOCAL" = false ]; then
     git commit -m "chore(frontend): auto-fix eslint issues before deploy"
   fi
 
+  phase "build demo bundle"
+  task build:demo
+  phase_end
+
   phase "git push"
   git push origin main
   phase_end
