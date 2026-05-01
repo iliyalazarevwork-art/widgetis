@@ -6,6 +6,7 @@ namespace App\WidgetRuntime\Listeners;
 
 use App\Enums\SiteStatus;
 use App\Shared\Events\Subscription\GuestSiteRequested;
+use App\WidgetRuntime\Exceptions\InvalidSiteDomainException;
 use App\WidgetRuntime\Models\Site;
 use App\WidgetRuntime\Models\SiteScript;
 use Illuminate\Support\Facades\Log;
@@ -14,11 +15,19 @@ final class CreateSiteOnGuestSiteRequested
 {
     public function handle(GuestSiteRequested $event): void
     {
+        $domain = Site::domainFromUrl($event->domain);
+
+        if ($domain === '') {
+            throw new InvalidSiteDomainException(
+                "Cannot create site: empty domain after normalization (input: {$event->domain}).",
+            );
+        }
+
         $site = Site::firstOrCreate(
-            ['user_id' => $event->userId->value, 'domain' => $event->domain],
+            ['user_id' => $event->userId->value, 'domain' => $domain],
             [
-                'name'     => $event->domain,
-                'url'      => 'https://' . $event->domain,
+                'name'     => $domain,
+                'url'      => 'https://' . $domain,
                 'platform' => $event->platform,
                 'status'   => SiteStatus::Pending,
             ],
