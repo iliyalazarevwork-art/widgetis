@@ -18,6 +18,7 @@ class ProductionBootstrapSeeder extends Seeder
             WidgetTagSeeder::class,
             ProductSeeder::class,
             ProductPlanAccessSeeder::class,
+            CustomerCaseSitesSeeder::class,
             CustomerCasesSeeder::class,
         ]);
     }

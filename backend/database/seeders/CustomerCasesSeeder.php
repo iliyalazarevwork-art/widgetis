@@ -18,7 +18,7 @@ final class CustomerCasesSeeder extends Seeder
     {
         $now = now();
 
-        foreach ($this->sites() as $i => $site) {
+        foreach (self::sites() as $i => $site) {
             DB::table('customer_cases')->updateOrInsert(
                 ['store_url' => $site['store_url']],
                 [
@@ -38,7 +38,7 @@ final class CustomerCasesSeeder extends Seeder
     }
 
     /** @return list<array{store: string, store_url: string, owner: string, description: string}> */
-    private function sites(): array
+    public static function sites(): array
     {
         return [
             ['store' => 'ukrinvestbud.com', 'store_url' => 'https://ukrinvestbud.com', 'owner' => 'Ukrinvestbud', 'description' => 'Будівельна компанія'],
