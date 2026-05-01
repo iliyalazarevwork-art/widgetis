@@ -13,6 +13,7 @@ class CaseController extends CoreBaseController
     public function index(): JsonResponse
     {
         $cases = CustomerCase::where('is_published', true)
+            ->orderByRaw('result_metric IS NULL')
             ->orderBy('sort_order')
             ->get()
             ->map(fn (CustomerCase $c) => [
