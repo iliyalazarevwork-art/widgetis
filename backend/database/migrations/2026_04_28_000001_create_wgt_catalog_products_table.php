@@ -47,6 +47,7 @@ return new class () extends Migration {
         });
 
         if (Schema::getConnection()->getDriverName() === 'pgsql') {
+            DB::statement('CREATE EXTENSION IF NOT EXISTS vector');
             DB::statement('ALTER TABLE wgt_catalog_products ADD COLUMN embedding vector(1536) NULL');
             DB::statement('CREATE INDEX wgt_catalog_products_embedding_idx ON wgt_catalog_products USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100)');
         }
