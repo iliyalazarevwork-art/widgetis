@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { Helmet } from 'react-helmet-async'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   Check,
@@ -33,6 +32,7 @@ function ensureVendorStylesheet(href: string) {
 import { useAuth } from '../context/AuthContext'
 import { Header } from '../components/Header'
 import { Footer } from '../components/Footer'
+import { SeoHead } from '../components/SeoHead'
 import './TrialSuccessPage.css'
 
 const ACTIVE_STATUSES = new Set(['active', 'trial', 'past_due'])
@@ -592,6 +592,7 @@ export function TrialSuccessPage() {
   if (paymentStatus === 'checking') {
     return (
       <div style={{ background: '#0A0A0A', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <SeoHead title="Перевіряємо оплату — Widgetis" description="Очікуємо підтвердження оплати." path="/signup/success" noindex />
         <PageHeader />
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, paddingTop: 64 }}>
           <LoaderCircle size={40} strokeWidth={1.75} style={{ color: '#3B82F6', animation: 'spin 1s linear infinite' }} />
@@ -606,7 +607,7 @@ export function TrialSuccessPage() {
   if (paymentStatus === 'failed') {
     return (
       <div style={{ background: '#0A0A0A', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <Helmet><title>Оплата не пройшла — Widgetis</title></Helmet>
+        <SeoHead title="Оплата не пройшла — Widgetis" description="Картку було відхилено. Оновіть дані картки, щоб не втратити доступ." path="/signup/success" noindex />
         <PageHeader />
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 24, padding: '104px 24px 40px', maxWidth: 375, width: '100%', margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -663,7 +664,16 @@ export function TrialSuccessPage() {
   // ── Success screens ──
   if (!data) return null
 
-  if (choice === 'self') return <SelfScreen data={data} onBack={() => setChoice(null)} />
-  if (choice === 'concierge') return <ManagerScreen data={data} onBack={() => setChoice(null)} />
-  return <ChoiceScreen data={data} onChoice={setChoice} />
+  const successHead = (
+    <SeoHead
+      title="Підписка активована — Widgetis"
+      description="Ваш тріал активовано. Залишилось встановити віджети на магазин."
+      path="/signup/success"
+      noindex
+    />
+  )
+
+  if (choice === 'self') return <>{successHead}<SelfScreen data={data} onBack={() => setChoice(null)} /></>
+  if (choice === 'concierge') return <>{successHead}<ManagerScreen data={data} onBack={() => setChoice(null)} /></>
+  return <>{successHead}<ChoiceScreen data={data} onChoice={setChoice} /></>
 }

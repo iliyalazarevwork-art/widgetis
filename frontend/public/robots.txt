@@ -7,9 +7,12 @@ Disallow: /cabinet/
 Disallow: /onboarding
 Disallow: /login
 Disallow: /login/
-Disallow: /signup/success
+Disallow: /signup
+Disallow: /signup/
 Disallow: /checkout
 Disallow: /checkout/
+Disallow: /pricing-anim
+Disallow: /live-demo
 Disallow: /api/
 
 Sitemap: https://widgetis.com/sitemap.xml

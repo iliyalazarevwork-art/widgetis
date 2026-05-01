@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import {
-  Eye, Gift, Flame, PartyPopper, Truck, Coins, HelpCircle, Tag, Star, ShoppingBag, Ticket, Snowflake,
+  Eye, Gift, Flame, PartyPopper, Truck, Coins, HelpCircle, Star, ShoppingBag, Ticket, Snowflake,
   ShoppingCart, Shield, RefreshCcw, Headphones, MessageCircle, Send, Phone,
 } from 'lucide-react'
 import { useVisible } from '../hooks/useVisible'
@@ -85,6 +85,11 @@ export function PreviewViewers() {
 export function PreviewStock() {
   const { ref, active } = useVisible<HTMLDivElement>()
   const [stock, setStock] = useState(4)
+  const stockTone = stock >= 4
+    ? 'wpr__stock-count--green'
+    : stock >= 2
+      ? 'wpr__stock-count--yellow'
+      : 'wpr__stock-count--red'
 
   useEffect(() => {
     if (!active) return
@@ -94,7 +99,7 @@ export function PreviewStock() {
 
   return (
     <Popup ref={ref} active={active} icon={<Flame size={20} strokeWidth={2} />} iconClass="wpr__icon--orange">
-      <p>Залишилось <strong key={stock}>{stock} шт</strong> на складі</p>
+      <p>Залишилось <strong key={stock} className={`wpr__stock-count ${stockTone}`}>{stock} шт</strong> на складі</p>
       <span className="wpr__sub">Купують активно — може скінчитись</span>
     </Popup>
   )
@@ -314,26 +319,129 @@ export function PreviewOnePlusOne() {
   )
 }
 
+const OPO_CARD_STEPS = [
+  { items: 1, badge: '1+1', title: 'Акція: 1+1=3', hint: 'Додайте ще 1 товар', fill: 34 },
+  { items: 2, badge: '2/3', title: 'Акція активована', hint: 'До подарунка один крок', fill: 67 },
+  { items: 3, badge: 'FREE', title: 'Третій товар у подарунок', hint: 'Подарунок додано в кошик', fill: 100 },
+]
+
+export function PreviewOnePlusOneCard() {
+  const { ref, active } = useVisible<HTMLDivElement>()
+  const [step, setStep] = useState(0)
+  const current = OPO_CARD_STEPS[step]!
+
+  useEffect(() => {
+    if (!active) return
+    const t = setTimeout(() => setStep(s => (s + 1) % OPO_CARD_STEPS.length), step === 2 ? 1800 : 1200)
+    return () => clearTimeout(t)
+  }, [step, active])
+
+  return (
+    <div className={`wpr__opo-card${active ? ' wpr__opo-card--visible' : ''}`} ref={ref}>
+      <div className="wpr__opo-card__cart" aria-hidden="true">
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            className={`wpr__opo-card__item${current.items > i ? ' wpr__opo-card__item--in' : ''}${i === 2 && current.items > i ? ' wpr__opo-card__item--gift' : ''}`}
+            style={{ transitionDelay: `${i * 70}ms` }}
+          >
+            {i === 2 && current.items > i ? <Gift size={13} strokeWidth={2.4} /> : <ShoppingCart size={12} strokeWidth={2.25} />}
+          </span>
+        ))}
+      </div>
+      <div className="wpr__opo-card__content">
+        <div className="wpr__opo-card__head">
+          <span key={current.badge} className={`wpr__opo-card__badge${step === 2 ? ' wpr__opo-card__badge--gift' : ''}`}>
+            {current.badge}
+          </span>
+          <strong key={current.title} className="wpr__opo-card__title">{current.title}</strong>
+        </div>
+        <span key={current.hint} className="wpr__opo-card__hint">{current.hint}</span>
+        <div className="wpr__opo-card__bar">
+          <span className="wpr__opo-card__fill" style={{ width: `${current.fill}%` }} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const PD_TIERS  = [{ minItems: 2, percent: 5 }, { minItems: 3, percent: 10 }, { minItems: 5, percent: 15 }]
+const PD_COUNTS = [2, 3, 5]
+const PD_DELAYS = [1500, 1500, 2200]
+const PD_TIER_COLORS = ['#10B981', '#3B82F6', '#A855F7']
+
+function pdPluralUa(n: number) {
+  const m10 = n % 10, m100 = n % 100
+  if (m10 === 1 && m100 !== 11) return 'товар'
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return 'товари'
+  return 'товарів'
+}
+
 export function PreviewProgressiveDiscount() {
   const { ref, active } = useVisible<HTMLDivElement>()
-  const STEPS = [{ qty: 2, pct: 5 }, { qty: 3, pct: 10 }, { qty: 5, pct: 15 }]
   const [step, setStep] = useState(0)
 
   useEffect(() => {
     if (!active) return
-    const t = setInterval(() => setStep(s => (s + 1) % STEPS.length), 1800)
-    return () => clearInterval(t)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active])
+    const t = setTimeout(() => setStep(s => (s + 1) % PD_COUNTS.length), PD_DELAYS[step])
+    return () => clearTimeout(t)
+  }, [step, active])
 
-  const cur = STEPS[step]
+  const itemCount = PD_COUNTS[step]!
+  const ceiling   = PD_TIERS[PD_TIERS.length - 1]!.minItems
+  const pct       = Math.min(100, (itemCount / ceiling) * 100)
+
+  let activeIdx = -1
+  for (let i = 0; i < PD_TIERS.length; i++) {
+    if (itemCount >= PD_TIERS[i]!.minItems) activeIdx = i
+    else break
+  }
+
+  const activeTier = activeIdx >= 0 ? PD_TIERS[activeIdx] : null
+  const nextTier   = activeIdx + 1 < PD_TIERS.length ? PD_TIERS[activeIdx + 1] : null
+  const isTop      = activeTier !== null && activeIdx === PD_TIERS.length - 1
+  const accent     = PD_TIER_COLORS[Math.max(0, activeIdx)]!
+
   return (
-    <Popup ref={ref} active={active} icon={<Tag size={20} strokeWidth={2} />} iconClass="wpr__icon--green">
-      <p key={step} className="wpr__fade wpr__fade--in">
-        Від <strong>{cur.qty} шт</strong> — знижка <strong style={{ color: '#22c55e' }}>{cur.pct}%</strong>
-      </p>
-      <span className="wpr__sub">Більше купуєш — більше економиш</span>
-    </Popup>
+    <div
+      ref={ref}
+      className={`wpr__pd${active ? ' wpr__pd--visible' : ''}`}
+      style={{ background: '#0f172a' }}
+    >
+      <div className="wpr__pd-head">
+        <span className="wpr__pd-title">Прогресивна знижка</span>
+        {activeTier && (
+          <span className="wpr__pd-current" style={{ color: accent, transition: 'color 0.4s ease' }}>
+            Знижка {activeTier.percent}%
+          </span>
+        )}
+      </div>
+
+      <div className="wpr__pd-hint">
+        {isTop
+          ? <span>🎉 Максимальна знижка <b style={{ color: accent }}>{PD_TIERS[PD_TIERS.length - 1]!.percent}%</b> активована!</span>
+          : nextTier
+            ? <>Додайте ще <b style={{ color: accent }}>{nextTier.minItems - itemCount}</b> {pdPluralUa(nextTier.minItems - itemCount)} — отримаєте <b style={{ color: accent }}>{nextTier.percent}%</b></>
+            : <span style={{ color: 'rgba(248,250,252,0.5)' }}>Додайте товари до кошика</span>
+        }
+      </div>
+
+      <div className="wpr__pd-bar">
+        <div className="wpr__pd-fill" style={{ width: `${pct}%`, background: accent, transition: 'width 350ms cubic-bezier(0.22,1,0.36,1), background 0.4s ease' }} />
+      </div>
+
+      <div className="wpr__pd-tiers">
+        {PD_TIERS.map((tier, i) => (
+          <div
+            key={tier.minItems}
+            className={`wpr__pd-tier${i === activeIdx ? ' wpr__pd-tier--active' : ''}`}
+            style={i === activeIdx ? { background: accent, color: '#0a0a0a' } : undefined}
+          >
+            {tier.minItems}+ → {tier.percent}%
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }
 
@@ -415,24 +523,28 @@ export function PreviewSnow() {
 
 export function PreviewStickyBuyButton() {
   const { ref, active } = useVisible<HTMLDivElement>()
-  const [glow, setGlow] = useState(false)
-
-  useEffect(() => {
-    if (!active) return
-    const t = setInterval(() => setGlow(g => !g), 1800)
-    return () => clearInterval(t)
-  }, [active])
 
   return (
-    <div className="wpr__sticky" ref={ref}>
-      <div className="wpr__sticky-bar">
-        <div className="wpr__sticky-info">
-          <span className="wpr__sticky-name">Кросівки Nike Air</span>
-          <strong className="wpr__sticky-price">1 590 грн</strong>
+    <div className={`wpr__sticky${active ? ' wpr__sticky--active' : ''}`} ref={ref}>
+      <div className="wpr__sticky-phone" aria-hidden="true">
+        <div className="wpr__sticky-scroll">
+          <div className="wpr__sticky-photo">
+            <ShoppingBag size={18} strokeWidth={1.8} />
+          </div>
+          <div className="wpr__sticky-content">
+            <span className="wpr__sticky-title">Кросівки Nike Air</span>
+            <span className="wpr__sticky-price">1 590 грн</span>
+            <span className="wpr__sticky-line wpr__sticky-line--wide" />
+            <span className="wpr__sticky-line" />
+            <span className="wpr__sticky-line wpr__sticky-line--short" />
+            <button className="wpr__sticky-original" type="button">Купити</button>
+            <span className="wpr__sticky-line wpr__sticky-line--wide" />
+            <span className="wpr__sticky-line" />
+          </div>
         </div>
-        <button className={`wpr__sticky-btn${glow ? ' wpr__sticky-btn--glow' : ''}`} type="button">
-          Купити
-        </button>
+        <div className="wpr__sticky-bar">
+          <button className="wpr__sticky-btn" type="button">Купити</button>
+        </div>
       </div>
     </div>
   )
@@ -640,6 +752,122 @@ const CREC_PRODUCTS = [
   { bg: 'linear-gradient(135deg,#f0e8c0,#e8d898)', name: 'Гаманець',         price: '540 грн'   },
 ]
 
+type CursorPos = 'hidden' | 'buy' | 'row0' | 'row1' | 'row2' | 'cta'
+
+const CURSOR_STYLE: Record<CursorPos, React.CSSProperties> = {
+  hidden: { opacity: 0,  top: '72%', left: 'calc(50% - 8px)' },
+  buy:    { opacity: 1,  top: '72%', left: 'calc(50% - 8px)' },
+  row0:   { opacity: 1,  top: '9%',  left: 'calc(100% - 28px)' },
+  row1:   { opacity: 1,  top: '33%', left: 'calc(100% - 28px)' },
+  row2:   { opacity: 1,  top: '56%', left: 'calc(100% - 28px)' },
+  cta:    { opacity: 1,  top: '83%', left: 'calc(50% - 8px)' },
+}
+
+export function PreviewCartRecommenderDetail() {
+  const { ref, active } = useVisible<HTMLDivElement>()
+  const [tick, setTick] = useState(0)
+  const [open, setOpen] = useState(false)
+  const [rowsIn, setRowsIn] = useState(0)
+  const [addedCount, setAddedCount] = useState(0)
+  const [cursorPos, setCursorPos] = useState<CursorPos>('hidden')
+  const [clicking, setClicking] = useState(false)
+  const [ctaPressed, setCtaPressed] = useState(false)
+  const [buyPressed, setBuyPressed] = useState(false)
+
+  useEffect(() => {
+    if (!active) return
+    setOpen(false)
+    setRowsIn(0)
+    setAddedCount(0)
+    setCursorPos('hidden')
+    setClicking(false)
+    setCtaPressed(false)
+    setBuyPressed(false)
+
+    const timers: ReturnType<typeof setTimeout>[] = []
+    const t = (ms: number, fn: () => void) => timers.push(setTimeout(fn, ms))
+
+    t(300,  () => setCursorPos('buy'))
+    t(750,  () => { setClicking(true); setBuyPressed(true) })
+    t(900,  () => { setClicking(false); setBuyPressed(false); setOpen(true) })
+    t(1100, () => setRowsIn(1))
+    t(1300, () => setRowsIn(2))
+    t(1500, () => { setRowsIn(3); setCursorPos('row0') })
+    t(1800, () => setClicking(true))
+    t(1950, () => { setClicking(false); setAddedCount(1) })
+    t(2150, () => setCursorPos('row1'))
+    t(2350, () => setClicking(true))
+    t(2500, () => { setClicking(false); setAddedCount(2) })
+    t(2700, () => setCursorPos('row2'))
+    t(2900, () => setClicking(true))
+    t(3050, () => { setClicking(false); setAddedCount(3) })
+    t(3250, () => setCursorPos('cta'))
+    t(3500, () => { setClicking(true); setCtaPressed(true) })
+    t(3650, () => { setClicking(false); setCtaPressed(false) })
+    t(3850, () => setCursorPos('hidden'))
+    t(4100, () => setOpen(false))
+    t(4450, () => { setRowsIn(0); setAddedCount(0) })
+    t(4800, () => setTick(n => n + 1))
+
+    return () => timers.forEach(clearTimeout)
+  }, [tick, active])
+
+  return (
+    <div className="wpr__crec" ref={ref}>
+      <div className="wpr__crec-product">
+        <div className="wpr__crec-product-img" />
+        <div className="wpr__crec-product-info">
+          <span className="wpr__crec-product-name">Кросівки Nike Air</span>
+          <span className="wpr__crec-product-price">1 590 грн</span>
+        </div>
+        <div className={`wpr__crec-buy-btn${buyPressed ? ' wpr__crec-buy-btn--press' : ''}`}>Купити</div>
+      </div>
+
+      <div className={`wpr__crec-overlay${open ? ' wpr__crec-overlay--on' : ''}`} />
+
+      <div className={`wpr__crec-sheet${open ? ' wpr__crec-sheet--open' : ''}`}>
+        <div className="wpr__crec-header">
+          <span className="wpr__crec-title">✨ Часто беруть разом</span>
+          <span className="wpr__crec-close">✕</span>
+        </div>
+        <div className="wpr__crec-list">
+          {CREC_PRODUCTS.map((p, i) => {
+            const done = addedCount > i
+            return (
+              <div key={i} className={`wpr__crec-row${rowsIn > i ? ' wpr__crec-row--in' : ''}`}>
+                <div className="wpr__crec-img" style={{ background: p.bg }} />
+                <div className="wpr__crec-info">
+                  <span className="wpr__crec-name">{p.name}</span>
+                  <span className="wpr__crec-price">{p.price}</span>
+                </div>
+                <div className={`wpr__crec-add${done ? ' wpr__crec-add--done' : ''}`}>
+                  {done && <span className="wpr__crec-add__check">✓</span>}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+        <div className={`wpr__crec-cta${ctaPressed ? ' wpr__crec-cta--press' : ''}`}>Оформити замовлення</div>
+      </div>
+
+      <div
+        className={`wpr__crec-cursor${clicking ? ' wpr__crec-cursor--click' : ''}`}
+        style={CURSOR_STYLE[cursorPos]}
+      >
+        <svg width="16" height="20" viewBox="0 0 16 20" fill="none" aria-hidden="true">
+          <path
+            d="M1 1L1 16L5 12L8 18L11 17L8 11L13 11L1 1Z"
+            fill="white"
+            stroke="rgba(0,0,0,0.25)"
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+    </div>
+  )
+}
+
 export function PreviewCartRecommender() {
   const { ref, active } = useVisible<HTMLDivElement>()
   const [idx, setIdx] = useState(0)
@@ -727,4 +955,11 @@ export const PREVIEW_MAP: Record<string, React.FC> = {
   'floating-messengers':   PreviewFloatingMessengers,
   'cart-recommender':      PreviewCartRecommender,
   'sms-otp-checkout':      PreviewSmsOtp,
+}
+
+// ─── Detailed previews for widget detail pages ───────────────────────────────
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const DETAIL_PREVIEW_MAP: Record<string, React.FC> = {
+  'cart-recommender': PreviewCartRecommenderDetail,
 }

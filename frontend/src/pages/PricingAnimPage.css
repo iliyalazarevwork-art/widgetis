@@ -1,0 +1,749 @@
+/* ═══════════════════════════════════════════
+   PricingAnimPage
+═══════════════════════════════════════════ */
+
+.pan-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 16px;
+}
+
+/* Mac-style preview frame */
+.pan-frame {
+  width: 340px;
+  border-radius: 14px;
+  background: #0d0d0d;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 40px 100px -20px rgba(0, 0, 0, 0.8),
+    0 0 0 1px rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+}
+
+.pan-frame__bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.pan-frame__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pan-frame__dot--r { background: #ff5f57; }
+.pan-frame__dot--y { background: #febc2e; }
+.pan-frame__dot--g { background: #28c840; }
+
+.pan-frame__label {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #3b82f6;
+  transition: color 0.4s ease;
+}
+
+.pan-frame__label--success  { color: #10b981; }
+.pan-frame__label--install  { color: #a855f7; }
+.pan-frame__label--horoshop { color: #f59e0b; }
+
+.pan-frame__stage {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at 50% 0%, rgba(59, 130, 246, 0.07) 0%, transparent 65%);
+  min-height: 160px;
+}
+
+/* ── Animation root ──────────────────────── */
+
+.pan {
+  position: relative;
+  width: 300px;
+  height: 180px;
+  overflow: hidden;
+}
+
+.pan__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ── Card base ── */
+.pan__card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #141414;
+  border-radius: 9px;
+  border: 1px solid #1e1e1e;
+}
+
+.pan__icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.pan__card--basic .pan__icon { color: #10b981; }
+.pan__card--pro   .pan__icon { color: #3b82f6; }
+.pan__card--max   .pan__icon { color: #a855f7; }
+
+.pan__name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary, #f0f0f0);
+  flex-shrink: 0;
+}
+
+.pan__price {
+  font-size: 12px;
+  color: var(--text-secondary, #888);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.pan__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.pan__cta--basic { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.pan__cta--pro   { background: #3b82f6; color: #fff; }
+.pan__cta--max   { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
+
+/* ─────────────────────────────────────────
+   Pricing phase — 4.5s
+
+   Timeline:
+     0% – 6%  : cursor hidden off-screen top
+     6% – 12% : cursor glides in to Basic area
+     12% – 18%: hover Basic
+     18% – 28%: cursor moves to Pro CTA
+     28% – 44%: hover Pro CTA
+     44% – 48%: click (tiny press)
+     48% – 100%: cursor holds at Pro CTA — hands off to payment phase
+───────────────────────────────────────── */
+
+.pan__card--basic {
+  animation: pan-basic 4.5s ease-in-out forwards;
+}
+
+@keyframes pan-basic {
+  0%, 10%   { border-color: #1e1e1e; box-shadow: none; }
+  14%, 22%  { border-color: rgba(16, 185, 129, 0.30); box-shadow: 0 0 14px rgba(16, 185, 129, 0.12); }
+  30%, 100% { border-color: #1e1e1e; box-shadow: none; }
+}
+
+.pan__card--pro {
+  animation: pan-pro 4.5s ease-in-out forwards;
+}
+
+@keyframes pan-pro {
+  0%, 26%  { border-color: #1e1e1e; box-shadow: none; transform: none; }
+  32%, 44% {
+    border-color: rgba(59, 130, 246, 0.50);
+    box-shadow: 0 0 22px rgba(59, 130, 246, 0.20), 0 4px 18px -4px rgba(59, 130, 246, 0.18);
+    transform: translateY(-1px);
+  }
+  /* subtle selected state after click */
+  50%, 100% {
+    border-color: rgba(59, 130, 246, 0.28);
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.10);
+    transform: none;
+  }
+}
+
+.pan__cta--pro {
+  animation: pan-pro-cta 4.5s ease-in-out forwards;
+}
+
+@keyframes pan-pro-cta {
+  0%, 41%   { transform: scale(1); background: #3b82f6; box-shadow: none; }
+  45%       { transform: scale(0.88); background: #1d4ed8; }
+  49%, 100% { transform: scale(1); background: #3b82f6; box-shadow: 0 0 12px rgba(59, 130, 246, 0.50); }
+}
+
+/* Pricing cursor — ends at Pro CTA (240, 62) which is exactly where payment cursor starts */
+.pan__cursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.9));
+  animation: pan-cursor 4.5s ease-in-out forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes pan-cursor {
+  0%    { transform: translate(60px, -16px); opacity: 0; }
+  6%    { transform: translate(60px, -16px); opacity: 0; animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+  12%   { transform: translate(60px,  20px); opacity: 1; }
+  20%   { transform: translate(60px,  20px); opacity: 1; animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+  30%   { transform: translate(240px, 62px); opacity: 1; animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+  44%   { transform: translate(240px, 62px); opacity: 1; }
+  46%   { transform: translate(240px, 64px); opacity: 1; animation-timing-function: linear; }
+  50%   { transform: translate(240px, 62px); opacity: 1; }
+  /* stays at (240, 62) through the end — payment cursor picks up from here */
+  100%  { transform: translate(240px, 62px); opacity: 1; }
+}
+
+/* ─────────────────────────────────────────
+   Payment phase — 3s
+   Cursor starts at (240, 62) — same as pricing cursor end — no jump!
+   Apple Pay center: x=148, y=67
+───────────────────────────────────────── */
+
+.pan__payment {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: #111;
+  border-radius: 8px;
+  animation: pan-payment-enter 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  overflow: hidden;
+}
+
+@keyframes pan-payment-enter {
+  from { transform: translateY(105%); opacity: 0.4; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.pan__pay-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  flex-shrink: 0;
+}
+
+.pan__pay-back {
+  font-size: 20px;
+  line-height: 1;
+  color: #3b82f6;
+  margin-right: 2px;
+}
+
+.pan__pay-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #f0f0f0;
+}
+
+.pan__pay-price {
+  margin-left: auto;
+  font-size: 10px;
+  color: #666;
+  letter-spacing: 0.02em;
+}
+
+.pan__pay-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 10px 12px;
+}
+
+.pan__pay-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 44px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 0 16px;
+  flex-shrink: 0;
+}
+
+.pan__pay-btn--apple {
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  animation: pan-apple-press 3s ease-in-out forwards;
+}
+
+.pan__pay-btn--google {
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.pan__pay-logo {
+  height: 20px;
+  width: auto;
+  display: block;
+}
+
+.pan__pay-sep {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  color: #444;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+
+.pan__pay-sep::before,
+.pan__pay-sep::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.pan__pay-sep span { flex-shrink: 0; }
+
+@keyframes pan-apple-press {
+  0%, 52%   { transform: scale(1);    box-shadow: none; }
+  58%       { transform: scale(0.95); box-shadow: none; }
+  66%, 80%  { transform: scale(1);    box-shadow: 0 0 20px rgba(255, 255, 255, 0.14); }
+  92%, 100% { transform: scale(1);    box-shadow: none; }
+}
+
+/*
+   Payment cursor starts at (240, 62) — exactly where pricing cursor ended.
+   No opacity fade-in, no position jump. Pure continuity.
+*/
+.pan__cursor--payment {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.9));
+  animation: pan-cursor-payment 3s ease-in-out forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes pan-cursor-payment {
+  /* Pick up exactly where pricing cursor left off */
+  0%    { transform: translate(240px, 62px); opacity: 1; }
+  /* Brief hold while payment panel slides in */
+  10%   { transform: translate(240px, 62px); opacity: 1; animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+  /* Glide to Apple Pay center */
+  34%   { transform: translate(148px, 67px); opacity: 1; }
+  50%   { transform: translate(148px, 67px); opacity: 1; }
+  /* Click press */
+  57%   { transform: translate(148px, 69px); opacity: 1; animation-timing-function: linear; }
+  64%   { transform: translate(148px, 67px); opacity: 1; }
+  /* Hold while Apple Pay glows */
+  80%   { transform: translate(148px, 67px); opacity: 1; }
+  /* Fade before success */
+  92%   { transform: translate(148px, 67px); opacity: 0; }
+  100%  { transform: translate(148px, 67px); opacity: 0; }
+}
+
+/* ─────────────────────────────────────────
+   Success phase — no cursor, just checkmark
+───────────────────────────────────────── */
+
+.pan__success {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  animation: pan-success-enter 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes pan-success-enter {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.pan__success-circle {
+  animation: pan-draw-circle 0.60s ease-out forwards;
+}
+
+@keyframes pan-draw-circle {
+  to { stroke-dashoffset: 0; }
+}
+
+.pan__success-check {
+  animation: pan-draw-check 0.35s ease-out 0.50s forwards;
+}
+
+@keyframes pan-draw-check {
+  to { stroke-dashoffset: 0; }
+}
+
+.pan__success-title {
+  margin: 2px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #f0f0f0;
+  animation: pan-fade-up 0.45s ease-out 0.65s both;
+}
+
+.pan__success-sub {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+  animation: pan-fade-up 0.45s ease-out 0.80s both;
+}
+
+@keyframes pan-fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─────────────────────────────────────────
+   Install phase — code snippet + copy
+
+   Layout (within 300×180 pan):
+     padding: 14px
+     title (11px): ~17px + 2px margin
+     sub (10px): ~14px + 8px margin
+     code block: ~59px + 8px margin
+     copy button: ~24px
+     total: ~146px < 180px ✓
+
+   Copy button center: x=150, y≈133
+───────────────────────────────────────── */
+
+.pan__install {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 14px;
+  background: #111;
+  border-radius: 8px;
+  animation: pan-install-enter 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  overflow: hidden;
+}
+
+@keyframes pan-install-enter {
+  from { transform: translateX(105%); opacity: 0.5; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+.pan__install-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #f0f0f0;
+  margin: 0 0 2px;
+}
+
+.pan__install-sub {
+  font-size: 10px;
+  color: #666;
+  margin: 0 0 8px;
+}
+
+.pan__install-code {
+  background: #0a0a0a;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 9px;
+  line-height: 1.65;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+  white-space: pre;
+}
+
+.pan__code-tag  { color: #60a5fa; }
+.pan__code-attr { color: #a5b4fc; }
+.pan__code-eq   { color: #94a3b8; }
+.pan__code-val  { color: #34d399; }
+
+.pan__install-copy {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  overflow: hidden;
+  animation: pan-copy-bg 3.5s ease-in-out forwards;
+}
+
+@keyframes pan-copy-bg {
+  0%, 50%   { background: #3b82f6; transform: scale(1); }
+  53%       { background: #2563eb; transform: scale(0.93); }
+  57%, 100% { background: #10b981; transform: scale(1); }
+}
+
+.pan__copy-text {
+  display: block;
+  animation: pan-copy-text-out 3.5s ease-in-out forwards;
+}
+
+@keyframes pan-copy-text-out {
+  0%, 55%   { opacity: 1; }
+  62%, 100% { opacity: 0; }
+}
+
+.pan__copy-done {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pan-copy-done-in 3.5s ease-in-out forwards;
+}
+
+@keyframes pan-copy-done-in {
+  0%, 58%   { opacity: 0; }
+  65%, 100% { opacity: 1; }
+}
+
+/* ─────────────────────────────────────────
+   Install cursor — enters from left, glides to copy button center (150, 133)
+───────────────────────────────────────── */
+.pan__cursor--install {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.9));
+  animation: pan-cursor-install 3.5s ease-in-out forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes pan-cursor-install {
+  0%    { transform: translate(-16px, 133px); opacity: 0; }
+  10%   { transform: translate(-16px, 133px); opacity: 0; animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+  /* Glide in from left to copy button */
+  28%   { transform: translate(150px, 133px); opacity: 1; }
+  46%   { transform: translate(150px, 133px); opacity: 1; }
+  /* Click */
+  52%   { transform: translate(150px, 135px); opacity: 1; animation-timing-function: linear; }
+  58%   { transform: translate(150px, 133px); opacity: 1; }
+  /* Hold while "Скопійовано" shows */
+  82%   { transform: translate(150px, 133px); opacity: 1; animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+  /* Exit right */
+  94%   { transform: translate(316px, 133px); opacity: 0; }
+  100%  { transform: translate(316px, 133px); opacity: 0; }
+}
+
+/* ─────────────────────────────────────────
+   Horoshop phase — mini Horoshop admin mockup
+   Scenario: user pastes code into "Скрипти перед </body>" → saves
+
+   Geometry (300×180 pan):
+     Header: 28px
+     Body: 152px
+       Sidebar: 72px wide
+       Content: 228px wide, padding 8px
+         label: 9px font ≈ 13px + 4px margin = 17px
+         textarea: flex 1 ≈ 91px
+         gap: 6px
+         save button: ≈ 22px
+
+   Cursor targets (within pan):
+     textarea center: (186, 98)
+     save button center: (257, 161)
+───────────────────────────────────────── */
+
+.pan__horoshop {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: #0f0f0f;
+  border-radius: 8px;
+  overflow: hidden;
+  animation: pan-horoshop-enter 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes pan-horoshop-enter {
+  from { transform: translateX(105%); opacity: 0.5; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+.pan__hs-header {
+  height: 28px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  background: #141414;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  flex-shrink: 0;
+}
+
+.pan__hs-logo {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: #2563eb;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: -0.5px;
+}
+
+.pan__hs-breadcrumb {
+  font-size: 9px;
+  color: #555;
+  font-weight: 500;
+}
+
+.pan__hs-breadcrumb strong {
+  color: #999;
+  font-weight: 600;
+}
+
+.pan__hs-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.pan__hs-sidebar {
+  width: 72px;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 6px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex-shrink: 0;
+}
+
+.pan__hs-item {
+  font-size: 9px;
+  color: #555;
+  padding: 5px 8px;
+  border-radius: 4px;
+  margin: 0 3px;
+}
+
+.pan__hs-item--active {
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.10);
+  font-weight: 600;
+}
+
+.pan__hs-content {
+  flex: 1;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.pan__hs-label {
+  font-size: 9px;
+  color: #777;
+  margin: 0 0 4px;
+}
+
+.pan__hs-textarea {
+  flex: 1;
+  background: #0a0a0a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  padding: 6px 8px;
+  margin-bottom: 6px;
+  overflow: hidden;
+  animation: pan-hs-focus 4s ease-in-out forwards;
+}
+
+@keyframes pan-hs-focus {
+  0%, 35%   { border-color: rgba(255, 255, 255, 0.08); box-shadow: none; }
+  39%, 100% { border-color: rgba(59, 130, 246, 0.35); box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.08); }
+}
+
+.pan__hs-code {
+  display: block;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 8px;
+  line-height: 1.65;
+  color: #34d399;
+  white-space: pre;
+  animation: pan-hs-code-appear 4s ease-in-out forwards;
+}
+
+@keyframes pan-hs-code-appear {
+  0%, 40%   { opacity: 0; }
+  50%, 100% { opacity: 1; }
+}
+
+.pan__hs-save {
+  align-self: flex-end;
+  padding: 5px 12px;
+  border-radius: 5px;
+  font-size: 9px;
+  font-weight: 600;
+  cursor: pointer;
+  animation: pan-hs-save-click 4s ease-in-out forwards;
+}
+
+@keyframes pan-hs-save-click {
+  0%, 74%   { background: #1e1e1e; color: #e0e0e0; transform: scale(1); border: 1px solid rgba(255,255,255,0.10); box-shadow: none; }
+  78%       { background: #141414; color: #e0e0e0; transform: scale(0.93); border: 1px solid rgba(255,255,255,0.06); }
+  82%, 100% { background: #10b981; color: #fff;    transform: scale(1); border: 1px solid transparent; box-shadow: 0 0 14px rgba(16,185,129,0.35); }
+}
+
+/* Horoshop cursor — enters from left at textarea height, then moves to save button */
+.pan__cursor--horoshop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.9));
+  animation: pan-cursor-horoshop 4s ease-in-out forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes pan-cursor-horoshop {
+  /* Enter from left at textarea Y level */
+  0%    { transform: translate(-16px, 98px); opacity: 0; }
+  8%    { transform: translate(-16px, 98px); opacity: 0; animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+  /* Glide to textarea center */
+  22%   { transform: translate(186px, 98px); opacity: 1; }
+  32%   { transform: translate(186px, 98px); opacity: 1; }
+  /* Click textarea */
+  37%   { transform: translate(186px, 100px); opacity: 1; animation-timing-function: linear; }
+  41%   { transform: translate(186px, 98px); opacity: 1; }
+  /* Hold while code appears */
+  57%   { transform: translate(186px, 98px); opacity: 1; animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+  /* Glide to save button */
+  66%   { transform: translate(257px, 161px); opacity: 1; animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+  73%   { transform: translate(257px, 161px); opacity: 1; }
+  /* Click save */
+  77%   { transform: translate(257px, 163px); opacity: 1; animation-timing-function: linear; }
+  81%   { transform: translate(257px, 161px); opacity: 1; }
+  /* Hold while button turns green */
+  90%   { transform: translate(257px, 161px); opacity: 1; animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+  /* Exit upward */
+  97%   { transform: translate(257px, -16px); opacity: 0; }
+  100%  { transform: translate(257px, -16px); opacity: 0; }
+}

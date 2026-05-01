@@ -26,11 +26,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://widgetis.com/live-demo</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://widgetis.com/contacts</loc>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
@@ -41,84 +36,50 @@
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://widgetis.com/signup</loc>
+    <loc>https://widgetis.com/offer</loc>
     <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://widgetis.com/terms</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://widgetis.com/privacy</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://widgetis.com/refund</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://widgetis.com/security</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
   </url>
 
-  <url>
-    <loc>https://widgetis.com/widgets/marquee</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://widgetis.com/widgets/delivery-date</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://widgetis.com/widgets/purchase-counter</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://widgetis.com/widgets/snow</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://widgetis.com/widgets/free-delivery</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://widgetis.com/widgets/live-viewers</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://widgetis.com/widgets/cashback</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://widgetis.com/widgets/one-plus-one</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://widgetis.com/widgets/bonus</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://widgetis.com/widgets/countdown</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://widgetis.com/widgets/photo-reviews</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://widgetis.com/widgets/recent-purchase</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://widgetis.com/widgets/spin-wheel</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://widgetis.com/widgets/quiz</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://widgetis.com/widgets/progressive-discount</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
+  <url><loc>https://widgetis.com/widgets/marquee</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://widgetis.com/widgets/delivery-date</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://widgetis.com/widgets/sticky-buy-button</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://widgetis.com/widgets/trust-badges</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://widgetis.com/widgets/phone-mask</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://widgetis.com/widgets/min-order</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://widgetis.com/widgets/cart-goal</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://widgetis.com/widgets/social-proof</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://widgetis.com/widgets/stock-left</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://widgetis.com/widgets/photo-reviews</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://widgetis.com/widgets/recently-viewed</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://widgetis.com/widgets/product-video-preview</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://widgetis.com/widgets/floating-messengers</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://widgetis.com/widgets/cart-recommender</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://widgetis.com/widgets/prize-banner</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://widgetis.com/widgets/promo-auto-apply</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://widgetis.com/widgets/progressive-discount</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://widgetis.com/widgets/one-plus-one</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://widgetis.com/widgets/exit-intent-popup</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://widgetis.com/widgets/spin-the-wheel</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://widgetis.com/widgets/sms-otp-checkout</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
 </urlset>

@@ -7,6 +7,7 @@ import { DemoSection } from './components/DemoSection'
 import { WidgetsShowcase } from './components/WidgetsShowcase'
 import { WidgetsList } from './components/WidgetsList'
 import { HowItWorks } from './components/HowItWorks'
+import { PricingAnimPage as PricingAnimSection } from './pages/PricingAnimPage'
 import { Faq } from './components/Faq'
 import { CTABanner } from './components/CTABanner'
 import { FloatingActions } from './components/FloatingActions'
@@ -30,6 +31,7 @@ const WidgetDetailPage = lazy(() =>
   import('./pages/WidgetDetailPage').then((m) => ({ default: m.WidgetDetailPage })),
 )
 const DemoPage = lazy(() => import('./pages/DemoPage').then((m) => ({ default: m.DemoPage })))
+const PricingAnimPage = lazy(() => import('./pages/PricingAnimPage').then((m) => ({ default: m.PricingAnimPage })))
 const LiveDemoPage = lazy(() => import('./pages/LiveDemoPage').then((m) => ({ default: m.LiveDemoPage })))
 const SignupPage = lazy(() => import('./pages/SignupPage').then((m) => ({ default: m.SignupPage })))
 const TrialSuccessPage = lazy(() =>
@@ -97,6 +99,7 @@ import { Toaster } from 'sonner'
 import { SeoHead } from './components/SeoHead'
 import { ScrollManager } from './components/ScrollManager'
 import { PageLoader } from './components/PageLoader'
+import { AnalyticsPageView } from './components/AnalyticsPageView'
 import './App.css'
 
 function HomePage() {
@@ -105,9 +108,9 @@ function HomePage() {
   return (
     <>
       <SeoHead
-        title="Widgetis — маркетингові віджети для Хорошоп | +15% конверсії"
-        description="Готові маркетингові віджети для магазину на Хорошоп: таймер, бігуча стрічка, дата доставки, фотовідгуки, соціальний доказ. Встановлення 3 хв без програміста. Тест 7 днів безкоштовно."
-        keywords="віджети для Хорошоп, плагіни Хорошоп, horoshop плагіни, підвищення конверсії Хорошоп, маркетингові інструменти для інтернет-магазину на Хорошоп, widgetis хорошоп, збільшити продажі Хорошоп"
+        title="Widgetis — маркетингові віджети для Хорошоп | Вища конверсія та середній чек"
+        description="Готові маркетингові віджети для магазину на Хорошоп: бігуча стрічка, таймер, дата доставки, фотовідгуки, колесо фортуни, прогресивна знижка. Встановлення 3 хвилини без програміста — збільшують конверсію та середній чек. 7 днів безкоштовно."
+        keywords="віджети для Хорошоп, плагіни Хорошоп, віджети Horoshop, плагіни Horoshop, маркетингові інструменти Хорошоп, підвищення конверсії Хорошоп, збільшити середній чек Хорошоп, widgetis Хорошоп"
         path="/"
         structuredData={{
           '@context': 'https://schema.org',
@@ -152,6 +155,7 @@ function HomePage() {
       <WidgetsShowcase />
       <DemoSection />
       <WidgetsList />
+      <PricingAnimSection />
       <HowItWorks />
       <Testimonials />
       <CTABanner onConsultation={() => setShowConsultation(true)} />
@@ -290,6 +294,7 @@ function App() {
   return (
     <BrowserRouter>
       <ScrollManager />
+      <AnalyticsPageView />
       <div className="app">
         <Suspense fallback={<PageLoader fullscreen />}>
         <Routes>
@@ -307,6 +312,7 @@ function App() {
             <Route path="/cases" element={<CasesPage />} />
             <Route path="/widgets/:slug" element={<WidgetDetailPage />} />
             <Route path="/demo" element={<DemoPage />} />
+            <Route path="/pricing-anim" element={<PricingAnimPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/login/otp" element={<LoginOtpPage />} />

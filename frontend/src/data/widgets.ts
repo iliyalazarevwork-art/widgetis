@@ -216,7 +216,7 @@ export const widgets: Widget[] = [
   {
     id: 'cart-recommender',
     icon: 'puzzle',
-    title: 'Рекомендації у кошику',
+    title: 'AI Рекомендації у кошику',
     description:
       'Карусель супутніх товарів прямо в кошику. Допомагає клієнту знайти те, що він забув додати, та збільшує суму замовлення.',
     tag: 'avg-order',
@@ -304,9 +304,9 @@ export const widgets: Widget[] = [
   {
     id: 'sms-otp-checkout',
     icon: 'smartphone',
-    title: 'SMS-верифікація на касі',
+    title: 'SMS-верифікація в чекауті',
     description:
-      'OTP-перевірка телефону перед оформленням замовлення для трафіку з Google/Facebook. Відсіює фейкові замовлення та підвищує якість бази клієнтів.',
+      'OTP-перевірка телефону в чекауті під час оформлення замовлення для трафіку з Google/Facebook. Відсіює фейкові замовлення та підвищує якість бази клієнтів.',
     tag: 'trust',
     tagColor: 'blue',
     isNew: true,

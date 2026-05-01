@@ -13,7 +13,7 @@ import {
   ChevronRight,
 } from 'lucide-react'
 import { availableWidgetTags, widgets, tagLabels, type Tag } from '../data/widgets'
-import { PREVIEW_MAP } from '../components/WidgetPreviews'
+import { PREVIEW_MAP, PreviewOnePlusOneCard } from '../components/WidgetPreviews'
 import './WidgetsPage.css'
 
 // ─── Cases data per widget ──────────────────────────────────────────────────
@@ -69,7 +69,7 @@ const TAG_ACCENT: Record<Tag, string> = {
 // ─── Widget preview mockup ──────────────────────────────────────────────────
 
 function WidgetMockup({ id }: { id: string }) {
-  const Preview = PREVIEW_MAP[id]
+  const Preview = id === 'one-plus-one' ? PreviewOnePlusOneCard : PREVIEW_MAP[id]
   if (!Preview) return null
   return (
     <div className="wc__preview">
@@ -113,11 +113,20 @@ function WidgetCard({ widget, index = 0 }: { widget: typeof widgets[0]; index?: 
           <span className="wc__tag" style={{ color: accent, background: `${accent}18` }}>
             {tagLabels[widget.tag]}
           </span>
-          {widget.isNew && <span className="wc__new">NEW</span>}
-          {widget.isPopular && (
-            <span className="wc__popular">
-              <Sparkles size={10} strokeWidth={2.5} />
-              Хіт
+          {(widget.isNew || widget.isPopular) && (
+            <span className="wc__markers">
+              {widget.isNew && (
+                <span className="wc__new">
+                  <Star size={10} strokeWidth={2.5} />
+                  Новинка
+                </span>
+              )}
+              {widget.isPopular && (
+                <span className="wc__popular">
+                  <Sparkles size={10} strokeWidth={2.5} />
+                  Хіт
+                </span>
+              )}
             </span>
           )}
         </div>
@@ -189,17 +198,27 @@ export function WidgetsPage() {
   return (
     <div className="wp">
       <SeoHead
-        title="Віджети для Horoshop — 21 готовий інструмент | Widgetis"
-        description="21 маркетинговий віджет для Horoshop: бігуча стрічка, дата доставки, фотовідгуки, колесо фортуни, прогресивна знижка, SMS-верифікація та інші. Підвищують конверсію та середній чек без програміста."
-        keywords="віджети Хорошоп, плагіни для Хорошоп, таймер зворотного відліку Хорошоп, бігуча стрічка Хорошоп, фотовідгуки Хорошоп, конверсія інтернет-магазину Хорошоп, horoshop widgets"
+        title="Віджети для Хорошоп — 21 готовий інструмент | Widgetis"
+        description="21 маркетинговий віджет для Хорошоп: бігуча стрічка, дата доставки, фотовідгуки, колесо фортуни, прогресивна знижка, SMS-верифікація та інші. Збільшують конверсію та середній чек — встановлення без програміста."
+        keywords="віджети Хорошоп, плагіни для Хорошоп, віджети Horoshop, плагіни Horoshop, таймер зворотного відліку Хорошоп, бігуча стрічка Хорошоп, фотовідгуки Хорошоп, конверсія інтернет-магазину Хорошоп"
         path="/widgets"
-        structuredData={{
-          '@context': 'https://schema.org',
-          '@type': 'CollectionPage',
-          name: 'Маркетингові віджети для Horoshop — Widgetis',
-          description: '15 готових маркетингових віджетів для магазинів на Horoshop.',
-          inLanguage: 'uk-UA',
-        }}
+        structuredData={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'CollectionPage',
+            name: 'Маркетингові віджети для Хорошоп — Widgetis',
+            description: '21 готовий маркетинговий віджет для магазинів на платформі Хорошоп.',
+            inLanguage: 'uk-UA',
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Головна', item: 'https://widgetis.com/' },
+              { '@type': 'ListItem', position: 2, name: 'Віджети', item: 'https://widgetis.com/widgets' },
+            ],
+          },
+        ]}
       />
 
       {/* ── Hero ── */}

@@ -196,10 +196,28 @@
   color: rgba(180,215,255,0.75);
 }
 
-/* Spin wheel — compact, centered, no subtitle */
-.wc__preview .wpr__wheel-wrap { width: 100%; align-items: center; justify-content: center; }
-.wc__preview .wpr__wheel { width: 56px; height: 56px; }
-.wc__preview .wpr__wheel-wrap .wpr__sub { display: none; }
+/* Spin wheel — visual left, label right */
+.wc__preview .wpr__wheel-wrap {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 0 20px;
+}
+.wc__preview .wpr__wheel { width: 54px; height: 54px; }
+.wc__preview .wpr__wheel-wrap .wpr__sub {
+  display: block !important;
+  flex: 1;
+  margin-top: 0 !important;
+  text-align: left !important;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #d8d8d8;
+}
 .wc__preview .wpr__wheel-center { font-size: 0; }
 .wc__preview .wpr__wheel-center svg { width: 18px; height: 18px; color: #f0f0f0; }
 
@@ -219,11 +237,11 @@
   height: 100%;
 }
 
-/* Spin wheel — compact */
+/* Spin wheel — keep compact size in widget cards */
 .wc__preview .wpr__wheel-wrap { width: 100%; align-items: center; }
 .wc__preview .wpr__wheel {
-  width: 56px;
-  height: 56px;
+  width: 54px;
+  height: 54px;
 }
 
 /* New previews — fill card width */
@@ -246,6 +264,16 @@
   color: #888888;
 }
 
+/* Progressive discount — compact fit for 80px card */
+.wc__preview .wpr__pd {
+  padding: 8px 12px;
+  gap: 5px;
+  background: transparent !important;
+}
+.wc__preview .wpr__pd-hint {
+  display: none;
+}
+
 .wc__body {
   padding: 18px;
   display: flex;
@@ -259,11 +287,13 @@
 .wc__badges {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 6px;
-  flex-wrap: wrap;
+  width: 100%;
 }
 
 .wc__tag {
+  min-width: 0;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 1.5px;
@@ -272,14 +302,27 @@
   border-radius: 999px;
 }
 
+.wc__markers {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
 .wc__new {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
   padding: 5px 12px;
   border-radius: 999px;
   background: rgba(16,185,129,0.15);
   color: #10b981;
+  white-space: nowrap;
 }
 
 .wc__popular {
@@ -292,6 +335,7 @@
   border-radius: 999px;
   background: rgba(251,191,36,0.12);
   color: #fbbf24;
+  white-space: nowrap;
 }
 
 .wc__title {

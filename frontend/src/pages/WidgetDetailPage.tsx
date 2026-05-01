@@ -16,7 +16,7 @@ import type { PlanDef } from '../data/plans'
 import { WidgetIcon } from '../components/WidgetIcon'
 import { WIDGET_ICON_MAP } from '../components/widgetIconMap'
 import { Wrench } from 'lucide-react'
-import { PREVIEW_MAP } from '../components/WidgetPreviews'
+import { PREVIEW_MAP, DETAIL_PREVIEW_MAP } from '../components/WidgetPreviews'
 import { WidgetCard } from '../components/WidgetCard'
 import {
   widgets,
@@ -120,7 +120,7 @@ export function WidgetDetailPage() {
   }
 
   const benefits = TAG_BENEFITS[widget.tag]
-  const PreviewComp = PREVIEW_MAP[widget.id]
+  const PreviewComp = DETAIL_PREVIEW_MAP[widget.id] ?? PREVIEW_MAP[widget.id]
 
   // Пакеты, включающие виджет
   const availablePlans = packages.filter((p) => p.widgetSlugs.includes(widget.id))
@@ -128,30 +128,37 @@ export function WidgetDetailPage() {
   return (
     <div className="widget-page">
       <SeoHead
-        title={`${widget.title} для Horoshop — ${BRAND_NAME_UPPER} | Встановлення 3 хв`}
-        description={`${widget.description} Встановлення 3 хвилини без програміста на магазин у Horoshop.`}
+        title={`${widget.title} для Хорошоп — ${BRAND_NAME_UPPER} | Встановлення 3 хв`}
+        description={`${widget.description} Встановлення 3 хвилини без програміста на магазин у Хорошоп — збільшує конверсію та середній чек.`}
+        keywords={`${widget.title} Хорошоп, ${widget.title} Horoshop, ${tagLabels[widget.tag]} Хорошоп, віджет ${widget.title} для інтернет-магазину`}
         path={`/widgets/${widget.id}`}
         type="product"
-        structuredData={{
-          '@context': 'https://schema.org',
-          '@type': 'Product',
-          name: widget.title,
-          description: widget.description,
-          brand: { '@type': 'Brand', name: 'widgetis' },
-          category: tagLabels[widget.tag],
-          offers: {
-            '@type': 'Offer',
-            priceCurrency: 'UAH',
-            price: '0',
-            availability: 'https://schema.org/InStock',
-            url: `https://widgetis.com/widgets/${widget.id}`,
+        structuredData={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: widget.title,
+            description: widget.description,
+            brand: { '@type': 'Brand', name: 'Widgetis' },
+            category: tagLabels[widget.tag],
+            offers: {
+              '@type': 'Offer',
+              priceCurrency: 'UAH',
+              price: '0',
+              availability: 'https://schema.org/InStock',
+              url: `https://widgetis.com/widgets/${widget.id}`,
+            },
           },
-          aggregateRating: {
-            '@type': 'AggregateRating',
-            ratingValue: '4.9',
-            reviewCount: '42',
+          {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Головна', item: 'https://widgetis.com/' },
+              { '@type': 'ListItem', position: 2, name: 'Віджети', item: 'https://widgetis.com/widgets' },
+              { '@type': 'ListItem', position: 3, name: widget.title, item: `https://widgetis.com/widgets/${widget.id}` },
+            ],
           },
-        }}
+        ]}
       />
 
       {/* ── Hero ── */}

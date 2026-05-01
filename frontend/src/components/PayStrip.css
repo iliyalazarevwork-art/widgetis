@@ -1,0 +1,75 @@
+.pay-strip {
+  padding: 36px 0 32px;
+  background: var(--bg-page);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.pay-strip__label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 22px;
+}
+
+.pay-strip__track-wrap {
+  overflow: hidden;
+  position: relative;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 10%,
+    black 90%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 10%,
+    black 90%,
+    transparent 100%
+  );
+}
+
+.pay-strip__track {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: max-content;
+  animation: pay-strip-scroll 18s linear infinite;
+}
+
+.pay-strip__track:hover {
+  animation-play-state: paused;
+}
+
+.pay-strip__logo {
+  height: 22px;
+  width: auto;
+  opacity: 0.5;
+  padding: 0 40px;
+  flex-shrink: 0;
+  display: block;
+  transition: opacity 240ms ease;
+}
+
+.pay-strip__track:hover .pay-strip__logo {
+  opacity: 0.85;
+}
+
+@keyframes pay-strip-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-33.333%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pay-strip__track {
+    animation-play-state: paused;
+  }
+}

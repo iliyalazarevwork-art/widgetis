@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Sparkles, Star } from 'lucide-react'
 import { PreviewCartGoal, PreviewCountdown, PreviewDelivery, PreviewPurchaseCounter } from './WidgetPreviews'
+import { trackCtaClick } from '../lib/analytics'
 import './Hero.css'
 
 type HeroWidget = {
@@ -225,7 +226,7 @@ export function Hero() {
           </div>
 
           <div className="hero__bottom">
-            <Link to="/pricing" className="hero__cta">
+            <Link to="/pricing" className="hero__cta" onClick={() => trackCtaClick('hero__cta')}>
               Спробувати 7 днів безкоштовно
               <ArrowRight size={16} strokeWidth={2.5} />
             </Link>

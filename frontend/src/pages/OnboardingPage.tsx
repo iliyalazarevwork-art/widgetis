@@ -4,6 +4,7 @@ import { Globe, Puzzle, Code, ArrowRight, Rocket } from 'lucide-react'
 import { toast } from 'sonner'
 import { post } from '../api/client'
 import { useAuth } from '../context/AuthContext'
+import { SeoHead } from '../components/SeoHead'
 import './onboarding.css'
 
 interface Step {
@@ -108,6 +109,12 @@ export default function OnboardingPage() {
 
   return (
     <div className="ob">
+      <SeoHead
+        title="Налаштування — Widgetis"
+        description="Перші кроки після реєстрації у Widgetis."
+        path="/onboarding"
+        noindex
+      />
       <div className="ob__body">
 
         {/* Icon */}

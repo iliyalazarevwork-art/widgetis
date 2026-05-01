@@ -36,6 +36,9 @@ services:
       args:
         VITE_API_BASE_URL: https://api.widgetis.com/api/v1
         VITE_PREVIEW_BASE_URL: https://preview.widgetis.com
+        VITE_GA_MEASUREMENT_ID: ""
+        VITE_META_PIXEL_ID: ""
+        VITE_CLARITY_PROJECT_ID: wk1dnqivth
     restart: always
     stop_grace_period: 30s
     healthcheck:

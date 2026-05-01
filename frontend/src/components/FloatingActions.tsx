@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { ArrowRight, Send } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useSettings } from '../context/SettingsContext'
+import { trackCtaClick } from '../lib/analytics'
 import './FloatingActions.css'
 
 const SHOW_STICKY_AFTER_PX = 600
@@ -67,7 +68,7 @@ export function FloatingActions() {
       {/* Sticky mobile CTA — hidden for active subscribers and excluded pages */}
       {!hasActiveSubscription && !isExcluded && (
         <div className={`sticky-cta ${stickyVisible ? 'sticky-cta--visible' : ''}`}>
-          <Link to="/pricing" className="sticky-cta__btn">
+          <Link to="/pricing" className="sticky-cta__btn" onClick={() => trackCtaClick('sticky-cta__btn')}>
             <span>Спробувати</span>
             <ArrowRight size={18} strokeWidth={2.5} />
           </Link>

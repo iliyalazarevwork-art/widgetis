@@ -93,7 +93,7 @@ export const PLANS: PlanDef[] = [
     features: [
       { label: 'Всі 17 віджетів', slug: '/catalog' },
       { label: 'Колесо фортуни', slug: 'spin-the-wheel' },
-      { label: 'SMS-верифікація на касі', slug: 'sms-otp-checkout' },
+      { label: 'SMS-верифікація в чекауті', slug: 'sms-otp-checkout' },
       { label: '5 сайтів' },
       { label: 'VIP підтримка' },
       { label: 'Повна кастомізація' },
