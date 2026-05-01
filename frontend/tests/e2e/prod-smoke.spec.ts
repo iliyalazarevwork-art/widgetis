@@ -147,6 +147,28 @@ test.describe('prod-smoke', () => {
     })
   }
 
+  test('production analytics file is wired into the SPA shell', async ({ request }) => {
+    const homeRes = await request.get(spaUrl('/'))
+    expect(homeRes.status(), 'home page should be reachable').toBeLessThan(400)
+
+    const html = await homeRes.text()
+    expect(html, 'production HTML must load the local analytics bootstrap').toContain(
+      '<script defer src="/analytics.js"></script>',
+    )
+
+    const analyticsRes = await request.get(spaUrl('/analytics.js'))
+    expect(analyticsRes.status(), 'analytics.js should be served by the frontend').toBe(200)
+
+    const contentType = (analyticsRes.headers()['content-type'] ?? '').toLowerCase()
+    expect(contentType, 'analytics.js should be served as JavaScript').toContain('javascript')
+
+    const script = await analyticsRes.text()
+    expect(script).toContain("var gaMeasurementId = 'G-3CQ7CLTR6H'")
+    expect(script).toContain("var clarityProjectId = 'wk1dnqivth'")
+    expect(script).toContain('https://www.googletagmanager.com/gtag/js?id=')
+    expect(script).toContain('https://www.clarity.ms/tag/')
+  })
+
   // ── Page-specific content ────────────────────────────────────────────────
   test('home page exposes main nav links', async ({ page }) => {
     await page.goto('/')
