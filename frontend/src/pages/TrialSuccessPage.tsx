@@ -134,6 +134,7 @@ function ChoiceScreen({ data, onChoice }: { data: SignupData; onChoice: (c: 'sel
 
 // ─── Screen 2: Self install ───────────────────────────────────────
 function SelfScreen({ data, onBack }: { data: SignupData; onBack: () => void }) {
+  const navigate = useNavigate()
   const [copied, setCopied] = useState(false)
   const [scriptTag, setScriptTag] = useState<string>(data.scriptTag?.trim() ?? '')
   const [scriptLoading, setScriptLoading] = useState<boolean>(!data.scriptTag)
@@ -298,6 +299,19 @@ function SelfScreen({ data, onBack }: { data: SignupData; onBack: () => void }) 
             Написати менеджеру
           </button>
         </div>
+
+        <button
+          onClick={() => navigate('/onboarding')}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+            padding: '18px 24px', background: '#3B82F6', borderRadius: 14, border: 'none',
+            cursor: 'pointer', color: '#0A0A0A', fontSize: 16, fontWeight: 700,
+            fontFamily: 'Inter, sans-serif', letterSpacing: 0.2,
+          }}
+        >
+          Продовжити налаштування
+          <ArrowRight size={16} strokeWidth={2.5} />
+        </button>
 
       </div>
       <PageFooter />
@@ -506,13 +520,13 @@ function ManagerScreen({ data, onBack }: { data: SignupData; onBack: () => void 
               напише вам у <strong style={{ color: '#F0F0F0' }}>{channels.find(c => c.key === selected)?.label}</strong>{' '}
               на номер <strong style={{ color: '#F0F0F0' }}>{phone.trim()}</strong> протягом 15 хвилин.
             </p>
-            <Link to="/cabinet" style={{
+            <Link to="/onboarding" style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               padding: '16px 24px', background: '#3B82F6', borderRadius: 14,
               color: '#0A0A0A', fontSize: 15, fontWeight: 700, fontFamily: 'Inter, sans-serif',
               textDecoration: 'none',
             }}>
-              До кабінету <ArrowRight size={16} strokeWidth={2.5} />
+              Продовжити налаштування <ArrowRight size={16} strokeWidth={2.5} />
             </Link>
           </div>
         )}

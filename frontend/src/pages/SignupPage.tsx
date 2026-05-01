@@ -474,6 +474,7 @@ export function SignupPage() {
         provider:       paymentMethod,
         site_domain:    normalizedUrl,
         platform,
+        redirect_url:   `${window.location.origin}/signup/success`,
       })
       redirectToProvider(checkoutRes.data)
     } catch (err: unknown) {
