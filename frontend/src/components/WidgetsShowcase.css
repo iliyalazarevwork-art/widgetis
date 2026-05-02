@@ -237,6 +237,13 @@
   to   { transform: translateX(-100%); }
 }
 
+/* Pause all looping CSS animations when the slide is not in the viewport */
+.wss__card[data-anim="pause"] .wss__marquee-track,
+.wss__card[data-anim="pause"] .wss__viewers-dot,
+.wss__card[data-anim="pause"] .wss__video-pulse {
+  animation-play-state: paused;
+}
+
 /* ── Body ── */
 
 .wss__body {

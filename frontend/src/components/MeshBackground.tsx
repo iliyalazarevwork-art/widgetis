@@ -19,7 +19,12 @@ export function MeshBackground() {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
+    // On touch/mobile devices there is no mouse interaction — the mesh is static.
+    // Running RAF at 60 fps for a static canvas wastes CPU and heats the device.
+    const hasFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+
     let w = 0, h = 0
+    let inViewport = true
 
     function resize() {
       const parent = canvas!.parentElement
@@ -45,7 +50,7 @@ export function MeshBackground() {
       return { x: bx + (dx / dist) * wave, y: by + (dy / dist) * wave }
     }
 
-    function draw() {
+    function drawFrame() {
       ctx!.clearRect(0, 0, w, h)
 
       const cols = Math.ceil(w / CELL) + 2
@@ -55,7 +60,6 @@ export function MeshBackground() {
 
       ctx!.lineWidth = 0.6
 
-      // horizontal lines
       for (let row = 0; row < rows; row++) {
         const by  = row * CELL
         const d   = Math.abs(by - my)
@@ -69,7 +73,6 @@ export function MeshBackground() {
         ctx!.stroke()
       }
 
-      // vertical lines
       for (let col = 0; col < cols; col++) {
         const bx  = col * CELL
         const d   = Math.abs(bx - mx)
@@ -83,7 +86,10 @@ export function MeshBackground() {
         ctx!.stroke()
       }
 
-      animRef.current = requestAnimationFrame(draw)
+      // On desktop: keep looping (mouse warps the grid). On mobile: draw once and stop.
+      if (hasFinePointer && inViewport) {
+        animRef.current = requestAnimationFrame(drawFrame)
+      }
     }
 
     function onMouseMove(e: MouseEvent) {
@@ -92,24 +98,39 @@ export function MeshBackground() {
     }
 
     resize()
-    draw()
+    drawFrame()
 
-    const ro = new ResizeObserver(resize)
+    const ro = new ResizeObserver(() => {
+      resize()
+      // On mobile redraw the static frame after resize (e.g. orientation change).
+      if (!hasFinePointer) drawFrame()
+    })
     if (canvas.parentElement) ro.observe(canvas.parentElement)
 
-    // Only attach mouse interaction on devices with a real pointer (desktop).
-    // On touch devices, taps fire synthetic mousemove events that make the
-    // mesh warp at the tap location — we don't want that.
-    const hasFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches
     if (hasFinePointer) {
       window.addEventListener('mousemove', onMouseMove)
+
+      // Pause the RAF loop while the hero is scrolled out of view.
+      const io = new IntersectionObserver(([entry]) => {
+        inViewport = entry.isIntersecting
+        if (inViewport && animRef.current === 0) {
+          animRef.current = requestAnimationFrame(drawFrame)
+        } else if (!inViewport) {
+          cancelAnimationFrame(animRef.current)
+          animRef.current = 0
+        }
+      })
+      io.observe(canvas)
+
+      return () => {
+        cancelAnimationFrame(animRef.current)
+        window.removeEventListener('mousemove', onMouseMove)
+        ro.disconnect()
+        io.disconnect()
+      }
     }
 
-    return () => {
-      cancelAnimationFrame(animRef.current)
-      if (hasFinePointer) window.removeEventListener('mousemove', onMouseMove)
-      ro.disconnect()
-    }
+    return () => ro.disconnect()
   }, [])
 
   return (

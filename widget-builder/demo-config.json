@@ -429,31 +429,31 @@
         "requireConsent": true,
         "segments": [
           {
-            "label": "10% знижка",
+            "label": "10%",
             "code": "SPIN10",
             "weight": 4,
             "iconType": "percent"
           },
           {
-            "label": "Безкошт. доставка",
+            "label": "Доставка",
             "code": "FREESHIP",
             "weight": 3,
             "iconType": "truck"
           },
           {
-            "label": "5% знижка",
+            "label": "5%",
             "code": "SPIN5",
             "weight": 5,
             "iconType": "percent"
           },
           {
-            "label": "Спробуйте ще",
+            "label": "Ще раз",
             "code": "",
             "weight": 2,
             "iconType": "try-again"
           },
           {
-            "label": "15% знижка",
+            "label": "15%",
             "code": "SPIN15",
             "weight": 1,
             "iconType": "fire"
@@ -466,22 +466,22 @@
           }
         ],
         "palette": [
-          "#ef4444",
-          "#f59e0b",
-          "#fbbf24",
-          "#10b981",
-          "#3b82f6",
-          "#8b5cf6"
+          "#FF1744",
+          "#FF6D00",
+          "#FFD600",
+          "#00C853",
+          "#2979FF",
+          "#D500F9"
         ],
         "wheelTextColor": "#ffffff",
         "decorativeColor": "#ef4444",
         "backgroundColor": "#ffffff",
-        "textColor": "#4b2535",
-        "accentColor": "#be7094",
+        "textColor": "#111827",
+        "accentColor": "#111827",
         "accentTextColor": "#ffffff",
-        "borderColor": "#fce7f3",
+        "borderColor": "#e5e7eb",
         "borderRadius": 16,
-        "zIndex": 9999999,
+        "zIndex": 2147483647,
         "hideOnUtmSources": []
       },
       "i18n": {
@@ -758,7 +758,13 @@
         "debounceMs": 220,
         "limitPreview": 4,
         "limitExpanded": 50,
-        "popularQueries": ["крем", "масло", "мило", "парфум", "шампунь"],
+        "popularQueries": [
+          "крем",
+          "масло",
+          "мило",
+          "парфум",
+          "шампунь"
+        ],
         "defaultLang": "auto",
         "theme": "light"
       },

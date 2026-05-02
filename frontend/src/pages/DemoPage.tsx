@@ -79,21 +79,33 @@ export function DemoPage() {
     setDemoUrl(null)
   }
 
+  // Animations stop when the iframe demo is open (user is watching the proxied site)
+  // or when the browser tab is hidden.
+  const [tabVisible, setTabVisible] = useState(!document.hidden)
+  useEffect(() => {
+    const h = () => setTabVisible(!document.hidden)
+    document.addEventListener('visibilitychange', h)
+    return () => document.removeEventListener('visibilitychange', h)
+  }, [])
+  const shouldAnimate = !demoUrl && tabVisible
+
   // Live viewers widget
   const [viewers, setViewers] = useState(12)
   useEffect(() => {
+    if (!shouldAnimate) return
     const t = setInterval(() => {
       setViewers((v) => Math.max(6, Math.min(24, v + (Math.random() > 0.5 ? 1 : -1))))
     }, 2400)
     return () => clearInterval(t)
-  }, [])
+  }, [shouldAnimate])
 
   // Countdown widget
   const [seconds, setSeconds] = useState(4 * 3600 + 27 * 60 + 13)
   useEffect(() => {
+    if (!shouldAnimate) return
     const t = setInterval(() => setSeconds((s) => (s > 0 ? s - 1 : 0)), 1000)
     return () => clearInterval(t)
-  }, [])
+  }, [shouldAnimate])
   const hh = String(Math.floor(seconds / 3600)).padStart(2, '0')
   const mm = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0')
   const ss = String(seconds % 60).padStart(2, '0')
@@ -102,6 +114,7 @@ export function DemoPage() {
   const [cart, setCart] = useState(PRICE)
   const [cartCount, setCartCount] = useState(1)
   useEffect(() => {
+    if (!shouldAnimate) return
     const t = setInterval(() => {
       setCart((c) => {
         const next = c + PRICE
@@ -115,7 +128,7 @@ export function DemoPage() {
       })
     }, 3400)
     return () => clearInterval(t)
-  }, [])
+  }, [shouldAnimate])
   const achievedShipping = cart >= CART_GOAL
   const remaining = Math.max(0, CART_GOAL - cart)
   const progressPct = Math.min(100, (cart / CART_GOAL) * 100)
@@ -123,16 +136,18 @@ export function DemoPage() {
   // Purchase counter widget
   const [purchasedToday, setPurchasedToday] = useState(23)
   useEffect(() => {
+    if (!shouldAnimate) return
     const t = setInterval(() => {
       if (Math.random() > 0.6) setPurchasedToday((p) => p + 1)
     }, 5200)
     return () => clearInterval(t)
-  }, [])
+  }, [shouldAnimate])
 
   // Social proof popup
   const [popupIdx, setPopupIdx] = useState(0)
   const [popupVisible, setPopupVisible] = useState(true)
   useEffect(() => {
+    if (!shouldAnimate) return
     const t = setInterval(() => {
       setPopupVisible(false)
       setTimeout(() => {
@@ -141,7 +156,7 @@ export function DemoPage() {
       }, 400)
     }, 5500)
     return () => clearInterval(t)
-  }, [])
+  }, [shouldAnimate])
 
   function handleShare() {
     const url = window.location.origin + '/demo'

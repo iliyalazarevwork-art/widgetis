@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Eye, ShoppingCart, Leaf, Gift, Star, Sparkles, Flame, Zap, Truck, Briefcase, PartyPopper, Timer } from 'lucide-react'
 import NP_LOGO from '../assets/nova-poshta-logo'
 import { useVisible } from '../hooks/useVisible'
@@ -46,7 +46,7 @@ function SlidePtashkin() {
   const cartCount = stepIdx + 1
 
   return (
-    <div className="wss__card wss__card--ptashkin" ref={ref}>
+    <div className="wss__card wss__card--ptashkin" ref={ref} data-anim={active ? 'play' : 'pause'}>
       <BrowserChrome url="ptashkinsad.com" />
       <div className="wss__marquee wss__marquee--ptashkin">
         <div className="wss__marquee-track">
@@ -136,14 +136,24 @@ function CartGoalWidget({
 
 function SlideBeniHome() {
   const { ref, active } = useVisible<HTMLDivElement>()
+  const videoRef = useRef<HTMLVideoElement>(null)
   const [count, setCount] = useState(12)
   useEffect(() => {
     if (!active) return
     const t = setInterval(() => setCount(c => Math.max(6, c + (Math.random() > 0.5 ? 1 : -1))), 2200)
     return () => clearInterval(t)
   }, [active])
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+    if (active) {
+      video.play().catch(() => {})
+    } else {
+      video.pause()
+    }
+  }, [active])
   return (
-    <div className="wss__card wss__card--beni" ref={ref}>
+    <div className="wss__card wss__card--beni" ref={ref} data-anim={active ? 'play' : 'pause'}>
       <BrowserChrome url="benihome.com.ua" />
       <div className="wss__marquee wss__marquee--beni">
         <div className="wss__marquee-track">
@@ -186,7 +196,7 @@ function SlideBeniHome() {
         </div>
         <div className="wss__video-circle wss__video-circle--beni">
           <video
-            autoPlay
+            ref={videoRef}
             muted
             loop
             playsInline
@@ -219,7 +229,7 @@ function SlideBallistic() {
   const ss = String(seconds % 60).padStart(2, '0')
 
   return (
-    <div className="wss__card wss__card--ballistic" ref={ref}>
+    <div className="wss__card wss__card--ballistic" ref={ref} data-anim={active ? 'play' : 'pause'}>
       <BrowserChrome url="ballistic.com.ua" />
       <div className="wss__marquee wss__marquee--ballistic">
         <div className="wss__marquee-track">

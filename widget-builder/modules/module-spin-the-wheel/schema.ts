@@ -75,9 +75,8 @@ export const spinTheWheelSchema = z.object({
   accentTextColor: z.string().default('#ffffff'),
   borderColor: z.string().default('#e5e7eb'),
   borderRadius: z.number().default(16),
-  /** Highest layer used in the widget, sits above typical host-site chat
-   *  popups (which usually park around 999999) while leaving headroom. */
-  zIndex: z.number().default(9999999),
+  /** Max possible z-index (32-bit signed int ceiling) so nothing overlaps. */
+  zIndex: z.number().default(2147483647),
   /** Color used for the pointer triangle and decorative ring gradient */
   decorativeColor: z.string().default('#ef4444'),
   /** UTM sources for which the popup should be hidden */

@@ -131,9 +131,12 @@ async function main(): Promise<void> {
  */
 function buildResetPrelude(buildId: string): string {
   const bid = JSON.stringify(buildId);
+  const builtAt = JSON.stringify(new Date().toISOString());
   const parts = [
     '(function(){try{',
     'var BID=' + bid + ';',
+    'var BUILT=' + builtAt + ';',
+    "console.log('%c[widgetality] demo bundle build='+BID+' builtAt='+BUILT,'background:#111827;color:#facc15;padding:2px 6px;border-radius:3px;font-weight:700');",
     "var KEY='wty_demo_build_id';",
     'if(localStorage.getItem(KEY)===BID)return;',
     "var P=['wty_','wdg_','wdg-','widgetis','interest:','stw_'];",

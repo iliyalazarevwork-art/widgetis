@@ -229,6 +229,14 @@
     max-width: 140px;
   }
 
+  /* Reserve 80px at the bottom so the floating CTA button does not overlap
+     iframe content. The iframe viewport ends before the CTA zone — fixed
+     elements inside the iframe (e.g. spin-the-wheel) cannot reach behind it. */
+  .dm-iframe-area {
+    padding-bottom: 80px;
+    background: #000;
+  }
+
   .dm-floating-cta {
     bottom: 16px;
     padding: 11px 18px;

@@ -95,6 +95,7 @@ export default function spinTheWheel(
   function trigger(): void {
     if (shown) return;
     shown = true;
+    setOtherWidgetsVisibility('hidden');
     renderModal(shadow, hostEl, config, i18n);
     document.body.appendChild(hostEl);
     rememberSeen();
@@ -180,6 +181,22 @@ function isHiddenByUtm(sources: string[]): boolean {
 }
 
 // ---------------------------------------------------------------------------
+// Center gift SVG — shown as an overlay on top of the wheel hub
+// ---------------------------------------------------------------------------
+
+function buildCenterGiftSvg(): string {
+  return `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block;">
+    <rect x="8" y="32" width="48" height="24" rx="5" fill="white"/>
+    <rect x="6" y="22" width="52" height="12" rx="4" fill="white" opacity="0.93"/>
+    <rect x="28" y="22" width="8" height="34" fill="rgba(0,0,0,0.18)"/>
+    <rect x="6" y="27" width="52" height="7" fill="rgba(0,0,0,0.12)"/>
+    <path d="M32 26 C28 24 16 17 20 8 C22 3 31 6 32 26Z" fill="white" opacity="0.96"/>
+    <path d="M32 26 C36 24 48 17 44 8 C42 3 33 6 32 26Z" fill="white" opacity="0.96"/>
+    <ellipse cx="32" cy="23" rx="5.5" ry="4.5" fill="white"/>
+  </svg>`;
+}
+
+// ---------------------------------------------------------------------------
 // Pointer overlay — chunky red triangle with drop shadow
 // ---------------------------------------------------------------------------
 
@@ -191,6 +208,43 @@ function buildPointerSvg(color: string): string {
       <polygon points="16,26 8,8 24,8" fill="rgba(255,255,255,0.25)"/>
     </svg>
   `;
+}
+
+// ---------------------------------------------------------------------------
+// Static preview wheel SVG — exact 1:1 copy of Pencil node "ibzRy".
+// Used only on the email-gate stage as a decorative preview. The actual
+// spinning wheel is still rendered by lucky-canvas in showWheelStage().
+// ---------------------------------------------------------------------------
+
+function buildPreviewWheelSvg(): string {
+  // viewBox is 220×220, identical to the Pencil "wheelArea" frame.
+  // Sector geometry: 6 wedges of 60° each, centred on (110,110), r=110.
+  // Endpoint coords come straight from r·cos/sin at the boundary angles.
+  return `
+<svg viewBox="0 0 220 220" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="display:block;overflow:visible;">
+  <path d="M110,110 L110,0 A110,110 0 0 1 205.26,55 Z" fill="#FF1744"/>
+  <path d="M110,110 L205.26,55 A110,110 0 0 1 205.26,165 Z" fill="#FF6D00"/>
+  <path d="M110,110 L205.26,165 A110,110 0 0 1 110,220 Z" fill="#FFD600"/>
+  <path d="M110,110 L110,220 A110,110 0 0 1 14.74,165 Z" fill="#00C853"/>
+  <path d="M110,110 L14.74,165 A110,110 0 0 1 14.74,55 Z" fill="#2979FF"/>
+  <path d="M110,110 L14.74,55 A110,110 0 0 1 110,0 Z" fill="#D500F9"/>
+  <circle cx="110" cy="110" r="112.5" fill="none" stroke="#334155" stroke-width="5"/>
+  <g transform="translate(155 23) rotate(60)" style="color:#ffffff">${ICONS.percent.replace('viewBox="0 0 24 24"', 'width="24" height="24" viewBox="0 0 24 24"')}</g>
+  <g transform="translate(180 98)" style="color:#ffffff">${ICONS.truck.replace('viewBox="0 0 24 24"', 'width="24" height="24" viewBox="0 0 24 24"')}</g>
+  <g transform="translate(135 185) rotate(-60)" style="color:#111111">${ICONS.star.replace('viewBox="0 0 24 24"', 'width="24" height="24" viewBox="0 0 24 24"')}</g>
+  <g transform="translate(65 197) rotate(-120)" style="color:#ffffff">${ICONS['try-again'].replace('viewBox="0 0 24 24"', 'width="24" height="24" viewBox="0 0 24 24"')}</g>
+  <g transform="translate(40 122) rotate(180)" style="color:#ffffff">${ICONS.fire.replace('viewBox="0 0 24 24"', 'width="24" height="24" viewBox="0 0 24 24"')}</g>
+  <g transform="translate(85 35) rotate(120)" style="color:#ffffff">${ICONS.gift.replace('viewBox="0 0 24 24"', 'width="24" height="24" viewBox="0 0 24 24"')}</g>
+  <g transform="translate(137 51) rotate(60)"><text font-family="Inter,system-ui,sans-serif" font-size="9" font-weight="800" fill="#ffffff" dominant-baseline="hanging">10%</text></g>
+  <g transform="translate(140 105)"><text font-family="Inter,system-ui,sans-serif" font-size="9" font-weight="800" fill="#ffffff" dominant-baseline="hanging">Доставка</text></g>
+  <g transform="translate(129 162) rotate(-60)"><text font-family="Inter,system-ui,sans-serif" font-size="9" font-weight="800" fill="#111111" dominant-baseline="hanging">5%</text></g>
+  <g transform="translate(87 176) rotate(-120)"><text font-family="Inter,system-ui,sans-serif" font-size="9" font-weight="800" fill="#ffffff" dominant-baseline="hanging">Ще раз</text></g>
+  <g transform="translate(65 115) rotate(180)"><text font-family="Inter,system-ui,sans-serif" font-size="9" font-weight="800" fill="#ffffff" dominant-baseline="hanging">15%</text></g>
+  <g transform="translate(101 40) rotate(120)"><text font-family="Inter,system-ui,sans-serif" font-size="9" font-weight="800" fill="#ffffff" dominant-baseline="hanging">Подарунок</text></g>
+  <circle cx="110" cy="110" r="30" fill="#ffffff" filter="drop-shadow(0 3px 12px rgba(0,0,0,0.18))"/>
+  <circle cx="110" cy="110" r="22" fill="#ef4444"/>
+  <g transform="translate(99 99)" style="color:#ffffff"><svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><rect x="3" y="8" width="18" height="4" rx="1.5"/><rect x="5" y="12" width="14" height="9" rx="1"/><path d="M12 8C12 8 10.5 2.5 7.5 3C5.5 3.5 5 6 7 7C9 8 12 8 12 8Z"/><path d="M12 8C12 8 13.5 2.5 16.5 3C18.5 3.5 19 6 17 7C15 8 12 8 12 8Z"/></svg></g>
+</svg>`;
 }
 
 // ---------------------------------------------------------------------------
@@ -226,20 +280,19 @@ function buildLuckyWheelData(
         fonts: [
           {
             text: s.label,
-            top: iconDataUrl ? '10%' : '20%',
+            top: iconDataUrl ? '60%' : '30%',
             fontColor: config.wheelTextColor,
-            fontSize: '13px',
+            fontSize: '12px',
             fontWeight: 'bold',
-            wordWrap: true,
-            lineClamp: 2,
+            wordWrap: false,
           },
         ],
         imgs: iconDataUrl
           ? [
               {
                 src: iconDataUrl,
-                top: '52%',
-                width: '30%',
+                top: '10%',
+                width: '34%',
               },
             ]
           : [],
@@ -247,25 +300,18 @@ function buildLuckyWheelData(
     }),
     buttons: [
       {
-        radius: '32%',
+        radius: '28%',
         background: '#ffffff',
       },
       {
-        radius: '24%',
+        radius: '20%',
         background: config.decorativeColor,
-        imgs: [
-          {
-            src: buildIconDataUrl('gift', '#ffffff'),
-            top: '-7%',
-            width: '14%',
-          },
-        ],
       },
     ],
     defaultStyle: {
       background: '#ffffff',
       fontColor: config.wheelTextColor,
-      fontSize: '13px',
+      fontSize: '12px',
     },
     end: onEnd,
   };
@@ -340,6 +386,14 @@ function renderModal(
     wrapper.querySelector('.stw__backdrop')!.addEventListener('click', close);
     wrapper.querySelector('.stw__close')!.addEventListener('click', close);
 
+    // Tapping/clicking the wheel preview triggers the same submit as the CTA button
+    const wheelPreview = wrapper.querySelector<HTMLElement>('.stw__wheel-preview');
+    if (wheelPreview) {
+      wheelPreview.addEventListener('click', () => {
+        wrapper.querySelector<HTMLButtonElement>('.stw__cta')?.click();
+      });
+    }
+
     const form = wrapper.querySelector<HTMLFormElement>('.stw__email-form')!;
     form.addEventListener('submit', (e: Event) => {
       e.preventDefault();
@@ -366,7 +420,6 @@ function renderModal(
 
   function renderEmailGate(): void {
     wrapper.innerHTML = buildEmailGateHtml(config, i18n);
-    requestAnimationFrame(() => requestAnimationFrame(mountPreviewWheel));
     attachEmailGateHandlers();
   }
 
@@ -398,9 +451,11 @@ function renderModal(
     hostEl.classList.remove('stw--visible');
     hostEl.classList.add('stw--minimized');
     hostEl.style.zIndex = '200';
+    setOtherWidgetsVisibility('visible');
   }
 
   function reopenFromTab(): void {
+    setOtherWidgetsVisibility('hidden');
     hostEl.style.zIndex = String(config.zIndex);
     hostEl.classList.remove('stw--minimized');
     renderInitialStage();
@@ -418,6 +473,11 @@ function renderModal(
     hostEl.remove();
   });
 
+  // Swipe-down to close — only on mobile bottom-sheet layout
+  if (window.innerWidth <= 640) {
+    attachSwipeClose(wrapper, close);
+  }
+
   // Initial render + activate visibility
   renderInitialStage();
   requestAnimationFrame(() => {
@@ -426,6 +486,72 @@ function renderModal(
       hostEl.style.removeProperty('pointer-events');
     });
   });
+}
+
+// ---------------------------------------------------------------------------
+// Hide/restore other fixed widgets while the spin-the-wheel modal is open
+// so they cannot visually overlap the overlay.
+// ---------------------------------------------------------------------------
+
+const STW_HIDDEN_ATTR = 'data-stw-hidden';
+
+function setOtherWidgetsVisibility(state: 'hidden' | 'visible'): void {
+  if (typeof document === 'undefined') return;
+  if (state === 'hidden') {
+    document.querySelectorAll<HTMLElement>('[id^="wdg-"]').forEach((el) => {
+      if (!el.hasAttribute(STW_HIDDEN_ATTR)) {
+        el.setAttribute(STW_HIDDEN_ATTR, el.style.visibility || '');
+        el.style.visibility = 'hidden';
+      }
+    });
+  } else {
+    document.querySelectorAll<HTMLElement>(`[${STW_HIDDEN_ATTR}]`).forEach((el) => {
+      el.style.visibility = (el.getAttribute(STW_HIDDEN_ATTR) || '') as string;
+      el.removeAttribute(STW_HIDDEN_ATTR);
+    });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Swipe-down-to-close (mobile bottom-sheet)
+// ---------------------------------------------------------------------------
+
+function attachSwipeClose(wrapper: HTMLElement, onClose: () => void): void {
+  let startY = 0;
+  let tracking = false;
+
+  wrapper.addEventListener('touchstart', (e: TouchEvent) => {
+    const card = wrapper.querySelector<HTMLElement>('.stw__card');
+    if (!card || !(e.target as Element).closest('.stw__card')) return;
+    startY = e.touches[0].clientY;
+    tracking = true;
+    card.style.transition = 'none';
+  }, { passive: true });
+
+  wrapper.addEventListener('touchmove', (e: TouchEvent) => {
+    if (!tracking) return;
+    const card = wrapper.querySelector<HTMLElement>('.stw__card');
+    if (!card) return;
+    const deltaY = e.touches[0].clientY - startY;
+    if (deltaY > 0) {
+      card.style.transform = `translateY(${deltaY}px)`;
+    }
+  }, { passive: true });
+
+  wrapper.addEventListener('touchend', (e: TouchEvent) => {
+    if (!tracking) return;
+    tracking = false;
+    const card = wrapper.querySelector<HTMLElement>('.stw__card');
+    if (!card) return;
+    const deltaY = e.changedTouches[0].clientY - startY;
+    card.style.transition = '';
+    if (deltaY > 100) {
+      card.style.transform = 'translateY(100%)';
+      setTimeout(onClose, 300);
+    } else {
+      card.style.transform = '';
+    }
+  }, { passive: true });
 }
 
 function readActivePrize(): { code: string; label: string; iconType?: string | null } | null {
@@ -457,6 +583,9 @@ function buildEmailGateHtml(
   const consentBlock = config.requireConsent
     ? `<label class="stw__consent">
         <input class="stw__consent-input" type="checkbox" checked />
+        <span class="stw__consent-box" aria-hidden="true">
+          <svg viewBox="0 0 16 16" width="10" height="10" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 8 7 12 13 4"/></svg>
+        </span>
         <span class="stw__consent-text">${escapeHtml(i18n.consentText)}</span>
        </label>`
     : '';
@@ -477,22 +606,24 @@ function buildEmailGateHtml(
   return `
     <div class="stw__backdrop"></div>
     <div class="stw__card" role="document">
+      <div class="stw__drag-handle" aria-hidden="true"></div>
       <button class="stw__close" aria-label="${escapeAttr(i18n.closeLabel)}" type="button">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
       <form class="stw__email-form" novalidate>
         <div class="stw__wheel-preview" aria-hidden="true">
-          <div class="stw__wheel-ring">
-            <div class="stw__wheel-container--preview"></div>
-          </div>
+          <div class="stw__wheel-container--preview">${buildPreviewWheelSvg()}</div>
           <div class="stw__pointer">${buildPointerSvg(config.decorativeColor)}</div>
         </div>
         <div class="stw__body">
           <h2 class="stw__title" id="stw-title">${escapeHtml(i18n.title)}</h2>
           <p class="stw__subtitle">${escapeHtml(i18n.subtitle)}</p>
           ${emailBlock}
+          <button class="stw__cta" type="submit">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span>${escapeHtml(i18n.spinButton)}</span>
+          </button>
           ${consentBlock}
-          <button class="stw__cta" type="submit">${escapeHtml(i18n.spinButton)}</button>
         </div>
       </form>
     </div>
@@ -520,6 +651,7 @@ function showWheelStage(
   const spinDurationMs = 4500;
 
   card.innerHTML = `
+    <div class="stw__drag-handle" aria-hidden="true"></div>
     <button class="stw__close" aria-label="${escapeAttr(i18n.closeLabel)}" type="button">
       <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
@@ -528,6 +660,7 @@ function showWheelStage(
         <div class="stw__pointer stw__pointer--top">${buildPointerSvg(config.decorativeColor)}</div>
         <div class="stw__wheel-ring stw__wheel-ring--full">
           <div class="stw__wheel-container" id="stw-wheel-container"></div>
+          <div class="stw__center-gift" id="stw-center-gift" aria-hidden="true">${buildCenterGiftSvg()}</div>
         </div>
       </div>
       <p class="stw__spinning-label">${escapeHtml(i18n.spinningLabel)}</p>
@@ -547,15 +680,19 @@ function showWheelStage(
       return;
     }
     try {
+      const giftEl = card.querySelector<HTMLElement>('#stw-center-gift');
+
       wheelInstance = new LuckyWheel(
         container,
         buildLuckyWheelData(config, `${sizePx}px`, (_prize: object) => {
+          giftEl?.classList.remove('stw__center-gift--spinning');
           setTimeout(() => showResultStage(wrapper, card, config, i18n, winSegment, close), 200);
         }),
       );
 
       const initRes = wheelInstance.init?.();
       const startSpin = (): void => {
+        giftEl?.classList.add('stw__center-gift--spinning');
         wheelInstance!.play();
         setTimeout(() => wheelInstance!.stop(winIndex), spinDurationMs);
       };
@@ -631,6 +768,7 @@ function showResultStage(
     : '';
 
   card.innerHTML = `
+    <div class="stw__drag-handle" aria-hidden="true"></div>
     <button class="stw__close" aria-label="${escapeAttr(i18n.closeLabel)}" type="button">
       <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
@@ -912,12 +1050,12 @@ function buildStyles(config: SpinTheWheelConfig): string {
 /* ── Card ── */
 .stw__card {
   position: relative;
-  width: min(540px, 92vw);
+  width: min(390px, 92vw);
   max-height: 92vh;
   overflow-y: auto;
-  background: var(--stw-bg);
+  background: #ffffff;
   color: var(--stw-fg);
-  border-radius: var(--stw-radius);
+  border-radius: 24px;
   box-shadow: 0 32px 96px rgba(0,0,0,.42), 0 0 0 1px rgba(0,0,0,.06);
   transform: translateY(16px) scale(0.92);
   transition: transform 350ms cubic-bezier(.16,1,.3,1);
@@ -931,32 +1069,38 @@ function buildStyles(config: SpinTheWheelConfig): string {
 .stw__close {
   position: absolute;
   top: 12px; right: 12px;
-  width: 36px; height: 36px;
-  background: rgba(0,0,0,.06);
+  width: 32px; height: 32px;
+  background: #f3f4f6;
   border: 0;
-  border-radius: 50%;
+  border-radius: 9999px;
   display: flex; align-items: center; justify-content: center;
-  color: var(--stw-fg);
-  opacity: .6;
+  color: #6b7280;
   cursor: pointer;
-  transition: opacity .15s, background .15s;
+  transition: background .15s, color .15s, transform .15s;
   z-index: 2;
   padding: 0;
 }
-.stw__close:hover { opacity: 1; background: rgba(0,0,0,.12); }
+.stw__close:hover { background: #e5e7eb; color: #111827; transform: scale(1.05); }
 
 /* ── Email gate layout ── */
 .stw__email-form {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 28px 32px 24px;
+  gap: 0;
 }
 
 .stw__wheel-preview {
   position: relative;
-  flex: 0 0 220px;
   width: 220px; height: 220px;
   align-self: center;
-  margin: 32px 0 32px 28px;
+  margin: 0 auto 20px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.stw__wheel-preview:hover .stw__wheel-ring {
+  box-shadow: 0 0 52px rgba(239, 68, 68, .5);
 }
 
 .stw__wheel-ring {
@@ -998,15 +1142,16 @@ function buildStyles(config: SpinTheWheelConfig): string {
 
 .stw__body {
   flex: 1;
-  padding: 32px 28px 28px 20px;
+  padding: 0;
   display: flex; flex-direction: column; gap: 14px;
 }
 
 .stw__title {
   margin: 0;
-  font-size: 22px; font-weight: 700;
+  font-size: 20px; font-weight: 800;
   line-height: 1.2; letter-spacing: -.01em;
-  color: var(--stw-fg);
+  color: #111827;
+  text-align: center;
 }
 
 .stw__title--result {
@@ -1016,10 +1161,10 @@ function buildStyles(config: SpinTheWheelConfig): string {
 
 .stw__subtitle {
   margin: 0;
-  font-size: 14px;
-  opacity: .72;
-  line-height: 1.45;
-  color: var(--stw-fg);
+  font-size: 13px;
+  line-height: 1.4;
+  color: #6b7280;
+  text-align: center;
 }
 
 /* ── Email field ── */
@@ -1028,51 +1173,106 @@ function buildStyles(config: SpinTheWheelConfig): string {
   all: unset;
   display: block;
   width: 100%; box-sizing: border-box;
-  padding: 14px 16px;
-  border-radius: calc(var(--stw-radius) * 0.6);
-  border: 1.5px solid var(--stw-border);
-  background: var(--stw-bg);
-  color: var(--stw-fg);
-  font-size: 16px;
+  height: 50px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1.5px solid #e5e7eb;
+  background: #f9fafb;
+  color: #111827;
+  font-size: 15px;
   font-family: inherit;
   outline: none;
-  transition: border-color .15s, box-shadow .15s;
+  transition: border-color .15s, box-shadow .15s, background .15s;
 }
+.stw__email-input::placeholder { color: #9ca3af; }
 .stw__email-input:focus {
-  border-color: var(--stw-accent);
-  box-shadow: 0 0 0 3px rgba(0,0,0,.08);
+  border-color: #111827;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(17,24,39,.06);
 }
 .stw__email-input--error { border-color: #ef4444 !important; }
 .stw__email-error { font-size: 12px; color: #ef4444; padding-left: 4px; }
 
-/* ── Consent ── */
+/* ── Consent (custom checkbox) ── */
 .stw__consent {
-  display: flex; align-items: flex-start; gap: 8px; cursor: pointer;
+  display: flex; align-items: flex-start; gap: 8px;
+  cursor: pointer;
+  margin-top: 2px;
 }
 .stw__consent-input {
-  margin-top: 2px; width: 16px; height: 16px; flex-shrink: 0;
-  accent-color: var(--stw-accent);
+  position: absolute;
+  width: 1px; height: 1px;
+  opacity: 0;
+  pointer-events: none;
+  margin: 0;
 }
-.stw__consent-text { font-size: 12px; opacity: .7; line-height: 1.4; }
+.stw__consent-box {
+  flex-shrink: 0;
+  width: 16px; height: 16px;
+  border-radius: 4px;
+  background: #ffffff;
+  border: 1.5px solid #d1d5db;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color .15s, background .15s;
+}
+.stw__consent-box svg { display: block; opacity: 0; transition: opacity .12s; }
+.stw__consent-input:checked ~ .stw__consent-box { border-color: #ef4444; }
+.stw__consent-input:checked ~ .stw__consent-box svg { opacity: 1; }
+.stw__consent-input:focus-visible ~ .stw__consent-box {
+  box-shadow: 0 0 0 3px rgba(239,68,68,.18);
+}
+.stw__consent-text {
+  font-size: 11px;
+  line-height: 1.4;
+  color: #9ca3af;
+}
 
 /* ── CTA button ── */
 .stw__cta {
   all: unset;
-  display: block;
-  background: var(--stw-accent);
-  color: var(--stw-accent-fg);
-  border-radius: calc(var(--stw-radius) * 0.6);
-  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #111827;
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 0 16px;
   font-size: 16px; font-weight: 700; letter-spacing: .01em;
   text-align: center;
   cursor: pointer;
-  min-height: 52px;
+  height: 52px;
   transition: filter .15s, transform .06s;
   -webkit-tap-highlight-color: transparent;
   font-family: inherit;
+  gap: 8px;
 }
-.stw__cta:hover { filter: brightness(1.1); }
+.stw__cta svg { flex-shrink: 0; }
+.stw__cta:hover { filter: brightness(1.15); }
 .stw__cta:active { transform: scale(.98); }
+
+/* ── Center gift overlay ── */
+.stw__center-gift {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 22%;
+  height: 22%;
+  pointer-events: none;
+  z-index: 5;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.38));
+  animation: stw-gift-idle 3.5s ease-in-out infinite;
+}
+@keyframes stw-gift-idle {
+  0%, 100% { transform: translate(-50%, -50%) rotate(-8deg) scale(1); }
+  50%       { transform: translate(-50%, -50%) rotate(8deg) scale(1.06); }
+}
+.stw__center-gift--spinning {
+  animation: stw-gift-spin 0.45s linear infinite;
+}
+@keyframes stw-gift-spin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
 
 /* ── Wheel stage ── */
 .stw__wheel-stage {
@@ -1193,6 +1393,11 @@ function buildStyles(config: SpinTheWheelConfig): string {
   pointer-events: none;
 }
 
+/* ── Drag handle ── */
+.stw__drag-handle {
+  display: none;
+}
+
 /* ── Mobile (bottom-sheet) ── */
 @media (max-width: 640px) {
   .stw-wrapper {
@@ -1202,7 +1407,7 @@ function buildStyles(config: SpinTheWheelConfig): string {
   .stw__card {
     width: 100%;
     max-width: 100%;
-    max-height: 92vh;
+    overflow: hidden;
     border-radius: 24px 24px 0 0;
     transform: translateY(100%);
     padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -1210,21 +1415,32 @@ function buildStyles(config: SpinTheWheelConfig): string {
   :host(.stw--visible) .stw__card {
     transform: translateY(0) scale(1);
   }
-  .stw__email-form { flex-direction: column; }
-  .stw__wheel-preview {
-    flex: none;
-    width: 92vw;
-    height: 92vw;
-    align-self: center;
-    margin: 16px auto 0;
+  /* Drag handle shown on mobile as swipe hint */
+  .stw__drag-handle {
+    display: block;
+    width: 36px; height: 4px;
+    background: rgba(0,0,0,.12);
+    border-radius: 2px;
+    margin: 10px auto 0;
+    flex-shrink: 0;
   }
-  .stw__body { padding: 16px 20px 20px 20px; }
-  .stw__title { font-size: 19px; }
-  .stw__title--result { font-size: 24px; }
-  .stw__cta { font-size: 15px; padding: 15px; }
+  .stw__email-form {
+    padding: 24px 20px 20px;
+  }
+  .stw__wheel-preview {
+    width: min(55vw, 220px);
+    height: min(55vw, 220px);
+    margin: 0 auto 16px;
+  }
+  .stw__body { gap: 12px; }
+  .stw__title { font-size: 18px; }
+  .stw__subtitle { font-size: 12px; line-height: 1.3; }
+  .stw__title--result { font-size: 22px; }
+  .stw__email-input { height: 46px; font-size: 14px; }
+  .stw__cta { font-size: 15px; height: 48px; }
   .stw__wheel-container {
-    width: min(280px, 72vw);
-    height: min(280px, 72vw);
+    width: min(260px, 68vw);
+    height: min(260px, 68vw);
   }
 }
 
