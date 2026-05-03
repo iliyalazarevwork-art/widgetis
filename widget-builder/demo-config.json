@@ -1,7 +1,7 @@
 {
-    "$comment": "Hand-editable config for the public demo bundle. Edit this file, then run `task build:demo` to regenerate services/site-proxy/public/demo-bundle.js. Only modules that are platform-agnostic belong here — others (cart-goal, min-order, one-plus-one, social-proof) depend on specific DOM/JS conventions (e.g. Horoshop) and won't render on an arbitrary shop.",
+    "$comment": "Hand-editable config for the public demo bundle. Edit this file, then run `task build:demo` to regenerate services/site-proxy/public/demo-bundle.js. Only modules that are platform-agnostic belong here — others (cart-goal, minorder-goal, one-plus-one, buyer-count) depend on specific DOM/JS conventions (e.g. Horoshop) and won't render on an arbitrary shop.",
     "modules": {
-        "module-photo-reviews": {
+        "module-photo-video-reviews": {
             "config": {
                 "enabled": true,
                 "showOnMobile": true,
@@ -157,7 +157,7 @@
                 }
             }
         },
-        "module-min-order": {
+        "module-minorder-goal": {
             "$comment": "Disabled in demo — threshold depends on the specific store's business rules.",
             "config": {
                 "enabled": false
@@ -192,7 +192,7 @@
                 }
             }
         },
-        "module-exit-intent-popup": {
+        "module-last-chance-popup": {
             "config": {
                 "enabled": true,
                 "cooldownHours": 24,
@@ -585,7 +585,7 @@
                 }
             }
         },
-        "module-marquee": {
+        "module-promo-line": {
             "config": {
                 "enabled": true,
                 "speed": 80,
@@ -756,7 +756,7 @@
                 }
             }
         },
-        "module-product-video-preview": {
+        "module-video-preview": {
             "$comment": "testVideoUrl is shown when no MP4 link is found on the page — ensures the widget is always visible in the demo.",
             "config": {
                 "enabled": true,

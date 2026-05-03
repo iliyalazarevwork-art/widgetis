@@ -49,6 +49,12 @@ importers:
         specifier: ^3.0.0
         version: 3.2.4(@types/node@22.19.15)(happy-dom@17.6.3)(jiti@2.6.1)(lightningcss@1.32.0)
 
+  modules/module-buyer-count:
+    dependencies:
+      '@laxarevii/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+
   modules/module-cart-goal:
     dependencies:
       '@laxarevii/core':
@@ -60,17 +66,8 @@ importers:
       '@laxarevii/core':
         specifier: workspace:*
         version: link:../../packages/core
-      lucide:
-        specifier: ^0.511.0
-        version: 0.511.0
 
   modules/module-delivery-date:
-    dependencies:
-      '@laxarevii/core':
-        specifier: workspace:*
-        version: link:../../packages/core
-
-  modules/module-exit-intent-popup:
     dependencies:
       '@laxarevii/core':
         specifier: workspace:*
@@ -82,13 +79,13 @@ importers:
         specifier: workspace:*
         version: link:../../packages/core
 
-  modules/module-marquee:
+  modules/module-last-chance-popup:
     dependencies:
       '@laxarevii/core':
         specifier: workspace:*
         version: link:../../packages/core
 
-  modules/module-min-order:
+  modules/module-minorder-goal:
     dependencies:
       '@laxarevii/core':
         specifier: workspace:*
@@ -106,7 +103,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/core
 
-  modules/module-photo-reviews:
+  modules/module-photo-video-reviews:
     dependencies:
       '@laxarevii/core':
         specifier: workspace:*
@@ -121,15 +118,6 @@ importers:
         specifier: workspace:*
         version: link:../../packages/core
 
-  modules/module-product-video-preview:
-    dependencies:
-      '@laxarevii/core':
-        specifier: workspace:*
-        version: link:../../packages/core
-      interactjs:
-        specifier: ^1.10.27
-        version: 1.10.27
-
   modules/module-progressive-discount:
     dependencies:
       '@laxarevii/core':
@@ -137,6 +125,12 @@ importers:
         version: link:../../packages/core
 
   modules/module-promo-auto-apply:
+    dependencies:
+      '@laxarevii/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+
+  modules/module-promo-line:
     dependencies:
       '@laxarevii/core':
         specifier: workspace:*
@@ -155,12 +149,6 @@ importers:
         version: link:../../packages/core
 
   modules/module-sms-otp-checkout:
-    dependencies:
-      '@laxarevii/core':
-        specifier: workspace:*
-        version: link:../../packages/core
-
-  modules/module-social-proof:
     dependencies:
       '@laxarevii/core':
         specifier: workspace:*
@@ -192,6 +180,15 @@ importers:
       '@laxarevii/core':
         specifier: workspace:*
         version: link:../../packages/core
+
+  modules/module-video-preview:
+    dependencies:
+      '@laxarevii/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      interactjs:
+        specifier: ^1.10.27
+        version: 1.10.27
 
   packages/core: {}
 

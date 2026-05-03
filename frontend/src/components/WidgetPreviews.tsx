@@ -195,16 +195,22 @@ export function PreviewCashback() {
   )
 }
 
+const MARQUEE_MESSAGES = [
+  { icon: <Flame size={11} strokeWidth={2.25} />, text: 'Розпродаж до -50%' },
+  { icon: <Truck size={11} strokeWidth={2.25} />, text: 'Безкоштовна доставка від 500 грн' },
+  { icon: <Star size={11} strokeWidth={2.25} />, text: 'Нова колекція вже в наявності' },
+  { icon: <Gift size={11} strokeWidth={2.25} />, text: 'Подарунок при замовленні від 1000 грн' },
+  { icon: <Flame size={11} strokeWidth={2.25} />, text: 'Акція тільки сьогодні' },
+  { icon: <Truck size={11} strokeWidth={2.25} />, text: 'Відправка в день замовлення' },
+]
+
 export function PreviewMarquee() {
   return (
     <div className="wpr__marquee-wrap">
       <div className="wpr__marquee-track">
-        <span><Flame size={11} strokeWidth={2.25} /> Розпродаж до -50%</span>
-        <span><Truck size={11} strokeWidth={2.25} /> Безкоштовна доставка від 500 грн</span>
-        <span><Star size={11} strokeWidth={2.25} /> Нова колекція вже в наявності</span>
-        <span><Gift size={11} strokeWidth={2.25} /> Подарунок при замовленні від 1000 грн</span>
-        <span><Flame size={11} strokeWidth={2.25} /> Розпродаж до -50%</span>
-        <span><Truck size={11} strokeWidth={2.25} /> Безкоштовна доставка від 500 грн</span>
+        {[...MARQUEE_MESSAGES, ...MARQUEE_MESSAGES].map((m, i) => (
+          <span key={i}>{m.icon} {m.text}</span>
+        ))}
       </div>
     </div>
   )
@@ -934,24 +940,24 @@ export function PreviewSmsOtp() {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const PREVIEW_MAP: Record<string, React.FC> = {
-  'marquee':               PreviewMarquee,
+  'promo-line':            PreviewMarquee,
   'delivery-date':         PreviewDelivery,
   'cart-goal':             PreviewCartGoal,
-  'social-proof':          PreviewPurchaseCounter,
+  'buyer-count':           PreviewPurchaseCounter,
   'stock-left':            PreviewStock,
-  'photo-reviews':         PreviewPhotoReviews,
+  'photo-video-reviews':   PreviewPhotoReviews,
   'one-plus-one':          PreviewOnePlusOne,
   'progressive-discount':  PreviewProgressiveDiscount,
   'spin-the-wheel':        PreviewSpinWheel,
-  'exit-intent-popup':     PreviewRecentPurchase,
+  'last-chance-popup':     PreviewRecentPurchase,
   'prize-banner':          PreviewBonus,
   'promo-auto-apply':      PreviewCashback,
   'sticky-buy-button':     PreviewStickyBuyButton,
   'trust-badges':          PreviewTrustBadges,
   'phone-mask':            PreviewPhoneMask,
-  'min-order':             PreviewMinOrder,
+  'minorder-goal':         PreviewMinOrder,
   'recently-viewed':       PreviewRecentlyViewed,
-  'product-video-preview': PreviewVideoPreview,
+  'video-preview':         PreviewVideoPreview,
   'floating-messengers':   PreviewFloatingMessengers,
   'cart-recommender':      PreviewCartRecommender,
   'sms-otp-checkout':      PreviewSmsOtp,

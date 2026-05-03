@@ -614,7 +614,7 @@ class DemoDataSeeder extends Seeder
                 'result_period' => 'за 2 місяці',
                 'color' => '#10b981',
                 'widgets' => [
-                    ['name' => 'Бігуча стрічка', 'slug' => 'marquee'],
+                    ['name' => 'Бігуча стрічка', 'slug' => 'promo-line'],
                     ['name' => 'Дата доставки', 'slug' => 'delivery-date'],
                     ['name' => 'Ціль кошика', 'slug' => null],
                 ],
@@ -636,7 +636,7 @@ class DemoDataSeeder extends Seeder
                 'result_period' => 'за 3 місяці',
                 'color' => '#f59e0b',
                 'widgets' => [
-                    ['name' => 'Бігуча стрічка', 'slug' => 'marquee'],
+                    ['name' => 'Бігуча стрічка', 'slug' => 'promo-line'],
                     ['name' => 'Відео-прев\'ю', 'slug' => null],
                     ['name' => 'Хто зараз дивиться', 'slug' => 'live-viewers'],
                 ],
@@ -658,7 +658,7 @@ class DemoDataSeeder extends Seeder
                 'result_period' => 'за місяць',
                 'color' => '#ef4444',
                 'widgets' => [
-                    ['name' => 'Бігуча стрічка', 'slug' => 'marquee'],
+                    ['name' => 'Бігуча стрічка', 'slug' => 'promo-line'],
                     ['name' => 'Таймер', 'slug' => 'countdown'],
                     ['name' => 'Дефіцит товару', 'slug' => null],
                 ],
@@ -681,7 +681,7 @@ class DemoDataSeeder extends Seeder
                 'color' => '#3b82f6',
                 'widgets' => [
                     ['name' => 'Лічильник покупок', 'slug' => 'purchase-counter'],
-                    ['name' => 'Фотовідгуки', 'slug' => 'photo-reviews'],
+                    ['name' => 'Фотовідгуки', 'slug' => 'photo-video-reviews'],
                     ['name' => 'Колесо фортуни', 'slug' => 'spin-wheel'],
                 ],
                 'sort_order' => 4,
@@ -883,7 +883,7 @@ class DemoDataSeeder extends Seeder
                 'code' => 'DEMO2026',
                 'config' => [
                     'theme' => 'modern',
-                    'widgets' => ['countdown-timer', 'marquee', 'delivery-date'],
+                    'widgets' => ['countdown-timer', 'promo-line', 'delivery-date'],
                     'timer' => [
                         'enabled' => true,
                         'ends_at' => $now->copy()->addHours(46)->toIso8601String(),

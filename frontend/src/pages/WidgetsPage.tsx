@@ -13,13 +13,14 @@ import {
   ChevronRight,
 } from 'lucide-react'
 import { availableWidgetTags, widgets, tagLabels, type Tag } from '../data/widgets'
+import { get } from '../api/client'
 import { PREVIEW_MAP, PreviewOnePlusOneCard } from '../components/WidgetPreviews'
 import './WidgetsPage.css'
 
 // ─── Cases data per widget ──────────────────────────────────────────────────
 
 const WIDGET_CASES: Record<string, { store: string; metric: string; color: string }[]> = {
-  marquee:              [
+  'promo-line':         [
     { store: 'ptashkinsad.com', metric: '+18% середній чек', color: '#22C55E' },
     { store: 'benihome.com.ua', metric: '+24% конверсія',    color: '#22C55E' },
     { store: 'ballistic.com.ua',metric: '−31% відмов',       color: '#3B82F6' },
@@ -27,7 +28,7 @@ const WIDGET_CASES: Record<string, { store: string; metric: string; color: strin
   'delivery-date':      [
     { store: 'modnakasta.ua', metric: '−40% питань до чату', color: '#22C55E' },
   ],
-  'social-proof':       [
+  'buyer-count':        [
     { store: 'kyivfit.store', metric: '+42% email-база', color: '#22C55E' },
   ],
   'cart-goal':          [
@@ -36,7 +37,7 @@ const WIDGET_CASES: Record<string, { store: string; metric: string; color: strin
   'stock-left':         [
     { store: 'ballistic.com.ua', metric: '−31% відмов', color: '#3B82F6' },
   ],
-  'photo-reviews':      [
+  'photo-video-reviews':[
     { store: 'kyivfit.store', metric: '+42% email-база', color: '#22C55E' },
   ],
   'spin-the-wheel':     [
@@ -45,7 +46,7 @@ const WIDGET_CASES: Record<string, { store: string; metric: string; color: strin
   'progressive-discount': [
     { store: 'homedetail.ua', metric: '+15% середній чек', color: '#22C55E' },
   ],
-  'exit-intent-popup':  [
+  'last-chance-popup':  [
     { store: 'stylehub.com.ua', metric: '+33% конверсія', color: '#22C55E' },
   ],
   'one-plus-one':       [
@@ -190,8 +191,23 @@ const FEATURED_CASES = [
 const ALL_TAGS: (Tag | 'all')[] = ['all', ...availableWidgetTags]
 const TAG_LABELS_WITH_ALL: Record<string, string> = { all: 'Всі', ...tagLabels }
 
+interface TagApiItem { slug: string; count: number }
+
 export function WidgetsPage() {
   const [activeTag, setActiveTag] = useState<Tag | 'all'>('all')
+  const [tagCounts, setTagCounts] = useState<Record<string, number>>({})
+
+  useEffect(() => {
+    get<{ data: TagApiItem[] }>('/tags')
+      .then(res => {
+        const counts: Record<string, number> = {}
+        for (const t of res.data) counts[t.slug] = t.count
+        setTagCounts(counts)
+      })
+      .catch(() => {})
+  }, [])
+
+  const totalCount = Object.values(tagCounts).reduce((s, n) => s + n, 0)
 
   const filtered = activeTag === 'all' ? widgets : widgets.filter((w) => w.tag === activeTag)
 
@@ -239,16 +255,22 @@ export function WidgetsPage() {
       {/* ── Tag filter ── */}
       <div className="wp__filters">
         <div className="wp__filters-inner">
-          {ALL_TAGS.map((tag) => (
-            <button
-              key={tag}
-              type="button"
-              className={`wp__filter-btn ${activeTag === tag ? 'wp__filter-btn--active' : ''}`}
-              onClick={() => setActiveTag(tag)}
-            >
-              {TAG_LABELS_WITH_ALL[tag]}
-            </button>
-          ))}
+          {ALL_TAGS.map((tag) => {
+            const count = tag === 'all' ? totalCount : (tagCounts[tag] ?? 0)
+            return (
+              <button
+                key={tag}
+                type="button"
+                className={`wp__filter-btn ${activeTag === tag ? 'wp__filter-btn--active' : ''}`}
+                onClick={() => setActiveTag(tag)}
+              >
+                {TAG_LABELS_WITH_ALL[tag]}
+                {count > 0 && (
+                  <span className="wp__filter-count">{count}</span>
+                )}
+              </button>
+            )
+          })}
         </div>
       </div>
 

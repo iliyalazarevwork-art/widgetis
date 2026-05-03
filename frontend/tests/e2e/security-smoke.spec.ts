@@ -110,7 +110,7 @@ test.describe('security-smoke', () => {
 
   test('GET /build-demo does not return widget-builder JS', async ({ request }) => {
     const res = await request.post('/build-demo', {
-      data: { modules: { 'marquee': { enabled: true } } },
+      data: { modules: { 'promo-line': { enabled: true } } },
       failOnStatusCode: false,
     })
 

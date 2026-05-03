@@ -1,5 +1,5 @@
 {
-  "name": "@laxarevii/module-min-order",
+  "name": "@laxarevii/module-last-chance-popup",
   "version": "1.0.0",
   "type": "module",
   "main": "index.ts",
@@ -14,7 +14,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/Laxarevii/horoshop-plugin-manager-v2.git",
-    "directory": "modules/module-min-order"
+    "directory": "modules/module-last-chance-popup"
   },
   "dependencies": {
     "@laxarevii/core": "workspace:*"

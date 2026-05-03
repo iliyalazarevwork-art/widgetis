@@ -76,14 +76,14 @@ const BENEFIT_COLORS = ['#3B82F6', '#10B981', '#F59E0B']
 const BENEFIT_ICONS = [Zap, ShieldCheck, HeartHandshake]
 
 const WIDGET_CASE_MAP: Record<string, string[]> = {
-  marquee: ['ptashkin', 'beni-home', 'ballistic'],
+  'promo-line': ['ptashkin', 'beni-home', 'ballistic'],
   'delivery-date': ['ptashkin', 'brewco'],
   'cart-goal': ['ptashkin', 'homedetail'],
-  'social-proof': ['kyivfit'],
+  'buyer-count': ['kyivfit'],
   'stock-left': ['ballistic'],
-  'photo-reviews': ['kyivfit'],
+  'photo-video-reviews': ['kyivfit'],
   'spin-the-wheel': ['kyivfit'],
-  'exit-intent-popup': ['homedetail'],
+  'last-chance-popup': ['homedetail'],
   'progressive-discount': ['homedetail'],
   'one-plus-one': ['beni-home'],
   'promo-auto-apply': ['brewco'],

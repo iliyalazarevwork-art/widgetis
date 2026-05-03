@@ -17,9 +17,9 @@ class ProductSeeder extends Seeder
         Product::whereNotIn('slug', [
             'promo-line',
             'delivery-date',
-            'freeship-goal',
+            'cart-goal',
             'minorder-goal',
-            'one-plus-one-deal',
+            'one-plus-one',
             'video-preview',
             'buyer-count',
             'sticky-buy-button',
@@ -35,7 +35,6 @@ class ProductSeeder extends Seeder
                 'tag_slug' => 'engagement',
                 'is_popular' => true,
                 'is_new' => false,
-                'builder_module' => 'marquee',
                 'sort_order' => 0,
                 'config_schema' => [
                     'enabled' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Enabled', 'uk' => 'Увімкнено']],
@@ -85,7 +84,6 @@ class ProductSeeder extends Seeder
                 'tag_slug' => 'trust',
                 'is_popular' => false,
                 'is_new' => true,
-                'builder_module' => 'delivery-date',
                 'sort_order' => 1,
                 'config_schema' => [
                     'enabled' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Enabled', 'uk' => 'Увімкнено']],
@@ -107,14 +105,13 @@ class ProductSeeder extends Seeder
                 ],
             ],
             [
-                'slug' => 'freeship-goal',
+                'slug' => 'cart-goal',
                 'name' => ['en' => 'FreeShip Goal', 'uk' => 'До безкоштовної доставки'],
                 'description' => ['en' => 'Floating progress bar showing how much more to spend for free shipping', 'uk' => 'Плаваючий прогрес-бар показує скільки залишилось до безкоштовної доставки'],
                 'icon' => 'package',
                 'tag_slug' => 'conversion',
                 'is_popular' => true,
                 'is_new' => false,
-                'builder_module' => 'cart-goal',
                 'sort_order' => 2,
                 'config_schema' => [
                     'enabled' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Enabled', 'uk' => 'Увімкнено']],
@@ -153,7 +150,6 @@ class ProductSeeder extends Seeder
                 'tag_slug' => 'conversion',
                 'is_popular' => false,
                 'is_new' => false,
-                'builder_module' => 'min-order',
                 'sort_order' => 3,
                 'config_schema' => [
                     'enabled' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Enabled', 'uk' => 'Увімкнено']],
@@ -184,14 +180,13 @@ class ProductSeeder extends Seeder
                 ],
             ],
             [
-                'slug' => 'one-plus-one-deal',
+                'slug' => 'one-plus-one',
                 'name' => ['en' => '1+1=3 Deal', 'uk' => '1+1=3 акція'],
                 'description' => ['en' => 'Buy 2 products — cheapest one for 1 UAH. Increases average order value', 'uk' => 'Купи два товари — найдешевший у кошику за 1 гривню. Збільшує середній чек'],
                 'icon' => 'gift',
                 'tag_slug' => 'conversion',
                 'is_popular' => false,
                 'is_new' => true,
-                'builder_module' => 'one-plus-one',
                 'sort_order' => 4,
                 'config_schema' => [
                     'enabled' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Enabled', 'uk' => 'Увімкнено']],
@@ -207,7 +202,6 @@ class ProductSeeder extends Seeder
                 'tag_slug' => 'engagement',
                 'is_popular' => false,
                 'is_new' => true,
-                'builder_module' => 'product-video-preview',
                 'sort_order' => 5,
                 'config_schema' => [
                     'enabled' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Enabled', 'uk' => 'Увімкнено']],
@@ -233,7 +227,6 @@ class ProductSeeder extends Seeder
                 'tag_slug' => 'conversion',
                 'is_popular' => true,
                 'is_new' => true,
-                'builder_module' => 'sticky-buy-button',
                 'sort_order' => 2,
                 'config_schema' => [
                     'enabled' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Enabled', 'uk' => 'Увімкнено']],
@@ -255,7 +248,6 @@ class ProductSeeder extends Seeder
                 'tag_slug' => 'social-proof',
                 'is_popular' => true,
                 'is_new' => false,
-                'builder_module' => 'social-proof',
                 'sort_order' => 6,
                 'config_schema' => [
                     'enabled' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Enabled', 'uk' => 'Увімкнено']],
@@ -288,7 +280,6 @@ class ProductSeeder extends Seeder
                 'tag_slug' => 'conversion',
                 'is_popular' => true,
                 'is_new' => true,
-                'builder_module' => 'progressive-discount',
                 'sort_order' => 4,
                 'config_schema' => [
                     'enabled' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Enabled', 'uk' => 'Увімкнено']],

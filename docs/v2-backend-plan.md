@@ -728,7 +728,6 @@ CREATE TABLE products (
     is_new          BOOLEAN DEFAULT FALSE,
     preview_before  VARCHAR(500) NULL,           -- URL скріншоту "до"
     preview_after   VARCHAR(500) NULL,           -- URL скріншоту "після"
-    builder_module  VARCHAR(100) NULL,           -- ім'я модуля в widget-builder
     config_schema   JSONB NULL,                  -- JSON Schema конфігурації віджету
     sort_order      INTEGER DEFAULT 0,
     created_at      TIMESTAMP NOT NULL,

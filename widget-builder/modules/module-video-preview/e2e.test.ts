@@ -1,5 +1,5 @@
 /**
- * module-product-video-preview — smoke e2e test
+ * module-video-preview — smoke e2e test
  *
  * Page:     product page (module logs ✅ activated unconditionally; the floating
  *           bubble only appears when a video link is found via mp4Selector, but
@@ -17,7 +17,7 @@ import { test, expect } from '@playwright/test';
 import { TEST_SITES, siteUrl, findProductPath, waitForModuleMount } from '../../tests/e2e/helpers';
 
 for (const site of TEST_SITES) {
-  test(`module-product-video-preview mounts on ${site.name}`, async ({ page }) => {
+  test(`module-video-preview mounts on ${site.name}`, async ({ page }) => {
     const productPath = await findProductPath(site.domain);
     await page.goto(siteUrl(site, productPath), { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('load').catch(() => {});

@@ -1,5 +1,5 @@
 /**
- * Demo entry for module-photo-reviews.
+ * Demo entry for module-photo-video-reviews.
  *
  * Production module POSTs uploaded photos/videos to
  * https://api.widgetis.com/api/v1/widgets/reviews. On the public demo we have

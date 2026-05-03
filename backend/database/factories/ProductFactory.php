@@ -37,7 +37,6 @@ class ProductFactory extends Factory
             'is_new' => false,
             'preview_before' => null,
             'preview_after' => null,
-            'builder_module' => 'test',
             'config_schema' => null,
             'sort_order' => 0,
             'availability' => ProductAvailability::Available,

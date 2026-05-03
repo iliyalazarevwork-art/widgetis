@@ -28,7 +28,7 @@ const productPathCache = new Map<string, string>();
  * Return the path to a real Horoshop **product detail** page for a domain.
  *
  * IMPORTANT: must be a single product detail page (not a category listing)
- * because modules like photo-reviews use isHoroshopProductPage() which checks
+ * because modules like photo-video-reviews use isHoroshopProductPage() which checks
  * for .j-product-block etc. — elements only present on product detail pages.
  *
  * Paths are verified against both test sites by running Playwright and checking

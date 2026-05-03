@@ -1,5 +1,5 @@
 {
-  "name": "@laxarevii/module-product-video-preview",
+  "name": "@laxarevii/module-photo-video-reviews",
   "version": "1.0.0",
   "type": "module",
   "main": "index.ts",
@@ -14,10 +14,10 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/Laxarevii/horoshop-plugin-manager-v2.git",
-    "directory": "modules/module-product-video-preview"
+    "directory": "modules/module-photo-video-reviews"
   },
   "dependencies": {
     "@laxarevii/core": "workspace:*",
-    "interactjs": "^1.10.27"
+    "glightbox": "^3.3.0"
   }
 }

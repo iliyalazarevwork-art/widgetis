@@ -15,13 +15,13 @@ import './WidgetsList.css'
 
 const WIDGETS = [
   {
-    slug: 'photo-reviews',
+    slug: 'photo-video-reviews',
     name: 'Фотовідгуки',
     description: 'Покупці довіряють фото інших покупців більше, ніж опису товару.',
     preview: PreviewPhotoReviews,
   },
   {
-    slug: 'social-proof',
+    slug: 'buyer-count',
     name: 'Лічильник покупок',
     description: 'Соціальний доказ — скільки людей вже купили цей товар.',
     preview: PreviewViewers,

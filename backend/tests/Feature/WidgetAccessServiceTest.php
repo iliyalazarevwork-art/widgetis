@@ -407,7 +407,6 @@ class WidgetAccessServiceTest extends TestCase
             'platform' => 'horoshop',
             'status' => 'active',
             'availability' => ProductAvailability::Available,
-            'builder_module' => 'test',
             'sort_order' => 0,
         ], $overrides));
     }

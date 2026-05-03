@@ -60,7 +60,7 @@ function applyTheme(config: Record<string, unknown>, theme: Theme): void {
     stock['accentColor'] = theme.stockAccent;
   }
 
-  const exitPopup = modules['module-exit-intent-popup']?.config;
+  const exitPopup = modules['module-last-chance-popup']?.config;
   if (exitPopup) {
     exitPopup['backgroundColor'] = theme.background;
     exitPopup['textColor'] = theme.text;
@@ -126,7 +126,7 @@ function applyTheme(config: Record<string, unknown>, theme: Theme): void {
     prize['borderColor'] = theme.prizeBorder;
   }
 
-  const marquee = modules['module-marquee']?.config;
+  const marquee = modules['module-promo-line']?.config;
   if (marquee) {
     const colors = (marquee['colors'] ??= {}) as Record<string, Record<string, unknown>>;
     colors['desktop'] ??= {};

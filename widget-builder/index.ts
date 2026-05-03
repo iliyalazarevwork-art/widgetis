@@ -25,17 +25,17 @@ export type BuildRequest = {
 };
 
 const MODULES_ORDER = [
-  'module-marquee',
+  'module-promo-line',
   'module-sticky-buy-button',
-  'module-min-order',
+  'module-minorder-goal',
   'module-cart-goal',
   'module-progressive-discount',
   'module-delivery-date',
-  'module-product-video-preview',
-  'module-social-proof',
+  'module-video-preview',
+  'module-buyer-count',
   'module-stock-left',
   'module-one-plus-one',
-  'module-photo-reviews',
+  'module-photo-video-reviews',
   'module-sms-otp-checkout',
   'module-cart-recommender',
   'module-promo-auto-apply',

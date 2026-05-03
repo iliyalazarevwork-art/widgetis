@@ -43,7 +43,6 @@ class Product extends Model
         'is_new',
         'preview_before',
         'preview_after',
-        'builder_module',
         'config_schema',
         'sort_order',
         'availability',

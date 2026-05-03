@@ -51,7 +51,7 @@ export const platformConfig: { id: Platform; label: string; available: boolean }
 
 export const widgets: Widget[] = [
   {
-    id: 'marquee',
+    id: 'promo-line',
     icon: 'megaphone',
     title: 'Біжучий рядок',
     description:
@@ -114,7 +114,7 @@ export const widgets: Widget[] = [
     platform: 'horoshop',
   },
   {
-    id: 'min-order',
+    id: 'minorder-goal',
     icon: 'bar-chart',
     title: 'Мінімальне замовлення',
     description:
@@ -139,7 +139,7 @@ export const widgets: Widget[] = [
     platform: 'horoshop',
   },
   {
-    id: 'social-proof',
+    id: 'buyer-count',
     icon: 'cart',
     title: 'Лічильник покупок',
     description:
@@ -164,7 +164,7 @@ export const widgets: Widget[] = [
     platform: 'horoshop',
   },
   {
-    id: 'photo-reviews',
+    id: 'photo-video-reviews',
     icon: 'camera',
     title: 'Фото-відео відгуки',
     description:
@@ -189,7 +189,7 @@ export const widgets: Widget[] = [
     platform: 'horoshop',
   },
   {
-    id: 'product-video-preview',
+    id: 'video-preview',
     icon: 'video',
     title: 'Відео-превью товару',
     description:
@@ -276,7 +276,7 @@ export const widgets: Widget[] = [
     platform: 'horoshop',
   },
   {
-    id: 'exit-intent-popup',
+    id: 'last-chance-popup',
     icon: 'bell',
     title: 'Exit-intent попап',
     description:
@@ -322,26 +322,26 @@ export const availableWidgetTags: Tag[] = tagOrder.filter((tag) => widgetTags.ha
 
 // ===== Curated "related widgets" — exactly 3 per widget =====
 export const RELATED_WIDGETS_MAP: Record<string, [string, string, string]> = {
-  'marquee':               ['sticky-buy-button', 'exit-intent-popup', 'promo-auto-apply'],
+  'promo-line':            ['sticky-buy-button', 'last-chance-popup', 'promo-auto-apply'],
   'delivery-date':         ['trust-badges', 'phone-mask', 'sms-otp-checkout'],
-  'sticky-buy-button':     ['marquee', 'cart-goal', 'exit-intent-popup'],
-  'trust-badges':          ['delivery-date', 'phone-mask', 'social-proof'],
+  'sticky-buy-button':     ['promo-line', 'cart-goal', 'last-chance-popup'],
+  'trust-badges':          ['delivery-date', 'phone-mask', 'buyer-count'],
   'phone-mask':            ['trust-badges', 'delivery-date', 'sms-otp-checkout'],
-  'min-order':             ['cart-goal', 'progressive-discount', 'one-plus-one'],
-  'cart-goal':             ['min-order', 'progressive-discount', 'cart-recommender'],
-  'social-proof':          ['photo-reviews', 'stock-left', 'recently-viewed'],
-  'stock-left':            ['social-proof', 'exit-intent-popup', 'spin-the-wheel'],
-  'photo-reviews':         ['social-proof', 'recently-viewed', 'product-video-preview'],
-  'recently-viewed':       ['photo-reviews', 'floating-messengers', 'product-video-preview'],
-  'product-video-preview': ['photo-reviews', 'recently-viewed', 'marquee'],
-  'floating-messengers':   ['recently-viewed', 'spin-the-wheel', 'social-proof'],
+  'minorder-goal':         ['cart-goal', 'progressive-discount', 'one-plus-one'],
+  'cart-goal':             ['minorder-goal', 'progressive-discount', 'cart-recommender'],
+  'buyer-count':           ['photo-video-reviews', 'stock-left', 'recently-viewed'],
+  'stock-left':            ['buyer-count', 'last-chance-popup', 'spin-the-wheel'],
+  'photo-video-reviews':   ['buyer-count', 'recently-viewed', 'video-preview'],
+  'recently-viewed':       ['photo-video-reviews', 'floating-messengers', 'video-preview'],
+  'video-preview':         ['photo-video-reviews', 'recently-viewed', 'promo-line'],
+  'floating-messengers':   ['recently-viewed', 'spin-the-wheel', 'buyer-count'],
   'cart-recommender':      ['cart-goal', 'progressive-discount', 'one-plus-one'],
-  'prize-banner':          ['spin-the-wheel', 'promo-auto-apply', 'exit-intent-popup'],
-  'promo-auto-apply':      ['prize-banner', 'spin-the-wheel', 'marquee'],
-  'progressive-discount':  ['cart-goal', 'min-order', 'one-plus-one'],
+  'prize-banner':          ['spin-the-wheel', 'promo-auto-apply', 'last-chance-popup'],
+  'promo-auto-apply':      ['prize-banner', 'spin-the-wheel', 'promo-line'],
+  'progressive-discount':  ['cart-goal', 'minorder-goal', 'one-plus-one'],
   'one-plus-one':          ['cart-goal', 'progressive-discount', 'cart-recommender'],
-  'exit-intent-popup':     ['spin-the-wheel', 'prize-banner', 'promo-auto-apply'],
-  'spin-the-wheel':        ['exit-intent-popup', 'prize-banner', 'promo-auto-apply'],
+  'last-chance-popup':     ['spin-the-wheel', 'prize-banner', 'promo-auto-apply'],
+  'spin-the-wheel':        ['last-chance-popup', 'prize-banner', 'promo-auto-apply'],
   'sms-otp-checkout':      ['delivery-date', 'trust-badges', 'phone-mask'],
 }
 

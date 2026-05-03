@@ -1,5 +1,5 @@
 /**
- * module-exit-intent-popup — smoke e2e test
+ * module-last-chance-popup — smoke e2e test
  *
  * Page:     product page (any). Module activates after `minTimeOnPageSec`,
  *           then shows on mouse-leave or popstate.
@@ -11,7 +11,7 @@ import { test, expect } from '@playwright/test';
 import { TEST_SITES, siteUrl, findProductPath, waitForModuleMount } from '../../tests/e2e/helpers';
 
 for (const site of TEST_SITES) {
-  test(`module-exit-intent-popup mounts on ${site.name}`, async ({ page }) => {
+  test(`module-last-chance-popup mounts on ${site.name}`, async ({ page }) => {
     const productPath = await findProductPath(site.domain);
     await page.goto(siteUrl(site, productPath), { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('load').catch(() => {});

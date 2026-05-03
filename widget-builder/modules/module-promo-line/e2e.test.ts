@@ -1,5 +1,5 @@
 /**
- * module-marquee — smoke e2e test
+ * module-promo-line — smoke e2e test
  *
  * Page:     any page (marquee runs on every page load, no page-type guard)
  * Selector: [data-marquee] — the root element set by createRoot() in dom.ts
@@ -11,7 +11,7 @@ import { test, expect } from '@playwright/test';
 import { TEST_SITES, siteUrl, waitForModuleMount } from '../../tests/e2e/helpers';
 
 for (const site of TEST_SITES) {
-  test(`module-marquee mounts on ${site.name}`, async ({ page }) => {
+  test(`module-promo-line mounts on ${site.name}`, async ({ page }) => {
     await page.goto(siteUrl(site, '/'), { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('load').catch(() => {});
 

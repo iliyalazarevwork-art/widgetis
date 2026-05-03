@@ -1,7 +1,7 @@
 {
   "$comment": "Test-only config — all 10 modules enabled with minimal valid defaults. Used by global-setup.ts to build the demo bundle before the e2e suite runs.",
   "modules": {
-    "module-exit-intent-popup": {
+    "module-last-chance-popup": {
       "config": {
         "enabled": true,
         "cooldownHours": 0,
@@ -191,7 +191,7 @@
         }
       }
     },
-    "module-marquee": {
+    "module-promo-line": {
       "config": {
         "enabled": true,
         "speed": 80,
@@ -205,8 +205,8 @@
         }
       },
       "i18n": {
-        "ua": ["ТЕСТ — модуль marquee активовано", "Офіційний магазин"],
-        "en": ["TEST — marquee module activated", "Official store"]
+        "ua": ["ТЕСТ — модуль promo-line активовано", "Офіційний магазин"],
+        "en": ["TEST — promo-line module activated", "Official store"]
       }
     },
     "module-delivery-date": {
@@ -243,7 +243,7 @@
         }
       }
     },
-    "module-social-proof": {
+    "module-buyer-count": {
       "config": {
         "enabled": true,
         "selectors": [
@@ -336,7 +336,7 @@
         }
       }
     },
-    "module-min-order": {
+    "module-minorder-goal": {
       "config": {
         "enabled": true,
         "threshold": 300,
@@ -370,7 +370,7 @@
         }
       }
     },
-    "module-photo-reviews": {
+    "module-photo-video-reviews": {
       "config": {
         "enabled": true,
         "uploadApiUrl": "http://localhost:9001/api/v1/widget/reviews",
@@ -396,7 +396,7 @@
         }
       }
     },
-    "module-product-video-preview": {
+    "module-video-preview": {
       "config": {
         "enabled": true,
         "testVideoUrl": "https://lzrv.agency/pila.mp4",
