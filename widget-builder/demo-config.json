@@ -158,9 +158,10 @@
             }
         },
         "module-cart-recommender": {
+            "$comment": "Disabled in the public demo — requires a live recommendations API with real per-shop product data. Falls back to placeholder icons which looks broken.",
             "config": {
-                "enabled": true,
-                "apiBaseUrl": "http://192.168.100.39:9001",
+                "enabled": false,
+                "apiBaseUrl": "https://api.widgetis.com",
                 "mountSelector": "#cart .cart__summary, .cart__summary",
                 "maxItems": 4
             },
@@ -324,8 +325,9 @@
             }
         },
         "module-floating-messengers": {
+            "$comment": "Disabled in the public demo — floating messenger bubble overlaps other demo UI and looks odd on a proxied third-party site without real contact data.",
             "config": {
-                "enabled": true,
+                "enabled": false,
                 "position": "bottom-right",
                 "bottomOffsetDesktop": 24,
                 "bottomOffsetMobile": 80,
