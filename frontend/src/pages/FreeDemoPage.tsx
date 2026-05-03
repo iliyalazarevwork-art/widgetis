@@ -16,7 +16,7 @@ export function FreeDemoPage() {
         path="/free-demo"
         noindex
       />
-      <DemoSection initialUrl={initialUrl} />
+      <DemoSection initialUrl={initialUrl} autoStart={!!initialUrl} />
     </div>
   )
 }

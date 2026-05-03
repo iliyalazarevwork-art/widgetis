@@ -75,7 +75,7 @@ const TypewriterInput = forwardRef<HTMLInputElement, {
   )
 })
 
-export function DemoSection({ initialUrl }: { initialUrl?: string } = {}) {
+export function DemoSection({ initialUrl, autoStart }: { initialUrl?: string; autoStart?: boolean } = {}) {
   const [url, setUrl] = useState(() => {
     if (initialUrl) return initialUrl
     try { return localStorage.getItem('wty_demo_url') || '' } catch { return '' }
@@ -84,6 +84,18 @@ export function DemoSection({ initialUrl }: { initialUrl?: string } = {}) {
   const [demoCode, setDemoCode] = useState<string | null>(null)
   const [showDemo, setShowDemo] = useState(false)
   const inputEl = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (!autoStart || !initialUrl) return
+    const domain = initialUrl.trim()
+    if (!domain) return
+    setCreating(true)
+    post<{ data: { code: string } }>('/demo-sessions', { domain })
+      .then((res) => { setDemoCode(res.data.code); setShowDemo(true) })
+      .catch((err) => toast.error((err as Error).message || 'Не вдалося створити демо'))
+      .finally(() => setCreating(false))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   function handleTagClick(tag: string) {
     let base = url.trim()
