@@ -75,8 +75,9 @@ const TypewriterInput = forwardRef<HTMLInputElement, {
   )
 })
 
-export function DemoSection() {
+export function DemoSection({ initialUrl }: { initialUrl?: string } = {}) {
   const [url, setUrl] = useState(() => {
+    if (initialUrl) return initialUrl
     try { return localStorage.getItem('wty_demo_url') || '' } catch { return '' }
   })
   const [creating, setCreating] = useState(false)

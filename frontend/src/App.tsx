@@ -33,6 +33,7 @@ const WidgetDetailPage = lazy(() =>
 const DemoPage = lazy(() => import('./pages/DemoPage').then((m) => ({ default: m.DemoPage })))
 const PricingAnimPage = lazy(() => import('./pages/PricingAnimPage').then((m) => ({ default: m.PricingAnimPage })))
 const LiveDemoPage = lazy(() => import('./pages/LiveDemoPage').then((m) => ({ default: m.LiveDemoPage })))
+const FreeDemoPage = lazy(() => import('./pages/FreeDemoPage').then((m) => ({ default: m.FreeDemoPage })))
 const SignupPage = lazy(() => import('./pages/SignupPage').then((m) => ({ default: m.SignupPage })))
 const TrialSuccessPage = lazy(() =>
   import('./pages/TrialSuccessPage').then((m) => ({ default: m.TrialSuccessPage })),
@@ -331,6 +332,7 @@ function App() {
 
           <Route path="/signup/success" element={<TrialSuccessPage />} />
           <Route path="/live-demo" element={<LiveDemoPage />} />
+          <Route path="/free-demo" element={<FreeDemoPage />} />
           <Route path="/profile/*" element={<LegacyProfileRedirect />} />
 
           <Route
