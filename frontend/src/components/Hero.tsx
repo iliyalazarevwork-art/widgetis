@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Gem, Star } from 'lucide-react'
+import { ArrowRight, Gem, Star, TrendingUp } from 'lucide-react'
 import { trackCtaClick } from '../lib/analytics'
 import './Hero.css'
 
@@ -28,9 +28,7 @@ function useCountUp(from: number, to: number, decimals: number, run: boolean, du
         const elapsed = now - t0
         const progress = Math.min(1, elapsed / durationMs)
         setValue(from + (to - from) * easeOutCubic(progress))
-        if (progress < 1) {
-          rafRef.current = requestAnimationFrame(tick)
-        }
+        if (progress < 1) rafRef.current = requestAnimationFrame(tick)
       }
       rafRef.current = requestAnimationFrame(tick)
     }
@@ -48,9 +46,62 @@ function useCountUp(from: number, to: number, decimals: number, run: boolean, du
   return formatUa(value, decimals)
 }
 
+// 0–5 s: fast ticks every FAST_PULSE_MS.
+// 5–60 s: delay grows exponentially — delay = FAST_PULSE_MS * e^(k*(elapsed-FAST_PHASE_MS))
+//          k chosen so that at 60 s the delay reaches ~30 s (effectively frozen).
+// After 60 s: hard stop, value freezes wherever it is.
+const ANIM_MS       = 60_000
+const FAST_PHASE_MS = 5_000
+const FAST_PULSE_MS = 500
+const TAU_MS        = 15_000 // controls how fast value approaches target
+// k = ln(3 000 000 / FAST_PULSE_MS) / (ANIM_MS - FAST_PHASE_MS) ≈ 0.000158 per ms
+// At t=10 s → ~1 s delay, t=20 s → ~5 s, t=30 s → ~26 s (nearly frozen)
+const SLOW_K = Math.log(3_000_000 / FAST_PULSE_MS) / (ANIM_MS - FAST_PHASE_MS)
+
+function useAsymptoticValue(
+  from: number,
+  to: number,
+  decimals: number,
+  enabled: boolean,
+): { formatted: string; tick: number } {
+  const [formatted, setFormatted] = useState(formatUa(from, decimals))
+  const [tick, setTick] = useState(0)
+  const startMs = useRef(0)
+  const timerRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    if (!enabled) return
+    startMs.current = Date.now()
+
+    const scheduleNext = () => {
+      const elapsed = Date.now() - startMs.current
+      if (elapsed >= ANIM_MS) return // freeze
+
+      const delay = elapsed < FAST_PHASE_MS
+        ? FAST_PULSE_MS
+        : FAST_PULSE_MS * Math.exp(SLOW_K * (elapsed - FAST_PHASE_MS))
+
+      timerRef.current = window.setTimeout(() => {
+        const e2 = Date.now() - startMs.current
+        const t = 1 - Math.exp(-e2 / TAU_MS)
+        const next = formatUa(from + (to - from) * t, decimals)
+        setFormatted(prev => { if (next !== prev) setTick(n => n + 1); return next })
+        scheduleNext()
+      }, delay)
+    }
+
+    scheduleNext()
+    return () => { if (timerRef.current !== null) window.clearTimeout(timerRef.current) }
+  }, [enabled, from, to, decimals])
+
+  return { formatted, tick }
+}
+
+const COUNT_UP_DURATION = 1800
+
 export function Hero() {
   const metricsRef = useRef<HTMLDivElement | null>(null)
-  const [run, setRun] = useState(false)
+  const [phase, setPhase] = useState<'idle' | 'counting' | 'live'>('idle')
 
   useEffect(() => {
     const node = metricsRef.current
@@ -58,7 +109,8 @@ export function Hero() {
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setRun(true)
+          setPhase('counting')
+          window.setTimeout(() => setPhase('live'), COUNT_UP_DURATION + 200)
           obs.disconnect()
         }
       },
@@ -68,10 +120,26 @@ export function Hero() {
     return () => obs.disconnect()
   }, [])
 
-  const conversion = useCountUp(2.1, 2.4, 1, run, 1600, 0)
-  const conversionDelta = useCountUp(0.0, 0.3, 1, run, 1600, 0)
-  const checkAbs = useCountUp(60, 180, 0, run, 1800, 100)
-  const checkRel = useCountUp(4, 12, 0, run, 1600, 100)
+  const counting = phase === 'counting'
+  const live = phase === 'live'
+
+  // ── Count-up phase (idle defaults → good values, 1.8 s) ──
+  const conversionUp      = useCountUp(1.8, 2.4, 1, counting, COUNT_UP_DURATION)
+  const conversionDeltaUp = useCountUp(0.1, 0.3, 1, counting, COUNT_UP_DURATION)
+  const checkAbsUp        = useCountUp(190, 270, 0, counting, COUNT_UP_DURATION, 100)
+  const checkRelUp        = useCountUp(8,    12, 0, counting, COUNT_UP_DURATION, 100)
+
+  // ── Live phase (asymptotic, 60 s, then freeze) ──
+  const { formatted: conversion,      tick: conversionTick } = useAsymptoticValue(2.4, 9.0, 1, live)
+  const { formatted: conversionDelta, tick: deltaTick      } = useAsymptoticValue(0.3, 6.9, 1, live)
+  const { formatted: checkAbs,        tick: checkAbsTick   } = useAsymptoticValue(270, 480, 0, live)
+  const { formatted: checkRel,        tick: checkRelTick   } = useAsymptoticValue(12,   28, 0, live)
+
+  // idle: show non-zero defaults immediately on page load
+  const cvStr  = live ? conversion      : (counting ? conversionUp      : '1,8')
+  const cvdStr = live ? conversionDelta : (counting ? conversionDeltaUp : '0,1')
+  const caStr  = live ? checkAbs        : (counting ? checkAbsUp        : '190')
+  const crStr  = live ? checkRel        : (counting ? checkRelUp        : '8')
 
   return (
     <section className="hero hero--visible">
@@ -99,18 +167,21 @@ export function Hero() {
           <p className="hero__metrics-caption">У наших клієнтів за тиждень</p>
           <div className="hero__metric-cards">
             <div className="hero__metric-card">
-              <span className="hero__metric-label">КОНВЕРСІЯ</span>
+              <span className="hero__metric-label">
+                КОНВЕРСІЯ
+                <TrendingUp size={11} strokeWidth={2.5} className="hero__metric-trend" />
+              </span>
               <div className="hero__metric-values">
-                <span className="hero__metric-value">{conversion}%</span>
-                <span className="hero__metric-delta">+{conversionDelta}%</span>
+                <span key={live ? conversionTick : 'cv'} className={`hero__metric-value${live ? ' hero__metric-value--bump' : ''}`}>{cvStr}%</span>
+                <span key={live ? `d${deltaTick}` : 'cvd'} className={`hero__metric-delta${live ? ' hero__metric-delta--bump' : ''}`}>+{cvdStr}%</span>
               </div>
             </div>
             <div className="hero__metric-divider" aria-hidden="true" />
             <div className="hero__metric-card">
               <span className="hero__metric-label">СЕРЕДНІЙ ЧЕК</span>
               <div className="hero__metric-values">
-                <span className="hero__metric-value">+{checkAbs} ₴</span>
-                <span className="hero__metric-delta">+{checkRel}%</span>
+                <span key={live ? checkAbsTick : 'ca'} className={`hero__metric-value${live ? ' hero__metric-value--bump' : ''}`}>+{caStr} ₴</span>
+                <span key={live ? `cr${checkRelTick}` : 'cr'} className={`hero__metric-delta${live ? ' hero__metric-delta--bump' : ''}`}>+{crStr}%</span>
               </div>
             </div>
           </div>

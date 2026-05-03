@@ -196,20 +196,24 @@ export function PreviewCashback() {
 }
 
 const MARQUEE_MESSAGES = [
-  { icon: <Flame size={11} strokeWidth={2.25} />, text: 'Розпродаж до -50%' },
-  { icon: <Truck size={11} strokeWidth={2.25} />, text: 'Безкоштовна доставка від 500 грн' },
-  { icon: <Star size={11} strokeWidth={2.25} />, text: 'Нова колекція вже в наявності' },
-  { icon: <Gift size={11} strokeWidth={2.25} />, text: 'Подарунок при замовленні від 1000 грн' },
-  { icon: <Flame size={11} strokeWidth={2.25} />, text: 'Акція тільки сьогодні' },
-  { icon: <Truck size={11} strokeWidth={2.25} />, text: 'Відправка в день замовлення' },
+  '🔥 Розпродаж до -50%',
+  '🚚 Безкоштовна доставка від 500 грн',
+  '⭐ Нова колекція вже в наявності',
+  '🎁 Подарунок при замовленні від 1000 грн',
+  '⚡ Акція тільки сьогодні',
+  '✅ Відправка в день замовлення',
 ]
+
+const REPEAT = 4
+const half = Array.from({ length: REPEAT }, () => MARQUEE_MESSAGES).flat()
+const MARQUEE_TRACK = [...half, ...half]
 
 export function PreviewMarquee() {
   return (
     <div className="wpr__marquee-wrap">
       <div className="wpr__marquee-track">
-        {[...MARQUEE_MESSAGES, ...MARQUEE_MESSAGES].map((m, i) => (
-          <span key={i}>{m.icon} {m.text}</span>
+        {MARQUEE_TRACK.map((text, i) => (
+          <span key={i}>{text}</span>
         ))}
       </div>
     </div>

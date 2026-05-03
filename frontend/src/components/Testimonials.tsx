@@ -86,7 +86,7 @@ const TESTIMONIALS: Testimonial[] = [
     storeUrl: 'https://ballistic.com.ua/',
     purchase: 'Комплект Pro',
     metrics: [
-      { value: '+18%', label: 'конверсія', type: 'traffic' },
+      { value: '+9%', label: 'конверсія', type: 'traffic' },
       { value: '+2 131 ₴', label: 'середній чек', type: 'revenue' },
     ],
   },
@@ -100,7 +100,7 @@ const TESTIMONIALS: Testimonial[] = [
     storeUrl: 'https://ptashkinsad.com/',
     purchase: 'Комплект Max',
     metrics: [
-      { value: '+24%', label: 'до кошика', type: 'traffic' },
+      { value: '+11%', label: 'до кошика', type: 'traffic' },
       { value: '+379 ₴', label: 'середній чек', type: 'revenue' },
     ],
   },
@@ -114,7 +114,7 @@ const TESTIMONIALS: Testimonial[] = [
     storeUrl: 'https://shop.aquamyrgorod.com.ua/',
     purchase: 'Комплект Start',
     metrics: [
-      { value: '+31%', label: 'конверсія', type: 'traffic' },
+      { value: '+14%', label: 'конверсія', type: 'traffic' },
       { value: '+419 ₴', label: 'середній чек', type: 'revenue' },
     ],
   },
@@ -128,7 +128,7 @@ const TESTIMONIALS: Testimonial[] = [
     storeUrl: 'https://zoo-vet.com.ua/',
     purchase: '1 віджет · Дата доставки',
     metrics: [
-      { value: '+22%', label: 'замовлень', type: 'traffic' },
+      { value: '+11%', label: 'замовлень', type: 'traffic' },
       { value: '+281 ₴', label: 'середній чек', type: 'revenue' },
     ],
   },

@@ -11,25 +11,31 @@ import {
   HeartHandshake,
   Layers,
   X,
+  Sprout,
+  Crown,
+  type LucideIcon,
 } from 'lucide-react'
-import type { PlanDef } from '../data/plans'
 import { WidgetIcon } from '../components/WidgetIcon'
 import { WIDGET_ICON_MAP } from '../components/widgetIconMap'
 import { Wrench } from 'lucide-react'
 import { PREVIEW_MAP, DETAIL_PREVIEW_MAP } from '../components/WidgetPreviews'
 import { WidgetCard } from '../components/WidgetCard'
-import {
-  widgets,
-  packages,
-  tagLabels,
-  RELATED_WIDGETS_MAP,
-  type Tag,
-} from '../data/widgets'
+import { getTagColorClass, type TagSlug } from '../data/widgetTags'
+import { useWidget, usePlansWithSlugs, useWidgets } from '../hooks/useWidgets'
+import type { ApiPlan, ApiWidget } from '../api/widgets'
 import { cases } from '../data/cases'
 import { BRAND_NAME_UPPER } from '../constants/brand'
 import './WidgetDetailPage.css'
 
-const TAG_BENEFITS: Record<Tag, { title: string; text: string }[]> = {
+// ─── Plan UI metadata (icon + color — not in API) ─────────────────────────────
+
+const PLAN_UI: Record<string, { icon: LucideIcon; color: string }> = {
+  basic: { icon: Sprout, color: '#10B981' },
+  pro:   { icon: Zap,    color: '#3B82F6' },
+  max:   { icon: Crown,  color: '#A855F7' },
+}
+
+const TAG_BENEFITS: Record<TagSlug, { title: string; text: string }[]> = {
   conversion: [
     { title: 'Більше покупок', text: 'Знижує бар\'єр до дії — відвідувач перетворюється на покупця.' },
     { title: 'Менше відмов', text: 'Зменшує сумніви на картці товару в момент прийняття рішення.' },
@@ -89,64 +95,143 @@ const WIDGET_CASE_MAP: Record<string, string[]> = {
   'promo-auto-apply': ['brewco'],
 }
 
+function PlanUpsellCard({ plan, allWidgets }: { plan: ApiPlan; allWidgets: ApiWidget[] }) {
+  const ui = PLAN_UI[plan.slug] ?? { icon: Zap, color: '#3B82F6' }
+  const PlanIcon = ui.icon
+
+  const includedWidgets = plan.widget_slugs
+    .map((s) => allWidgets.find((w) => w.slug === s))
+    .filter((w): w is ApiWidget => Boolean(w))
+  const shown = includedWidgets.slice(0, 4)
+  const extra = Math.max(0, includedWidgets.length - shown.length)
+  const slugSet = new Set(plan.widget_slugs)
+  const notIncluded = allWidgets.filter((w) => !slugSet.has(w.slug)).slice(0, 2)
+
+  return (
+    <div
+      className={`widget-page__plan widget-page__plan--${plan.slug}`}
+      style={{ ['--p-color' as string]: ui.color }}
+    >
+      <div className="widget-page__plan-top">
+        <div className="widget-page__plan-ico" aria-hidden="true">
+          <PlanIcon size={20} strokeWidth={2.25} />
+        </div>
+        <div className="widget-page__plan-labels">
+          <strong className="widget-page__plan-name">{plan.name}</strong>
+          <span className="widget-page__plan-meta">{plan.max_widgets} віджетів</span>
+        </div>
+      </div>
+      <div className="widget-page__plan-price">
+        {plan.price_monthly.toLocaleString('uk-UA')} ₴/міс
+      </div>
+      <div className="widget-page__plan-sep" />
+      <p className="widget-page__plan-eyebrow">ЩО ВХОДИТЬ</p>
+      <ul className="widget-page__plan-list">
+        {shown.map((w) => {
+          const WIcon = WIDGET_ICON_MAP[w.icon] ?? Wrench
+          return (
+            <li key={w.slug}>
+              <span className="widget-page__plan-list-ico" aria-hidden="true">
+                <WIcon size={12} strokeWidth={2} />
+              </span>
+              <span className="widget-page__plan-list-name">{w.name}</span>
+              <Check size={12} strokeWidth={3} className="widget-page__plan-list-check" />
+            </li>
+          )
+        })}
+        {extra > 0 && (
+          <li className="widget-page__plan-more">+ ще {extra} віджети</li>
+        )}
+      </ul>
+      {notIncluded.length > 0 && (
+        <>
+          <div className="widget-page__plan-sep widget-page__plan-sep--dim" />
+          <ul className="widget-page__plan-list widget-page__plan-list--off">
+            {notIncluded.map((w) => {
+              const WIcon = WIDGET_ICON_MAP[w.icon] ?? Wrench
+              return (
+                <li key={w.slug}>
+                  <span className="widget-page__plan-list-ico widget-page__plan-list-ico--off" aria-hidden="true">
+                    <WIcon size={12} strokeWidth={2} />
+                  </span>
+                  <span className="widget-page__plan-list-name">{w.name}</span>
+                  <X size={12} strokeWidth={3} className="widget-page__plan-list-x" />
+                </li>
+              )
+            })}
+          </ul>
+        </>
+      )}
+      <div className="widget-page__plan-sep" />
+      <Link to="/pricing" className="widget-page__plan-cta">
+        <PlanIcon size={15} strokeWidth={2.5} />
+        Обрати {plan.name}
+      </Link>
+    </div>
+  )
+}
+
 export function WidgetDetailPage() {
   const { slug } = useParams<{ slug: string }>()
-
-  const widget = useMemo(() => widgets.find((w) => w.id === slug), [slug])
+  const { widget, loading, notFound } = useWidget(slug)
+  const { plans } = usePlansWithSlugs()
+  const { widgets: allWidgets } = useWidgets()
 
   const relatedWidgets = useMemo(() => {
-    if (!widget) return []
-    const ids = RELATED_WIDGETS_MAP[widget.id] ?? []
-    return ids
-      .map((id) => widgets.find((w) => w.id === id))
-      .filter((w): w is (typeof widgets)[number] => Boolean(w))
-  }, [widget])
+    if (!widget?.related_slugs) return []
+    return widget.related_slugs
+      .map((s) => allWidgets.find((w) => w.slug === s))
+      .filter((w): w is ApiWidget => Boolean(w))
+  }, [widget, allWidgets])
 
   const usedInCases = useMemo(() => {
     if (!widget) return []
-    const ids = WIDGET_CASE_MAP[widget.id] ?? []
+    const ids = WIDGET_CASE_MAP[widget.slug] ?? []
     return ids
       .map((id) => cases.find((c) => c.id === id))
       .filter((c): c is (typeof cases)[number] => Boolean(c))
   }, [widget])
 
-  const containingPackages = useMemo(() => {
+  const containingPlans = useMemo(() => {
     if (!widget) return []
-    return packages.filter((p) => p.widgetSlugs.includes(widget.id))
-  }, [widget])
+    return plans.filter((p) => p.widget_slugs.includes(widget.slug))
+  }, [widget, plans])
 
-  if (!widget) {
+  if (notFound) {
     return <Navigate to="/widgets" replace />
   }
 
-  const benefits = TAG_BENEFITS[widget.tag]
-  const PreviewComp = DETAIL_PREVIEW_MAP[widget.id] ?? PREVIEW_MAP[widget.id]
+  if (loading || !widget) {
+    return <div className="widget-page" />
+  }
 
-  // Пакеты, включающие виджет
-  const availablePlans = packages.filter((p) => p.widgetSlugs.includes(widget.id))
+  const tagSlug = widget.tag?.slug as TagSlug | undefined
+  const tagColorClass = getTagColorClass(tagSlug)
+  const benefits = tagSlug ? (TAG_BENEFITS[tagSlug] ?? TAG_BENEFITS.conversion) : TAG_BENEFITS.conversion
+  const PreviewComp = DETAIL_PREVIEW_MAP[widget.slug] ?? PREVIEW_MAP[widget.slug]
 
   return (
     <div className="widget-page">
       <SeoHead
-        title={`${widget.title} для Хорошоп — ${BRAND_NAME_UPPER} | Встановлення 3 хв`}
+        title={`${widget.name} для Хорошоп — ${BRAND_NAME_UPPER} | Встановлення 3 хв`}
         description={`${widget.description} Встановлення 3 хвилини без програміста на магазин у Хорошоп — збільшує конверсію та середній чек.`}
-        keywords={`${widget.title} Хорошоп, ${widget.title} Horoshop, ${tagLabels[widget.tag]} Хорошоп, віджет ${widget.title} для інтернет-магазину`}
-        path={`/widgets/${widget.id}`}
+        keywords={`${widget.name} Хорошоп, ${widget.name} Horoshop, ${widget.tag?.name ?? ''} Хорошоп, віджет ${widget.name} для інтернет-магазину`}
+        path={`/widgets/${widget.slug}`}
         type="product"
         structuredData={[
           {
             '@context': 'https://schema.org',
             '@type': 'Product',
-            name: widget.title,
+            name: widget.name,
             description: widget.description,
             brand: { '@type': 'Brand', name: 'Widgetis' },
-            category: tagLabels[widget.tag],
+            category: widget.tag?.name ?? '',
             offers: {
               '@type': 'Offer',
               priceCurrency: 'UAH',
               price: '0',
               availability: 'https://schema.org/InStock',
-              url: `https://widgetis.com/widgets/${widget.id}`,
+              url: `https://widgetis.com/widgets/${widget.slug}`,
             },
           },
           {
@@ -155,7 +240,7 @@ export function WidgetDetailPage() {
             itemListElement: [
               { '@type': 'ListItem', position: 1, name: 'Головна', item: 'https://widgetis.com/' },
               { '@type': 'ListItem', position: 2, name: 'Віджети', item: 'https://widgetis.com/widgets' },
-              { '@type': 'ListItem', position: 3, name: widget.title, item: `https://widgetis.com/widgets/${widget.id}` },
+              { '@type': 'ListItem', position: 3, name: widget.name, item: `https://widgetis.com/widgets/${widget.slug}` },
             ],
           },
         ]}
@@ -173,7 +258,7 @@ export function WidgetDetailPage() {
               Віджети
             </Link>
             <span className="widget-page__breadcrumb-sep">/</span>
-            <span className="widget-page__breadcrumb-current">{widget.title}</span>
+            <span className="widget-page__breadcrumb-current">{widget.name}</span>
           </nav>
 
           <div className="widget-page__hero-grid">
@@ -183,11 +268,11 @@ export function WidgetDetailPage() {
               </div>
 
               <div className="widget-page__badges">
-                <span className={`widget-page__tag widget-page__tag--${widget.tagColor}`}>
-                  {tagLabels[widget.tag]}
+                <span className={`widget-page__tag widget-page__tag--${tagColorClass}`}>
+                  {widget.tag?.name ?? ''}
                 </span>
-                {widget.isNew && <span className="widget-page__new">NEW</span>}
-                {widget.isPopular && (
+                {widget.is_new && <span className="widget-page__new">NEW</span>}
+                {widget.is_popular && (
                   <span className="widget-page__popular">
                     <Sparkles size={11} strokeWidth={2.5} />
                     Популярне
@@ -195,16 +280,16 @@ export function WidgetDetailPage() {
                 )}
               </div>
 
-              <h1 className="widget-page__title">{widget.title}</h1>
+              <h1 className="widget-page__title">{widget.name}</h1>
               <p className="widget-page__lede">{widget.description}</p>
 
               {PreviewComp && (
-                <div className="widget-page__anim" aria-label="Живий прев’ю віджета">
+                <div className="widget-page__anim" aria-label="Живий прев'ю віджета">
                   <div className="widget-page__anim-head">
                     <span className="widget-page__anim-dot widget-page__anim-dot--r" />
                     <span className="widget-page__anim-dot widget-page__anim-dot--y" />
                     <span className="widget-page__anim-dot widget-page__anim-dot--g" />
-                    <span className="widget-page__anim-label">Прев’ю в реальному часі</span>
+                    <span className="widget-page__anim-label">Прев'ю в реальному часі</span>
                   </div>
                   <div className="widget-page__anim-stage">
                     <PreviewComp />
@@ -216,20 +301,21 @@ export function WidgetDetailPage() {
             <aside className="widget-page__buy">
               <p className="widget-page__buy-sub">Доступний у тарифах</p>
               <div className="widget-page__buy-plans">
-                {availablePlans.map((p) => {
-                  const PIcon = p.icon
+                {containingPlans.map((p) => {
+                  const ui = PLAN_UI[p.slug] ?? { icon: Zap, color: '#3B82F6' }
+                  const PIcon = ui.icon
                   return (
                     <div
                       key={p.id}
                       className="widget-page__buy-plan"
-                      style={{ ['--p-color' as string]: p.color }}
+                      style={{ ['--p-color' as string]: ui.color }}
                     >
                       <span className="widget-page__buy-plan-ico" aria-hidden="true">
                         <PIcon size={15} strokeWidth={2.25} />
                       </span>
                       <span className="widget-page__buy-plan-name">{p.name}</span>
                       <span className="widget-page__buy-plan-price">
-                        {p.monthlyPrice.toLocaleString('uk-UA')} ₴/міс
+                        {p.price_monthly.toLocaleString('uk-UA')} ₴/міс
                       </span>
                     </div>
                   )
@@ -262,10 +348,7 @@ export function WidgetDetailPage() {
                 <div key={b.title} className="widget-benefit">
                   <div
                     className="widget-benefit__icon"
-                    style={{
-                      background: `${color}14`,
-                      color,
-                    }}
+                    style={{ background: `${color}14`, color }}
                     aria-hidden="true"
                   >
                     <Icon size={18} strokeWidth={2} />
@@ -322,7 +405,7 @@ export function WidgetDetailPage() {
       )}
 
       {/* ── Package upsell ── */}
-      {containingPackages.length > 0 && (
+      {containingPlans.length > 0 && (
         <section className="widget-page__upsell">
           <div className="widget-page__container">
             <header className="widget-page__upsell-head">
@@ -334,88 +417,9 @@ export function WidgetDetailPage() {
               входячих віджетів.
             </p>
             <div className="widget-page__upsell-list">
-              {containingPackages.map((p: PlanDef) => {
-                const PlanIcon = p.icon
-                const included = p.widgetSlugs
-                  .map((s) => widgets.find((w) => w.id === s))
-                  .filter((w): w is (typeof widgets)[number] => Boolean(w))
-                const shown = included.slice(0, 4)
-                const extra = Math.max(0, included.length - shown.length)
-                const allWidgetIds = new Set(p.widgetSlugs)
-                const notIncluded = widgets
-                  .filter((w) => !allWidgetIds.has(w.id))
-                  .slice(0, 2)
-
-                return (
-                  <div
-                    key={p.id}
-                    className={`widget-page__plan widget-page__plan--${p.id}`}
-                    style={{ ['--p-color' as string]: p.color }}
-                  >
-                    <div className="widget-page__plan-top">
-                      <div className="widget-page__plan-ico" aria-hidden="true">
-                        <PlanIcon size={20} strokeWidth={2.25} />
-                      </div>
-                      <div className="widget-page__plan-labels">
-                        <strong className="widget-page__plan-name">{p.name}</strong>
-                        <span className="widget-page__plan-meta">{p.widgets} віджетів</span>
-                      </div>
-                    </div>
-                    <div className="widget-page__plan-price">
-                      {p.monthlyPrice.toLocaleString('uk-UA')} ₴/міс
-                    </div>
-                    <div className="widget-page__plan-sep" />
-                    <p className="widget-page__plan-eyebrow">ЩО ВХОДИТЬ</p>
-                    <ul className="widget-page__plan-list">
-                      {shown.map((w) => {
-                        const WIcon = WIDGET_ICON_MAP[w.icon] ?? Wrench
-                        return (
-                          <li key={w.id}>
-                            <span
-                              className="widget-page__plan-list-ico"
-                              aria-hidden="true"
-                            >
-                              <WIcon size={12} strokeWidth={2} />
-                            </span>
-                            <span className="widget-page__plan-list-name">{w.title}</span>
-                            <Check size={12} strokeWidth={3} className="widget-page__plan-list-check" />
-                          </li>
-                        )
-                      })}
-                      {extra > 0 && (
-                        <li className="widget-page__plan-more">+ ще {extra} віджети</li>
-                      )}
-                    </ul>
-                    {notIncluded.length > 0 && (
-                      <>
-                        <div className="widget-page__plan-sep widget-page__plan-sep--dim" />
-                        <ul className="widget-page__plan-list widget-page__plan-list--off">
-                          {notIncluded.map((w) => {
-                            const WIcon = WIDGET_ICON_MAP[w.icon] ?? Wrench
-                            return (
-                              <li key={w.id}>
-                                <span
-                                  className="widget-page__plan-list-ico widget-page__plan-list-ico--off"
-                                  aria-hidden="true"
-                                >
-                                  <WIcon size={12} strokeWidth={2} />
-                                </span>
-                                <span className="widget-page__plan-list-name">{w.title}</span>
-                                <X size={12} strokeWidth={3} className="widget-page__plan-list-x" />
-                              </li>
-                            )
-                          })}
-                        </ul>
-                      </>
-                    )}
-                    <div className="widget-page__plan-sep" />
-                    <Link to="/pricing" className="widget-page__plan-cta">
-                      <PlanIcon size={15} strokeWidth={2.5} />
-                      Обрати {p.name}
-                    </Link>
-                  </div>
-                )
-              })}
+              {containingPlans.map((p) => (
+                <PlanUpsellCard key={p.id} plan={p} allWidgets={allWidgets} />
+              ))}
             </div>
           </div>
         </section>
@@ -431,7 +435,7 @@ export function WidgetDetailPage() {
             </header>
             <div className="widget-page__related-grid">
               {relatedWidgets.map((w, i) => (
-                <WidgetCard key={w.id} widget={w} index={i} />
+                <WidgetCard key={w.slug} widget={w} index={i} />
               ))}
             </div>
           </div>

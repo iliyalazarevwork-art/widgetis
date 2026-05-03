@@ -27,7 +27,7 @@ export const cases: Case[] = [
     description: 'Органічна косметика та догляд',
     widgets: ['Бігуча стрічка', 'Дата доставки', 'Ціль кошика'],
     result: {
-      metric: '+18% середній чек',
+      metric: '+12% середній чек',
       period: 'за 2 місяці',
     },
     review: {
@@ -44,7 +44,7 @@ export const cases: Case[] = [
     description: 'Преміум постільна білизна та текстиль',
     widgets: ['Бігуча стрічка', 'Відео-прев\'ю', 'Хто зараз дивиться'],
     result: {
-      metric: '+24% конверсія',
+      metric: '+9% конверсія',
       period: 'за 3 місяці',
     },
     review: {
@@ -61,7 +61,7 @@ export const cases: Case[] = [
     description: 'Тактичний одяг та спорядження',
     widgets: ['Бігуча стрічка', 'Таймер', 'Дефіцит товару'],
     result: {
-      metric: '−31% відмов',
+      metric: '−17% відмов',
       period: 'за місяць',
     },
     review: {
@@ -78,7 +78,7 @@ export const cases: Case[] = [
     description: 'Спортивний одяг і аксесуари',
     widgets: ['Лічильник покупок', 'Фотовідгуки', 'Колесо фортуни'],
     result: {
-      metric: '+42% email-база',
+      metric: '+31% email-база',
       period: 'за 6 тижнів',
     },
     review: {
@@ -112,7 +112,7 @@ export const cases: Case[] = [
     description: 'Спеціальна кава та аксесуари',
     widgets: ['Дата доставки', 'Квіз-рекомендатор', 'Кешбек'],
     result: {
-      metric: '+28% повторних покупок',
+      metric: '+19% повторних покупок',
       period: 'за 4 місяці',
     },
     review: {

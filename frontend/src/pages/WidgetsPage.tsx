@@ -12,9 +12,10 @@ import {
   Crown,
   ChevronRight,
 } from 'lucide-react'
-import { availableWidgetTags, widgets, tagLabels, type Tag } from '../data/widgets'
-import { get } from '../api/client'
+import { useWidgets, useWidgetTags } from '../hooks/useWidgets'
+import type { TagSlug } from '../data/widgetTags'
 import { PREVIEW_MAP, PreviewOnePlusOneCard } from '../components/WidgetPreviews'
+import type { ApiWidget } from '../api/widgets'
 import './WidgetsPage.css'
 
 // ─── Cases data per widget ──────────────────────────────────────────────────
@@ -56,7 +57,7 @@ const WIDGET_CASES: Record<string, { store: string; metric: string; color: strin
 
 // ─── Tag accent colors ──────────────────────────────────────────────────────
 
-const TAG_ACCENT: Record<Tag, string> = {
+const TAG_ACCENT: Record<TagSlug, string> = {
   conversion:     '#10B981',
   trust:          '#3B82F6',
   'social-proof': '#F59E0B',
@@ -81,9 +82,9 @@ function WidgetMockup({ id }: { id: string }) {
 
 // ─── Widget card ─────────────────────────────────────────────────────────────
 
-function WidgetCard({ widget, index = 0 }: { widget: typeof widgets[0]; index?: number }) {
-  const accent = TAG_ACCENT[widget.tag]
-  const usedIn = WIDGET_CASES[widget.id] ?? []
+function WidgetCard({ widget, index = 0 }: { widget: ApiWidget; index?: number }) {
+  const accent = TAG_ACCENT[widget.tag?.slug as TagSlug] ?? '#10B981'
+  const usedIn = WIDGET_CASES[widget.slug] ?? []
   const ref = useRef<HTMLElement>(null)
   const [visible, setVisible] = useState(false)
   const navigate = useNavigate()
@@ -106,23 +107,23 @@ function WidgetCard({ widget, index = 0 }: { widget: typeof widgets[0]; index?: 
       tabIndex={0}
       className={`wc ${visible ? 'wc--visible' : ''}`}
       style={{ '--wc-accent': accent, transitionDelay: visible ? `${index * 0.06}s` : '0s' } as React.CSSProperties}
-      onClick={() => navigate(`/widgets/${widget.id}`)}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/widgets/${widget.id}`) }}
+      onClick={() => navigate(`/widgets/${widget.slug}`)}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/widgets/${widget.slug}`) }}
     >
       <div className="wc__body">
         <div className="wc__badges">
           <span className="wc__tag" style={{ color: accent, background: `${accent}18` }}>
-            {tagLabels[widget.tag]}
+            {widget.tag?.name ?? ''}
           </span>
-          {(widget.isNew || widget.isPopular) && (
+          {(widget.is_new || widget.is_popular) && (
             <span className="wc__markers">
-              {widget.isNew && (
+              {widget.is_new && (
                 <span className="wc__new">
                   <Star size={10} strokeWidth={2.5} />
                   Новинка
                 </span>
               )}
-              {widget.isPopular && (
+              {widget.is_popular && (
                 <span className="wc__popular">
                   <Sparkles size={10} strokeWidth={2.5} />
                   Хіт
@@ -132,9 +133,9 @@ function WidgetCard({ widget, index = 0 }: { widget: typeof widgets[0]; index?: 
           )}
         </div>
 
-        <h3 className="wc__title">{widget.title}</h3>
+        <h3 className="wc__title">{widget.name}</h3>
 
-        <WidgetMockup id={widget.id} />
+        <WidgetMockup id={widget.slug} />
 
         {usedIn.length > 0 && (
           <div className="wc__used">
@@ -188,28 +189,21 @@ const FEATURED_CASES = [
 
 // ─── Page ────────────────────────────────────────────────────────────────────
 
-const ALL_TAGS: (Tag | 'all')[] = ['all', ...availableWidgetTags]
-const TAG_LABELS_WITH_ALL: Record<string, string> = { all: 'Всі', ...tagLabels }
-
-interface TagApiItem { slug: string; count: number }
-
 export function WidgetsPage() {
-  const [activeTag, setActiveTag] = useState<Tag | 'all'>('all')
-  const [tagCounts, setTagCounts] = useState<Record<string, number>>({})
+  const [activeTag, setActiveTag] = useState<TagSlug | 'all'>('all')
+  const { widgets, loading: widgetsLoading } = useWidgets()
+  const { tags } = useWidgetTags()
 
-  useEffect(() => {
-    get<{ data: TagApiItem[] }>('/tags')
-      .then(res => {
-        const counts: Record<string, number> = {}
-        for (const t of res.data) counts[t.slug] = t.count
-        setTagCounts(counts)
-      })
-      .catch(() => {})
-  }, [])
-
+  const tagCounts: Record<string, number> = {}
+  for (const t of tags) tagCounts[t.slug] = t.count
   const totalCount = Object.values(tagCounts).reduce((s, n) => s + n, 0)
 
-  const filtered = activeTag === 'all' ? widgets : widgets.filter((w) => w.tag === activeTag)
+  const allTags: (TagSlug | 'all')[] = ['all', ...tags.map((t) => t.slug as TagSlug)]
+  const tagLabelsMap: Record<string, string> = { all: 'Всі' }
+  for (const t of tags) tagLabelsMap[t.slug] = t.name
+
+  const filtered =
+    activeTag === 'all' ? widgets : widgets.filter((w) => w.tag?.slug === activeTag)
 
   return (
     <div className="wp">
@@ -255,7 +249,7 @@ export function WidgetsPage() {
       {/* ── Tag filter ── */}
       <div className="wp__filters">
         <div className="wp__filters-inner">
-          {ALL_TAGS.map((tag) => {
+          {allTags.map((tag) => {
             const count = tag === 'all' ? totalCount : (tagCounts[tag] ?? 0)
             return (
               <button
@@ -264,7 +258,7 @@ export function WidgetsPage() {
                 className={`wp__filter-btn ${activeTag === tag ? 'wp__filter-btn--active' : ''}`}
                 onClick={() => setActiveTag(tag)}
               >
-                {TAG_LABELS_WITH_ALL[tag]}
+                {tagLabelsMap[tag] ?? tag}
                 {count > 0 && (
                   <span className="wp__filter-count">{count}</span>
                 )}
@@ -277,11 +271,19 @@ export function WidgetsPage() {
       {/* ── Widget grid ── */}
       <section className="wp__grid-section">
         <div className="wp__container">
-          <div className="wp__grid">
-            {filtered.map((w, i) => (
-              <WidgetCard key={w.id} widget={w} index={i} />
-            ))}
-          </div>
+          {widgetsLoading ? (
+            <div className="wp__grid">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="wc wc--skeleton" />
+              ))}
+            </div>
+          ) : (
+            <div className="wp__grid">
+              {filtered.map((w, i) => (
+                <WidgetCard key={w.slug} widget={w} index={i} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

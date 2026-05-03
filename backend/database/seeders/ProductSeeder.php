@@ -403,8 +403,8 @@ class ProductSeeder extends Seeder
                 'slug' => 'prize-banner',
                 'name' => ['en' => 'Prize Banner', 'uk' => 'Банер з призом'],
                 'description' => [
-                    'en' => 'A banner showing a won promo code after a game (Spin the Wheel / exit-intent). Reminds the customer to use the discount and complete the purchase.',
-                    'uk' => 'Плашка з виграним промокодом після гри (Колесо фортуни / exit-intent). Нагадує клієнту скористатись знижкою і завершити покупку.',
+                    'en' => 'A banner showing a won promo code after a game (Spin the Wheel) or a last-chance popup. Reminds the customer to use the discount and complete the purchase.',
+                    'uk' => 'Плашка з виграним промокодом після гри (Колесо фортуни) або попапу «останній шанс». Нагадує клієнту скористатись знижкою і завершити покупку.',
                 ],
                 'icon' => 'star',
                 'tag_slug' => 'conversion',
@@ -486,10 +486,10 @@ class ProductSeeder extends Seeder
             ],
             [
                 'slug' => 'last-chance-popup',
-                'name' => ['en' => 'Exit-Intent Popup', 'uk' => 'Exit-intent попап'],
+                'name' => ['en' => 'Last Chance Popup', 'uk' => 'Попап «Останній шанс»'],
                 'description' => [
-                    'en' => 'A discount popup triggers when the customer moves the mouse toward closing the tab. Recovers up to 15% of visitors who were about to leave.',
-                    'uk' => 'Попап зі знижкою спрацьовує, коли клієнт рухає мишу до закриття вкладки. Повертає до 15% відвідувачів, що вже «йшли».',
+                    'en' => 'A discount popup that gives the visitor one last chance — triggered when the cursor moves toward closing the tab. Recovers up to 15% of visitors who were about to leave.',
+                    'uk' => 'Попап зі знижкою — останній шанс перед виходом: спрацьовує, коли клієнт рухає мишу до закриття вкладки. Повертає до 15% відвідувачів, що вже «йшли».',
                 ],
                 'icon' => 'bell',
                 'tag_slug' => 'conversion',

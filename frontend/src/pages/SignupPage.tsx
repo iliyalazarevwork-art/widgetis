@@ -18,8 +18,8 @@ import {
   Lock,
   AlertCircle,
 } from 'lucide-react'
-import { platformConfig } from '../data/widgets'
-import type { Platform } from '../data/widgets'
+import { platformConfig } from '../data/platforms'
+import type { Platform } from '../data/platforms'
 import { post } from '../api/client'
 import type { User } from '../types'
 import { useAuth } from '../context/AuthContext'
