@@ -26,6 +26,7 @@ class ProductResource extends JsonResource
             'platform' => $this->platform,
             'is_popular' => $this->is_popular,
             'is_new' => $this->is_new,
+            'related_slugs' => $this->related_slugs,
         ];
     }
 }

@@ -31,6 +31,7 @@ class ProductDetailResource extends JsonResource
             'preview_before' => $this->preview_before,
             'preview_after' => $this->preview_after,
             'config_schema' => $this->config_schema,
+            'related_slugs' => $this->related_slugs,
         ];
     }
 }

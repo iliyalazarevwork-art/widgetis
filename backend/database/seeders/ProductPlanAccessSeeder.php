@@ -12,9 +12,9 @@ class ProductPlanAccessSeeder extends Seeder
 {
     public function run(): void
     {
-        $basicSlugs = ['promo-line', 'cart-goal', 'minorder-goal', 'buyer-count', 'sticky-buy-button'];
-        $proSlugs = ['promo-line', 'cart-goal', 'minorder-goal', 'buyer-count', 'sticky-buy-button', 'delivery-date', 'one-plus-one', 'video-preview'];
-        $maxSlugs = $proSlugs;
+        $basicSlugs = ['delivery-date', 'promo-line', 'sticky-buy-button', 'trust-badges'];
+        $proSlugs = [...$basicSlugs, 'cart-goal', 'buyer-count', 'stock-left', 'photo-video-reviews'];
+        $maxSlugs = [...$proSlugs, 'recently-viewed', 'video-preview', 'floating-messengers', 'cart-recommender', 'progressive-discount', 'one-plus-one', 'last-chance-popup', 'spin-the-wheel', 'sms-otp-checkout', 'phone-mask', 'minorder-goal', 'prize-banner', 'promo-auto-apply', 'smart-search'];
 
         $getIds = fn (array $slugs): array => Product::whereIn('slug', $slugs)->pluck('id')->toArray();
 

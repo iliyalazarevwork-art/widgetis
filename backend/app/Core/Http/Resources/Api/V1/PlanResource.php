@@ -49,6 +49,7 @@ class PlanResource extends JsonResource
             'features' => $this->features,
             'feature_list' => $featureList,
             'is_recommended' => $this->is_recommended,
+            'widget_slugs' => $this->whenLoaded('products', fn () => $this->products->pluck('slug')->all()),
         ];
     }
 

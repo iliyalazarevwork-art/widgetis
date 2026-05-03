@@ -12,8 +12,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+/**
+ * @property list<string>|null $related_slugs
+ */
 class Product extends Model
 {
     /** @use HasFactory<ProductFactory> */
@@ -44,6 +46,7 @@ class Product extends Model
         'preview_before',
         'preview_after',
         'config_schema',
+        'related_slugs',
         'sort_order',
         'availability',
     ];
@@ -59,6 +62,7 @@ class Product extends Model
             'long_description' => 'array',
             'features' => 'array',
             'config_schema' => 'array',
+            'related_slugs' => 'array',
             'is_popular' => 'boolean',
             'is_new' => 'boolean',
             'availability' => ProductAvailability::class,
@@ -71,14 +75,6 @@ class Product extends Model
     public function tag(): BelongsTo
     {
         return $this->belongsTo(WidgetTag::class, 'tag_slug', 'slug');
-    }
-
-    /**
-     * @return BelongsToMany<Plan, $this>
-     */
-    public function plans(): BelongsToMany
-    {
-        return $this->belongsToMany(Plan::class, 'product_plan_access');
     }
 
     /**

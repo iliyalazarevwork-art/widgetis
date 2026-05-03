@@ -17,6 +17,9 @@ class WidgetTagSeeder extends Seeder
             ['slug' => 'trust', 'name' => ['en' => 'Trust', 'uk' => 'Довіра'], 'color' => '#10B981', 'sort_order' => 2],
             ['slug' => 'conversion', 'name' => ['en' => 'Conversion', 'uk' => 'Конверсія'], 'color' => '#F59E0B', 'sort_order' => 3],
             ['slug' => 'engagement', 'name' => ['en' => 'Engagement', 'uk' => 'Залучення'], 'color' => '#8B5CF6', 'sort_order' => 4],
+            ['slug' => 'avg-order', 'name' => ['en' => 'Avg. Order', 'uk' => 'Середній чек'], 'color' => '#22C55E', 'sort_order' => 5],
+            ['slug' => 'loyalty', 'name' => ['en' => 'Loyalty', 'uk' => 'Лояльність'], 'color' => '#EC4899', 'sort_order' => 6],
+            ['slug' => 'visual', 'name' => ['en' => 'Visual', 'uk' => 'Візуал'], 'color' => '#A855F7', 'sort_order' => 7],
         ];
 
         foreach ($tags as $tag) {
