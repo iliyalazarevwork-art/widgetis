@@ -485,7 +485,7 @@ export function DemoPage() {
               className="demo-site-modal__iframe"
               src={demoUrl}
               title="Ваш сайт"
-              sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
             />
           </div>
         </div>

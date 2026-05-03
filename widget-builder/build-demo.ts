@@ -162,7 +162,7 @@ function buildHeader(): string {
     ' * Source:   widget-builder/demo-config.json',
     ' * ',
     ' * LICENSE: Proprietary and Confidential.',
-    ` * © ${now.getFullYear()} Widgetis. All rights reserved.`,
+    ` * \u00a9 ${now.getFullYear()} Widgetis. All rights reserved.`,
     ' */',
   ].join('\n');
 }

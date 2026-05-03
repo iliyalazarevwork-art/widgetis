@@ -1,851 +1,878 @@
 {
-  "$comment": "Hand-editable config for the public demo bundle. Edit this file, then run `task build:demo` to regenerate services/site-proxy/public/demo-bundle.js. Only modules that are platform-agnostic belong here — others (cart-goal, min-order, one-plus-one, social-proof, product-video-preview) depend on specific DOM/JS conventions (e.g. Horoshop) and won't render on an arbitrary shop.",
-  "modules": {
-    "module-photo-reviews": {
-      "config": {
-        "enabled": true,
-        "showOnMobile": true,
-        "showOnDesktop": true,
-        "reviewSelector": ".review-item",
-        "bodySelector": ".review-item__body",
-        "authorSelector": ".review-item__name",
-        "aspectRatio": "4 / 5",
-        "borderRadius": 14,
-        "openInLightbox": true,
-        "$fallbackUrlsComment": "Lorem-ipsum-for-photos via picsum.photos. ?random=N keeps each URL stable & distinct so the gallery is not all-same-image.",
-        "fallbackUrls": [
-          "https://picsum.photos/seed/wty-demo-1/600/750",
-          "https://picsum.photos/seed/wty-demo-2/600/750",
-          "https://picsum.photos/seed/wty-demo-3/600/750",
-          "https://picsum.photos/seed/wty-demo-4/600/750"
-        ],
-        "photos": []
-      },
-      "i18n": {
-        "ua": {
-          "viewPhotoLabel": "Фото від клієнта",
-          "closeLabel": "Закрити",
-          "prevLabel": "Попереднє",
-          "nextLabel": "Наступне"
+    "$comment": "Hand-editable config for the public demo bundle. Edit this file, then run `task build:demo` to regenerate services/site-proxy/public/demo-bundle.js. Only modules that are platform-agnostic belong here — others (cart-goal, min-order, one-plus-one, social-proof) depend on specific DOM/JS conventions (e.g. Horoshop) and won't render on an arbitrary shop.",
+    "modules": {
+        "module-photo-reviews": {
+            "config": {
+                "enabled": true,
+                "showOnMobile": true,
+                "showOnDesktop": true,
+                "reviewSelector": ".review-item",
+                "bodySelector": ".review-item__body",
+                "authorSelector": ".review-item__name",
+                "aspectRatio": "4 / 5",
+                "borderRadius": 14,
+                "openInLightbox": true,
+                "$fallbackUrlsComment": "Lorem-ipsum-for-photos via picsum.photos. ?random=N keeps each URL stable & distinct so the gallery is not all-same-image.",
+                "fallbackUrls": [
+                    "https://picsum.photos/seed/wty-demo-1/600/750",
+                    "https://picsum.photos/seed/wty-demo-2/600/750",
+                    "https://picsum.photos/seed/wty-demo-3/600/750",
+                    "https://picsum.photos/seed/wty-demo-4/600/750"
+                ],
+                "photos": []
+            },
+            "i18n": {
+                "ua": {
+                    "viewPhotoLabel": "Фото від клієнта",
+                    "closeLabel": "Закрити",
+                    "prevLabel": "Попереднє",
+                    "nextLabel": "Наступне"
+                },
+                "ru": {
+                    "viewPhotoLabel": "Фото от клиента",
+                    "closeLabel": "Закрыть",
+                    "prevLabel": "Предыдущее",
+                    "nextLabel": "Следующее"
+                },
+                "en": {
+                    "viewPhotoLabel": "Customer photo",
+                    "closeLabel": "Close",
+                    "prevLabel": "Previous",
+                    "nextLabel": "Next"
+                }
+            }
         },
-        "ru": {
-          "viewPhotoLabel": "Фото от клиента",
-          "closeLabel": "Закрыть",
-          "prevLabel": "Предыдущее",
-          "nextLabel": "Следующее"
+        "module-sms-otp-checkout": {
+            "config": {
+                "enabled": true,
+                "apiBaseUrl": "https://api.widgetis.com/api/v1",
+                "siteKey": "demo",
+                "triggerSources": [
+                    "all"
+                ],
+                "phoneInputSelector": "input[name*=\"phone\"], .j-phone-masked, input[type=\"tel\"]",
+                "submitButtonSelector": ".checkout-form__submit, [type=\"submit\"], .j-checkout-submit",
+                "codeLength": 6,
+                "resendCooldownSec": 60,
+                "codeTtlSec": 300,
+                "colors": {
+                    "gradientStart": "#f9a8d4",
+                    "gradientEnd": "#be7094"
+                }
+            },
+            "i18n": {
+                "ua": {
+                    "enterFullPhone": "Введіть номер телефону повністю",
+                    "getConfirmationCode": "Отримати код підтвердження",
+                    "enterSmsCode": "Введіть код із SMS",
+                    "confirm": "Підтвердити",
+                    "sendAgain": "Надіслати знову",
+                    "waitVerifying": "Зачекайте {sec} сек...",
+                    "verifying": "Перевіряємо...",
+                    "phoneConfirmed": "Телефон підтверджено",
+                    "invalidCode": "Невірний код. Спробуйте ще раз.",
+                    "sendFailed": "Не вдалося надіслати SMS. Спробуйте пізніше.",
+                    "tooManyAttempts": "Забагато спроб. Зачекайте та спробуйте знову."
+                },
+                "ru": {
+                    "enterFullPhone": "Введите номер телефона полностью",
+                    "getConfirmationCode": "Получить код подтверждения",
+                    "enterSmsCode": "Введите код из SMS",
+                    "confirm": "Подтвердить",
+                    "sendAgain": "Отправить снова",
+                    "waitVerifying": "Подождите {sec} сек...",
+                    "verifying": "Проверяем...",
+                    "phoneConfirmed": "Телефон подтверждён",
+                    "invalidCode": "Неверный код. Попробуйте ещё раз.",
+                    "sendFailed": "Не удалось отправить SMS. Попробуйте позже.",
+                    "tooManyAttempts": "Слишком много попыток. Подождите и попробуйте снова."
+                },
+                "en": {
+                    "enterFullPhone": "Enter your full phone number",
+                    "getConfirmationCode": "Get confirmation code",
+                    "enterSmsCode": "Enter SMS code",
+                    "confirm": "Confirm",
+                    "sendAgain": "Send again",
+                    "waitVerifying": "Wait {sec} sec...",
+                    "verifying": "Verifying...",
+                    "phoneConfirmed": "Phone confirmed",
+                    "invalidCode": "Invalid code. Please try again.",
+                    "sendFailed": "Failed to send SMS. Please try later.",
+                    "tooManyAttempts": "Too many attempts. Please wait and try again."
+                }
+            }
         },
-        "en": {
-          "viewPhotoLabel": "Customer photo",
-          "closeLabel": "Close",
-          "prevLabel": "Previous",
-          "nextLabel": "Next"
+        "module-stock-left": {
+            "config": {
+                "enabled": true,
+                "selectors": [
+                    {
+                        "selector": ".product__section--price",
+                        "insert": "after"
+                    },
+                    {
+                        "selector": ".product-card__price-box",
+                        "insert": "after"
+                    },
+                    {
+                        "selector": ".product-price",
+                        "insert": "after"
+                    },
+                    {
+                        "selector": ".cart-buttons--full",
+                        "insert": "after"
+                    },
+                    {
+                        "selector": ".cart-buttons",
+                        "insert": "after"
+                    },
+                    {
+                        "selector": ".j-product-block",
+                        "insert": "after"
+                    }
+                ],
+                "minCount": 3,
+                "maxCount": 12,
+                "minRemaining": 1,
+                "decrementProbability": 0.6,
+                "updateInterval": 60,
+                "showForOutOfStock": false,
+                "pulse": true,
+                "backgroundColor": "#fff1f5",
+                "textColor": "#9d174d",
+                "accentColor": "#f472b6"
+            },
+            "i18n": {
+                "ua": {
+                    "label": "Залишилось",
+                    "unit": "шт"
+                },
+                "ru": {
+                    "label": "Осталось",
+                    "unit": "шт"
+                },
+                "en": {
+                    "label": "Only",
+                    "unit": "left"
+                }
+            }
+        },
+        "module-cart-recommender": {
+            "config": {
+                "enabled": true,
+                "apiBaseUrl": "http://192.168.100.39:9001",
+                "mountSelector": "#cart .cart__summary, .cart__summary",
+                "maxItems": 4
+            },
+            "i18n": {
+                "ua": {
+                    "buttonAddToCart": "До кошика",
+                    "heading": "Часто беруть разом"
+                },
+                "en": {
+                    "buttonAddToCart": "Add to cart",
+                    "heading": "Often bought together"
+                },
+                "ru": {
+                    "buttonAddToCart": "В корзину",
+                    "heading": "Часто покупают вместе"
+                }
+            }
+        },
+        "module-exit-intent-popup": {
+            "config": {
+                "enabled": true,
+                "cooldownHours": 24,
+                "minTimeOnPageSec": 10,
+                "promoCode": "WELCOME10",
+                "collectEmail": true,
+                "backgroundColor": "#ffffff",
+                "textColor": "#4b2535",
+                "accentColor": "#be7094",
+                "accentTextColor": "#ffffff",
+                "borderColor": "#fce7f3",
+                "borderRadius": 16,
+                "zIndex": 99999,
+                "imageUrl": "",
+                "hideOnUtmSources": []
+            },
+            "i18n": {
+                "ua": {
+                    "title": "Зачекайте! Маємо для вас подарунок",
+                    "subtitle": "Знижка 10% на ваше перше замовлення",
+                    "emailPlaceholder": "Ваш e-mail",
+                    "ctaButton": "Отримати знижку",
+                    "copyButton": "Копіювати",
+                    "copiedLabel": "Скопійовано!",
+                    "promoLabel": "Промокод",
+                    "noThanks": "Ні, дякую",
+                    "successTitle": "Готово 🎉",
+                    "successText": "Промокод скопійовано — застосуйте його в кошику"
+                },
+                "ru": {
+                    "title": "Подождите! У нас для вас подарок",
+                    "subtitle": "Скидка 10% на первый заказ",
+                    "emailPlaceholder": "Ваш e-mail",
+                    "ctaButton": "Получить скидку",
+                    "copyButton": "Скопировать",
+                    "copiedLabel": "Скопировано!",
+                    "promoLabel": "Промокод",
+                    "noThanks": "Нет, спасибо",
+                    "successTitle": "Готово 🎉",
+                    "successText": "Промокод скопирован — примените его в корзине"
+                },
+                "en": {
+                    "title": "Wait! Here is a gift",
+                    "subtitle": "Get 10% off your first order",
+                    "emailPlaceholder": "Your email",
+                    "ctaButton": "Get my discount",
+                    "copyButton": "Copy",
+                    "copiedLabel": "Copied!",
+                    "promoLabel": "Promo code",
+                    "noThanks": "No, thanks",
+                    "successTitle": "Done 🎉",
+                    "successText": "Promo code copied — apply it at checkout"
+                }
+            }
+        },
+        "module-trust-badges": {
+            "config": {
+                "enabled": true,
+                "selectors": [
+                    {
+                        "selector": ".j-buy-button-add",
+                        "insert": "after"
+                    },
+                    {
+                        "selector": ".cart-buttons--full",
+                        "insert": "after"
+                    },
+                    {
+                        "selector": ".cart-buttons",
+                        "insert": "after"
+                    },
+                    {
+                        "selector": ".product-card__price-box",
+                        "insert": "after"
+                    }
+                ],
+                "badges": [
+                    {
+                        "icon": "shield"
+                    },
+                    {
+                        "icon": "truck"
+                    },
+                    {
+                        "icon": "return"
+                    },
+                    {
+                        "icon": "card"
+                    }
+                ],
+                "layout": "grid",
+                "backgroundColor": "transparent",
+                "textColor": "#4b2535",
+                "iconColor": "#be7094",
+                "borderColor": "#fce7f3",
+                "borderRadius": 12,
+                "showBorder": true
+            },
+            "i18n": {
+                "ua": {
+                    "titles": {
+                        "shield": "Безпечна оплата",
+                        "truck": "Швидка доставка",
+                        "return": "14 днів на повернення",
+                        "lock": "SSL шифрування",
+                        "card": "Visa / Mastercard",
+                        "guarantee": "Офіційна гарантія",
+                        "support": "Підтримка 24/7",
+                        "star": "Перевірений магазин",
+                        "leaf": "Еко-упаковка",
+                        "box": "Безкоштовна упаковка"
+                    }
+                },
+                "ru": {
+                    "titles": {
+                        "shield": "Безопасная оплата",
+                        "truck": "Быстрая доставка",
+                        "return": "14 дней на возврат",
+                        "lock": "SSL шифрование",
+                        "card": "Visa / Mastercard",
+                        "guarantee": "Официальная гарантия",
+                        "support": "Поддержка 24/7",
+                        "star": "Проверенный магазин",
+                        "leaf": "Эко-упаковка",
+                        "box": "Бесплатная упаковка"
+                    }
+                },
+                "en": {
+                    "titles": {
+                        "shield": "Secure payment",
+                        "truck": "Fast shipping",
+                        "return": "14-day returns",
+                        "lock": "SSL encryption",
+                        "card": "Visa / Mastercard",
+                        "guarantee": "Official warranty",
+                        "support": "24/7 support",
+                        "star": "Trusted store",
+                        "leaf": "Eco packaging",
+                        "box": "Free packaging"
+                    }
+                }
+            }
+        },
+        "module-floating-messengers": {
+            "config": {
+                "enabled": true,
+                "position": "bottom-right",
+                "bottomOffsetDesktop": 24,
+                "bottomOffsetMobile": 80,
+                "sideOffset": 20,
+                "channels": [
+                    {
+                        "type": "telegram",
+                        "value": "widgetis"
+                    },
+                    {
+                        "type": "whatsapp",
+                        "value": "+380501234567"
+                    },
+                    {
+                        "type": "viber",
+                        "value": "+380501234567"
+                    },
+                    {
+                        "type": "phone",
+                        "value": "+380501234567"
+                    }
+                ],
+                "bubbleColor": "#be7094",
+                "bubbleIconColor": "#ffffff",
+                "expandedBackground": "#ffffff",
+                "expandedTextColor": "#4b2535",
+                "borderColor": "#fce7f3",
+                "borderRadius": 16,
+                "zIndex": 9000,
+                "showLabels": true,
+                "delaySec": 3,
+                "pulseAnimation": true
+            },
+            "i18n": {
+                "ua": {
+                    "greeting": "Зв'яжіться з нами",
+                    "closeLabel": "Закрити"
+                },
+                "ru": {
+                    "greeting": "Свяжитесь с нами",
+                    "closeLabel": "Закрыть"
+                },
+                "en": {
+                    "greeting": "Contact us",
+                    "closeLabel": "Close"
+                }
+            }
+        },
+        "module-recently-viewed": {
+            "config": {
+                "enabled": true,
+                "selectors": [
+                    {
+                        "selector": ".j-product-block",
+                        "insert": "after"
+                    },
+                    {
+                        "selector": "#cart .cart__summary",
+                        "insert": "after"
+                    },
+                    {
+                        "selector": "main",
+                        "insert": "after"
+                    }
+                ],
+                "minItems": 3,
+                "maxItems": 12,
+                "expiryDays": 30,
+                "cardWidthDesktop": 200,
+                "cardWidthMobile": 150,
+                "backgroundColor": "transparent",
+                "textColor": "#4b2535",
+                "priceColor": "#be7094",
+                "mutedColor": "#9ca3af",
+                "borderColor": "#fce7f3",
+                "borderRadius": 12,
+                "showOnProductPage": true,
+                "showOnCartPage": true,
+                "showOnAnyPage": true
+            },
+            "i18n": {
+                "ua": {
+                    "heading": "Ви нещодавно дивились"
+                },
+                "ru": {
+                    "heading": "Вы недавно смотрели"
+                },
+                "en": {
+                    "heading": "Recently viewed"
+                }
+            }
+        },
+        "module-spin-the-wheel": {
+            "$comment": "Demo overrides: delaySec=0 fires the popup right after init, cooldownHours=0 disables once-per-week throttle so visitors always see it.",
+            "config": {
+                "enabled": true,
+                "delaySec": 0,
+                "cooldownHours": 0,
+                "triggerOnExitIntent": true,
+                "requireEmail": true,
+                "requireConsent": true,
+                "segments": [
+                    {
+                        "label": "10%",
+                        "code": "SPIN10",
+                        "weight": 4,
+                        "iconType": "percent"
+                    },
+                    {
+                        "label": "Доставка",
+                        "code": "FREESHIP",
+                        "weight": 3,
+                        "iconType": "truck"
+                    },
+                    {
+                        "label": "5%",
+                        "code": "SPIN5",
+                        "weight": 5,
+                        "iconType": "percent"
+                    },
+                    {
+                        "label": "Ще раз",
+                        "code": "",
+                        "weight": 2,
+                        "iconType": "try-again"
+                    },
+                    {
+                        "label": "15%",
+                        "code": "SPIN15",
+                        "weight": 1,
+                        "iconType": "fire"
+                    },
+                    {
+                        "label": "Подарунок",
+                        "code": "GIFT",
+                        "weight": 1,
+                        "iconType": "gift"
+                    }
+                ],
+                "palette": [
+                    "#fb7185",
+                    "#facc15"
+                ],
+                "wheelTextColor": "#ffffff",
+                "decorativeColor": "#f87171",
+                "backgroundColor": "#ffffff",
+                "textColor": "#111827",
+                "accentColor": "#111827",
+                "accentTextColor": "#ffffff",
+                "borderColor": "#1e293b",
+                "borderRadius": 16,
+                "zIndex": 2147483647,
+                "hideOnUtmSources": []
+            },
+            "i18n": {
+                "ua": {
+                    "title": "Крутіть колесо та виграйте!",
+                    "subtitle": "Введіть email і отримайте шанс виграти знижку або подарунок",
+                    "emailPlaceholder": "Ваш e-mail",
+                    "consentText": "Я погоджуюся отримувати маркетингові листи",
+                    "spinButton": "Крутити колесо!",
+                    "spinningLabel": "Крутимо...",
+                    "resultTitleWin": "Вітаємо! Ви виграли!",
+                    "resultTitleLose": "На жаль, цього разу не вийшло",
+                    "resultSubtitleWin": "Ваш приз очікує — використайте промокод у кошику",
+                    "resultSubtitleLose": "Не сумуйте — повертайтесь пізніше за новим шансом",
+                    "copyButton": "Копіювати",
+                    "copiedLabel": "Скопійовано!",
+                    "promoLabel": "Промокод",
+                    "closeLabel": "Закрити",
+                    "errorEmptyEmail": "Будь ласка, введіть e-mail",
+                    "errorInvalidEmail": "Перевірте формат e-mail"
+                },
+                "ru": {
+                    "title": "Крутите колесо и выигрывайте!",
+                    "subtitle": "Введите email и получите шанс выиграть скидку или подарок",
+                    "emailPlaceholder": "Ваш e-mail",
+                    "consentText": "Я согласен получать маркетинговые письма",
+                    "spinButton": "Крутить колесо!",
+                    "spinningLabel": "Крутим...",
+                    "resultTitleWin": "Поздравляем! Вы выиграли!",
+                    "resultTitleLose": "К сожалению, в этот раз не повезло",
+                    "resultSubtitleWin": "Ваш приз ждёт — используйте промокод в корзине",
+                    "resultSubtitleLose": "Не расстраивайтесь — попробуйте ещё раз позже",
+                    "copyButton": "Копировать",
+                    "copiedLabel": "Скопировано!",
+                    "promoLabel": "Промокод",
+                    "closeLabel": "Закрыть",
+                    "errorEmptyEmail": "Пожалуйста, введите e-mail",
+                    "errorInvalidEmail": "Проверьте формат e-mail"
+                },
+                "en": {
+                    "title": "Spin the wheel to win!",
+                    "subtitle": "Enter your email for a chance to win a discount or gift",
+                    "emailPlaceholder": "Your email",
+                    "consentText": "I agree to receive marketing emails",
+                    "spinButton": "Spin the wheel!",
+                    "spinningLabel": "Spinning...",
+                    "resultTitleWin": "Congrats! You won!",
+                    "resultTitleLose": "Sorry, no luck this time",
+                    "resultSubtitleWin": "Your prize is waiting — use the promo code at checkout",
+                    "resultSubtitleLose": "Come back later for another chance",
+                    "copyButton": "Copy",
+                    "copiedLabel": "Copied!",
+                    "promoLabel": "Promo code",
+                    "closeLabel": "Close",
+                    "errorEmptyEmail": "Please enter your email",
+                    "errorInvalidEmail": "Please enter a valid email"
+                }
+            }
+        },
+        "module-prize-banner": {
+            "$comment": "Disabled in demo — after the wheel popup writes a prize, this floating ribbon would overlap the cart-recommender popup and produce two close-X buttons next to each other (UX confusion).",
+            "config": {
+                "enabled": false,
+                "storageKey": "wty_active_prize",
+                "hideOnCheckout": false,
+                "zIndex": 8800,
+                "backgroundColor": "#fdf2f8",
+                "textColor": "#9d174d",
+                "accentColor": "#be7094",
+                "borderColor": "#fbcfe8",
+                "borderRadius": 12
+            },
+            "i18n": {
+                "ua": {
+                    "message": "У вас активний приз: {label} — код {code}. Скажіть менеджеру при оформленні замовлення.",
+                    "copyLabel": "Копіювати код",
+                    "copiedLabel": "Скопійовано!",
+                    "closeLabel": "Закрити"
+                },
+                "ru": {
+                    "message": "У вас активный приз: {label} — код {code}. Скажите менеджеру при оформлении заказа.",
+                    "copyLabel": "Копировать код",
+                    "copiedLabel": "Скопировано!",
+                    "closeLabel": "Закрыть"
+                },
+                "en": {
+                    "message": "You have an active prize: {label} — code {code}. Mention it to the manager at checkout.",
+                    "copyLabel": "Copy code",
+                    "copiedLabel": "Copied!",
+                    "closeLabel": "Close"
+                }
+            }
+        },
+        "module-marquee": {
+            "config": {
+                "enabled": true,
+                "speed": 80,
+                "height": 36,
+                "isFixed": true,
+                "mode": "shift",
+                "ttlHours": 24,
+                "colors": {
+                    "desktop": {
+                        "backgroundColor": "#4b2535",
+                        "textColor": "#fce7f3"
+                    },
+                    "mobile": {
+                        "backgroundColor": "#4b2535",
+                        "textColor": "#fce7f3"
+                    }
+                }
+            },
+            "i18n": {
+                "ua": [
+                    "АКЦIЯ — безкоштовна доставка від 1000 грн",
+                    "Офіційний магазин",
+                    "Доставка по всій Україні"
+                ],
+                "ru": [
+                    "АКЦИЯ — бесплатная доставка от 1000 грн",
+                    "Официальный магазин",
+                    "Доставка по всей Украине"
+                ],
+                "en": [
+                    "SALE — free shipping from 1000 UAH",
+                    "Official store",
+                    "Shipping across Ukraine"
+                ]
+            }
+        },
+        "module-one-plus-one": {
+            "$comment": "Disabled in the public demo — the cheapest-as-gift logic and Horoshop AjaxCart phasing look clumsy on a third-party shop without proper backend orchestration.",
+            "config": {
+                "enabled": false,
+                "apiUrl": "https://api.widgetis.com"
+            },
+            "i18n": {
+                "ua": {
+                    "badge": "1+1=3",
+                    "tooltip": "Найдешевший товар у кошику — за 1 грн!"
+                },
+                "ru": {
+                    "badge": "1+1=3",
+                    "tooltip": "Самый дешёвый товар в корзине — за 1 грн!"
+                },
+                "en": {
+                    "badge": "1+1=3",
+                    "tooltip": "The cheapest item in your cart — for 1 UAH!"
+                }
+            }
+        },
+        "module-cart-goal": {
+            "config": {
+                "enabled": true,
+                "threshold": 1000,
+                "minimum": 0,
+                "floatingWidget": true,
+                "background": "#2d1a25",
+                "achievedBackground": "#14532d",
+                "textColor": "#f8fafc",
+                "positionDesktop": {
+                    "right": 16,
+                    "bottom": 25
+                },
+                "positionMobile": {
+                    "left": 16,
+                    "bottom": 25
+                },
+                "shakeInterval": 3000,
+                "zIndex": 999
+            },
+            "i18n": {
+                "ua": {
+                    "text": "До безкоштовної доставки залишилось",
+                    "achieved": "🎉 Вітаємо! Ви отримали безкоштовну доставку!"
+                },
+                "ru": {
+                    "text": "До бесплатной доставки осталось",
+                    "achieved": "🎉 Поздравляем! Вы получили бесплатную доставку!"
+                },
+                "en": {
+                    "text": "Until free shipping",
+                    "achieved": "🎉 Congrats! You got free shipping!"
+                }
+            }
+        },
+        "module-progressive-discount": {
+            "config": {
+                "enabled": true,
+                "tiers": [
+                    {
+                        "minItems": 2,
+                        "percent": 5,
+                        "coupon": "CASH5"
+                    },
+                    {
+                        "minItems": 3,
+                        "percent": 10,
+                        "coupon": "CASH10"
+                    },
+                    {
+                        "minItems": 5,
+                        "percent": 20,
+                        "coupon": "CASH20"
+                    }
+                ],
+                "background": "#2d1a25",
+                "achievedBackground": "#14532d",
+                "textColor": "#f8fafc",
+                "accentColor": "#f9a8d4",
+                "zIndex": 50
+            },
+            "i18n": {
+                "ua": {
+                    "intro": "Прогресивна знижка",
+                    "currentLevel": "Ваша знижка {percent}%",
+                    "nextHint": "Додайте ще {remaining} {items} — отримаєте {percent}%",
+                    "topReached": "🎉 Максимальна знижка {percent}% активована!",
+                    "itemsWord": "товар|товари|товарів"
+                },
+                "ru": {
+                    "intro": "Прогрессивная скидка",
+                    "currentLevel": "Ваша скидка {percent}%",
+                    "nextHint": "Добавьте ещё {remaining} {items} — получите {percent}%",
+                    "topReached": "🎉 Максимальная скидка {percent}% активирована!",
+                    "itemsWord": "товар|товара|товаров"
+                },
+                "en": {
+                    "intro": "Progressive discount",
+                    "currentLevel": "Your discount {percent}%",
+                    "nextHint": "Add {remaining} more {items} — get {percent}%",
+                    "topReached": "🎉 Maximum discount {percent}% activated!",
+                    "itemsWord": "item|items|items"
+                }
+            }
+        },
+        "module-phone-mask": {
+            "config": {
+                "enabled": true,
+                "defaultCountry": "UA",
+                "rememberLastChoice": true,
+                "geoip": true,
+                "geoipUrl": "https://ipapi.co/json/",
+                "hidePicker": false,
+                "blockSubmitOnInvalid": true
+            },
+            "i18n": {
+                "ua": {
+                    "searchPlaceholder": "Пошук країни або коду…",
+                    "hint": "Введіть номер у форматі країни",
+                    "invalid": "Невірний формат номера"
+                },
+                "ru": {
+                    "searchPlaceholder": "Поиск страны или кода…",
+                    "hint": "Введите номер в формате страны",
+                    "invalid": "Неверный формат номера"
+                },
+                "en": {
+                    "searchPlaceholder": "Search country or code…",
+                    "hint": "Enter the number for the selected country",
+                    "invalid": "Invalid phone number"
+                }
+            }
+        },
+        "module-product-video-preview": {
+            "$comment": "testVideoUrl is shown when no MP4 link is found on the page — ensures the widget is always visible in the demo.",
+            "config": {
+                "enabled": true,
+                "testVideoUrl": "http://localhost:3100/demo-unboxing.mp4",
+                "mp4Selector": "a[href$=\".mp4\"]",
+                "borderColor": "#be7094",
+                "showOnMobile": true,
+                "showOnDesktop": true
+            },
+            "i18n": {
+                "ua": {
+                    "tooltipText": "Відео товару",
+                    "actionButtonText": "Дивитись відео",
+                    "sizeGuideText": "",
+                    "closeLabel": "Закрити"
+                },
+                "ru": {
+                    "tooltipText": "Видео товара",
+                    "actionButtonText": "Смотреть видео",
+                    "sizeGuideText": "",
+                    "closeLabel": "Закрыть"
+                },
+                "en": {
+                    "tooltipText": "Product video",
+                    "actionButtonText": "Watch video",
+                    "sizeGuideText": "",
+                    "closeLabel": "Close"
+                }
+            }
+        },
+        "module-smart-search": {
+            "$comment": "Smart search overlay — replaces Horoshop native search with a Spotlight-style command palette. Backed by App\\SmartSearch (PG pg_trgm + tsvector + Redis cache); site is resolved from Origin/Referer via resolve.site.origin middleware.",
+            "config": {
+                "enabled": true,
+                "apiUrl": "https://api.widgetis.com/api/v1/widgets/smart-search",
+                "accentColor": "#c20f5d",
+                "currency": "грн",
+                "searchHistory": true,
+                "minQueryLength": 2,
+                "debounceMs": 220,
+                "limitPreview": 4,
+                "limitExpanded": 50,
+                "popularQueries": [
+                    "крем",
+                    "масло",
+                    "мило",
+                    "парфум",
+                    "шампунь"
+                ],
+                "defaultLang": "auto",
+                "theme": "light"
+            },
+            "i18n": {
+                "ua": {
+                    "search_placeholder": "Пошук товарів...",
+                    "no_results": "Нічого не знайдено",
+                    "loading_text": "Шукаємо...",
+                    "out_of_stock": "Немає в наявності",
+                    "history_title": "Нещодавні пошуки",
+                    "history_clear": "Очистити",
+                    "results_count": "Показано {count}",
+                    "all_results": "Всі результати",
+                    "correction_text": "Можливо, ви мали на увазі",
+                    "error_text": "Помилка. Спробуйте ще раз.",
+                    "collapse": "Згорнути",
+                    "more": "Більше",
+                    "popular_title": "Популярне",
+                    "discount_label": "-{percent}%",
+                    "view_all": "Всі →",
+                    "kbd_hint": "ESC",
+                    "empty_subtitle": "Спробуйте змінити запит або перегляньте каталог"
+                },
+                "ru": {
+                    "search_placeholder": "Поиск товаров...",
+                    "no_results": "Ничего не найдено",
+                    "loading_text": "Ищем...",
+                    "out_of_stock": "Нет в наличии",
+                    "history_title": "Недавние поиски",
+                    "history_clear": "Очистить",
+                    "results_count": "Показано {count}",
+                    "all_results": "Все результаты",
+                    "correction_text": "Возможно, вы имели в виду",
+                    "error_text": "Ошибка. Попробуйте ещё раз.",
+                    "collapse": "Свернуть",
+                    "more": "Больше",
+                    "popular_title": "Популярное",
+                    "discount_label": "-{percent}%",
+                    "view_all": "Все →",
+                    "kbd_hint": "ESC",
+                    "empty_subtitle": "Попробуйте изменить запрос или просмотрите каталог"
+                },
+                "en": {
+                    "search_placeholder": "Search products...",
+                    "no_results": "Nothing found",
+                    "loading_text": "Searching...",
+                    "out_of_stock": "Out of stock",
+                    "history_title": "Recent searches",
+                    "history_clear": "Clear",
+                    "results_count": "Showing {count}",
+                    "all_results": "All results",
+                    "correction_text": "Did you mean",
+                    "error_text": "Error. Please try again.",
+                    "collapse": "Collapse",
+                    "more": "More",
+                    "popular_title": "Popular",
+                    "discount_label": "-{percent}%",
+                    "view_all": "All →",
+                    "kbd_hint": "ESC",
+                    "empty_subtitle": "Try a different query or browse the catalog"
+                },
+                "pl": {
+                    "search_placeholder": "Szukaj produktów...",
+                    "no_results": "Nic nie znaleziono",
+                    "loading_text": "Szukamy...",
+                    "out_of_stock": "Brak w magazynie",
+                    "history_title": "Ostatnie wyszukiwania",
+                    "history_clear": "Wyczyść",
+                    "results_count": "Wyświetlono {count}",
+                    "all_results": "Wszystkie wyniki",
+                    "correction_text": "Czy chodziło Ci o",
+                    "error_text": "Błąd. Spróbuj ponownie.",
+                    "collapse": "Zwiń",
+                    "more": "Więcej",
+                    "popular_title": "Popularne",
+                    "discount_label": "-{percent}%",
+                    "view_all": "Wszystkie →",
+                    "kbd_hint": "ESC",
+                    "empty_subtitle": "Spróbuj zmienić zapytanie lub przeglądaj katalog"
+                }
+            }
         }
-      }
-    },
-    "module-sms-otp-checkout": {
-      "config": {
-        "enabled": true,
-        "apiBaseUrl": "https://api.widgetis.com/api/v1",
-        "siteKey": "demo",
-        "triggerSources": [
-          "all"
-        ],
-        "phoneInputSelector": "input[name*=\"phone\"], .j-phone-masked, input[type=\"tel\"]",
-        "submitButtonSelector": ".checkout-form__submit, [type=\"submit\"], .j-checkout-submit",
-        "codeLength": 6,
-        "resendCooldownSec": 60,
-        "codeTtlSec": 300,
-        "colors": {
-          "gradientStart": "#f9a8d4",
-          "gradientEnd": "#be7094"
-        }
-      },
-      "i18n": {
-        "ua": {
-          "enterFullPhone": "Введіть номер телефону повністю",
-          "getConfirmationCode": "Отримати код підтвердження",
-          "enterSmsCode": "Введіть код із SMS",
-          "confirm": "Підтвердити",
-          "sendAgain": "Надіслати знову",
-          "waitVerifying": "Зачекайте {sec} сек...",
-          "verifying": "Перевіряємо...",
-          "phoneConfirmed": "Телефон підтверджено",
-          "invalidCode": "Невірний код. Спробуйте ще раз.",
-          "sendFailed": "Не вдалося надіслати SMS. Спробуйте пізніше.",
-          "tooManyAttempts": "Забагато спроб. Зачекайте та спробуйте знову."
-        },
-        "ru": {
-          "enterFullPhone": "Введите номер телефона полностью",
-          "getConfirmationCode": "Получить код подтверждения",
-          "enterSmsCode": "Введите код из SMS",
-          "confirm": "Подтвердить",
-          "sendAgain": "Отправить снова",
-          "waitVerifying": "Подождите {sec} сек...",
-          "verifying": "Проверяем...",
-          "phoneConfirmed": "Телефон подтверждён",
-          "invalidCode": "Неверный код. Попробуйте ещё раз.",
-          "sendFailed": "Не удалось отправить SMS. Попробуйте позже.",
-          "tooManyAttempts": "Слишком много попыток. Подождите и попробуйте снова."
-        },
-        "en": {
-          "enterFullPhone": "Enter your full phone number",
-          "getConfirmationCode": "Get confirmation code",
-          "enterSmsCode": "Enter SMS code",
-          "confirm": "Confirm",
-          "sendAgain": "Send again",
-          "waitVerifying": "Wait {sec} sec...",
-          "verifying": "Verifying...",
-          "phoneConfirmed": "Phone confirmed",
-          "invalidCode": "Invalid code. Please try again.",
-          "sendFailed": "Failed to send SMS. Please try later.",
-          "tooManyAttempts": "Too many attempts. Please wait and try again."
-        }
-      }
-    },
-    "module-stock-left": {
-      "config": {
-        "enabled": true,
-        "selectors": [
-          {
-            "selector": ".product__section--price",
-            "insert": "after"
-          },
-          {
-            "selector": ".product-card__price-box",
-            "insert": "after"
-          },
-          {
-            "selector": ".product-price",
-            "insert": "after"
-          },
-          {
-            "selector": ".cart-buttons--full",
-            "insert": "after"
-          },
-          {
-            "selector": ".cart-buttons",
-            "insert": "after"
-          },
-          {
-            "selector": ".j-product-block",
-            "insert": "after"
-          }
-        ],
-        "minCount": 3,
-        "maxCount": 12,
-        "minRemaining": 1,
-        "decrementProbability": 0.6,
-        "updateInterval": 60,
-        "showForOutOfStock": false,
-        "pulse": true,
-        "backgroundColor": "#fff1f5",
-        "textColor": "#9d174d",
-        "accentColor": "#f472b6"
-      },
-      "i18n": {
-        "ua": {
-          "label": "Залишилось",
-          "unit": "шт"
-        },
-        "ru": {
-          "label": "Осталось",
-          "unit": "шт"
-        },
-        "en": {
-          "label": "Only",
-          "unit": "left"
-        }
-      }
-    },
-    "module-cart-recommender": {
-      "config": {
-        "enabled": true,
-        "apiBaseUrl": "http://192.168.100.39:9001",
-        "mountSelector": "#cart .cart__summary, .cart__summary",
-        "maxItems": 4
-      },
-      "i18n": {
-        "ua": {
-          "buttonAddToCart": "До кошика",
-          "heading": "Часто беруть разом"
-        },
-        "en": {
-          "buttonAddToCart": "Add to cart",
-          "heading": "Often bought together"
-        },
-        "ru": {
-          "buttonAddToCart": "В корзину",
-          "heading": "Часто покупают вместе"
-        }
-      }
-    },
-    "module-exit-intent-popup": {
-      "config": {
-        "enabled": true,
-        "cooldownHours": 24,
-        "minTimeOnPageSec": 10,
-        "promoCode": "WELCOME10",
-        "collectEmail": true,
-        "backgroundColor": "#ffffff",
-        "textColor": "#4b2535",
-        "accentColor": "#be7094",
-        "accentTextColor": "#ffffff",
-        "borderColor": "#fce7f3",
-        "borderRadius": 16,
-        "zIndex": 99999,
-        "imageUrl": "",
-        "hideOnUtmSources": []
-      },
-      "i18n": {
-        "ua": {
-          "title": "Зачекайте! Маємо для вас подарунок",
-          "subtitle": "Знижка 10% на ваше перше замовлення",
-          "emailPlaceholder": "Ваш e-mail",
-          "ctaButton": "Отримати знижку",
-          "copyButton": "Копіювати",
-          "copiedLabel": "Скопійовано!",
-          "promoLabel": "Промокод",
-          "noThanks": "Ні, дякую",
-          "successTitle": "Готово 🎉",
-          "successText": "Промокод скопійовано — застосуйте його в кошику"
-        },
-        "ru": {
-          "title": "Подождите! У нас для вас подарок",
-          "subtitle": "Скидка 10% на первый заказ",
-          "emailPlaceholder": "Ваш e-mail",
-          "ctaButton": "Получить скидку",
-          "copyButton": "Скопировать",
-          "copiedLabel": "Скопировано!",
-          "promoLabel": "Промокод",
-          "noThanks": "Нет, спасибо",
-          "successTitle": "Готово 🎉",
-          "successText": "Промокод скопирован — примените его в корзине"
-        },
-        "en": {
-          "title": "Wait! Here is a gift",
-          "subtitle": "Get 10% off your first order",
-          "emailPlaceholder": "Your email",
-          "ctaButton": "Get my discount",
-          "copyButton": "Copy",
-          "copiedLabel": "Copied!",
-          "promoLabel": "Promo code",
-          "noThanks": "No, thanks",
-          "successTitle": "Done 🎉",
-          "successText": "Promo code copied — apply it at checkout"
-        }
-      }
-    },
-    "module-trust-badges": {
-      "config": {
-        "enabled": true,
-        "selectors": [
-          {
-            "selector": ".j-buy-button-add",
-            "insert": "after"
-          },
-          {
-            "selector": ".cart-buttons--full",
-            "insert": "after"
-          },
-          {
-            "selector": ".cart-buttons",
-            "insert": "after"
-          },
-          {
-            "selector": ".product-card__price-box",
-            "insert": "after"
-          }
-        ],
-        "badges": [
-          {
-            "icon": "shield"
-          },
-          {
-            "icon": "truck"
-          },
-          {
-            "icon": "return"
-          },
-          {
-            "icon": "card"
-          }
-        ],
-        "layout": "grid",
-        "backgroundColor": "transparent",
-        "textColor": "#4b2535",
-        "iconColor": "#be7094",
-        "borderColor": "#fce7f3",
-        "borderRadius": 12,
-        "showBorder": true
-      },
-      "i18n": {
-        "ua": {
-          "titles": {
-            "shield": "Безпечна оплата",
-            "truck": "Швидка доставка",
-            "return": "14 днів на повернення",
-            "lock": "SSL шифрування",
-            "card": "Visa / Mastercard",
-            "guarantee": "Офіційна гарантія",
-            "support": "Підтримка 24/7",
-            "star": "Перевірений магазин",
-            "leaf": "Еко-упаковка",
-            "box": "Безкоштовна упаковка"
-          }
-        },
-        "ru": {
-          "titles": {
-            "shield": "Безопасная оплата",
-            "truck": "Быстрая доставка",
-            "return": "14 дней на возврат",
-            "lock": "SSL шифрование",
-            "card": "Visa / Mastercard",
-            "guarantee": "Официальная гарантия",
-            "support": "Поддержка 24/7",
-            "star": "Проверенный магазин",
-            "leaf": "Эко-упаковка",
-            "box": "Бесплатная упаковка"
-          }
-        },
-        "en": {
-          "titles": {
-            "shield": "Secure payment",
-            "truck": "Fast shipping",
-            "return": "14-day returns",
-            "lock": "SSL encryption",
-            "card": "Visa / Mastercard",
-            "guarantee": "Official warranty",
-            "support": "24/7 support",
-            "star": "Trusted store",
-            "leaf": "Eco packaging",
-            "box": "Free packaging"
-          }
-        }
-      }
-    },
-    "module-floating-messengers": {
-      "config": {
-        "enabled": true,
-        "position": "bottom-right",
-        "bottomOffsetDesktop": 24,
-        "bottomOffsetMobile": 80,
-        "sideOffset": 20,
-        "channels": [
-          {
-            "type": "telegram",
-            "value": "widgetis"
-          },
-          {
-            "type": "whatsapp",
-            "value": "+380501234567"
-          },
-          {
-            "type": "viber",
-            "value": "+380501234567"
-          },
-          {
-            "type": "phone",
-            "value": "+380501234567"
-          }
-        ],
-        "bubbleColor": "#be7094",
-        "bubbleIconColor": "#ffffff",
-        "expandedBackground": "#ffffff",
-        "expandedTextColor": "#4b2535",
-        "borderColor": "#fce7f3",
-        "borderRadius": 16,
-        "zIndex": 9000,
-        "showLabels": true,
-        "delaySec": 3,
-        "pulseAnimation": true
-      },
-      "i18n": {
-        "ua": {
-          "greeting": "Зв'яжіться з нами",
-          "closeLabel": "Закрити"
-        },
-        "ru": {
-          "greeting": "Свяжитесь с нами",
-          "closeLabel": "Закрыть"
-        },
-        "en": {
-          "greeting": "Contact us",
-          "closeLabel": "Close"
-        }
-      }
-    },
-    "module-recently-viewed": {
-      "config": {
-        "enabled": true,
-        "selectors": [
-          {
-            "selector": ".j-product-block",
-            "insert": "after"
-          },
-          {
-            "selector": "#cart .cart__summary",
-            "insert": "after"
-          },
-          {
-            "selector": "main",
-            "insert": "after"
-          }
-        ],
-        "minItems": 3,
-        "maxItems": 12,
-        "expiryDays": 30,
-        "cardWidthDesktop": 200,
-        "cardWidthMobile": 150,
-        "backgroundColor": "transparent",
-        "textColor": "#4b2535",
-        "priceColor": "#be7094",
-        "mutedColor": "#9ca3af",
-        "borderColor": "#fce7f3",
-        "borderRadius": 12,
-        "showOnProductPage": true,
-        "showOnCartPage": true,
-        "showOnAnyPage": true
-      },
-      "i18n": {
-        "ua": {
-          "heading": "Ви нещодавно дивились"
-        },
-        "ru": {
-          "heading": "Вы недавно смотрели"
-        },
-        "en": {
-          "heading": "Recently viewed"
-        }
-      }
-    },
-    "module-spin-the-wheel": {
-      "$comment": "Demo overrides: delaySec=0 fires the popup right after init, cooldownHours=0 disables once-per-week throttle so visitors always see it.",
-      "config": {
-        "enabled": true,
-        "delaySec": 0,
-        "cooldownHours": 0,
-        "triggerOnExitIntent": true,
-        "requireEmail": true,
-        "requireConsent": true,
-        "segments": [
-          {
-            "label": "10%",
-            "code": "SPIN10",
-            "weight": 4,
-            "iconType": "percent"
-          },
-          {
-            "label": "Доставка",
-            "code": "FREESHIP",
-            "weight": 3,
-            "iconType": "truck"
-          },
-          {
-            "label": "5%",
-            "code": "SPIN5",
-            "weight": 5,
-            "iconType": "percent"
-          },
-          {
-            "label": "Ще раз",
-            "code": "",
-            "weight": 2,
-            "iconType": "try-again"
-          },
-          {
-            "label": "15%",
-            "code": "SPIN15",
-            "weight": 1,
-            "iconType": "fire"
-          },
-          {
-            "label": "Подарунок",
-            "code": "GIFT",
-            "weight": 1,
-            "iconType": "gift"
-          }
-        ],
-        "palette": [
-          "#FF1744",
-          "#FF6D00",
-          "#FFD600",
-          "#00C853",
-          "#2979FF",
-          "#D500F9"
-        ],
-        "wheelTextColor": "#ffffff",
-        "decorativeColor": "#ef4444",
-        "backgroundColor": "#ffffff",
-        "textColor": "#111827",
-        "accentColor": "#111827",
-        "accentTextColor": "#ffffff",
-        "borderColor": "#e5e7eb",
-        "borderRadius": 16,
-        "zIndex": 2147483647,
-        "hideOnUtmSources": []
-      },
-      "i18n": {
-        "ua": {
-          "title": "Крутіть колесо та виграйте!",
-          "subtitle": "Введіть email і отримайте шанс виграти знижку або подарунок",
-          "emailPlaceholder": "Ваш e-mail",
-          "consentText": "Я погоджуюся отримувати маркетингові листи",
-          "spinButton": "Крутити колесо!",
-          "spinningLabel": "Крутимо...",
-          "resultTitleWin": "Вітаємо! Ви виграли!",
-          "resultTitleLose": "На жаль, цього разу не вийшло",
-          "resultSubtitleWin": "Ваш приз очікує — використайте промокод у кошику",
-          "resultSubtitleLose": "Не сумуйте — повертайтесь пізніше за новим шансом",
-          "copyButton": "Копіювати",
-          "copiedLabel": "Скопійовано!",
-          "promoLabel": "Промокод",
-          "closeLabel": "Закрити",
-          "errorEmptyEmail": "Будь ласка, введіть e-mail",
-          "errorInvalidEmail": "Перевірте формат e-mail"
-        },
-        "ru": {
-          "title": "Крутите колесо и выигрывайте!",
-          "subtitle": "Введите email и получите шанс выиграть скидку или подарок",
-          "emailPlaceholder": "Ваш e-mail",
-          "consentText": "Я согласен получать маркетинговые письма",
-          "spinButton": "Крутить колесо!",
-          "spinningLabel": "Крутим...",
-          "resultTitleWin": "Поздравляем! Вы выиграли!",
-          "resultTitleLose": "К сожалению, в этот раз не повезло",
-          "resultSubtitleWin": "Ваш приз ждёт — используйте промокод в корзине",
-          "resultSubtitleLose": "Не расстраивайтесь — попробуйте ещё раз позже",
-          "copyButton": "Копировать",
-          "copiedLabel": "Скопировано!",
-          "promoLabel": "Промокод",
-          "closeLabel": "Закрыть",
-          "errorEmptyEmail": "Пожалуйста, введите e-mail",
-          "errorInvalidEmail": "Проверьте формат e-mail"
-        },
-        "en": {
-          "title": "Spin the wheel to win!",
-          "subtitle": "Enter your email for a chance to win a discount or gift",
-          "emailPlaceholder": "Your email",
-          "consentText": "I agree to receive marketing emails",
-          "spinButton": "Spin the wheel!",
-          "spinningLabel": "Spinning...",
-          "resultTitleWin": "Congrats! You won!",
-          "resultTitleLose": "Sorry, no luck this time",
-          "resultSubtitleWin": "Your prize is waiting — use the promo code at checkout",
-          "resultSubtitleLose": "Come back later for another chance",
-          "copyButton": "Copy",
-          "copiedLabel": "Copied!",
-          "promoLabel": "Promo code",
-          "closeLabel": "Close",
-          "errorEmptyEmail": "Please enter your email",
-          "errorInvalidEmail": "Please enter a valid email"
-        }
-      }
-    },
-    "module-prize-banner": {
-      "$comment": "Disabled in demo — after the wheel popup writes a prize, this floating ribbon would overlap the cart-recommender popup and produce two close-X buttons next to each other (UX confusion).",
-      "config": {
-        "enabled": false,
-        "storageKey": "wty_active_prize",
-        "hideOnCheckout": false,
-        "zIndex": 8800,
-        "backgroundColor": "#fdf2f8",
-        "textColor": "#9d174d",
-        "accentColor": "#be7094",
-        "borderColor": "#fbcfe8",
-        "borderRadius": 12
-      },
-      "i18n": {
-        "ua": {
-          "message": "У вас активний приз: {label} — код {code}. Скажіть менеджеру при оформленні замовлення.",
-          "copyLabel": "Копіювати код",
-          "copiedLabel": "Скопійовано!",
-          "closeLabel": "Закрити"
-        },
-        "ru": {
-          "message": "У вас активный приз: {label} — код {code}. Скажите менеджеру при оформлении заказа.",
-          "copyLabel": "Копировать код",
-          "copiedLabel": "Скопировано!",
-          "closeLabel": "Закрыть"
-        },
-        "en": {
-          "message": "You have an active prize: {label} — code {code}. Mention it to the manager at checkout.",
-          "copyLabel": "Copy code",
-          "copiedLabel": "Copied!",
-          "closeLabel": "Close"
-        }
-      }
-    },
-    "module-marquee": {
-      "config": {
-        "enabled": true,
-        "speed": 80,
-        "height": 36,
-        "isFixed": true,
-        "mode": "shift",
-        "ttlHours": 24,
-        "colors": {
-          "desktop": {
-            "backgroundColor": "#4b2535",
-            "textColor": "#fce7f3"
-          },
-          "mobile": {
-            "backgroundColor": "#4b2535",
-            "textColor": "#fce7f3"
-          }
-        }
-      },
-      "i18n": {
-        "ua": [
-          "АКЦIЯ — безкоштовна доставка від 1000 грн",
-          "Офіційний магазин",
-          "Доставка по всій Україні"
-        ],
-        "ru": [
-          "АКЦИЯ — бесплатная доставка от 1000 грн",
-          "Официальный магазин",
-          "Доставка по всей Украине"
-        ],
-        "en": [
-          "SALE — free shipping from 1000 UAH",
-          "Official store",
-          "Shipping across Ukraine"
-        ]
-      }
-    },
-    "module-one-plus-one": {
-      "$comment": "Disabled in the public demo — the cheapest-as-gift logic and Horoshop AjaxCart phasing look clumsy on a third-party shop without proper backend orchestration.",
-      "config": {
-        "enabled": false,
-        "apiUrl": "https://api.widgetis.com"
-      },
-      "i18n": {
-        "ua": {
-          "badge": "1+1=3",
-          "tooltip": "Найдешевший товар у кошику — за 1 грн!"
-        },
-        "ru": {
-          "badge": "1+1=3",
-          "tooltip": "Самый дешёвый товар в корзине — за 1 грн!"
-        },
-        "en": {
-          "badge": "1+1=3",
-          "tooltip": "The cheapest item in your cart — for 1 UAH!"
-        }
-      }
-    },
-    "module-cart-goal": {
-      "config": {
-        "enabled": true,
-        "threshold": 1000,
-        "minimum": 0,
-        "floatingWidget": true,
-        "background": "#2d1a25",
-        "achievedBackground": "#14532d",
-        "textColor": "#f8fafc",
-        "positionDesktop": {
-          "right": 16,
-          "bottom": 25
-        },
-        "positionMobile": {
-          "left": 16,
-          "bottom": 25
-        },
-        "shakeInterval": 3000,
-        "zIndex": 999
-      },
-      "i18n": {
-        "ua": {
-          "text": "До безкоштовної доставки залишилось",
-          "achieved": "🎉 Вітаємо! Ви отримали безкоштовну доставку!"
-        },
-        "ru": {
-          "text": "До бесплатной доставки осталось",
-          "achieved": "🎉 Поздравляем! Вы получили бесплатную доставку!"
-        },
-        "en": {
-          "text": "Until free shipping",
-          "achieved": "🎉 Congrats! You got free shipping!"
-        }
-      }
-    },
-    "module-progressive-discount": {
-      "config": {
-        "enabled": true,
-        "tiers": [
-          {
-            "minItems": 2,
-            "percent": 5,
-            "coupon": "CASH5"
-          },
-          {
-            "minItems": 3,
-            "percent": 10,
-            "coupon": "CASH10"
-          },
-          {
-            "minItems": 5,
-            "percent": 20,
-            "coupon": "CASH20"
-          }
-        ],
-        "background": "#2d1a25",
-        "achievedBackground": "#14532d",
-        "textColor": "#f8fafc",
-        "accentColor": "#f9a8d4",
-        "zIndex": 50
-      },
-      "i18n": {
-        "ua": {
-          "intro": "Прогресивна знижка",
-          "currentLevel": "Ваша знижка {percent}%",
-          "nextHint": "Додайте ще {remaining} {items} — отримаєте {percent}%",
-          "topReached": "🎉 Максимальна знижка {percent}% активована!",
-          "itemsWord": "товар|товари|товарів"
-        },
-        "ru": {
-          "intro": "Прогрессивная скидка",
-          "currentLevel": "Ваша скидка {percent}%",
-          "nextHint": "Добавьте ещё {remaining} {items} — получите {percent}%",
-          "topReached": "🎉 Максимальная скидка {percent}% активирована!",
-          "itemsWord": "товар|товара|товаров"
-        },
-        "en": {
-          "intro": "Progressive discount",
-          "currentLevel": "Your discount {percent}%",
-          "nextHint": "Add {remaining} more {items} — get {percent}%",
-          "topReached": "🎉 Maximum discount {percent}% activated!",
-          "itemsWord": "item|items|items"
-        }
-      }
-    },
-    "module-phone-mask": {
-      "config": {
-        "enabled": true,
-        "defaultCountry": "UA",
-        "rememberLastChoice": true,
-        "geoip": true,
-        "geoipUrl": "https://ipapi.co/json/",
-        "hidePicker": false,
-        "blockSubmitOnInvalid": true
-      },
-      "i18n": {
-        "ua": {
-          "searchPlaceholder": "Пошук країни або коду…",
-          "hint": "Введіть номер у форматі країни",
-          "invalid": "Невірний формат номера"
-        },
-        "ru": {
-          "searchPlaceholder": "Поиск страны или кода…",
-          "hint": "Введите номер в формате страны",
-          "invalid": "Неверный формат номера"
-        },
-        "en": {
-          "searchPlaceholder": "Search country or code…",
-          "hint": "Enter the number for the selected country",
-          "invalid": "Invalid phone number"
-        }
-      }
-    },
-    "module-smart-search": {
-      "$comment": "Smart search overlay — replaces Horoshop native search with a Spotlight-style command palette. Backed by App\\SmartSearch (PG pg_trgm + tsvector + Redis cache); site is resolved from Origin/Referer via resolve.site.origin middleware.",
-      "config": {
-        "enabled": true,
-        "apiUrl": "https://api.widgetis.com/api/v1/widgets/smart-search",
-        "accentColor": "#c20f5d",
-        "currency": "грн",
-        "searchHistory": true,
-        "minQueryLength": 2,
-        "debounceMs": 220,
-        "limitPreview": 4,
-        "limitExpanded": 50,
-        "popularQueries": [
-          "крем",
-          "масло",
-          "мило",
-          "парфум",
-          "шампунь"
-        ],
-        "defaultLang": "auto",
-        "theme": "light"
-      },
-      "i18n": {
-        "ua": {
-          "search_placeholder": "Пошук товарів...",
-          "no_results": "Нічого не знайдено",
-          "loading_text": "Шукаємо...",
-          "out_of_stock": "Немає в наявності",
-          "history_title": "Нещодавні пошуки",
-          "history_clear": "Очистити",
-          "results_count": "Показано {count}",
-          "all_results": "Всі результати",
-          "correction_text": "Можливо, ви мали на увазі",
-          "error_text": "Помилка. Спробуйте ще раз.",
-          "collapse": "Згорнути",
-          "more": "Більше",
-          "popular_title": "Популярне",
-          "discount_label": "-{percent}%",
-          "view_all": "Всі →",
-          "kbd_hint": "ESC",
-          "empty_subtitle": "Спробуйте змінити запит або перегляньте каталог"
-        },
-        "ru": {
-          "search_placeholder": "Поиск товаров...",
-          "no_results": "Ничего не найдено",
-          "loading_text": "Ищем...",
-          "out_of_stock": "Нет в наличии",
-          "history_title": "Недавние поиски",
-          "history_clear": "Очистить",
-          "results_count": "Показано {count}",
-          "all_results": "Все результаты",
-          "correction_text": "Возможно, вы имели в виду",
-          "error_text": "Ошибка. Попробуйте ещё раз.",
-          "collapse": "Свернуть",
-          "more": "Больше",
-          "popular_title": "Популярное",
-          "discount_label": "-{percent}%",
-          "view_all": "Все →",
-          "kbd_hint": "ESC",
-          "empty_subtitle": "Попробуйте изменить запрос или просмотрите каталог"
-        },
-        "en": {
-          "search_placeholder": "Search products...",
-          "no_results": "Nothing found",
-          "loading_text": "Searching...",
-          "out_of_stock": "Out of stock",
-          "history_title": "Recent searches",
-          "history_clear": "Clear",
-          "results_count": "Showing {count}",
-          "all_results": "All results",
-          "correction_text": "Did you mean",
-          "error_text": "Error. Please try again.",
-          "collapse": "Collapse",
-          "more": "More",
-          "popular_title": "Popular",
-          "discount_label": "-{percent}%",
-          "view_all": "All →",
-          "kbd_hint": "ESC",
-          "empty_subtitle": "Try a different query or browse the catalog"
-        },
-        "pl": {
-          "search_placeholder": "Szukaj produktów...",
-          "no_results": "Nic nie znaleziono",
-          "loading_text": "Szukamy...",
-          "out_of_stock": "Brak w magazynie",
-          "history_title": "Ostatnie wyszukiwania",
-          "history_clear": "Wyczyść",
-          "results_count": "Wyświetlono {count}",
-          "all_results": "Wszystkie wyniki",
-          "correction_text": "Czy chodziło Ci o",
-          "error_text": "Błąd. Spróbuj ponownie.",
-          "collapse": "Zwiń",
-          "more": "Więcej",
-          "popular_title": "Popularne",
-          "discount_label": "-{percent}%",
-          "view_all": "Wszystkie →",
-          "kbd_hint": "ESC",
-          "empty_subtitle": "Spróbuj zmienić zapytanie lub przeglądaj katalog"
-        }
-      }
     }
-  }
 }

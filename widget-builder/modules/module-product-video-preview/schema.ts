@@ -3,7 +3,7 @@ import { zodToJsonSchema } from 'zod-to-json-schema';
 
 export const productVideoPreviewSchema = z.object({
   enabled: z.boolean().default(true),
-  testVideoUrl: z.string().optional().default('https://lzrv.agency/pila.mp4'),
+  testVideoUrl: z.string().optional().default('http://localhost:3100/demo-unboxing.mp4'),
   mp4Selector: z.string().default('a[href$=".mp4"]'),
   desktopSize: z.number().default(180),
   mobileSize: z.number().default(160),

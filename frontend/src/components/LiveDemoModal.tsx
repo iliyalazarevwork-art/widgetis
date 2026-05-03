@@ -121,7 +121,7 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
             <iframe
               className="dm-iframe"
               src={`${(import.meta.env.VITE_PREVIEW_BASE_URL || '').replace(/\/+$/, '')}/site/${demo.domain}/?v=mobile`}
-              sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
               title={`Preview of ${demo.domain}`}
             />
 

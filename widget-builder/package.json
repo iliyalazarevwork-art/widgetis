@@ -14,6 +14,7 @@
     "@laxarevii/core": "workspace:*",
     "@laxarevii/vite-plugin-widgetality": "workspace:*",
     "javascript-obfuscator": "^4.1.0",
+    "lucide": "^0.511.0",
     "lucky-canvas": "^1.7.27",
     "vite": "^6.0.0",
     "zod": "^3.24.0",

@@ -6,22 +6,22 @@ import {
   type SpinTheWheelInput,
   type SpinSegment,
 } from './schema';
-import { ICONS, type IconType } from './icons';
+import { ICONS, centeredIconSvg, pickContrastColor, type IconType } from './icons';
 import { getLanguage } from '@laxarevii/core';
 // @ts-ignore — lucky-canvas ships TypeScript declarations but the import path needs ts-ignore
 import { LuckyWheel } from 'lucky-canvas';
 
 // ---------------------------------------------------------------------------
 // SVG-icon → data-URL string, used in lucky-canvas imgs[].src.
-// Icons in icons.ts use currentColor; we replace it with the segment text
-// color to get white silhouettes on top of vivid segment backgrounds.
+// Each icon is wrapped in a 32×32 viewBox with 4 px padding so all icons
+// — regardless of shape — occupy an identically-sized square. That keeps
+// optical weight and placement perfectly symmetric across all segments.
 // ---------------------------------------------------------------------------
 
 export function buildIconDataUrl(iconType: IconType, color: string): string {
   if (typeof btoa === 'undefined') return '';
-  const svgRaw = ICONS[iconType];
-  if (!svgRaw) return '';
-  const svgColored = svgRaw.replace(/currentColor/g, color);
+  const svgColored = centeredIconSvg(iconType, color);
+  if (!svgColored) return '';
   try {
     return `data:image/svg+xml;base64,${btoa(svgColored)}`;
   } catch {
@@ -181,69 +181,97 @@ function isHiddenByUtm(sources: string[]): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// Center gift SVG — shown as an overlay on top of the wheel hub
-// ---------------------------------------------------------------------------
-
-function buildCenterGiftSvg(): string {
-  return `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block;">
-    <rect x="8" y="32" width="48" height="24" rx="5" fill="white"/>
-    <rect x="6" y="22" width="52" height="12" rx="4" fill="white" opacity="0.93"/>
-    <rect x="28" y="22" width="8" height="34" fill="rgba(0,0,0,0.18)"/>
-    <rect x="6" y="27" width="52" height="7" fill="rgba(0,0,0,0.12)"/>
-    <path d="M32 26 C28 24 16 17 20 8 C22 3 31 6 32 26Z" fill="white" opacity="0.96"/>
-    <path d="M32 26 C36 24 48 17 44 8 C42 3 33 6 32 26Z" fill="white" opacity="0.96"/>
-    <ellipse cx="32" cy="23" rx="5.5" ry="4.5" fill="white"/>
-  </svg>`;
-}
-
-// ---------------------------------------------------------------------------
-// Pointer overlay — chunky red triangle with drop shadow
+// Pointer overlay — uses the standard 'pointer' icon from icons.ts,
+// tip facing up, flat base facing down toward the wheel rim.
 // ---------------------------------------------------------------------------
 
 function buildPointerSvg(color: string): string {
-  return `
-    <svg viewBox="0 0 32 36" xmlns="http://www.w3.org/2000/svg"
-      style="width:32px;height:36px;display:block;filter:drop-shadow(0 4px 8px rgba(0,0,0,.4));">
-      <polygon points="16,32 2,2 30,2" fill="${escapeAttr(color)}" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
-      <polygon points="16,26 8,8 24,8" fill="rgba(255,255,255,0.25)"/>
-    </svg>
-  `;
+  const svgColored = ICONS.pointer
+    .replace(/currentColor/g, escapeAttr(color))
+    .replace('<svg ', `<svg width="32" height="32" style="display:block;filter:drop-shadow(0 3px 6px rgba(0,0,0,.4));" `);
+  return svgColored;
 }
 
 // ---------------------------------------------------------------------------
-// Static preview wheel SVG — exact 1:1 copy of Pencil node "ibzRy".
-// Used only on the email-gate stage as a decorative preview. The actual
-// spinning wheel is still rendered by lucky-canvas in showWheelStage().
+// Static preview wheel SVG — briefly visible before lucky-canvas mounts the
+// canvas over the same container (also serves as fallback for environments
+// without canvas). Six 60° wedges, palette mirrors the live config palette,
+// icons centred on each wedge's bisector and rotated to point outward.
 // ---------------------------------------------------------------------------
 
-function buildPreviewWheelSvg(): string {
-  // viewBox is 220×220, identical to the Pencil "wheelArea" frame.
-  // Sector geometry: 6 wedges of 60° each, centred on (110,110), r=110.
-  // Endpoint coords come straight from r·cos/sin at the boundary angles.
+function buildPreviewWheelSvg(palette: readonly string[]): string {
+  // Geometry: viewBox 220×220, centre (110,110), radius 110.
+  // Wedge 0 starts at 12 o'clock, sweeps clockwise; one wedge per 60°.
+  // Wedge endpoints (top→clockwise): (110,0), (205.26,55), (205.26,165),
+  // (110,220), (14.74,165), (14.74,55).
+  const wedges = [
+    'M110,110 L110,0 A110,110 0 0 1 205.26,55 Z',
+    'M110,110 L205.26,55 A110,110 0 0 1 205.26,165 Z',
+    'M110,110 L205.26,165 A110,110 0 0 1 110,220 Z',
+    'M110,110 L110,220 A110,110 0 0 1 14.74,165 Z',
+    'M110,110 L14.74,165 A110,110 0 0 1 14.74,55 Z',
+    'M110,110 L14.74,55 A110,110 0 0 1 110,0 Z',
+  ];
+  const wedgePaths = wedges
+    .map((d, i) => `<path d="${d}" fill="${palette[i % palette.length]}"/>`)
+    .join('');
+
+  // Icon types (must mirror the demo segment order).
+  const iconTypes: IconType[] = ['percent', 'truck', 'percent', 'try-again', 'fire', 'gift'];
+
+  // Wedge bisectors at 30° + i·60° (measured clockwise from north).
+  // Place icons at radius 60 from centre — visual middle of the colour band.
+  const ICON_R = 60;
+  const ICON_SIZE = 34;
+  const iconNodes = iconTypes
+    .map((iconType, i) => {
+      const bisectorDeg = 30 + i * 60;            // 30, 90, 150, 210, 270, 330
+      const rad = ((bisectorDeg - 90) * Math.PI) / 180;
+      const cx = 110 + ICON_R * Math.cos(rad);
+      const cy = 110 + ICON_R * Math.sin(rad);
+      const fg = pickContrastColor(palette[i % palette.length]);
+      const padded = centeredIconSvg(iconType, fg)
+        .replace('<svg ', `<svg width="${ICON_SIZE}" height="${ICON_SIZE}" `);
+      return `<g transform="translate(${cx.toFixed(2)} ${cy.toFixed(2)}) rotate(${bisectorDeg}) translate(${-ICON_SIZE / 2} ${-ICON_SIZE / 2})">${padded}</g>`;
+    })
+    .join('');
+
+  // Curved labels along outer edge — one defs block, then one textPath per wedge.
+  const labels = ['10%', 'Доставка', '5%', 'Ще раз', '15%', 'Подарунок'];
+  const rL = 88;
+  const labelDefs = labels
+    .map((_, i) => {
+      const a1 = ((i * 60 - 90) * Math.PI) / 180;
+      const a2 = (((i + 1) * 60 - 90) * Math.PI) / 180;
+      const x1 = (110 + rL * Math.cos(a1)).toFixed(2);
+      const y1 = (110 + rL * Math.sin(a1)).toFixed(2);
+      const x2 = (110 + rL * Math.cos(a2)).toFixed(2);
+      const y2 = (110 + rL * Math.sin(a2)).toFixed(2);
+      return `<path id="stwLbl${i}" d="M ${x1} ${y1} A ${rL} ${rL} 0 0 1 ${x2} ${y2}" fill="none"/>`;
+    })
+    .join('');
+  const labelTexts = labels
+    .map((label, i) => {
+      const fg = pickContrastColor(palette[i % palette.length]);
+      return `
+    <text font-family="ui-rounded,'SF Pro Rounded',system-ui,sans-serif" font-size="10" font-weight="700" fill="${fg}" letter-spacing="0.3">
+      <textPath href="#stwLbl${i}" startOffset="50%" text-anchor="middle">${label}</textPath>
+    </text>`;
+    })
+    .join('');
+
+  // Centre hub: thick white ring + soft-coral inner button (no glyph).
+  const hubColor = palette[0] ?? '#f87171';
+
   return `
 <svg viewBox="0 0 220 220" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="display:block;overflow:visible;">
-  <path d="M110,110 L110,0 A110,110 0 0 1 205.26,55 Z" fill="#FF1744"/>
-  <path d="M110,110 L205.26,55 A110,110 0 0 1 205.26,165 Z" fill="#FF6D00"/>
-  <path d="M110,110 L205.26,165 A110,110 0 0 1 110,220 Z" fill="#FFD600"/>
-  <path d="M110,110 L110,220 A110,110 0 0 1 14.74,165 Z" fill="#00C853"/>
-  <path d="M110,110 L14.74,165 A110,110 0 0 1 14.74,55 Z" fill="#2979FF"/>
-  <path d="M110,110 L14.74,55 A110,110 0 0 1 110,0 Z" fill="#D500F9"/>
-  <circle cx="110" cy="110" r="112.5" fill="none" stroke="#334155" stroke-width="5"/>
-  <g transform="translate(155 23) rotate(60)" style="color:#ffffff">${ICONS.percent.replace('viewBox="0 0 24 24"', 'width="24" height="24" viewBox="0 0 24 24"')}</g>
-  <g transform="translate(180 98)" style="color:#ffffff">${ICONS.truck.replace('viewBox="0 0 24 24"', 'width="24" height="24" viewBox="0 0 24 24"')}</g>
-  <g transform="translate(135 185) rotate(-60)" style="color:#111111">${ICONS.star.replace('viewBox="0 0 24 24"', 'width="24" height="24" viewBox="0 0 24 24"')}</g>
-  <g transform="translate(65 197) rotate(-120)" style="color:#ffffff">${ICONS['try-again'].replace('viewBox="0 0 24 24"', 'width="24" height="24" viewBox="0 0 24 24"')}</g>
-  <g transform="translate(40 122) rotate(180)" style="color:#ffffff">${ICONS.fire.replace('viewBox="0 0 24 24"', 'width="24" height="24" viewBox="0 0 24 24"')}</g>
-  <g transform="translate(85 35) rotate(120)" style="color:#ffffff">${ICONS.gift.replace('viewBox="0 0 24 24"', 'width="24" height="24" viewBox="0 0 24 24"')}</g>
-  <g transform="translate(137 51) rotate(60)"><text font-family="Inter,system-ui,sans-serif" font-size="9" font-weight="800" fill="#ffffff" dominant-baseline="hanging">10%</text></g>
-  <g transform="translate(140 105)"><text font-family="Inter,system-ui,sans-serif" font-size="9" font-weight="800" fill="#ffffff" dominant-baseline="hanging">Доставка</text></g>
-  <g transform="translate(129 162) rotate(-60)"><text font-family="Inter,system-ui,sans-serif" font-size="9" font-weight="800" fill="#111111" dominant-baseline="hanging">5%</text></g>
-  <g transform="translate(87 176) rotate(-120)"><text font-family="Inter,system-ui,sans-serif" font-size="9" font-weight="800" fill="#ffffff" dominant-baseline="hanging">Ще раз</text></g>
-  <g transform="translate(65 115) rotate(180)"><text font-family="Inter,system-ui,sans-serif" font-size="9" font-weight="800" fill="#ffffff" dominant-baseline="hanging">15%</text></g>
-  <g transform="translate(101 40) rotate(120)"><text font-family="Inter,system-ui,sans-serif" font-size="9" font-weight="800" fill="#ffffff" dominant-baseline="hanging">Подарунок</text></g>
-  <circle cx="110" cy="110" r="30" fill="#ffffff" filter="drop-shadow(0 3px 12px rgba(0,0,0,0.18))"/>
-  <circle cx="110" cy="110" r="22" fill="#ef4444"/>
-  <g transform="translate(99 99)" style="color:#ffffff"><svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><rect x="3" y="8" width="18" height="4" rx="1.5"/><rect x="5" y="12" width="14" height="9" rx="1"/><path d="M12 8C12 8 10.5 2.5 7.5 3C5.5 3.5 5 6 7 7C9 8 12 8 12 8Z"/><path d="M12 8C12 8 13.5 2.5 16.5 3C18.5 3.5 19 6 17 7C15 8 12 8 12 8Z"/></svg></g>
+  <defs>${labelDefs}</defs>
+  ${wedgePaths}
+  <circle cx="110" cy="110" r="107" fill="none" stroke="#ffffff" stroke-width="6"/>
+  ${iconNodes}
+  ${labelTexts}
+  <circle cx="110" cy="110" r="30" fill="#ffffff" filter="drop-shadow(0 4px 14px rgba(0,0,0,0.22))"/>
+  <circle cx="110" cy="110" r="22" fill="${hubColor}"/>
 </svg>`;
 }
 
@@ -271,8 +299,12 @@ function buildLuckyWheelData(
     ],
     prizes: config.segments.map((s, i) => {
       const bg = config.palette[i % config.palette.length];
+      // Per-segment contrast: light segments (amber/yellow) get a warm-dark
+      // foreground, dark segments stay white. Without this, white icons on
+      // amber would be barely legible.
+      const fg = pickContrastColor(bg, config.wheelTextColor);
       const iconDataUrl = s.iconType
-        ? buildIconDataUrl(s.iconType as IconType, config.wheelTextColor)
+        ? buildIconDataUrl(s.iconType as IconType, fg)
         : '';
 
       return {
@@ -280,19 +312,24 @@ function buildLuckyWheelData(
         fonts: [
           {
             text: s.label,
-            top: iconDataUrl ? '60%' : '30%',
-            fontColor: config.wheelTextColor,
+            // Outer-edge curved label. 62% pushes the text close to the rim
+            // so the icon (mid-segment) and label (rim) are clearly separated.
+            top: iconDataUrl ? '62%' : '40%',
+            fontColor: fg,
             fontSize: '12px',
             fontWeight: 'bold',
             wordWrap: false,
           },
         ],
+        // Icon spans 22% → 50% of the radius — that is the geometric centre
+        // of a 60° wedge, where the icon sits visually balanced and the
+        // wedge is wide enough that the 28% icon never clips the edges.
         imgs: iconDataUrl
           ? [
               {
                 src: iconDataUrl,
-                top: '10%',
-                width: '34%',
+                top: '22%',
+                width: '28%',
               },
             ]
           : [],
@@ -612,7 +649,7 @@ function buildEmailGateHtml(
       </button>
       <form class="stw__email-form" novalidate>
         <div class="stw__wheel-preview" aria-hidden="true">
-          <div class="stw__wheel-container--preview">${buildPreviewWheelSvg()}</div>
+          <div class="stw__wheel-container--preview">${buildPreviewWheelSvg(config.palette)}</div>
           <div class="stw__pointer">${buildPointerSvg(config.decorativeColor)}</div>
         </div>
         <div class="stw__body">
@@ -660,7 +697,6 @@ function showWheelStage(
         <div class="stw__pointer stw__pointer--top">${buildPointerSvg(config.decorativeColor)}</div>
         <div class="stw__wheel-ring stw__wheel-ring--full">
           <div class="stw__wheel-container" id="stw-wheel-container"></div>
-          <div class="stw__center-gift" id="stw-center-gift" aria-hidden="true">${buildCenterGiftSvg()}</div>
         </div>
       </div>
       <p class="stw__spinning-label">${escapeHtml(i18n.spinningLabel)}</p>
@@ -680,19 +716,15 @@ function showWheelStage(
       return;
     }
     try {
-      const giftEl = card.querySelector<HTMLElement>('#stw-center-gift');
-
       wheelInstance = new LuckyWheel(
         container,
         buildLuckyWheelData(config, `${sizePx}px`, (_prize: object) => {
-          giftEl?.classList.remove('stw__center-gift--spinning');
           setTimeout(() => showResultStage(wrapper, card, config, i18n, winSegment, close), 200);
         }),
       );
 
       const initRes = wheelInstance.init?.();
       const startSpin = (): void => {
-        giftEl?.classList.add('stw__center-gift--spinning');
         wheelInstance!.play();
         setTimeout(() => wheelInstance!.stop(winIndex), spinDurationMs);
       };
@@ -1100,17 +1132,17 @@ function buildStyles(config: SpinTheWheelConfig): string {
   -webkit-tap-highlight-color: transparent;
 }
 .stw__wheel-preview:hover .stw__wheel-ring {
-  box-shadow: 0 0 52px rgba(239, 68, 68, .5);
+  box-shadow: 0 0 56px rgba(248, 113, 113, .42);
 }
 
 .stw__wheel-ring {
   width: 100%; height: 100%;
   /* lucky-canvas рисует обводку и фон сам через "blocks" — нам тут только
      контейнер для канваса, без своего background/border (иначе перекрывает
-     сегменты). Glow оставляем — он на host-уровне виджета. */
+     сегменты). Мягкое розовое свечение — на host-уровне виджета. */
   position: relative;
   border-radius: 50%;
-  box-shadow: 0 0 40px rgba(239, 68, 68, .35);
+  box-shadow: 0 0 44px rgba(248, 113, 113, .28);
   overflow: visible;
 }
 .stw__wheel-container--preview {
@@ -1134,7 +1166,7 @@ function buildStyles(config: SpinTheWheelConfig): string {
 
 .stw__pointer {
   position: absolute;
-  top: -20px; left: 50%;
+  top: -28px; left: 50%;
   transform: translateX(-50%);
   z-index: 2;
   line-height: 0;
@@ -1250,30 +1282,6 @@ function buildStyles(config: SpinTheWheelConfig): string {
 .stw__cta:hover { filter: brightness(1.15); }
 .stw__cta:active { transform: scale(.98); }
 
-/* ── Center gift overlay ── */
-.stw__center-gift {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 22%;
-  height: 22%;
-  pointer-events: none;
-  z-index: 5;
-  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.38));
-  animation: stw-gift-idle 3.5s ease-in-out infinite;
-}
-@keyframes stw-gift-idle {
-  0%, 100% { transform: translate(-50%, -50%) rotate(-8deg) scale(1); }
-  50%       { transform: translate(-50%, -50%) rotate(8deg) scale(1.06); }
-}
-.stw__center-gift--spinning {
-  animation: stw-gift-spin 0.45s linear infinite;
-}
-@keyframes stw-gift-spin {
-  from { transform: translate(-50%, -50%) rotate(0deg); }
-  to   { transform: translate(-50%, -50%) rotate(360deg); }
-}
-
 /* ── Wheel stage ── */
 .stw__wheel-stage {
   display: flex; flex-direction: column; align-items: center;
@@ -1286,7 +1294,7 @@ function buildStyles(config: SpinTheWheelConfig): string {
 }
 .stw__pointer--top {
   position: absolute;
-  top: -20px; left: 50%;
+  top: -28px; left: 50%;
   transform: translateX(-50%);
   z-index: 10;
 }

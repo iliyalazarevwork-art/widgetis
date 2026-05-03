@@ -27,8 +27,8 @@ function pickLocale<T>(
 
 const STYLE_ID = 'wgts-popup-styles';
 
-const STYLES = `.wgts-popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100000;opacity:0;transition:opacity 200ms ease-out}
-.wgts-popup{position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:16px 16px 0 0;z-index:100001;padding:16px 16px 24px;transform:translateY(100%);transition:transform 280ms ease-out;max-height:85vh;overflow-y:auto}
+const STYLES = `.wgts-popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:2147483646;opacity:0;transition:opacity 200ms ease-out}
+.wgts-popup{position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:16px 16px 0 0;z-index:2147483647;padding:16px 16px 24px;transform:translateY(100%);transition:transform 280ms ease-out;max-height:85vh;overflow-y:auto}
 .wgts-popup__header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .wgts-popup__title{font-size:15px;font-weight:600;color:#3E2A1F;line-height:1.3}
 .wgts-popup__close{width:32px;height:32px;border-radius:999px;border:1.5px solid #d8c9b4;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:#3E2A1F;flex-shrink:0;line-height:1;font-weight:400;transition:background 150ms ease}
@@ -73,7 +73,7 @@ export function buildPopup(
 
   const title = document.createElement('div');
   title.className = 'wgts-popup__title';
-  title.textContent = `✨ ${headingText}`;
+  title.textContent = headingText;
 
   const closeBtn = document.createElement('button');
   closeBtn.className = 'wgts-popup__close';

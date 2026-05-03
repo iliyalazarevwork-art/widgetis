@@ -793,8 +793,9 @@ function createWidget(videoSrc: string, settings: ResolvedSettings, pageKey: str
     video.loop = true;
     video.autoplay = true;
     video.muted = true;
+    video.setAttribute('muted', '');
     video.controls = false;
-    video.preload = 'none';
+    video.preload = 'auto';
     video.setAttribute('playsinline', 'playsinline');
     video.setAttribute('webkit-playsinline', '');
     video.ondragstart = () => false;
@@ -803,6 +804,10 @@ function createWidget(videoSrc: string, settings: ResolvedSettings, pageKey: str
 
   root.appendChild(mediaElement);
   document.body.appendChild(root);
+
+  if (mediaElement instanceof HTMLVideoElement) {
+    void mediaElement.play().catch(() => undefined);
+  }
 
   const tooltip = createTooltip(settings);
   const onScroll = (): void => {

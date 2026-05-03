@@ -20,6 +20,9 @@ importers:
       javascript-obfuscator:
         specifier: ^4.1.0
         version: 4.2.2
+      lucide:
+        specifier: ^0.511.0
+        version: 0.511.0
       lucky-canvas:
         specifier: ^1.7.27
         version: 1.7.27
@@ -57,6 +60,9 @@ importers:
       '@laxarevii/core':
         specifier: workspace:*
         version: link:../../packages/core
+      lucide:
+        specifier: ^0.511.0
+        version: 0.511.0
 
   modules/module-delivery-date:
     dependencies:
@@ -1363,6 +1369,9 @@ packages:
 
   loupe@3.2.1:
     resolution: {integrity: sha512-CdzqowRJCeLU72bHvWqwRBBlLcMEtIvGrlvef74kMnV2AolS9Y8xUv1I0U/MNAWMhBlKIoyuEgoJ0t/bbwHbLQ==}
+
+  lucide@0.511.0:
+    resolution: {integrity: sha512-3ppKPYcCJFXBloeM1H8OyIGjzINNQgsYvAYBTYOSKO45DF/5vbTQrCvwnvMDAGgDnUlI1uFxe0gJj52jdb1JAg==}
 
   lucky-canvas@1.7.27:
     resolution: {integrity: sha512-Ftz6qD+863bI7xijBmZg3dw3cNEc7odPr70EZQcGA14y3TgTAzH65HPosOCd6kKUlMwhntBaHMx3onoj9MtJRQ==}
@@ -3149,6 +3158,8 @@ snapshots:
     optional: true
 
   loupe@3.2.1: {}
+
+  lucide@0.511.0: {}
 
   lucky-canvas@1.7.27: {}
 
