@@ -7,6 +7,7 @@ import { DemoSection } from './components/DemoSection'
 import { WidgetsShowcase } from './components/WidgetsShowcase'
 import { WidgetsList } from './components/WidgetsList'
 import { HowItWorks } from './components/HowItWorks'
+import { InstallSection } from './components/InstallSection'
 import { PricingAnimPage as PricingAnimSection } from './pages/PricingAnimPage'
 import { Faq } from './components/Faq'
 import { CTABanner } from './components/CTABanner'
@@ -158,6 +159,7 @@ function HomePage() {
       <WidgetsList />
       <PricingAnimSection />
       <HowItWorks />
+      <InstallSection />
       <Testimonials />
       <CTABanner onConsultation={() => setShowConsultation(true)} />
       <Faq />

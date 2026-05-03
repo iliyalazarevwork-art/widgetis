@@ -1,0 +1,294 @@
+.install {
+  background: #0a0a0a;
+  padding: 72px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.install::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(59, 130, 246, 0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.install__inner {
+  position: relative;
+  z-index: 1;
+  max-width: 800px;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 48px;
+}
+
+/* ── Header ── */
+
+.install__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.install__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border-radius: 100px;
+  border: 1px solid rgba(59, 130, 246, 0.22);
+  background: rgba(59, 130, 246, 0.08);
+  color: #94b7f7;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.install__title {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  color: #f0f0f0;
+}
+
+.install__sub {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: #888;
+  line-height: 1.5;
+}
+
+/* ── Steps ── */
+
+.install__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+}
+
+.install__step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 28px 16px 32px;
+  gap: 10px;
+}
+
+.install__connector {
+  display: none;
+}
+
+.install__step + .install__step {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.install__step-num {
+  position: absolute;
+  top: 24px;
+  left: 16px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  color: #3b82f6;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.install__step-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.install__step-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #f0f0f0;
+  line-height: 1.3;
+}
+
+.install__step-desc {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 400;
+  color: #888;
+  line-height: 1.55;
+  max-width: 240px;
+}
+
+/* ── Code block ── */
+
+.install__code-wrap {
+  width: 100%;
+  border-radius: 14px;
+  background: #111;
+  border: 1px solid rgba(59, 130, 246, 0.18);
+  overflow: hidden;
+}
+
+.install__code-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.install__code-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.install__code-dot:first-child { background: rgba(255, 95, 86, 0.5); }
+.install__code-dot:nth-child(2) { background: rgba(255, 189, 46, 0.5); }
+.install__code-dot:nth-child(3) { background: rgba(39, 201, 63, 0.5); }
+
+.install__code-label {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: #555;
+  font-family: monospace;
+}
+
+.install__code-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 16px;
+  gap: 12px;
+  overflow-x: auto;
+}
+
+.install__code-text {
+  font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: nowrap;
+  color: #e0e0e0;
+}
+
+.install__code-tag { color: #7dd3fc; }
+.install__code-attr { color: #a5f3fc; }
+.install__code-eq { color: #888; }
+.install__code-val { color: #86efac; }
+
+.install__code-copy {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+}
+
+/* ── Desktop ── */
+
+@media (min-width: 768px) {
+  .install__title {
+    font-size: 52px;
+    letter-spacing: -1.8px;
+  }
+
+  .install__sub {
+    font-size: 17px;
+  }
+
+  .install__steps {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0;
+  }
+
+  .install__step {
+    flex: 1;
+    border-top: none !important;
+    padding: 32px 20px;
+    position: relative;
+  }
+
+  .install__step + .install__step {
+    border-top: none;
+  }
+
+  .install__connector {
+    display: block;
+    position: absolute;
+    top: 55px;
+    right: -50%;
+    width: 100%;
+    height: 1px;
+    border-top: 2px dashed rgba(59, 130, 246, 0.2);
+    z-index: 0;
+  }
+
+  .install__step-num {
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    position: static;
+    margin-bottom: -4px;
+  }
+
+  .install__step-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+  }
+
+  .install__step-desc {
+    max-width: 180px;
+  }
+
+  .install__code-body {
+    padding: 22px 24px;
+  }
+
+  .install__code-text {
+    font-size: 15px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .install {
+    padding: 96px 60px;
+  }
+
+  .install__title {
+    font-size: 60px;
+    letter-spacing: -2.2px;
+  }
+}

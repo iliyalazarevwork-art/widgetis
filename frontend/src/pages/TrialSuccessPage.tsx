@@ -287,7 +287,7 @@ function SelfScreen({ data, onBack }: { data: SignupData; onBack: () => void }) 
         }}>
           <span style={{ color: '#8A8A8A', fontSize: 13, fontFamily: 'Inter, sans-serif' }}>Виникли труднощі?</span>
           <button
-            onClick={() => { window.location.href = 'https://t.me/widgetis_support' }}
+            onClick={() => { window.location.href = 'https://t.me/widgetis' }}
             style={{
               display: 'flex', alignItems: 'center', gap: 8, padding: '10px 18px',
               background: '#0D1F3C', border: '1px solid rgba(59,130,246,0.25)',
@@ -577,7 +577,8 @@ export function TrialSuccessPage() {
     }
 
     refreshUser()
-  }, [navigate, refreshUser, user])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigate, refreshUser])
 
   useEffect(() => {
     if (!data) return

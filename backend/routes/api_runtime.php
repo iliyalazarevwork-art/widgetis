@@ -13,6 +13,7 @@ use App\WidgetRuntime\Http\Controllers\Api\V1\Profile\WidgetController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Public\DemoSessionController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Widget\CartRecommenderSuggestController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Widget\OnePlusOneEvaluateController;
+use App\WidgetRuntime\Http\Controllers\Api\V1\Widget\ScriptPingController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Widget\SmsOtpRequestController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Widget\SmsOtpVerifyController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Widget\WidgetReviewController;
@@ -61,6 +62,8 @@ Route::prefix('v1')->group(function () {
             Route::get('smart-search/feed', \App\SmartSearch\Http\Controllers\PublicFeedController::class)
                 ->middleware('throttle:30,1');
             Route::get('smart-search', PublicSearchController::class)->middleware('throttle:60,1');
+
+            Route::post('script-ping', ScriptPingController::class)->middleware('throttle:5,60');
         });
 
     // --- Demo sessions (public) ---

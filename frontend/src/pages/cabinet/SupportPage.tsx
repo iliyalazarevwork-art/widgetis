@@ -12,7 +12,7 @@ const QUICK_TEMPLATES = [
   { label: 'Попросити дзвінок', msg: 'Попросити дзвінок' },
 ]
 
-const TG_USERNAME = 'widgetis_support'
+const TG_USERNAME = 'widgetis'
 const SUPPORT_EMAIL = 'support@widgetis.com'
 
 function HeadsetIcon() {

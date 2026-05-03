@@ -29,18 +29,21 @@
           {
             "type": "command",
             "command": "f=$(jq -r '.tool_input.file_path // empty'); echo \"$f\" | grep -q 'backend/.*\\.php$' || exit 0; rel=\"${f#/Users/iliya/Documents/work/phpStormProjects/iliya/widgetis/backend/}\"; cd /Users/iliya/Documents/work/phpStormProjects/iliya/widgetis && docker compose -f docker-compose.dev.yml exec -T backend ./vendor/bin/pint \"$rel\" 2>&1",
-            "statusMessage": "pint: форматирую PHP...",
-            "timeout": 30
+            "timeout": 30,
+            "statusMessage": "pint: форматирую PHP..."
           },
           {
             "type": "command",
             "command": "f=$(jq -r '.tool_input.file_path // empty'); echo \"$f\" | grep -q 'backend/.*\\.php$' || exit 0; cd /Users/iliya/Documents/work/phpStormProjects/iliya/widgetis; out=$(docker compose -f docker-compose.dev.yml exec -T backend ./vendor/bin/phpstan analyse --memory-limit=512M 2>&1); rc=$?; echo \"$out\"; [ $rc -eq 0 ] || exit 2",
-            "statusMessage": "phpstan: проверяю типы...",
             "timeout": 120,
+            "statusMessage": "phpstan: проверяю типы...",
             "asyncRewake": true
           }
         ]
       }
     ]
+  },
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true
   }
 }

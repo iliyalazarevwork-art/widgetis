@@ -44,7 +44,7 @@ export default function DemoPage() {
             <Share2 size={18} /> Поділитись
           </button>
           <a
-            href="https://t.me/widgetis_support"
+            href="https://t.me/widgetis"
             target="_blank"
             rel="noopener noreferrer"
             className="demo-page__btn-tg"

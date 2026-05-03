@@ -52,23 +52,56 @@ function buildCSS(c: CartGoalConfig): string {
   opacity: 1;
   transform: translateY(0);
 }
-.cg-widget__text {
-  font-size: 14px;
+.cg-widget__label {
+  font-size: 13px;
   font-weight: 600;
-  margin-bottom: 8px;
-  text-align: center;
+  display: block;
+  margin-bottom: 3px;
+  line-height: 1.3;
+  color: inherit;
+}
+.cg-widget__layout {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.cg-widget__icon-col {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  min-height: 40px;
-  color: inherit;
+  opacity: 0.9;
+}
+.cg-widget__delivery-icon {
+  display: inline-flex;
+  align-items: center;
+}
+.cg-widget__delivery-icon svg {
+  display: block;
+  width: 36px;
+  height: 36px;
+}
+@media (max-width: 480px) {
+  .cg-widget__delivery-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+.cg-widget__content-col {
+  flex: 1;
+  min-width: 0;
 }
 .cg-widget__amount {
   font-weight: 700;
+  display: block;
+  margin-bottom: 6px;
 }
-.cg-widget.is-achieved .cg-widget__text {
+.cg-widget.is-achieved .cg-widget__label {
   font-size: 16px;
+  font-weight: 700;
+}
+.cg-widget.is-achieved .cg-widget__icon-col {
+  display: none;
 }
 .cg-widget.is-achieved .cg-widget__amount {
   visibility: hidden;
@@ -93,11 +126,8 @@ function buildCSS(c: CartGoalConfig): string {
   .cg-widget--floating {
     z-index: ${c.zIndex};
   }
-  .cg-widget__text {
-    font-size: 13px;
-    flex-direction: column;
-    gap: 2px;
-    margin-bottom: 6px;
+  .cg-widget__label {
+    font-size: 12px;
   }
 }
 .cg-widget__desktop {

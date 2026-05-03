@@ -1,177 +1,80 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Sparkles, Star } from 'lucide-react'
-import { PreviewCartGoal, PreviewCountdown, PreviewDelivery, PreviewPurchaseCounter } from './WidgetPreviews'
+import { ArrowRight, Gem, Star } from 'lucide-react'
 import { trackCtaClick } from '../lib/analytics'
 import './Hero.css'
 
-type HeroWidget = {
-  id: string
-  kind: 'delivery' | 'deadline' | 'countdown' | 'purchase'
+function easeOutCubic(t: number): number {
+  return 1 - Math.pow(1 - t, 3)
 }
 
-const HERO_WIDGETS: HeroWidget[] = [
-  { id: 'delivery', kind: 'delivery' },
-  { id: 'deadline', kind: 'deadline' },
-  { id: 'countdown', kind: 'countdown' },
-  { id: 'purchase', kind: 'purchase' },
-]
+function formatUa(value: number, decimals: number): string {
+  return value.toFixed(decimals).replace('.', ',')
+}
 
-function getWidgetSlots(viewportHeight: number, viewportWidth: number) {
-  if (viewportWidth >= 1024) return 3
-  if (viewportHeight >= 700) return 3
-  return 2
+function useCountUp(from: number, to: number, decimals: number, run: boolean, durationMs = 1400, delayMs = 0) {
+  const [value, setValue] = useState(from)
+  const rafRef = useRef<number | null>(null)
+  const timerRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    if (!run) {
+      setValue(from)
+      return
+    }
+    const start = () => {
+      const t0 = performance.now()
+      const tick = (now: number) => {
+        const elapsed = now - t0
+        const progress = Math.min(1, elapsed / durationMs)
+        setValue(from + (to - from) * easeOutCubic(progress))
+        if (progress < 1) {
+          rafRef.current = requestAnimationFrame(tick)
+        }
+      }
+      rafRef.current = requestAnimationFrame(tick)
+    }
+    if (delayMs > 0) {
+      timerRef.current = window.setTimeout(start, delayMs)
+    } else {
+      start()
+    }
+    return () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current)
+      if (timerRef.current !== null) window.clearTimeout(timerRef.current)
+    }
+  }, [run, from, to, decimals, durationMs, delayMs])
+
+  return formatUa(value, decimals)
 }
 
 export function Hero() {
-  const heroRef = useRef<HTMLElement | null>(null)
-  const nextWidgetCursorRef = useRef(0)
-  const swapTimersRef = useRef<number[]>([])
-  const scheduleTimersRef = useRef<number[]>([])
+  const metricsRef = useRef<HTMLDivElement | null>(null)
+  const [run, setRun] = useState(false)
 
-  const [slots, setSlots] = useState(3)
-  const [displayedWidgets, setDisplayedWidgets] = useState<HeroWidget[]>(HERO_WIDGETS.slice(0, 3))
-  const [animatingSlot, setAnimatingSlot] = useState<number | null>(null)
-  const [animStage, setAnimStage] = useState<'out' | 'in' | null>(null)
-  const [inView, setInView] = useState(false)
-  const [tabActive, setTabActive] = useState(!document.hidden)
-
-  const clearSwapTimers = () => {
-    swapTimersRef.current.forEach((timerId) => window.clearTimeout(timerId))
-    swapTimersRef.current = []
-  }
-
-  const clearScheduleTimers = () => {
-    scheduleTimersRef.current.forEach((timerId) => window.clearTimeout(timerId))
-    scheduleTimersRef.current = []
-  }
-
-  const runSlotSwap = (slot: number) => {
-    setDisplayedWidgets((current) => {
-      if (!current.length || slot >= current.length) return current
-
-      const currentIds = new Set(current.map((widget) => widget.id))
-      let nextWidget: HeroWidget | null = null
-
-      for (let i = 0; i < HERO_WIDGETS.length; i += 1) {
-        const idx = (nextWidgetCursorRef.current + i) % HERO_WIDGETS.length
-        const candidate = HERO_WIDGETS[idx]
-        if (!currentIds.has(candidate.id)) {
-          nextWidget = candidate
-          nextWidgetCursorRef.current = (idx + 1) % HERO_WIDGETS.length
-          break
+  useEffect(() => {
+    const node = metricsRef.current
+    if (!node) return
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setRun(true)
+          obs.disconnect()
         }
-      }
-
-      if (!nextWidget) {
-        nextWidget = HERO_WIDGETS[nextWidgetCursorRef.current]
-        nextWidgetCursorRef.current = (nextWidgetCursorRef.current + 1) % HERO_WIDGETS.length
-      }
-
-      setAnimatingSlot(slot)
-      setAnimStage('out')
-
-      const outTimer = window.setTimeout(() => {
-        setDisplayedWidgets((latest) => {
-          if (slot >= latest.length) return latest
-          const next = [...latest]
-          next[slot] = nextWidget as HeroWidget
-          return next
-        })
-        setAnimStage('in')
-
-        const inTimer = window.setTimeout(() => {
-          setAnimStage(null)
-          setAnimatingSlot(null)
-        }, 260)
-        swapTimersRef.current.push(inTimer)
-      }, 220)
-
-      swapTimersRef.current.push(outTimer)
-      return current
-    })
-  }
-
-  const scheduleSlot = (slot: number, firstDelayMs: number, periodMs: number) => {
-    const tick = () => {
-      runSlotSwap(slot)
-      const nextTimer = window.setTimeout(tick, periodMs)
-      scheduleTimersRef.current.push(nextTimer)
-    }
-    const firstTimer = window.setTimeout(tick, firstDelayMs)
-    scheduleTimersRef.current.push(firstTimer)
-  }
-
-  useEffect(() => {
-    let lastWidth = window.innerWidth
-    const onResize = () => {
-      const newWidth = window.innerWidth
-      // Ignore height-only changes (mobile browser URL bar show/hide on scroll)
-      if (newWidth !== lastWidth) {
-        lastWidth = newWidth
-        setSlots(getWidgetSlots(window.innerHeight, newWidth))
-      }
-    }
-    setSlots(getWidgetSlots(window.innerHeight, window.innerWidth))
-    window.addEventListener('resize', onResize, { passive: true })
-    return () => window.removeEventListener('resize', onResize)
-  }, [])
-
-  useEffect(() => {
-    const onVisible = () => setTabActive(!document.hidden)
-    document.addEventListener('visibilitychange', onVisible)
-    return () => document.removeEventListener('visibilitychange', onVisible)
-  }, [])
-
-  useEffect(() => {
-    const hero = heroRef.current
-    if (!hero) return
-    const obs = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.2 })
-    obs.observe(hero)
+      },
+      { threshold: 0.4 },
+    )
+    obs.observe(node)
     return () => obs.disconnect()
   }, [])
 
-  useEffect(() => {
-    const count = Math.min(slots, HERO_WIDGETS.length)
-    const initial = HERO_WIDGETS.slice(0, count)
-     
-    setDisplayedWidgets(initial)
-    setAnimatingSlot(null)
-    setAnimStage(null)
-    nextWidgetCursorRef.current = count % HERO_WIDGETS.length
-    clearSwapTimers()
-    clearScheduleTimers()
-  }, [slots])
-
-  useEffect(() => () => {
-    clearSwapTimers()
-    clearScheduleTimers()
-  }, [])
-
-  useEffect(() => {
-    if (!inView || !tabActive) return
-    clearScheduleTimers()
-
-    if (slots === 1) {
-      scheduleSlot(0, 3000, 3000)
-    } else if (slots === 2) {
-      scheduleSlot(1, 3000, 6000)
-      scheduleSlot(0, 6000, 6000)
-    } else if (slots >= 3) {
-      scheduleSlot(2, 3200, 9000)
-      scheduleSlot(1, 6200, 9000)
-      scheduleSlot(0, 9200, 9000)
-    }
-
-    return () => {
-      clearSwapTimers()
-      clearScheduleTimers()
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inView, tabActive, slots])
+  const conversion = useCountUp(2.1, 2.4, 1, run, 1600, 0)
+  const conversionDelta = useCountUp(0.0, 0.3, 1, run, 1600, 0)
+  const checkAbs = useCountUp(60, 180, 0, run, 1800, 100)
+  const checkRel = useCountUp(4, 12, 0, run, 1600, 100)
 
   return (
-    <section ref={heroRef} className="hero hero--visible">
+    <section className="hero hero--visible">
       <div className="hero__bg" aria-hidden="true">
         <div className="hero__glow hero__glow--left" />
         <div className="hero__glow hero__glow--right" />
@@ -179,77 +82,61 @@ export function Hero() {
       </div>
 
       <div className="hero__wrap">
-        <div className="hero__content">
+        <div className="hero__top">
           <p className="hero__eyebrow">
-            <Sparkles size={11} strokeWidth={2.5} />
-            Готові віджети для магазинів на Хорошоп
+            <Gem size={14} strokeWidth={2.25} />
+            Зроблено для Хорошоп
           </p>
           <h1 className="hero__title">
-            <span>Віджети,</span>
-            <span>що самі</span>
-            <span className="hero__title-accent">продають.</span>
+            Більший чек<br />з кожного замовлення.
           </h1>
           <p className="hero__sub">
-            Встановіть за 2 хвилини — і магазин починає конвертувати краще.
+            Спробуйте — побачите різницю за тиждень.
           </p>
         </div>
 
-        <div className="hero__bottom-group">
-          <div className="hero__widgets" aria-live="polite">
-            {displayedWidgets.map((widget, idx) => {
-              const swapClass = animatingSlot === idx
-                ? (animStage === 'out' ? ' hero__widget-card--swap-out' : animStage === 'in' ? ' hero__widget-card--swap-in' : '')
-                : ''
-
-              if (widget.kind === 'delivery') {
-                return (
-                  <article className={`hero__widget-card hero__widget-card--preview${swapClass}`} key={`${widget.id}-${idx}`}>
-                    <PreviewCartGoal />
-                  </article>
-                )
-              }
-
-              if (widget.kind === 'deadline') {
-                return (
-                  <article className={`hero__widget-card hero__widget-card--preview${swapClass}`} key={`${widget.id}-${idx}`}>
-                    <PreviewDelivery />
-                  </article>
-                )
-              }
-
-              if (widget.kind === 'purchase') {
-                return (
-                  <article className={`hero__widget-card hero__widget-card--preview${swapClass}`} key={`${widget.id}-${idx}`}>
-                    <PreviewPurchaseCounter />
-                  </article>
-                )
-              }
-
-              return (
-                <article className={`hero__widget-card hero__widget-card--preview${swapClass}`} key={`${widget.id}-${idx}`}>
-                  <PreviewCountdown />
-                </article>
-              )
-            })}
-          </div>
-
-          <div className="hero__bottom">
-            <Link to="/pricing" className="hero__cta" onClick={() => trackCtaClick('hero__cta')}>
-              Спробувати 7 днів безкоштовно
-              <ArrowRight size={16} strokeWidth={2.5} />
-            </Link>
-
-            <div className="hero__proof">
-              <div className="hero__proof-stars" aria-label="Оцінка 4.9">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={11} strokeWidth={0} fill="currentColor" />
-                ))}
-                <span>4.9</span>
+        <div className="hero__metrics" ref={metricsRef}>
+          <p className="hero__metrics-caption">У наших клієнтів за тиждень</p>
+          <div className="hero__metric-cards">
+            <div className="hero__metric-card">
+              <span className="hero__metric-label">КОНВЕРСІЯ</span>
+              <div className="hero__metric-values">
+                <span className="hero__metric-value">{conversion}%</span>
+                <span className="hero__metric-delta">+{conversionDelta}%</span>
               </div>
-              <div className="hero__proof-div" aria-hidden="true" />
-              <span className="hero__proof-trust">Нам довіряють 120+ магазинів</span>
+            </div>
+            <div className="hero__metric-divider" aria-hidden="true" />
+            <div className="hero__metric-card">
+              <span className="hero__metric-label">СЕРЕДНІЙ ЧЕК</span>
+              <div className="hero__metric-values">
+                <span className="hero__metric-value">+{checkAbs} ₴</span>
+                <span className="hero__metric-delta">+{checkRel}%</span>
+              </div>
             </div>
           </div>
+        </div>
+
+        <div className="hero__trust">
+          <Star size={13} strokeWidth={0} fill="#FBBF24" />
+          <span>4.9 · 120+ українських магазинів</span>
+        </div>
+
+        <div className="hero__ctas">
+          <Link
+            to="/pricing"
+            className="hero__cta hero__cta--primary"
+            onClick={() => trackCtaClick('hero__cta')}
+          >
+            Спробувати безкоштовно
+          </Link>
+          <Link
+            to="/free-demo"
+            className="hero__cta hero__cta--secondary"
+            onClick={() => trackCtaClick('hero__cta')}
+          >
+            Подивитися демо
+            <ArrowRight size={14} strokeWidth={2.25} />
+          </Link>
         </div>
       </div>
     </section>

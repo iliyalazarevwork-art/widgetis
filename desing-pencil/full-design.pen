@@ -35662,7 +35662,7 @@
                           "fill": {
                             "type": "image",
                             "enabled": true,
-                            "url": "./images/generated-1775588378081.png",
+                            "url": "images/generated-1775588378081.png",
                             "mode": "fill"
                           },
                           "cornerRadius": 6
@@ -66385,7 +66385,7 @@
                               "fill": {
                                 "type": "image",
                                 "enabled": true,
-                                "url": "./logo-liqpay.png",
+                                "url": "logo-liqpay.png",
                                 "mode": "fit"
                               }
                             },
@@ -66482,7 +66482,7 @@
                               "fill": {
                                 "type": "image",
                                 "enabled": true,
-                                "url": "./logo-plata.png",
+                                "url": "logo-plata.png",
                                 "mode": "fit"
                               }
                             },
@@ -67457,7 +67457,7 @@
                               "fill": {
                                 "type": "image",
                                 "enabled": true,
-                                "url": "./logo-liqpay.png",
+                                "url": "logo-liqpay.png",
                                 "mode": "fit"
                               }
                             },
@@ -67554,7 +67554,7 @@
                               "fill": {
                                 "type": "image",
                                 "enabled": true,
-                                "url": "./logo-plata.png",
+                                "url": "logo-plata.png",
                                 "mode": "fit"
                               }
                             },
@@ -68368,7 +68368,7 @@
                                   "fill": {
                                     "type": "image",
                                     "enabled": true,
-                                    "url": "./logo-liqpay.png",
+                                    "url": "logo-liqpay.png",
                                     "mode": "fit"
                                   }
                                 }
@@ -68467,7 +68467,7 @@
                               "fill": {
                                 "type": "image",
                                 "enabled": true,
-                                "url": "./logo-plata.png",
+                                "url": "logo-plata.png",
                                 "mode": "fit"
                               }
                             },
@@ -72301,7 +72301,8 @@
                       "content": "Блок з реальними фото від покупців під товаром. Візуальний соціальний доказ, що підвищує довіру краще за текстові відгуки.",
                       "lineHeight": 1.6,
                       "fontFamily": "Inter",
-                      "fontSize": 15
+                      "fontSize": 15,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "frame",
@@ -74459,7 +74460,8 @@
                                       "fill": "#555555",
                                       "content": "За останні 24 години",
                                       "fontFamily": "Inter",
-                                      "fontSize": 11
+                                      "fontSize": 11,
+                                      "fontWeight": "normal"
                                     }
                                   ]
                                 }
@@ -74649,7 +74651,8 @@
                                       "fill": "#555555",
                                       "content": "2 хвилини тому",
                                       "fontFamily": "Inter",
-                                      "fontSize": 11
+                                      "fontSize": 11,
+                                      "fontWeight": "normal"
                                     }
                                   ]
                                 }
@@ -75083,6 +75086,552 @@
           ]
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "X16rf",
+      "x": 11810,
+      "y": -2000,
+      "name": "Hero v2 — Mobile",
+      "width": 375,
+      "fill": "#0A0A0A",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "ellipse",
+          "id": "tBOTr",
+          "layoutPosition": "absolute",
+          "x": -80,
+          "y": -80,
+          "name": "heroGlow1",
+          "fill": {
+            "type": "gradient",
+            "gradientType": "radial",
+            "enabled": true,
+            "rotation": 0,
+            "size": {
+              "width": 1,
+              "height": 1
+            },
+            "colors": [
+              {
+                "color": "#3B82F628",
+                "position": 0
+              },
+              {
+                "color": "#3B82F600",
+                "position": 1
+              }
+            ]
+          },
+          "width": 320,
+          "height": 320
+        },
+        {
+          "type": "ellipse",
+          "id": "ZjBF8",
+          "layoutPosition": "absolute",
+          "x": 140,
+          "y": 380,
+          "name": "heroGlow2",
+          "fill": {
+            "type": "gradient",
+            "gradientType": "radial",
+            "enabled": true,
+            "rotation": 0,
+            "size": {
+              "width": 1,
+              "height": 1
+            },
+            "colors": [
+              {
+                "color": "#3B82F614",
+                "position": 0
+              },
+              {
+                "color": "#3B82F600",
+                "position": 1
+              }
+            ]
+          },
+          "width": 300,
+          "height": 300
+        },
+        {
+          "type": "frame",
+          "id": "W54GY",
+          "name": "hdr",
+          "rotation": -0.038821634301370866,
+          "width": "fill_container",
+          "height": 64,
+          "fill": "#0A0A0A",
+          "padding": [
+            0,
+            20
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "tlSYV",
+              "name": "logoRow",
+              "gap": 10,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "path",
+                  "id": "xUCxH",
+                  "name": "logoMark",
+                  "geometry": "M21.819 4.206c-0.047 0.826-1.029 2.413-5.387 11.558-1.872 3.929-1.808 4.264-2.817 4.42-0.66 0.102-2.944 0.279-3.858-0.249-0.518-0.299-0.731-0.358-1.79-3.163-1.2-3.179-1.183-3.184-2.427-6.345-0.815-2.07-0.79-2.077-1.612-4.144-0.746-1.875-0.851-2.454-0.892-2.676-0.043-0.236-0.055-0.285 0.051-0.285 5.21-0.022 5.529 0.016 5.988 1.111 1.271 3.035 3.4 9.373 3.781 9.524 0.152 0.06 0.33-0.302 0.615-0.978 0.913-2.162 0.764-2.217 1.793-4.757 1.046-2.58 1.373-4.461 2.309-4.741 0.514-0.154 2.985-0.231 3.614-0.026 0.607 0.198 0.629 0.673 0.633 0.752z m5.118 16.047c-0.367 0.038-3.279 0.2-4.076-0.287-0.271-0.166-0.309-0.165-1.13-2.032-0.054-0.123-2.127-5.002-2.137-5.056-0.011-0.055 2.238-4.518 2.863-5.49 0.093-0.145 0.157-0.239 0.226-0.126 0.314 0.518 0.193 0.778 1.92 4.835 0.068 0.159 0.874 2.03 1.075 2.084 0.342 0.093 1.769-4.481 3.454-8.595 0.794-1.939 1.004-2.15 1.545-2.176 0.508-0.024 0.612-0.086 3.363-0.07 1.086 0.006 1.014 0.228 1.013 0.237-0.072 0.823-2.531 6.877-3.146 8.611-0.177 0.499-1.906 5.056-2.313 6.026-0.353 0.841-0.571 1.916-2.657 2.038z",
+                  "fill": "#3B82F6",
+                  "width": 23,
+                  "height": 12
+                },
+                {
+                  "type": "text",
+                  "id": "IODsd",
+                  "fill": "#F0F0F0",
+                  "content": "WIDGETIS",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "700",
+                  "letterSpacing": 2
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "LUKri",
+              "name": "burger",
+              "width": 40,
+              "height": 40,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "kusoP",
+                  "name": "burgerIcon",
+                  "width": 22,
+                  "height": 22,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "rectangle",
+                      "cornerRadius": 2,
+                      "id": "p9OpvJ",
+                      "x": 2,
+                      "y": 7,
+                      "name": "topBar",
+                      "fill": "#F0F0F0",
+                      "width": 18,
+                      "height": 2.5
+                    },
+                    {
+                      "type": "rectangle",
+                      "cornerRadius": 2,
+                      "id": "DqeES",
+                      "x": 5,
+                      "y": 13,
+                      "name": "bottomBar",
+                      "fill": "#F0F0F0",
+                      "width": 13,
+                      "height": 2.5
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "FY5Va",
+          "name": "heroContent",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 24,
+          "padding": [
+            32,
+            20
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "eE4Dg",
+              "name": "eyebrowPill",
+              "fill": "#3B82F614",
+              "cornerRadius": 100,
+              "stroke": {
+                "align": "inside",
+                "thickness": 1,
+                "fill": "#3B82F633"
+              },
+              "gap": 8,
+              "padding": [
+                8,
+                14
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "h0Gu6E",
+                  "name": "ebGem",
+                  "width": 14,
+                  "height": 14,
+                  "iconFontName": "gem",
+                  "iconFontFamily": "lucide",
+                  "fill": "#3B82F6"
+                },
+                {
+                  "type": "text",
+                  "id": "TOBOq",
+                  "name": "ebText",
+                  "fill": "#94B7F7",
+                  "content": "Зроблено для Хорошоп",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "700",
+                  "letterSpacing": 0.4
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "MQxns",
+              "name": "heroTop",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 16,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "zbg59",
+                  "name": "h1",
+                  "fill": "#F0F0F0",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Більший чек\nз кожного замовлення.",
+                  "lineHeight": 1.1,
+                  "textAlign": "center",
+                  "fontFamily": "Inter",
+                  "fontSize": 36,
+                  "fontWeight": "800",
+                  "letterSpacing": -1
+                },
+                {
+                  "type": "text",
+                  "id": "yyRRa",
+                  "name": "sub",
+                  "fill": "#B0B0B0",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Спробуйте — побачите різницю за тиждень.",
+                  "lineHeight": 1.45,
+                  "textAlign": "center",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "500"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "wlIbs",
+              "name": "metricsWrap",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 10,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "LCsdY",
+                  "name": "metricsCaption",
+                  "fill": "#7A7A7A",
+                  "content": "У наших клієнтів за тиждень",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "500",
+                  "letterSpacing": 0.6
+                },
+                {
+                  "type": "frame",
+                  "id": "I1trNp",
+                  "name": "metricCards",
+                  "width": "fill_container",
+                  "fill": "#FFFFFF08",
+                  "cornerRadius": 16,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#FFFFFF14"
+                  },
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Z3DtZQ",
+                      "name": "card1",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "padding": [
+                        14,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "cYIXG",
+                          "name": "c1Label",
+                          "fill": "#6A6A6A",
+                          "content": "КОНВЕРСІЯ",
+                          "fontFamily": "Inter",
+                          "fontSize": 10,
+                          "fontWeight": "600",
+                          "letterSpacing": 1.4
+                        },
+                        {
+                          "type": "frame",
+                          "id": "hq1Dt",
+                          "name": "c1ValuesRow",
+                          "gap": 8,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "RJG1d",
+                              "name": "c1Plus",
+                              "fill": "#10B981",
+                              "content": "3,5%",
+                              "lineHeight": 1,
+                              "fontFamily": "Inter",
+                              "fontSize": 26,
+                              "fontWeight": "800",
+                              "letterSpacing": -0.6
+                            },
+                            {
+                              "type": "text",
+                              "id": "DAuWP",
+                              "name": "c1Delta",
+                              "fill": "#10B98199",
+                              "content": "+0,7%",
+                              "lineHeight": 1,
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "700",
+                              "letterSpacing": -0.2
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "rectangle",
+                      "id": "P7Bn0y",
+                      "name": "cardDivider",
+                      "fill": "#FFFFFF14",
+                      "width": 1,
+                      "height": 60
+                    },
+                    {
+                      "type": "frame",
+                      "id": "w2mxL",
+                      "name": "card2",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "padding": [
+                        14,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ad5Fi",
+                          "name": "c2Label",
+                          "fill": "#6A6A6A",
+                          "content": "СЕРЕДНІЙ ЧЕК",
+                          "fontFamily": "Inter",
+                          "fontSize": 10,
+                          "fontWeight": "600",
+                          "letterSpacing": 1.4
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Y1zNwd",
+                          "name": "c2ValuesRow",
+                          "gap": 8,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "m4k5Fv",
+                              "name": "c2Abs",
+                              "fill": "#10B981",
+                              "content": "+470 ₴",
+                              "lineHeight": 1,
+                              "fontFamily": "Inter",
+                              "fontSize": 26,
+                              "fontWeight": "800",
+                              "letterSpacing": -0.6
+                            },
+                            {
+                              "type": "text",
+                              "id": "KNpBH",
+                              "name": "c2Rel2",
+                              "fill": "#10B98199",
+                              "content": "+59%",
+                              "lineHeight": 1,
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "700",
+                              "letterSpacing": -0.2
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "iPGNy",
+              "name": "trustLine",
+              "width": "fill_container",
+              "gap": 8,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "h9oLsW",
+                  "name": "trustStar",
+                  "width": 13,
+                  "height": 13,
+                  "iconFontName": "star",
+                  "iconFontFamily": "lucide",
+                  "fill": "#FBBF24"
+                },
+                {
+                  "type": "text",
+                  "id": "GnvLy",
+                  "name": "trustText",
+                  "fill": "#9A9A9A",
+                  "content": "4.9 · 120+ українських магазинів",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "500"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "lzdOt",
+              "name": "ctaGroup",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 14,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "pKRc5",
+                  "name": "btn1Primary",
+                  "width": "fill_container",
+                  "fill": "#3B82F6",
+                  "cornerRadius": 12,
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "color": "#3B82F640",
+                    "blur": 28
+                  },
+                  "padding": [
+                    16,
+                    0
+                  ],
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "EAISR",
+                      "name": "btn1TA",
+                      "fill": "#FFFFFF",
+                      "content": "Спробувати безкоштовно",
+                      "fontFamily": "Inter",
+                      "fontSize": 15,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "I3Y9k",
+                  "name": "demoLink",
+                  "width": "fill_container",
+                  "fill": "#FFFFFF08",
+                  "cornerRadius": 12,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#FFFFFF1F"
+                  },
+                  "gap": 6,
+                  "padding": [
+                    14,
+                    0
+                  ],
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "k1Ceg",
+                      "name": "demoLinkLabel",
+                      "fill": "#E8E8E8",
+                      "content": "Подивитися демо",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "icon_font",
+                      "id": "jR330",
+                      "name": "demoLinkArrow",
+                      "width": 14,
+                      "height": 14,
+                      "iconFontName": "arrow-right",
+                      "iconFontFamily": "lucide",
+                      "fill": "#E8E8E8"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "IiYBa",
+      "x": 0,
+      "y": 0,
+      "fill": "#000000",
+      "content": "Hero v2 — Mobile ",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "normal"
     }
   ],
   "variables": {

@@ -115,7 +115,7 @@ final class OtpService
         $otpRequest = OtpRequest::where('request_id', $requestId)->first();
 
         if ($otpRequest === null) {
-            throw new OtpInvalidCodeException('OTP request not found');
+            throw new OtpInvalidCodeException(trans('messages.otp_request_not_found'));
         }
 
         Log::channel('widget')->info('widget.smsotp.verify.in', [
@@ -125,17 +125,17 @@ final class OtpService
 
         if ($otpRequest->isExpired()) {
             $otpRequest->update(['status' => OtpRequestStatus::Expired]);
-            throw new OtpExpiredException('OTP code has expired');
+            throw new OtpExpiredException(trans('messages.otp_code_expired'));
         }
 
         if ($otpRequest->attempts >= self::MAX_VERIFY_ATTEMPTS) {
-            throw new OtpTooManyAttemptsException('Too many verification attempts');
+            throw new OtpTooManyAttemptsException(trans('messages.otp_too_many_attempts'));
         }
 
         $otpRequest->increment('attempts');
 
         if (! Hash::check($code, $otpRequest->code_hash)) {
-            throw new OtpInvalidCodeException('Invalid OTP code');
+            throw new OtpInvalidCodeException(trans('messages.otp_invalid_code'));
         }
 
         $otpRequest->update([
@@ -158,11 +158,11 @@ final class OtpService
         $siteKey = "otp:site:{$siteId}";
 
         if (RateLimiter::tooManyAttempts($phoneKey, self::PHONE_RATE_LIMIT)) {
-            throw new OtpRateLimitException('Rate limit exceeded for this phone number');
+            throw new OtpRateLimitException(trans('messages.otp_rate_limit_phone'));
         }
 
         if (RateLimiter::tooManyAttempts($siteKey, self::SITE_RATE_LIMIT)) {
-            throw new OtpRateLimitException('Rate limit exceeded for this site');
+            throw new OtpRateLimitException(trans('messages.otp_rate_limit_site'));
         }
 
         RateLimiter::hit($phoneKey, self::RATE_LIMIT_DECAY);
@@ -178,7 +178,7 @@ final class OtpService
             ->first();
 
         if ($config === null) {
-            throw new OtpNoActiveProviderException('No active SMS provider configured for this site');
+            throw new OtpNoActiveProviderException(trans('messages.otp_no_active_provider'));
         }
 
         return $config;

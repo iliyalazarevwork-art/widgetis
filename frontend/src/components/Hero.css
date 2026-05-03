@@ -1,12 +1,12 @@
 .hero {
   position: relative;
-  height: 100svh;
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
   align-items: center;
   overflow: hidden;
   background: #0a0a0a;
-  padding: calc(64px + 16px) 16px 16px;
+  padding: calc(64px + 16px) 20px 32px;
   box-sizing: border-box;
 }
 
@@ -45,8 +45,6 @@
   opacity: 0.6;
 }
 
-/* ── Главный контейнер: занимает всю высоту, колонка ── */
-
 .hero__wrap {
   position: relative;
   z-index: 1;
@@ -56,270 +54,207 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
 }
 
-/* ── Текст: занимает всё свободное пространство, центрирован внутри ── */
+/* ── Top: eyebrow + title + sub ── */
 
-.hero__content {
-  flex: 1;
+.hero__top {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  text-align: center;
-  gap: 10px;
-  min-height: 0;
+  gap: 16px;
+  width: 100%;
 }
 
 .hero__eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
   margin: 0;
-  padding: 4px 10px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  background: #161616;
-  font-size: 9px;
+  padding: 8px 14px;
+  border-radius: 100px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  background: rgba(59, 130, 246, 0.08);
+  color: #94b7f7;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #3b82f6;
+  letter-spacing: 0.033em;
   white-space: nowrap;
 }
 
-.hero__title {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  font-family: var(--font-body);
-  font-size: clamp(44px, 11.4vw, 64px);
-  font-weight: 900;
-  line-height: 1.06;
-  letter-spacing: -2px;
-  color: #f0f0f0;
-  margin: 0;
-}
-
-.hero__title-accent {
+.hero__eyebrow svg {
   color: #3b82f6;
-}
-
-.hero__sub {
-  font-size: 14px;
-  line-height: 1.6;
-  color: #8a8a8a;
-  max-width: 320px;
-  margin: 0;
-}
-
-/* ── Нижняя группа: виджеты + кнопка, прилипает к низу ── */
-
-.hero__bottom-group {
-  flex: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.hero__widgets {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.hero__widget-card {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: #141414;
-  overflow: hidden;
-}
-
-.hero__widget-card--swap-out {
-  animation: hero-widget-out 220ms ease forwards;
-}
-
-.hero__widget-card--swap-in {
-  animation: hero-widget-in 260ms ease forwards;
-}
-
-@keyframes hero-widget-out {
-  from { opacity: 1; transform: translateY(0); }
-  to   { opacity: 0; transform: translateY(10px); }
-}
-
-@keyframes hero-widget-in {
-  from { opacity: 0; transform: translateY(-10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.hero__widget-card--preview {
-  gap: 0;
-}
-
-.hero__widget-card--preview .wpr__popup {
-  width: 100%;
-  height: 100%;
-  align-items: center;
-  gap: 10px;
-  padding: 0;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-}
-
-.hero__widget-card--preview .wpr__icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 9px;
   flex-shrink: 0;
 }
 
-.hero__widget-card--preview .wpr__icon svg {
-  width: 18px;
-  height: 18px;
-}
-
-.hero__widget-card--preview .wpr__text {
-  min-width: 0;
-  flex: 1;
-}
-
-.hero__widget-card--preview .wpr__text p {
+.hero__title {
+  font-family: var(--font-body);
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -1px;
   color: #f0f0f0;
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1.25;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  text-align: center;
+  margin: 0;
+  width: 100%;
 }
 
-.hero__widget-card--preview .wpr__sub {
-  font-size: 11px;
-  font-weight: 400;
-  color: #8a8a8a;
-  line-height: 1.3;
-  margin-top: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.hero__sub {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: #b0b0b0;
+  text-align: center;
+  margin: 0;
+  width: 100%;
 }
 
-/* ── Кнопка + соцдоказательство ── */
+/* ── Metric cards ── */
 
-.hero__bottom {
+.hero__metrics {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.hero__metrics-caption {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: #7a7a7a;
+}
+
+.hero__metric-cards {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hero__metric-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 10px;
+}
+
+.hero__metric-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: #6a6a6a;
+}
+
+.hero__metric-values {
+  display: flex;
+  align-items: baseline;
   gap: 8px;
+}
+
+.hero__metric-value {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.6px;
+  line-height: 1;
+  color: #10b981;
+}
+
+.hero__metric-delta {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  line-height: 1;
+  color: rgba(16, 185, 129, 0.6);
+}
+
+.hero__metric-divider {
+  width: 1px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+/* ── Trust line ── */
+
+.hero__trust {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  font-size: 13px;
+  font-weight: 500;
+  color: #9a9a9a;
+}
+
+.hero__trust svg {
+  flex-shrink: 0;
+}
+
+/* ── CTA group ── */
+
+.hero__ctas {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
 }
 
 .hero__cta {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 14px;
+  gap: 6px;
   width: 100%;
-  border-radius: 14px;
-  background: #3b82f6;
-  color: #f0f0f0;
-  font-size: 14px;
-  font-weight: 700;
+  border-radius: 12px;
   text-decoration: none;
-  box-shadow: 0 0 28px rgba(59, 130, 246, 0.3);
   transition: background var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
 }
 
-.hero__cta svg {
-  flex-shrink: 0;
+.hero__cta--primary {
+  padding: 16px 0;
+  background: #3b82f6;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow: 0 0 28px rgba(59, 130, 246, 0.25);
 }
 
-.hero__cta:hover {
+.hero__cta--primary:hover {
   background: #2563eb;
   box-shadow: 0 0 44px rgba(59, 130, 246, 0.35);
   transform: translateY(-2px);
 }
 
-.hero__proof {
-  display: none;
-  align-items: center;
-  gap: 10px;
+.hero__cta--secondary {
+  padding: 14px 0;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #e8e8e8;
+  font-size: 14px;
+  font-weight: 600;
 }
 
-.hero__proof-stars {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  color: #f5b400;
-  font-size: 12px;
-  font-weight: 700;
+.hero__cta--secondary:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
-.hero__proof-stars span {
-  color: #f0f0f0;
-  margin-left: 3px;
-}
-
-.hero__proof-div {
-  width: 1px;
-  height: 12px;
-  background: rgba(255, 255, 255, 0.1);
+.hero__cta--secondary svg {
   flex-shrink: 0;
 }
 
-.hero__proof-trust {
-  font-size: 11px;
-  color: #7a7a7a;
-}
-
-/* ── Маленькие экраны по высоте (только отступы, без font-size — чтобы не
-      прыгал размер шрифта при показе/скрытии URL-бара в мобильных браузерах) ── */
-
-@media (max-height: 740px) {
-  .hero {
-    padding-top: calc(64px + 10px);
-    padding-bottom: 14px;
-  }
-
-  .hero__content {
-    gap: 10px;
-  }
-
-  .hero__bottom-group {
-    gap: 8px;
-  }
-
-  .hero__widgets {
-    gap: 6px;
-  }
-}
-
-/* ── Очень маленькие экраны (iPhone SE и подобные) ── */
-
-@media (max-height: 600px) {
-  .hero {
-    padding-top: calc(52px + 6px);
-    padding-bottom: 6px;
-  }
-
-  .hero__content {
-    gap: 8px;
-  }
-
-  .hero__bottom-group {
-    gap: 6px;
-  }
-}
-
-/* ── Планшет и больше ── */
+/* ── Tablet ── */
 
 @media (min-width: 600px) {
   .hero__wrap {
@@ -327,9 +262,16 @@
   }
 
   .hero__title {
-    font-size: clamp(50px, 9vw, 70px);
+    font-size: 44px;
+    letter-spacing: -1.4px;
+  }
+
+  .hero__sub {
+    font-size: 16px;
   }
 }
+
+/* ── Desktop ── */
 
 @media (min-width: 1024px) {
   .hero {
@@ -337,64 +279,38 @@
   }
 
   .hero__wrap {
-    max-width: 1120px;
-    flex-direction: row;
-    align-items: center;
-    gap: 72px;
-  }
-
-  .hero__content {
-    flex: 1 1 auto;
-    align-items: flex-start;
-    text-align: left;
-    justify-content: center;
-    padding-bottom: 0;
-    gap: 18px;
-  }
-
-  .hero__eyebrow {
-    font-size: 10px;
-    letter-spacing: 0.13em;
-    padding: 6px 14px;
+    max-width: 640px;
+    gap: 32px;
   }
 
   .hero__title {
-    font-size: clamp(56px, 5.2vw, 82px);
-    align-items: flex-start;
-    letter-spacing: -2.6px;
+    font-size: 56px;
+    letter-spacing: -2px;
   }
 
   .hero__sub {
-    font-size: 17px;
-    max-width: 440px;
-    line-height: 1.55;
+    font-size: 18px;
+    max-width: 520px;
   }
 
-  .hero__bottom-group {
-    flex: 0 0 440px;
-    gap: 16px;
-    justify-content: center;
+  .hero__metric-value {
+    font-size: 32px;
   }
 
-  .hero__widgets {
-    gap: 10px;
-  }
-
-  .hero__bottom {
-    align-items: stretch;
-    gap: 14px;
-    margin-top: 4px;
-  }
-
-  .hero__cta {
+  .hero__metric-delta {
     font-size: 16px;
-    padding: 18px 28px;
-    border-radius: 16px;
-    box-shadow: 0 10px 40px rgba(59, 130, 246, 0.35);
   }
 
-  .hero__proof {
-    display: flex;
-    justify-content: flex-start;
+  .hero__cta--primary {
+    font-size: 16px;
+    padding: 18px 0;
+    border-radius: 14px;
+    box-shadow: 0 10px 40px rgba(59, 130, 246, 0.3);
+  }
+
+  .hero__cta--secondary {
+    font-size: 15px;
+    padding: 16px 0;
+    border-radius: 14px;
   }
 }

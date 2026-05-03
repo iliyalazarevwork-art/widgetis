@@ -126,7 +126,7 @@ class SiteService
                 'result' => 'limit_exceeded',
             ]);
             throw new PlanLimitExceededException(
-                "Site limit reached ({$currentCount}/{$maxSites}). Upgrade your plan.",
+                trans('messages.site_limit_reached', ['current' => $currentCount, 'max' => $maxSites]),
             );
         }
 
@@ -160,7 +160,7 @@ class SiteService
                 'result' => 'limit_exceeded',
             ]);
             throw new PlanLimitExceededException(
-                "Widget limit reached ({$currentCount}/{$maxWidgets}). Upgrade your plan.",
+                trans('messages.widget_limit_reached', ['current' => $currentCount, 'max' => $maxWidgets]),
             );
         }
 
@@ -200,7 +200,7 @@ class SiteService
                 'result' => 'subscription_required',
             ]);
             throw new SubscriptionRequiredException(
-                'Widget configuration requires an active subscription.',
+                trans('messages.subscription_required'),
             );
         }
 

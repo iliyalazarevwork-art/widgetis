@@ -49,13 +49,13 @@ final class WidgetSessionTokenService
         try {
             $decoded = JWT::decode($token, new Key($secret, self::ALGORITHM));
         } catch (\Throwable $e) {
-            throw new OtpInvalidWidgetSessionException('Invalid widget session token: ' . $e->getMessage());
+            throw new OtpInvalidWidgetSessionException(trans('messages.otp_invalid_session_token'));
         }
 
         $aud = property_exists($decoded, 'aud') ? (string) $decoded->aud : '';
 
         if ($aud !== self::AUDIENCE) {
-            throw new OtpInvalidWidgetSessionException('Token audience mismatch');
+            throw new OtpInvalidWidgetSessionException(trans('messages.otp_token_audience_mismatch'));
         }
 
         $siteId = property_exists($decoded, 'sub') ? (string) $decoded->sub : '';
@@ -63,7 +63,7 @@ final class WidgetSessionTokenService
         $site = Site::find($siteId);
 
         if ($site === null) {
-            throw new OtpInvalidWidgetSessionException('Site not found for widget session');
+            throw new OtpInvalidWidgetSessionException(trans('messages.otp_session_site_not_found'));
         }
 
         return $site;

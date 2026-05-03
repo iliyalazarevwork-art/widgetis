@@ -125,7 +125,7 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
               title={`Preview of ${demo.domain}`}
             />
 
-            <Link to="/signup" className="dm-floating-cta" onClick={onClose}>
+            <Link to="/pricing" className="dm-floating-cta" onClick={onClose}>
               <Zap size={15} />
               <span>Замовити віджети</span>
             </Link>

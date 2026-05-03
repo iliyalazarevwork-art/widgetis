@@ -101,6 +101,11 @@ class ScriptBuilderService
         }
 
         $js = $this->buildJsFromModules($site, $modules, $obfuscate);
+
+        if (! $site->script_installed) {
+            $js .= $this->pingSnippet();
+        }
+
         $hash = md5($js);
         $slug = substr($script->token, 0, 5);
         $path = "sites/{$site->domain}/{$slug}.js";
@@ -317,6 +322,13 @@ class ScriptBuilderService
         }
 
         return $modules;
+    }
+
+    private function pingSnippet(): string
+    {
+        $url = rtrim((string) config('app.url'), '/') . '/api/v1/runtime/script-ping';
+
+        return "\n;(function(){if(typeof navigator!=='undefined'&&navigator.sendBeacon){navigator.sendBeacon('" . $url . "');}})();";
     }
 
     /**

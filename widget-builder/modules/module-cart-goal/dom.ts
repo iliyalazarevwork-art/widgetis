@@ -1,4 +1,20 @@
+import type { IconNode } from 'lucide';
+import { Truck } from 'lucide';
 import type { CartGoalConfig, PositionConfig } from './schema';
+
+function iconToSvg(icon: IconNode): string {
+  const children = icon
+    .map(([tag, attrs]) => {
+      const attrStr = Object.entries(attrs as Record<string, string>)
+        .map(([k, v]) => `${k}="${v}"`)
+        .join(' ');
+      return `<${tag} ${attrStr}/>`;
+    })
+    .join('');
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${children}</svg>`;
+}
+
+const TRUCK_SVG = iconToSvg(Truck);
 
 export type WidgetRefs = {
   container: HTMLElement;
@@ -17,12 +33,17 @@ export function createMainWidget(): WidgetRefs {
   container.id = 'cg-widget-main';
   container.className = 'cg-widget';
   container.innerHTML = `
-    <div class="cg-widget__text">
-      <span class="cg-widget__label"></span>
-      <span class="cg-widget__amount"></span>
-    </div>
-    <div class="cg-widget__progress">
-      <div class="cg-widget__bar"></div>
+    <div class="cg-widget__layout">
+      <div class="cg-widget__icon-col">
+        <span class="cg-widget__delivery-icon">${TRUCK_SVG}</span>
+      </div>
+      <div class="cg-widget__content-col">
+        <span class="cg-widget__label"></span>
+        <span class="cg-widget__amount"></span>
+        <div class="cg-widget__progress">
+          <div class="cg-widget__bar"></div>
+        </div>
+      </div>
     </div>
   `;
   return {
@@ -45,12 +66,17 @@ export function createFloatingWidget(): WidgetRefs {
   container.dataset.state = 'collapsed';
   container.innerHTML = `
     <div class="cg-widget__desktop">
-      <div class="cg-widget__text">
-        <span class="cg-widget__label"></span>
-        <span class="cg-widget__amount"></span>
-      </div>
-      <div class="cg-widget__progress">
-        <div class="cg-widget__bar"></div>
+      <div class="cg-widget__layout">
+        <div class="cg-widget__icon-col">
+          <span class="cg-widget__delivery-icon">${TRUCK_SVG}</span>
+        </div>
+        <div class="cg-widget__content-col">
+          <span class="cg-widget__label"></span>
+          <span class="cg-widget__amount"></span>
+          <div class="cg-widget__progress">
+            <div class="cg-widget__bar"></div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="cg-widget__mobile">
