@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import {
   Eye, Gift, Flame, PartyPopper, Truck, Coins, HelpCircle, Star, ShoppingBag, Ticket, Snowflake,
-  ShoppingCart, Shield, RefreshCcw, Headphones, MessageCircle, Send, Phone,
+  ShoppingCart, Shield, RefreshCcw, Headphones, MessageCircle, Send, Phone, Search, X as XIcon,
 } from 'lucide-react'
 import { useVisible } from '../hooks/useVisible'
 import './WidgetPreviews.css'
@@ -940,6 +940,209 @@ export function PreviewSmsOtp() {
   )
 }
 
+// ─── Smart Search detail preview ─────────────────────────────────────────────
+
+const SSRCH_QUERY = 'кросівки'
+const SSRCH_HIGHLIGHT_LEN = 4 // підсвічуємо «крос»
+
+const SSRCH_CHIPS: { key: string; label: string; count: number }[] = [
+  { key: 'all',   label: 'Усі',         count: 12 },
+  { key: 'shoes', label: 'Взуття',      count: 8  },
+  { key: 'cloth', label: 'Одяг',        count: 3  },
+  { key: 'acc',   label: 'Аксесуари',   count: 1  },
+]
+
+const SSRCH_RESULTS: { name: string; price: string; bg: string }[] = [
+  { name: 'Кросівки Nike Air Max',     price: '2 490 ₴', bg: 'linear-gradient(135deg,#cfe3ff,#a8c8f0)' },
+  { name: 'Кросівки Adidas Ultraboost', price: '3 190 ₴', bg: 'linear-gradient(135deg,#ffe1cf,#f0c4a8)' },
+  { name: 'Кросівки New Balance 574',   price: '1 890 ₴', bg: 'linear-gradient(135deg,#dff0d8,#b8d8a8)' },
+]
+
+function highlightQuery(name: string, queryLen: number): React.ReactNode {
+  // Підсвічуємо перші `queryLen` літер слова «Кросівки» якщо воно є на початку
+  const lower = name.toLowerCase()
+  const idx = lower.indexOf('крос')
+  if (idx === -1 || queryLen === 0) return name
+  const end = idx + Math.min(queryLen, SSRCH_HIGHLIGHT_LEN)
+  return (
+    <>
+      {name.slice(0, idx)}
+      <mark className="wpr__ssrch-mark">{name.slice(idx, end)}</mark>
+      {name.slice(end)}
+    </>
+  )
+}
+
+export function PreviewSmartSearchDetail() {
+  const { ref, active } = useVisible<HTMLDivElement>()
+  const [tick, setTick] = useState(0)
+  const [cursor, setCursor] = useState<'hidden' | 'search-icon'>('hidden')
+  const [clicking, setClicking] = useState(false)
+  const [iconPressed, setIconPressed] = useState(false)
+  const [overlayOpen, setOverlayOpen] = useState(false)
+  const [typed, setTyped] = useState(0)
+  const [phase, setPhase] = useState<'idle' | 'skeleton' | 'results'>('idle')
+  const [chipsIn, setChipsIn] = useState(false)
+  const [activeChip, setActiveChip] = useState('all')
+  const [rowsIn, setRowsIn] = useState(0)
+
+  useEffect(() => {
+    if (!active) return
+    setCursor('hidden')
+    setClicking(false)
+    setIconPressed(false)
+    setOverlayOpen(false)
+    setTyped(0)
+    setPhase('idle')
+    setChipsIn(false)
+    setActiveChip('all')
+    setRowsIn(0)
+
+    const timers: ReturnType<typeof setTimeout>[] = []
+    const t = (ms: number, fn: () => void) => timers.push(setTimeout(fn, ms))
+
+    t(450,  () => setCursor('search-icon'))
+    t(900,  () => { setClicking(true); setIconPressed(true) })
+    t(1050, () => { setClicking(false); setIconPressed(false); setOverlayOpen(true) })
+
+    // typing «кросівки» — 8 символів
+    const startType = 1300
+    const stepType  = 110
+    for (let i = 1; i <= SSRCH_QUERY.length; i++) {
+      t(startType + i * stepType, () => setTyped(i))
+    }
+    const typedDoneAt = startType + SSRCH_QUERY.length * stepType
+
+    t(typedDoneAt + 80,  () => setPhase('skeleton'))
+    t(typedDoneAt + 480, () => { setPhase('results'); setChipsIn(true) })
+    t(typedDoneAt + 620, () => setRowsIn(1))
+    t(typedDoneAt + 760, () => setRowsIn(2))
+    t(typedDoneAt + 900, () => setRowsIn(3))
+    t(typedDoneAt + 1400, () => setActiveChip('shoes'))
+    t(typedDoneAt + 1700, () => setCursor('hidden'))
+
+    // restart loop
+    t(typedDoneAt + 3200, () => setOverlayOpen(false))
+    t(typedDoneAt + 3700, () => setTick(n => n + 1))
+
+    return () => timers.forEach(clearTimeout)
+  }, [tick, active])
+
+  const cursorStyle: React.CSSProperties =
+    cursor === 'search-icon'
+      ? { opacity: 1, top: 14, left: 'calc(100% - 70px)' }
+      : { opacity: 0, top: 14, left: 'calc(100% - 70px)' }
+
+  const visibleQuery = SSRCH_QUERY.slice(0, typed)
+
+  return (
+    <div className="wpr__ssrch" ref={ref}>
+      {/* fake site shell */}
+      <div className="wpr__ssrch-site">
+        <div className="wpr__ssrch-header">
+          <span className="wpr__ssrch-logo">МАГАЗИН</span>
+          <nav className="wpr__ssrch-nav">
+            <span>Каталог</span>
+            <span>Доставка</span>
+            <span>Контакти</span>
+          </nav>
+          <div className="wpr__ssrch-tools">
+            <button
+              type="button"
+              className={`wpr__ssrch-icon-btn${iconPressed ? ' wpr__ssrch-icon-btn--press' : ''}`}
+              aria-label="Пошук"
+              tabIndex={-1}
+            >
+              <Search size={14} strokeWidth={2.25} />
+            </button>
+            <button type="button" className="wpr__ssrch-icon-btn" aria-label="Кошик" tabIndex={-1}>
+              <ShoppingCart size={14} strokeWidth={2.25} />
+            </button>
+          </div>
+        </div>
+        <div className="wpr__ssrch-content">
+          <div className="wpr__ssrch-card" />
+          <div className="wpr__ssrch-card" />
+          <div className="wpr__ssrch-card" />
+        </div>
+      </div>
+
+      {/* dim overlay */}
+      <div className={`wpr__ssrch-dim${overlayOpen ? ' wpr__ssrch-dim--on' : ''}`} />
+
+      {/* search overlay panel */}
+      <div className={`wpr__ssrch-panel${overlayOpen ? ' wpr__ssrch-panel--open' : ''}`}>
+        <div className="wpr__ssrch-input-row">
+          <Search size={14} strokeWidth={2.25} className="wpr__ssrch-input-icon" />
+          <div className="wpr__ssrch-input">
+            <span className="wpr__ssrch-input-text">{visibleQuery}</span>
+            <span className="wpr__ssrch-caret" />
+          </div>
+          <button type="button" className="wpr__ssrch-close" aria-label="Закрити" tabIndex={-1}>
+            <XIcon size={12} strokeWidth={2.5} />
+          </button>
+        </div>
+
+        {phase === 'skeleton' && (
+          <div className="wpr__ssrch-skel">
+            <div className="wpr__ssrch-skel-row" />
+            <div className="wpr__ssrch-skel-row" />
+            <div className="wpr__ssrch-skel-row" />
+          </div>
+        )}
+
+        {phase === 'results' && (
+          <>
+            <div className={`wpr__ssrch-chips${chipsIn ? ' wpr__ssrch-chips--in' : ''}`}>
+              {SSRCH_CHIPS.map(c => (
+                <span
+                  key={c.key}
+                  className={`wpr__ssrch-chip${activeChip === c.key ? ' wpr__ssrch-chip--active' : ''}`}
+                >
+                  {c.label}<i>{c.count}</i>
+                </span>
+              ))}
+            </div>
+            <div className="wpr__ssrch-list">
+              {SSRCH_RESULTS.map((p, i) => (
+                <div
+                  key={i}
+                  className={`wpr__ssrch-row${rowsIn > i ? ' wpr__ssrch-row--in' : ''}`}
+                >
+                  <div className="wpr__ssrch-thumb" style={{ background: p.bg }} />
+                  <div className="wpr__ssrch-info">
+                    <span className="wpr__ssrch-name">{highlightQuery(p.name, typed)}</span>
+                    <span className="wpr__ssrch-price">{p.price}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="wpr__ssrch-status">
+              Показано 3 з 12 · <span>Дивитись усі →</span>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* cursor */}
+      <div
+        className={`wpr__ssrch-cursor${clicking ? ' wpr__ssrch-cursor--click' : ''}`}
+        style={cursorStyle}
+      >
+        <svg width="16" height="20" viewBox="0 0 16 20" fill="none" aria-hidden="true">
+          <path
+            d="M1 1L1 16L5 12L8 18L11 17L8 11L13 11L1 1Z"
+            fill="white"
+            stroke="rgba(0,0,0,0.25)"
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+    </div>
+  )
+}
+
 // ─── Map: widget id → preview component ──────────────────────────────────────
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -972,4 +1175,5 @@ export const PREVIEW_MAP: Record<string, React.FC> = {
 // eslint-disable-next-line react-refresh/only-export-components
 export const DETAIL_PREVIEW_MAP: Record<string, React.FC> = {
   'cart-recommender': PreviewCartRecommenderDetail,
+  'smart-search':     PreviewSmartSearchDetail,
 }

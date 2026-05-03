@@ -23,6 +23,7 @@ const ICON_COLORS: Record<string, string> = {
   shield: '#1D4ED8',
   layers: '#0F172A',
   target: '#EF4444',
+  search: '#0EA5E9',
   wrench: '#6B7280',
 }
 

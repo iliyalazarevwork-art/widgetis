@@ -21,6 +21,7 @@ import {
   Shield,
   Layers,
   Target,
+  Search,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -46,5 +47,6 @@ export const WIDGET_ICON_MAP: Record<string, LucideIcon> = {
   shield: Shield,
   layers: Layers,
   target: Target,
+  search: Search,
   wrench: Wrench,
 }
