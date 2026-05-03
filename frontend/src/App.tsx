@@ -313,6 +313,7 @@ function App() {
             <Route path="/cases" element={<CasesPage />} />
             <Route path="/widgets/:slug" element={<WidgetDetailPage />} />
             <Route path="/demo" element={<DemoPage />} />
+            <Route path="/free-demo" element={<FreeDemoPage />} />
             <Route path="/pricing-anim" element={<PricingAnimPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/login" element={<LoginPage />} />
@@ -332,7 +333,6 @@ function App() {
 
           <Route path="/signup/success" element={<TrialSuccessPage />} />
           <Route path="/live-demo" element={<LiveDemoPage />} />
-          <Route path="/free-demo" element={<FreeDemoPage />} />
           <Route path="/profile/*" element={<LegacyProfileRedirect />} />
 
           <Route
