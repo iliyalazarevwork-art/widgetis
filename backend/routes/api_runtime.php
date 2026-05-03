@@ -95,6 +95,7 @@ Route::prefix('v1')->group(function () {
             ->middleware('throttle:10,60');
         Route::put('sites/{siteId}/widgets/{productId}', [AdminSiteController::class, 'updateWidget']);
         Route::post('demo-sessions', [AdminDemoSessionController::class, 'store']);
+        Route::get('demo-analytics', [DemoAnalyticsController::class, 'index']);
 
         // Widget-builder proxy — widget-builder itself is not exposed publicly.
         Route::get('widget-builder/modules', [WidgetBuilderController::class, 'modules']);

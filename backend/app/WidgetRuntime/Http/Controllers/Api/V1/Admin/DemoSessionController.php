@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\WidgetRuntime\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Api\V1\BaseController;
+use App\WidgetRuntime\Enums\DemoEntrySource;
+use App\WidgetRuntime\Models\DemoEntry;
 use App\WidgetRuntime\Models\DemoSession;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -36,6 +38,12 @@ class DemoSessionController extends BaseController
             'config' => $validated['config'],
             'created_by' => auth('core')->id(),
             'expires_at' => now()->addHours($expiresHours),
+        ]);
+
+        DemoEntry::create([
+            'domain' => $domain,
+            'source' => DemoEntrySource::Admin,
+            'ip' => $request->ip(),
         ]);
 
         $frontendUrl = rtrim((string) config('app.frontend_url', config('app.url')), '/');
