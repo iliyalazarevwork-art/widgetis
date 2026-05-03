@@ -8,6 +8,18 @@ export type TagSlug =
   | 'loyalty'
   | 'engagement'
 
+// Frontend priority order for the filter bar — change here without touching backend
+export const TAG_PRIORITY: TagSlug[] = [
+  'conversion',
+  'avg-order',
+  'trust',
+  'social-proof',
+  'urgency',
+  'engagement',
+  'visual',
+  'loyalty',
+]
+
 export type TagColorClass = 'green' | 'blue' | 'orange' | 'purple' | 'pink'
 
 export const TAG_COLOR_CLASS: Record<TagSlug, TagColorClass> = {

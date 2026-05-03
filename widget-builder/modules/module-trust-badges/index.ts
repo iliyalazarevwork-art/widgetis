@@ -127,7 +127,13 @@ function injectStyles(config: TrustBadgesConfig): void {
   --tb-icon: ${config.iconColor};
   --tb-border: ${config.borderColor};
   --tb-radius: ${config.borderRadius}px;
-  display: grid;
+  display: grid !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  flex: 0 0 100% !important;
+  align-self: stretch !important;
+  box-sizing: border-box !important;
   gap: 8px;
   margin: 14px 0;
   padding: ${config.showBorder ? '14px' : '0'};

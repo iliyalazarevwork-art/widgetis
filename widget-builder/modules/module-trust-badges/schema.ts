@@ -31,7 +31,7 @@ export const trustBadgesSchema = z.object({
   enabled: z.boolean().default(true),
   /** Куда вставлять полосу — несколько селекторов, до первого попадания */
   selectors: z.array(selectorSchema).default([
-    { selector: '.j-buy-button-add', insert: 'after' },
+    { selector: '.product-card__order--normal', insert: 'after' },
     { selector: '.cart-buttons--full', insert: 'after' },
     { selector: '.cart-buttons', insert: 'after' },
     { selector: '.product-card__price-box', insert: 'after' },

@@ -253,7 +253,7 @@
                 "enabled": true,
                 "selectors": [
                     {
-                        "selector": ".j-buy-button-add",
+                        "selector": ".product-card__order--normal",
                         "insert": "after"
                     },
                     {
@@ -788,9 +788,9 @@
             }
         },
         "module-smart-search": {
-            "$comment": "Smart search overlay — replaces Horoshop native search with a Spotlight-style command palette. Backed by App\\SmartSearch (PG pg_trgm + tsvector + Redis cache); site is resolved from Origin/Referer via resolve.site.origin middleware.",
+            "$comment": "Disabled — feature is not yet ready for public demo.",
             "config": {
-                "enabled": true,
+                "enabled": false,
                 "apiUrl": "https://api.widgetis.com/api/v1/widgets/smart-search",
                 "accentColor": "#c20f5d",
                 "currency": "грн",

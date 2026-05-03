@@ -538,6 +538,7 @@ class ProductSeeder extends Seeder
                 ],
                 'icon' => 'search',
                 'tag_slug' => 'engagement',
+                'status' => ProductStatus::Inactive->value,
                 'is_popular' => false,
                 'is_new' => true,
                 'sort_order' => 22,

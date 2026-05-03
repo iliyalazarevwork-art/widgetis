@@ -37,6 +37,7 @@ const HOST_ID = 'wdg-stw-host';
 const STORAGE_SEEN_KEY = 'wty_spin_seen_at';
 const STORAGE_EMAIL_KEY = 'wty_spin_email';
 const STORAGE_WON_KEY = 'wty_spin_won_code';
+const STORAGE_DISMISSED_KEY = 'wty_spin_dismissed';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -87,6 +88,16 @@ export default function spinTheWheel(
   styleEl.setAttribute('data-stw', '');
   styleEl.textContent = buildStyles(config);
   shadow.appendChild(styleEl);
+
+  // If user previously dismissed the modal, mount only the side tab (no auto-trigger).
+  if (isDismissed()) {
+    console.warn('[widgetality] spin-the-wheel: 🚫 dismissed by user, showing tab only');
+    renderModal(shadow, hostEl, config, i18n);
+    document.body.appendChild(hostEl);
+    hostEl.classList.add('stw--minimized');
+    hostEl.style.zIndex = '200';
+    return () => { hostEl.remove(); };
+  }
 
   let shown = false;
   let exitTimer: number | null = null;
@@ -164,6 +175,22 @@ function isSuppressedByCooldown(hours: number): boolean {
 function rememberSeen(): void {
   try {
     window.localStorage.setItem(STORAGE_SEEN_KEY, String(Date.now()));
+  } catch {
+    // ignore
+  }
+}
+
+function isDismissed(): boolean {
+  try {
+    return window.localStorage.getItem(STORAGE_DISMISSED_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function setDismissed(): void {
+  try {
+    window.localStorage.setItem(STORAGE_DISMISSED_KEY, '1');
   } catch {
     // ignore
   }
@@ -484,6 +511,7 @@ function renderModal(
   }
 
   function close(): void {
+    setDismissed();
     unmountPreview();
     hostEl.classList.remove('stw--visible');
     hostEl.classList.add('stw--minimized');
@@ -503,9 +531,10 @@ function renderModal(
 
   tabBody.addEventListener('click', reopenFromTab);
 
-  // Tab close: fully dismiss the widget for this session — no tab, no modal.
+  // Tab close: fully dismiss the widget — persists across page loads.
   tabClose.addEventListener('click', (e) => {
     e.stopPropagation();
+    setDismissed();
     unmountPreview();
     hostEl.remove();
   });

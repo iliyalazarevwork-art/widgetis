@@ -8,6 +8,7 @@ import {
   type ApiWidgetTag,
   type ApiPlan,
 } from '../api/widgets'
+import { TAG_PRIORITY } from '../data/widgetTags'
 
 export function useWidgets(): { widgets: ApiWidget[]; loading: boolean; error: string | null } {
   const [widgets, setWidgets] = useState<ApiWidget[]>([])
@@ -64,7 +65,17 @@ export function useWidgetTags(): { tags: ApiWidgetTag[]; loading: boolean; error
   useEffect(() => {
     let cancelled = false
     fetchWidgetTags()
-      .then((data) => { if (!cancelled) { setTags(data); setLoading(false) } })
+      .then((data) => {
+        if (!cancelled) {
+          const sorted = [...data].sort((a, b) => {
+            const ai = TAG_PRIORITY.indexOf(a.slug as never)
+            const bi = TAG_PRIORITY.indexOf(b.slug as never)
+            return (ai === -1 ? Infinity : ai) - (bi === -1 ? Infinity : bi)
+          })
+          setTags(sorted)
+          setLoading(false)
+        }
+      })
       .catch((err: Error) => { if (!cancelled) { setError(err.message); setLoading(false) } })
     return () => { cancelled = true }
   }, [])

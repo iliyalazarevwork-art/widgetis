@@ -156,7 +156,7 @@ export function Hero() {
             Зроблено для Хорошоп
           </p>
           <h1 className="hero__title">
-            Більший чек<br />з <span className="hero__title-keyword">кожного</span> замовлення.
+            Збільшіть чек<br /><span className="hero__title-keyword">кожного</span> замовлення.
           </h1>
           <p className="hero__sub">
             Спробуйте — побачите різницю за тиждень.
