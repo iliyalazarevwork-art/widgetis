@@ -326,7 +326,7 @@ class ScriptBuilderService
 
     private function pingSnippet(): string
     {
-        $url = rtrim((string) config('app.url'), '/') . '/api/v1/runtime/script-ping';
+        $url = rtrim((string) config('app.url'), '/') . '/api/v1/widgets/script-ping';
 
         return "\n;(function(){if(typeof navigator!=='undefined'&&navigator.sendBeacon){navigator.sendBeacon('" . $url . "');}})();";
     }

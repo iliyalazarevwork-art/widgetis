@@ -63,8 +63,10 @@ Route::prefix('v1')->group(function () {
                 ->middleware('throttle:30,1');
             Route::get('smart-search', PublicSearchController::class)->middleware('throttle:60,1');
 
-            Route::post('script-ping', ScriptPingController::class)->middleware('throttle:5,60');
         });
+
+    // Script installation ping — always 200, no auth, handles CORS itself
+    Route::post('widgets/script-ping', ScriptPingController::class)->middleware('throttle:5,60');
 
     // --- Demo sessions (public) ---
     Route::get('demo-sessions/{code}', [DemoSessionController::class, 'show'])->middleware('throttle:30,1');
