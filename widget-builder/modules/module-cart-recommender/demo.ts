@@ -12,7 +12,6 @@
 import type { CartRecommenderInput, CartRecommenderI18n } from './schema';
 import type { Product } from './dom';
 import cartRecommender from './index';
-import { Star, Crown, Gift, Flame, Sparkles, Percent, type IconNode } from 'lucide';
 
 const LOG = '[widgetality] cart-recommender (demo):';
 const SUGGEST_PATH = '/api/v1/widgets/cart-recommender/suggest';
@@ -248,66 +247,6 @@ async function waitForStickers(maxItems: number, timeoutMs: number): Promise<Scr
   return fetchAndScrapeHome(maxItems);
 }
 
-const DEMO_GRADIENTS: Array<readonly [string, string]> = [
-  ['#F4B58E', '#C77A5C'],
-  ['#A78BFA', '#6D5BD0'],
-  ['#5EEAD4', '#0D9488'],
-  ['#FDA4AF', '#E11D48'],
-  ['#FCD34D', '#D97706'],
-  ['#93C5FD', '#2563EB'],
-];
-
-const DEMO_ICONS: IconNode[] = [Star, Crown, Gift, Flame, Sparkles, Percent];
-
-function iconNodeToSvgChildren(icon: IconNode): string {
-  return icon
-    .map(([tag, attrs]) => {
-      const attrStr = Object.entries(attrs)
-        .map(([k, v]) => `${k}="${String(v)}"`)
-        .join(' ');
-      return `<${tag} ${attrStr}/>`;
-    })
-    .join('');
-}
-
-function buildDemoIcon(gradStart: string, gradEnd: string, idx: number): string {
-  const gid = `wgr${idx}`;
-  const icon = DEMO_ICONS[idx % DEMO_ICONS.length]!;
-  const svg =
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">` +
-      `<defs><linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1">` +
-        `<stop offset="0%" stop-color="${gradStart}"/>` +
-        `<stop offset="100%" stop-color="${gradEnd}"/>` +
-      `</linearGradient></defs>` +
-      `<rect width="64" height="64" rx="12" fill="url(#${gid})"/>` +
-      `<g transform="translate(12 12) scale(1.667)" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">` +
-        iconNodeToSvgChildren(icon) +
-      `</g>` +
-    `</svg>`;
-  return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
-}
-
-function buildPicsumFallback(maxItems: number): ScrapedSticker[] {
-  const samples: Array<{ title: string; price: number }> = [
-    { title: 'Стильний аксесуар', price: 499 },
-    { title: 'Хіт продажу', price: 899 },
-    { title: 'Подарунок до замовлення', price: 199 },
-    { title: 'Топ-вибір клієнтів', price: 1299 },
-    { title: 'Новинка тижня', price: 749 },
-    { title: 'Зі знижкою', price: 599 },
-  ];
-  const count = Math.max(1, Math.min(maxItems, samples.length));
-  return samples.slice(0, count).map((s, i) => {
-    const [a, b] = DEMO_GRADIENTS[i % DEMO_GRADIENTS.length]!;
-    return {
-      url: `#wty-demo-${i + 1}`,
-      image: buildDemoIcon(a, b, i),
-      title: s.title,
-      priceNew: s.price,
-      currency: 'UAH',
-    };
-  });
-}
 
 function patchFetchForSuggest(maxItems: number): void {
   const original = window.fetch;
@@ -321,14 +260,8 @@ function patchFetchForSuggest(maxItems: number): void {
 
     if (url.includes(SUGGEST_PATH)) {
       return waitForStickers(maxItems, 2500).then((stickers) => {
-        let source = 'scraped';
-        let final = stickers;
-        if (final.length === 0) {
-          final = buildPicsumFallback(maxItems);
-          source = 'picsum-fallback';
-        }
-        const data = stickersToProducts(final);
-        console.log(LOG, `shimmed suggest endpoint with ${data.length} ${source} products`);
+        const data = stickersToProducts(stickers);
+        console.log(LOG, `shimmed suggest endpoint with ${data.length} scraped products`);
         return new Response(JSON.stringify({ data }), {
           status: 200,
           headers: { 'Content-Type': 'application/json' },

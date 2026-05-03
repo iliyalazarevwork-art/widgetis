@@ -158,9 +158,9 @@
             }
         },
         "module-cart-recommender": {
-            "$comment": "Disabled in the public demo — requires a live recommendations API with real per-shop product data. Falls back to placeholder icons which looks broken.",
+            "$comment": "Demo mode: fetch() for /suggest is shimmed in demo.ts — scrapes real products from the proxied site's DOM instead of calling the API.",
             "config": {
-                "enabled": false,
+                "enabled": true,
                 "apiBaseUrl": "https://api.widgetis.com",
                 "mountSelector": "#cart .cart__summary, .cart__summary",
                 "maxItems": 4
