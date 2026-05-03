@@ -17,9 +17,10 @@ class WidgetTagResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'slug' => $this->slug,
-            'name' => $this->translated('name'),
+            'slug'  => $this->slug,
+            'name'  => $this->translated('name'),
             'color' => $this->color,
+            'count' => (int) ($this->products_count ?? 0),
         ];
     }
 }

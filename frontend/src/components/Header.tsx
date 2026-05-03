@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { X, UserRound, ArrowRight, Puzzle, CreditCard, Briefcase, Mail, LogOut, ChevronDown, Globe, Settings, User, Eye } from 'lucide-react'
+import { X, UserRound, ArrowRight, Puzzle, CreditCard, Briefcase, Mail, LogOut, ChevronDown, Globe, Settings, User, Home } from 'lucide-react'
 import { useSwipeDismiss } from '../hooks/useSwipeDismiss'
 import { SocialIcon } from './SocialIcon'
 import { HamburgerIcon } from './HamburgerIcon'
@@ -11,8 +11,8 @@ import { BRAND_NAME } from '../constants/brand'
 import './Header.css'
 
 const NAV_LINKS = [
+  { to: '/', label: 'Головна', icon: Home },
   { to: '/widgets', label: 'Віджети', icon: Puzzle },
-  { to: '/free-demo', label: 'Демо', icon: Eye },
   { to: '/pricing', label: 'Тарифи', icon: CreditCard },
   { to: '/cases', label: 'Кейси', icon: Briefcase },
   { to: '/contacts', label: 'Контакти', icon: Mail },
@@ -235,7 +235,7 @@ export function Header() {
 
             <div className="header__drawer-nav">
               {[
-                ...NAV_LINKS,
+                ...NAV_LINKS.filter(l => !(l.to === '/' && location.pathname === '/')),
                 ...(isAuthenticated
                   ? [{ to: '/cabinet', label: 'Кабінет', icon: UserRound }]
                   : [{ to: '/cabinet', label: 'Вхід', icon: UserRound }]),

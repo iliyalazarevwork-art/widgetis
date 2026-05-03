@@ -265,7 +265,7 @@
   display: flex;
   gap: 32px;
   white-space: nowrap;
-  animation: wpr-marquee 12s linear infinite;
+  animation: wpr-marquee 7s linear infinite;
   font-family: var(--font-body);
   font-size: 12px;
   color: var(--text-secondary);

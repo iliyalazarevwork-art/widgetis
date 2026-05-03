@@ -90,6 +90,20 @@
   flex-shrink: 0;
 }
 
+.hero__title-keyword {
+  background: linear-gradient(90deg, #60a5fa, #3b82f6, #a78bfa, #3b82f6, #60a5fa);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: hero-keyword-shift 4s linear infinite;
+}
+
+@keyframes hero-keyword-shift {
+  0%   { background-position: 0% center; }
+  100% { background-position: 300% center; }
+}
+
 .hero__title {
   font-family: var(--font-body);
   font-size: 36px;

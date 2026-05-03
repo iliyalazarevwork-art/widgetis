@@ -13,7 +13,7 @@ class TagController extends CoreBaseController
 {
     public function index(): JsonResponse
     {
-        $tags = WidgetTag::orderBy('sort_order')->get();
+        $tags = WidgetTag::withCount('products')->orderBy('sort_order')->get();
 
         return $this->success([
             'data' => WidgetTagResource::collection($tags),
