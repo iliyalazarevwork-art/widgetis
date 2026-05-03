@@ -2,6 +2,7 @@
   min-height: 60vh;
   display: flex;
   align-items: center;
+  padding-top: 64px;
 }
 
 .fdp .demo {
