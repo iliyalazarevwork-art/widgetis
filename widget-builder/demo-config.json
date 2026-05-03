@@ -157,6 +157,18 @@
                 }
             }
         },
+        "module-min-order": {
+            "$comment": "Disabled in demo — threshold depends on the specific store's business rules.",
+            "config": {
+                "enabled": false
+            },
+            "i18n": {
+                "ua": {
+                    "text": "До суми мінімального замовлення залишилось",
+                    "achieved": "Мінімальну суму замовлення досягнуто!"
+                }
+            }
+        },
         "module-cart-recommender": {
             "$comment": "Demo mode: fetch() for /suggest is shimmed in demo.ts — scrapes real products from the proxied site's DOM instead of calling the API.",
             "config": {
