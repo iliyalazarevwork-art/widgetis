@@ -182,6 +182,8 @@ class PublicApiTest extends TestCase
             'sort_order' => 0,
         ]);
 
+        Product::factory()->create(['tag_slug' => 'urgency']);
+
         $response = $this->getJson('/api/v1/tags');
 
         $response->assertStatus(200)
