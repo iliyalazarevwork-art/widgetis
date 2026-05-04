@@ -357,7 +357,7 @@
 }
 
 .wc__title {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 800;
   color: #F0F0F0;
   margin: 0;
@@ -420,7 +420,7 @@
   gap: 6px;
   margin-top: auto;
   padding: 0;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: #3B82F6;
   transition: gap var(--transition-fast);
@@ -539,7 +539,7 @@
   gap: 2px;
 }
 .wcase__metric strong {
-  font-size: 39px;
+  font-size: 26px;
   font-weight: 800;
   color: #22C55E;
   letter-spacing: -0.6px;

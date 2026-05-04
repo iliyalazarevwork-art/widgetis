@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Mail, Send, Lock } from 'lucide-react'
+import { SeoHead } from '../../components/SeoHead'
 import { post } from '../../api/client'
 import { toast } from 'sonner'
 import './login-mobile.css'
@@ -31,6 +32,7 @@ export default function LoginPage() {
 
   return (
     <div className="loginm">
+      <SeoHead title="Вхід — Widgetis" description="Вхід у кабінет Widgetis." path="/login" noindex />
       <div className="loginm__body">
         <div className="loginm__hero">
           <Lock size={40} strokeWidth={1.75} className="loginm__lock" />
@@ -105,7 +107,7 @@ export default function LoginPage() {
         <div className="loginm__signup-card">
           <p className="loginm__signup-title">Новий користувач?</p>
           <p className="loginm__signup-subtitle">Створіть акаунт через вибір плану та почніть trial.</p>
-          <a href="/signup" className="loginm__signup-link">
+          <a href="/pricing" className="loginm__signup-link">
             <span>Створити акаунт</span>
             <span className="loginm__signup-arrow">→</span>
           </a>

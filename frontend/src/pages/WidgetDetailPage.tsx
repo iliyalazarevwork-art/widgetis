@@ -210,6 +210,10 @@ export function WidgetDetailPage() {
   const benefits = tagSlug ? (TAG_BENEFITS[tagSlug] ?? TAG_BENEFITS.conversion) : TAG_BENEFITS.conversion
   const PreviewComp = DETAIL_PREVIEW_MAP[widget.slug] ?? PREVIEW_MAP[widget.slug]
 
+  const planPrices = containingPlans.map((p) => Number(p.price_monthly)).filter((n) => Number.isFinite(n))
+  const lowestPrice = planPrices.length ? Math.min(...planPrices) : 0
+  const highestPrice = planPrices.length ? Math.max(...planPrices) : 0
+
   return (
     <div className="widget-page">
       <SeoHead
@@ -225,14 +229,24 @@ export function WidgetDetailPage() {
             name: widget.name,
             description: widget.description,
             brand: { '@type': 'Brand', name: 'Widgetis' },
-            category: widget.tag?.name ?? '',
-            offers: {
-              '@type': 'Offer',
-              priceCurrency: 'UAH',
-              price: '0',
-              availability: 'https://schema.org/InStock',
-              url: `https://widgetis.com/widgets/${widget.slug}`,
-            },
+            category: widget.tag?.name ?? 'E-commerce widget',
+            offers: lowestPrice > 0
+              ? {
+                  '@type': 'AggregateOffer',
+                  priceCurrency: 'UAH',
+                  lowPrice: lowestPrice.toString(),
+                  highPrice: highestPrice.toString(),
+                  offerCount: containingPlans.length.toString(),
+                  availability: 'https://schema.org/InStock',
+                  url: `https://widgetis.com/widgets/${widget.slug}`,
+                }
+              : {
+                  '@type': 'Offer',
+                  priceCurrency: 'UAH',
+                  price: '799',
+                  availability: 'https://schema.org/InStock',
+                  url: `https://widgetis.com/widgets/${widget.slug}`,
+                },
           },
           {
             '@context': 'https://schema.org',

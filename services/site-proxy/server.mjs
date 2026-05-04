@@ -374,6 +374,28 @@ function injectRuntimeScript(html, domain) {
     if (!form || !form.action) return;
     form.action = rewriteUrl(form.action);
   }, true);
+  // Intercept <a> clicks for dynamically-generated links not caught by static rewriting.
+  document.addEventListener('click', function(e){
+    var node = e.target;
+    while (node && node.tagName !== 'A') node = node.parentElement;
+    if (!node) return;
+    var href = node.getAttribute('href');
+    if (!href || href.charAt(0) === '#' || /^javascript:/i.test(href) || /^mailto:/i.test(href)) return;
+    var rewritten = rewriteUrl(href);
+    if (rewritten !== href) {
+      e.preventDefault();
+      window.location.href = rewritten;
+    }
+  }, true);
+  // Patch history API so PJAX/SPA navigation stays within the proxy prefix.
+  var nativePush = history.pushState;
+  history.pushState = function(s, t, url){
+    return nativePush.call(this, s, t, typeof url === 'string' ? rewriteUrl(url) : url);
+  };
+  var nativeReplace = history.replaceState;
+  history.replaceState = function(s, t, url){
+    return nativeReplace.call(this, s, t, typeof url === 'string' ? rewriteUrl(url) : url);
+  };
 })();</script>`;
 
   if (/<\/body>/i.test(html)) {

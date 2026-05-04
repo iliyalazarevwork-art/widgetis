@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * @property list<array{name: string, slug: string|null}> $widgets
+ * @property list<string> $widgets
  */
 class CustomerCase extends Model
 {

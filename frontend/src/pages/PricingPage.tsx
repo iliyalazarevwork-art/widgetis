@@ -128,19 +128,70 @@ export function PricingPage() {
   return (
     <>
       <SeoHead
-        title="Тарифи Widgetis для Хорошоп — від 0 ₴ | 7 днів безкоштовно"
-        description="Тарифи на віджети для Хорошоп: Free, Basic, Pro, Max. 7 днів безкоштовного тріалу на будь-якому плані. Без прихованих платежів — скасувати в один клік."
+        title="Тарифи на віджети для Хорошоп — від 799 ₴/міс | Widgetis"
+        description="Тарифи на маркетингові віджети для Хорошоп: Basic від 799 ₴, Pro 1599 ₴, Max 2899 ₴. 7 днів безкоштовного тріалу на будь-якому плані. Скасувати в один клік."
         keywords="ціна віджети Хорошоп, тарифи плагіни Хорошоп, тарифи Horoshop, безкоштовні плагіни Хорошоп, підписка Widgetis, ціна віджети Horoshop"
         path="/pricing"
-        structuredData={{
-          '@context': 'https://schema.org',
-          '@type': 'FAQPage',
-          mainEntity: FAQ_ITEMS.map((item) => ({
-            '@type': 'Question',
-            name: item.q,
-            acceptedAnswer: { '@type': 'Answer', text: item.a },
+        structuredData={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: FAQ_ITEMS.map((item) => ({
+              '@type': 'Question',
+              name: item.q,
+              acceptedAnswer: { '@type': 'Answer', text: item.a },
+            })),
+          },
+          ...PLANS.map((plan) => ({
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: `Widgetis ${plan.name}`,
+            description: `Підписка на маркетингові віджети для Хорошоп — план ${plan.name}: ${plan.widgets} віджетів. ${plan.pitch}.`,
+            brand: { '@type': 'Brand', name: 'Widgetis' },
+            category: 'SaaS / E-commerce widgets',
+            url: `https://widgetis.com/pricing#${plan.id}`,
+            offers: [
+              {
+                '@type': 'Offer',
+                name: `${plan.name} — щомісяця`,
+                price: plan.monthlyPrice.toString(),
+                priceCurrency: 'UAH',
+                priceSpecification: {
+                  '@type': 'UnitPriceSpecification',
+                  price: plan.monthlyPrice.toString(),
+                  priceCurrency: 'UAH',
+                  unitCode: 'MON',
+                  referenceQuantity: { '@type': 'QuantitativeValue', value: '1', unitCode: 'MON' },
+                },
+                availability: 'https://schema.org/InStock',
+                url: `https://widgetis.com/signup?plan=${plan.id}&billing=monthly`,
+              },
+              {
+                '@type': 'Offer',
+                name: `${plan.name} — щороку`,
+                price: plan.yearlyPrice.toString(),
+                priceCurrency: 'UAH',
+                priceSpecification: {
+                  '@type': 'UnitPriceSpecification',
+                  price: plan.yearlyPrice.toString(),
+                  priceCurrency: 'UAH',
+                  unitCode: 'ANN',
+                  referenceQuantity: { '@type': 'QuantitativeValue', value: '1', unitCode: 'ANN' },
+                },
+                availability: 'https://schema.org/InStock',
+                url: `https://widgetis.com/signup?plan=${plan.id}&billing=yearly`,
+              },
+            ],
           })),
-        }}
+          {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Головна', item: 'https://widgetis.com/' },
+              { '@type': 'ListItem', position: 2, name: 'Тарифи', item: 'https://widgetis.com/pricing' },
+            ],
+          },
+        ]}
       />
 
       <div className="pricing">

@@ -12,30 +12,30 @@
                 "aspectRatio": "4 / 5",
                 "borderRadius": 14,
                 "openInLightbox": true,
-                "$fallbackUrlsComment": "Lorem-ipsum-for-photos via picsum.photos. ?random=N keeps each URL stable & distinct so the gallery is not all-same-image.",
+                "$fallbackUrlsComment": "Product review photos (Unsplash) + 1 video review (demo-unboxing.mp4 served by site-proxy). The video URL uses the dev proxy host — override via DEMO_BUNDLE_PATH env or replace before production build.",
                 "fallbackUrls": [
-                    "https://picsum.photos/seed/wty-demo-1/600/750",
-                    "https://picsum.photos/seed/wty-demo-2/600/750",
-                    "https://picsum.photos/seed/wty-demo-3/600/750",
-                    "https://picsum.photos/seed/wty-demo-4/600/750"
+                    "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&h=750&fit=crop&q=80",
+                    "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&h=750&fit=crop&q=80",
+                    "http://localhost:3100/demo-unboxing.mp4",
+                    "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=600&h=750&fit=crop&q=80"
                 ],
                 "photos": []
             },
             "i18n": {
                 "ua": {
-                    "viewPhotoLabel": "Фото від клієнта",
+                    "viewPhotoLabel": "Фото/відео від клієнта",
                     "closeLabel": "Закрити",
                     "prevLabel": "Попереднє",
                     "nextLabel": "Наступне"
                 },
                 "ru": {
-                    "viewPhotoLabel": "Фото от клиента",
+                    "viewPhotoLabel": "Фото/видео от клиента",
                     "closeLabel": "Закрыть",
                     "prevLabel": "Предыдущее",
                     "nextLabel": "Следующее"
                 },
                 "en": {
-                    "viewPhotoLabel": "Customer photo",
+                    "viewPhotoLabel": "Customer photo/video",
                     "closeLabel": "Close",
                     "prevLabel": "Previous",
                     "nextLabel": "Next"

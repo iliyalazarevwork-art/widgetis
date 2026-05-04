@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, Link, useLocation } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import {
   LayoutDashboard,
   Repeat2,
@@ -67,6 +68,10 @@ export function AdminLayout() {
 
   return (
     <div className="admin">
+      <Helmet>
+        <title>Admin — Widgetis</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       {/* Sidebar */}
       <aside className={`admin__sidebar ${mobileOpen ? 'admin__sidebar--open' : ''}`}>
         <div className="admin__sidebar-top">

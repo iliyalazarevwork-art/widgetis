@@ -308,7 +308,7 @@
 
 .case-card__name {
   font-family: var(--font-display);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: -0.15px;
@@ -342,7 +342,7 @@
 
 .case-card__metric-body strong {
   font-family: var(--font-display);
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 800;
   color: var(--case-color);
 }

@@ -156,7 +156,14 @@ export async function buildModules(request: BuildRequest): Promise<string> {
 
   if (request.allowedDomain) {
     const d = request.allowedDomain;
-    code = `(function(){_c();${code}function _c(){var _h=window.location.hostname;if(_h!=="${d}"&&!_h.endsWith(".${d}"))throw new Error()}})();`;
+    // Encode domain as char codes so the hostname is not plainly visible in the bundle
+    const charCodes = Array.from(d).map((c) => c.charCodeAt(0)).join(',');
+    const checkSnippet = `(function(){var _d=String.fromCharCode(${charCodes});var _h=window.location.hostname;if(_h!==_d&&!_h.endsWith('.'+_d))throw new Error();}());`;
+    // Inject the check near the middle of the bundle, not at the end
+    const mid = Math.floor(code.length / 2);
+    const boundary = code.lastIndexOf(';', mid);
+    const insertAt = boundary > 0 ? boundary + 1 : mid;
+    code = code.slice(0, insertAt) + checkSnippet + code.slice(insertAt);
   }
 
   if (request.obfuscate) {

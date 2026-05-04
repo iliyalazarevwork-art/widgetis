@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { SeoHead } from '../../components/SeoHead'
 import { setToken, get } from '../../api/client'
 import { useAuth } from '../../context/AuthContext'
 import type { User } from '../../types'
@@ -38,6 +39,7 @@ export default function GoogleCallbackPage() {
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+      <SeoHead title="Google авторизація — Widgetis" description="Авторизація через Google." path="/login/google-callback" noindex />
       <p>Вхід через Google…</p>
     </div>
   )

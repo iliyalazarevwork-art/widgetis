@@ -29,37 +29,51 @@ Popup.displayName = 'Popup'
 
 // ─── Individual previews ──────────────────────────────────────────────────────
 
+const PHOTO_REVIEW_QUOTES = [
+  '«Кросівки — вогонь! Ношу вже 3 тижні»',
+  '«Прийшла швидко, упаковка ціла 🔥»',
+  '«Зняла відеовідгук — якість супер!»',
+]
+
 export function PreviewPhotoReviews() {
   const { ref, active } = useVisible<HTMLDivElement>()
   const [visible, setVisible] = useState(0)
+  const [qIdx, setQIdx] = useState(0)
 
   useEffect(() => {
     if (!active) return
     if (visible >= 4) {
-      const t = setTimeout(() => setVisible(0), 1800)
+      const t = setTimeout(() => setVisible(0), 2000)
       return () => clearTimeout(t)
     }
     const t = setTimeout(() => setVisible(v => v + 1), 550)
     return () => clearTimeout(t)
   }, [visible, active])
 
+  useEffect(() => {
+    if (!active) return
+    const t = setInterval(() => setQIdx(q => (q + 1) % PHOTO_REVIEW_QUOTES.length), 2400)
+    return () => clearInterval(t)
+  }, [active])
+
+  // index 3 = video review (dark thumbnail with play icon)
+  const isVideo = (i: number) => i === 3
+
   return (
     <div className="wpr__reviews" ref={ref}>
       <div className="wpr__stars-row">★★★★★ <span>47 відгуків</span></div>
       <div className="wpr__photos-row">
-        {[1,2,3,4].map(i => {
-          const isVideo = i % 2 === 0
-          return (
-            <div
-              key={i}
-              className={`wpr__photo wpr__photo--${i}${visible >= i ? ' wpr__photo--in' : ''}${isVideo ? ' wpr__photo--video' : ''}`}
-            >
-              {isVideo && <div className="wpr__photo-play" />}
-            </div>
-          )
-        })}
+        {[1, 2, 3, 4].map(i => (
+          <div
+            key={i}
+            className={`wpr__photo wpr__photo--${i}${visible >= i ? ' wpr__photo--in' : ''}${isVideo(i) ? ' wpr__photo--video' : ''}`}
+          >
+            {isVideo(i) && <div className="wpr__photo-play" />}
+          </div>
+        ))}
         <span className="wpr__photos-more">+43</span>
       </div>
+      <p className="wpr__review-quote" key={qIdx}>{PHOTO_REVIEW_QUOTES[qIdx]}</p>
     </div>
   )
 }

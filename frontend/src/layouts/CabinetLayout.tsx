@@ -1,4 +1,5 @@
 import { Outlet, useLocation } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import Topbar from '../components/Topbar'
 import BottomNav from '../components/BottomNav'
 import Sidebar from '../components/Sidebar'
@@ -14,6 +15,10 @@ export default function CabinetLayout() {
 
   return (
     <div className="cabinet">
+      <Helmet>
+        <title>Кабінет — Widgetis</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <DesktopCabinetNav />
       {!hasEmbeddedHeader && <Topbar onMenuClick={() => setSidebarOpen(true)} />}
       <main className={`cabinet__content ${hasEmbeddedHeader ? 'cabinet__content--embedded-header' : ''}`}>

@@ -153,13 +153,13 @@ export function Hero() {
         <div className="hero__top">
           <p className="hero__eyebrow">
             <Gem size={14} strokeWidth={2.25} />
-            Зроблено для Хорошоп
+            Віджети для Хорошоп
           </p>
           <h1 className="hero__title">
-            Збільшіть чек<br /><span className="hero__title-keyword">кожного</span> замовлення.
+            Збільшіть чек<br /><span className="hero__title-keyword">кожного</span> замовлення
           </h1>
           <p className="hero__sub">
-            Спробуйте — побачите різницю за тиждень.
+            Спробуйте — побачите різницю за тиждень
           </p>
         </div>
 

@@ -194,10 +194,11 @@
 
 .wpr__photo--in { opacity: 1; transform: scale(1); }
 
-.wpr__photo--1 { background: linear-gradient(135deg, #f0c8dc 0%, #e8a8c8 100%); }
-.wpr__photo--2 { background: linear-gradient(135deg, #c8daf0 0%, #a8c4e8 100%); }
-.wpr__photo--3 { background: linear-gradient(135deg, #f0e8c0 0%, #e8d898 100%); }
-.wpr__photo--4 { background: linear-gradient(135deg, #c8f0dc 0%, #a8e8c4 100%); }
+/* product-themed thumbnails: shoes, bag, video review, clothing */
+.wpr__photo--1 { background: linear-gradient(135deg, #d4a574 0%, #b8864e 100%); }
+.wpr__photo--2 { background: linear-gradient(135deg, #8b9dc3 0%, #6b7fa8 100%); }
+.wpr__photo--3 { background: linear-gradient(135deg, #1e2535 0%, #0f1520 100%); }
+.wpr__photo--4 { background: linear-gradient(135deg, #f4a0b5 0%, #e07090 100%); }
 
 .wpr__photos-more {
   font-family: var(--font-body);

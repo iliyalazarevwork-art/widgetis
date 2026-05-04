@@ -175,7 +175,7 @@ function HoroshopPanel() {
   )
 }
 
-export function PricingAnimPage() {
+export function PricingAnimPage({ embedded = false }: { embedded?: boolean } = {}) {
   const [phase, setPhase] = useState<Phase>('pricing')
 
   useEffect(() => {
@@ -185,12 +185,14 @@ export function PricingAnimPage() {
 
   return (
     <div className="pan-page">
-      <SeoHead
-        title="Анімація — Widgetis"
-        description="Технічна анімація потоку оплати. Сторінка не призначена для індексації."
-        path="/pricing-anim"
-        noindex
-      />
+      {!embedded && (
+        <SeoHead
+          title="Демо потоку оплати — Widgetis"
+          description="Внутрішня технічна сторінка з анімацією потоку оплати. Не призначена для індексації."
+          path="/pricing-anim"
+          noindex
+        />
+      )}
       <div className="pan-frame">
         <div className="pan-frame__bar">
           <span className="pan-frame__dot pan-frame__dot--r" />

@@ -110,7 +110,7 @@ function HomePage() {
   return (
     <>
       <SeoHead
-        title="Widgetis — маркетингові віджети для Хорошоп | Вища конверсія та середній чек"
+        title="Віджети для Хорошоп — вища конверсія та чек | Widgetis"
         description="Готові маркетингові віджети для магазину на Хорошоп: бігуча стрічка, таймер, дата доставки, фотовідгуки, колесо фортуни, прогресивна знижка. Встановлення 3 хвилини без програміста — збільшують конверсію та середній чек. 7 днів безкоштовно."
         keywords="віджети для Хорошоп, плагіни Хорошоп, віджети Horoshop, плагіни Horoshop, маркетингові інструменти Хорошоп, підвищення конверсії Хорошоп, збільшити середній чек Хорошоп, widgetis Хорошоп"
         path="/"
@@ -157,7 +157,7 @@ function HomePage() {
       <WidgetsShowcase />
       <DemoSection />
       <WidgetsList />
-      <PricingAnimSection />
+      <PricingAnimSection embedded />
       <HowItWorks />
       <InstallSection />
       <Testimonials />

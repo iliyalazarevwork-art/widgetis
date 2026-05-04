@@ -1,60 +1,17 @@
-import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import {
-  PreviewPhotoReviews,
-  PreviewViewers,
-  PreviewStock,
-  PreviewCartGoal,
-  PreviewDelivery,
-  PreviewCashback,
-} from './WidgetPreviews'
-import './WidgetPreviews.css'
+import { useWidgets } from '../hooks/useWidgets'
+import { FeaturedWidgetCard } from './FeaturedWidgetCard'
 import './WidgetsList.css'
 
-// ─── Card data ────────────────────────────────────────────────────────────────
-
-const WIDGETS = [
-  {
-    slug: 'photo-video-reviews',
-    name: 'Фотовідгуки',
-    description: 'Покупці довіряють фото інших покупців більше, ніж опису товару.',
-    preview: PreviewPhotoReviews,
-  },
-  {
-    slug: 'buyer-count',
-    name: 'Лічильник покупок',
-    description: 'Соціальний доказ — скільки людей вже купили цей товар.',
-    preview: PreviewViewers,
-  },
-  {
-    slug: 'stock-left',
-    name: 'Залишок на складі',
-    description: 'Дефіцит товару стимулює швидку покупку і знижує зволікання.',
-    preview: PreviewStock,
-  },
-  {
-    slug: 'cart-goal',
-    name: 'Ціль кошика',
-    description: 'Збільшує середній чек — покупець сам докладає товари для бонусу.',
-    preview: PreviewCartGoal,
-  },
-  {
-    slug: 'delivery-date',
-    name: 'Дата доставки',
-    description: 'Конкретна дата прибирає сумніви і прискорює рішення про покупку.',
-    preview: PreviewDelivery,
-  },
-  {
-    slug: 'promo-auto-apply',
-    name: 'Авто-застосування промокоду',
-    description: 'Автоматично вставляє промокод у поле на касі — нуль тертя між призом і покупкою.',
-    preview: PreviewCashback,
-  },
-]
-
-// ─── Main ─────────────────────────────────────────────────────────────────────
+const FEATURED_SLUGS = ['delivery-date', 'cart-goal', 'promo-line', 'photo-video-reviews']
 
 export function WidgetsList() {
+  const { widgets, loading } = useWidgets()
+
+  const featured = loading
+    ? []
+    : FEATURED_SLUGS.map((slug) => widgets.find((w) => w.slug === slug)).filter(Boolean) as typeof widgets
+
   return (
     <section className="wl">
       <div className="wl__container">
@@ -66,23 +23,11 @@ export function WidgetsList() {
           </p>
         </header>
 
-        <div className="wl__grid">
-          {WIDGETS.map((w) => {
-            const Preview = w.preview
-            return (
-              <Link key={w.slug} to={`/widgets/${w.slug}`} className="wl__card">
-                <h3 className="wl__card-title">{w.name}</h3>
-                <div className="wl__preview">
-                  <Preview />
-                </div>
-                <p className="wl__desc">{w.description}</p>
-                <span className="wl__card-more">
-                  Детальніше
-                  <ArrowRight size={13} strokeWidth={2.5} />
-                </span>
-              </Link>
-            )
-          })}
+        <div className="wp__grid">
+          {loading
+            ? FEATURED_SLUGS.map((slug) => <div key={slug} className="wc wc--skeleton" style={{ height: 260 }} />)
+            : featured.map((w, i) => <FeaturedWidgetCard key={w.slug} widget={w} index={i} />)
+          }
         </div>
 
         <div className="wl__cta">

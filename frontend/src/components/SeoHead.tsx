@@ -42,7 +42,7 @@ export function SeoHead({
       )}
 
       <meta property="og:type" content={type} />
-      <meta property="og:site_name" content="widgetis" />
+      <meta property="og:site_name" content="Widgetis" />
       <meta property="og:locale" content="uk_UA" />
       <meta property="og:url" content={url} />
       <meta property="og:title" content={title} />

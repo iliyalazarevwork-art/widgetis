@@ -166,7 +166,7 @@ export default function ConfigureWidgetPage() {
   const widgets: SiteWidget[] = widgetAccess
     ? mergeWidgets(widgetAccess.available, siteDetail?.widgets ?? [])
     : []
-  const allEnabled = widgets.length > 0 && widgets.every((widget) => widget.is_enabled)
+  const allEnabled = widgets.length > 0 && widgets.some((widget) => widget.is_enabled)
 
   const setAllWidgetsEnabled = async (nextEnabled: boolean) => {
     if (!selectedSiteId || widgets.length === 0) return
@@ -176,21 +176,43 @@ export default function ConfigureWidgetPage() {
 
     setBulkUpdating(true)
     try {
-      await Promise.all(
+      const results = await Promise.allSettled(
         targets.map((widget) =>
           put(`/profile/sites/${selectedSiteId}/widgets/${widget.product_id}`, {
             config: { enabled: nextEnabled },
-          }),
+          }).then(() => widget.product_id),
         ),
       )
-      setSiteDetail((prev) => {
-        if (!prev) return prev
-        return {
-          ...prev,
-          widgets: widgets.map((widget) => ({ ...widget, is_enabled: nextEnabled })),
-        }
-      })
-      toast.success(nextEnabled ? 'Всі віджети увімкнено' : 'Всі віджети вимкнено')
+
+      const succeededIds = new Set(
+        results
+          .filter((r): r is PromiseFulfilledResult<number> => r.status === 'fulfilled')
+          .map((r) => r.value),
+      )
+      const failedCount = results.filter((r) => r.status === 'rejected').length
+
+      if (succeededIds.size > 0) {
+        setSiteDetail((prev) => {
+          if (!prev) return prev
+          const updatedIds = new Set(targets.map((w) => w.product_id))
+          return {
+            ...prev,
+            widgets: widgets.map((widget) => {
+              if (succeededIds.has(widget.product_id)) return { ...widget, is_enabled: nextEnabled }
+              if (updatedIds.has(widget.product_id)) return widget
+              return widget
+            }),
+          }
+        })
+      }
+
+      if (failedCount > 0 && succeededIds.size > 0) {
+        toast.error(`${succeededIds.size} оновлено, ${failedCount} не вдалось (ліміт плану)`)
+      } else if (failedCount > 0) {
+        toast.error(`Помилка: ${failedCount} віджетів не вдалося оновити (ліміт плану)`)
+      } else {
+        toast.success(nextEnabled ? 'Всі віджети увімкнено' : 'Всі віджети вимкнено')
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Помилка')
     } finally {

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
+import { SeoHead } from '../../components/SeoHead'
 import { post } from '../../api/client'
 import { useAuth } from '../../context/AuthContext'
 import { toast } from 'sonner'
@@ -104,6 +105,7 @@ export default function LoginOtpPage() {
 
   return (
     <div className="auth-page">
+      <SeoHead title="Підтвердження входу — Widgetis" description="Введіть OTP-код для входу." path="/login/otp" noindex />
       <div className="auth-page__body">
         <button className="auth-page__back-inline" onClick={() => navigate('/login')}>
           <ArrowLeft size={16} />

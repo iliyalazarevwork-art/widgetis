@@ -41,7 +41,7 @@ class ProductController extends CoreBaseController
             default => $query->orderBy('sort_order'),
         };
 
-        $perPage = min((int) $request->input('per_page', 12), 50);
+        $perPage = min((int) $request->input('per_page', 50), 50);
         $paginator = $query->paginate($perPage);
 
         return $this->paginated(
