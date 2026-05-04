@@ -3,6 +3,8 @@
 // Prices, colors, icons — canonical. Import this everywhere.
 
 import { Sprout, Zap, Crown, type LucideIcon } from 'lucide-react'
+import { WIDGET_UA_NAME } from './widget-names'
+import { WidgetSlug } from './widget-slugs'
 
 export type PlanSlug = 'basic' | 'pro' | 'max'
 
@@ -21,7 +23,6 @@ export interface PlanDef {
   badge: string | null
   highlighted: boolean
   features: Array<{ label: string; slug?: string }>
-  widgetSlugs: string[]
 }
 
 export const PLANS: PlanDef[] = [
@@ -40,14 +41,13 @@ export const PLANS: PlanDef[] = [
     badge: null,
     highlighted: false,
     features: [
-      { label: 'Дата доставки', slug: 'delivery-date' },
-      { label: 'Бігуча стрічка', slug: 'promo-line' },
-      { label: 'Липка кнопка «Купити»', slug: 'sticky-buy-button' },
-      { label: 'Значки довіри', slug: 'trust-badges' },
+      { label: WIDGET_UA_NAME[WidgetSlug.DeliveryDate], slug: WidgetSlug.DeliveryDate },
+      { label: WIDGET_UA_NAME[WidgetSlug.PromoLine], slug: WidgetSlug.PromoLine },
+      { label: WIDGET_UA_NAME[WidgetSlug.StickyBuyButton], slug: WidgetSlug.StickyBuyButton },
+      { label: WIDGET_UA_NAME[WidgetSlug.TrustBadges], slug: WidgetSlug.TrustBadges },
       { label: '1 сайт' },
       { label: 'Email + Telegram підтримка' },
     ],
-    widgetSlugs: ['delivery-date', 'promo-line', 'sticky-buy-button', 'trust-badges'],
   },
   {
     id: 'pro',
@@ -65,15 +65,11 @@ export const PLANS: PlanDef[] = [
     highlighted: true,
     features: [
       { label: 'Всі 8 віджетів', slug: '/catalog' },
-      { label: 'Ціль кошика', slug: 'cart-goal' },
-      { label: 'Лічильник покупок', slug: 'buyer-count' },
-      { label: 'Фотовідгуки', slug: 'photo-video-reviews' },
+      { label: WIDGET_UA_NAME[WidgetSlug.CartGoal], slug: WidgetSlug.CartGoal },
+      { label: WIDGET_UA_NAME[WidgetSlug.BuyerCount], slug: WidgetSlug.BuyerCount },
+      { label: WIDGET_UA_NAME[WidgetSlug.PhotoVideoReviews], slug: WidgetSlug.PhotoVideoReviews },
       { label: '3 сайти' },
       { label: 'Self-service кастомізація' },
-    ],
-    widgetSlugs: [
-      'delivery-date', 'promo-line', 'sticky-buy-button', 'trust-badges',
-      'cart-goal', 'buyer-count', 'stock-left', 'photo-video-reviews',
     ],
   },
   {
@@ -92,18 +88,11 @@ export const PLANS: PlanDef[] = [
     highlighted: false,
     features: [
       { label: 'Всі 17 віджетів', slug: '/catalog' },
-      { label: 'Колесо фортуни', slug: 'spin-the-wheel' },
-      { label: 'SMS-верифікація в чекауті', slug: 'sms-otp-checkout' },
+      { label: WIDGET_UA_NAME[WidgetSlug.SpinTheWheel], slug: WidgetSlug.SpinTheWheel },
+      { label: WIDGET_UA_NAME[WidgetSlug.SmsOtpCheckout], slug: WidgetSlug.SmsOtpCheckout },
       { label: '5 сайтів' },
       { label: 'VIP підтримка' },
       { label: 'Повна кастомізація' },
-    ],
-    widgetSlugs: [
-      'delivery-date', 'promo-line', 'sticky-buy-button', 'trust-badges',
-      'cart-goal', 'buyer-count', 'stock-left', 'photo-video-reviews',
-      'recently-viewed', 'video-preview', 'floating-messengers', 'cart-recommender',
-      'progressive-discount', 'one-plus-one', 'last-chance-popup', 'spin-the-wheel',
-      'sms-otp-checkout',
     ],
   },
 ]
@@ -120,16 +109,16 @@ export const PLAN_ICONS: Record<PlanSlug, LucideIcon> = {
   max: Crown,
 }
 
-export const COMPARISON_ROWS = [
-  { feature: 'Кількість віджетів', basic: '4', pro: '8', max: '17' },
-  { feature: 'Сайтів', basic: '1', pro: '3', max: '5' },
-  { feature: 'Лічильник залишків', basic: false, pro: true, max: true },
-  { feature: 'Фотовідгуки', basic: false, pro: true, max: true },
-  { feature: 'Кешбек-калькулятор', basic: false, pro: false, max: true },
-  { feature: 'Таймер терміновості', basic: false, pro: false, max: true },
-  { feature: 'Кастомізація', basic: 'ручна', pro: 'самостійна', max: 'повна' },
-  { feature: 'Підтримка', basic: 'Email · TG', pro: 'Email · TG', max: 'VIP' },
-] as const
+export const SERVICE_COMPARISON_ROWS: ReadonlyArray<{
+  feature: string
+  basic: string
+  pro: string
+  max: string
+}> = [
+  { feature: 'Кастомізація', basic: 'вкл/викл',     pro: 'менеджер за запитом', max: 'персональний менеджер' },
+  { feature: 'Підтримка',    basic: 'Email',         pro: 'Email + Telegram',     max: 'VIP менеджер' },
+  { feature: 'Trial',        basic: '7 днів',        pro: '14 днів',              max: '14 днів' },
+]
 
 export function getPlan(slug: PlanSlug): PlanDef {
   return PLANS.find(p => p.id === slug)!

@@ -8,13 +8,17 @@ use App\Core\Http\Controllers\Api\V1\CoreBaseController;
 use App\Core\Http\Resources\Api\V1\PlanResource;
 use App\Core\Models\Plan;
 use App\Core\Models\PlanFeature;
+use App\Enums\ProductStatus;
 use Illuminate\Http\JsonResponse;
 
 class PlanController extends CoreBaseController
 {
     public function index(): JsonResponse
     {
-        $plans = Plan::active()->with('products')->orderBy('sort_order')->get();
+        $plans = Plan::active()
+            ->with(['products' => fn ($q) => $q->where('status', ProductStatus::Active->value)])
+            ->orderBy('sort_order')
+            ->get();
 
         return $this->success([
             'data' => PlanResource::collection($plans),

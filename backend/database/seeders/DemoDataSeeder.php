@@ -313,9 +313,9 @@ class DemoDataSeeder extends Seeder
             $createdSites[$row['domain']] = $site;
         }
 
-        $promoLine = $products->get('promo-line');
-        $deliveryDay = $products->get('delivery-date');
-        $buyerCount = $products->get('buyer-count');
+        $promoLine = $products->get(WidgetSlug::PromoLine->value);
+        $deliveryDay = $products->get(WidgetSlug::DeliveryDate->value);
+        $buyerCount = $products->get(WidgetSlug::BuyerCount->value);
 
         if ($promoLine && $deliveryDay && $buyerCount) {
             $mainSite = $createdSites['kovalenko-outdoor.com'];
@@ -613,7 +613,7 @@ class DemoDataSeeder extends Seeder
                 'result_metric' => '+5% середній чек',
                 'result_period' => 'за 2 місяці',
                 'color' => '#10b981',
-                'widgets' => ['promo-line', 'delivery-date', 'cart-goal'],
+                'widgets' => [WidgetSlug::PromoLine->value, WidgetSlug::DeliveryDate->value, WidgetSlug::CartGoal->value],
                 'sort_order' => 1,
             ],
             [
@@ -631,7 +631,7 @@ class DemoDataSeeder extends Seeder
                 'result_metric' => '+4% конверсія',
                 'result_period' => 'за 3 місяці',
                 'color' => '#f59e0b',
-                'widgets' => ['promo-line', 'video-preview', 'buyer-count'],
+                'widgets' => [WidgetSlug::PromoLine->value, WidgetSlug::VideoPreview->value, WidgetSlug::BuyerCount->value],
                 'sort_order' => 2,
             ],
             [
@@ -649,7 +649,7 @@ class DemoDataSeeder extends Seeder
                 'result_metric' => '−8% відмов',
                 'result_period' => 'за місяць',
                 'color' => '#ef4444',
-                'widgets' => ['promo-line', 'last-chance-popup', 'stock-left'],
+                'widgets' => [WidgetSlug::PromoLine->value, WidgetSlug::LastChancePopup->value, WidgetSlug::StockLeft->value],
                 'sort_order' => 3,
             ],
             [
@@ -667,7 +667,7 @@ class DemoDataSeeder extends Seeder
                 'result_metric' => '+11% email-база',
                 'result_period' => 'за 6 тижнів',
                 'color' => '#3b82f6',
-                'widgets' => ['buyer-count', 'photo-video-reviews', 'spin-the-wheel'],
+                'widgets' => [WidgetSlug::BuyerCount->value, WidgetSlug::PhotoVideoReviews->value, WidgetSlug::SpinTheWheel->value],
                 'sort_order' => 4,
             ],
             [
@@ -685,7 +685,7 @@ class DemoDataSeeder extends Seeder
                 'result_metric' => '+6% середній чек',
                 'result_period' => 'за 2 місяці',
                 'color' => '#8b5cf6',
-                'widgets' => ['minorder-goal', 'buyer-count', 'progressive-discount'],
+                'widgets' => [WidgetSlug::MinorderGoal->value, WidgetSlug::BuyerCount->value, WidgetSlug::ProgressiveDiscount->value],
                 'sort_order' => 5,
             ],
             [
@@ -703,7 +703,7 @@ class DemoDataSeeder extends Seeder
                 'result_metric' => '+8% повторних покупок',
                 'result_period' => 'за 4 місяці',
                 'color' => '#ec4899',
-                'widgets' => ['delivery-date', 'cart-recommender', 'one-plus-one'],
+                'widgets' => [WidgetSlug::DeliveryDate->value, WidgetSlug::CartRecommender->value, WidgetSlug::OnePlusOne->value],
                 'sort_order' => 6,
             ],
         ];
@@ -859,7 +859,7 @@ class DemoDataSeeder extends Seeder
                 'code' => 'DEMO2026',
                 'config' => [
                     'theme' => 'modern',
-                    'widgets' => ['countdown-timer', 'promo-line', 'delivery-date'],
+                    'widgets' => ['countdown-timer', WidgetSlug::PromoLine->value, WidgetSlug::DeliveryDate->value],
                     'timer' => [
                         'enabled' => true,
                         'ends_at' => $now->copy()->addHours(46)->toIso8601String(),

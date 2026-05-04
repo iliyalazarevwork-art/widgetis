@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom'
 import { useWidgets } from '../hooks/useWidgets'
 import { FeaturedWidgetCard } from './FeaturedWidgetCard'
+import { WidgetSlug } from '../data/widget-slugs'
 import './WidgetsList.css'
 
-const FEATURED_SLUGS = ['delivery-date', 'cart-goal', 'promo-line', 'photo-video-reviews']
+const FEATURED_SLUGS = [WidgetSlug.DeliveryDate, WidgetSlug.CartGoal, WidgetSlug.PromoLine, WidgetSlug.PhotoVideoReviews]
 
 export function WidgetsList() {
   const { widgets, loading } = useWidgets()

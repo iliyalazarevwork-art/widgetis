@@ -4,6 +4,7 @@ import {
   ShoppingCart, Shield, RefreshCcw, Headphones, MessageCircle, Send, Phone, Search, X as XIcon,
 } from 'lucide-react'
 import { useVisible } from '../hooks/useVisible'
+import { WidgetSlug } from '../data/widget-slugs'
 import './WidgetPreviews.css'
 
 const MONTHS_UK = ['січня','лютого','березня','квітня','травня','червня','липня','серпня','вересня','жовтня','листопада','грудня']
@@ -1161,33 +1162,33 @@ export function PreviewSmartSearchDetail() {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const PREVIEW_MAP: Record<string, React.FC> = {
-  'promo-line':            PreviewMarquee,
-  'delivery-date':         PreviewDelivery,
-  'cart-goal':             PreviewCartGoal,
-  'buyer-count':           PreviewPurchaseCounter,
-  'stock-left':            PreviewStock,
-  'photo-video-reviews':   PreviewPhotoReviews,
-  'one-plus-one':          PreviewOnePlusOne,
-  'progressive-discount':  PreviewProgressiveDiscount,
-  'spin-the-wheel':        PreviewSpinWheel,
-  'last-chance-popup':     PreviewRecentPurchase,
-  'prize-banner':          PreviewBonus,
-  'promo-auto-apply':      PreviewCashback,
-  'sticky-buy-button':     PreviewStickyBuyButton,
-  'trust-badges':          PreviewTrustBadges,
-  'phone-mask':            PreviewPhoneMask,
-  'minorder-goal':         PreviewMinOrder,
-  'recently-viewed':       PreviewRecentlyViewed,
-  'video-preview':         PreviewVideoPreview,
-  'floating-messengers':   PreviewFloatingMessengers,
-  'cart-recommender':      PreviewCartRecommender,
-  'sms-otp-checkout':      PreviewSmsOtp,
+  [WidgetSlug.PromoLine]:           PreviewMarquee,
+  [WidgetSlug.DeliveryDate]:        PreviewDelivery,
+  [WidgetSlug.CartGoal]:            PreviewCartGoal,
+  [WidgetSlug.BuyerCount]:          PreviewPurchaseCounter,
+  [WidgetSlug.StockLeft]:           PreviewStock,
+  [WidgetSlug.PhotoVideoReviews]:   PreviewPhotoReviews,
+  [WidgetSlug.OnePlusOne]:          PreviewOnePlusOne,
+  [WidgetSlug.ProgressiveDiscount]: PreviewProgressiveDiscount,
+  [WidgetSlug.SpinTheWheel]:        PreviewSpinWheel,
+  [WidgetSlug.LastChancePopup]:     PreviewRecentPurchase,
+  [WidgetSlug.PrizeBanner]:         PreviewBonus,
+  [WidgetSlug.PromoAutoApply]:      PreviewCashback,
+  [WidgetSlug.StickyBuyButton]:     PreviewStickyBuyButton,
+  [WidgetSlug.TrustBadges]:         PreviewTrustBadges,
+  [WidgetSlug.PhoneMask]:           PreviewPhoneMask,
+  [WidgetSlug.MinorderGoal]:        PreviewMinOrder,
+  [WidgetSlug.RecentlyViewed]:      PreviewRecentlyViewed,
+  [WidgetSlug.VideoPreview]:        PreviewVideoPreview,
+  [WidgetSlug.FloatingMessengers]:  PreviewFloatingMessengers,
+  [WidgetSlug.CartRecommender]:     PreviewCartRecommender,
+  [WidgetSlug.SmsOtpCheckout]:      PreviewSmsOtp,
 }
 
 // ─── Detailed previews for widget detail pages ───────────────────────────────
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const DETAIL_PREVIEW_MAP: Record<string, React.FC> = {
-  'cart-recommender': PreviewCartRecommenderDetail,
-  'smart-search':     PreviewSmartSearchDetail,
+  [WidgetSlug.CartRecommender]: PreviewCartRecommenderDetail,
+  [WidgetSlug.SmartSearch]:     PreviewSmartSearchDetail,
 }

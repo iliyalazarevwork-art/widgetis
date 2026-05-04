@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { SeoHead } from '../components/SeoHead'
 import { Link, useParams, Navigate } from 'react-router-dom'
+import { WidgetSlug } from '../data/widget-slugs'
 import {
   ArrowLeft,
   ArrowRight,
@@ -82,17 +83,17 @@ const BENEFIT_COLORS = ['#3B82F6', '#10B981', '#F59E0B']
 const BENEFIT_ICONS = [Zap, ShieldCheck, HeartHandshake]
 
 const WIDGET_CASE_MAP: Record<string, string[]> = {
-  'promo-line': ['ptashkin', 'beni-home', 'ballistic'],
-  'delivery-date': ['ptashkin', 'brewco'],
-  'cart-goal': ['ptashkin', 'homedetail'],
-  'buyer-count': ['kyivfit'],
-  'stock-left': ['ballistic'],
-  'photo-video-reviews': ['kyivfit'],
-  'spin-the-wheel': ['kyivfit'],
-  'last-chance-popup': ['homedetail'],
-  'progressive-discount': ['homedetail'],
-  'one-plus-one': ['beni-home'],
-  'promo-auto-apply': ['brewco'],
+  [WidgetSlug.PromoLine]:          ['ptashkin', 'beni-home', 'ballistic'],
+  [WidgetSlug.DeliveryDate]:       ['ptashkin', 'brewco'],
+  [WidgetSlug.CartGoal]:           ['ptashkin', 'homedetail'],
+  [WidgetSlug.BuyerCount]:         ['kyivfit'],
+  [WidgetSlug.StockLeft]:          ['ballistic'],
+  [WidgetSlug.PhotoVideoReviews]:  ['kyivfit'],
+  [WidgetSlug.SpinTheWheel]:       ['kyivfit'],
+  [WidgetSlug.LastChancePopup]:    ['homedetail'],
+  [WidgetSlug.ProgressiveDiscount]:['homedetail'],
+  [WidgetSlug.OnePlusOne]:         ['beni-home'],
+  [WidgetSlug.PromoAutoApply]:     ['brewco'],
 }
 
 function PlanUpsellCard({ plan, allWidgets }: { plan: ApiPlan; allWidgets: ApiWidget[] }) {
@@ -213,6 +214,11 @@ export function WidgetDetailPage() {
   const planPrices = containingPlans.map((p) => Number(p.price_monthly)).filter((n) => Number.isFinite(n))
   const lowestPrice = planPrices.length ? Math.min(...planPrices) : 0
   const highestPrice = planPrices.length ? Math.max(...planPrices) : 0
+
+  const cheapestContainingPlan = containingPlans.length
+    ? [...containingPlans].sort((a, b) => Number(a.price_monthly) - Number(b.price_monthly))[0]
+    : null
+  const buyBtnHref = cheapestContainingPlan ? `/pricing#${cheapestContainingPlan.slug}` : '/pricing'
 
   return (
     <div className="widget-page">
@@ -335,7 +341,7 @@ export function WidgetDetailPage() {
                   )
                 })}
               </div>
-              <Link to="/pricing" className="widget-page__buy-btn">
+              <Link to={buyBtnHref} className="widget-page__buy-btn">
                 Обрати тариф
               </Link>
               <div className="widget-page__buy-guarantee">

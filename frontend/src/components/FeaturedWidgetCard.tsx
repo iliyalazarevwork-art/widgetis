@@ -4,39 +4,40 @@ import { ArrowRight, Star, Sparkles } from 'lucide-react'
 import { PREVIEW_MAP, PreviewOnePlusOneCard } from './WidgetPreviews'
 import type { ApiWidget } from '../api/widgets'
 import type { TagSlug } from '../data/widgetTags'
+import { WidgetSlug } from '../data/widget-slugs'
 import '../pages/WidgetsPage.css'
 
 export const WIDGET_CASES: Record<string, { store: string; metric: string; color: string }[]> = {
-  'promo-line':         [
+  [WidgetSlug.PromoLine]:         [
     { store: 'ptashkinsad.com', metric: '+5% середній чек',  color: '#22C55E' },
     { store: 'benihome.com.ua', metric: '+4% конверсія',     color: '#22C55E' },
     { store: 'ballistic.com.ua',metric: '−8% відмов',        color: '#3B82F6' },
   ],
-  'delivery-date':      [
+  [WidgetSlug.DeliveryDate]:      [
     { store: 'modnakasta.ua', metric: '−18% питань до чату', color: '#22C55E' },
   ],
-  'buyer-count':        [
+  [WidgetSlug.BuyerCount]:        [
     { store: 'kyivfit.store', metric: '+11% email-база', color: '#22C55E' },
   ],
-  'cart-goal':          [
+  [WidgetSlug.CartGoal]:          [
     { store: 'homedetail.ua', metric: '+5% середній чек', color: '#22C55E' },
   ],
-  'stock-left':         [
+  [WidgetSlug.StockLeft]:         [
     { store: 'ballistic.com.ua', metric: '−8% відмов', color: '#3B82F6' },
   ],
-  'photo-video-reviews':[
+  [WidgetSlug.PhotoVideoReviews]: [
     { store: 'kyivfit.store', metric: '+11% email-база', color: '#22C55E' },
   ],
-  'spin-the-wheel':     [
+  [WidgetSlug.SpinTheWheel]:      [
     { store: 'kyivfit.store', metric: '+11% email-база', color: '#22C55E' },
   ],
-  'progressive-discount': [
+  [WidgetSlug.ProgressiveDiscount]: [
     { store: 'homedetail.ua', metric: '+5% середній чек', color: '#22C55E' },
   ],
-  'last-chance-popup':  [
+  [WidgetSlug.LastChancePopup]:   [
     { store: 'stylehub.com.ua', metric: '+5% конверсія', color: '#22C55E' },
   ],
-  'one-plus-one':       [
+  [WidgetSlug.OnePlusOne]:        [
     { store: 'benihome.com.ua', metric: '+6% середній чек', color: '#22C55E' },
   ],
 }
@@ -53,7 +54,7 @@ export const TAG_ACCENT: Record<TagSlug, string> = {
 }
 
 function WidgetMockup({ id }: { id: string }) {
-  const Preview = id === 'one-plus-one' ? PreviewOnePlusOneCard : PREVIEW_MAP[id]
+  const Preview = id === WidgetSlug.OnePlusOne ? PreviewOnePlusOneCard : PREVIEW_MAP[id]
   if (!Preview) return null
   return (
     <div className="wc__preview">

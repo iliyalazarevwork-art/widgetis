@@ -75309,19 +75309,82 @@
               "alignItems": "center",
               "children": [
                 {
-                  "type": "text",
-                  "id": "zbg59",
-                  "name": "h1",
-                  "fill": "#F0F0F0",
-                  "textGrowth": "fixed-width",
+                  "type": "frame",
+                  "id": "gWen3",
+                  "name": "titleFrame",
                   "width": "fill_container",
-                  "content": "Більший чек\nз кожного замовлення.",
-                  "lineHeight": 1.1,
-                  "textAlign": "center",
-                  "fontFamily": "Inter",
-                  "fontSize": 36,
-                  "fontWeight": "800",
-                  "letterSpacing": -1
+                  "layout": "vertical",
+                  "gap": 4,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "tHrYd",
+                      "name": "l1",
+                      "fill": "#F0F0F0",
+                      "content": "Більший чек",
+                      "lineHeight": 1.1,
+                      "textAlign": "center",
+                      "fontFamily": "Inter",
+                      "fontSize": 36,
+                      "fontWeight": "800",
+                      "letterSpacing": -1
+                    },
+                    {
+                      "type": "frame",
+                      "id": "E3x6c",
+                      "name": "l2",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "AM9EA",
+                          "name": "w1",
+                          "fill": "#F0F0F0",
+                          "content": "з ",
+                          "lineHeight": 1.1,
+                          "fontFamily": "Inter",
+                          "fontSize": 36,
+                          "fontWeight": "800",
+                          "letterSpacing": -1
+                        },
+                        {
+                          "type": "frame",
+                          "id": "OuQJi",
+                          "name": "kwrap",
+                          "gap": 6,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "uk7qk",
+                              "name": "kword",
+                              "fill": "#3B82F6",
+                              "content": "кожного",
+                              "lineHeight": 1.1,
+                              "fontFamily": "Inter",
+                              "fontSize": 36,
+                              "fontWeight": "800",
+                              "letterSpacing": -1
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "WO9z2",
+                      "name": "l3",
+                      "fill": "#F0F0F0",
+                      "content": "замовлення.",
+                      "lineHeight": 1.1,
+                      "textAlign": "center",
+                      "fontFamily": "Inter",
+                      "fontSize": 36,
+                      "fontWeight": "800",
+                      "letterSpacing": -1
+                    }
+                  ]
                 },
                 {
                   "type": "text",
@@ -75409,7 +75472,7 @@
                               "id": "RJG1d",
                               "name": "c1Plus",
                               "fill": "#10B981",
-                              "content": "3,5%",
+                              "content": "2,4%",
                               "lineHeight": 1,
                               "fontFamily": "Inter",
                               "fontSize": 26,
@@ -75421,7 +75484,7 @@
                               "id": "DAuWP",
                               "name": "c1Delta",
                               "fill": "#10B98199",
-                              "content": "+0,7%",
+                              "content": "+0,3%",
                               "lineHeight": 1,
                               "fontFamily": "Inter",
                               "fontSize": 14,
@@ -75476,7 +75539,7 @@
                               "id": "m4k5Fv",
                               "name": "c2Abs",
                               "fill": "#10B981",
-                              "content": "+470 ₴",
+                              "content": "+180 ₴",
                               "lineHeight": 1,
                               "fontFamily": "Inter",
                               "fontSize": 26,
@@ -75488,7 +75551,7 @@
                               "id": "KNpBH",
                               "name": "c2Rel2",
                               "fill": "#10B98199",
-                              "content": "+59%",
+                              "content": "+12%",
                               "lineHeight": 1,
                               "fontFamily": "Inter",
                               "fontSize": 14,

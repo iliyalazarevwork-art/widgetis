@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Core\Enums\Widget\WidgetSlug;
 use App\Core\Models\Product;
 use App\Enums\ProductAvailability;
 use App\Enums\ProductStatus;
@@ -14,34 +15,34 @@ class ProductSeeder extends Seeder
     public function run(): void
     {
         Product::whereNotIn('slug', [
-            'promo-line',
-            'delivery-date',
-            'sticky-buy-button',
-            'trust-badges',
-            'phone-mask',
-            'minorder-goal',
-            'cart-goal',
-            'buyer-count',
-            'stock-left',
-            'photo-video-reviews',
-            'recently-viewed',
-            'video-preview',
-            'floating-messengers',
-            'cart-recommender',
-            'prize-banner',
-            'promo-auto-apply',
-            'progressive-discount',
-            'one-plus-one',
-            'last-chance-popup',
-            'spin-the-wheel',
-            'sms-otp-checkout',
-            'smart-search',
+            WidgetSlug::PromoLine->value,
+            WidgetSlug::DeliveryDate->value,
+            WidgetSlug::StickyBuyButton->value,
+            WidgetSlug::TrustBadges->value,
+            WidgetSlug::PhoneMask->value,
+            WidgetSlug::MinorderGoal->value,
+            WidgetSlug::CartGoal->value,
+            WidgetSlug::BuyerCount->value,
+            WidgetSlug::StockLeft->value,
+            WidgetSlug::PhotoVideoReviews->value,
+            WidgetSlug::RecentlyViewed->value,
+            WidgetSlug::VideoPreview->value,
+            WidgetSlug::FloatingMessengers->value,
+            WidgetSlug::CartRecommender->value,
+            WidgetSlug::PrizeBanner->value,
+            WidgetSlug::PromoAutoApply->value,
+            WidgetSlug::ProgressiveDiscount->value,
+            WidgetSlug::OnePlusOne->value,
+            WidgetSlug::LastChancePopup->value,
+            WidgetSlug::SpinTheWheel->value,
+            WidgetSlug::SmsOtpCheckout->value,
+            WidgetSlug::SmartSearch->value,
         ])->delete();
 
         $products = [
             [
-                'slug' => 'promo-line',
-                'name' => ['en' => 'Promo Ticker', 'uk' => 'Біжучий рядок'],
+                'slug' => WidgetSlug::PromoLine->value,
+                'name' => ['en' => WidgetSlug::PromoLine->translatedName('en'), 'uk' => WidgetSlug::PromoLine->translatedName('uk')],
                 'description' => [
                     'en' => 'Animated ticker with promotional text, discounts and special offers. Grabs attention so visitors never miss important news.',
                     'uk' => 'Анімований рядок з текстом акцій, знижок та спеціальних пропозицій. Привертає увагу та не дає пропустити важливе.',
@@ -51,7 +52,7 @@ class ProductSeeder extends Seeder
                 'is_popular' => true,
                 'is_new' => false,
                 'sort_order' => 0,
-                'related_slugs' => ['sticky-buy-button', 'last-chance-popup', 'promo-auto-apply'],
+                'related_slugs' => [WidgetSlug::StickyBuyButton->value, WidgetSlug::LastChancePopup->value, WidgetSlug::PromoAutoApply->value],
                 'config_schema' => [
                     'enabled' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Enabled', 'uk' => 'Увімкнено']],
                     'speed' => ['type' => 'number', 'default' => 80, 'label' => ['en' => 'Scroll speed (px/s)', 'uk' => 'Швидкість прокрутки (пкс/с)']],
@@ -93,8 +94,8 @@ class ProductSeeder extends Seeder
                 ],
             ],
             [
-                'slug' => 'delivery-date',
-                'name' => ['en' => 'Delivery Date', 'uk' => 'Дата доставки'],
+                'slug' => WidgetSlug::DeliveryDate->value,
+                'name' => ['en' => WidgetSlug::DeliveryDate->translatedName('en'), 'uk' => WidgetSlug::DeliveryDate->translatedName('uk')],
                 'description' => [
                     'en' => 'Shows the estimated delivery date directly on the product page. Removes uncertainty and builds buyer confidence.',
                     'uk' => 'Показує орієнтовну дату отримання замовлення прямо на сторінці товару. Знімає невизначеність у клієнта.',
@@ -104,7 +105,7 @@ class ProductSeeder extends Seeder
                 'is_popular' => true,
                 'is_new' => false,
                 'sort_order' => 1,
-                'related_slugs' => ['trust-badges', 'phone-mask', 'sms-otp-checkout'],
+                'related_slugs' => [WidgetSlug::TrustBadges->value, WidgetSlug::PhoneMask->value, WidgetSlug::SmsOtpCheckout->value],
                 'config_schema' => [
                     'enabled' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Enabled', 'uk' => 'Увімкнено']],
                     'offsetDays' => ['type' => 'number', 'default' => 3, 'min' => 0, 'max' => 30, 'label' => ['en' => 'Delivery offset (days)', 'uk' => 'Зсув доставки (дні)']],
@@ -125,8 +126,8 @@ class ProductSeeder extends Seeder
                 ],
             ],
             [
-                'slug' => 'sticky-buy-button',
-                'name' => ['en' => 'Sticky Buy Button', 'uk' => 'Липка кнопка «Купити»'],
+                'slug' => WidgetSlug::StickyBuyButton->value,
+                'name' => ['en' => WidgetSlug::StickyBuyButton->translatedName('en'), 'uk' => WidgetSlug::StickyBuyButton->translatedName('uk')],
                 'description' => [
                     'en' => 'Fixed "Buy" button pinned to the bottom of the screen on mobile. Customers can place an order at any moment without searching for the button.',
                     'uk' => 'Фіксована кнопка «Купити» знизу екрану на мобільних. Клієнт може оформити замовлення в будь-який момент, не шукаючи кнопку.',
@@ -136,7 +137,7 @@ class ProductSeeder extends Seeder
                 'is_popular' => true,
                 'is_new' => false,
                 'sort_order' => 2,
-                'related_slugs' => ['promo-line', 'cart-goal', 'last-chance-popup'],
+                'related_slugs' => [WidgetSlug::PromoLine->value, WidgetSlug::CartGoal->value, WidgetSlug::LastChancePopup->value],
                 'config_schema' => [
                     'enabled' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Enabled', 'uk' => 'Увімкнено']],
                     'buttonSelector' => ['type' => 'string', 'default' => '.j-buy-button-add', 'label' => ['en' => 'Original button CSS selector', 'uk' => 'CSS-селектор оригінальної кнопки']],
@@ -150,8 +151,8 @@ class ProductSeeder extends Seeder
                 ],
             ],
             [
-                'slug' => 'trust-badges',
-                'name' => ['en' => 'Trust Badges', 'uk' => 'Значки довіри'],
+                'slug' => WidgetSlug::TrustBadges->value,
+                'name' => ['en' => WidgetSlug::TrustBadges->translatedName('en'), 'uk' => WidgetSlug::TrustBadges->translatedName('uk')],
                 'description' => [
                     'en' => 'Trust icons placed next to the "Buy" button: secure payment, returns, support. Eliminate hesitation before purchase.',
                     'uk' => 'Іконки гарантій поруч з кнопкою «Купити»: безпечна оплата, повернення, підтримка. Знімають сумніви перед покупкою.',
@@ -161,12 +162,12 @@ class ProductSeeder extends Seeder
                 'is_popular' => false,
                 'is_new' => false,
                 'sort_order' => 3,
-                'related_slugs' => ['delivery-date', 'phone-mask', 'buyer-count'],
+                'related_slugs' => [WidgetSlug::DeliveryDate->value, WidgetSlug::PhoneMask->value, WidgetSlug::BuyerCount->value],
                 'config_schema' => null,
             ],
             [
-                'slug' => 'phone-mask',
-                'name' => ['en' => 'Phone Mask', 'uk' => 'Маска телефону'],
+                'slug' => WidgetSlug::PhoneMask->value,
+                'name' => ['en' => WidgetSlug::PhoneMask->translatedName('en'), 'uk' => WidgetSlug::PhoneMask->translatedName('uk')],
                 'description' => [
                     'en' => 'Formats the phone input at checkout with country selector and flag. Reduces input errors and simplifies the ordering process.',
                     'uk' => 'Форматує поле вводу телефону на касі з вибором країни та прапорця. Зменшує помилки при введенні та спрощує оформлення замовлення.',
@@ -176,12 +177,12 @@ class ProductSeeder extends Seeder
                 'is_popular' => false,
                 'is_new' => false,
                 'sort_order' => 4,
-                'related_slugs' => ['trust-badges', 'delivery-date', 'sms-otp-checkout'],
+                'related_slugs' => [WidgetSlug::TrustBadges->value, WidgetSlug::DeliveryDate->value, WidgetSlug::SmsOtpCheckout->value],
                 'config_schema' => null,
             ],
             [
-                'slug' => 'minorder-goal',
-                'name' => ['en' => 'Minimum Order Goal', 'uk' => 'Мінімальне замовлення'],
+                'slug' => WidgetSlug::MinorderGoal->value,
+                'name' => ['en' => WidgetSlug::MinorderGoal->translatedName('en'), 'uk' => WidgetSlug::MinorderGoal->translatedName('uk')],
                 'description' => [
                     'en' => 'A pop-up reminder about the minimum order amount. Warns customers in advance and reduces drop-offs at checkout.',
                     'uk' => 'Спливаюча плашка з нагадуванням про мінімальну суму замовлення. Попереджає клієнтів заздалегідь і зменшує відмови на касі.',
@@ -191,7 +192,7 @@ class ProductSeeder extends Seeder
                 'is_popular' => false,
                 'is_new' => false,
                 'sort_order' => 5,
-                'related_slugs' => ['cart-goal', 'progressive-discount', 'one-plus-one'],
+                'related_slugs' => [WidgetSlug::CartGoal->value, WidgetSlug::ProgressiveDiscount->value, WidgetSlug::OnePlusOne->value],
                 'config_schema' => [
                     'enabled' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Enabled', 'uk' => 'Увімкнено']],
                     'threshold' => ['type' => 'number', 'default' => 500, 'min' => 0, 'label' => ['en' => 'Minimum order threshold (UAH)', 'uk' => 'Мінімальна сума замовлення (грн)']],
@@ -221,8 +222,8 @@ class ProductSeeder extends Seeder
                 ],
             ],
             [
-                'slug' => 'cart-goal',
-                'name' => ['en' => 'Cart Goal', 'uk' => 'Ціль кошика'],
+                'slug' => WidgetSlug::CartGoal->value,
+                'name' => ['en' => WidgetSlug::CartGoal->translatedName('en'), 'uk' => WidgetSlug::CartGoal->translatedName('uk')],
                 'description' => [
                     'en' => 'Progress bar showing how much more to spend for free shipping or a discount. Motivates customers to add items and increases average order value.',
                     'uk' => 'Прогрес-бар: покаже скільки залишилось до безкоштовної доставки або знижки. Мотивує додавати товари і збільшує середній чек.',
@@ -232,7 +233,7 @@ class ProductSeeder extends Seeder
                 'is_popular' => true,
                 'is_new' => false,
                 'sort_order' => 6,
-                'related_slugs' => ['minorder-goal', 'progressive-discount', 'cart-recommender'],
+                'related_slugs' => [WidgetSlug::MinorderGoal->value, WidgetSlug::ProgressiveDiscount->value, WidgetSlug::CartRecommender->value],
                 'config_schema' => [
                     'enabled' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Enabled', 'uk' => 'Увімкнено']],
                     'threshold' => ['type' => 'number', 'default' => 1000, 'min' => 0, 'label' => ['en' => 'Free shipping threshold (UAH)', 'uk' => 'Поріг безкоштовної доставки (грн)']],
@@ -263,8 +264,8 @@ class ProductSeeder extends Seeder
                 ],
             ],
             [
-                'slug' => 'buyer-count',
-                'name' => ['en' => 'Buyer Count', 'uk' => 'Лічильник покупок'],
+                'slug' => WidgetSlug::BuyerCount->value,
+                'name' => ['en' => WidgetSlug::BuyerCount->translatedName('en'), 'uk' => WidgetSlug::BuyerCount->translatedName('uk')],
                 'description' => [
                     'en' => 'Displays how many people have already bought this product. Social proof that encourages purchase and builds trust.',
                     'uk' => 'Відображає скільки людей вже купили цей товар. Соціальний доказ, що стимулює до покупки та підвищує довіру до товару.',
@@ -274,7 +275,7 @@ class ProductSeeder extends Seeder
                 'is_popular' => true,
                 'is_new' => false,
                 'sort_order' => 7,
-                'related_slugs' => ['photo-video-reviews', 'stock-left', 'recently-viewed'],
+                'related_slugs' => [WidgetSlug::PhotoVideoReviews->value, WidgetSlug::StockLeft->value, WidgetSlug::RecentlyViewed->value],
                 'config_schema' => [
                     'enabled' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Enabled', 'uk' => 'Увімкнено']],
                     'selectors' => [
@@ -296,8 +297,8 @@ class ProductSeeder extends Seeder
                 ],
             ],
             [
-                'slug' => 'stock-left',
-                'name' => ['en' => 'Stock Left', 'uk' => 'Залишок на складі'],
+                'slug' => WidgetSlug::StockLeft->value,
+                'name' => ['en' => WidgetSlug::StockLeft->translatedName('en'), 'uk' => WidgetSlug::StockLeft->translatedName('uk')],
                 'description' => [
                     'en' => 'Displays a dynamic stock count: "Only 5 left". Creates urgency and nudges customers toward a quick decision.',
                     'uk' => 'Показує динамічний залишок товару на складі: «Залишилось 5 шт». Створює відчуття терміновості та підштовхує до швидкого рішення.',
@@ -307,12 +308,12 @@ class ProductSeeder extends Seeder
                 'is_popular' => false,
                 'is_new' => false,
                 'sort_order' => 8,
-                'related_slugs' => ['buyer-count', 'last-chance-popup', 'spin-the-wheel'],
+                'related_slugs' => [WidgetSlug::BuyerCount->value, WidgetSlug::LastChancePopup->value, WidgetSlug::SpinTheWheel->value],
                 'config_schema' => null,
             ],
             [
-                'slug' => 'photo-video-reviews',
-                'name' => ['en' => 'Photo & Video Reviews', 'uk' => 'Фото-відео відгуки'],
+                'slug' => WidgetSlug::PhotoVideoReviews->value,
+                'name' => ['en' => WidgetSlug::PhotoVideoReviews->translatedName('en'), 'uk' => WidgetSlug::PhotoVideoReviews->translatedName('uk')],
                 'description' => [
                     'en' => 'A block of real buyer photos under the product. Visual social proof that builds trust better than text reviews.',
                     'uk' => 'Блок з реальними фото від покупців під товаром. Візуальний соціальний доказ, що підвищує довіру краще за текстові відгуки.',
@@ -322,27 +323,28 @@ class ProductSeeder extends Seeder
                 'is_popular' => false,
                 'is_new' => true,
                 'sort_order' => 9,
-                'related_slugs' => ['buyer-count', 'recently-viewed', 'video-preview'],
+                'related_slugs' => [WidgetSlug::BuyerCount->value, WidgetSlug::RecentlyViewed->value, WidgetSlug::VideoPreview->value],
                 'config_schema' => null,
             ],
             [
-                'slug' => 'recently-viewed',
-                'name' => ['en' => 'Recently Viewed', 'uk' => 'Нещодавно переглянуті'],
+                'slug' => WidgetSlug::RecentlyViewed->value,
+                'name' => ['en' => WidgetSlug::RecentlyViewed->translatedName('en'), 'uk' => WidgetSlug::RecentlyViewed->translatedName('uk')],
                 'description' => [
                     'en' => 'A horizontal strip of products the customer recently viewed. Brings forgotten items back into focus and increases browsing depth.',
                     'uk' => 'Горизонтальна стрічка з останніми товарами, які переглядав клієнт. Повертає увагу до забутих товарів і збільшує глибину перегляду.',
                 ],
                 'icon' => 'eye',
                 'tag_slug' => 'engagement',
+                'status' => ProductStatus::Inactive->value,
                 'is_popular' => false,
                 'is_new' => false,
                 'sort_order' => 10,
-                'related_slugs' => ['photo-video-reviews', 'floating-messengers', 'video-preview'],
+                'related_slugs' => [WidgetSlug::PhotoVideoReviews->value, WidgetSlug::FloatingMessengers->value, WidgetSlug::VideoPreview->value],
                 'config_schema' => null,
             ],
             [
-                'slug' => 'video-preview',
-                'name' => ['en' => 'Product Video Preview', 'uk' => 'Відео-превью товару'],
+                'slug' => WidgetSlug::VideoPreview->value,
+                'name' => ['en' => WidgetSlug::VideoPreview->translatedName('en'), 'uk' => WidgetSlug::VideoPreview->translatedName('uk')],
                 'description' => [
                     'en' => 'A video thumbnail in the product gallery that plays on hover. Showcases the product in action without leaving for YouTube.',
                     'uk' => 'Відео-мініатюра в галереї товару при наведенні. Демонструє продукт у дії без переходу на YouTube.',
@@ -352,7 +354,7 @@ class ProductSeeder extends Seeder
                 'is_popular' => false,
                 'is_new' => true,
                 'sort_order' => 11,
-                'related_slugs' => ['photo-video-reviews', 'recently-viewed', 'promo-line'],
+                'related_slugs' => [WidgetSlug::PhotoVideoReviews->value, WidgetSlug::RecentlyViewed->value, WidgetSlug::PromoLine->value],
                 'config_schema' => [
                     'enabled' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Enabled', 'uk' => 'Увімкнено']],
                     'testVideoUrl' => ['type' => 'string', 'default' => 'https://lzrv.agency/pila.mp4', 'label' => ['en' => 'Test video URL', 'uk' => 'URL тестового відео']],
@@ -370,23 +372,24 @@ class ProductSeeder extends Seeder
                 ],
             ],
             [
-                'slug' => 'floating-messengers',
-                'name' => ['en' => 'Floating Messengers', 'uk' => 'Плаваючі месенджери'],
+                'slug' => WidgetSlug::FloatingMessengers->value,
+                'name' => ['en' => WidgetSlug::FloatingMessengers->translatedName('en'), 'uk' => WidgetSlug::FloatingMessengers->translatedName('uk')],
                 'description' => [
                     'en' => 'WhatsApp, Telegram, Viber and phone buttons floating in the corner of the screen. Customers reach support in one tap.',
                     'uk' => 'Кнопки WhatsApp, Telegram, Viber та телефону, що плавають у куті екрану. Клієнт звертається до підтримки в один клік.',
                 ],
                 'icon' => 'message-circle',
                 'tag_slug' => 'engagement',
+                'status' => ProductStatus::Inactive->value,
                 'is_popular' => false,
                 'is_new' => false,
                 'sort_order' => 12,
-                'related_slugs' => ['recently-viewed', 'spin-the-wheel', 'buyer-count'],
+                'related_slugs' => [WidgetSlug::RecentlyViewed->value, WidgetSlug::SpinTheWheel->value, WidgetSlug::BuyerCount->value],
                 'config_schema' => null,
             ],
             [
-                'slug' => 'cart-recommender',
-                'name' => ['en' => 'AI Cart Recommendations', 'uk' => 'AI Рекомендації у кошику'],
+                'slug' => WidgetSlug::CartRecommender->value,
+                'name' => ['en' => WidgetSlug::CartRecommender->translatedName('en'), 'uk' => WidgetSlug::CartRecommender->translatedName('uk')],
                 'description' => [
                     'en' => 'A carousel of related products shown directly inside the cart. Helps customers find what they forgot to add and increases order value.',
                     'uk' => 'Карусель супутніх товарів прямо в кошику. Допомагає клієнту знайти те, що він забув додати, та збільшує суму замовлення.',
@@ -396,12 +399,12 @@ class ProductSeeder extends Seeder
                 'is_popular' => false,
                 'is_new' => true,
                 'sort_order' => 13,
-                'related_slugs' => ['cart-goal', 'progressive-discount', 'one-plus-one'],
+                'related_slugs' => [WidgetSlug::CartGoal->value, WidgetSlug::ProgressiveDiscount->value, WidgetSlug::OnePlusOne->value],
                 'config_schema' => null,
             ],
             [
-                'slug' => 'prize-banner',
-                'name' => ['en' => 'Prize Banner', 'uk' => 'Банер з призом'],
+                'slug' => WidgetSlug::PrizeBanner->value,
+                'name' => ['en' => WidgetSlug::PrizeBanner->translatedName('en'), 'uk' => WidgetSlug::PrizeBanner->translatedName('uk')],
                 'description' => [
                     'en' => 'A banner showing a won promo code after a game (Spin the Wheel) or a last-chance popup. Reminds the customer to use the discount and complete the purchase.',
                     'uk' => 'Плашка з виграним промокодом після гри (Колесо фортуни) або попапу «останній шанс». Нагадує клієнту скористатись знижкою і завершити покупку.',
@@ -411,12 +414,12 @@ class ProductSeeder extends Seeder
                 'is_popular' => false,
                 'is_new' => false,
                 'sort_order' => 14,
-                'related_slugs' => ['spin-the-wheel', 'promo-auto-apply', 'last-chance-popup'],
+                'related_slugs' => [WidgetSlug::SpinTheWheel->value, WidgetSlug::PromoAutoApply->value, WidgetSlug::LastChancePopup->value],
                 'config_schema' => null,
             ],
             [
-                'slug' => 'promo-auto-apply',
-                'name' => ['en' => 'Promo Auto-Apply', 'uk' => 'Авто-застосування промокоду'],
+                'slug' => WidgetSlug::PromoAutoApply->value,
+                'name' => ['en' => WidgetSlug::PromoAutoApply->translatedName('en'), 'uk' => WidgetSlug::PromoAutoApply->translatedName('uk')],
                 'description' => [
                     'en' => 'Automatically inserts a promo code at checkout and shows a toast notification. Removes friction between winning a prize and completing the order.',
                     'uk' => 'Автоматично вставляє промокод у поле на касі та показує toast-сповіщення. Усуває тертя між виграним призом і оформленням замовлення.',
@@ -426,12 +429,12 @@ class ProductSeeder extends Seeder
                 'is_popular' => false,
                 'is_new' => false,
                 'sort_order' => 15,
-                'related_slugs' => ['prize-banner', 'spin-the-wheel', 'promo-line'],
+                'related_slugs' => [WidgetSlug::PrizeBanner->value, WidgetSlug::SpinTheWheel->value, WidgetSlug::PromoLine->value],
                 'config_schema' => null,
             ],
             [
-                'slug' => 'progressive-discount',
-                'name' => ['en' => 'Progressive Discount', 'uk' => 'Прогресивна шкала знижок'],
+                'slug' => WidgetSlug::ProgressiveDiscount->value,
+                'name' => ['en' => WidgetSlug::ProgressiveDiscount->translatedName('en'), 'uk' => WidgetSlug::ProgressiveDiscount->translatedName('uk')],
                 'description' => [
                     'en' => 'Visual scale: "2 items — 5%, 3 — 10%, 5 — 20%". Multiple motivation levels to increase the number of items in the order.',
                     'uk' => 'Візуальна шкала: «2 товари — 5%, 3 — 10%, 5 — 20%». Кілька рівнів мотивації для збільшення кількості товарів у замовленні.',
@@ -441,7 +444,7 @@ class ProductSeeder extends Seeder
                 'is_popular' => false,
                 'is_new' => true,
                 'sort_order' => 16,
-                'related_slugs' => ['cart-goal', 'minorder-goal', 'one-plus-one'],
+                'related_slugs' => [WidgetSlug::CartGoal->value, WidgetSlug::MinorderGoal->value, WidgetSlug::OnePlusOne->value],
                 'config_schema' => [
                     'enabled' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Enabled', 'uk' => 'Увімкнено']],
                     'tiers' => [
@@ -466,8 +469,8 @@ class ProductSeeder extends Seeder
                 ],
             ],
             [
-                'slug' => 'one-plus-one',
-                'name' => ['en' => '1+1=3 Deal', 'uk' => 'Акція 1+1=3'],
+                'slug' => WidgetSlug::OnePlusOne->value,
+                'name' => ['en' => WidgetSlug::OnePlusOne->translatedName('en'), 'uk' => WidgetSlug::OnePlusOne->translatedName('uk')],
                 'description' => [
                     'en' => 'Buy two products — the cheapest one in the cart for 1 UAH. Motivates customers to add more items and increases average order value.',
                     'uk' => 'Купи два товари — найдешевший у кошику за 1 гривню. Мотивує додавати більше товарів та збільшує середній чек.',
@@ -477,7 +480,7 @@ class ProductSeeder extends Seeder
                 'is_popular' => false,
                 'is_new' => false,
                 'sort_order' => 17,
-                'related_slugs' => ['cart-goal', 'progressive-discount', 'cart-recommender'],
+                'related_slugs' => [WidgetSlug::CartGoal->value, WidgetSlug::ProgressiveDiscount->value, WidgetSlug::CartRecommender->value],
                 'config_schema' => [
                     'enabled' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Enabled', 'uk' => 'Увімкнено']],
                     'apiUrl' => ['type' => 'string', 'default' => 'https://widgetality.com', 'label' => ['en' => 'API URL', 'uk' => 'URL API']],
@@ -485,8 +488,8 @@ class ProductSeeder extends Seeder
                 ],
             ],
             [
-                'slug' => 'last-chance-popup',
-                'name' => ['en' => 'Last Chance Popup', 'uk' => 'Попап «Останній шанс»'],
+                'slug' => WidgetSlug::LastChancePopup->value,
+                'name' => ['en' => WidgetSlug::LastChancePopup->translatedName('en'), 'uk' => WidgetSlug::LastChancePopup->translatedName('uk')],
                 'description' => [
                     'en' => 'A discount popup that gives the visitor one last chance — triggered when the cursor moves toward closing the tab. Recovers up to 15% of visitors who were about to leave.',
                     'uk' => 'Попап зі знижкою — останній шанс перед виходом: спрацьовує, коли клієнт рухає мишу до закриття вкладки. Повертає до 15% відвідувачів, що вже «йшли».',
@@ -496,12 +499,12 @@ class ProductSeeder extends Seeder
                 'is_popular' => false,
                 'is_new' => true,
                 'sort_order' => 18,
-                'related_slugs' => ['spin-the-wheel', 'prize-banner', 'promo-auto-apply'],
+                'related_slugs' => [WidgetSlug::SpinTheWheel->value, WidgetSlug::PrizeBanner->value, WidgetSlug::PromoAutoApply->value],
                 'config_schema' => null,
             ],
             [
-                'slug' => 'spin-the-wheel',
-                'name' => ['en' => 'Spin the Wheel', 'uk' => 'Колесо фортуни'],
+                'slug' => WidgetSlug::SpinTheWheel->value,
+                'name' => ['en' => WidgetSlug::SpinTheWheel->translatedName('en'), 'uk' => WidgetSlug::SpinTheWheel->translatedName('uk')],
                 'description' => [
                     'en' => 'Gamified popup — spin the wheel and get a discount in exchange for an email. 5–20% conversion vs 1–3% for standard popups.',
                     'uk' => 'Гейміфікований попап — крути колесо, отримай знижку в обмін на email. Конверсія 5-20% проти 1-3% у звичайних попапів.',
@@ -511,12 +514,12 @@ class ProductSeeder extends Seeder
                 'is_popular' => false,
                 'is_new' => true,
                 'sort_order' => 19,
-                'related_slugs' => ['last-chance-popup', 'prize-banner', 'promo-auto-apply'],
+                'related_slugs' => [WidgetSlug::LastChancePopup->value, WidgetSlug::PrizeBanner->value, WidgetSlug::PromoAutoApply->value],
                 'config_schema' => null,
             ],
             [
-                'slug' => 'sms-otp-checkout',
-                'name' => ['en' => 'SMS OTP Checkout', 'uk' => 'SMS-верифікація в чекауті'],
+                'slug' => WidgetSlug::SmsOtpCheckout->value,
+                'name' => ['en' => WidgetSlug::SmsOtpCheckout->translatedName('en'), 'uk' => WidgetSlug::SmsOtpCheckout->translatedName('uk')],
                 'description' => [
                     'en' => 'OTP phone verification at checkout for traffic from Google/Facebook. Filters fake orders and improves the quality of the customer base.',
                     'uk' => 'OTP-перевірка телефону в чекауті під час оформлення замовлення для трафіку з Google/Facebook. Відсіює фейкові замовлення та підвищує якість бази клієнтів.',
@@ -526,12 +529,12 @@ class ProductSeeder extends Seeder
                 'is_popular' => false,
                 'is_new' => true,
                 'sort_order' => 20,
-                'related_slugs' => ['delivery-date', 'trust-badges', 'phone-mask'],
+                'related_slugs' => [WidgetSlug::DeliveryDate->value, WidgetSlug::TrustBadges->value, WidgetSlug::PhoneMask->value],
                 'config_schema' => null,
             ],
             [
-                'slug' => 'smart-search',
-                'name' => ['en' => 'Smart Search', 'uk' => 'Розумний пошук'],
+                'slug' => WidgetSlug::SmartSearch->value,
+                'name' => ['en' => WidgetSlug::SmartSearch->translatedName('en'), 'uk' => WidgetSlug::SmartSearch->translatedName('uk')],
                 'description' => [
                     'en' => 'Site search with autocomplete, query history, typo correction and product previews',
                     'uk' => 'Розумний пошук по сайту з автодоповненням, історією запитів, корекцією помилок та прев\'ю товарів',
@@ -543,7 +546,7 @@ class ProductSeeder extends Seeder
                 'is_new' => true,
                 'sort_order' => 22,
                 'config_schema' => null,
-                'related_slugs' => ['recently-viewed', 'cart-recommender', 'floating-messengers'],
+                'related_slugs' => [WidgetSlug::RecentlyViewed->value, WidgetSlug::CartRecommender->value, WidgetSlug::FloatingMessengers->value],
             ],
         ];
 

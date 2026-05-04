@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Core\Enums\Widget\WidgetSlug;
 use App\Core\Models\Plan;
 use App\Core\Models\Product;
 use Illuminate\Database\Seeder;
@@ -12,9 +13,33 @@ class ProductPlanAccessSeeder extends Seeder
 {
     public function run(): void
     {
-        $basicSlugs = ['delivery-date', 'promo-line', 'sticky-buy-button', 'trust-badges'];
-        $proSlugs = [...$basicSlugs, 'cart-goal', 'buyer-count', 'stock-left', 'photo-video-reviews'];
-        $maxSlugs = [...$proSlugs, 'recently-viewed', 'video-preview', 'floating-messengers', 'cart-recommender', 'progressive-discount', 'one-plus-one', 'last-chance-popup', 'spin-the-wheel', 'sms-otp-checkout', 'phone-mask', 'minorder-goal', 'prize-banner', 'promo-auto-apply', 'smart-search'];
+        $basicSlugs = [
+            WidgetSlug::PromoLine->value,
+            WidgetSlug::StickyBuyButton->value,
+            WidgetSlug::TrustBadges->value,
+            WidgetSlug::DeliveryDate->value,
+            WidgetSlug::CartGoal->value,
+            WidgetSlug::MinorderGoal->value,
+        ];
+        $proSlugs = [
+            ...$basicSlugs,
+            WidgetSlug::BuyerCount->value,
+            WidgetSlug::PhoneMask->value,
+            WidgetSlug::PhotoVideoReviews->value,
+            WidgetSlug::StockLeft->value,
+            WidgetSlug::CartRecommender->value,
+            WidgetSlug::VideoPreview->value,
+        ];
+        $maxSlugs = [
+            ...$proSlugs,
+            WidgetSlug::OnePlusOne->value,
+            WidgetSlug::ProgressiveDiscount->value,
+            WidgetSlug::SpinTheWheel->value,
+            WidgetSlug::PrizeBanner->value,
+            WidgetSlug::PromoAutoApply->value,
+            WidgetSlug::LastChancePopup->value,
+            WidgetSlug::SmsOtpCheckout->value,
+        ];
 
         $getIds = fn (array $slugs): array => Product::whereIn('slug', $slugs)->pluck('id')->toArray();
 

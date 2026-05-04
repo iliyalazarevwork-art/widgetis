@@ -1,17 +1,29 @@
-import { Check } from 'lucide-react'
+import { Check, ChevronDown } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
 /**
  * Single feature inside a plan card.
  * `href` makes the label a link (used by the public landing pricing page to
  * deep-link to a widget detail page); plain labels render as text.
+ * `expandable` turns the row into a disclosure: clicking the label toggles
+ * a nested list of widget links, optionally grouped (e.g. "From Basic" /
+ * "New in Pro") so the user sees both inherited and added widgets.
  */
 export interface PlanCardFeature {
   key: string
   label: string
+  /** Small muted hint shown under the label (always visible). */
+  hint?: string
   href?: string
+  expandable?: PlanCardExpandableGroup[]
+}
+
+export interface PlanCardExpandableGroup {
+  key: string
+  title?: string
+  items: Array<{ slug: string; name: string }>
 }
 
 export interface PlanCardProps {
@@ -83,7 +95,7 @@ export function PlanCard({
     .join(' ')
 
   return (
-    <div className={cardClass}>
+    <div id={slug} className={cardClass}>
       {badge}
 
       <div className="pricing__card-top">
@@ -126,23 +138,7 @@ export function PlanCard({
           className={`pricing__features${sectionIdx > 0 ? ' pricing__features--secondary' : ''}`}
         >
           {section.map((f) => (
-            <li key={f.key}>
-              <Check
-                size={14}
-                strokeWidth={2.5}
-                className={`pricing__feature-check pricing__feature-check--${slug}`}
-              />
-              {f.href ? (
-                <Link
-                  to={f.href}
-                  className={`pricing__feature-link pricing__feature-link--${slug}`}
-                >
-                  {f.label}
-                </Link>
-              ) : (
-                f.label
-              )}
-            </li>
+            <FeatureRow key={f.key} feature={f} slug={slug} />
           ))}
         </ul>
       ))}
@@ -152,4 +148,92 @@ export function PlanCard({
       {trialNote && <p className="pricing__trial-note">{trialNote}</p>}
     </div>
   )
+}
+
+function FeatureRow({ feature, slug }: { feature: PlanCardFeature; slug: string }) {
+  const [open, setOpen] = useState(false)
+  const groups = feature.expandable?.filter((g) => g.items.length > 0) ?? []
+  const hasExpandable = groups.length > 0
+
+  const showHint = !!feature.hint
+  const liClass = [
+    hasExpandable ? 'pricing__feature-item--expandable' : '',
+    showHint ? 'pricing__feature-item--with-hint' : '',
+  ]
+    .filter(Boolean)
+    .join(' ') || undefined
+
+  return (
+    <li className={liClass}>
+      <div className="pricing__feature-row">
+        <Check
+          size={14}
+          strokeWidth={2.5}
+          className={`pricing__feature-check pricing__feature-check--${slug}`}
+        />
+        {hasExpandable ? (
+          <button
+            type="button"
+            className={`pricing__feature-toggle pricing__feature-toggle--${slug}`}
+            onClick={() => setOpen((o) => !o)}
+            aria-expanded={open}
+          >
+            {feature.label}
+            <ChevronDown
+              size={14}
+              strokeWidth={2.5}
+              className={`pricing__feature-chevron${open ? ' pricing__feature-chevron--open' : ''}`}
+            />
+          </button>
+        ) : feature.href ? (
+          <Link
+            to={feature.href}
+            className={`pricing__feature-link pricing__feature-link--${slug}`}
+          >
+            {feature.label}
+          </Link>
+        ) : (
+          <span>{feature.label}</span>
+        )}
+      </div>
+      {showHint && <p className="pricing__feature-hint">{feature.hint}</p>}
+      {hasExpandable && open && (
+        <div className={`pricing__feature-sublist pricing__feature-sublist--${slug}`}>
+          {groups.map((group) => (
+            <div key={group.key} className="pricing__feature-subgroup">
+              {group.title && (
+                <p
+                  className={subgroupTitleClass(group.title)}
+                >
+                  {group.title}
+                </p>
+              )}
+              <ul className="pricing__feature-sublist-items">
+                {group.items.map((w) => (
+                  <li key={w.slug}>
+                    <Link
+                      to={`/widgets/${w.slug}`}
+                      className={`pricing__feature-link pricing__feature-link--${slug}`}
+                    >
+                      {w.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
+    </li>
+  )
+}
+
+const PLAN_NAME_SLUG: Record<string, string> = { basic: 'basic', pro: 'pro', max: 'max' }
+
+function subgroupTitleClass(title: string): string {
+  const lastWord = title.trim().split(/\s+/).pop()?.toLowerCase() ?? ''
+  const planSlug = PLAN_NAME_SLUG[lastWord]
+  return planSlug
+    ? `pricing__feature-subgroup-title pricing__feature-subgroup-title--${planSlug}`
+    : 'pricing__feature-subgroup-title'
 }

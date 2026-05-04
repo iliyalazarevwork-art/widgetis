@@ -5,16 +5,28 @@ import { SeoHead } from '../components/SeoHead'
 import { InterestButton } from '../components/InterestButton'
 import { PlanCard, type PlanCardFeature } from '../components/PlanCard'
 import { get } from '../api/client'
+import { fetchWidgets, type ApiWidget } from '../api/widgets'
 import { useAuth } from '../context/AuthContext'
 import { useSettings } from '../context/SettingsContext'
-import { PLANS, COMPARISON_ROWS, type PlanSlug } from '../data/plans'
+import { PLANS, SERVICE_COMPARISON_ROWS, type PlanSlug } from '../data/plans'
 import type { Subscription } from '../types'
 import './PricingPage.css'
+
+interface ApiPlanData {
+  slug: string
+  price_monthly: number
+  price_yearly: number
+  trial_days: number
+  max_sites: number
+  max_widgets: number
+  is_recommended: boolean
+  widget_slugs: string[]
+}
 
 const FAQ_ITEMS = [
   {
     q: 'Що таке trial і як він працює?',
-    a: '7 днів безкоштовного доступу на обраному плані. Після закінчення trial автоматично списується оплата. Можна скасувати в будь-який момент до закінчення пробного періоду.',
+    a: 'Безкоштовний доступ на обраному плані: 7 днів на Basic та 14 днів на Pro і Max. Після закінчення trial автоматично списується оплата. Можна скасувати в будь-який момент до закінчення пробного періоду.',
   },
   {
     q: 'Чи можна змінити план?',
@@ -87,6 +99,20 @@ export function PricingPage() {
   const [sub, setSub] = useState<Subscription | null>(null)
   const [subLoading, setSubLoading] = useState(true)
   const [upgrading, setUpgrading] = useState<string | null>(null)
+  const [planData, setPlanData] = useState<Record<string, ApiPlanData>>({})
+  const [widgets, setWidgets] = useState<ApiWidget[]>([])
+
+  useEffect(() => {
+    get<{ data: ApiPlanData[] }>('/plans')
+      .then(res => setPlanData(Object.fromEntries(res.data.map(p => [p.slug, p]))))
+      .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    fetchWidgets()
+      .then(setWidgets)
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     // If auth is still loading, wait
@@ -112,8 +138,113 @@ export function PricingPage() {
   // True while we don't yet know the user's plan state
   const ctaReady = !authLoading && !subLoading
 
+  useEffect(() => {
+    if (!ctaReady) return
+    const hash = window.location.hash.replace(/^#/, '')
+    if (!hash) return
+    const el = document.getElementById(hash)
+    if (!el) return
+    requestAnimationFrame(() => {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }, [ctaReady])
+
   const isSubActive = sub !== null && (sub.status === 'active' || sub.status === 'trial')
   const currentPlanOrder = isSubActive ? (PLAN_ORDER[sub!.plan.slug] ?? -1) : -1
+
+  const mergedPlans = PLANS.map(plan => {
+    const api = planData[plan.id]
+    return {
+      ...plan,
+      monthlyPrice: api?.price_monthly ?? plan.monthlyPrice,
+      yearlyPrice: api?.price_yearly ?? plan.yearlyPrice,
+      yearlyMonthly: api ? Math.round(api.price_yearly / 12) : plan.yearlyMonthly,
+      widgets: api?.max_widgets ?? plan.widgets,
+      sites: api?.max_sites ?? plan.sites,
+      highlighted: api?.is_recommended ?? plan.highlighted,
+      widgetSlugs: api?.widget_slugs ?? [],
+    }
+  })
+
+  const widgetsBySlug = new Map(widgets.map((w) => [w.slug, w]))
+
+  const slugsToWidgets = (slugs: string[]) =>
+    slugs
+      .map((slug) => widgetsBySlug.get(slug))
+      .filter((w): w is ApiWidget => Boolean(w))
+      .map((w) => ({ slug: w.slug, name: w.name }))
+
+  const basicSlugs = new Set(mergedPlans.find((p) => p.id === 'basic')?.widgetSlugs ?? [])
+  const proSlugs = new Set(mergedPlans.find((p) => p.id === 'pro')?.widgetSlugs ?? [])
+
+  const buildExpandableGroups = (planId: PlanSlug, planSlugs: string[]) => {
+    if (planId === 'pro') {
+      const inherited = slugsToWidgets(planSlugs.filter((s) => basicSlugs.has(s)))
+      const added = slugsToWidgets(planSlugs.filter((s) => !basicSlugs.has(s)))
+      return [
+        { key: 'inherited', title: 'Все з Basic', items: inherited },
+        { key: 'new', title: 'Нові в Pro', items: added },
+      ]
+    }
+    if (planId === 'max') {
+      const inherited = slugsToWidgets(planSlugs.filter((s) => proSlugs.has(s)))
+      const added = slugsToWidgets(planSlugs.filter((s) => !proSlugs.has(s)))
+      return [
+        { key: 'inherited', title: 'Все з Pro', items: inherited },
+        { key: 'new', title: 'Нові в Max', items: added },
+      ]
+    }
+    return []
+  }
+
+  const slugsByPlanSet: Record<PlanSlug, Set<string>> = {
+    basic: new Set(mergedPlans.find((p) => p.id === 'basic')?.widgetSlugs ?? []),
+    pro:   new Set(mergedPlans.find((p) => p.id === 'pro')?.widgetSlugs   ?? []),
+    max:   new Set(mergedPlans.find((p) => p.id === 'max')?.widgetSlugs   ?? []),
+  }
+
+  const orderedComparisonSlugs: string[] = []
+  const seenComparisonSlugs = new Set<string>()
+  for (const planId of ['basic', 'pro', 'max'] as PlanSlug[]) {
+    for (const slug of slugsByPlanSet[planId]) {
+      if (!seenComparisonSlugs.has(slug)) {
+        orderedComparisonSlugs.push(slug)
+        seenComparisonSlugs.add(slug)
+      }
+    }
+  }
+
+  const widgetComparisonRows = orderedComparisonSlugs
+    .map((slug) => widgetsBySlug.get(slug))
+    .filter((w): w is ApiWidget => Boolean(w))
+    .map((w) => ({
+      feature: w.name,
+      basic: slugsByPlanSet.basic.has(w.slug),
+      pro:   slugsByPlanSet.pro.has(w.slug),
+      max:   slugsByPlanSet.max.has(w.slug),
+    }))
+
+  const comparisonRows: Array<{
+    feature: string
+    basic: boolean | string
+    pro: boolean | string
+    max: boolean | string
+  }> = [
+    {
+      feature: 'Сайтів',
+      basic: String(planData['basic']?.max_sites ?? '—'),
+      pro:   String(planData['pro']?.max_sites   ?? '—'),
+      max:   String(planData['max']?.max_sites   ?? '—'),
+    },
+    {
+      feature: 'Кількість віджетів',
+      basic: String(slugsByPlanSet.basic.size),
+      pro:   String(slugsByPlanSet.pro.size),
+      max:   String(slugsByPlanSet.max.size),
+    },
+    ...widgetComparisonRows,
+    ...SERVICE_COMPARISON_ROWS,
+  ]
 
   const handleUpgrade = async (planId: string) => {
     if (upgrading) return
@@ -129,7 +260,7 @@ export function PricingPage() {
     <>
       <SeoHead
         title="Тарифи на віджети для Хорошоп — від 799 ₴/міс | Widgetis"
-        description="Тарифи на маркетингові віджети для Хорошоп: Basic від 799 ₴, Pro 1599 ₴, Max 2899 ₴. 7 днів безкоштовного тріалу на будь-якому плані. Скасувати в один клік."
+        description="Тарифи на маркетингові віджети для Хорошоп: Basic від 799 ₴, Pro 1599 ₴, Max 3990 ₴. До 14 днів безкоштовного тріалу. Скасувати в один клік."
         keywords="ціна віджети Хорошоп, тарифи плагіни Хорошоп, тарифи Horoshop, безкоштовні плагіни Хорошоп, підписка Widgetis, ціна віджети Horoshop"
         path="/pricing"
         structuredData={[
@@ -142,7 +273,7 @@ export function PricingPage() {
               acceptedAnswer: { '@type': 'Answer', text: item.a },
             })),
           },
-          ...PLANS.map((plan) => ({
+          ...mergedPlans.map((plan) => ({
             '@context': 'https://schema.org',
             '@type': 'Product',
             name: `Widgetis ${plan.name}`,
@@ -204,7 +335,7 @@ export function PricingPage() {
           <p className="pricing__hero-sub">
             {isSubActive
               ? `Поточний план: ${sub!.plan.name} · ${sub!.billing_period === 'yearly' ? 'Рік' : 'Місяць'}`
-              : '7 днів безкоштовно. Скасуєш коли захочеш.'}
+              : `До ${planData['pro']?.trial_days ?? 14} днів безкоштовно. Скасуєш коли захочеш.`}
           </p>
         </header>
 
@@ -229,21 +360,47 @@ export function PricingPage() {
 
         {/* ── Plans ── */}
         <div className="pricing__plans">
-          {PLANS.map((plan) => {
+          {mergedPlans.map((plan) => {
             const planOrder = PLAN_ORDER[plan.id] ?? 0
             const isCurrent = isSubActive && sub!.plan.slug === plan.id
             const isBelow = isSubActive && planOrder < currentPlanOrder
             const isAbove = isSubActive && planOrder > currentPlanOrder
 
-            const features: PlanCardFeature[] = plan.features.map((f) => ({
-              key: f.label,
-              label: f.label,
-              href: f.slug ? (f.slug.startsWith('/') ? f.slug : `/widgets/${f.slug}`) : undefined,
-            }))
+            const activePlanWidgets = slugsToWidgets(plan.widgetSlugs)
+            const expandableGroups = buildExpandableGroups(plan.id, plan.widgetSlugs)
+            const expandableTotal = expandableGroups.reduce((sum, g) => sum + g.items.length, 0)
+            const showExpandable =
+              (plan.id === 'pro' || plan.id === 'max') && expandableTotal > 0
 
+            const inheritedCount = expandableGroups.find((g) => g.key === 'inherited')?.items.length ?? 0
+            const newCount = expandableGroups.find((g) => g.key === 'new')?.items.length ?? 0
+            const lowerPlanName = plan.id === 'pro' ? 'Basic' : plan.id === 'max' ? 'Pro' : ''
+            const hint = showExpandable && lowerPlanName
+              ? `Все з ${lowerPlanName} (${inheritedCount}) + ще ${newCount} ${newCount === 1 ? 'віджет' : newCount < 5 ? 'віджети' : 'віджетів'}`
+              : undefined
+
+            const features: PlanCardFeature[] = plan.features.map((f, idx) => {
+              const isAllWidgetsRow = showExpandable && idx === 0
+              return {
+                key: f.label,
+                label: isAllWidgetsRow ? `Всі ${expandableTotal} віджетів` : f.label,
+                hint: isAllWidgetsRow ? hint : undefined,
+                href:
+                  isAllWidgetsRow
+                    ? undefined
+                    : f.slug
+                      ? f.slug.startsWith('/')
+                        ? f.slug
+                        : `/widgets/${f.slug}`
+                      : undefined,
+                expandable: isAllWidgetsRow ? expandableGroups : undefined,
+              }
+            })
+
+            const totalWidgets = showExpandable ? expandableTotal : activePlanWidgets.length || plan.widgets
             const capLine = `${
-              plan.widgets === 17 ? 'Всі 17 віджетів' : `${plan.widgets} віджети`
-            } · ${plan.sites} ${plan.sites === 1 ? 'сайт' : 'сайти'}`
+              plan.id === 'max' ? `Всі ${totalWidgets} віджетів` : `${totalWidgets} ${totalWidgets === 1 ? 'віджет' : totalWidgets < 5 ? 'віджети' : 'віджетів'}`
+            } · ${plan.sites} ${plan.sites === 1 ? 'сайт' : plan.sites < 5 ? 'сайти' : 'сайтів'}`
 
             const badge = isCurrent ? (
               <div className="pricing__badge pricing__badge--current">Ваш поточний план</div>
@@ -331,7 +488,7 @@ export function PricingPage() {
               ))}
             </div>
 
-            {COMPARISON_ROWS.map(row => (
+            {comparisonRows.map(row => (
               <div key={row.feature} className="pricing__clist-row">
                 <span className="pricing__clist-feature">{row.feature}</span>
                 {(['basic', 'pro', 'max'] as PlanSlug[]).map(planId => (
@@ -370,7 +527,7 @@ export function PricingPage() {
             </Link>
           ) : (
             <>
-              <Link to="/signup?plan=pro" className="pricing__final-cta-btn">
+              <Link to="/signup?plan=pro&billing=monthly" className="pricing__final-cta-btn">
                 Почати безкоштовно
               </Link>
               <p className="pricing__final-cta-note">7 днів безкоштовно, без зобов'язань</p>
