@@ -279,16 +279,23 @@
 
 .hero__cta--secondary {
   padding: 14px 0;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #e8e8e8;
+  background: rgba(74, 222, 128, 0.08);
+  border: 1.5px solid #4ade80;
+  color: #4ade80;
   font-size: 14px;
   font-weight: 600;
+  animation: hero-secondary-pulse 2.5s ease-in-out infinite;
 }
 
 .hero__cta--secondary:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(74, 222, 128, 0.16);
+  box-shadow: 0 0 20px rgba(74, 222, 128, 0.35);
+  transform: translateY(-2px);
+}
+
+@keyframes hero-secondary-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.35); }
+  50% { box-shadow: 0 0 0 6px rgba(74, 222, 128, 0); }
 }
 
 .hero__cta--secondary svg {

@@ -1,4 +1,4 @@
-import { MessageSquareText, Gift, LayoutList } from 'lucide-react'
+import { MessageSquareText, Gift } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import './CTABanner.css'
 
@@ -17,20 +17,12 @@ export function CTABanner({ onConsultation }: CTABannerProps) {
           Обери віджети, отримай готовий скрипт, вставляй в адмінку — і вони запрацюють.
         </p>
         <div className="cta-banner__actions">
-          <button
-            className="cta-banner__btn cta-banner__btn--primary"
-            onClick={onConsultation}
-            type="button"
-          >
+          <Link to="/pricing" className="cta-banner__btn cta-banner__btn--primary">
             <Gift size={20} strokeWidth={2} />
             Почати 7-денний trial
-          </button>
-          <Link to="/pricing" className="cta-banner__btn cta-banner__btn--outline">
-            <LayoutList size={20} strokeWidth={2} />
-            Переглянути тарифи
           </Link>
           <button
-            className="cta-banner__btn cta-banner__btn--ghost"
+            className="cta-banner__btn cta-banner__btn--consultation"
             onClick={onConsultation}
             type="button"
           >
@@ -38,7 +30,7 @@ export function CTABanner({ onConsultation }: CTABannerProps) {
             Безкоштовна консультація
           </button>
         </div>
-        <p className="cta-banner__note">7 днів безкоштовно. Картка не обов'язкова.</p>
+        <p className="cta-banner__note">7 днів безкоштовно — картка не потрібна.</p>
       </div>
     </section>
   )
