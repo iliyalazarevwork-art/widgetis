@@ -5,9 +5,9 @@
 # instead of returning a 502/plaintext error (which Safari
 # sometimes offers to download as a .txt file).
 (zdd_http) {
-    lb_try_duration 30s
-    lb_try_interval 500ms
-    fail_duration   10s
+	lb_try_duration 30s
+	lb_try_interval 500ms
+	fail_duration 10s
 }
 
 # ─────────────────────────────────────────────────────────────
@@ -16,15 +16,43 @@
 # JSON API and the live-demo proxy live on dedicated subdomains.
 # The catch-all here is safe because no Laravel route can ever land
 # on this origin. No path matchers needed.
-widgetis.com, www.widgetis.com {
-    encode gzip zstd
-    request_body {
-        max_size 20MB
-    }
+www.widgetis.com {
+	redir https://widgetis.com{uri} permanent
+}
 
-    reverse_proxy frontend:80 {
-        import zdd_http
-    }
+widgetis.com {
+	encode gzip zstd
+	request_body {
+		max_size 20MB
+	}
+
+	@legacyPromoLine path /widgets/marquee /widgets/ticker
+	redir @legacyPromoLine /widgets/promo-line permanent
+
+	@legacyMinorderGoal path /widgets/free-delivery /widgets/min-order
+	redir @legacyMinorderGoal /widgets/minorder-goal permanent
+
+	@legacyBuyerCount path /widgets/social-proof /widgets/who-watching
+	redir @legacyBuyerCount /widgets/buyer-count permanent
+
+	@legacyStockLeft path /widgets/stock-counter
+	redir @legacyStockLeft /widgets/stock-left permanent
+
+	@legacyCartGoal path /widgets/cart-progress
+	redir @legacyCartGoal /widgets/cart-goal permanent
+
+	@legacyPhotoVideoReviews path /widgets/photo-reviews
+	redir @legacyPhotoVideoReviews /widgets/photo-video-reviews permanent
+
+	@legacyVideoPreview path /widgets/product-video-preview
+	redir @legacyVideoPreview /widgets/video-preview permanent
+
+	@legacyLastChancePopup path /widgets/exit-intent-popup
+	redir @legacyLastChancePopup /widgets/last-chance-popup permanent
+
+	reverse_proxy frontend:80 {
+		import zdd_http
+	}
 }
 
 # ─────────────────────────────────────────────────────────────
@@ -35,16 +63,19 @@ widgetis.com, www.widgetis.com {
 # files (e.g. uploaded images returned via direct URL) are also
 # available since they live on the same volume.
 api.widgetis.com {
-    encode gzip zstd
-    request_body {
-        max_size 20MB
-    }
+	encode gzip zstd
+	header {
+		X-Robots-Tag "noindex, nofollow, noarchive"
+	}
+	request_body {
+		max_size 20MB
+	}
 
-    root * /var/www/html/public
-    php_fastcgi backend:9000 {
-        import zdd_http
-    }
-    file_server
+	root * /var/www/html/public
+	php_fastcgi backend:9000 {
+		import zdd_http
+	}
+	file_server
 }
 
 # ─────────────────────────────────────────────────────────────
@@ -54,11 +85,14 @@ api.widgetis.com {
 # is sandboxed to this subdomain and CANNOT reach localStorage
 # tokens or session cookies on widgetis.com / api.widgetis.com.
 preview.widgetis.com {
-    encode gzip zstd
+	encode gzip zstd
+	header {
+		X-Robots-Tag "noindex, nofollow, noarchive"
+	}
 
-    reverse_proxy site-proxy:3100 {
-        header_up X-Real-IP {remote_host}
-        header_up X-Forwarded-For {remote_host}
-        import zdd_http
-    }
+	reverse_proxy site-proxy:3100 {
+		header_up X-Real-IP {remote_host}
+		header_up X-Forwarded-For {remote_host}
+		import zdd_http
+	}
 }
