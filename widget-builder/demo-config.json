@@ -388,50 +388,6 @@
                 }
             }
         },
-        "module-recently-viewed": {
-            "config": {
-                "enabled": true,
-                "selectors": [
-                    {
-                        "selector": ".j-product-block",
-                        "insert": "after"
-                    },
-                    {
-                        "selector": "#cart .cart__summary",
-                        "insert": "after"
-                    },
-                    {
-                        "selector": "main",
-                        "insert": "after"
-                    }
-                ],
-                "minItems": 3,
-                "maxItems": 12,
-                "expiryDays": 30,
-                "cardWidthDesktop": 200,
-                "cardWidthMobile": 150,
-                "backgroundColor": "transparent",
-                "textColor": "#4b2535",
-                "priceColor": "#be7094",
-                "mutedColor": "#9ca3af",
-                "borderColor": "#fce7f3",
-                "borderRadius": 12,
-                "showOnProductPage": true,
-                "showOnCartPage": true,
-                "showOnAnyPage": true
-            },
-            "i18n": {
-                "ua": {
-                    "heading": "Ви нещодавно дивились"
-                },
-                "ru": {
-                    "heading": "Вы недавно смотрели"
-                },
-                "en": {
-                    "heading": "Recently viewed"
-                }
-            }
-        },
         "module-spin-the-wheel": {
             "$comment": "Demo overrides: delaySec=0 fires the popup right after init, cooldownHours=0 disables once-per-week throttle so visitors always see it.",
             "config": {

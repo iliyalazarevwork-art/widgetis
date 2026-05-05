@@ -135,7 +135,7 @@ if [ "$LOCAL" = false ]; then
   fi
 
   phase "build demo bundle"
-  task build:demo
+  DEMO_PROXY_PUBLIC_URL=https://preview.widgetis.com task build:demo
   phase_end
 
   phase "git push"

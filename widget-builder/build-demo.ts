@@ -97,9 +97,36 @@ function fillDefaultsForMissingModules(modules: ModuleConfigs): ModuleConfigs {
   return merged;
 }
 
+const DEV_PROXY_URL = 'http://localhost:3100';
+
+/**
+ * Replace dev-host occurrences (http://localhost:3100) inside string values of
+ * the module configs with the public proxy URL passed via DEMO_PROXY_PUBLIC_URL.
+ *
+ * Why: demo-bundle is injected by site-proxy into the merchant's domain, so any
+ * absolute asset URL (e.g. testVideoUrl) must point to the proxy host. In dev
+ * that's localhost:3100; on prod it's https://preview.widgetis.com.
+ */
+function rewriteProxyUrls(modules: ModuleConfigs, publicUrl: string): ModuleConfigs {
+  if (publicUrl === DEV_PROXY_URL) return modules;
+  const trimmed = publicUrl.replace(/\/+$/, '');
+  const walk = (value: unknown): unknown => {
+    if (typeof value === 'string') return value.split(DEV_PROXY_URL).join(trimmed);
+    if (Array.isArray(value)) return value.map(walk);
+    if (value && typeof value === 'object') {
+      return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, walk(v)]));
+    }
+    return value;
+  };
+  return walk(modules) as ModuleConfigs;
+}
+
 async function main(): Promise<void> {
   const explicit = loadConfig().modules;
-  const modules = fillDefaultsForMissingModules(explicit);
+  const filled = fillDefaultsForMissingModules(explicit);
+  const publicUrl = process.env.DEMO_PROXY_PUBLIC_URL?.trim() || DEV_PROXY_URL;
+  const modules = rewriteProxyUrls(filled, publicUrl);
+  process.stderr.write(`[build-demo] proxy URL: ${publicUrl}\n`);
 
   if (Object.keys(modules).length === 0) {
     throw new Error('demo-config.json contains zero modules and no defaults could be loaded');

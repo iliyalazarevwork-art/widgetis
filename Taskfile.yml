@@ -263,7 +263,10 @@ tasks:
       # `run --rm` — каждый билд в свежем эфемерном контейнере с актуальной
       # compose-конфигурацией (volume-mounts из docker-compose.dev.yml).
       # Не зависит от состояния работающего widget-builder.
-      - '{{.DC}} run --rm --no-deps -T widget-builder jiti build-demo.ts > services/site-proxy/public/demo-bundle.js 2>/dev/null'
+      # -e DEMO_PROXY_PUBLIC_URL forwards from host: prod-deploy sets it to
+      # https://preview.widgetis.com so absolute asset URLs (testVideoUrl etc.)
+      # point at the prod site-proxy host, not localhost:3100.
+      - '{{.DC}} run --rm --no-deps -T -e DEMO_PROXY_PUBLIC_URL widget-builder jiti build-demo.ts > services/site-proxy/public/demo-bundle.js'
       - |
         if [ ! -s services/site-proxy/public/demo-bundle.js ]; then
           echo "❌ demo-bundle.js is empty — build failed"
