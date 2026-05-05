@@ -33,23 +33,61 @@ async function expectJsonContentType(res: { headers(): Record<string, string>; s
 // A page is "OK" if it didn't 5xx and the document actually parsed a body.
 // We also fail on JS errors that aren't third-party noise, so a silent white
 // screen doesn't slip through.
-async function assertPageOk(page: Page, path: string) {
+//
+// Key failure modes we guard against:
+//   1. JS/CSS chunk 404 — deploy uploaded new assets but old HTML still cached
+//      (or vice versa). React lazy() silently shows nothing; #root stays non-empty
+//      because the shell nav renders fine. We intercept HTTP responses for
+//      /assets/*.js|css and fail immediately on any 404.
+//   2. pageerror / console.error — unhandled exceptions, including the
+//      "Failed to fetch dynamically imported module" that accompanies #1.
+//   3. White screen behind a valid shell — caught by the per-page
+//      `requiredSelector` that every public route now carries.
+//
+// waitUntil:'networkidle' ensures all async module fetches have settled
+// before we read the error lists. The default 'load' fires too early and
+// lets dynamic-import 404s escape undetected.
+async function assertPageOk(page: Page, path: string, requiredSelector?: string) {
   const errors: string[] = []
+  const failedChunks: string[] = []
+
   page.on('pageerror', (err) => errors.push(err.message))
   page.on('console', (msg) => {
     if (msg.type() === 'error') errors.push(msg.text())
   })
+  page.on('response', (resp) => {
+    if (resp.status() === 404 && /\/assets\/[^/]+\.(js|css)(\?|$)/.test(resp.url())) {
+      failedChunks.push(`404 ${resp.url()}`)
+    }
+  })
 
-  const response = await page.goto(path)
+  const response = await page.goto(path, { waitUntil: 'networkidle' })
   expect(response?.status(), `${path} returned ${response?.status()}`).toBeLessThan(400)
 
   // React must have mounted *something* — root div should not be empty.
   await expect(page.locator('#root')).not.toBeEmpty({ timeout: 10_000 })
 
+  // If a requiredSelector is given, the lazy chunk for this route must have
+  // rendered its own content — not just the shared shell/nav.
+  if (requiredSelector) {
+    await expect(
+      page.locator(requiredSelector).first(),
+      `${path}: requiredSelector "${requiredSelector}" not visible — the page chunk likely failed to load`,
+    ).toBeVisible({ timeout: 10_000 })
+  }
+
+  expect(
+    failedChunks,
+    `${path}: JS/CSS chunks returned 404.\n` +
+      `This usually means a new deploy uploaded assets with new hashes but the ` +
+      `old HTML shell (cached by Caddy/CDN) still references old hashes — or vice versa.\n` +
+      failedChunks.join('\n'),
+  ).toEqual([])
+
   const fatal = errors.filter(
     (e) => !/google-analytics|fonts\.googleapis|adsbygoogle|favicon|gtag|doubleclick/i.test(e),
   )
-  expect(fatal, `${path}: ${fatal.join('\n')}`).toEqual([])
+  expect(fatal, `${path}: JS errors detected:\n${fatal.join('\n')}`).toEqual([])
 }
 
 test.describe('prod-smoke', () => {
@@ -123,26 +161,30 @@ test.describe('prod-smoke', () => {
     ).toBe(true)
   })
 
-  // ── Public pages: render + no JS errors ──────────────────────────────────
+  // ── Public pages: render + no JS errors + page-specific content ────────────
   // One test per page so a single bad route doesn't mask the others.
-  const publicPages: Array<{ path: string; title?: RegExp }> = [
-    { path: '/', title: /widgetis/i },
-    { path: '/widgets' },
-    { path: '/pricing' },
-    { path: '/signup' },
-    { path: '/signup?plan=pro&billing=yearly' },
-    { path: '/demo' },
-    { path: '/contacts' },
-    { path: '/cases' },
-    { path: '/license' },
-    { path: '/offer' },
-    { path: '/refund' },
-    { path: '/security' },
+  //
+  // `requiredSelector` must match an element that only the lazy page chunk
+  // renders — not the shared shell. This is the main guard against a silent
+  // white screen caused by a broken dynamic import.
+  const publicPages: Array<{ path: string; title?: RegExp; requiredSelector?: string }> = [
+    { path: '/', title: /widgetis/i, requiredSelector: 'a[href*="/pricing"]' },
+    { path: '/widgets', requiredSelector: 'a[href*="/pricing?plan="]' },
+    { path: '/pricing', requiredSelector: '[class*="pricing"], [class*="plan"], h1, h2' },
+    { path: '/signup', requiredSelector: 'input[type="email"]' },
+    { path: '/signup?plan=pro&billing=yearly', requiredSelector: 'input[type="email"]' },
+    { path: '/demo', requiredSelector: 'iframe, [class*="demo"], input, button' },
+    { path: '/contacts', requiredSelector: '[class*="contact"], h1, h2' },
+    { path: '/cases', requiredSelector: '[class*="case"], h1, h2' },
+    { path: '/license', requiredSelector: 'h1, h2, p' },
+    { path: '/offer', requiredSelector: 'h1, h2, p' },
+    { path: '/refund', requiredSelector: 'h1, h2, p' },
+    { path: '/security', requiredSelector: 'h1, h2, p' },
   ]
 
-  for (const { path, title } of publicPages) {
+  for (const { path, title, requiredSelector } of publicPages) {
     test(`public page renders: ${path}`, async ({ page }) => {
-      await assertPageOk(page, path)
+      await assertPageOk(page, path, requiredSelector)
       if (title) await expect(page).toHaveTitle(title)
     })
   }
