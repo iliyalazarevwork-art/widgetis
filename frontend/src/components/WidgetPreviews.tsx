@@ -801,12 +801,19 @@ export function PreviewCartRecommenderDetail() {
 
   useEffect(() => {
     if (!active) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setOpen(false)
+     
     setRowsIn(0)
+     
     setAddedCount(0)
+     
     setCursorPos('hidden')
+     
     setClicking(false)
+     
     setCtaPressed(false)
+     
     setBuyPressed(false)
 
     const timers: ReturnType<typeof setTimeout>[] = []

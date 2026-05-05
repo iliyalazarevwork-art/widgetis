@@ -14,14 +14,19 @@ function formatUa(value: number, decimals: number): string {
 
 function useCountUp(from: number, to: number, decimals: number, run: boolean, durationMs = 1400, delayMs = 0) {
   const [value, setValue] = useState(from)
+  const [prevRun, setPrevRun] = useState(run)
+  const [prevFrom, setPrevFrom] = useState(from)
   const rafRef = useRef<number | null>(null)
   const timerRef = useRef<number | null>(null)
 
+  if (prevRun !== run || prevFrom !== from) {
+    setPrevRun(run)
+    setPrevFrom(from)
+    if (!run) setValue(from)
+  }
+
   useEffect(() => {
-    if (!run) {
-      setValue(from)
-      return
-    }
+    if (!run) return
     const start = () => {
       const t0 = performance.now()
       const tick = (now: number) => {

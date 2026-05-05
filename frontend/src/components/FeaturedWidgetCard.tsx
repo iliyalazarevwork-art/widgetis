@@ -7,7 +7,7 @@ import type { TagSlug } from '../data/widgetTags'
 import { WidgetSlug } from '../data/widget-slugs'
 import '../pages/WidgetsPage.css'
 
-export const WIDGET_CASES: Record<string, { store: string; metric: string; color: string }[]> = {
+const WIDGET_CASES: Record<string, { store: string; metric: string; color: string }[]> = {
   [WidgetSlug.PromoLine]:         [
     { store: 'ptashkinsad.com', metric: '+5% середній чек',  color: '#22C55E' },
     { store: 'benihome.com.ua', metric: '+4% конверсія',     color: '#22C55E' },
@@ -42,7 +42,7 @@ export const WIDGET_CASES: Record<string, { store: string; metric: string; color
   ],
 }
 
-export const TAG_ACCENT: Record<TagSlug, string> = {
+const TAG_ACCENT: Record<TagSlug, string> = {
   conversion:     '#10B981',
   trust:          '#3B82F6',
   'social-proof': '#F59E0B',

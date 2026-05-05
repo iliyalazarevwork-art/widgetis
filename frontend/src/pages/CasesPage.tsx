@@ -152,6 +152,7 @@ export function CasesPage() {
   const gridRef = useRef<HTMLDivElement>(null)
   const perPage = useSitesPerPage()
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setPage(0) }, [perPage])
 
   const allItems: PortfolioItem[] = apiCases.map(apiCaseToItem)

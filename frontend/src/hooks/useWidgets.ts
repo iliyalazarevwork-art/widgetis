@@ -35,11 +35,19 @@ export function useWidget(
   const [notFound, setNotFound] = useState(false)
 
   useEffect(() => {
-    if (!slug) { setLoading(false); return }
+    if (!slug) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setLoading(false)
+      return
+    }
     let cancelled = false
+     
     setLoading(true)
+     
     setWidget(null)
+     
     setError(null)
+     
     setNotFound(false)
     fetchWidget(slug)
       .then((data) => {
