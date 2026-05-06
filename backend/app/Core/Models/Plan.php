@@ -40,6 +40,8 @@ class Plan extends Model
         'is_recommended',
         'sort_order',
         'is_active',
+        'languages_supported',
+        'widget_limits_config',
     ];
 
     /**
@@ -51,6 +53,8 @@ class Plan extends Model
             'name' => 'array',
             'description' => 'array',
             'features' => 'array',
+            'languages_supported' => 'array',
+            'widget_limits_config' => 'array',
             'price_monthly' => 'decimal:2',
             'price_yearly' => 'decimal:2',
             'trial_days' => 'integer',
