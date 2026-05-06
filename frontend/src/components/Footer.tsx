@@ -91,7 +91,7 @@ export function Footer({ variant = 'full' }: FooterProps) {
                 </a>
               )}
               <span className="footer__col-address">
-                вул. Сарми-Соколовського, 58,<br />
+                вул. Антарктична, 154,<br />
                 Дніпро, 49000
               </span>
             </div>
@@ -102,7 +102,7 @@ export function Footer({ variant = 'full' }: FooterProps) {
           <div className="footer__legal">
             <span className="footer__copy">&copy; {new Date().getFullYear()} {BRAND_NAME}</span>
             <span className="footer__address">
-              ФОП Зайцев Данило Ігорович · ІПН 3757102813 · вул. Сарми-Соколовського, 58, Дніпро, 49000
+              ФОП Зайцев Данило Ігорович · ІПН 3757102813 · вул. Антарктична, 154, Дніпро, 49000
             </span>
           </div>
           <div className="footer__payments">

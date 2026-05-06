@@ -130,7 +130,7 @@ export function ContactsPage() {
               <div className="contacts-page__card-body">
                 <span className="contacts-page__card-label">Юридична адреса</span>
                 <strong className="contacts-page__card-value">
-                  вул. Сарми-Соколовського, 58, Дніпро, 49000
+                  вул. Антарктична, 154, Дніпро, 49000
                 </strong>
                 <span className="contacts-page__card-hint">
                   ФОП Зайцев Данило Ігорович · ІПН 3757102813
