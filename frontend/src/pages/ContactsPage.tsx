@@ -133,7 +133,7 @@ export function ContactsPage() {
                   вул. Сарми-Соколовського, 58, Дніпро, 49000
                 </strong>
                 <span className="contacts-page__card-hint">
-                  ФОП Лазарєв Ілля Ігорович · ІПН 3660907893
+                  ФОП Зайцев Данило Ігорович · ІПН 3757102813
                 </span>
               </div>
             </div>

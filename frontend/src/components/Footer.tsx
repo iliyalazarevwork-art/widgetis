@@ -102,7 +102,7 @@ export function Footer({ variant = 'full' }: FooterProps) {
           <div className="footer__legal">
             <span className="footer__copy">&copy; {new Date().getFullYear()} {BRAND_NAME}</span>
             <span className="footer__address">
-              ФОП Лазарєв Ілля Ігорович · ІПН 3660907893 · вул. Сарми-Соколовського, 58, Дніпро, 49000
+              ФОП Зайцев Данило Ігорович · ІПН 3757102813 · вул. Сарми-Соколовського, 58, Дніпро, 49000
             </span>
           </div>
           <div className="footer__payments">
