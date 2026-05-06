@@ -336,58 +336,6 @@
                 }
             }
         },
-        "module-floating-messengers": {
-            "$comment": "Disabled in the public demo — floating messenger bubble overlaps other demo UI and looks odd on a proxied third-party site without real contact data.",
-            "config": {
-                "enabled": false,
-                "position": "bottom-right",
-                "bottomOffsetDesktop": 24,
-                "bottomOffsetMobile": 80,
-                "sideOffset": 20,
-                "channels": [
-                    {
-                        "type": "telegram",
-                        "value": "widgetis"
-                    },
-                    {
-                        "type": "whatsapp",
-                        "value": "+380501234567"
-                    },
-                    {
-                        "type": "viber",
-                        "value": "+380501234567"
-                    },
-                    {
-                        "type": "phone",
-                        "value": "+380501234567"
-                    }
-                ],
-                "bubbleColor": "#be7094",
-                "bubbleIconColor": "#ffffff",
-                "expandedBackground": "#ffffff",
-                "expandedTextColor": "#4b2535",
-                "borderColor": "#fce7f3",
-                "borderRadius": 16,
-                "zIndex": 9000,
-                "showLabels": true,
-                "delaySec": 3,
-                "pulseAnimation": true
-            },
-            "i18n": {
-                "ua": {
-                    "greeting": "Зв'яжіться з нами",
-                    "closeLabel": "Закрити"
-                },
-                "ru": {
-                    "greeting": "Свяжитесь с нами",
-                    "closeLabel": "Закрыть"
-                },
-                "en": {
-                    "greeting": "Contact us",
-                    "closeLabel": "Close"
-                }
-            }
-        },
         "module-spin-the-wheel": {
             "$comment": "Demo overrides: delaySec=0 fires the popup right after init, cooldownHours=0 disables once-per-week throttle so visitors always see it.",
             "config": {

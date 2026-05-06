@@ -16,9 +16,7 @@ enum WidgetSlug: string
     case BuyerCount = 'buyer-count';
     case StockLeft = 'stock-left';
     case PhotoVideoReviews = 'photo-video-reviews';
-    case RecentlyViewed = 'recently-viewed';
     case VideoPreview = 'video-preview';
-    case FloatingMessengers = 'floating-messengers';
     case CartRecommender = 'cart-recommender';
     case PrizeBanner = 'prize-banner';
     case PromoAutoApply = 'promo-auto-apply';

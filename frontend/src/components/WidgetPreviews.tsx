@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import {
   Eye, Gift, Flame, PartyPopper, Truck, Coins, HelpCircle, Star, ShoppingBag, Ticket, Snowflake,
-  ShoppingCart, Shield, RefreshCcw, Headphones, MessageCircle, Send, Phone, Search, X as XIcon,
+  ShoppingCart, Shield, RefreshCcw, Headphones, Search, X as XIcon,
 } from 'lucide-react'
 import { useVisible } from '../hooks/useVisible'
 import { WidgetSlug } from '../data/widget-slugs'
@@ -663,45 +663,6 @@ export function PreviewMinOrder() {
   )
 }
 
-const RECENT_PRODUCTS = [
-  { bg: 'linear-gradient(135deg,#f0c8dc,#e8a8c8)', price: '890 грн' },
-  { bg: 'linear-gradient(135deg,#c8daf0,#a8c4e8)', price: '1 200 грн' },
-  { bg: 'linear-gradient(135deg,#f0e8c0,#e8d898)', price: '540 грн' },
-  { bg: 'linear-gradient(135deg,#c8f0dc,#a8e8c4)', price: '1 890 грн' },
-]
-
-export function PreviewRecentlyViewed() {
-  const { ref, active } = useVisible<HTMLDivElement>()
-  const [vis, setVis] = useState(0)
-
-  useEffect(() => {
-    if (!active) return
-    if (vis >= RECENT_PRODUCTS.length) {
-      const t = setTimeout(() => setVis(0), 2200)
-      return () => clearTimeout(t)
-    }
-    const t = setTimeout(() => setVis(v => v + 1), 260)
-    return () => clearTimeout(t)
-  }, [vis, active])
-
-  return (
-    <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center', width: '100%' }} ref={ref}>
-      {RECENT_PRODUCTS.map((p, i) => (
-        <div
-          key={i}
-          className="wpr__recent-img"
-          style={{
-            background: p.bg,
-            opacity: vis > i ? 1 : 0,
-            transform: vis > i ? 'scale(1)' : 'scale(0.75)',
-            transition: 'opacity 0.25s ease, transform 0.32s cubic-bezier(0.34,1.56,0.64,1)',
-          }}
-        />
-      ))}
-    </div>
-  )
-}
-
 export function PreviewVideoPreview() {
   const { ref, active } = useVisible<HTMLDivElement>()
   // 0=right-idle, 1=right-grab, 2=left-grab, 3=left-idle, 4=left-grab, 5=right-grab
@@ -730,43 +691,6 @@ export function PreviewVideoPreview() {
         <div className="wpr__vbubble-fill" />
         {!grabbed && <span className="wpr__vbubble-label">▶</span>}
       </div>
-    </div>
-  )
-}
-
-const MESSENGERS = [
-  { label: 'WhatsApp', color: '#25D366', bg: '#0a2d15', icon: <MessageCircle size={16} strokeWidth={2} /> },
-  { label: 'Telegram', color: '#2AABEE', bg: '#091a2e', icon: <Send size={16} strokeWidth={2} /> },
-  { label: 'Дзвінок',  color: '#9ca3af', bg: '#1c1c1c', icon: <Phone size={16} strokeWidth={2} /> },
-]
-
-export function PreviewFloatingMessengers() {
-  const { ref, active } = useVisible<HTMLDivElement>()
-  const [vis, setVis] = useState(0)
-
-  useEffect(() => {
-    if (!active) return
-    if (vis >= MESSENGERS.length) {
-      const t = setTimeout(() => setVis(0), 2500)
-      return () => clearTimeout(t)
-    }
-    const t = setTimeout(() => setVis(v => v + 1), 200)
-    return () => clearTimeout(t)
-  }, [vis, active])
-
-  return (
-    <div ref={ref} style={{ display: 'flex', gap: 20, alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-      {MESSENGERS.map((m, i) => (
-        <div key={i} style={{
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5,
-          opacity: vis > i ? 1 : 0,
-          transform: vis > i ? 'scale(1) translateY(0)' : 'scale(0.65) translateY(8px)',
-          transition: 'opacity 0.3s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1)',
-        }}>
-          <div className="wpr__messenger-ico" style={{ background: m.bg, color: m.color }}>{m.icon}</div>
-          <span style={{ fontSize: 10, color: '#888' }}>{m.label}</span>
-        </div>
-      ))}
     </div>
   )
 }
@@ -1185,9 +1109,7 @@ export const PREVIEW_MAP: Record<string, React.FC> = {
   [WidgetSlug.TrustBadges]:         PreviewTrustBadges,
   [WidgetSlug.PhoneMask]:           PreviewPhoneMask,
   [WidgetSlug.MinorderGoal]:        PreviewMinOrder,
-  [WidgetSlug.RecentlyViewed]:      PreviewRecentlyViewed,
   [WidgetSlug.VideoPreview]:        PreviewVideoPreview,
-  [WidgetSlug.FloatingMessengers]:  PreviewFloatingMessengers,
   [WidgetSlug.CartRecommender]:     PreviewCartRecommender,
   [WidgetSlug.SmsOtpCheckout]:      PreviewSmsOtp,
 }

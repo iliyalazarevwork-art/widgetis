@@ -25,9 +25,7 @@ class ProductSeeder extends Seeder
             WidgetSlug::BuyerCount->value,
             WidgetSlug::StockLeft->value,
             WidgetSlug::PhotoVideoReviews->value,
-            WidgetSlug::RecentlyViewed->value,
             WidgetSlug::VideoPreview->value,
-            WidgetSlug::FloatingMessengers->value,
             WidgetSlug::CartRecommender->value,
             WidgetSlug::PrizeBanner->value,
             WidgetSlug::PromoAutoApply->value,
@@ -275,7 +273,7 @@ class ProductSeeder extends Seeder
                 'is_popular' => true,
                 'is_new' => false,
                 'sort_order' => 7,
-                'related_slugs' => [WidgetSlug::PhotoVideoReviews->value, WidgetSlug::StockLeft->value, WidgetSlug::RecentlyViewed->value],
+                'related_slugs' => [WidgetSlug::PhotoVideoReviews->value, WidgetSlug::StockLeft->value],
                 'config_schema' => [
                     'enabled' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Enabled', 'uk' => 'Увімкнено']],
                     'selectors' => [
@@ -323,23 +321,7 @@ class ProductSeeder extends Seeder
                 'is_popular' => false,
                 'is_new' => true,
                 'sort_order' => 9,
-                'related_slugs' => [WidgetSlug::BuyerCount->value, WidgetSlug::RecentlyViewed->value, WidgetSlug::VideoPreview->value],
-                'config_schema' => null,
-            ],
-            [
-                'slug' => WidgetSlug::RecentlyViewed->value,
-                'name' => ['en' => WidgetSlug::RecentlyViewed->translatedName('en'), 'uk' => WidgetSlug::RecentlyViewed->translatedName('uk')],
-                'description' => [
-                    'en' => 'A horizontal strip of products the customer recently viewed. Brings forgotten items back into focus and increases browsing depth.',
-                    'uk' => 'Горизонтальна стрічка з останніми товарами, які переглядав клієнт. Повертає увагу до забутих товарів і збільшує глибину перегляду.',
-                ],
-                'icon' => 'eye',
-                'tag_slug' => 'engagement',
-                'status' => ProductStatus::Inactive->value,
-                'is_popular' => false,
-                'is_new' => false,
-                'sort_order' => 10,
-                'related_slugs' => [WidgetSlug::PhotoVideoReviews->value, WidgetSlug::FloatingMessengers->value, WidgetSlug::VideoPreview->value],
+                'related_slugs' => [WidgetSlug::BuyerCount->value, WidgetSlug::VideoPreview->value],
                 'config_schema' => null,
             ],
             [
@@ -354,7 +336,7 @@ class ProductSeeder extends Seeder
                 'is_popular' => false,
                 'is_new' => true,
                 'sort_order' => 11,
-                'related_slugs' => [WidgetSlug::PhotoVideoReviews->value, WidgetSlug::RecentlyViewed->value, WidgetSlug::PromoLine->value],
+                'related_slugs' => [WidgetSlug::PhotoVideoReviews->value, WidgetSlug::PromoLine->value],
                 'config_schema' => [
                     'enabled' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Enabled', 'uk' => 'Увімкнено']],
                     'testVideoUrl' => ['type' => 'string', 'default' => 'https://lzrv.agency/pila.mp4', 'label' => ['en' => 'Test video URL', 'uk' => 'URL тестового відео']],
@@ -370,22 +352,6 @@ class ProductSeeder extends Seeder
                     'showOnMobile' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Show on mobile', 'uk' => 'Показувати на мобільному']],
                     'showOnDesktop' => ['type' => 'boolean', 'default' => true, 'label' => ['en' => 'Show on desktop', 'uk' => 'Показувати на десктопі']],
                 ],
-            ],
-            [
-                'slug' => WidgetSlug::FloatingMessengers->value,
-                'name' => ['en' => WidgetSlug::FloatingMessengers->translatedName('en'), 'uk' => WidgetSlug::FloatingMessengers->translatedName('uk')],
-                'description' => [
-                    'en' => 'WhatsApp, Telegram, Viber and phone buttons floating in the corner of the screen. Customers reach support in one tap.',
-                    'uk' => 'Кнопки WhatsApp, Telegram, Viber та телефону, що плавають у куті екрану. Клієнт звертається до підтримки в один клік.',
-                ],
-                'icon' => 'message-circle',
-                'tag_slug' => 'engagement',
-                'status' => ProductStatus::Inactive->value,
-                'is_popular' => false,
-                'is_new' => false,
-                'sort_order' => 12,
-                'related_slugs' => [WidgetSlug::RecentlyViewed->value, WidgetSlug::SpinTheWheel->value, WidgetSlug::BuyerCount->value],
-                'config_schema' => null,
             ],
             [
                 'slug' => WidgetSlug::CartRecommender->value,
@@ -546,7 +512,7 @@ class ProductSeeder extends Seeder
                 'is_new' => true,
                 'sort_order' => 22,
                 'config_schema' => null,
-                'related_slugs' => [WidgetSlug::RecentlyViewed->value, WidgetSlug::CartRecommender->value, WidgetSlug::FloatingMessengers->value],
+                'related_slugs' => [WidgetSlug::CartRecommender->value],
             ],
         ];
 

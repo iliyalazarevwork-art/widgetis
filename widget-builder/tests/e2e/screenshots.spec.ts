@@ -88,18 +88,7 @@ for (const site of TEST_SITES) {
           });
         }
 
-        // 4. Floating messengers — раскрытое состояние
-        const fmsgBubble = page.locator('.wdg-fmsg__bubble, [class*="fmsg"]').first();
-        if (await fmsgBubble.count()) {
-          await fmsgBubble.click({ force: true }).catch(() => {});
-          await page.waitForTimeout(500);
-          await page.screenshot({
-            path: resolve(OUT_DIR, `${site.name}-${variant.name}-floating-messengers.png`),
-            fullPage: false,
-          });
-        }
-
-        // 5. Trust-badges — скрин в области product info
+        // 4. Trust-badges — скрин в области product info
         const trust = page.locator('.wdg-trust').first();
         if (await trust.count()) {
           await trust.scrollIntoViewIfNeeded();
@@ -118,16 +107,6 @@ for (const site of TEST_SITES) {
           }
         }
 
-        // 6. Recently-viewed — скрин секции
-        const rv = page.locator('.wdg-rv').first();
-        if (await rv.count()) {
-          await rv.scrollIntoViewIfNeeded();
-          await page.waitForTimeout(300);
-          await page.screenshot({
-            path: resolve(OUT_DIR, `${site.name}-${variant.name}-recently-viewed.png`),
-            fullPage: false,
-          });
-        }
       } finally {
         await context.close();
       }

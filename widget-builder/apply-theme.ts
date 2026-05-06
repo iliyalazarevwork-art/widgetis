@@ -76,23 +76,6 @@ function applyTheme(config: Record<string, unknown>, theme: Theme): void {
     trust['borderColor'] = theme.border;
   }
 
-  const messengers = modules['module-floating-messengers']?.config;
-  if (messengers) {
-    messengers['bubbleColor'] = theme.primary;
-    messengers['bubbleIconColor'] = theme.primaryText;
-    messengers['expandedBackground'] = theme.background;
-    messengers['expandedTextColor'] = theme.text;
-    messengers['borderColor'] = theme.border;
-  }
-
-  const recentlyViewed = modules['module-recently-viewed']?.config;
-  if (recentlyViewed) {
-    recentlyViewed['textColor'] = theme.text;
-    recentlyViewed['priceColor'] = theme.primary;
-    recentlyViewed['mutedColor'] = theme.muted;
-    recentlyViewed['borderColor'] = theme.border;
-  }
-
   const spin = modules['module-spin-the-wheel']?.config;
   if (spin) {
     // palette, decorativeColor (wheel ring/pointer/tab) — frozen in demo-config.json, not theme-driven
