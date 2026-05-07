@@ -9,6 +9,7 @@ return [
     'site_limit_reached' => 'Site limit reached (:current/:max). Upgrade your plan.',
     'widget_limit_reached' => 'Widget limit reached (:current/:max). Upgrade your plan or disable some widgets.',
     'subscription_required' => 'Widget configuration requires an active subscription.',
+    'script_not_installed' => 'Please install the tracking script on your site before enabling widgets.',
     'otp_request_not_found' => 'OTP request not found.',
     'otp_code_expired' => 'OTP code has expired.',
     'otp_too_many_attempts' => 'Too many verification attempts.',

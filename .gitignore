@@ -43,6 +43,8 @@ backups/
 _bmad
 .agents
 .claude
+.kiro
+.vite
 backend/.env.production
 backend/.env.prod.plain
 certbot/

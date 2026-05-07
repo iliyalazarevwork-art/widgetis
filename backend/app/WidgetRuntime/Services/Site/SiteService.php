@@ -6,6 +6,7 @@ namespace App\WidgetRuntime\Services\Site;
 
 use App\Enums\SiteStatus;
 use App\Exceptions\PlanLimitExceededException;
+use App\Exceptions\ScriptNotInstalledException;
 use App\Exceptions\SubscriptionRequiredException;
 use App\Shared\Contracts\SiteOwnershipInterface;
 use App\Shared\Contracts\SubscriptionGateInterface;
@@ -213,6 +214,18 @@ class SiteService
         $isEnabled = isset($filtered['enabled']) ? (bool) $filtered['enabled'] : null;
 
         if ($isEnabled === true) {
+            if (! $site->script_installed) {
+                Log::warning('site.widget_config.apply.out', [
+                    'user_id' => $userId->value,
+                    'site_id' => $site->id,
+                    'product_id' => $productId,
+                    'result' => 'script_not_installed',
+                ]);
+                throw new ScriptNotInstalledException(
+                    trans('messages.script_not_installed'),
+                );
+            }
+
             $this->checkWidgetLimit($userId);
         }
 

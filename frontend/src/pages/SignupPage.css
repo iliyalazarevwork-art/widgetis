@@ -461,6 +461,83 @@
 
 .signup__field-hint--center { text-align: center; }
 
+/* ── Email typewriter placeholder ── */
+
+.signup__email-typewriter {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+}
+
+.signup__email-typewriter input {
+  width: 100%;
+}
+
+.signup__email-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text-muted);
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.signup__email-cursor {
+  display: inline-block;
+  width: 1.5px;
+  height: 1em;
+  background: var(--accent);
+  margin-left: 1px;
+  animation: signup-cursor-blink 1s step-end infinite;
+}
+
+@keyframes signup-cursor-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ── Email domain tags ── */
+
+.signup__email-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.signup__email-tag {
+  padding: 4px 10px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+  line-height: 1;
+}
+
+.signup__email-tag:hover {
+  color: var(--text-primary);
+  border-color: var(--blue-border);
+  background: var(--blue-dim);
+}
+
+.signup__email-tag--active {
+  color: var(--blue);
+  border-color: var(--blue-border);
+  background: var(--blue-dim);
+}
+
 /* ── OTP ── */
 
 .signup__otp-row {

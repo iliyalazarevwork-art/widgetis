@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
-  ArrowLeft, Globe, ChevronDown, Check, Copy, Lock,
+  ArrowLeft, Globe, ChevronDown, Check, Copy, Lock, AlertTriangle,
   Megaphone, Truck, Eye, Timer, ShoppingBag, Package,
   TrendingUp, Star, Zap, Tag, BarChart2, Bell, Heart,
   Gift, Percent, Clock, Users, MessageSquare, Award,
@@ -159,6 +159,7 @@ export default function ConfigureWidgetPage() {
   }
 
   const isLocked = subscriptionStatus !== 'active' && subscriptionStatus !== 'trial'
+  const isScriptMissing = siteDetail !== null && !siteDetail.script_installed
 
   const selectedSite = sites.find((s) => s.id === selectedSiteId)
   const canSelectSite = sites.length > 1
@@ -305,7 +306,7 @@ export default function ConfigureWidgetPage() {
           <>
             <div className="cfg__section-head">
               <p className="cfg__section-label">Віджети на цьому сайті</p>
-              {!isLocked && (
+              {!isLocked && !isScriptMissing && (
                 <div className="cfg__bulk">
                   <span className={`cfg__bulk-text ${!allEnabled ? 'cfg__bulk-text--active' : ''}`}>OFF</span>
                   <button
@@ -336,29 +337,40 @@ export default function ConfigureWidgetPage() {
               </div>
             )}
 
-            <div className={`cfg__widgets ${isLocked ? 'cfg__widgets--locked' : ''}`}>
+            {!isLocked && isScriptMissing && (
+              <div className="cfg__sub-banner">
+                <AlertTriangle size={20} color="#F59E0B" />
+                <div className="cfg__sub-banner-text">
+                  <span className="cfg__sub-banner-title">Код не встановлено</span>
+                  <span className="cfg__sub-banner-desc">Вставте код відстеження на сайті, щоб увімкнути віджети</span>
+                </div>
+              </div>
+            )}
+
+            <div className={`cfg__widgets ${isLocked || isScriptMissing ? 'cfg__widgets--locked' : ''}`}>
               {widgets.map((widget) => {
                 const Icon = getWidgetIcon(widget.icon)
                 const configEntries = Object.entries(widget.config).filter(
                   ([k]) => k !== 'enabled' && CONFIG_LABELS[k],
                 )
+                const isWidgetBlocked = isLocked || isScriptMissing
 
                 return (
-                  <div key={widget.product_id} className={`cfg__wcard ${widget.is_enabled ? 'cfg__wcard--on' : ''} ${isLocked ? 'cfg__wcard--locked' : ''}`}>
+                  <div key={widget.product_id} className={`cfg__wcard ${widget.is_enabled ? 'cfg__wcard--on' : ''} ${isWidgetBlocked ? 'cfg__wcard--locked' : ''}`}>
                     {/* Top row */}
                     <div className="cfg__wcard-top">
                       <div className="cfg__wcard-left">
                         <div className="cfg__wico">
-                          <Icon size={15} color={isLocked ? '#444444' : '#3B82F6'} />
+                          <Icon size={15} color={isWidgetBlocked ? '#444444' : '#3B82F6'} />
                         </div>
                         <div className="cfg__winfo">
                           <span className="cfg__wname">{widget.name}</span>
-                          <span className={`cfg__wstatus ${!isLocked && widget.is_enabled ? 'cfg__wstatus--on' : ''}`}>
-                            {isLocked ? 'Недоступний' : widget.is_enabled ? 'Активний' : 'Вимкнений'}
+                          <span className={`cfg__wstatus ${!isWidgetBlocked && widget.is_enabled ? 'cfg__wstatus--on' : ''}`}>
+                            {isWidgetBlocked ? 'Недоступний' : widget.is_enabled ? 'Активний' : 'Вимкнений'}
                           </span>
                         </div>
                       </div>
-                      {isLocked ? (
+                      {isWidgetBlocked ? (
                         <Lock size={16} color="#444444" />
                       ) : (
                         <button
@@ -372,7 +384,7 @@ export default function ConfigureWidgetPage() {
                     </div>
 
                     {/* Expanded options (only when enabled, has config, not locked) */}
-                    {!isLocked && widget.is_enabled && configEntries.length > 0 && (
+                    {!isWidgetBlocked && widget.is_enabled && configEntries.length > 0 && (
                       <>
                         <div className="cfg__wdivider" />
                         <div className="cfg__wopts">

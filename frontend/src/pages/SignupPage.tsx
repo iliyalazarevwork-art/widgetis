@@ -121,6 +121,10 @@ const PAYMENT_METHODS: readonly PaymentMethod[] = [
   },
 ] as const
 
+const EMAIL_EXAMPLES = ['you@gmail.com', 'name@ukr.net', 'shop@i.ua']
+const EMAIL_DOMAINS = ['@gmail.com', '@ukr.net', '@i.ua', '@yahoo.com']
+const SITE_DOMAIN_SUFFIXES = ['.com.ua', '.com', '.ua', '.net']
+
 const SIGNUP_DRAFT_KEY = 'wty_signup_draft'
 const RESEND_COOLDOWN_SECONDS = 60
 
@@ -222,6 +226,10 @@ export function SignupPage() {
   const [resending, setResending] = useState(false)
   const [resendCooldown, setResendCooldown] = useState(0)
   const [draftHydrated, setDraftHydrated] = useState(false)
+  const [emailPlaceholder, setEmailPlaceholder] = useState('')
+  const [emailExIdx, setEmailExIdx] = useState(0)
+  const [emailCharIdx, setEmailCharIdx] = useState(0)
+  const [emailDeleting, setEmailDeleting] = useState(false)
 
   // Auth context may not be loaded when this component first mounts, so
   // emailStatus could be initialised to 'idle' even for an authenticated user.
@@ -324,6 +332,49 @@ export function SignupPage() {
     }, 1000)
     return () => window.clearInterval(id)
   }, [resendCooldown])
+
+  // ── Email typewriter ──
+  useEffect(() => {
+    if (emailStatus !== 'idle' || email) return
+    const ex = EMAIL_EXAMPLES[emailExIdx]!
+    if (!emailDeleting) {
+      if (emailCharIdx <= ex.length) {
+        const t = setTimeout(() => {
+          setEmailPlaceholder(ex.slice(0, emailCharIdx))
+          setEmailCharIdx(c => c + 1)
+        }, 80 + Math.random() * 40)
+        return () => clearTimeout(t)
+      }
+      const t = setTimeout(() => setEmailDeleting(true), 1800)
+      return () => clearTimeout(t)
+    }
+    if (emailCharIdx > 0) {
+      const t = setTimeout(() => {
+        setEmailCharIdx(c => c - 1)
+        setEmailPlaceholder(ex.slice(0, emailCharIdx - 1))
+      }, 40)
+      return () => clearTimeout(t)
+    }
+    setEmailDeleting(false)
+    setEmailExIdx(i => (i + 1) % EMAIL_EXAMPLES.length)
+  }, [email, emailStatus, emailCharIdx, emailDeleting, emailExIdx])
+
+  function handleEmailTagClick(domain: string) {
+    const atIndex = email.indexOf('@')
+    const local = atIndex >= 0 ? email.slice(0, atIndex) : email.trim()
+    if (!local) return
+    setEmail(local + domain)
+    setEmailError('')
+  }
+
+  function handleSiteSuffixClick(suffix: string) {
+    let base = site.trim()
+    for (const s of SITE_DOMAIN_SUFFIXES) {
+      if (base.endsWith(s)) { base = base.slice(0, -s.length); break }
+    }
+    setSite(base + suffix)
+    setSiteError('')
+  }
 
   // ── Send OTP ──
   function handleSendOtp(e: React.FormEvent) {
@@ -616,15 +667,39 @@ export function SignupPage() {
                         <div className={`signup__field signup__field--email ${emailError ? 'signup__field--error' : ''}`}>
                           <div className="signup__input-wrap">
                             <Mail size={15} strokeWidth={2} />
-                            <input
-                              type="email"
-                              placeholder="you@store.ua"
-                              value={email}
-                              onChange={e => { setEmail(e.target.value); setEmailError('') }}
-                              autoComplete="email"
-                              autoFocus
-                            />
+                            <div className="signup__email-typewriter">
+                              <input
+                                type="email"
+                                placeholder=""
+                                value={email}
+                                onChange={e => { setEmail(e.target.value); setEmailError('') }}
+                                autoComplete="email"
+                                autoFocus
+                              />
+                              {!email && (
+                                <span className="signup__email-placeholder">
+                                  {emailPlaceholder}<span className="signup__email-cursor" />
+                                </span>
+                              )}
+                            </div>
                           </div>
+                          {email.trim() && (() => {
+                            const activeDomain = EMAIL_DOMAINS.find(d => email.trim().endsWith(d)) ?? null
+                            return (
+                              <div className="signup__email-tags">
+                                {EMAIL_DOMAINS.map(domain => (
+                                  <button
+                                    key={domain}
+                                    type="button"
+                                    className={`signup__email-tag${activeDomain === domain ? ' signup__email-tag--active' : ''}`}
+                                    onClick={() => handleEmailTagClick(domain)}
+                                  >
+                                    {domain}
+                                  </button>
+                                ))}
+                              </div>
+                            )
+                          })()}
                           {emailError && <span className="signup__field-hint">{emailError}</span>}
                         </div>
                         <button type="submit" className="signup__send-btn" disabled={loading}>
@@ -715,7 +790,7 @@ export function SignupPage() {
                   <span className="signup__section-title">2. Ваш магазин</span>
                 </div>
 
-                <label className={`signup__field ${siteError ? 'signup__field--error' : ''}`}>
+                <div className={`signup__field ${siteError ? 'signup__field--error' : ''}`}>
                   <div className="signup__input-wrap">
                     <Globe size={15} strokeWidth={2} />
                     <input
@@ -726,8 +801,25 @@ export function SignupPage() {
                       onChange={e => { setSite(e.target.value); setSiteError('') }}
                     />
                   </div>
+                  {site.trim() && (() => {
+                    const activeSuffix = SITE_DOMAIN_SUFFIXES.find(s => site.trim().endsWith(s)) ?? null
+                    return (
+                      <div className="signup__email-tags">
+                        {SITE_DOMAIN_SUFFIXES.map(suffix => (
+                          <button
+                            key={suffix}
+                            type="button"
+                            className={`signup__email-tag${activeSuffix === suffix ? ' signup__email-tag--active' : ''}`}
+                            onClick={() => handleSiteSuffixClick(suffix)}
+                          >
+                            {suffix}
+                          </button>
+                        ))}
+                      </div>
+                    )
+                  })()}
                   {siteError && <span className="signup__field-hint">{siteError}</span>}
-                </label>
+                </div>
 
               </div>
 
