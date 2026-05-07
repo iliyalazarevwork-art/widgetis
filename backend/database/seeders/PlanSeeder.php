@@ -20,7 +20,7 @@ class PlanSeeder extends Seeder
                 'price_yearly' => 0,
                 'trial_days' => 0,
                 'max_sites' => 1,
-                'max_widgets' => 11,
+                'max_widgets' => 12,
                 'features' => [],
                 'is_recommended' => false,
                 'sort_order' => -1,
@@ -68,6 +68,10 @@ class PlanSeeder extends Seeder
                         'default_video_enabled' => false,
                         'autoplay_enabled' => false,
                     ],
+                    'cart-recommender' => [
+                        'max_recommendations' => 2,
+                        'manual_picks_only' => true,
+                    ],
                 ],
             ],
             [
@@ -78,7 +82,7 @@ class PlanSeeder extends Seeder
                 'price_yearly' => 4990,
                 'trial_days' => 14,
                 'max_sites' => 3,
-                'max_widgets' => 11,
+                'max_widgets' => 12,
                 'features' => [],
                 'is_recommended' => true,
                 'sort_order' => 0,

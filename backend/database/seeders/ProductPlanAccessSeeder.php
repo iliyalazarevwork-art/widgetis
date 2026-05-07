@@ -43,6 +43,7 @@ class ProductPlanAccessSeeder extends Seeder
 
         $getIds = fn (array $slugs): array => Product::whereIn('slug', $slugs)->pluck('id')->toArray();
 
+        Plan::where('slug', 'free')->first()?->products()->sync($getIds($proSlugs));
         Plan::where('slug', 'basic')->first()?->products()->sync($getIds($basicSlugs));
         Plan::where('slug', 'pro')->first()?->products()->sync($getIds($proSlugs));
         Plan::where('slug', 'max')->first()?->products()->sync($getIds($maxSlugs));
