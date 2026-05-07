@@ -13,11 +13,15 @@ class CaseController extends CoreBaseController
 {
     public function index(): JsonResponse
     {
-        $cases = CustomerCase::where('is_published', true)
-            ->orderByRaw("(CASE WHEN result_metric IS NOT NULL AND result_metric != '' THEN 3 ELSE 0 END + CASE WHEN review_text IS NOT NULL AND review_text != '' THEN 2 ELSE 0 END + CASE WHEN widgets IS NOT NULL AND jsonb_array_length(widgets) > 0 THEN 1 ELSE 0 END) DESC")
-            ->orderByRaw('review_rating DESC NULLS LAST')
-            ->orderBy('sort_order')
-            ->get();
+        $casesRaw = CustomerCase::where('is_published', true)->get();
+
+        $cases = $casesRaw->sortBy(function (CustomerCase $c): array {
+            return [
+                -$this->completenessScore($c),
+                -(float) ($c->review_rating ?? 0),
+                $c->sort_order,
+            ];
+        })->values();
 
         $allSlugs = collect($cases)
             ->flatMap(fn (CustomerCase $c) => $this->normalizeSlugs($c->widgets))
@@ -58,6 +62,22 @@ class CaseController extends CoreBaseController
         ]);
 
         return $this->success(['data' => $data]);
+    }
+
+    private function completenessScore(CustomerCase $c): int
+    {
+        $score = 0;
+        if ($c->result_metric !== null && $c->result_metric !== '') {
+            $score += 3;
+        }
+        if ($c->review_text !== null && $c->review_text !== '') {
+            $score += 2;
+        }
+        if (count($this->normalizeSlugs($c->widgets)) > 0) {
+            $score += 1;
+        }
+
+        return $score;
     }
 
     /**
