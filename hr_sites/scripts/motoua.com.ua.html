@@ -3,9 +3,6 @@
 <!-- start: w.INIT.execute(); end: </body> -->
 <!-- length: 4688 -->
 
-w.INIT.execute();
-  })(window)
-</script>
         <script>
   (function(w, k) {
     w[k] = {
@@ -38,82 +35,4 @@ w.INIT.execute();
   
   ga('send', 'pageview');
 
-</script>        <section
-    id="cart"
-    class="popup __cart"
-    style="display: none;"
->
-    <div class="popup-block">
-        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
-            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
-        </a>
-        <div class="popup-title">Кошик</div>
-        <div class="cart">
-            <div class="cart-content">
-                <div class="loader-container j-cart-loader">
-                    <div class="loader-spinner loader-spinner--block"></div>
-                </div>
-                <table class="cart-items">
-                    <thead>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td class="cart-header">
-                            <div class="cart-header-b"><span
-                                        class="cart-header-content">Кількість</span></div>
-                        </td>
-                        <td class="cart-header __cost">
-                            <div class="cart-header-b"><span
-                                        class="cart-header-content">Вартість</span></div>
-                        </td>
-                    </tr>
-                    </thead>
-                                                                                <tfoot class="cart-foot">
-                                        <tr>
-                        <td class="cart-footer" colspan="4">
-                            <div class="cart-summary">
-                                <div class="cart-footer-h">Всього</div>
-                                <div class="cart-footer-b cart-cost j-total-sum">
-                                    0 грн                                </div>
-                            </div>
-                            <div class="cart-buttons">
-                                <div class="cart-btnBack">
-                                    <button
-                                        class="btn __clear"
-                                        onclick="Modal.close(); return false;"
-                                    >
-                                        <span class="btn-content">
-                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
-                                            Повернутись до покупок                                        </span>
-                                    </button>
-                                </div>
-                                <div class="cart-btnOrder">
-                                    <a
-                                        class="btn __special"
-                                        rel="nofollow"
-                                        href="/checkout/"
-                                    >
-                                        <span class="btn-content">Оформити замовлення</span>
-                                    </a>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                    </tfoot>
-                </table>
-            </div>
-            <div class="j-cart-additional">
-                            </div>
-        </div>
-    </div>
-</section>
-<script>
-  (function (w) {
-    w.INIT.add(function () {
-      const ajaxCart = AjaxCart.getInstance();
-
-      ajaxCart.skin = "modal";
-      ajaxCart.remove_product_on_zero = true;
-    }, w.AjaxCart);
-  })(window);
 </script>        

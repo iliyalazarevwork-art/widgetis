@@ -3,9 +3,6 @@
 <!-- start: w.INIT.execute(); end: </body> -->
 <!-- length: 7471 -->
 
-w.INIT.execute();
-  })(window)
-</script>
         <script>
     const $productColumnItem = $('.j-product-right-column.product__column-container .product__column-item');
     const linksHtml = `<div class="product__group" style="margin-bottom: 20px; padding: 0 20px;"><div style="display:flex; gap: 10px; padding: 10px 20px; background: #c9312b; color: #fff; align-items: center;">Для замовлення та консультації: <a style="color:#fff; display: inline-flex; gap: 5px; align-items: center;" href="tel:+380960601111"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-label="Phone"><path style="fill: #fff;" d="M9 2a3 3 0 0 0-3 3v14a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3V5a3 3 0 0 0-3-3H9zM11 19h2a1 1 0 1 1 0 2h-2a1 1 0 1 1 0-2z" /></svg>+38 096 060 1111</a></div></div>`;
@@ -49,104 +46,4 @@ if(window.BinotelCallTracking[key]['initState']==="success"){
 setTimeout(document.querySelectorAll('.j-phone-item').forEach(item => (item.dataset.fakeHref = 'tel:' + item.textContent.replace(/\D/g, ''))),0)
 clearInterval(waitB)}}}},1000)
 </script>
-        <section
-    id="cart"
-    class="popup __cart"
-    style="display: none;"
->
-    <div class="popup-block">
-        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
-            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
-        </a>
-        <div class="popup-title">Кошик</div>
-        <div class="cart">
-            <div class="cart-content">
-                <div class="loader-container j-cart-loader">
-                    <div class="loader-spinner loader-spinner--block"></div>
-                </div>
-                <table class="cart-items">
-                    <thead>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td class="cart-header">
-                            <div class="cart-header-b"><span
-                                        class="cart-header-content">Кількість</span></div>
-                        </td>
-                        <td class="cart-header __cost">
-                            <div class="cart-header-b"><span
-                                        class="cart-header-content">Вартість</span></div>
-                        </td>
-                    </tr>
-                    </thead>
-                                                                                <tfoot class="cart-foot">
-                                        <tr>
-                        <td class="cart-footer" colspan="4">
-                            <div class="cart-summary">
-                                <div class="cart-footer-h">Всього</div>
-                                <div class="cart-footer-b cart-cost j-total-sum">
-                                    0 грн                                </div>
-                            </div>
-                            <div class="cart-buttons">
-                                <div class="cart-btnBack">
-                                    <button
-                                        class="btn __clear"
-                                        onclick="Modal.close(); return false;"
-                                    >
-                                        <span class="btn-content">
-                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
-                                            Повернутись до покупок                                        </span>
-                                    </button>
-                                </div>
-                                <div class="cart-btnOrder">
-                                    <a
-                                        class="btn __special"
-                                        rel="nofollow"
-                                        href="/checkout/"
-                                    >
-                                        <span class="btn-content">Оформити замовлення</span>
-                                    </a>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                    </tfoot>
-                </table>
-            </div>
-            <div class="j-cart-additional">
-                            </div>
-        </div>
-    </div>
-</section>
-<script>
-  (function (w) {
-    w.INIT.add(function () {
-      const ajaxCart = AjaxCart.getInstance();
-
-      ajaxCart.skin = "modal";
-      ajaxCart.remove_product_on_zero = true;
-    }, w.AjaxCart);
-  })(window);
-</script>    <section class="compare" id="uid76efd773575f169b3a2ec74ba7acea44" style="display: none;">
-    <div class="compare-container">
-        <div class="compare-close j-close" role="button">
-            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
-        </div>
-        <div class="compare-header">
-            <div class="compare-header-wrp">
-                <div class="compare-h">Порівняння товарів</div>
-                <div class="compare-filter j-tabs"></div>
-            </div>
-        </div>
-        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
-        <div class="compare-body j-content"></div>
-    </div>
-</section>
-
-<script>
-  (function (w) {
-    w.INIT.add(function () {
-      ComparisonTable.createInstance("default", "#uid76efd773575f169b3a2ec74ba7acea44");
-    }, w.ComparisonTable)
-  })(window);
-</script>    
+    
