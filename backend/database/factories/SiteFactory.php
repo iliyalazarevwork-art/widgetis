@@ -23,7 +23,7 @@ class SiteFactory extends Factory
      */
     public function definition(): array
     {
-        $domain = fake()->domainName();
+        $domain = Str::lower(Str::random(10)) . '-' . fake()->domainName();
 
         return [
             'user_id' => User::factory(),
