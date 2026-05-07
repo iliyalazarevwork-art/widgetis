@@ -1,0 +1,664 @@
+<!-- source: https://postelbelie.com.ua/ -->
+<!-- extracted: 2026-05-07T21:34:09.817Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 27446 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <!-- БЕГУЩАЯ СТРОКА ПОД ШАПКОЙ (ПРЕМИАЛЬНЫЙ СТИЛЬ) -->
+<div id="custom-marquee" style="background-color: #f9a03f; color: #000000; padding: 10px 0; width: 100%; overflow: hidden; font-family: 'Playfair Display', Georgia, 'Times New Roman', serif; font-size: 17px; font-weight: 500; letter-spacing: 1.2px; border-bottom: 1px solid rgba(0,0,0,0.15); position: relative; z-index: 9999; margin: 0; clear: both; line-height: 1.4; text-transform: uppercase; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+  <div style="display: inline-block; white-space: nowrap; animation: scrollMarquee 45s linear infinite; opacity: 0.95;">
+    <span style="display: inline-block; padding-right: 60px;">✦ НАКЛАДЕНИЙ ПЛАТІЖ ✦ СЕРТИФІКАТИ ЯКОСТІ ✦ НАТУРАЛЬНІ ТКАНИНИ ✦ ВЕЛИКИЙ АСОРТИМЕНТ ✦ ІНДИВІДУАЛЬНИЙ ПОШИВ ✦ ДОСТАВКА ПО ВСІЙ УКРАЇНІ ✦ ПРИЙМАЄМО ЗАМОВЛЕННЯ З-ЗА КОРДОНУ ✦</span>
+    <span style="display: inline-block; padding-right: 60px;">✦ НАКЛАДЕНИЙ ПЛАТІЖ ✦ СЕРТИФІКАТИ ЯКОСТІ ✦ НАТУРАЛЬНІ ТКАНИНИ ✦ ВЕЛИКИЙ АСОРТИМЕНТ ✦ ІНДИВІДУАЛЬНИЙ ПОШИВ ✦ ДОСТАВКА ПО ВСІЙ УКРАЇНІ ✦ ПРИЙМАЄМО ЗАМОВЛЕННЯ З-ЗА КОРДОНУ ✦</span>
+    <span style="display: inline-block; padding-right: 60px;">✦ НАКЛАДЕНИЙ ПЛАТІЖ ✦ СЕРТИФІКАТИ ЯКОСТІ ✦ НАТУРАЛЬНІ ТКАНИНИ ✦ ВЕЛИКИЙ АСОРТИМЕНТ ✦ ІНДИВІДУАЛЬНИЙ ПОШИВ ✦ ДОСТАВКА ПО ВСІЙ УКРАЇНІ ✦ ПРИЙМАЄМО ЗАМОВЛЕННЯ З-ЗА КОРДОНУ ✦</span>
+  </div>
+</div>
+
+<!-- Підключаємо шрифт Playfair Display -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+@keyframes scrollMarquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-33.33%); }
+}
+
+/* ПОЛНОСТЬЮ СБРАСЫВАЕМ ОТСТУПЫ ШАПКИ */
+header {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  position: relative !important;
+  z-index: 100 !important;
+}
+
+/* Принудительно размещаем строку после шапки */
+#custom-marquee {
+  display: block !important;
+  width: 100% !important;
+  background-color: #f9a03f !important;
+  color: #000000 !important;
+  padding: 10px 0 !important;
+  margin: 0 !important;
+  margin-bottom: 0 !important;
+  position: relative !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 99 !important;
+  box-sizing: border-box !important;
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif !important;
+  font-size: 17px !important;
+  font-weight: 500 !important;
+  letter-spacing: 1.2px !important;
+  text-transform: uppercase !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+}
+
+/* Убираем отступы у body */
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Убираем отступы у первого элемента после header */
+header + * {
+  margin-top: 0 !important;
+}
+
+/* ПРИЖИМАЕМ ГЕРОЙ К СТРОКЕ */
+.hero-banner {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  margin-bottom: 2px !important;
+}
+
+/* Кнопка каталога */
+button[data-panel="catalog-navigation"],
+.btn--catalog-nav {
+  margin-top: 0 !important;
+}
+
+div:has(> button[data-panel="catalog-navigation"]),
+section:has(> .btn--catalog-nav) {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* Стили для плавающих кнопок соцсетей */
+.social-floating {
+    position: fixed;
+    bottom: 30px;
+    right: 20px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.social-floating a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+    position: relative;
+    text-decoration: none;
+}
+
+.social-floating a:hover {
+    transform: scale(1.08);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.social-floating a.instagram {
+    background: linear-gradient(45deg, #f09433, #d62976, #962fbf);
+}
+
+.social-floating a.telegram {
+    background: #27A7E7;
+}
+
+.social-floating a.viber {
+    background: #7360F2;
+}
+
+/* Подсказки слева */
+.social-floating a .tooltip {
+    position: absolute;
+    right: 70px;
+    background: white;
+    color: #333;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border: 1px solid #eaeaea;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    font-family: 'Playfair Display', Arial, sans-serif;
+    letter-spacing: 0.3px;
+    z-index: 100000;
+    display: block;
+}
+
+.social-floating a:hover .tooltip {
+    opacity: 1;
+    visibility: visible;
+    right: 75px;
+}
+
+/* Стрелочка подсказки */
+.social-floating a .tooltip::after {
+    content: '';
+    position: absolute;
+    right: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-width: 5px 0 5px 8px;
+    border-style: solid;
+    border-color: transparent transparent transparent white;
+}
+
+/* Анимация при первом заходе */
+@keyframes gentlePulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.social-floating a {
+    animation: gentlePulse 2s ease 1;
+}
+
+/* Для мобильных - подсказки скрыты, но кнопки работают */
+@media (max-width: 768px) {
+    .social-floating {
+        bottom: 20px;
+        right: 15px;
+        gap: 10px;
+    }
+    
+    .social-floating a {
+        width: 55px;
+        height: 55px;
+    }
+    
+    .social-floating a .tooltip {
+        display: none;
+    }
+}
+</style>
+
+<script>
+(function() {
+  function moveMarquee() {
+    var marquee = document.getElementById('custom-marquee');
+    var header = document.querySelector('header');
+    
+    if (marquee && header) {
+      if (marquee.parentNode) {
+        marquee.parentNode.removeChild(marquee);
+      }
+      header.parentNode.insertBefore(marquee, header.nextSibling);
+      marquee.style.marginBottom = '0';
+    }
+  }
+  
+  moveMarquee();
+  window.addEventListener('load', moveMarquee);
+  setTimeout(moveMarquee, 100);
+  setTimeout(moveMarquee, 500);
+  setTimeout(moveMarquee, 1000);
+})();
+</script>
+
+<!-- Плавающие кнопки Instagram, Telegram и Viber -->
+<div class="social-floating">
+    <a href="https://instagram.com/postelbelie_ukraina" target="_blank" rel="noopener noreferrer" class="instagram">
+        <span class="tooltip">Написати в Direct</span>
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C9.4 2 9.1 2 8.1 2.1C5.8 2.2 4.2 3.8 4.1 6.1C4 7.1 4 7.4 4 10C4 12.6 4 12.9 4.1 13.9C4.2 16.2 5.8 17.8 8.1 17.9C9.1 18 9.4 18 12 18C14.6 18 14.9 18 15.9 17.9C18.2 17.8 19.8 16.2 19.9 13.9C20 12.9 20 12.6 20 10C20 7.4 20 7.1 19.9 6.1C19.8 3.8 18.2 2.2 15.9 2.1C14.9 2 14.6 2 12 2ZM12 4.5C13.5 4.5 14.7 5.7 14.7 7.2C14.7 8.7 13.5 9.9 12 9.9C10.5 9.9 9.3 8.7 9.3 7.2C9.3 5.7 10.5 4.5 12 4.5ZM15.8 14.2C15.1 14.9 14.1 15.3 13 15.3H11C9.9 15.3 8.9 14.9 8.2 14.2C7.8 13.8 7.5 13.3 7.3 12.7C7.9 12.2 8.7 11.9 9.5 11.9H14.5C15.3 11.9 16.1 12.2 16.7 12.7C16.5 13.3 16.2 13.8 15.8 14.2Z" fill="white"/>
+        </svg>
+    </a>
+    <a href="https://t.me/ManagershopUA" target="_blank" rel="noopener noreferrer" class="telegram">
+        <span class="tooltip">Зв'язатися з менеджером</span>
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM16.64 8.8C16.49 10.38 15.84 14.06 15.51 15.73C15.37 16.48 15.09 16.73 14.83 16.76C14.25 16.82 13.81 16.37 13.25 15.99C12.38 15.38 11.89 14.99 11.03 14.39C10.04 13.7 10.69 13.31 11.27 12.69C11.42 12.53 13.97 10.2 14.03 9.98C14.04 9.93 14.05 9.77 13.97 9.7C13.89 9.63 13.75 9.65 13.65 9.67C13.52 9.7 11.76 10.94 9.98 12.17C9.55 12.48 9.15 12.63 8.79 12.62C8.39 12.61 7.63 12.4 7.05 12.22C6.34 12 5.78 11.78 5.84 11.34C5.87 11.12 6.17 10.89 6.76 10.66C9.01 9.69 12.44 8.41 13.96 7.85C15.32 7.35 15.77 7.2 16.07 7.2C16.14 7.2 16.32 7.22 16.44 7.32C16.54 7.41 16.57 7.53 16.58 7.61C16.57 7.69 16.61 7.93 16.64 8.8Z" fill="white"/>
+        </svg>
+    </a>
+    <a href="viber://chat?number=%2B380960373473" target="_blank" rel="noopener noreferrer" class="viber">
+        <span class="tooltip">Написати у Viber</span>
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12.5 2C7.3 2 3 6.3 3 11.5C3 14.7 4.7 17.5 7.3 19.2L7 22L10 20.1C10.8 20.3 11.6 20.4 12.5 20.4C17.7 20.4 22 16.1 22 11C22 5.9 17.7 2 12.5 2Z" stroke="white" stroke-width="1.5" fill="none"/>
+            <path d="M12.5 14.5C11.5 14.5 10.6 14.1 9.9 13.5M9.5 9.5C10 8.5 11 8 12 8M8 12C8.5 14 10.5 16 12.5 16" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="8.5" cy="8.5" r="1.5" fill="white"/>
+            <circle cx="12.5" cy="8.5" r="1.5" fill="white"/>
+            <circle cx="16.5" cy="8.5" r="1.5" fill="white"/>
+        </svg>
+    </a>
+</div>
+
+<script>
+// Делаем логотип ссылкой на главную страницу
+(function() {
+  function makeLogoClickable() {
+    var logo = document.querySelector('.logo a, .logo img, [class*="logo"] a, [class*="logo"] img, header a[href*="/"], header img');
+    
+    if (logo) {
+      if (logo.tagName === 'IMG') {
+        var link = document.createElement('a');
+        link.href = '/';
+        link.style.display = 'inline-block';
+        link.style.textDecoration = 'none';
+        link.style.border = 'none';
+        
+        logo.parentNode.insertBefore(link, logo);
+        link.appendChild(logo);
+      }
+      else if (logo.tagName === 'A') {
+        logo.href = '/';
+      }
+      else if (logo.parentNode && logo.parentNode.tagName !== 'A') {
+        var link = document.createElement('a');
+        link.href = '/';
+        link.style.display = 'inline-block';
+        link.style.textDecoration = 'none';
+        link.style.color = 'inherit';
+        
+        logo.parentNode.insertBefore(link, logo);
+        link.appendChild(logo);
+      }
+    }
+  }
+  
+  makeLogoClickable();
+  window.addEventListener('load', makeLogoClickable);
+  setTimeout(makeLogoClickable, 500);
+})();
+</script>
+
+<script>
+// ТОЧНОЕ ИСПРАВЛЕНИЕ ИКОНКИ ДОМИКА
+(function() {
+  function fixHomeIcon() {
+    // Ищем все элементы use с ссылкой на #icon-homepage
+    var uses = document.querySelectorAll('use[xlink\\:href="#icon-homepage"], use[href="#icon-homepage"]');
+    
+    uses.forEach(function(use) {
+      var link = use.closest('a');
+      if (link) {
+        link.href = '/';
+        link.setAttribute('title', 'На головну / На главную');
+      }
+    });
+    
+    // Ищем сам SVG с классом icon--homepage
+    var homeSvgs = document.querySelectorAll('.icon--homepage');
+    homeSvgs.forEach(function(svg) {
+      var link = svg.closest('a');
+      if (link) {
+        link.href = '/';
+      }
+    });
+  }
+  
+  fixHomeIcon();
+  window.addEventListener('load', fixHomeIcon);
+  setTimeout(fixHomeIcon, 500);
+  setTimeout(fixHomeIcon, 1000);
+  setTimeout(fixHomeIcon, 1500);
+  setTimeout(fixHomeIcon, 2000);
+})();
+</script>
+
+<script>
+(function() {
+    function isBedLinen() {
+        // Проверяем, что это постельный комплект, а не другие категории
+        const url = window.location.href || '';
+        const title = document.title || '';
+        const bodyText = document.body.innerText.substring(0, 2000) || '';
+        
+        // Ключевые слова, которые есть только в постельных комплектах
+        const bedLinenKeywords = [
+            'постільна білизна',
+            'постельное белье',
+            'комплект постільної білизни',
+            'комплект постельного белья',
+            'простирадло',
+            'простыня',
+            'наволочка',
+            'підковдра',
+            'пододеяльник',
+            'ранфорс',
+            'сатин',
+            'бязь',
+            'Ранфорс',
+            'Сатин',
+            'Бязь',
+            'Варена бавовна',
+            'рюші',
+            'рюши'
+        ];
+        
+        // Слова-исключения: товары, где блок НЕ должен показываться
+        const excludeKeywords = [
+            'покривало',
+            'покрывало',
+            'скандинавський',
+            'скандинавский',
+            'велюр',
+            'chanel',
+            'scandi',
+            'подушка',
+            'подушку',
+            'подушки',
+            'подушек',
+            'подушок',
+            'одеяло',
+            'одеяла',
+            'наматрасник',
+            'наматрасники',
+            'pillow',
+            'blanket',
+            'mattress'
+        ];
+        
+        // Проверяем, есть ли слово-исключение
+        for (let word of excludeKeywords) {
+            if (url.toLowerCase().includes(word.toLowerCase()) || 
+                title.toLowerCase().includes(word.toLowerCase()) || 
+                bodyText.toLowerCase().includes(word.toLowerCase())) {
+                return false; // Это не постельный комплект — блок не показываем
+            }
+        }
+        
+        // Проверяем, есть ли слово-маркер постельного белья
+        for (let word of bedLinenKeywords) {
+            if (title.toLowerCase().includes(word.toLowerCase()) || 
+                bodyText.toLowerCase().includes(word.toLowerCase())) {
+                return true; // Это постельный комплект — блок показываем
+            }
+        }
+        
+        return false; // По умолчанию не показываем
+    }
+
+    function createHint() {
+        // Если блок уже есть — не создаём новый
+        if (document.querySelector('.mattress-size-hint')) return;
+
+        // Если это не постельный комплект — выходим
+        if (!isBedLinen()) return;
+
+        // Находим последнюю группу модификаций
+        const modifications = document.querySelectorAll('.modification');
+        if (!modifications.length) return;
+
+        const lastModification = modifications[modifications.length - 1];
+
+        // Создаём блок
+        const hint = document.createElement('div');
+        hint.className = 'mattress-size-hint';
+        hint.style.cssText = `
+            font-size: 13px;
+            color: #333;
+            margin: 12px 0 8px 0;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-left: 4px solid #f9a03f;
+            border-radius: 4px;
+            line-height: 1.3;
+            font-family: Arial, sans-serif;
+        `;
+        hint.innerHTML = `
+            <div style="margin-bottom:4px;"><strong>Доступні розміри простирадла на резинці за периметром матраца:</strong></div>
+            <div style="margin-left:6px; margin-bottom:3px;">
+                <div><strong>Для півтораспального:</strong> 90×200, 120×200, 140×200</div>
+                <div><strong>Для двоспального, Євро, Сімейного:</strong> 160×200, 180×200</div>
+            </div>
+            <div style="font-size:12px; color:#666; border-top:1px solid #ddd; padding-top:4px; margin-top:4px;">
+                Стандартна висота матраца — 20 см. Простирадло відшивається з висотою 23 см.<br>
+                ❗ При виборі опції обов'язково вкажіть у примітці ширину, довжину та висоту матраца.
+            </div>
+        `;
+
+        // Вставляем после последней группы кнопок
+        lastModification.parentNode.insertBefore(hint, lastModification.nextSibling);
+    }
+
+    // Создаём при загрузке
+    createHint();
+
+    // Наблюдаем за изменениями в блоке модификаций
+    const observer = new MutationObserver(function() {
+        // Если блок исчез — восстанавливаем, но только для постельных комплектов
+        if (!document.querySelector('.mattress-size-hint') && isBedLinen()) {
+            createHint();
+        }
+    });
+
+    // Запускаем наблюдение за всей страницей
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+
+    // Дополнительная страховка
+    setTimeout(createHint, 500);
+    setTimeout(createHint, 1000);
+})();
+</script>
+
+<script>
+(function() {
+    function addSocialButtonsToCart() {
+        // Шукаємо кнопку оформлення замовлення
+        const orderButton = document.querySelector('.order__total .btn--primary, button[type="submit"].btn--primary, a[data-checkout-link]');
+        
+        if (!orderButton) return;
+
+        // Перевіряємо, чи вже є наш блок
+        if (document.querySelector('.cart-social-hint')) return;
+
+        // Створюємо блок
+        const hint = document.createElement('div');
+        hint.className = 'cart-social-hint';
+        hint.style.cssText = `
+            margin: 20px 0 15px 0;
+            padding: 16px;
+            background: #f8f9fa;
+            border-left: 4px solid #f9a03f;
+            border-radius: 4px;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        `;
+
+        hint.innerHTML = `
+            <div style="margin-bottom:12px; font-size:15px; font-weight:600; color:#2c3e50; letter-spacing:0.3px;">
+                ⚡ Швидко завершити замовлення
+            </div>
+            <div style="margin-bottom:8px; font-size:13px; color:#555; line-height:1.5;">
+                Напишіть у зручний месенджер — менеджер допоможе обрати, підкаже розміри та оформить замовлення
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:12px;">
+                <a href="https://t.me/ManagershopUA" target="_blank" style="display:inline-flex; align-items:center; justify-content:center; background:#27A7E7; color:white; padding:10px 24px; border-radius:50px; text-decoration:none; font-weight:600; font-size:14px; min-width:160px; border:none; box-shadow:0 2px 8px rgba(0,0,0,0.1); transition:all 0.2s;">
+                    Telegram-менеджер
+                </a>
+                <a href="https://ig.me/m/postelbelie_ukraina" target="_blank" style="display:inline-flex; align-items:center; justify-content:center; background:linear-gradient(45deg, #f09433, #d62976, #962fbf); color:white; padding:10px 24px; border-radius:50px; text-decoration:none; font-weight:600; font-size:14px; min-width:160px; border:none; box-shadow:0 2px 8px rgba(0,0,0,0.1); transition:all 0.2s;">
+                    Instagram Direct
+                </a>
+                <a href="viber://chat?number=%2B380960373473" target="_blank" style="display:inline-flex; align-items:center; justify-content:center; background:#7360F2; color:white; padding:10px 24px; border-radius:50px; text-decoration:none; font-weight:600; font-size:14px; min-width:160px; border:none; box-shadow:0 2px 8px rgba(0,0,0,0.1); transition:all 0.2s;">
+                    Viber
+                </a>
+            </div>
+            <div style="margin-top:10px; font-size:12px; color:#777;">
+                Відповімо за 5–15 хвилин
+            </div>
+        `;
+
+        // Вставляємо перед кнопкою оформлення
+        orderButton.parentNode.insertBefore(hint, orderButton);
+    }
+
+    // Запускаємо після завантаження сторінки
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', addSocialButtonsToCart);
+    } else {
+        addSocialButtonsToCart();
+    }
+
+    // Додатково через 1 секунду
+    setTimeout(addSocialButtonsToCart, 1000);
+})();
+</script>                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                                                                        <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uidbd0366237cfa9a24d710a76e2b4ca0fb" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uidbd0366237cfa9a24d710a76e2b4ca0fb");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

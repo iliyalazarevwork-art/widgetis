@@ -1,0 +1,865 @@
+<!-- source: https://storrage.com.ua/ -->
+<!-- extracted: 2026-05-07T21:34:29.442Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 30807 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <script>
+(function () {
+  function positionSubmenu(item) {
+    var submenu = item.querySelector('.productsMenu-submenu');
+    if (!submenu) return;
+    var menuList = item.closest('.products-menu__list') || item.parentElement;
+    if (!menuList) return;
+    var menuListRect = menuList.getBoundingClientRect();
+    var menuLeft     = menuListRect.left;
+    var menuRight    = menuListRect.right;
+
+    submenu.style.removeProperty('left');
+    var prevVis  = submenu.style.visibility;
+    var prevOp   = submenu.style.opacity;
+    var prevDisp = submenu.style.display;
+    submenu.style.setProperty('visibility', 'hidden', 'important');
+    submenu.style.setProperty('opacity', '0', 'important');
+    submenu.style.setProperty('display', 'block', 'important');
+    submenu.style.setProperty('left', '0', 'important');
+
+    var submenuWidth = submenu.offsetWidth;
+
+    submenu.style.display    = prevDisp;
+    submenu.style.visibility = prevVis;
+    submenu.style.opacity    = prevOp;
+
+    var itemRect           = item.getBoundingClientRect();
+    var itemCenterViewport = itemRect.left + itemRect.width / 2;
+    var idealLeft          = itemCenterViewport - submenuWidth / 2;
+    var clamped            = Math.max(menuLeft, Math.min(idealLeft, menuRight - submenuWidth));
+    var finalLeft          = Math.round(clamped - menuListRect.left);
+
+    submenu.style.setProperty('left', finalLeft + 'px', 'important');
+  }
+
+  function fitCardTexts(submenu) {
+    var targets = submenu
+      ? submenu.querySelectorAll('.productsMenu-submenu-t')
+      : document.querySelectorAll('.productsMenu-submenu-t');
+
+    targets.forEach(function(el) {
+      var parent = el.closest('.productsMenu-submenu-a');
+      if (!parent) return;
+      var maxWidth = parent.offsetWidth - 20;
+      if (maxWidth <= 0) return;
+
+      var text = el.textContent.trim();
+      var words = text.split(/\s+/);
+
+      if (words.length === 1) {
+        // Одно слово — уменьшаем шрифт пока не влезет
+        el.style.whiteSpace = 'nowrap';
+        el.style.fontSize = '12px';
+        var fontSize = 12;
+        while (el.scrollWidth > maxWidth && fontSize > 1) {
+          fontSize -= 1;
+          el.style.fontSize = fontSize + 'px';
+        }
+      } else {
+        // Несколько слов — оставляем перенос, шрифт не трогаем
+        el.style.whiteSpace = 'normal';
+        el.style.fontSize = '';
+      }
+    });
+  }
+
+  function init() {
+    document.querySelectorAll('.products-menu__item').forEach(function (item) {
+      var submenu = item.querySelector('.productsMenu-submenu');
+
+      item.addEventListener('mouseenter', function () {
+        positionSubmenu(item);
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            if (submenu) fitCardTexts(submenu);
+          });
+        });
+      });
+
+      positionSubmenu(item);
+    });
+
+    window.addEventListener('resize', function () {
+      document.querySelectorAll('.products-menu__item').forEach(positionSubmenu);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+<script>
+(function () {
+  function positionSubmenu(item) {
+    var submenu = item.querySelector('.productsMenu-submenu');
+    if (!submenu) return;
+    var menuList = item.closest('.products-menu__list') || item.parentElement;
+    if (!menuList) return;
+    var menuListRect = menuList.getBoundingClientRect();
+    var menuLeft     = menuListRect.left;
+    var menuRight    = menuListRect.right;
+
+    submenu.style.removeProperty('left');
+    var prevVis  = submenu.style.visibility;
+    var prevOp   = submenu.style.opacity;
+    var prevDisp = submenu.style.display;
+    submenu.style.setProperty('visibility', 'hidden', 'important');
+    submenu.style.setProperty('opacity', '0', 'important');
+    submenu.style.setProperty('display', 'block', 'important');
+    submenu.style.setProperty('left', '0', 'important');
+
+    var submenuWidth = submenu.offsetWidth;
+
+    submenu.style.display    = prevDisp;
+    submenu.style.visibility = prevVis;
+    submenu.style.opacity    = prevOp;
+
+    var itemRect           = item.getBoundingClientRect();
+    var itemCenterViewport = itemRect.left + itemRect.width / 2;
+    var idealLeft          = itemCenterViewport - submenuWidth / 2;
+    var clamped            = Math.max(menuLeft, Math.min(idealLeft, menuRight - submenuWidth));
+    var finalLeft          = Math.round(clamped - menuListRect.left);
+
+    submenu.style.setProperty('left', finalLeft + 'px', 'important');
+  }
+
+  function fitCardTexts(submenu) {
+    var targets = submenu
+      ? submenu.querySelectorAll('.productsMenu-submenu-t')
+      : document.querySelectorAll('.productsMenu-submenu-t');
+
+    targets.forEach(function(el) {
+      var parent = el.closest('.productsMenu-submenu-a');
+      if (!parent) return;
+      var maxWidth = parent.offsetWidth - 20;
+      if (maxWidth <= 0) return;
+
+      var text = el.textContent.trim();
+      var words = text.split(/\s+/);
+
+      if (words.length === 1) {
+        // Одно слово — уменьшаем шрифт пока не влезет
+        el.style.whiteSpace = 'nowrap';
+        el.style.fontSize = '12px';
+        var fontSize = 12;
+        while (el.scrollWidth > maxWidth && fontSize > 1) {
+          fontSize -= 1;
+          el.style.fontSize = fontSize + 'px';
+        }
+      } else {
+        // Несколько слов — оставляем перенос, шрифт не трогаем
+        el.style.whiteSpace = 'normal';
+        el.style.fontSize = '';
+      }
+    });
+  }
+
+  function init() {
+    document.querySelectorAll('.products-menu__item').forEach(function (item) {
+      var submenu = item.querySelector('.productsMenu-submenu');
+
+      item.addEventListener('mouseenter', function () {
+        positionSubmenu(item);
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            if (submenu) fitCardTexts(submenu);
+          });
+        });
+      });
+
+      positionSubmenu(item);
+    });
+
+    window.addEventListener('resize', function () {
+      document.querySelectorAll('.products-menu__item').forEach(positionSubmenu);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+
+// Placeholder для полей попапа
+(function() {
+  function setPlaceholders() {
+    var nameField = document.querySelector('.popup-block.login input[name="form[title]"]');
+    var phoneField = document.querySelector('.popup-block.login input[name="form[phone]"]');
+    if (nameField && !nameField.getAttribute('placeholder')) {
+      nameField.setAttribute('placeholder', 'Введіть ваше ім\'я');
+    }
+    if (phoneField && !phoneField.getAttribute('placeholder')) {
+      phoneField.setAttribute('placeholder', '+38 (0__) ___-__-__');
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setPlaceholders);
+  } else {
+    setPlaceholders();
+  }
+  // Также при открытии попапа
+  document.addEventListener('click', function() {
+    setTimeout(setPlaceholders, 100);
+  });
+})();
+</script>
+
+<script>
+(function () {
+  function positionSubmenu(item) {
+    var submenu = item.querySelector('.productsMenu-submenu');
+    if (!submenu) return;
+    var menuList = item.closest('.products-menu__list') || item.parentElement;
+    if (!menuList) return;
+    var menuListRect = menuList.getBoundingClientRect();
+    var menuLeft     = menuListRect.left;
+    var menuRight    = menuListRect.right;
+
+    submenu.style.removeProperty('left');
+    var prevVis  = submenu.style.visibility;
+    var prevOp   = submenu.style.opacity;
+    var prevDisp = submenu.style.display;
+    submenu.style.setProperty('visibility', 'hidden', 'important');
+    submenu.style.setProperty('opacity', '0', 'important');
+    submenu.style.setProperty('display', 'block', 'important');
+    submenu.style.setProperty('left', '0', 'important');
+
+    var submenuWidth = submenu.offsetWidth;
+
+    submenu.style.display    = prevDisp;
+    submenu.style.visibility = prevVis;
+    submenu.style.opacity    = prevOp;
+
+    var itemRect           = item.getBoundingClientRect();
+    var itemCenterViewport = itemRect.left + itemRect.width / 2;
+    var idealLeft          = itemCenterViewport - submenuWidth / 2;
+    var clamped            = Math.max(menuLeft, Math.min(idealLeft, menuRight - submenuWidth));
+    var finalLeft          = Math.round(clamped - menuListRect.left);
+
+    submenu.style.setProperty('left', finalLeft + 'px', 'important');
+  }
+
+  function fitCardTexts(submenu) {
+    var targets = submenu
+      ? submenu.querySelectorAll('.productsMenu-submenu-t')
+      : document.querySelectorAll('.productsMenu-submenu-t');
+
+    targets.forEach(function(el) {
+      var parent = el.closest('.productsMenu-submenu-a');
+      if (!parent) return;
+      var maxWidth = parent.offsetWidth - 20;
+      if (maxWidth <= 0) return;
+
+      var text = el.textContent.trim();
+      var words = text.split(/\s+/);
+
+      if (words.length === 1) {
+        // Одно слово — уменьшаем шрифт пока не влезет
+        el.style.whiteSpace = 'nowrap';
+        el.style.fontSize = '12px';
+        var fontSize = 12;
+        while (el.scrollWidth > maxWidth && fontSize > 1) {
+          fontSize -= 1;
+          el.style.fontSize = fontSize + 'px';
+        }
+      } else {
+        // Несколько слов — оставляем перенос, шрифт не трогаем
+        el.style.whiteSpace = 'normal';
+        el.style.fontSize = '';
+      }
+    });
+  }
+
+  function init() {
+    document.querySelectorAll('.products-menu__item').forEach(function (item) {
+      var submenu = item.querySelector('.productsMenu-submenu');
+
+      item.addEventListener('mouseenter', function () {
+        positionSubmenu(item);
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            if (submenu) fitCardTexts(submenu);
+          });
+        });
+      });
+
+      positionSubmenu(item);
+    });
+
+    window.addEventListener('resize', function () {
+      document.querySelectorAll('.products-menu__item').forEach(positionSubmenu);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+
+// Placeholder для полей попапа
+(function() {
+  function setPlaceholders() {
+    var nameField = document.querySelector('.popup-block.login input[name="form[title]"]');
+    var phoneField = document.querySelector('.popup-block.login input[name="form[phone]"]');
+    if (nameField && !nameField.getAttribute('placeholder')) {
+      nameField.setAttribute('placeholder', 'Введіть ваше ім\'я');
+    }
+    if (phoneField && !phoneField.getAttribute('placeholder')) {
+      phoneField.setAttribute('placeholder', '+38 (0__) ___-__-__');
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setPlaceholders);
+  } else {
+    setPlaceholders();
+  }
+  // Также при открытии попапа
+  document.addEventListener('click', function() {
+    setTimeout(setPlaceholders, 100);
+  });
+})();
+
+// ── Розділяємо адресу і графік роботи ──
+(function splitAddressAndSchedule() {
+  var group = document.querySelector('.footer__contacts-group:nth-child(3)');
+  if (!group) return;
+
+  var addr = group.querySelector('.footer__address');
+  var mapLink = group.querySelector('a.footer__link');
+  if (!addr) return;
+
+  var ps = addr.querySelectorAll('p');
+  if (!ps.length) return;
+
+  // 1. Адресний блок — іконка зліва, праворуч колонка: адреса + кнопка знизу
+  var addrWrap = document.createElement('div');
+  addrWrap.className = 'footer__address-wrap';
+  var addrContent = document.createElement('div');
+  addrContent.className = 'footer__address-wrap-content';
+  addrContent.appendChild(addr);
+  if (mapLink) addrContent.appendChild(mapLink);
+  addrWrap.appendChild(addrContent);
+  group.insertBefore(addrWrap, group.firstChild);
+
+  // 2. Блок графіку — окремий після адресного блоку
+  var scheduleBlock = document.createElement('div');
+  scheduleBlock.className = 'footer__schedule';
+  var inner = document.createElement('div');
+  inner.className = 'footer__schedule-inner';
+  ps.forEach(function(p) { inner.appendChild(p); });
+  scheduleBlock.appendChild(inner);
+  group.appendChild(scheduleBlock);
+})();
+</script>
+<script>
+(function () {
+  function positionSubmenu(item) {
+    var submenu = item.querySelector('.productsMenu-submenu');
+    if (!submenu) return;
+    var menuList = item.closest('.products-menu__list') || item.parentElement;
+    if (!menuList) return;
+    var menuListRect = menuList.getBoundingClientRect();
+    var menuLeft     = menuListRect.left;
+    var menuRight    = menuListRect.right;
+
+    submenu.style.removeProperty('left');
+    var prevVis  = submenu.style.visibility;
+    var prevOp   = submenu.style.opacity;
+    var prevDisp = submenu.style.display;
+    submenu.style.setProperty('visibility', 'hidden', 'important');
+    submenu.style.setProperty('opacity', '0', 'important');
+    submenu.style.setProperty('display', 'block', 'important');
+    submenu.style.setProperty('left', '0', 'important');
+
+    var submenuWidth = submenu.offsetWidth;
+
+    submenu.style.display    = prevDisp;
+    submenu.style.visibility = prevVis;
+    submenu.style.opacity    = prevOp;
+
+    var itemRect           = item.getBoundingClientRect();
+    var itemCenterViewport = itemRect.left + itemRect.width / 2;
+    var idealLeft          = itemCenterViewport - submenuWidth / 2;
+    var clamped            = Math.max(menuLeft, Math.min(idealLeft, menuRight - submenuWidth));
+    var finalLeft          = Math.round(clamped - menuListRect.left);
+
+    submenu.style.setProperty('left', finalLeft + 'px', 'important');
+  }
+
+  function fitCardTexts(submenu) {
+    var targets = submenu
+      ? submenu.querySelectorAll('.productsMenu-submenu-t')
+      : document.querySelectorAll('.productsMenu-submenu-t');
+
+    targets.forEach(function(el) {
+      var parent = el.closest('.productsMenu-submenu-a');
+      if (!parent) return;
+      var maxWidth = parent.offsetWidth - 20;
+      if (maxWidth <= 0) return;
+
+      var text = el.textContent.trim();
+      var words = text.split(/\s+/);
+
+      if (words.length === 1) {
+        // Одно слово — уменьшаем шрифт пока не влезет
+        el.style.whiteSpace = 'nowrap';
+        el.style.fontSize = '12px';
+        var fontSize = 12;
+        while (el.scrollWidth > maxWidth && fontSize > 1) {
+          fontSize -= 1;
+          el.style.fontSize = fontSize + 'px';
+        }
+      } else {
+        // Несколько слов — оставляем перенос, шрифт не трогаем
+        el.style.whiteSpace = 'normal';
+        el.style.fontSize = '';
+      }
+    });
+  }
+
+  function init() {
+    document.querySelectorAll('.products-menu__item').forEach(function (item) {
+      var submenu = item.querySelector('.productsMenu-submenu');
+
+      item.addEventListener('mouseenter', function () {
+        positionSubmenu(item);
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            if (submenu) fitCardTexts(submenu);
+          });
+        });
+      });
+
+      positionSubmenu(item);
+    });
+
+    window.addEventListener('resize', function () {
+      document.querySelectorAll('.products-menu__item').forEach(positionSubmenu);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+
+// Placeholder для полей попапа
+(function() {
+  function setPlaceholders() {
+    var nameField = document.querySelector('.popup-block.login input[name="form[title]"]');
+    var phoneField = document.querySelector('.popup-block.login input[name="form[phone]"]');
+    if (nameField && !nameField.getAttribute('placeholder')) {
+      nameField.setAttribute('placeholder', 'Введіть ваше ім\'я');
+    }
+    if (phoneField && !phoneField.getAttribute('placeholder')) {
+      phoneField.setAttribute('placeholder', '+38 (0__) ___-__-__');
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setPlaceholders);
+  } else {
+    setPlaceholders();
+  }
+  // Также при открытии попапа
+  document.addEventListener('click', function() {
+    setTimeout(setPlaceholders, 100);
+  });
+})();
+
+// ── Розділяємо адресу і графік роботи ──
+(function splitAddressAndSchedule() {
+  var group = document.querySelector('.footer__contacts-group:nth-child(3)');
+  if (!group) return;
+
+  var addr = group.querySelector('.footer__address');
+  var mapLink = group.querySelector('a.footer__link');
+  if (!addr) return;
+
+  var ps = addr.querySelectorAll('p');
+  if (!ps.length) return;
+
+  // 1. Адресний блок — іконка зліва, праворуч колонка: адреса + кнопка знизу
+  var addrWrap = document.createElement('div');
+  addrWrap.className = 'footer__address-wrap';
+  var addrContent = document.createElement('div');
+  addrContent.className = 'footer__address-wrap-content';
+  addrContent.appendChild(addr);
+  if (mapLink) addrContent.appendChild(mapLink);
+  addrWrap.appendChild(addrContent);
+  group.insertBefore(addrWrap, group.firstChild);
+
+  // 2. Блок графіку — окремий після адресного блоку
+  var scheduleBlock = document.createElement('div');
+  scheduleBlock.className = 'footer__schedule';
+  var inner = document.createElement('div');
+  inner.className = 'footer__schedule-inner';
+  ps.forEach(function(p) { inner.appendChild(p); });
+  scheduleBlock.appendChild(inner);
+  group.appendChild(scheduleBlock);
+})();
+
+// ── Підказки для контактів у футері ──
+(function addFooterTooltips() {
+  var tooltips = [
+    { selector: '.footer__contacts-group:nth-child(1) .footer__contacts-item:nth-child(2)', title: 'Vodafone' },
+    { selector: '.footer__contacts-group:nth-child(1) .footer__contacts-item:nth-child(3)', title: 'Kyivstar' },
+    { selector: '.footer__contacts-group:nth-child(1) .footer__contacts-item:nth-child(4)', title: 'lifecell' },
+    { selector: '.footer__contacts-group:nth-child(2) .footer__contacts-item:nth-child(1)', title: 'Viber' },
+    { selector: '.footer__contacts-group:nth-child(2) .footer__contacts-item:nth-child(2)', title: 'WhatsApp' },
+    { selector: '.footer__contacts-group:nth-child(2) .footer__contacts-item:nth-child(3)', title: 'Telegram' },
+    { selector: '.footer__contacts-group:nth-child(2) .footer__contacts-item:nth-child(4)', title: 'Email' }
+  ];
+  tooltips.forEach(function(t) {
+    var el = document.querySelector(t.selector);
+    if (el) el.setAttribute('title', t.title);
+  });
+})();
+</script>
+
+<script>
+(function(){
+  var inner = document.querySelector('.footer__schedule-inner');
+  if (!inner) return;
+
+  // Створюємо блок статусу
+  var statusEl = document.createElement('div');
+  statusEl.className = 'footer__schedule-status';
+
+  var dot = document.createElement('span');
+  dot.className = 'footer__schedule-status__dot';
+
+  var text = document.createElement('span');
+  text.className = 'footer__schedule-status__text';
+
+  statusEl.appendChild(dot);
+  statusEl.appendChild(text);
+
+  // Вставляємо після розкладом
+inner.appendChild(statusEl);
+
+
+  function checkFooterOpen() {
+    var now = new Date(), day = now.getDay(),
+        mins = now.getHours() * 60 + now.getMinutes(),
+        isWe = (day === 0 || day === 6),
+        open = isWe ? 10 * 60 : 9 * 60,
+        close = isWe ? 19 * 60 : 20 * 60,
+        isOpen = (mins >= open && mins < close);
+
+    if (isOpen) {
+      statusEl.className = 'footer__schedule-status';
+      text.textContent = 'Зараз відкрито';
+    } else {
+      statusEl.className = 'footer__schedule-status closed';
+      text.textContent = 'Зараз зачинено';
+    }
+  }
+
+  checkFooterOpen();
+})();
+</script>
+
+
+<script>
+/* ══════════════════════════════════════════════════════════════════
+   STORRAGE v13 — Фікс стрілок recentProducts
+   Замінює ВСІ попередні скрипти стрілок
+   ══════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  /* ── Розділювачі ── */
+  function div() {
+    var d = document.createElement('div');
+    d.className = 'stg-div';
+    return d;
+  }
+  function prevIsDivider(el) {
+    var p = el.previousElementSibling;
+    return p && p.classList.contains('stg-div');
+  }
+  function nextIsDivider(el) {
+    var n = el.nextElementSibling;
+    return n && n.classList.contains('stg-div');
+  }
+  function insertDividers() {
+    var A = document.querySelector('.j-product-block:has(.productsSlider)');
+    var R = document.querySelector('section.recentProducts');
+    if (A && !prevIsDivider(A)) {
+      A.parentNode.insertBefore(div(), A);
+    }
+    if (A && R && !prevIsDivider(R)) {
+      R.parentNode.insertBefore(div(), R);
+    }
+    if (R && !nextIsDivider(R)) {
+      var after = div();
+      R.nextSibling
+        ? R.parentNode.insertBefore(after, R.nextSibling)
+        : R.parentNode.appendChild(after);
+    }
+  }
+
+  /* ── Прибираємо stg-end ── */
+  function removeStgEnd() {
+    var ends = document.querySelectorAll('.stg-end');
+    ends.forEach(function(el) { el.style.display = 'none'; });
+  }
+
+  /* ── Нативний скрол + стрілки recentProducts ── */
+  function initRecentScroll() {
+    var section = document.querySelector('section.recentProducts');
+    if (!section) return;
+
+    var wrapper = section.querySelector('.recentProducts-wrapper');
+    var body    = section.querySelector('.recentProducts-body');
+
+    if (!wrapper || !body) return;
+    if (wrapper.dataset.stgFixed === '13') return;
+    wrapper.dataset.stgFixed = '13';
+
+    /* 1. Скасовуємо Swiper transform */
+    wrapper.style.setProperty('transform',       'none',    'important');
+    wrapper.style.setProperty('transition',      'none',    'important');
+    wrapper.style.setProperty('overflow-x',      'auto',    'important');
+    wrapper.style.setProperty('overflow-y',      'visible', 'important');
+    wrapper.style.setProperty('display',         'flex',    'important');
+    wrapper.style.setProperty('flex-wrap',       'nowrap',  'important');
+    wrapper.style.setProperty('scroll-behavior', 'smooth',  'important');
+
+    /* 2. Збираємо ВСІ стрілки з будь-якого місця в секції */
+    var allBtns = section.querySelectorAll('.slideCarousel-nav-btn');
+    var btnL = null;
+    var btnR = null;
+
+    allBtns.forEach(function(btn) {
+      if (btn.classList.contains('__slideLeft'))  btnL = btn;
+      if (btn.classList.contains('__slideRight')) btnR = btn;
+    });
+
+    if (!btnL || !btnR) return;
+
+    /* 3. Клонуємо ОБІ кнопки, видаляємо ВСІ оригінали */
+    var newBtnL = btnL.cloneNode(true);
+    var newBtnR = btnR.cloneNode(true);
+
+    /* Видаляємо ВСІ стрілки (може бути дублікати) */
+    allBtns.forEach(function(btn) {
+      if (btn.parentNode) btn.parentNode.removeChild(btn);
+    });
+
+    /* Прибираємо класи __hidden та __disabled з клонів */
+    newBtnL.classList.remove('__hidden');
+    newBtnR.classList.remove('__hidden');
+
+    /* Вставляємо в body */
+    body.appendChild(newBtnL);
+    body.appendChild(newBtnR);
+
+    btnL = newBtnL;
+    btnR = newBtnR;
+
+    /* 4. Крок скролу */
+    function getStep() {
+      var card = wrapper.querySelector('.recentProducts-i');
+      return card ? card.offsetWidth + 12 : 192;
+    }
+
+    /* 5. Оновлення стану кнопок */
+    function updateBtns() {
+      var sl        = Math.round(wrapper.scrollLeft);
+      var maxScroll = wrapper.scrollWidth - wrapper.clientWidth;
+
+      if (sl <= 2) {
+        btnL.classList.add('__disabled');
+      } else {
+        btnL.classList.remove('__disabled');
+      }
+
+      if (maxScroll <= 2 || sl >= maxScroll - 2) {
+        btnR.classList.add('__disabled');
+      } else {
+        btnR.classList.remove('__disabled');
+      }
+    }
+
+    /* 6. Обробники кліків */
+    btnL.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      wrapper.scrollBy({ left: -(getStep() * 3), behavior: 'smooth' });
+    });
+
+    btnR.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      wrapper.scrollBy({ left: (getStep() * 3), behavior: 'smooth' });
+    });
+
+    /* 7. Слухаємо скрол */
+    wrapper.addEventListener('scroll', updateBtns, { passive: true });
+
+    /* 8. MutationObserver — скидаємо transform */
+    new MutationObserver(function () {
+      var t = wrapper.style.transform;
+      if (t && t !== 'none' && t !== '') {
+        wrapper.style.setProperty('transform', 'none', 'important');
+      }
+    }).observe(wrapper, { attributes: true, attributeFilter: ['style'] });
+
+    /* 9. Початковий стан + відкладені перевірки */
+    updateBtns();
+    setTimeout(updateBtns, 300);
+    setTimeout(updateBtns, 800);
+    setTimeout(updateBtns, 1500);
+  }
+
+  /* ── Запуск ── */
+  function init() {
+    removeStgEnd();
+    insertDividers();
+    initRecentScroll();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  /* ── MutationObserver для AJAX ── */
+  var t;
+  new MutationObserver(function (ms) {
+    ms.forEach(function (m) {
+      m.addedNodes.forEach(function (n) {
+        if (n.nodeType !== 1) return;
+        var hasSlider = n.querySelector &&
+          n.querySelector('.recentProducts-wrapper, .productsSlider-wrapper');
+        var isSection = n.classList && n.classList.contains('recentProducts');
+        if (hasSlider || isSection) {
+          clearTimeout(t);
+          t = setTimeout(init, 300);
+        }
+      });
+    });
+  }).observe(document.body, { childList: true, subtree: true });
+
+}());
+</script>                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uid5738268948384404dfda0fbcd06b780c" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uid5738268948384404dfda0fbcd06b780c");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

@@ -1,0 +1,569 @@
+<!-- source: https://a2k.com.ua/ -->
+<!-- extracted: 2026-05-07T21:32:32.635Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 25712 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <!-- Плавающий виджет A2K Bot -->
+<style>
+    .a2k-floating-widget {
+        position: fixed;
+        bottom: 25px; 
+        right: 25px;
+        background: linear-gradient(135deg, #0088cc, #006699);
+        color: #ffffff !important;
+        padding: 12px 22px;
+        border-radius: 30px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: Arial, sans-serif;
+        font-size: 15px;
+        font-weight: bold;
+        text-decoration: none;
+        box-shadow: 0 6px 20px rgba(0, 136, 204, 0.4);
+        z-index: 999999;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .a2k-floating-widget:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 136, 204, 0.6);
+        color: #ffffff !important;
+    }
+
+    .a2k-widget-icon {
+        font-size: 22px;
+        line-height: 1;
+    }
+
+    /* Адаптация под мобильные экраны */
+    @media (max-width: 768px) {
+        .a2k-floating-widget {
+            bottom: 20px;
+            right: 15px; /* Немного прижимаем к краю на телефоне */
+            padding: 10px 18px;
+            font-size: 14px;
+        }
+        .a2k-widget-icon {
+            font-size: 20px;
+        }
+    }
+</style>
+
+<a href="https://t.me/a2k_help_bot" target="_blank" class="a2k-floating-widget" id="a2k-floating-btn">
+    <span class="a2k-widget-icon">📦</span>
+    <span class="a2k-widget-text" id="a2k-widget-text">Відстежити замовлення</span>
+</a>
+
+<script>
+    (function() {
+        // Умная смена языка
+        let path = window.location.pathname;
+        let textElement = document.getElementById('a2k-widget-text');
+        
+        if (path.indexOf('/ru/') === 0) {
+            textElement.innerText = "Отследить заказ";
+        } else {
+            textElement.innerText = "Відстежити замовлення";
+        }
+    })();
+</script>
+
+<!-- Таймер акции -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Очищаем старые интервалы, чтобы исключить наложение времени
+    if (window.myPromoTimerInterval) clearInterval(window.myPromoTimerInterval);
+
+    function initPromoTimer() {
+        // Умный поиск: ищем сразу и десктопный ряд, и мобильный блок.
+        // Берем только уникальные классы, чтобы не задеть "Купить в 1 клик"
+        let targetElements = document.querySelectorAll('.product-order__row, .product-card__order--normal');
+
+        if (targetElements.length === 0) return false;
+
+        const lang = document.documentElement.lang || 'uk';
+        const isRussian = lang === 'ru' || window.location.pathname.indexOf('/ru/') !== -1;
+        const textPrefix = isRussian ? 'До конца акции осталось' : 'До кінця акції залишилось';
+
+        targetElements.forEach(function(targetElement) {
+            // Проверяем, нет ли уже таймера ВНУТРИ этого блока (защита от дублей)
+            if (targetElement.querySelector('.custom-promo-timer')) return;
+
+            const timerContainer = document.createElement('div');
+            timerContainer.className = 'custom-promo-timer'; 
+            
+            // Настройки стилей: 
+            // flex-basis: 100% и order: -10 заставляют таймер занять всю ширину 
+            // и встать в самом начале контейнера (над счетчиком и кнопкой)
+            timerContainer.style.cssText = 'width: 100%; flex-basis: 100%; order: -10; margin-bottom: 15px; display: block; clear: both;';
+            
+            // Вставляем ВНУТРЬ найденного блока в самое начало
+            targetElement.prepend(timerContainer);
+            
+            // Если родительский блок это Flexbox, разрешаем ему переносить таймер на отдельную строку
+            if (window.getComputedStyle(targetElement).display === 'flex') {
+                targetElement.style.flexWrap = 'wrap';
+            }
+        });
+
+        function updateTime() {
+            const timers = document.querySelectorAll('.custom-promo-timer');
+            if (timers.length === 0) return;
+
+            const now = new Date();
+            const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+            let diff = endOfDay - now;
+            
+            if (diff < 0) diff = 0;
+
+            const textH = isRussian ? "ч." : "год.";
+            const textM = isRussian ? "мин." : "хв.";
+
+            // Вычисляем часы, минуты и секунды
+            let h = Math.floor((diff / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
+            let m = Math.floor((diff / 1000 / 60) % 60).toString().padStart(2, '0');
+            let s = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
+
+            const digitStyle = "background: linear-gradient(to bottom, #3b3b3b 50%, #222222 50%); color: #ffffff; padding: 6px 10px; border-radius: 6px; font-family: monospace; font-size: 30px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.3); line-height: 1.1; display: inline-block;";
+            const labelStyle = "font-size: 14px; font-weight: 600; color: #666;";
+            
+            // HTML-структура таймера (секунды добавлены, текст "сек" убран)
+            let htmlContent = `
+                <div style="font-size: 13px; margin-bottom: 8px; color: #d32f2f; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                    ${textPrefix}
+                </div>
+                <div style="display: flex; gap: 15px; align-items: baseline;">
+                    <div style="display: flex; align-items: baseline; gap: 6px;">
+                        <span style="${digitStyle}">${h}</span>
+                        <span style="${labelStyle}">${textH}</span>
+                    </div>
+                    <div style="display: flex; align-items: baseline; gap: 6px;">
+                        <span style="${digitStyle}">${m}</span>
+                        <span style="${labelStyle}">${textM}</span>
+                    </div>
+                    <div style="display: flex; align-items: baseline; gap: 6px;">
+                        <span style="${digitStyle}">${s}</span>
+                    </div>
+                </div>
+            `;
+
+            timers.forEach(function(timer) {
+                timer.innerHTML = htmlContent;
+            });
+        }
+
+        updateTime(); 
+        window.myPromoTimerInterval = setInterval(updateTime, 1000); 
+        
+        return true; 
+    }
+
+    // Проверяем наличие нужного блока при загрузке
+    let attempts = 0;
+    const checkInterval = setInterval(function() {
+        if (initPromoTimer() || attempts >= 10) {
+            clearInterval(checkInterval); 
+        }
+        attempts++;
+    }, 500);
+});
+</script>
+
+<!-- Виджеты с просмотром товаров и покупкой от пользователей -->
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    function initSocialProof() {
+        let targetElements = [];
+        
+        // 1. Ищем цены на мобилке
+        const mobilePrices = document.querySelectorAll('.product-card__price');
+        mobilePrices.forEach(function(el) {
+            // Чтобы выйти ИЗ белого блока, берем "родителя родителя"
+            let mainContainer = el.closest('.product-card__info, .product-card__box, .product-card__main');
+            
+            // Если по классу не нашло, жестко поднимаемся на 2 уровня вверх
+            if (!mainContainer && el.parentNode && el.parentNode.parentNode) {
+                mainContainer = el.parentNode.parentNode; 
+            }
+            
+            if (mainContainer && !targetElements.some(t => t.el === mainContainer)) {
+                targetElements.push({ el: mainContainer, isMobile: true });
+            }
+        });
+
+        // 2. Ищем контейнеры цен на десктопе (оставляем как было, там всё работало отлично)
+        const desktopPrices = document.querySelectorAll('.product-prices, .product-price, .price-wrapper');
+        desktopPrices.forEach(function(el) {
+            // Проверяем, чтобы не добавить один и тот же блок дважды
+            if (!targetElements.some(t => t.el === el || t.el.contains(el))) {
+                targetElements.push({ el: el, isMobile: false });
+            }
+        });
+
+        if (targetElements.length === 0) return false;
+
+        const productId = window.location.pathname; 
+        const storageKey = 'socialProof_' + productId;
+        let stats = JSON.parse(localStorage.getItem(storageKey));
+
+        if (!stats) {
+            stats = {
+                views: Math.floor(Math.random() * 34) + 2, 
+                buys: Math.floor(Math.random() * 34) + 2   
+            };
+            localStorage.setItem(storageKey, JSON.stringify(stats));
+        }
+
+        const lang = document.documentElement.lang || 'uk';
+        const isRussian = lang === 'ru' || window.location.pathname.indexOf('/ru/') !== -1;
+
+        function declension(num, words) {
+            const cases = [2, 0, 1, 1, 1, 2];
+            return words[(num % 100 > 4 && num % 100 < 20) ? 2 : cases[(num % 10 < 5) ? Math.abs(num % 10) : 5]];
+        }
+
+        const viewsWord = isRussian 
+            ? declension(stats.views, ['человек', 'человека', 'человек']) 
+            : declension(stats.views, ['людина', 'людини', 'людей']);
+            
+        const buysWord = isRussian 
+            ? declension(stats.buys, ['раз', 'раза', 'раз']) 
+            : declension(stats.buys, ['раз', 'рази', 'разів']);
+
+        const viewsStr = isRussian 
+            ? `Этот товар сейчас смотрят <b>${stats.views} ${viewsWord}</b>` 
+            : `Цей товар зараз дивляться <b>${stats.views} ${viewsWord}</b>`;
+            
+        const buysStr = isRussian 
+            ? `Купили <b>${stats.buys} ${buysWord}</b> за эту неделю` 
+            : `Купили <b>${stats.buys} ${buysWord}</b> за цей тиждень`;
+
+        targetElements.forEach(function(target) {
+            const targetElement = target.el;
+            if (targetElement.parentNode.querySelector('.custom-social-proof')) return;
+
+            const widget = document.createElement('div');
+            widget.className = 'custom-social-proof';
+            
+            // Если мобилка — 100% ширина, если десктоп — по размеру текста
+            const widgetWidth = target.isMobile ? '100%' : 'fit-content';
+            
+            widget.style.cssText = `background: #fdfdfd; border: 1px solid #eaeaea; border-radius: 8px; padding: 12px 25px 12px 14px; margin-bottom: 12px; font-size: 13px; color: #444; line-height: 1.45; display: block; width: ${widgetWidth}; box-sizing: border-box; clear: both; box-shadow: 0 1px 2px rgba(0,0,0,0.02);`;
+
+            widget.innerHTML = `
+                <div style="display: flex; align-items: center; margin-bottom: 6px;">
+                    <span style="font-size: 16px; margin-right: 8px;">🔥</span>
+                    <span>${viewsStr}</span>
+                </div>
+                <div style="display: flex; align-items: center;">
+                    <span style="font-size: 16px; margin-right: 8px;">🛒</span>
+                    <span>${buysStr}</span>
+                </div>
+            `;
+
+            // Вставляем НАД всем найденным белым блоком
+            targetElement.parentNode.insertBefore(widget, targetElement);
+        });
+
+        return true;
+    }
+
+    let attempts = 0;
+    const checkInterval = setInterval(function() {
+        if (initSocialProof() || attempts >= 10) {
+            clearInterval(checkInterval); 
+        }
+        attempts++;
+    }, 500);
+});
+</script>
+
+<!-- Виджеты с информированием про срок отправки, безопасная оплата и гарантия 14 дней -->
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    if (window.trustBadgesInterval) clearInterval(window.trustBadgesInterval);
+
+    function initTrustBadges() {
+        let targetElements = document.querySelectorAll('.product-order__row, .product-card__order--normal');
+
+        if (targetElements.length === 0) return false;
+
+        const lang = document.documentElement.lang || 'uk';
+        const isRussian = lang === 'ru' || window.location.pathname.indexOf('/ru/') !== -1;
+
+        const guaranteeText = isRussian ? 'Гарантия 14 дней' : 'Гарантія 14 днів';
+        const paymentText = isRussian ? 'Безопасная оплата' : 'Безпечна оплата';
+
+        targetElements.forEach(function(targetElement) {
+            if (targetElement.parentNode.querySelector('.custom-trust-badges')) return;
+
+            const badgeContainer = document.createElement('div');
+            badgeContainer.className = 'custom-trust-badges';
+            
+            badgeContainer.style.cssText = 'display: flex; flex-direction: column; gap: 8px; margin-top: 15px; padding-top: 15px; border-top: 1px solid #eaeaea; font-size: 13px; color: #666; width: 100%; clear: both;';
+
+            badgeContainer.innerHTML = `
+                <div class="trust-badge-delivery" style="display: flex; align-items: center; line-height: 1.4;">
+                    <span style="font-size: 16px; margin-right: 8px; flex-shrink: 0;">🚚</span>
+                    <span class="delivery-text">Загрузка...</span>
+                </div>
+                <div style="display: flex; align-items: center; line-height: 1.4;">
+                    <span style="font-size: 16px; margin-right: 8px; flex-shrink: 0;">🛡️</span>
+                    <span>${guaranteeText}</span>
+                </div>
+                <div style="display: flex; align-items: center; line-height: 1.4;">
+                    <span style="font-size: 16px; margin-right: 8px; flex-shrink: 0;">💳</span>
+                    <span>${paymentText}</span>
+                </div>
+            `;
+
+            targetElement.parentNode.insertBefore(badgeContainer, targetElement.nextSibling);
+        });
+
+        function updateDeliveryTime() {
+            const deliveryTexts = document.querySelectorAll('.custom-trust-badges .delivery-text');
+            if (deliveryTexts.length === 0) return;
+
+            const now = new Date();
+            const dayOfWeek = now.getDay(); // 0 - Вс, 1 - Пн, ..., 6 - Сб
+            const currentHour = now.getHours();
+
+            let deliveryMessage = "";
+
+            // Если воскресенье ИЛИ время 13:00 и позже (в любой другой день)
+            if (dayOfWeek === 0 || currentHour >= 13) {
+                deliveryMessage = isRussian ? '<b>Быстрая отправка</b>' : '<b>Швидка відправка</b>';
+            } else {
+                // Пн-Сб ДО 13:00 - Показываем мотивирующий таймер
+                const targetTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 13, 0, 0);
+                const diff = targetTime - now;
+
+                let h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                let m = Math.floor((diff / 1000 / 60) % 60);
+
+                const textH = isRussian ? "ч." : "год.";
+                const textM = isRussian ? "мин." : "хв.";
+
+                if (isRussian) {
+                    deliveryMessage = `Отправим сегодня! Оформите в течение <b>${h} ${textH} ${m} ${textM}</b>`;
+                } else {
+                    deliveryMessage = `Відправимо сьогодні! Оформіть протягом <b>${h} ${textH} ${m} ${textM}</b>`;
+                }
+            }
+
+            deliveryTexts.forEach(el => el.innerHTML = deliveryMessage);
+        }
+
+        updateDeliveryTime();
+        window.trustBadgesInterval = setInterval(updateDeliveryTime, 60000);
+
+        return true;
+    }
+
+    let attempts = 0;
+    const checkInterval = setInterval(function() {
+        if (initTrustBadges() || attempts >= 10) {
+            clearInterval(checkInterval); 
+        }
+        attempts++;
+    }, 500);
+});
+</script>
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Защита от дублирования стилей
+    if (document.getElementById('custom-button-shine')) return;
+
+    // Создаем блок стилей напрямую через скрипт
+    const style = document.createElement('style');
+    style.id = 'custom-button-shine';
+    
+    // Пишем железобетонный CSS
+    style.innerHTML = `
+        /* Захватываем все кнопки купить (и моб, и ПК) */
+        .j-buy-button-add {
+            position: relative !important;
+            overflow: hidden !important;
+            /* На всякий случай форсируем трансформацию для аппаратного ускорения */
+            transform: translateZ(0) !important; 
+        }
+
+        /* Создаем блик, который летит поверх всего */
+        .j-buy-button-add::after {
+            content: "" !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: -150% !important; /* Начинаем далеко слева */
+            width: 100% !important; /* Делаем луч широким */
+            height: 100% !important;
+            /* Градиент: прозрачный -> яркий белый -> прозрачный */
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0) 100%) !important;
+            transform: skewX(-25deg) !important; /* Наклон */
+            animation: super-shine 4s infinite !important; /* 4 секунды на весь цикл */
+            z-index: 999 !important; /* Выше текста и фона */
+            pointer-events: none !important; /* "Призрачность" - пропускает клики сквозь себя */
+        }
+
+        /* Сама анимация */
+        @keyframes super-shine {
+            0% { left: -150%; }
+            20% { left: 150%; } /* За 20% времени (0.8 сек) пролетает кнопку */
+            100% { left: 150%; } /* Остальное время ждет */
+        }
+    `;
+    
+    // Внедряем стиль прямо в "голову" сайта
+    document.head.appendChild(style);
+});
+</script>                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                                                                        <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uid40b4c73202f79f3e66d8ecf2c63e236f" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uid40b4c73202f79f3e66d8ecf2c63e236f");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

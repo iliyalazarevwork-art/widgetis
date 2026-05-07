@@ -1,0 +1,457 @@
+<!-- source: https://benzo-pila.in.ua/ -->
+<!-- extracted: 2026-05-07T21:30:52.507Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 19254 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <!--
+  Multisearch — Пошук для Хорошоп
+  Вставити перед </body>
+-->
+<link rel="preconnect" href="https://obp.pp.ua" crossorigin>
+<style id="ms-style">
+/* Приховати стандартний dropdown Хорошоп */
+.search-results,
+.search.j-search .search-results{display:none!important;visibility:hidden!important;pointer-events:none!important}
+
+#ms-overlay{
+  position:fixed;inset:0;z-index:999999;display:none;
+  background:rgba(0,0,0,0);
+  transition:background .25s ease;
+}
+#ms-overlay.open{display:block}
+#ms-overlay.visible{background:rgba(0,0,0,.35);backdrop-filter:saturate(120%) blur(2px)}
+
+#ms-modal{
+  position:absolute;left:50%;top:10px;transform:translateX(-50%) scale(.97);
+  width:min(980px,calc(100vw - 16px));
+  height:calc(100vh - 20px);
+  height:calc(100dvh - 20px);
+  background:#fff;border-radius:14px;overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.25);
+  opacity:0;transition:opacity .2s ease,transform .2s ease;
+}
+#ms-overlay.visible #ms-modal{opacity:1;transform:translateX(-50%) scale(1)}
+ 
+@media(min-width:768px){
+  #ms-modal{top:16px;width:min(1100px,calc(100vw - 24px));height:min(86vh,820px);border-radius:16px}
+}
+@media(max-width:767px){
+  #ms-modal{
+    top:6px;
+    height:calc(100vh - 12px);
+    height:calc(100dvh - 12px);
+    border-radius:12px;
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+}
+
+#ms-head{
+  height:48px;display:flex;align-items:center;justify-content:space-between;
+  gap:10px;padding:8px 12px;border-bottom:1px solid #eee;background:#fafafa;
+  font:14px/1.2 Arial,sans-serif;
+}
+#ms-title{font-weight:700}
+#ms-close{
+  border:1px solid #e5e5e5;background:#fff;border-radius:10px;
+  padding:6px 12px;cursor:pointer;font:13px/1 Arial,sans-serif;
+  transition:background .15s;
+}
+#ms-close:hover{background:#f5f5f5}
+#ms-frame{width:100%;height:calc(100% - 48px);border:0;display:block}
+
+html.ms-lock,body.ms-lock{overflow:hidden!important}
+</style>
+
+<script id="ms-script">
+(function(){
+  var BASE='https://obp.pp.ua/search-v2/search.html';
+  // Селектори тригерів Хорошоп
+  var TOGGLE='a[data-button-action="search-toggle"],a[href="#search-results"],.search__toggle';
+  var INPUT='.search.j-search input.search__input[name="q"],input.search__input[name="q"]';
+
+  var bound=new WeakSet(),overlay,frame,ready=false;
+
+  // ── DOM ──
+  function init(){
+    if(document.getElementById('ms-overlay'))return;
+    var d=document.createElement('div');
+    d.innerHTML=
+      '<div id="ms-overlay" aria-hidden="true">'+
+        '<div id="ms-modal" role="dialog" aria-modal="true">'+
+          '<div id="ms-head">'+
+            '<div id="ms-title">Пошук</div>'+
+            '<button id="ms-close" type="button">✕ Закрити</button>'+
+          '</div>'+
+          '<div id="ms-frame-slot"></div>'+
+        '</div>'+
+      '</div>';
+    document.body.appendChild(d.firstChild);
+    overlay=document.getElementById('ms-overlay');
+
+    // Зупиняємо кліки всередині модалки
+    var modal=document.getElementById('ms-modal');
+    ['click','pointerdown'].forEach(function(ev){
+      modal.addEventListener(ev,function(e){e.stopPropagation()},true);
+    });
+    modal.addEventListener('touchstart',function(e){e.stopPropagation()},{capture:true,passive:true});
+  }
+
+  // iframe створюємо ТІЛЬКИ при першому відкритті (lazy)
+  function ensureFrame(){
+    if(frame)return frame;
+    var slot=document.getElementById('ms-frame-slot');
+    if(!slot)return null;
+    var f=document.createElement('iframe');
+    f.id='ms-frame';
+    f.setAttribute('loading','lazy');
+    f.setAttribute('referrerpolicy','no-referrer');
+    slot.replaceWith(f);
+    frame=f;
+    return f;
+  }
+
+  function isOpen(){return overlay&&overlay.classList.contains('open')}
+
+  function getQ(){
+    var el=document.querySelector(INPUT)||document.querySelector('input[name="q"]')||document.querySelector('input[type="search"]');
+    return(el&&el.value)?el.value.trim():'';
+  }
+
+  function open(q){
+    init();
+    var f=ensureFrame();
+    if(!f)return;
+
+    // Формуємо URL
+    var url=BASE;
+    if(q)url+='&q='+encodeURIComponent(q);
+    // Не перезавантажуємо iframe якщо URL той самий
+    if(f.src!==url&&f.contentWindow){
+      // Якщо iframe вже завантажений — передаємо через postMessage (швидше)
+      if(ready&&f.contentWindow){
+        try{f.contentWindow.postMessage({type:'ms-search',q:q||''},'*');} catch(_){f.src=url;}
+      }else{
+        f.src=url;
+      }
+    }else if(!f.src||f.src==='about:blank'){
+      f.src=url;
+    }
+
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden','false');
+    document.documentElement.classList.add('ms-lock');
+    document.body.classList.add('ms-lock');
+    // Анімація (наступний кадр)
+    requestAnimationFrame(function(){overlay.classList.add('visible')});
+  }
+
+  function close(){
+    if(!overlay)return;
+    overlay.classList.remove('visible');
+    // Чекаємо кінець анімації
+    setTimeout(function(){
+      overlay.classList.remove('open');
+      overlay.setAttribute('aria-hidden','true');
+      document.documentElement.classList.remove('ms-lock');
+      document.body.classList.remove('ms-lock');
+    },220);
+  }
+
+  function stop(e){
+    if(!e)return;
+    if(e.cancelable)e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+  }
+
+  function inOverlay(e){
+    if(!e||!e.target)return false;
+    var t=e.target;
+    if(!(t instanceof HTMLElement))return false;
+    return!!(t.closest&&t.closest('#ms-overlay'));
+  }
+
+  // ── Binding ──
+  function bindNode(el){
+    if(!el||bound.has(el))return;
+    bound.add(el);
+    var h=function(e){
+      if(inOverlay(e)||isOpen())return;
+      stop(e);
+      try{el.blur()}catch(_){}
+      open(getQ());
+    };
+    el.addEventListener('pointerdown',h,true);
+    el.addEventListener('click',h,true);
+    el.addEventListener('touchstart',h,{capture:true,passive:false});
+  }
+
+  function bindInput(inp){
+    if(!inp||bound.has(inp))return;
+    bound.add(inp);
+    var h=function(e){
+      if(inOverlay(e)||isOpen())return;
+      stop(e);
+      open(inp.value||'');
+      try{inp.blur()}catch(_){}
+    };
+    ['focusin','click','pointerdown'].forEach(function(ev){inp.addEventListener(ev,h,true)});
+    inp.addEventListener('touchstart',h,{capture:true,passive:false});
+  }
+
+  function bindAll(){
+    document.querySelectorAll(TOGGLE).forEach(bindNode);
+    document.querySelectorAll(INPUT).forEach(bindInput);
+  }
+
+  // ── Init ──
+  function onReady(fn){document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn):fn()}
+
+  onReady(function(){
+    init();
+    bindAll();
+
+    // Закриття
+    document.addEventListener('click',function(e){
+      var t=e.target;
+      if(t instanceof HTMLElement&&(t.id==='ms-overlay'||t.id==='ms-close'))close();
+    },true);
+    document.addEventListener('keydown',function(e){if(e.key==='Escape')close()});
+
+    // Перевʼязуємо при змінах DOM (Horoshop SPA)
+    var root=document.getElementById('header')||document.querySelector('header.header')||document.documentElement;
+    new MutationObserver(bindAll).observe(root,{subtree:true,childList:true,attributes:true});
+
+    // Слухаємо postMessage від iframe (для ready-статусу)
+    window.addEventListener('message',function(e){
+      if(e.data&&e.data.type==='ms-ready')ready=true;
+    });
+  });
+})();
+</script>
+
+
+
+
+<!-- BEGIN GCR Badge Code -->
+<script src="https://apis.google.com/js/platform.js?onload=renderBadge"
+  async defer>
+</script>
+
+<script>
+  window.renderBadge = function() {
+    var ratingBadgeContainer = document.createElement("div");
+      document.body.appendChild(ratingBadgeContainer);
+      window.gapi.load('ratingbadge', function() {
+        window.gapi.ratingbadge.render(
+          ratingBadgeContainer, {
+            // ОБЯЗАТЕЛЬНАЯ ЧАСТЬ
+            "merchant_id": 128272957,
+            // НЕОБЯЗАТЕЛЬНАЯ ЧАСТЬ
+            "position": "BOTTOM_LEFT"
+          });           
+     });
+  }
+</script>
+<!-- END GCR Badge Code -->
+<!-- BEGIN JIVOSITE CODE {literal} -->
+<script type='text/javascript'>
+(function(){ document.jivositeloaded=0;var widget_id = 'd08H6wOHTk';var d=document;var w=window;function l(){var s = d.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = '//code.jivosite.com/script/widget/'+widget_id; var ss = document.getElementsByTagName('script')[0]; ss.parentNode.insertBefore(s, ss);}//эта строка обычная для кода JivoSite
+function zy(){
+    //удаляем EventListeners
+    if(w.detachEvent){//поддержка IE8
+        w.detachEvent('onscroll',zy);
+        w.detachEvent('onmousemove',zy);
+        w.detachEvent('ontouchmove',zy);
+        w.detachEvent('onresize',zy);
+    }else {
+        w.removeEventListener("scroll", zy, false);
+        w.removeEventListener("mousemove", zy, false);
+        w.removeEventListener("touchmove", zy, false);
+        w.removeEventListener("resize", zy, false);
+    }
+    //запускаем функцию загрузки JivoSite
+    if(d.readyState=='complete'){l();}else{if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}
+    //Устанавливаем куку по которой отличаем первый и второй хит
+    var cookie_date = new Date ( );
+    cookie_date.setTime ( cookie_date.getTime()+60*60*28*1000); //24 часа для Москвы
+    d.cookie = "JivoSiteLoaded=1;path=/;expires=" + cookie_date.toGMTString();
+}
+if (d.cookie.search ( 'JivoSiteLoaded' )<0){//проверяем, первый ли это визит на наш сайт, если да, то назначаем EventListeners на события прокрутки, изменения размера окна браузера и скроллинга на ПК и мобильных устройствах, для отложенной загрузке JivoSite.
+    if(w.attachEvent){// поддержка IE8
+        w.attachEvent('onscroll',zy);
+        w.attachEvent('onmousemove',zy);
+        w.attachEvent('ontouchmove',zy);
+        w.attachEvent('onresize',zy);
+    }else {
+        w.addEventListener("scroll", zy, {capture: false, passive: true});
+        w.addEventListener("mousemove", zy, {capture: false, passive: true});
+        w.addEventListener("touchmove", zy, {capture: false, passive: true});
+        w.addEventListener("resize", zy, {capture: false, passive: true});
+    }
+}else {zy();}
+})();</script>
+<!-- {/literal} END JIVOSITE CODE -->
+
+<script type="text/javascript">
+(function(d, w, s) {
+    var widgetHash = 'g3ik69stUBrAAVvVKZzu', bch = d.createElement(s); bch.type = 'text/javascript'; bch.async = true;
+    bch.src = '//widgets.binotel.com/chat/widgets/' + widgetHash + '.js';
+    var sn = d.getElementsByTagName(s)[0]; sn.parentNode.insertBefore(bch, sn);
+})(document, window, 'script');
+</script>
+<script>
+  (function(w, k) {
+    w[k] = {
+        companyId: '3986',
+        widgetId: '1',
+        hash: '302f5184-9746-4823-bd31-66eedfc95913',
+        locale: 'ru',
+    };
+
+    var d = w.document,
+        s = d.createElement('script');
+
+    s.async = true;
+    s.id = k + 'Script';
+    s.src = 'https://static.salesdrive.me/chat-widget/assets/js/widget.js' + '?' + (Date.now() / 3600000 | 0);
+    d.head && d.head.appendChild(s)
+
+  }(window, 'salesDriveChatButton'));
+</script>        <script src="https://apis.google.com/js/platform.js?onload=renderOptIn" async defer>
+            </script>
+        <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Корзина</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Количество</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Стоимость</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Войти для отображения накопительной скидки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                                                                                <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Есть скидка по купону?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона или сертификата"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">ОК</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Итого</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Вернуться к покупкам                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформить заказ</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>        

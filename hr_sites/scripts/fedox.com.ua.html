@@ -1,0 +1,409 @@
+<!-- source: https://fedox.com.ua/ -->
+<!-- extracted: 2026-05-07T21:30:59.585Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 23673 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <!-- FEDOX Google Reviews — вставить в "Скрипти перед тегом </body>" -->
+<script>
+(function() {
+  var R = '4.7', C = '64';
+  var U = 'https://www.google.com/maps/reviews/@46.4323562,30.7591564,942m/data=!3m1!1e3!4m6!14m5!1m4!2m3!1sCi9DQUlRQUNvZENodHljRjlvT2pCbloyUTJZMjFrT1hwNloyMVhiMmxLUVd0Q2RWRRAB!2m1!1s0x0:0xd3a2d62853b12719?entry=ttu&g_ep=EgoyMDI2MDMyNC4wIKXMDSoASAFQAw%3D%3D'; // ЗАМЕНИ на свой Google Maps URL
+
+  if (!document.querySelector('.product__section--order, .product__block--orderBox')) return;
+
+  var s = document.createElement('style');
+  s.textContent =
+    '.fgr{margin:12px 0 16px;padding:14px 16px;border:1px solid #e0e0e0;border-radius:8px;background:#fff;display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif}' +
+    '.fgr:hover{box-shadow:0 2px 8px rgba(0,0,0,.07)}' +
+    '.fgr-r{font-size:20px;font-weight:700;color:#222}' +
+    '.fgr-s{color:#FBBC04;font-size:17px;letter-spacing:1px}' +
+    '.fgr-c{font-size:13px;color:#555}' +
+    '.fgr-l{margin-left:auto;font-size:13px;color:#1a73e8;text-decoration:none;padding:6px 14px;border:1px solid #dadce0;border-radius:4px}' +
+    '.fgr-l:hover{background:#f1f3f4;text-decoration:none}' +
+    '@media(max-width:767px){.fgr{gap:8px}.fgr-l{margin-left:0}}';
+  document.head.appendChild(s);
+
+  var d = document.createElement('div');
+  d.className = 'fgr';
+  d.innerHTML =
+    '<a href="'+U+'" target="_blank" rel="noopener" style="display:flex;align-items:center;text-decoration:none">' +
+    '<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>' +
+    '</a>' +
+    '<span class="fgr-r">'+R+'</span>' +
+    '<span class="fgr-s">\u2605\u2605\u2605\u2605\u2605</span>' +
+    '<span class="fgr-c">'+C+' \u0432\u0456\u0434\u0433\u0443\u043a\u0456\u0432 \u043d\u0430 Google</span>' +
+    '<a href="'+U+'" target="_blank" rel="noopener" class="fgr-l">\u0414\u0438\u0432\u0438\u0442\u0438\u0441\u044c \u0432\u0456\u0434\u0433\u0443\u043a\u0438</a>';
+
+  // Десктоп: в левую колонку перед "Опис"
+  var leftCol = document.querySelector('.j-product-left-column');
+  if (leftCol && leftCol.children.length > 1) {
+    leftCol.insertBefore(d, leftCol.children[1]);
+    return;
+  }
+
+  // Мобильная: перед блоком "Опис" (product__block--description)
+  var descBlock = document.querySelector('.product__block--description');
+  if (descBlock) {
+    descBlock.parentElement.insertBefore(d, descBlock);
+    return;
+  }
+})();
+</script>
+
+
+
+
+
+
+<!-- FEDOX Pay v14 - UA+RU support, desktop+mobile -->
+<script>
+(function() {
+  var PAY_API = 'https://pay.fedox.com.ua/api/pay';
+
+  // === PART 2: /checkout/complete/ — auto-create Mono invoice ===
+  if (window.location.pathname.indexOf('/checkout/complete/') > -1) {
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem('fedox_pay_data')); } catch(e) {}
+    if (saved && saved.ts && (Date.now() - saved.ts < 120000)) {
+      localStorage.removeItem('fedox_pay_data');
+      var ov = document.createElement('div');
+      ov.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.95);z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;font-family:-apple-system,system-ui,sans-serif';
+      ov.innerHTML = '<div style="font-size:18px;font-weight:600;color:#111;margin-bottom:12px">Переходимо до оплати...</div><div style="font-size:14px;color:#666">Зачекайте, створюємо платіж</div>';
+      document.body.appendChild(ov);
+      fetch(PAY_API, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(saved)})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.pageUrl){window.location.href=d.pageUrl;}
+        else{ov.innerHTML='<div style="font-size:18px;color:#e53e3e">Помилка</div><div style="margin-top:12px"><a href="'+(saved.product_url||'/')+'" style="color:#111">Повернутись</a></div>';}
+      }).catch(function(){ov.innerHTML='<div style="font-size:18px;color:#e53e3e">Помилка</div><div style="margin-top:12px"><a href="/" style="color:#111">На головну</a></div>';});
+    }
+    return;
+  }
+
+  // === PART 1: Product page ===
+  var buyBtn = document.querySelector('.j-buy-button-add');
+  if (!buyBtn) return;
+  var qForm = document.querySelector('#quick-container');
+  if (!qForm) return;
+
+  var s = document.createElement('style');
+  s.textContent =
+    '.fpb-w{display:inline-block}' +
+    '.fpb{display:inline-flex;align-items:center;justify-content:center;gap:4px;' +
+    'background:#000;color:#fff;border:1px solid #000;border-radius:4px;padding:8px 14px;cursor:pointer;' +
+    'font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;' +
+    'text-decoration:none;transition:all .15s;height:36px;box-sizing:border-box;white-space:nowrap;line-height:1}' +
+    '.fpb:hover{background:#1a1a1a;color:#fff;text-decoration:none}' +
+    '.fpb img{height:22px;width:auto}' +
+    '.fpb-div{width:1px;height:18px;background:rgba(255,255,255,.3);margin:0 8px;flex-shrink:0}' +
+    '.fpb-ap{display:inline-flex;align-items:center;gap:2px}' +
+    '.fpb-ap img{height:20px;width:auto;position:relative;top:-1px}' +
+    '.fpb-ap span{font-size:15px;font-weight:400;color:#fff;font-family:-apple-system,system-ui,sans-serif}' +
+    '.fpb-w--mobile{display:block;margin-top:8px}' +
+    '.fpb-w--mobile .fpb{display:flex;width:100%;justify-content:center;height:44px;border-radius:6px}' +
+    '.fpo{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:10000;display:none;align-items:center;justify-content:center}' +
+    '.fpo.--show{display:flex}' +
+    '.fpm{background:#fff;border-radius:12px;padding:28px 24px;max-width:380px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;position:relative;max-height:90vh;overflow-y:auto}' +
+    '.fpm-x{position:absolute;top:12px;right:16px;font-size:22px;cursor:pointer;color:#999;background:none;border:none;line-height:1;padding:4px}.fpm-x:hover{color:#333}' +
+    '.fpm-h{font-size:18px;font-weight:700;color:#111;margin:0 0 4px}' +
+    '.fpm-s{font-size:13px;color:#666;margin:0 0 20px}' +
+    '.fpm-p{display:flex;align-items:center;gap:12px;padding:12px;background:#f8f8f8;border-radius:8px;margin-bottom:20px}' +
+    '.fpm-p img{width:50px;height:50px;object-fit:contain;border-radius:4px}' +
+    '.fpm-pn{font-size:13px;color:#333;line-height:1.3}' +
+    '.fpm-pp{font-size:16px;font-weight:700;color:#111;margin-top:2px}' +
+    '.fpm-f{margin-bottom:14px}' +
+    '.fpm-f label{display:block;font-size:12px;color:#666;margin-bottom:4px;font-weight:500}' +
+    '.fpm-f input{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:16px;box-sizing:border-box;outline:none;transition:border .15s;-webkit-appearance:none}' +
+    '.fpm-f input:focus{border-color:#000}.fpm-f input.--e{border-color:#e53e3e}' +
+    '.fpm-btn{display:flex;align-items:center;justify-content:center;gap:10px;background:#000;color:#fff;border:none;border-radius:8px;padding:14px;cursor:pointer;font-size:15px;font-weight:600;width:100%;transition:all .15s;-webkit-appearance:none}' +
+    '.fpm-btn:hover{background:#222}.fpm-btn:disabled{opacity:.5;cursor:not-allowed}' +
+    '.fpm-err{color:#e53e3e;font-size:13px;margin-top:8px;text-align:center}' +
+    '.fpm-ft{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:14px;opacity:.5;font-size:11px;color:#999}';
+  document.head.appendChild(s);
+
+  // Parse product data
+  var h1 = document.querySelector('h1, .product-header__title');
+  var productName = h1 ? h1.textContent.trim() : '';
+  var price = 0;
+  document.querySelectorAll('.product__section--price, [class*="product-price"], .product-card__price').forEach(function(el) {
+    if (!price) { var m = el.textContent.match(/([\d\s]+)\s*грн/); if (m) price = parseFloat(m[1].replace(/\s/g, '')); }
+  });
+  if (!price) { var pm = document.body.textContent.match(/([\d\s]{3,})\s*грн/); if (pm) price = parseFloat(pm[1].replace(/\s/g, '')); }
+  var article = '';
+  var am = document.body.textContent.match(/(?:Артикул|Article)[:\s]+(\d+)/i);
+  if (am) article = am[1];
+  var img = document.querySelector('.product-gallery img, .j-gallery-link img, .product-card__gallery img');
+  var imgSrc = img ? img.src : '';
+  var productUrl = window.location.href;
+
+  // Button HTML
+  var btnHTML = '<a class="fpb" id="fpb-o">' +
+    '<img src="https://www.gstatic.com/instantbuy/svg/dark_gpay.svg" alt="Google Pay">' +
+    '<span class="fpb-div"></span>' +
+    '<span class="fpb-ap">' +
+      '<img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple" style="filter:invert(1)">' +
+      '<span>Pay</span></span></a>';
+
+  // Helper: check if element contains quick-order text (UA or RU)
+  function isQuickOrderBlock(el) {
+    var t = el.textContent;
+    return t.indexOf('\u043a\u043b\u0456\u043a') > -1 ||       // "клік" (UA)
+           t.indexOf('\u0411\u044b\u0441\u0442\u0440\u044b\u0439') > -1 || // "Быстрый" (RU)
+           t.indexOf('\u0428\u0432\u0438\u0434\u043a') > -1;   // "Швидк" (UA alt)
+  }
+
+  var inserted = false;
+
+  // DESKTOP: find quick-order block in product-order grid
+  var desktopBlocks = document.querySelectorAll('.product-order .product-order__block');
+  if (desktopBlocks.length > 0) {
+    var qb = null;
+    desktopBlocks.forEach(function(b) { if (isQuickOrderBlock(b)) qb = b; });
+    if (qb) {
+      var w = document.createElement('div'); w.className = 'fpb-w product-order__block';
+      w.innerHTML = btnHTML;
+      qb.parentElement.insertBefore(w, qb.nextElementSibling);
+      inserted = true;
+    }
+  }
+
+  // MOBILE: find quick-order in product-card layout
+  if (!inserted) {
+    var mobileQuick = null;
+    document.querySelectorAll('.product-card__order, .product-card__purchase > *').forEach(function(el) {
+      if (isQuickOrderBlock(el)) mobileQuick = el;
+    });
+    if (mobileQuick) {
+      var w2 = document.createElement('div'); w2.className = 'fpb-w fpb-w--mobile';
+      w2.innerHTML = btnHTML;
+      mobileQuick.parentElement.insertBefore(w2, mobileQuick.nextElementSibling);
+      inserted = true;
+    }
+  }
+
+  // FALLBACK
+  if (!inserted) {
+    var buyParent = buyBtn.closest('.product-card__purchase, .product-order, .product__block--orderBox');
+    if (buyParent) {
+      var w3 = document.createElement('div'); w3.className = 'fpb-w fpb-w--mobile';
+      w3.innerHTML = btnHTML;
+      buyParent.appendChild(w3);
+      inserted = true;
+    }
+  }
+
+  if (!inserted) return;
+
+  // Modal
+  var ov = document.createElement('div'); ov.className = 'fpo';
+  ov.innerHTML =
+    '<div class="fpm">' +
+    '<button class="fpm-x" id="fpm-x">&times;</button>' +
+    '<p class="fpm-h">Оплатити онлайн</p>' +
+    '<p class="fpm-s">Apple Pay, Google Pay або карткою</p>' +
+    (productName && price ? '<div class="fpm-p">' + (imgSrc ? '<img src="' + imgSrc + '" alt="">' : '') +
+      '<div><div class="fpm-pn">' + productName.substring(0, 80) + '</div>' +
+      '<div class="fpm-pp">' + price.toLocaleString('uk-UA') + ' грн</div></div></div>' : '') +
+    '<div class="fpm-f"><label>Ваше ім\'я</label><input type="text" id="fpm-n" placeholder="Ім\'я" autocomplete="name"></div>' +
+    '<div class="fpm-f"><label>Телефон</label><input type="tel" id="fpm-p" placeholder="+380" autocomplete="tel"></div>' +
+    '<button class="fpm-btn" id="fpm-go"><span>Оформити та оплатити</span></button>' +
+    '<div class="fpm-err" id="fpm-e" style="display:none"></div>' +
+    '<div class="fpm-ft">Безпечна оплата через plata by mono</div>' +
+    '</div>';
+  document.body.appendChild(ov);
+
+  document.getElementById('fpb-o').addEventListener('click', function(e) {
+    e.preventDefault(); ov.classList.add('--show');
+    setTimeout(function() { document.getElementById('fpm-n').focus(); }, 100);
+  });
+  document.getElementById('fpm-x').addEventListener('click', function() { ov.classList.remove('--show'); });
+  ov.addEventListener('click', function(e) { if (e.target === ov) ov.classList.remove('--show'); });
+
+  document.getElementById('fpm-go').addEventListener('click', function() {
+    var ne = document.getElementById('fpm-n'), pe = document.getElementById('fpm-p'),
+        ee = document.getElementById('fpm-e'), btn = this;
+    ne.classList.remove('--e'); pe.classList.remove('--e'); ee.style.display = 'none';
+    var n = ne.value.trim(), p = pe.value.trim();
+    if (!n || n.length < 2) { ne.classList.add('--e'); ee.textContent = 'Введіть ім\'я'; ee.style.display = 'block'; ne.focus(); return; }
+    if (!p || p.replace(/\D/g, '').length < 10) { pe.classList.add('--e'); ee.textContent = 'Введіть телефон'; ee.style.display = 'block'; pe.focus(); return; }
+    btn.disabled = true;
+    btn.querySelector('span').textContent = 'Оформлюємо замовлення...';
+    localStorage.setItem('fedox_pay_data', JSON.stringify({
+      name: n, phone: p, product_name: productName,
+      product_url: productUrl, article: article, price: price, ts: Date.now()
+    }));
+    var nameField = qForm.querySelector('[name="ProductQuick[delivery_name]"]');
+    var phoneField = qForm.querySelector('[name="ProductQuick[delivery_phone]"]');
+    nameField.value = n;
+    phoneField.value = p;
+    nameField.dispatchEvent(new Event('input', {bubbles: true}));
+    phoneField.dispatchEvent(new Event('input', {bubbles: true}));
+    nameField.dispatchEvent(new Event('change', {bubbles: true}));
+    phoneField.dispatchEvent(new Event('change', {bubbles: true}));
+    var submitBtn = qForm.querySelector('[type="submit"]');
+    if (submitBtn) submitBtn.click(); else qForm.submit();
+  });
+
+  ['fpm-n', 'fpm-p'].forEach(function(id) {
+    document.getElementById(id).addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') document.getElementById('fpm-go').click();
+    });
+  });
+})();
+</script>                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            <span style="color:#00a046">Увійти</span> для відображення накопичувальної знижки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                                                                                <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uidebfc1fe43ab5d9585871359076ae51f6" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uidebfc1fe43ab5d9585871359076ae51f6");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

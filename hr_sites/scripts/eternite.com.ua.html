@@ -1,0 +1,179 @@
+<!-- source: https://eternite.com.ua/ -->
+<!-- extracted: 2026-05-07T21:33:06.490Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 6831 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <!-- Плаваюча кнопка Індивідуальне замовлення (з урахуванням мови) -->
+<a href="https://eternite.com.ua/indyvidualni-zamovlennia/" 
+   class="float-individual-btn" 
+   target="_blank">
+   <span id="btn-text">🛠 Індивідуальне замовлення</span>
+</a>
+
+<style>
+.float-individual-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 25px;
+  background: #1a1a1a;
+  color: #ffffff;
+  padding: 18px 26px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 16px;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  animation: strong-pulse 1.6s infinite;
+  white-space: nowrap;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.float-individual-btn:hover {
+  transform: translateY(-5px) scale(1.08);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6);
+  background: #252525;
+  animation: none;
+}
+
+@keyframes strong-pulse {
+  0%   { transform: scale(1); box-shadow: 0 6px 25px rgba(0, 0, 0, 0.5); }
+  50%  { transform: scale(1.12); box-shadow: 0 12px 40px rgba(255, 255, 255, 0.25); }
+  100% { transform: scale(1); box-shadow: 0 6px 25px rgba(0, 0, 0, 0.5); }
+}
+
+@media (max-width: 768px) {
+  .float-individual-btn {
+    bottom: 20px;
+    right: 15px;
+    padding: 15px 22px;
+    font-size: 15px;
+  }
+}
+</style>
+
+<script>
+// Автоматична зміна тексту кнопки залежно від мови сайту
+document.addEventListener('DOMContentLoaded', function() {
+    const btnText = document.getElementById('btn-text');
+    
+    // Перевіряємо поточну мову (Хорошоп зазвичай додає class або data-атрибут, або змінює URL)
+    const currentLang = document.documentElement.lang || 
+                       (document.querySelector('html') ? document.querySelector('html').getAttribute('lang') : '') ||
+                       window.location.pathname;
+
+    if (currentLang.includes('ru') || currentLang === 'ru' || document.body.classList.contains('lang-ru')) {
+        btnText.innerHTML = '🛠 Индивидуальный заказ';
+    } else {
+        // За замовчуванням — українська
+        btnText.innerHTML = '🛠 Індивідуальне замовлення';
+    }
+});
+</script>                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uid622e9c80e4bc73b73f0a28683bd33d32" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uid622e9c80e4bc73b73f0a28683bd33d32");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

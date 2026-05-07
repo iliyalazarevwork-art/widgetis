@@ -1,0 +1,309 @@
+<!-- source: https://altekmebel.bg/ -->
+<!-- extracted: 2026-05-07T21:31:34.257Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 14359 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <!-- BEGIN PLERDY CODE -->
+<script type="text/javascript" defer data-plerdy_code='1'>
+    var _protocol="https:"==document.location.protocol?"https://":"http://";
+    _site_hash_code = "ade8b840e938a1fe073fceef88884789",_suid=70970, plerdyScript=document.createElement("script");
+    plerdyScript.setAttribute("defer",""),plerdyScript.dataset.plerdymainscript="plerdymainscript",
+    plerdyScript.src="https://a.plerdy.com/public/js/click/main.js?v="+Math.random();
+    var plerdymainscript=document.querySelector("[data-plerdymainscript='plerdymainscript']");
+    plerdymainscript&&plerdymainscript.parentNode.removeChild(plerdymainscript);
+    try{document.head.appendChild(plerdyScript)}catch(t){console.log(t,"unable add script tag")}
+</script>
+<!-- END PLERDY CODE -->
+
+<script>
+(() => {
+  const CONVERSION_RATE = 1.95583;
+  let isProcessing = false;
+
+  const injectStyles = () => {
+    if (document.getElementById("dual-price-style")) return;
+    const style = document.createElement("style");
+    style.id = "dual-price-style";
+    style.textContent = `
+      .dual-price {
+        font-weight: bold;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: baseline !important;
+        gap: 12px !important;
+        flex-wrap: wrap;
+      }
+      
+      /* Шрифт для каталога (Евро) */
+      .catalogCard-price .dual-price, 
+      .catalog-card__price .dual-price {
+        font-size: 18px;
+      }
+
+      /* Шрифт для страницы товара (Евро) */
+      .product-price__item .dual-price,
+      .product-card__price--new .dual-price {
+        font-size: 26px; 
+        margin-bottom: 5px;
+      }
+
+      /* УМЕНЬШЕННЫЙ ШРИФТ ДЛЯ ЛЕВОВ */
+      .currency-bgn {
+        font-size: 0.75em; /* Левы на 20% меньше чем евро */
+        color: #555;      /* Чуть более мягкий цвет для левов */
+      }
+
+      .price-old {
+        text-decoration: line-through;
+        color: #888;
+        font-weight: normal;
+        margin-right: 5px;
+        font-size: 0.75em;
+      }
+      .price-new.price-accent { color: #e60000; }
+      .price-new.price-normal { color: #222; }
+      
+      .currency-block { 
+        display: flex; 
+        align-items: baseline; 
+      }
+    `;
+    document.head.appendChild(style);
+  };
+
+  function convertEURtoBGN(value) {
+    if (!value) return "0,00";
+    const cleanValue = value.toString().replace(/[^\d.,]/g, "").replace(",", ".");
+    const num = parseFloat(cleanValue);
+    if (isNaN(num)) return "0,00";
+    return (num * CONVERSION_RATE).toFixed(2).replace(".", ",");
+  }
+
+  function convertAndRender() {
+    if (isProcessing) return;
+    isProcessing = true;
+
+    const priceBlocks = document.querySelectorAll(
+      '.catalogCard-price, .catalog-card__price, .product-price__item, .product-card__price--new'
+    );
+
+    priceBlocks.forEach(block => {
+      if (block.querySelector('.dual-price')) return;
+
+      const container = block.closest('.product-card__price-box, .catalogCard-priceBox, .product-price__box, .catalogCard, .catalog-card, .product-price');
+      if (!container) return;
+
+      const oldBlock = container.querySelector(
+        '.product-card__old-price, .catalogCard-old-price, .catalogCard-oldPrice, .catalog-card__old-price, .product-price__old-price, .product-price__old'
+      );
+
+      const newTextRaw = block.textContent.trim();
+      const newEURNum = parseFloat(newTextRaw.replace(/[^\d.,]/g, "").replace(",", "."));
+      if (isNaN(newEURNum)) return;
+
+      const newBGN = convertEURtoBGN(newTextRaw);
+      const newEURDisplay = newEURNum.toFixed(2).replace(".", ",");
+      
+      let htmlBGN = "", htmlEUR = "", isPromo = false;
+
+      if (oldBlock && oldBlock.textContent.trim() !== "" && getComputedStyle(oldBlock).display !== 'none') {
+        const oldTextRaw = oldBlock.textContent.trim();
+        const oldEURNum = parseFloat(oldTextRaw.replace(/[^\d.,]/g, "").replace(",", "."));
+        
+        if (!isNaN(oldEURNum) && oldEURNum > newEURNum) {
+          isPromo = true;
+          const oldBGN = convertEURtoBGN(oldTextRaw);
+          const oldEURDisplay = oldEURNum.toFixed(2).replace(".", ",");
+          
+          oldBlock.style.setProperty('display', 'none', 'important');
+          
+          htmlEUR = `<span class="price-old">${oldEURDisplay} €</span><span class="price-new price-accent">${newEURDisplay} €</span>`;
+          htmlBGN = `<span class="price-old">${oldBGN} лв.</span><span class="price-new price-accent">${newBGN} лв.</span>`;
+        }
+      }
+
+      if (!isPromo) {
+        htmlEUR = `<span class="price-new price-normal">${newEURDisplay} €</span>`;
+        htmlBGN = `<span class="price-new price-normal">${newBGN} лв.</span>`;
+      }
+
+      // Добавлены классы currency-eur и currency-bgn для разного стиля
+      block.innerHTML = `
+        <div class="dual-price">
+          <div class="currency-block currency-eur">${htmlEUR}</div>
+          <div class="currency-block currency-bgn">${htmlBGN}</div>
+        </div>
+      `;
+    });
+
+    isProcessing = false;
+  }
+
+  injectStyles();
+  convertAndRender();
+
+  let timeout;
+  const observer = new MutationObserver(() => {
+    clearTimeout(timeout);
+    timeout = setTimeout(convertAndRender, 100);
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+})();
+</script>                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошница</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Количество</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Стойност</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Влезте, за да покажете кумулативна отстъпка                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                                                                                <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Има ли купон за отстъпка?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код на купон или сертификат"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">ОК</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Обща сума</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    €0                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Продължи с пазаруването                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Направете поръчка</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uidb37d2fb600efa3224c34ba8eaf82c67b" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Сравнение на продукти</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uidb37d2fb600efa3224c34ba8eaf82c67b");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

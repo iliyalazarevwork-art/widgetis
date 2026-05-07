@@ -1,0 +1,235 @@
+<!-- source: https://lavkatoys.com.ua/ -->
+<!-- extracted: 2026-05-07T21:33:33.650Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 11784 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <style>
+    /* Панель кнопок зв'язку */
+    .lavka-float-panel {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        z-index: 99999;
+    }
+    .float-btn {
+        width: 54px; height: 54px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        transition: all 0.3s ease; text-decoration: none; position: relative;
+    }
+    .float-btn:hover { transform: scale(1.1); }
+    .bg-viber { background-color: #7360f2; }
+    .bg-telegram { background-color: #26A5E4; }
+    .bg-call { background-color: #ff6600; }
+    .float-btn svg { width: 28px; height: 28px; fill: white; }
+
+    /* Анімація для кнопки дзвінка */
+    .pulse-animation::after {
+        content: ""; position: absolute; width: 100%; height: 100%;
+        background: inherit; border-radius: 50%; z-index: -1;
+        animation: pulse-ring-lavka 2s infinite;
+    }
+    @keyframes pulse-ring-lavka {
+        0% { transform: scale(1); opacity: 0.7; }
+        100% { transform: scale(1.8); opacity: 0; }
+    }
+
+    /* Блок запиту відгуку */
+    #review-request-box {
+        background: #fdfeff; border: 2px solid #e1f5fe;
+        padding: 20px; border-radius: 12px; margin: 30px 10px;
+        text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+</style>
+
+<div class="lavka-float-panel">
+    <a href="viber://chat?number=%2B380507444122" class="float-btn bg-viber" title="Viber">
+        <svg viewBox="0 0 24 24"><path d="M18.117 14.714c-.516-.151-2.541-1.253-2.937-1.4-.396-.149-.684-.223-.972.223-.288.447-1.115 1.4-1.367 1.683-.253.284-.505.319-1.02.068-.516-.252-2.176-.801-4.145-2.556-1.531-1.367-2.564-3.055-2.866-3.571-.302-.516-.032-.795.226-1.052.232-.232.516-.6.773-.9.257-.3.344-.516.516-.859.172-.343.086-.644-.043-.9-.129-.257-1.115-2.69-1.531-3.696-.403-.981-.815-.849-1.117-.864-.289-.015-.618-.018-.948-.018s-.863.124-1.314.614c-.451.49-1.72 1.682-1.72 4.102 0 2.42 1.761 4.76 2.004 5.085.243.326 3.465 5.292 8.393 7.425 1.173.508 2.089.811 2.805 1.038 1.179.375 2.253.322 3.101.196.945-.141 2.937-1.2 3.352-2.359.414-1.16.414-2.152.289-2.359-.125-.207-.46-.33-1.018-.48z"/></svg>
+    </a>
+    <a href="https://t.me/Lavkatoys" target="_blank" class="float-btn bg-telegram" title="Telegram">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.91-1.27 4.85-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
+    </a>
+    <a href="tel:+380507444122" class="float-btn bg-call pulse-animation" title="Дзвінок">
+        <span style="font-size: 24px;">📞</span>
+    </a>
+</div>
+
+<div id="review-request-box" style="display:none;">
+    <h4>🧸 Поділіться вашими враженнями!</h4>
+    <p>Ваш відгук допоможе іншим батькам обрати найкраще. Розкажіть, як дитині нова іграшка?</p>
+    <button onclick="goToReviews()" style="background: #0288d1; color: white; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; font-weight: bold;">Написати відгук</button>
+</div>
+
+<script>
+    // Виправлення відображення фото (прибираємо конфлікти)
+    function fixProductImage() {
+        const badImages = document.querySelectorAll('img[src*="flower"], .zoomImg, .cloud-zoom-lens');
+        badImages.forEach(img => { img.style.display = 'none'; img.style.opacity = '0'; });
+        const mainImg = document.querySelector('.product-gallery__main-img, .main-image img');
+        if (mainImg) { mainImg.style.visibility = 'visible'; mainImg.style.opacity = '1'; mainImg.style.display = 'block'; }
+    }
+    setTimeout(fixProductImage, 500);
+    setTimeout(fixProductImage, 2000);
+
+    // Логіка появи блоку відгуків при скролі
+    let isReviewShown = false;
+    window.addEventListener('scroll', function() {
+        if (isReviewShown) return;
+        const box = document.getElementById('review-request-box');
+        if (box && (window.innerHeight + window.scrollY) >= document.body.offsetHeight * 0.7) {
+            box.style.display = 'block';
+            isReviewShown = true;
+        }
+    });
+
+    function goToReviews() {
+        const tab = document.querySelector('.product-tabs__link_reviews') || document.querySelector('[data-tab="reviews"]');
+        if (tab) { tab.scrollIntoView({ behavior: 'smooth' }); tab.click(); }
+        else { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
+    }
+</script>        <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-194244186-1', 'auto');
+  ga('require', 'ec');
+  ga('set', '&cu', GLOBAL.currency.iso);
+
+   // заменяется кодом инициализации события с расположением "Внутри кода инициализации маркетинговой системы"
+  
+  ga('send', 'pageview');
+
+</script><!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-52VC5E6RC1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-52VC5E6RC1');
+</script>        <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Увійти для відображення накопичувальної знижки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                        </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uid7be704b324f3c05fd1719541541a1186" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uid7be704b324f3c05fd1719541541a1186");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

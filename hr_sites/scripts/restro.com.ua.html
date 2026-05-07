@@ -1,0 +1,285 @@
+<!-- source: https://restro.com.ua/ -->
+<!-- extracted: 2026-05-07T21:31:19.875Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 13765 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <script src="https://api.dreamagency.com.ua/project-client/restro/main.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.9/jquery.inputmask.min.js"></script>
+<script src="https://api.dreamagency.com.ua/project-client/restro/calc/calculator.js"></script>
+<!-- === Підключення скриптів та стилів PayLate === -->
+<script src="https://paylate.com.ua/js/start.js" charset="UTF-8"></script>
+<script src="https://paylate.com.ua/js/jquery.maskedinput.min.js" charset="UTF-8"></script>
+<link rel="stylesheet" href="https://paylate.com.ua/js/credit.css">
+
+
+<script>
+// === Налаштування параметрів розстрочки ===
+var pl_options = {
+  pl_type: 2,                     // Тип розстрочки
+  pl_n1: "Три платежі",           // Варіант 1
+  pl_n2: "Шість платежів",        // Варіант 2
+  pl_n3: "Десять платежів",       // Варіант 3
+  pl_bc: "#4e6bb2",               // Колір основного оформлення (блакитний)
+  lang: "ukr"                     // Мова: ukr або ru
+};
+
+
+$(function () {
+  const insertAfterSelector = $('.product-order').length ? '.product-order__block--buy' :
+                             $('.product-card__purchase').length ? '.product-card__buy-button' : null;
+
+
+  if (insertAfterSelector && !$('#credit-paylater').length) {
+    $(insertAfterSelector).after('<div id="credit-paylater">Плати пізніше</div>');
+  }
+
+
+  $(document).on("click", "#credit-paylater", function () {
+    let article = $('meta[itemprop="sku"]').attr('content').trim() || '';    
+    let name = $('h1[itemprop="name"]').text().trim() || 'Без назви';
+    let price = parseFloat(($('meta[itemprop="price"]').attr('content') || '0').replace(',', '.')).toFixed(2);
+    let credit_data = {
+      id: article,
+      name: name,
+      price: price
+    };
+    console.log('Дані для buyInCredit:', credit_data);
+    if (typeof buyInCredit === 'function') {
+          let customerEmail = 'restro2020@gmail.com'; // TODO: замінити на реальний email
+          buyInCredit(price, article, name, customerEmail);
+    } else {
+      console.warn("Функція buyInCredit не знайдена. Перевірте, чи підключено start.js");
+    }
+  });
+});
+</script>
+
+
+<!-- === Стилі для кнопки "Плати пізніше" === -->
+<style>
+#credit-paylater {
+  color: #fff;                  /* Білий текст */
+  background: #178cf8;          /* Синій фон */
+  margin-left: 0px;
+  padding: 10px 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-block;
+  text-align: center;
+}
+@media screen and (max-width: 768px) {
+  #credit-paylater {
+    margin-left: 10px;
+    padding: 14px 5px;
+  }
+}
+</style>
+
+
+<script type="text/javascript">
+  (function(d, w, s) {
+	var widgetHash = '0e21h2p8gggv9wwe6s69', gcw = d.createElement(s); gcw.type = 'text/javascript'; gcw.async = true;
+	gcw.src = '//widgets.binotel.com/getcall/widgets/'+ widgetHash +'.js';
+	var sn = d.getElementsByTagName(s)[0]; sn.parentNode.insertBefore(gcw, sn);
+  })(document, window, 'script');
+</script> 
+
+<script>
+// Знайти всі елементи з класом "icon--arrow-down-light"
+const arrowIcons = document.querySelectorAll('.products-menu__button .icon--arrow-down-light');
+
+// Новий SVG елемент, який треба вставити
+const newSvg = `
+<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g clip-path="url(#clip0_1_1336)">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M0 0H6.5625V6.5625H0V0ZM1.875 1.875V4.6875H4.6875V1.875H1.875ZM0 8.4375H6.5625V15H0V8.4375ZM8.4375 0H15V6.5625H8.4375V0ZM10.3125 1.875V4.6875H13.125V1.875H10.3125ZM8.4375 8.4375H15V15H8.4375V8.4375ZM10.3125 10.3125V13.125H13.125V10.3125H10.3125ZM1.875 10.3125V13.125H4.6875V10.3125H1.875Z" fill="black"/>
+  </g>
+  <defs>
+    <clipPath id="clip0_1_1336">
+      <rect width="15" height="15" fill="white"/>
+    </clipPath>
+  </defs>
+</svg>`;
+
+// Проходимо по кожному знайденому елементу та замінюємо його
+arrowIcons.forEach(icon => {
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = newSvg;
+  const newSvgElement = tempDiv.firstElementChild;
+
+  // Заміна тільки самого SVG елемента
+  icon.replaceWith(newSvgElement);
+});
+
+</script>         <!-- BEGIN PLERDY CODE -->
+<script type="text/javascript" defer data-plerdy_code='1'>
+    var _protocol="https:"==document.location.protocol?" https://":" http://"
+    _site_hash_code = "da8fa8b267845c70161788b2f5869dee",_suid=22838, plerdyScript=document.createElement("script");
+    plerdyScript.setAttribute("defer",""),plerdyScript.dataset.plerdyMainScript="plerdyMainScript",
+    plerdyScript.src="https://a.plerdy.com/public/js/click/main.js?v="+Math.random();
+    var plerdyMainScript=document.querySelector("[data-plerdyMainScript='plerdyMainScript']");
+    plerdyMainScript&&plerdyMainScript.parentNode.removeChild(plerdyMainScript);
+    try{document.head.appendChild(plerdyScript)}catch(t){console.log(t,"unable add script tag")}
+</script>
+<!-- END PLERDY CODE -->
+<script>
+(function(d) {
+d.querySelectorAll('.j-phone-item').forEach(function (el) {
+el.classList.add('binct-phone-number-' + el.getAttribute('data-index'));
+})
+})(document);
+(function(d, w, s) {
+var widgetHash = 'n1r19xvf2vep28mv7f40', ctw = d.createElement(s); ctw.type = 'text/javascript'; ctw.async = true;
+ctw.src = '//widgets.binotel.com/calltracking/widgets/'+ widgetHash +'.js';
+var sn = d.getElementsByTagName(s)[0]; sn.parentNode.insertBefore(ctw, sn);
+})(document, window, 'script');
+const waitB = setInterval(() => {if (!!window.BinotelCallTracking) {
+for (key in window.BinotelCallTracking) {
+if(window.BinotelCallTracking[key]['initState']=="success"){
+setTimeout(document.querySelectorAll('.j-phone-item').forEach(item => (item.dataset.fakeHref = 'tel:' + item.textContent.replace(/\D/g, ''))),0)
+clearInterval(waitB)}}}},1000)
+</script>        <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Корзина</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Количество</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Стоимость</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                                                                        <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Есть скидка по купону?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона или сертификата"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">ОК</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Итого</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Вернуться к покупкам                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/ru/checkout/"
+                                    >
+                                        <span class="btn-content">Оформить заказ</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uidd946d9dcccd07e50534fad405f864299" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Сравнение товаров</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uidd946d9dcccd07e50534fad405f864299");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

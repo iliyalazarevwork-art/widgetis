@@ -1,0 +1,658 @@
+<!-- source: https://restoplus.com.ua/ -->
+<!-- extracted: 2026-05-07T21:30:56.669Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 25342 -->
+
+w.INIT.execute();
+        })(window);
+    });
+</script>
+        <script type="text/javascript">
+  (function(d, w, s) {
+ var widgetHash = 's7mtyog78ilad2xhlp4y', gcw = d.createElement(s); gcw.type = 'text/javascript'; gcw.async = true;
+ gcw.src = '//widgets.binotel.com/getcall/widgets/'+ widgetHash +'.js';
+ var sn = d.getElementsByTagName(s)[0]; sn.parentNode.insertBefore(gcw, sn);
+  })(document, window, 'script');
+</script>
+<script>
+(function(d) {
+d.querySelectorAll('.j-phone-item').forEach(function (el) {
+el.classList.add('binct-phone-number-' + el.getAttribute('data-index'));
+})
+})(document);
+(function(d, w, s) {
+var widgetHash = '6p3ays20dbcxpkecvodt', ctw = d.createElement(s); ctw.type = 'text/javascript'; ctw.async = true;
+ctw.src = '//widgets.binotel.com/calltracking/widgets/'+ widgetHash +'.js';
+var sn = d.getElementsByTagName(s)[0]; sn.parentNode.insertBefore(ctw, sn);
+})(document, window, 'script');
+const waitB = setInterval(() => {if (!!window.BinotelCallTracking) {
+for (key in window.BinotelCallTracking) {
+if(window.BinotelCallTracking[key]['initState']=="success"){
+setTimeout(document.querySelectorAll('.j-phone-item').forEach(item => (item.dataset.fakeHref = 'tel:' + item.textContent.replace(/\D/g, ''))),0)
+clearInterval(waitB)}}}},1000)
+</script>
+<script>
+(function () {
+
+function onReady(fn) {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", fn);
+  } else {
+    fn();
+  }
+}
+
+/* === Перевірка: чи це головна сторінка (ua/ru) === */
+function isHomePage() {
+  try {
+    const p = (location.pathname || "").replace(/\/+$/, "");
+    // "/" -> "" після replace, тому окремо обробляємо
+    return p === "" || p === "/ru";
+  } catch (e) {
+    return false;
+  }
+}
+
+/* === ТВОЯ оригинальная логика определения карточки товара === */
+function isProductPage() {
+  const words = [
+    "Купить", "Купити",
+    "Повідомити, коли з'явиться",
+    "Сообщить, когда появится"
+  ];
+
+  const all = document.querySelectorAll("button, a");
+  return [...all].some(el => {
+    let t = (el.textContent || "").trim();
+    return words.some(w => t.includes(w));
+  });
+}
+
+/* === ТВОЇ 2 функції для каталогу === */
+function isListingPage() {
+  const og = document.querySelector('meta[property="og:type"]');
+  if (!og) return false;
+
+  const v = og.getAttribute("content") || "";
+  return v === "product.group"; // ← Лістинг
+}
+
+function hasFilters() {
+  return document.querySelector('.filterMenu, .catalog__sidebar') !== null;
+}
+
+function getCleanUrl() {
+  try {
+    let u = new URL(location.href.split("#")[0]);
+    ["utm_source","utm_medium","utm_campaign","utm_term","utm_content","gclid","fbclid"]
+      .forEach(p => u.searchParams.delete(p));
+    return u.toString();
+  } catch(e) { return location.href; }
+}
+
+function getLang() {
+  return location.pathname.includes("/ru/") ? "ru" : "ua";
+}
+
+function injectStyles() {
+  if (document.getElementById("ai-sharing-style")) return;
+
+  const css = `
+.ai-share-wrapper { margin: 40px 0; padding: 10px 16px; text-align: left; }
+.ai-share-title { font-size: 17px; font-weight: 700; margin-bottom: 22px; color: #333; }
+.ai-share-row { display: flex; gap: 14px; flex-wrap: nowrap; }
+.ai-share-btn {
+  padding: 12px 28px; border-radius: 999px; font-size: 15px; font-weight: 600;
+  background: #f4f4f4 !important; color: #555 !important; text-decoration: none;
+  white-space: nowrap; display: inline-flex; align-items: center; justify-content: center;
+  transition: .2s ease; box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+.ai-share-btn:hover {
+  background: #803888 !important; color: #fff !important;
+  transform: translateY(-2px); box-shadow: 0 8px 22px rgba(0,0,0,0.18);
+}
+@media(max-width:700px){
+  .ai-share-row{ overflow-x:auto; padding-bottom:4px; -webkit-overflow-scrolling: touch; }
+  .ai-share-btn{ flex: 0 0 auto; }
+}
+`;
+  const style = document.createElement("style");
+  style.id = "ai-sharing-style";
+  style.textContent = css;
+  document.head.appendChild(style);
+}
+
+/* === ТИП СТОРІНКИ: + виключаємо головну === */
+function getPageType() {
+  if (isHomePage()) return "other";
+  if (isListingPage() || hasFilters()) return "catalog";
+  if (isProductPage()) return "product";
+  return "other";
+}
+
+function buildLinks(lang, pageType) {
+  const url = getCleanUrl();
+
+  const ru = {
+    product: {
+      chatgpt: "Сделай подробный анализ этого товара: плюсы и ключевые характеристики - на основе страницы:+",
+      perplexity: "Проанализируй товар на этой странице, выдели плюсы и ключевые особенности:+",
+      google: "Кратко опиши основные плюсы товара и его ключевые особенности:+",
+      grok: "Проанализируй товар на этой странице и перечисли его преимущества и недостатки:+"
+    },
+    catalog: {
+      chatgpt: "Проанализируй эту страницу каталога: какие товары/подкатегории тут представлены, для кого они подходят, как выбрать по фильтрам, и на что обратить внимание:+",
+      perplexity: "Сделай разбор страницы каталога: ключевые группы товаров, критерии выбора, важные фильтры и рекомендации:+",
+      google: "Кратко опиши, что это за каталог, какие есть варианты и как выбрать с помощью фильтров:+",
+      grok: "Проанализируй страницу каталога и подскажи, как выбрать товар по фильтрам и какие параметры важны:+"
+    }
+  };
+
+  const ua = {
+    product: {
+      chatgpt: "Зроби детальний аналіз цього товару: плюси і ключові характеристики - на основі сторінки:+",
+      perplexity: "Проаналізуй товар на цій сторінці, виділи плюси та ключові особливості:+",
+      google: "Коротко опиши основні плюси товару і ключові особливості:+",
+      grok: "Проаналізуй товар на цій сторінці та переліч його переваги:+"
+    },
+    catalog: {
+      chatgpt: "Проаналізуй сторінку каталогу: які групи товарів тут є, кому вони підходять, як обирати через фільтри та на що звернути увагу:+",
+      perplexity: "Зроби розбір каталогу: підкатегорії/типи товарів, критерії вибору, важливі фільтри та короткі рекомендації:+",
+      google: "Коротко опиши, що це за каталог, які є варіанти і як вибрати через фільтри:+",
+      grok: "Проаналізуй сторінку каталогу та підкажи, як вибрати товар за фільтрами і які параметри важливі:+"
+    }
+  };
+
+  const dict = (lang === "ru" ? ru : ua);
+  const d = (dict[pageType] || dict.product);
+
+  return [
+    { id:"chatgpt", label:"ChatGPT", href:"https://chatgpt.com/?q=" + encodeURIComponent(d.chatgpt + url) },
+    { id:"google", label:"Google AI", href:"https://www.google.com/search?udm=50&aep=11&q=" + encodeURIComponent(d.google + url) },
+    { id:"perplexity", label:"Perplexity", href:"https://www.perplexity.ai/search/new?q=" + encodeURIComponent(d.perplexity + url) },
+    { id:"grok", label:"Grok", href:"https://grok.com/?q=" + encodeURIComponent(d.grok + url) }
+  ];
+}
+
+function insertBeforeFooter(pageType) {
+  injectStyles();
+
+  const lang = getLang();
+  const links = buildLinks(lang, pageType);
+
+  const wrap = document.createElement("div");
+  wrap.className = "ai-share-wrapper";
+
+  const title = document.createElement("div");
+  title.className = "ai-share-title";
+  title.textContent = lang === "ru" ? "Поделиться в:" : "Поширити в:";
+  wrap.appendChild(title);
+
+  const row = document.createElement("div");
+  row.className = "ai-share-row";
+
+  links.forEach(item => {
+    const a = document.createElement("a");
+    a.className = "ai-share-btn ai-" + item.id;
+    a.href = item.href;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.textContent = item.label;
+    row.appendChild(a);
+  });
+
+  wrap.appendChild(row);
+
+  const footer =
+    document.querySelector("footer") ||
+    document.querySelector(".footer") ||
+    document.querySelector("footer.footer-wrapper");
+
+  if (footer) {
+    footer.parentNode.insertBefore(wrap, footer);
+  } else {
+    document.body.appendChild(wrap);
+  }
+}
+
+onReady(() => {
+  const pageType = getPageType();
+  if (pageType === "product" || pageType === "catalog") {
+    insertBeforeFooter(pageType);
+  }
+});
+
+})();
+</script>
+<script>
+(function(){
+
+try {
+
+  /* --------------------------------------
+      1) ВИЯВЛЕННЯ БЛОГУ
+  --------------------------------------- */
+
+  function isBlogPage() {
+    const meta = document.querySelector('meta[property="article:section"]');
+    return meta && meta.getAttribute("content") === "Блог";
+  }
+
+
+  /* --------------------------------------
+      2) АВТО-ДОБАВЛЕННЯ КНОПОК
+  --------------------------------------- */
+
+  function insertShareButtons(){
+
+    // мова
+    const isRu = location.pathname.includes("/ru/");
+    const t = isRu ? "Поделиться в:" : "Поширити в:";
+    const u = location.href;
+
+    const prompts = isRu
+      ? {
+          gpt: "Сделай подробный анализ этой статьи:+",
+          px:  "Проанализируй статью и выдели ключевые факты:+",
+          gl:  "Кратко опиши суть этой статьи:+",
+          gr:  "Сформулируй основные вопросы и ответы по статье:+"
+        }
+      : {
+          gpt: "Зроби структуроване резюме цієї статті:+",
+          px:  "Перевір фактичні твердження та виділи підтверджену інформацію:+",
+          gl:  "Коротко опиши основну тему статті:+",
+          gr:  "Сформуй перелік запитань FAQ за статтею:+"
+        };
+
+    const html = `
+      <div class="ai-sharing-wrapper">
+        <div class="ai-sharing-title">${t}</div>
+        <div class="ai-sharing">
+          <a class="ai-chatgpt" target="_blank"
+            href="https://chatgpt.com/?q=${encodeURIComponent(prompts.gpt + u)}">
+            ChatGPT
+          </a>
+          <a class="ai-perplexity" target="_blank"
+            href="https://www.perplexity.ai/search/new?q=${encodeURIComponent(prompts.px + u)}">
+            Perplexity
+          </a>
+          <a class="ai-google" target="_blank"
+            href="https://www.google.com/search?udm=50&aep=11&q=${encodeURIComponent(prompts.gl + u)}">
+            Google AI
+          </a>
+          <a class="ai-grok" target="_blank"
+            href="https://grok.com/?q=${encodeURIComponent(prompts.gr + u)}">
+            Grok
+          </a>
+        </div>
+      </div>
+    `;
+
+    const footer = document.querySelector("footer");
+    if (footer) footer.insertAdjacentHTML("beforebegin", html);
+  }
+
+
+  function waitForArticle(callback){
+    const timer = setInterval(() => {
+      const el = document.querySelector(".article-text, .article");
+      if (el) {
+        clearInterval(timer);
+        callback(el);
+      }
+    }, 50);
+  }
+
+
+  /* --------------------------------------
+      4) ASK CHATGPT 
+  --------------------------------------- */
+
+  function initBubble(article){
+    const isRu = location.pathname.includes("/ru/");
+    const CHATGPT_BASE = "https://chatgpt.com/?q=";
+    const MAX_LEN = 1800;
+
+    // ТЕКСТИ ДЛЯ МОВ
+    const UI_TEXT = isRu ? "Спросить у ChatGPT" : "Спитати у ChatGPT";
+    const QUERY_TEXT = isRu 
+        ? (txt) => `Объясни этот текст: "${txt}". Источник: ${location.href}`
+        : (txt) => `Поясни цей текст: "${txt}". Джерело: ${location.href}`;
+
+    const bubble = document.createElement("div");
+    bubble.className = "askchatgpt-bubble is-hidden";
+    bubble.innerHTML = `
+      <img class="askchatgpt-icon" src="/content/uploads/images/logo_gpt.jpg">
+      <span>${UI_TEXT}</span>
+    `;
+    document.body.appendChild(bubble);
+
+    let lastText = "";
+
+    function clamp(v,min,max){ return Math.max(min, Math.min(max,v)); }
+
+    function getSelectionInside(){
+      const sel = window.getSelection();
+      if(!sel || !sel.rangeCount) return null;
+
+      const range = sel.getRangeAt(0);
+      if(range.collapsed) return null;
+
+      let text = sel.toString().trim();
+      if(!text) return null;
+
+      let node = range.commonAncestorContainer;
+      if(node.nodeType === 3) node = node.parentElement;
+      if(!article.contains(node)) return null;
+
+      let rect = range.getBoundingClientRect();
+      if(rect.width === 0 && range.getClientRects().length)
+        rect = range.getClientRects()[0];
+
+      return {text, rect};
+    }
+
+    function showBubble(){
+      const info = getSelectionInside();
+      if(!info){ hideBubble(); return; }
+
+      lastText = info.text;
+
+      let top  = info.rect.top + window.scrollY - 40;
+      let left = info.rect.left + window.scrollX;
+
+      top  = clamp(top, 8, window.scrollY + window.innerHeight - 40);
+      left = clamp(left, 8, window.scrollX + window.innerWidth - 200);
+
+      bubble.style.top = top + "px";
+      bubble.style.left = left + "px";
+      bubble.classList.remove("is-hidden");
+    }
+
+    function hideBubble(){
+      bubble.classList.add("is-hidden");
+      lastText = "";
+    }
+
+    function openChatGPT(){
+      if(!lastText) return;
+
+      let txt = lastText;
+      if(txt.length > MAX_LEN) txt = txt.slice(0,MAX_LEN)+"…";
+
+      const q = QUERY_TEXT(txt);
+      window.open(CHATGPT_BASE + encodeURIComponent(q), "_blank");
+
+      hideBubble();
+    }
+
+    // Події
+    document.addEventListener("selectionchange", ()=>setTimeout(showBubble,50));
+    document.addEventListener("mouseup", ()=>setTimeout(showBubble,30));
+    document.addEventListener("keyup", ()=>setTimeout(showBubble,30));
+    document.addEventListener("touchend", ()=>setTimeout(showBubble,60));
+    window.addEventListener("scroll", hideBubble);
+    window.addEventListener("resize", hideBubble);
+    bubble.addEventListener("click", openChatGPT);
+}
+
+
+
+  // Запуск бульбашки ТІЛЬКИ НА БЛОЗІ
+  if (isBlogPage()) {
+     // Запуск кнопок (працює завжди)
+    insertShareButtons();
+    waitForArticle(initBubble);
+  }
+
+} catch(e){
+  console.error("ASKGPT SCRIPT ERROR:", e);
+}
+
+})();
+</script>
+
+
+<style>
+.ai-sharing-wrapper{
+  margin:24px 0;
+  padding:16px;
+  background:#f8f8f8;
+  border-radius:8px;
+}
+.ai-sharing-title{
+  font-size:14px;
+  font-weight:600;
+  margin-bottom:12px;
+}
+.ai-sharing{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+.ai-sharing a{
+  padding:10px 18px;
+  border-radius:50px;
+  font-size:14px;
+  text-decoration:none;
+  color:#fff;
+}
+.ai-chatgpt{ background:#302048; }
+.ai-perplexity{ background:#302048; }
+.ai-google{ background:#302048; }
+.ai-grok{ background:#302048; }
+
+.askchatgpt-bubble{
+  position: absolute;
+    display: none;
+    background: #111;
+    color: #fff;
+    padding: 8px 12px 8px 10px;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    font-size: 13px;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    cursor: pointer;
+    line-height: 1.3;
+    z-index: 2147483000;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.askchatgpt-bubble.is-hidden{ display:none; }
+.askchatgpt-icon{
+  width:16px;
+  height:16px;
+  border-radius:50%;
+}
+</style>
+
+            <script>
+    (function(d) {
+        d.querySelectorAll('.j-phone-item').forEach(function (el) {
+            el.classList.add('binct-phone-number-' + el.getAttribute('data-index'));
+        })
+    })(document);
+    (function(d, w, s) {
+        var widgetHash = 's7mtyog78ilad2xhlp4y', ctw = d.createElement(s); ctw.type = 'text/javascript'; ctw.async = true;
+        ctw.src = '//widgets.binotel.com/calltracking/widgets/'+ widgetHash +'.js';
+        var sn = d.getElementsByTagName(s)[0]; sn.parentNode.insertBefore(ctw, sn);
+      })(document, window, 'script');
+    </script> 
+    <script src="https://apis.google.com/js/platform.js?onload=renderOptIn" async defer></script>
+
+<script>
+  window.renderOptIn = function() {
+    window.gapi.load('surveyoptin', function() {
+      window.gapi.surveyoptin.render(
+        {
+          // REQUIRED FIELDS
+          "merchant_id": 5405346571,
+          "order_id": "ORDER_ID",
+          "email": "CUSTOMER_EMAIL",
+          "delivery_country": "COUNTRY_CODE",
+          "estimated_delivery_date": "YYYY-MM-DD",
+
+          // OPTIONAL FIELDS
+          "products": [{"gtin":"GTIN1"}, {"gtin":"GTIN2"}]
+        });
+    });
+  }
+</script><!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TVHD4HRD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->        <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Увійти для відображення накопичувальної знижки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                                                                                <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uide3bb0d1e557db75085305324522156c9" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uide3bb0d1e557db75085305324522156c9");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

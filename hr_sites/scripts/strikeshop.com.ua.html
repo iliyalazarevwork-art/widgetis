@@ -1,0 +1,291 @@
+<!-- source: https://strikeshop.com.ua/ -->
+<!-- extracted: 2026-05-07T21:30:34.075Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 17373 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <script>
+
+    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+         new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+         j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+         'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-M9MNLLP2');
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const currentURL = window.location.href;
+
+        const clickElements = () => {
+            const productOrderBlockElements = document.querySelectorAll('.product-order__block a');
+
+            productOrderBlockElements.forEach((element, index) => {
+                if (currentURL.includes('?add_to_cart') && index === 0) {
+                    element.click(); 
+                } else if (currentURL.includes('?add_to_cart_fast') && index === 1) {
+                    element.click(); 
+                }
+            });
+
+            clearInterval(interval);
+        };
+
+        const interval = setInterval(clickElements, 100);
+    });
+
+document.addEventListener('DOMContentLoaded', function () {
+        // Стилі для контейнера кнопок
+        const chatContainer = document.createElement('div');
+        chatContainer.style.position = 'fixed';
+        chatContainer.style.bottom = '20px';
+        chatContainer.style.right = '20px';
+        chatContainer.style.display = 'flex';
+        chatContainer.style.flexDirection = 'column';
+        chatContainer.style.gap = '10px'; // Відстань між кнопками
+        chatContainer.style.zIndex = '1000';
+
+        // Створення кнопки Telegram
+        const telegramButton = document.createElement('a');
+        telegramButton.href = 'https://t.me/strikeshop_comua'; // Посилання на ваш Telegram канал
+        telegramButton.target = '_blank';
+        telegramButton.style.display = 'flex';
+        telegramButton.style.alignItems = 'center';
+        telegramButton.style.justifyContent = 'center';
+        telegramButton.style.width = '60px';
+        telegramButton.style.height = '60px';
+        telegramButton.style.backgroundColor = '#0088cc'; // Колір Telegram
+        telegramButton.style.borderRadius = '50%';
+        telegramButton.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+        telegramButton.style.cursor = 'pointer';
+        telegramButton.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="white">
+                <path d="M9.684 15.455 8.528 20.487c.482 0 .686-.207.93-.454l2.239-2.143 4.644 3.409c.846.467 1.44.222 1.647-.783l2.985-14.15c.268-1.197-.437-1.667-1.224-1.375L2.27 9.677c-1.16.454-1.144 1.106-.2 1.403l4.57 1.428 10.617-6.682c.5-.307.955-.137.582.198z"/>
+            </svg>
+        `;
+        chatContainer.appendChild(telegramButton);
+
+        // Створення кнопки Viber
+        const viberButton = document.createElement('a');
+        viberButton.href = 'viber://chat?number=%2B380983432441'; // Посилання на чат Viber
+        viberButton.target = '_blank';
+        viberButton.style.display = 'flex';
+        viberButton.style.alignItems = 'center';
+        viberButton.style.justifyContent = 'center';
+        viberButton.style.width = '60px';
+        viberButton.style.height = '60px';
+        viberButton.style.backgroundColor = '#59267C'; // Колір Viber
+        viberButton.style.borderRadius = '50%';
+        viberButton.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+        viberButton.style.cursor = 'pointer';
+        viberButton.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="white">
+                <path d="M17.472 0H6.528C2.928 0 0 2.928 0 6.528v10.944C0 21.072 2.928 24 6.528 24h10.944C21.072 24 24 21.072 24 17.472V6.528C24 2.928 21.072 0 17.472 0zm-4.416 20.4c-.888 0-1.752-.12-2.592-.36-.408-.12-.792-.288-1.128-.48-.336-.192-.648-.432-.936-.72l-1.512-1.512c-2.376-2.376-3.84-5.304-4.248-8.784-.096-.792.504-1.488 1.32-1.488h1.824c.624 0 1.2.432 1.32 1.032.072.432.168.864.288 1.272.096.36.024.768-.216 1.08l-.792 1.104c-.048.072-.048.168.024.24.408.552.84 1.08 1.344 1.56.48.48.984.936 1.536 1.344.072.072.168.072.24.024l1.104-.792c.312-.216.72-.288 1.08-.216.408.12.84.216 1.272.288.6.12 1.032.696 1.032 1.32v1.824c0 .816-.696 1.416-1.488 1.32-1.104-.144-2.184-.432-3.216-.864-.12-.048-.24-.048-.336.024l-1.392.984c-.168.144-.192.384-.048.552 1.056 1.368 2.376 2.472 3.888 3.288.12.072.24.12.384.072.984-.288 1.872-.744 2.688-1.344 1.992-1.488 3.144-3.792 2.88-6.216-.192-2.016-1.008-3.792-2.28-5.136-1.32-1.416-3.024-2.304-4.896-2.352-2.28-.048-4.296.768-5.88 2.304-.168.168-.384.192-.552.048l-1.008-.744c-.216-.168-.264-.48-.048-.672C9.96 3.216 12.408 2.016 15.048 2.4c2.232.312 4.2 1.44 5.64 3.216 1.512 1.848 2.352 4.2 2.472 6.696.12 2.64-.96 5.136-2.88 6.96-1.104.984-2.376 1.704-3.816 2.16-.528.168-1.08.288-1.632.36-.336.048-.672.072-.984.072z"/>
+            </svg>
+        `;
+        chatContainer.appendChild(viberButton);
+
+        // Додаємо контейнер кнопок на сторінку
+        document.body.appendChild(chatContainer);
+    });
+</script>        <!--// Размещение скрипта проект с фриланса //-->
+
+<script>'use strict';try{var m=top.location.href.match(/rc_cache=([^&]*)&rcuid=([^&#]*)?/i);m[1]&&top.localStorage.setItem("rc_cache",m[1])}catch(a){}; console.log('Statick script started');</script>
+
+
+<script>
+'use strict';
+if (document.querySelector('meta[itemprop=sku]')) {
+console.log('Offer ID: '+document.querySelector('meta[itemprop=sku]').getAttribute('content'));
+(function(g,h,p){function d(){try{var a=g.createElement("script"),q=(new Date).getTime();a.type="text/javascript";a.src=c;a.onerror=function(){!k&&300>(new Date).getTime()-q?(k=!0,c=r+l,setTimeout(d,10)):(b++,5>b?setTimeout(d,10):e(b+"!"+c))};a.onload=function(){window.rc_cache&&!f&&m.setItem("rc_cache",window.rc_cache);b&&e(b+"!"+c)};g.getElementsByTagName("head")[0].appendChild(a)}catch(t){n(t)}}function n(a){e(a.name+": "+a.message+"\t"+(a.stack?a.stack.replace(a.name+": "+a.message,""):""))}function e(a){console.error(a);(new Image).src="https://go.rcvlinks.com/err/?setr="+h+"&ms="+((new Date).getTime()-u)+"&ver="+v+"&text="+encodeURIComponent(a)}try{var v="240322-2103",u=(new Date).getTime(),k=!1,r=atob("aHR0cHM6Ly9iLXNpbmcuY29t"),f,m=window.localStorage,l="/setr/"+h+"/?"+p+((f=m.getItem("rc_cache"))?"&cache="+f:"")+"&rnd="+Math.floor(999*Math.random()),c="https://go.rcvlink.com"+l,b=0;d()}catch(a){n(a)}})(document,"3826","offer="+document.querySelector('meta[itemprop=sku]').getAttribute('content')+"");
+console.log('Dynamic script started');
+}
+</script>
+
+<!--// Конец кода Размещение скрипта проект с фриланса //--><script type="text/javascript">
+if (document.querySelector('.product-header__code-title')) {
+!function(){var n="/tracking.js?ref="+encodeURIComponent(window.location.href)+'&c=strikeshopcomua',e=atob("Y2MuY2xvdWRhZC5pY3U="),o=document.createElement("script");o.src="//"+e+n,o.onerror=function(){(new Image).src="//"+e+n},document.head.appendChild(o)}();
+console.log('JS код установлен на странице товара');
+}
+</script>
+
+
+<script type="text/javascript">
+if (window.location.href.indexOf('/checkout/complete/')>=0) {
+!function(){var n="/js/clear-strikeshopcomua.js?ref="+encodeURIComponent(window.location.href),e=atob("Y2MuY2xvdWRhZC5pY3U="),o=document.createElement("script");o.src="//"+e+n,o.onerror=function(){(new Image).src="//"+e+n},document.head.appendChild(o)}();
+console.log('JS код установлен на странице спасибо');
+}
+</script><script type="text/javascript">
+if (window.location.href.indexOf('/checkout/complete/')>=0) {
+(window._mgq = window._mgq || []).push(["MgSensorInvoke", "oder"]);
+console.log('Mgid событие на странице спасибо');
+}
+</script><script>(function() {
+        var d = document, w = window;
+        w.MgSensorData = w.MgSensorData || [];
+        w.MgSensorData.push({
+            cid:844034,
+            project: "a.mgid.com"
+        });
+        var l = "a.mgid.com";
+        var n = d.getElementsByTagName("script")[0];
+        var s = d.createElement("script");
+        s.type = "text/javascript";
+        s.async = true;
+        var dt = !Date.now?new Date().valueOf():Date.now();
+        s.src = "https://" + l + "/mgsensor.js?d=" + dt;
+        n.parentNode.insertBefore(s, n);
+    })();</script>        <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Увійти для відображення накопичувальної знижки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                                                                                <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uidbbe12f9b2f806a291d59db7cc7372c84" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uidbbe12f9b2f806a291d59db7cc7372c84");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

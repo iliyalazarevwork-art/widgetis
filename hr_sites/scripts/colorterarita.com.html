@@ -1,0 +1,635 @@
+<!-- source: https://colorterarita.com/ -->
+<!-- extracted: 2026-05-07T21:31:31.162Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 26196 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <!--------------------------------------------- СКРИПТ загрузки LCP картинок не в LOZI -------------------------------------------------->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const imgs = document.querySelectorAll("img");
+
+  imgs.forEach((img) => {
+    const isHero = img.hasAttribute("data-hero") || img.hasAttribute("data-preload");
+
+    if (isHero) {
+      img.removeAttribute("loading");
+      img.setAttribute("fetchpriority", "high");
+      img.setAttribute("decoding", "async");
+    } else {
+      img.setAttribute("loading", "lazy");
+      // по желанию: img.setAttribute("decoding","async");
+    }
+  });
+});
+</script>
+
+
+
+
+<!---------------------------------------------------- СКРИПТ каруселей ---------------------------------------------------------------->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".infinity-carousel").forEach((carousel) => {
+    const track = carousel.querySelector(".carousel-track");
+    const prev  = carousel.querySelector(".prev");
+    const next  = carousel.querySelector(".next");
+
+    // Безпечний парсер JSON з фолбеком
+    const parseJson = (raw, fallback=[]) => {
+      if (!raw) return fallback;
+      try { return JSON.parse(raw); } catch (e) { console.warn("Bad JSON in data-*", e, raw); return fallback; }
+    };
+
+    const images = parseJson(carousel.dataset.images).map(s => String(s)); // без toLowerCase — щоб не зламати шлях
+    const alts   = parseJson(carousel.dataset.alts);
+    const hrefs  = parseJson(carousel.dataset.hrefs);                      // опціонально
+    const hrefTarget = carousel.dataset.hrefTarget || "_self";
+
+    const slides = [];
+    let currentIndex = 0;
+    let loadedCount  = 0;
+
+    const isBottom = carousel.classList.contains("carousel-bottom");
+    const perView  = window.matchMedia("(max-width: 768px)").matches ? 1 : 3;
+
+    const priorityCount     = isBottom ? 0 : (perView + 1);
+    const initialEagerCount = isBottom ? 0 : priorityCount;
+    const preloadInitial    = isBottom ? (perView + 1) : Math.max(priorityCount, 5);
+    const preloadAhead      = isBottom ? 1 : 2;
+
+    function loadImage(i) {
+      if (i >= images.length || i < 0 || slides[i]) return;
+
+      const item = document.createElement("div");
+      item.classList.add("carousel-item");
+
+      const img = document.createElement("img");
+      img.src = images[i];
+      img.alt = (alts[i] && String(alts[i]).trim()) ? alts[i] : `Чашка з фото – приклад ${i + 1}`;
+      img.width = 400;
+      img.height = 500;
+
+      if (i < initialEagerCount) {
+        img.removeAttribute("loading");
+        if (!isBottom) img.setAttribute("fetchpriority","high");
+        img.setAttribute("decoding","async");
+      } else {
+        img.loading = "lazy";
+        img.setAttribute("decoding","async");
+      }
+
+      // Якщо є посилання — обгортаємо <a>
+      const href = (Array.isArray(hrefs) && typeof hrefs[i] === "string") ? hrefs[i].trim() : "";
+      if (href) {
+        const a = document.createElement("a");
+        a.className = "carousel-item-link";
+        a.href = href;
+        a.target = hrefTarget;
+        if (a.target === "_blank") a.rel = "noopener";
+        a.setAttribute("aria-label", img.alt || `Перейти до товару ${i + 1}`);
+        a.style.display = "block"; a.style.width = "100%"; a.style.height = "100%";
+        a.appendChild(img);
+        item.appendChild(a);
+      } else {
+        item.appendChild(img);
+      }
+
+      slides[i] = item;
+      track.appendChild(item);
+      loadedCount++;
+    }
+
+    for (let i = 0; i < Math.min(preloadInitial, images.length); i++) loadImage(i);
+
+    function updatePosition() {
+      const slideWidth = slides[0]?.clientWidth || 0;
+      track.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
+    }
+
+    function preloadNextImages() {
+      const target = currentIndex + perView + preloadAhead;
+      for (let i = loadedCount; i <= target && i < images.length; i++) {
+        if (!slides[i]) loadImage(i);
+      }
+    }
+
+    function eagerizeVisibleBottom() {
+      if (!isBottom) return;
+      const limit = Math.min(images.length, perView + 1);
+      for (let i = 0; i < limit; i++) {
+        if (!slides[i]) loadImage(i);
+        const img = slides[i].querySelector('img');
+        if (img && img.getAttribute('loading') === 'lazy') {
+          img.removeAttribute('loading');
+          img.setAttribute('decoding','async');
+        }
+      }
+    }
+
+    if (isBottom && 'IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            eagerizeVisibleBottom();
+            preloadNextImages();
+            io.disconnect();
+          }
+        });
+      }, { rootMargin: '350px' });
+      io.observe(carousel);
+    }
+
+    prev?.addEventListener("click", () => {
+      currentIndex = (currentIndex > 0) ? currentIndex - 1 : images.length - 1;
+      updatePosition();
+      preloadNextImages();
+    });
+
+    next?.addEventListener("click", () => {
+      currentIndex = (currentIndex + 1) % images.length;
+      preloadNextImages();
+      updatePosition();
+    });
+
+    window.addEventListener("resize", updatePosition);
+    preloadNextImages();
+
+    prev?.setAttribute("aria-label","Попередній слайд");
+    next?.setAttribute("aria-label","Наступний слайд");
+  });
+});
+</script>
+
+<!---------------------------------------------------- СКРИПТ КНОПОК НАПИСАТЬ---------------------------------------------------------------->
+
+<!-- CTA MODAL GLOBAL 999 -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  const placeholder = document.querySelector("[data-cta-999]");
+  if (!placeholder) return;
+
+  // ====== Автовизначення мови ======
+  const path = (location.pathname || "").toLowerCase();
+  const htmlLang = (document.documentElement.getAttribute("lang") || "").toLowerCase();
+  const isRu = path.startsWith("/ru/") || htmlLang.startsWith("ru");
+
+  // ====== Тексти (UA/RU) ======
+  const T = isRu ? {
+    defaultTitle1: "Хотите печать с фото, свой принт или есть вопрос??",
+    defaultTitle2: "Напишите нам.",
+    btn: "НАПИСАТЬ",
+    pStart: "Сделайте заказ прямо сейчас! Нажимайте:",
+    or: "или",
+    fastTitle: "Как заказать быстрее?",
+    fastLead: "Напишите максимум информации сразу, в первом сообщении:",
+    b1: "• что именно вас интересует: ",
+    b1Strong: "кружка / бокал / магнит / бокс",
+    b2: "• тип кружки (белая, цветная, хамелеон и т.д.), размер магнитов..",
+    b3: "• что нужно напечатать: ",
+    b3Strong: "фото / изображение / текст",
+    b4: "• сразу добавьте все материалы",
+    tip: "👉 Так мы быстрее обработаем ваш запрос."
+  } : {
+    defaultTitle1: "Бажаєте друк з фото, власний принт або є питання??",
+    defaultTitle2: "Напишіть нам.",
+    btn: "НАПИСАТИ",
+    pStart: "Зробіть замовлення просто зараз! Натискайте:",
+    or: "або",
+    fastTitle: "Як замовити швидше?",
+    fastLead: "Напишіть максимум інформації одразу, у першому повідомленні:",
+    b1: "• що саме вас цікавить: ",
+    b1Strong: "чашка / келих / магніт / бокс",
+    b2: "• тип чашки (біла, кольорова, хамелеон тощо), розмір магнітів..",
+    b3: "• що потрібно надрукувати: ",
+    b3Strong: "фото / зображення / текст",
+    b4: "• одразу додайте всі матеріали",
+    tip: "👉 Так ми швидше обробимо ваш запит."
+  };
+
+  // ====== Заголовки з якоря ======
+  const rawTitle1 = placeholder.getAttribute("data-title1");
+  const rawTitle2 = placeholder.getAttribute("data-title2");
+
+  const title1 = (rawTitle1 && rawTitle1.trim())
+    ? rawTitle1.trim()
+    : T.defaultTitle1;
+
+  // КЛЮЧОВЕ: якщо data-title2 існує, але після trim це порожньо → не показуємо другий рядок
+  let showTitle2 = true;
+  let title2 = T.defaultTitle2;
+
+  if (rawTitle2 !== null) {
+    if (rawTitle2.trim() === "") {
+      showTitle2 = false;
+    } else {
+      title2 = rawTitle2.trim();
+    }
+  }
+
+  // ====== Рендер у якір ======
+  placeholder.innerHTML = `
+    <div class="cta-block-999">
+      <p style="font-size:20px;font-weight:bold;color:#333;">${title1}</p>
+      ${showTitle2 ? `<p style="font-size:20px;font-weight:bold;color:#333;">${title2}</p>` : ``}
+      <button class="my-open-modal-btn-999" id="openMyModal999">${T.btn}</button>
+    </div>
+
+    <div class="my-modal-overlay-999" id="myModal999" style="display:none;">
+      <div class="my-modal-999">
+        <button class="my-close-modal-btn-999" id="closeMyModal999">X</button>
+
+        <!-- 1) Як/Как замовити швидше -->
+        <p><strong>${T.fastTitle}</strong><br>${T.fastLead}</p>
+
+        <p>
+          ${T.b1}<strong>${T.b1Strong}</strong><br>
+          ${T.b2}<br>
+          ${T.b3}<strong>${T.b3Strong}</strong><br>
+          ${T.b4}
+        </p>
+
+        <p>${T.tip}</p>
+
+        <!-- 2) Разделитель -->
+        <hr>
+
+        <!-- 3) Зробіть/Сделайте заказ прямо сейчас -->
+        <p>${T.pStart}</p>
+
+        <p>✔ <img src="/content/uploads/images/pngegg-30.pngv854v8.png" width="24" height="24" loading="lazy">
+        Телеграм <a href="http://t.me/colorterarita" rel="nofollow"><strong>@colorterarita</strong></a></p>
+
+        <p>${T.or}</p>
+
+        <p>✔ <img src="/content/uploads/images/pngegg-5v441v5c4v31.png" width="24" height="24" loading="lazy">
+        Viber <a class="phone-link-999" href="https://connect.viber.com/business/819c0d8a-d02e-11ef-b9fc-c6613cc9e07f?utm_source=manage&utm_medium=copy_link" rel="nofollow">096-029-37-31</a></p>
+
+      </div>
+    </div>
+  `;
+
+  // ====== Логіка модалки (без змін) ======
+  const openBtn = document.getElementById("openMyModal999");
+  const closeBtn = document.getElementById("closeMyModal999");
+  const modal = document.getElementById("myModal999");
+
+  if (!openBtn || !closeBtn || !modal) return;
+
+  openBtn.addEventListener("click", () => modal.style.display = "flex");
+  closeBtn.addEventListener("click", () => modal.style.display = "none");
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) modal.style.display = "none";
+  });
+
+});
+</script>
+<!-- /CTA MODAL GLOBAL 999 -->
+
+<!--------------------------------------------- Меню мобильное -------------------------------------------------->
+<!----------------------------------Подпись месенджери-------------------------------------------->
+
+<script>
+(function () {
+  function apply() {
+    // Ищем именно контактный блок (там где телефон)
+    var nav = document.querySelector('ul.main-nav:has(a.main-nav__link.j-phone-item)');
+    if (!nav) return;
+
+    // Если уже вставили — не дублируем
+    if (nav.querySelector('.js-messenger-note')) return;
+
+    // Находим Telegram по иконке (это НЕ ссылка, а svg)
+    var tgIcon = nav.querySelector('svg.icon--telegram');
+    if (!tgIcon) return;
+
+    var tgLi = tgIcon.closest('li');
+    if (!tgLi) return;
+
+    var noteLi = document.createElement('li');
+    noteLi.className = 'main-nav__item js-messenger-note';
+    noteLi.innerHTML = '<div class="main-nav__link js-messenger-note__text"></div>';
+
+    var lang = (document.documentElement.getAttribute('lang') || '').toLowerCase();
+    noteLi.querySelector('.js-messenger-note__text').textContent =
+      (lang === 'ru') ? 'Связь в мессенджерах' : 'Звязок в месенджерах';
+
+    tgLi.insertAdjacentElement('afterend', noteLi);
+  }
+
+  // Пытаемся сразу и несколько раз (меню часто перерисовывается)
+  apply();
+  var t = 0;
+  var timer = setInterval(function(){
+    apply();
+    t++;
+    if (t > 20) clearInterval(timer); // ~10 сек
+  }, 500);
+
+  // И наблюдатель на изменения DOM (на случай перерисовки)
+  var obs = new MutationObserver(apply);
+  obs.observe(document.documentElement, {childList:true, subtree:true});
+})();
+</script>
+
+
+
+
+<!----------------------------------Заміна дзвінка на месенджери-------------------------------------------->
+
+<!----------------------------------Модальне вікно-------------------------------------------->
+
+
+<!-- Modal 989: Messengers -->
+<div class="my-modal-overlay-989" id="myModal989" aria-hidden="true">
+  <div class="my-modal-989" role="dialog" aria-modal="true" aria-label="Messengers">
+    <button type="button" class="my-modal-close-989" aria-label="Закрити / Закрыть">×</button>
+
+    <p class="my-modal-title-989" data-ua="Зв'язок в месенджерах:" data-ru="Связь в мессенджерах:">
+      Зв'язок в месенджерах:
+    </p>
+
+    <div class="my-modal-links-989">
+      <a class="my-modal-btn-989" href="http://t.me/colorterarita" rel="nofollow">
+        <img alt="Telegram" height="24" loading="lazy" src="/content/uploads/images/pngegg-30.pngv854v8.png" width="24" />
+        <span>Telegram</span>
+        <strong>@colorterarita</strong>
+      </a>
+
+      <a class="my-modal-btn-989" href="https://connect.viber.com/business/819c0d8a-d02e-11ef-b9fc-c6613cc9e07f?utm_source=manage&amp;utm_medium=copy_link" rel="nofollow">
+        <img alt="Viber" height="24" loading="lazy" src="/content/uploads/images/pngegg-5v441v5c4v31.png" width="24" />
+        <span>Viber</span>
+        <strong>096-029-37-31</strong>
+      </a>
+    </div>
+
+    <p class="my-modal-note-989" data-ua="Натискайте — прямі посилання." data-ru="Нажимайте — прямые ссылки.">
+      Натискайте — прямі посилання.
+    </p>
+  </div>
+</div>
+
+<!----------------------------------Перехват-------------------------------------------->
+
+<script>
+(function () {
+  function qs(sel, root){ return (root || document).querySelector(sel); }
+
+  function detectLang(){
+    var l = (document.documentElement.getAttribute('lang') || '').toLowerCase();
+    if(l.indexOf('ru') === 0) return 'ru';
+    if(l.indexOf('uk') === 0 || l.indexOf('ua') === 0) return 'ua';
+    var p = (location.pathname || '').toLowerCase();
+    var s = (location.search || '').toLowerCase();
+    if(p.indexOf('/ru') === 0 || s.indexOf('lang=ru') !== -1) return 'ru';
+    return 'ua';
+  }
+
+  function applyLang(){
+    var lang = detectLang();
+    document.querySelectorAll('[data-ua][data-ru]').forEach(function(el){
+      el.textContent = (lang === 'ru') ? el.getAttribute('data-ru') : el.getAttribute('data-ua');
+    });
+  }
+
+  function openModal989(){
+    var overlay = qs('#myModal989');
+    if(!overlay) return;
+    applyLang();
+    overlay.classList.add('is-open');
+    overlay.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeModal989(){
+    var overlay = qs('#myModal989');
+    if(!overlay) return;
+    overlay.classList.remove('is-open');
+    overlay.setAttribute('aria-hidden', 'true');
+  }
+
+  // TAP-ONLY защита от скролла на мобиле
+  var touchMoved = false;
+  var startX = 0, startY = 0;
+
+  document.addEventListener('touchstart', function(e){
+    touchMoved = false;
+    if(!e.touches || !e.touches[0]) return;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  }, {passive:true});
+
+  document.addEventListener('touchmove', function(e){
+    if(!e.touches || !e.touches[0]) return;
+    var dx = Math.abs(e.touches[0].clientX - startX);
+    var dy = Math.abs(e.touches[0].clientY - startY);
+    if(dx > 8 || dy > 8) touchMoved = true;
+  }, {passive:true});
+
+  // Перехват ТОЛЬКО по click (тап)
+  document.addEventListener('click', function(e){
+    var a = e.target.closest('a[href^="tel:"], a.j-phone-item');
+    if(!a) return;
+    if(a.getAttribute('data-allow-tel') === '1') return;
+
+    if(touchMoved) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    openModal989();
+  }, true);
+
+  // Закрытие модалки
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.id === 'myModal989') closeModal989();
+    if(e.target && e.target.classList.contains('my-modal-close-989')) closeModal989();
+  });
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') closeModal989();
+  });
+
+  // Десктоп: вставить кнопки в dropdown
+  function injectDesktopMessengers(){
+    var dropdown = qs('.phones__dropdown');
+    var list = qs('.phones__list', dropdown);
+    if(!dropdown || !list) return;
+    if(qs('.phones__messengers-989', dropdown)) return;
+
+    var wrap = document.createElement('div');
+    wrap.className = 'phones__messengers-989';
+    wrap.innerHTML =
+      '<a href="https://connect.viber.com/business/819c0d8a-d02e-11ef-b9fc-c6613cc9e07f?utm_source=manage&amp;utm_medium=copy_link" rel="nofollow">' +
+        '<img alt="Viber" height="18" loading="lazy" src="/content/uploads/images/pngegg-5v441v5c4v31.png" width="18" />' +
+        '<span>Viber</span>' +
+      '</a>' +
+      '<a href="http://t.me/colorterarita" rel="nofollow">' +
+        '<img alt="Telegram" height="18" loading="lazy" src="/content/uploads/images/pngegg-30.pngv854v8.png" width="18" />' +
+        '<span>Telegram</span>' +
+      '</a>';
+
+    dropdown.appendChild(wrap);
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', injectDesktopMessengers);
+  } else {
+    injectDesktopMessengers();
+  }
+})();
+</script>                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Увійти для відображення накопичувальної знижки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                                                                                <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uida31ef27959aa5022236aee36747ea8e9" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uida31ef27959aa5022236aee36747ea8e9");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

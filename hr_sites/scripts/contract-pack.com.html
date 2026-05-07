@@ -1,0 +1,173 @@
+<!-- source: https://contract-pack.com/ -->
+<!-- extracted: 2026-05-07T21:32:53.105Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 6889 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <script defer src="https://sandeks-pak.svoya.online/widget/svoya.feedback.js"></script>
+
+<script>
+(function() {
+  var AW_ID = 'AW-11348773766';
+  var LABEL_PURCHASE      = 'REPLACE_WITH_PURCHASE_LABEL';
+  var LABEL_ADD_TO_CART   = 'REPLACE_WITH_ADD_TO_CART_LABEL';
+  var LABEL_BEGIN_CHECKOUT= 'REPLACE_WITH_BEGIN_CHECKOUT_LABEL';
+
+  function num(x){ x = (typeof x==='string') ? x.replace(',', '.') : x; return +x || 0; }
+
+  function forward(evt){
+    if(!evt || !evt.event || !evt.ecommerce) return;
+    var ec = evt.ecommerce || {};
+    var currency = ec.currency || 'UAH';
+    var items = ec.items || ec.products || [];
+    var value =
+      (ec.value != null ? num(ec.value) :
+      (ec.purchase && ec.purchase.value != null ? num(ec.purchase.value) :
+      (ec.purchase && ec.purchase.actionField && ec.purchase.actionField.revenue ? num(ec.purchase.actionField.revenue) : 0)));
+
+    if(evt.event === 'purchase'){
+      var tx = ec.transaction_id || ec.transactionId || (ec.purchase && ec.purchase.transaction_id) || '';
+      gtag('event','purchase', {
+        send_to: AW_ID + '/' + LABEL_PURCHASE,
+        value: value,
+        currency: currency,
+        transaction_id: tx,
+        items: items
+      });
+    }
+
+    if(evt.event === 'add_to_cart'){
+      var v = (ec.value != null) ? num(ec.value) : 0;
+      gtag('event','add_to_cart', {
+        send_to: AW_ID + '/' + LABEL_ADD_TO_CART,
+        value: v,
+        currency: currency,
+        items: items
+      });
+    }
+
+    if(evt.event === 'begin_checkout'){
+      var v2 = (ec.value != null) ? num(ec.value) : 0;
+      gtag('event','begin_checkout', {
+        send_to: AW_ID + '/' + LABEL_BEGIN_CHECKOUT,
+        value: v2,
+        currency: currency,
+        items: items
+      });
+    }
+  }
+
+  // прогнати вже надіслані події
+  (window.dataLayer || []).forEach(forward);
+  // підписатись на майбутні події GA4
+  var origPush = window.dataLayer.push;
+  window.dataLayer.push = function(){
+    var r = origPush.apply(this, arguments);
+    try { forward(arguments[0]); } catch(e){}
+    return r;
+  };
+})();
+</script>        <script src="https://apis.google.com/js/platform.js?onload=renderOptIn" async defer>
+            </script>        <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uidd8e40a097023e8c4e27dd8dc2f497a24" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uidd8e40a097023e8c4e27dd8dc2f497a24");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

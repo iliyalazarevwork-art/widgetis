@@ -1,0 +1,268 @@
+<!-- source: https://anusept.com/ -->
+<!-- extracted: 2026-05-07T21:32:36.273Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 12548 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <script>
+(function(){
+  /** Класи Хорошопа/каруселі, які будемо вирівнювати */
+  var PRODUCT_ROOT_SELECTORS = [
+    /* списки/контейнери каруселі */
+    '.catalog-carousel', '.catalog-cards', '.catalogCards', '.catalogProducts',
+    /* елементи-айтеми */
+    'li.catalog-carousel__item',
+    /* картки */
+    '.catalogCard', '.j-catalog-card', '.catalogCard-box'
+  ];
+
+  /** 1) Знаходимо "контентну" ліву межу статті (з урахуванням її padding-left) */
+  function getArticleContentLeft(){
+    var a = document.querySelector('article.anusept-main');
+    if(!a) return null;
+    var cs = getComputedStyle(a);
+    var padLeft = parseFloat(cs.paddingLeft) || 0;
+    var rect = a.getBoundingClientRect();
+    return rect.left + padLeft + window.pageXOffset;
+  }
+
+  /** 2) Обчислюємо поточний лівий край елемента (в документі) */
+  function getDocLeft(el){
+    var r = el.getBoundingClientRect();
+    return r.left + window.pageXOffset;
+  }
+
+  /** 3) Даємо елементу margin-left так, щоб його лівий край збігся з targetLeft */
+  function alignElement(el, targetLeft){
+    if(!el) return;
+    var elLeft = getDocLeft(el);
+    var currentML = parseFloat(getComputedStyle(el).marginLeft) || 0;
+    var delta = Math.round((targetLeft - elLeft) + currentML);
+    el.style.marginLeft = delta + 'px';
+    el.classList.add('anusept-align-inline');
+  }
+
+  /** 4) Шукаємо найкращий контейнер для зсуву:
+   *    - спершу намагаємось зсунути УВЕСЬ список/карусель (батьківський UL/контейнер),
+   *    - якщо не знайшли — зсуваємо кожен айтем по черзі (як fallback).
+   */
+  function findCarouselContainer(){
+    // спробуємо піднятися від будь-якої картки до батьківського контейнера
+    var sample = document.querySelector('.catalogCard, li.catalog-carousel__item, .catalogCard-box');
+    if (!sample) return null;
+
+    // підіймаємося вгору, шукаючи типовий контейнер каруселі/списку
+    var node = sample;
+    while (node && node !== document.body){
+      if (node.matches && node.matches('.catalog-carousel, .catalog-cards, .catalogCards, .catalogProducts, .swiper-wrapper, .swiper, ul, ol')){
+        return node;
+      }
+      node = node.parentElement;
+    }
+    return null;
+  }
+
+  /** 5) Основне вирівнювання */
+  function alignAll(){
+    // мобілка — без вирівнювання
+    if (window.innerWidth <= 900){
+      document.querySelectorAll('.anusept-align-inline').forEach(function(el){
+        el.style.marginLeft = '';
+      });
+      return;
+    }
+
+    var targetLeft = getArticleContentLeft();
+    if (targetLeft == null) return;
+
+    // пріоритет — зсунути увесь контейнер каруселі/списку (найчистіше рішення)
+    var container = findCarouselContainer();
+    if (container){
+      alignElement(container, targetLeft);
+      return;
+    }
+
+    // fallback — зсуваємо всі відомі елементи (може бути важче вміститись із стрілками/пагінацією)
+    PRODUCT_ROOT_SELECTORS.forEach(function(sel){
+      document.querySelectorAll(sel).forEach(function(el){
+        alignElement(el, targetLeft);
+      });
+    });
+  }
+
+  /** 6) Запуск і «розумні» оновлення */
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', alignAll);
+  } else {
+    alignAll();
+  }
+
+  var rt;
+  window.addEventListener('resize', function(){
+    clearTimeout(rt);
+    rt = setTimeout(alignAll, 160);
+  });
+
+  // Якщо Хорошоп/карусель змінює DOM (перемикаються слайди, підвантажуються блоки)
+  var mo = new MutationObserver(function(){
+    alignAll();
+  });
+  mo.observe(document.body, {childList:true, subtree:true});
+})();
+</script>
+                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Залишилось</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Увійти для відображення накопичувальної знижки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                                                                                <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uida3f95802b5e9c8489d543a794ffe3f1d" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uida3f95802b5e9c8489d543a794ffe3f1d");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

@@ -1,0 +1,1030 @@
+<!-- source: https://bartrigger.com.ua/ -->
+<!-- extracted: 2026-05-07T21:31:10.132Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 39108 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <!-- КОРЗИНА Скрипт в попап корзины на ПК и МОБ - сколько осталось до бесплатной доставки НП -->
+<script>
+(function () {
+  var FREE_SHIPPING = 10000;
+  var CURRENCY = 'грн';
+  var BLOCK_CLASS = 'js-free-shipping-block-universal';
+
+  // ===== ДОПОМІЖНІ ФУНКЦІЇ =====
+  function parsePrice(text) {
+    if (!text) return null;
+
+    var num = parseFloat(
+      String(text)
+        .replace(/\s+/g, '')
+        .replace(/[^\d.,]/g, '')
+        .replace(',', '.')
+    );
+
+    return isNaN(num) ? null : num;
+  }
+
+  function formatMoney(value) {
+    return Math.ceil(value) + ' ' + CURRENCY;
+  }
+
+  function isVisible(el) {
+    return !!(el && (el.offsetWidth || el.offsetHeight || el.getClientRects().length));
+  }
+
+  // ===== ПОШУК КОНТЕЙНЕРА КОРЗИНИ =====
+  function getCartContainer() {
+    var selectors = [
+      '#cart-drawer #cart.cart__container', // моб попап
+      '.cart-content',                      // ПК попап / стара структура
+      '#cart.cart__container',
+      '.cart-page',
+      '.layout-cart',
+      '.page-cart',
+      '.checkout-cart',
+      '.j-cart-page',
+      '.cart'
+    ];
+
+    for (var i = 0; i < selectors.length; i++) {
+      var nodes = document.querySelectorAll(selectors[i]);
+      for (var j = 0; j < nodes.length; j++) {
+        if (isVisible(nodes[j])) return nodes[j];
+      }
+    }
+
+    for (var k = 0; k < selectors.length; k++) {
+      var fallback = document.querySelector(selectors[k]);
+      if (fallback) return fallback;
+    }
+
+    return null;
+  }
+
+  // ===== ПОШУК СУМИ =====
+  function getTotalElement(container) {
+    if (!container) return null;
+
+    var selectors = [
+      '.cart__total-price.j-total-sum',                 // моб попап
+      '.cart-summary .cart-footer-b.cart-cost.j-total-sum', // стара ПК структура
+      '.cart-summary .j-total-sum',
+      '.j-total-sum'
+    ];
+
+    for (var i = 0; i < selectors.length; i++) {
+      var el = container.querySelector(selectors[i]);
+      if (el) return el;
+    }
+
+    for (var j = 0; j < selectors.length; j++) {
+      var globalEl = document.querySelector(selectors[j]);
+      if (globalEl) return globalEl;
+    }
+
+    return null;
+  }
+
+  // ===== ПОШУК КНОПКИ/БЛОКА ОФОРМЛЕННЯ =====
+  function getOrderBlock(container) {
+    if (!container) return null;
+
+    var selectors = [
+      '.cart__order',                         // моб попап
+      '[data-checkout-link]',                 // посилання на checkout
+      '.cart-order',
+      '.checkout-button',
+      '.cart-summary .btn.btn--primary'
+    ];
+
+    for (var i = 0; i < selectors.length; i++) {
+      var el = container.querySelector(selectors[i]);
+      if (el) {
+        if (el.matches && el.matches('[data-checkout-link]')) {
+          return el.parentNode || el;
+        }
+        return el;
+      }
+    }
+
+    return null;
+  }
+
+  // ===== СТВОРЕННЯ БЛОКУ =====
+  function createBlock() {
+    var block = document.createElement('div');
+    block.className = BLOCK_CLASS;
+
+    block.style.margin = '14px 0';
+    block.style.padding = '12px 14px';
+    block.style.borderRadius = '10px';
+    block.style.background = '#f2f2f2';
+    block.style.border = '1px solid #F4950D';
+    block.style.fontSize = '13px';
+    block.style.lineHeight = '1.5';
+    block.style.boxShadow = '0 2px 6px rgba(0,0,0,0.03)';
+    block.style.boxSizing = 'border-box';
+    block.style.width = '100%';
+
+    var title = document.createElement('div');
+    title.className = 'fs-title';
+    title.style.fontWeight = '600';
+    title.style.marginBottom = '10px';
+    title.style.fontSize = '13px';
+    title.style.color = '#333333';
+    block.appendChild(title);
+
+    var barWrapper = document.createElement('div');
+    barWrapper.className = 'fs-bar-wrapper';
+    barWrapper.style.width = '100%';
+    barWrapper.style.height = '14px';
+    barWrapper.style.borderRadius = '999px';
+    barWrapper.style.background = '#dddddd';
+    barWrapper.style.overflow = 'hidden';
+    block.appendChild(barWrapper);
+
+    var barFill = document.createElement('div');
+    barFill.className = 'fs-bar-fill';
+    barFill.style.height = '100%';
+    barFill.style.width = '0%';
+    barFill.style.borderRadius = '999px';
+    barFill.style.background = '#F4950D';
+    barFill.style.transition = 'width 0.3s ease';
+    barWrapper.appendChild(barFill);
+
+    var note = document.createElement('div');
+    note.className = 'fs-note';
+    note.style.marginTop = '8px';
+    note.style.fontSize = '11px';
+    note.style.color = '#555555';
+    note.innerHTML =
+      'Безкоштовна доставка по Україні до відділення чи поштомату Нової Пошти при замовленні від <strong>' +
+      formatMoney(FREE_SHIPPING) +
+      '</strong>.';
+    block.appendChild(note);
+
+    return block;
+  }
+
+  // ===== ВСТАВКА БЛОКУ =====
+  function insertBlock(container, block) {
+    if (!container || !block) return;
+
+    // 1. Найкращий варіант: перед блоком оформлення
+    var orderBlock = getOrderBlock(container);
+    if (orderBlock && orderBlock.parentNode) {
+      orderBlock.parentNode.insertBefore(block, orderBlock);
+      return;
+    }
+
+    // 2. Старий ПК варіант: після таблиці/списку товарів
+    var cartItems = container.querySelector('.cart-items');
+    if (cartItems && cartItems.parentNode) {
+      cartItems.parentNode.appendChild(block);
+      return;
+    }
+
+    // 3. Для моб структури: після summary
+    var summaryNew = container.querySelector('.cart__summary');
+    if (summaryNew && summaryNew.parentNode) {
+      if (summaryNew.nextSibling) {
+        summaryNew.parentNode.insertBefore(block, summaryNew.nextSibling);
+      } else {
+        summaryNew.parentNode.appendChild(block);
+      }
+      return;
+    }
+
+    // 4. Для старої структури
+    var summaryOld = container.querySelector('.cart-summary');
+    if (summaryOld && summaryOld.parentNode) {
+      if (summaryOld.nextSibling) {
+        summaryOld.parentNode.insertBefore(block, summaryOld.nextSibling);
+      } else {
+        summaryOld.parentNode.appendChild(block);
+      }
+      return;
+    }
+
+    // 5. Фолбек
+    container.appendChild(block);
+  }
+
+  function ensureBlock(container) {
+    if (!container) return null;
+
+    var block = container.querySelector('.' + BLOCK_CLASS);
+    if (!block) {
+      block = createBlock();
+      insertBlock(container, block);
+    }
+
+    return block;
+  }
+
+  // ===== ОНОВЛЕННЯ БЛОКУ =====
+  function updateBlock(container, total) {
+    var block = ensureBlock(container);
+    if (!block) return;
+
+    var title = block.querySelector('.fs-title');
+    var barFill = block.querySelector('.fs-bar-fill');
+
+    if (!title || !barFill) return;
+
+    if (total < FREE_SHIPPING) {
+      var need = FREE_SHIPPING - total;
+      title.innerHTML =
+        'До безкоштовної доставки Новою Поштою залишилось: <strong>' +
+        formatMoney(need) +
+        '</strong>';
+    } else {
+      title.innerHTML =
+        '<strong>Вітаємо!</strong> Ви отримуєте безкоштовну доставку до відділення чи поштомату Нової Пошти 🎉';
+    }
+
+    var percent = Math.max(0, Math.min(100, Math.round((total / FREE_SHIPPING) * 100)));
+    barFill.style.width = percent + '%';
+  }
+
+  function updateCartUI() {
+    var container = getCartContainer();
+    if (!container) return;
+
+    var totalEl = getTotalElement(container);
+    if (!totalEl) return;
+
+    var total = parsePrice(totalEl.textContent || totalEl.innerText);
+    if (total === null) return;
+
+    updateBlock(container, total);
+  }
+
+  function safeUpdate() {
+    try {
+      updateCartUI();
+    } catch (e) {}
+  }
+
+  // ===== СТАРТ =====
+  document.addEventListener('DOMContentLoaded', function () {
+    safeUpdate();
+    setTimeout(safeUpdate, 300);
+    setTimeout(safeUpdate, 900);
+    setTimeout(safeUpdate, 1800);
+    setInterval(safeUpdate, 1000);
+  });
+
+  document.addEventListener('click', function () {
+    setTimeout(safeUpdate, 250);
+    setTimeout(safeUpdate, 700);
+    setTimeout(safeUpdate, 1200);
+  });
+
+  window.addEventListener('resize', function () {
+    safeUpdate();
+  });
+})();
+</script>
+
+
+
+<!-- ОРАНЖ ЦВЕТ ТЕКСТА ПК ПРИ ОПЛАТЕ ФОП/ТОВ -->
+<script>
+(function () {
+  var PAYMENT_VALUE = '12';
+  var TARGET_COLOR = '#F4950D';
+
+  function syncPaymentTextColor() {
+    var paymentBlock = document.querySelector('.checkout-step[data-component="Payment"]');
+    if (!paymentBlock) return;
+
+    var select = paymentBlock.querySelector('select.j-payment-type');
+    var infoText = paymentBlock.querySelector('.form-item-txt');
+    if (!select || !infoText) return;
+
+    if (String(select.value) === PAYMENT_VALUE) {
+      infoText.style.color = TARGET_COLOR;
+    } else {
+      infoText.style.color = '';
+    }
+  }
+
+  document.addEventListener('change', function (e) {
+    if (e.target && e.target.matches('.checkout-step[data-component="Payment"] select.j-payment-type')) {
+      syncPaymentTextColor();
+    }
+  });
+
+  var observer = new MutationObserver(syncPaymentTextColor);
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  syncPaymentTextColor();
+  setTimeout(syncPaymentTextColor, 300);
+  setTimeout(syncPaymentTextColor, 1000);
+})();
+</script>
+
+
+<!-- БЛОК ПРО ДОСТАВКУ/ОПЛАТУ В КОРЗИНЕ-ПК -->
+<script>
+(function () {
+  var BLOCK_ID = 'custom-checkout-info-block';
+  var TARGET_SELECTOR = '.checkout-aside #cart';
+
+  function getBlockHtml() {
+    return ''
+      + '<div class="bt-checkout-info" style="--font-size:14px; --icon-col:110px; font-size:var(--font-size);">'
+
+      + '  <div style="display:flex; align-items:center; gap:8px; margin:0 0 10px 0;">'
+      + '    <img src="/content/uploads/images/info/chek.png" alt="" width="20" height="25" loading="lazy">'
+      + '    <span style="font-size:var(--font-size);">ЗРУЧНА ДОСТАВКА</span>'
+      + '  </div>'
+
+      + '  <table style="width:100%; border-collapse:collapse; background:transparent; font-size:var(--font-size); table-layout:fixed;">'
+      + '    <tbody>'
+      + '      <tr>'
+      + '        <td style="width:var(--icon-col); vertical-align:middle; padding:6px 10px 6px 0;">'
+      + '          <img src="/content/uploads/images/info/photo_2026-02-17_13-32-39.jpg" alt="" width="100" height="19" loading="lazy" style="display:block; max-width:100%;">'
+      + '        </td>'
+      + '        <td style="vertical-align:middle; padding:6px 0; word-break:break-word;">'
+      + '          <p style="margin:0; font-size:var(--font-size);">Безкоштовно від 10 000 грн</p>'
+      + '        </td>'
+      + '      </tr>'
+
+      + '      <tr>'
+      + '        <td style="width:var(--icon-col); vertical-align:middle; padding:6px 10px 6px 0;">'
+      + '          <img src="/content/uploads/images/info/uklon.png" alt="" width="85" height="35" loading="lazy" style="display:block; max-width:100%;">'
+      + '        </td>'
+      + '        <td style="vertical-align:middle; padding:6px 0; word-break:break-word;">Швидко по м. Київ</td>'
+      + '      </tr>'
+
+      + '      <tr>'
+      + '        <td style="width:var(--icon-col); vertical-align:middle; padding:6px 10px 6px 0;">'
+      + '          <img src="/content/uploads/images/info/samovivz9.png" alt="" width="100" height="14" loading="lazy" style="display:block; max-width:100%;">'
+      + '        </td>'
+      + '        <td style="vertical-align:middle; padding:6px 0; word-break:break-word;">5 днів резерв товару</td>'
+      + '      </tr>'
+
+      + '      <tr>'
+      + '        <td style="width:var(--icon-col); vertical-align:middle; padding:6px 10px 6px 0;">'
+      + '          <img src="/content/uploads/images/info/vlasna2.png" alt="" width="90" height="31" loading="lazy" style="display:block; max-width:100%;">'
+      + '        </td>'
+      + '        <td style="vertical-align:middle; padding:6px 0; word-break:break-word;">Безкоштовно від 3900 грн</td>'
+      + '      </tr>'
+      + '    </tbody>'
+      + '  </table>'
+
+      + '  <div style="display:flex; align-items:center; gap:8px; margin:14px 0 10px 0;">'
+      + '    <img src="/content/uploads/images/info/chek.png" alt="" width="20" height="25" loading="lazy">'
+      + '    <span style="font-size:var(--font-size);">ОПЛАТА ЗАМОВЛЕННЯ</span>'
+      + '  </div>'
+
+      + '  <table style="width:100%; border-collapse:collapse; background:transparent; font-size:var(--font-size); table-layout:fixed;">'
+      + '    <tbody>'
+      + '      <tr>'
+      + '        <td style="width:var(--icon-col); vertical-align:middle; padding:6px 10px 6px 0;">'
+      + '          <img src="/content/uploads/images/info/oplata.png" alt="" width="90" height="26" loading="lazy" style="display:block; max-width:100%;">'
+      + '        </td>'
+      + '        <td style="vertical-align:middle; padding:6px 0; word-break:break-word;">Онлайн картою Visa або Mastercard</td>'
+      + '      </tr>'
+
+      + '      <tr>'
+      + '        <td style="width:var(--icon-col); vertical-align:middle; padding:6px 10px 6px 0; text-align:center;">'
+      + '          <img src="/content/uploads/images/info/grn.png" alt="" width="30" height="30" loading="lazy" style="display:block; margin:0 auto; max-width:28px;">'
+      + '        </td>'
+      + '        <td style="vertical-align:middle; padding:6px 0; word-break:break-word;">'
+      + '          Оплата при отриманні<br>'
+      + '          <span style="color:#7f8c8d;"><em>Діє при замовленні від 300 грн</em></span>'
+      + '        </td>'
+      + '      </tr>'
+
+      + '      <tr>'
+      + '        <td style="width:var(--icon-col); vertical-align:middle; padding:6px 10px 6px 0; text-align:center;">'
+      + '          <img src="/content/uploads/images/info/raxunok.png" alt="" width="30" height="28" loading="lazy" style="display:block; margin:0 auto; max-width:35px;">'
+      + '        </td>'
+      + '        <td style="vertical-align:middle; padding:6px 0; word-break:break-word;">Безготівковий розрахунок (ФОП/ТОВ)</td>'
+      + '      </tr>'
+      + '    </tbody>'
+      + '  </table>'
+
+      + '  <div style="display:flex; align-items:center; gap:8px; margin:14px 0 0 0;">'
+      + '    <img src="/content/uploads/images/info/min-zamovlennja.png" alt="" width="25" height="23" loading="lazy" style="display:block;">'
+      + '    <span style="font-size:var(--font-size);">МІНІМАЛЬНЕ ЗАМОВЛЕННЯ НА САЙТІ <strong>100 ГРН</strong></span>'
+      + '  </div>'
+
+      + '</div>';
+  }
+
+  function addStyles() {
+    if (document.getElementById('bt-checkout-info-styles')) return;
+
+    var style = document.createElement('style');
+    style.id = 'bt-checkout-info-styles';
+    style.innerHTML = `
+      #custom-checkout-info-block {
+        width: 100%;
+        margin-top: 16px;
+        padding: 30px;
+        background: #fafafa;
+        border: 1px solid #e9e9e9;
+        border-radius: 8px;
+        box-sizing: border-box;
+      }
+
+      #custom-checkout-info-block img {
+        border: 0;
+      }
+
+      @media (max-width: 767px) {
+        #custom-checkout-info-block .bt-checkout-info {
+          --font-size: 13px;
+          --icon-col: 95px;
+        }
+
+        #custom-checkout-info-block {
+          margin-top: 12px;
+          padding: 30px;
+          border-radius: 6px;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function insertBlock() {
+    var cart = document.querySelector(TARGET_SELECTOR);
+    if (!cart) return;
+
+    var oldBlock = document.getElementById(BLOCK_ID);
+    if (oldBlock && oldBlock.parentNode === cart) return;
+
+    if (oldBlock) oldBlock.remove();
+
+    var wrapper = document.createElement('div');
+    wrapper.id = BLOCK_ID;
+    wrapper.innerHTML = getBlockHtml();
+
+    cart.appendChild(wrapper);
+  }
+
+  function initObserver() {
+    var observer = new MutationObserver(function () {
+      insertBlock();
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  }
+
+  function init() {
+    addStyles();
+    insertBlock();
+    initObserver();
+
+    setTimeout(insertBlock, 300);
+    setTimeout(insertBlock, 1000);
+    setTimeout(insertBlock, 2000);
+
+    document.addEventListener('click', function () {
+      setTimeout(insertBlock, 200);
+      setTimeout(insertBlock, 800);
+    });
+
+    document.addEventListener('change', function () {
+      setTimeout(insertBlock, 200);
+      setTimeout(insertBlock, 800);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
+<!-- ДОП ОРАНЖ ИНФОРМАЦИЯ ВИДОВ ОПЛАТЫ ПК-КАРТА В ШОУРУМЕ НАЛИЧКА-->
+<script>
+(function () {
+  var ALLOWED_VALUES = ['27', '28'];
+  var NOTE_CLASS = 'custom-payment-bag-note';
+  var NOTE_HTML =
+    '<div class="' + NOTE_CLASS + '" style="margin-top:4px;">' +
+      '<p style="margin:0 0 4px 0;">' +
+        '<span style="color:#959595;">Якщо ви зробили попереднє замовлення на самовивіз, то ми з радістю зробимо вам знижку 3% при розрахунку в шоу-румі.</span>' +
+      '</p>' +
+      '<p style="margin:0;">' +
+        '<span style="color:#F4950D;">Увага! Звертаємо вашу увагу, при виборі доставки "Самовивіз" та оплаті замовлення в шоурумі, товар бронюється на 5 робочих днів.</span>' +
+      '</p>' +
+    '</div>';
+
+  function syncPaymentNote() {
+    var paymentBlock = document.querySelector('.checkout-step[data-component="Payment"]');
+    if (!paymentBlock) return;
+
+    var infoText = paymentBlock.querySelector('.form-item-txt');
+    var select = paymentBlock.querySelector('select.j-payment-type');
+    if (!infoText || !select) return;
+
+    var oldNote = paymentBlock.querySelector('.' + NOTE_CLASS);
+    var currentValue = String(select.value);
+
+    if (ALLOWED_VALUES.indexOf(currentValue) !== -1) {
+      if (!oldNote) {
+        infoText.insertAdjacentHTML('afterend', NOTE_HTML);
+      }
+    } else {
+      if (oldNote) {
+        oldNote.remove();
+      }
+    }
+  }
+
+  function init() {
+    syncPaymentNote();
+
+    document.addEventListener('change', function (e) {
+      if (e.target && e.target.matches('select.j-payment-type')) {
+        syncPaymentNote();
+      }
+    });
+
+    var observer = new MutationObserver(function () {
+      syncPaymentNote();
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
+<!-- БЛОК ПРО ДОСТАВКУ/ОПЛАТУ В КОРЗИНЕ-МОБ -->
+<script>
+(function () {
+  var BLOCK_CLASS = 'custom-mobile-checkout-info';
+
+  var BLOCK_HTML = ''
+    + '<div class="' + BLOCK_CLASS + '" style="margin:6px 0 16px 0; padding:16px 20px; background:#fff; border-top:1px solid #e5e5e5; border-bottom:1px solid #e5e5e5; --font-size:14px; --icon-col:110px; font-size:var(--font-size); box-sizing:border-box;">'
+
+    + '  <div style="display:flex; align-items:center; gap:8px; margin:0 0 10px 0;">'
+    + '    <img alt="" loading="lazy" src="/content/uploads/images/info/chek.png" width="20" height="25">'
+    + '    <span style="font-size:var(--font-size);">ЗРУЧНА ДОСТАВКА</span>'
+    + '  </div>'
+
+    + '  <table style="width:100%; border-collapse:collapse; background:transparent; font-size:var(--font-size); table-layout:fixed;">'
+    + '    <tbody>'
+    + '      <tr>'
+    + '        <td style="width:var(--icon-col); vertical-align:middle; padding:6px 10px 6px 0;">'
+    + '          <img alt="" loading="lazy" src="/content/uploads/images/info/photo_2026-02-17_13-32-39.jpg" width="100" height="19" style="display:block; max-width:100%;">'
+    + '        </td>'
+    + '        <td style="vertical-align:middle; padding:6px 0; word-break:break-word;">'
+    + '          <p style="margin:0; font-size:var(--font-size);">Безкоштовно від 10 000 грн</p>'
+    + '        </td>'
+    + '      </tr>'
+
+    + '      <tr>'
+    + '        <td style="width:var(--icon-col); vertical-align:middle; padding:6px 10px 6px 0;">'
+    + '          <img alt="" loading="lazy" src="/content/uploads/images/info/uklon.png" width="85" height="35" style="display:block; max-width:100%;">'
+    + '        </td>'
+    + '        <td style="vertical-align:middle; padding:6px 0; font-size:var(--font-size); word-break:break-word;">Швидко по м. Київ</td>'
+    + '      </tr>'
+
+    + '      <tr>'
+    + '        <td style="width:var(--icon-col); vertical-align:middle; padding:6px 10px 6px 0;">'
+    + '          <img alt="" loading="lazy" src="/content/uploads/images/info/samovivz9.png" width="100" height="14" style="display:block; max-width:100%;">'
+    + '        </td>'
+    + '        <td style="vertical-align:middle; padding:6px 0; font-size:var(--font-size); word-break:break-word;">5 днів резерв товару</td>'
+    + '      </tr>'
+
+    + '      <tr>'
+    + '        <td style="width:var(--icon-col); vertical-align:middle; padding:6px 10px 6px 0;">'
+    + '          <img alt="" loading="lazy" src="/content/uploads/images/info/vlasna2.png" width="90" height="31" style="display:block; max-width:100%;">'
+    + '        </td>'
+    + '        <td style="vertical-align:middle; padding:6px 0; font-size:var(--font-size); word-break:break-word;">Безкоштовно від 3000 грн</td>'
+    + '      </tr>'
+    + '    </tbody>'
+    + '  </table>'
+
+    + '  <div style="display:flex; align-items:center; gap:8px; margin:14px 0 10px 0;">'
+    + '    <img alt="" loading="lazy" src="/content/uploads/images/info/chek.png" width="20" height="25">'
+    + '    <span style="font-size:var(--font-size);">ОПЛАТА ЗАМОВЛЕННЯ</span>'
+    + '  </div>'
+
+    + '  <table style="width:100%; border-collapse:collapse; background:transparent; font-size:var(--font-size); table-layout:fixed;">'
+    + '    <tbody>'
+    + '      <tr>'
+    + '        <td style="width:var(--icon-col); vertical-align:middle; padding:6px 10px 6px 0;">'
+    + '          <img alt="" loading="lazy" src="/content/uploads/images/info/oplata.png" width="90" height="26" style="display:block; max-width:100%;">'
+    + '        </td>'
+    + '        <td style="vertical-align:middle; padding:6px 0; font-size:var(--font-size); word-break:break-word;">Онлайн картою Visa або Mastercard</td>'
+    + '      </tr>'
+
+    + '      <tr>'
+    + '        <td style="width:var(--icon-col); vertical-align:middle; padding:6px 10px 6px 0; text-align:center;">'
+    + '          <img alt="" loading="lazy" src="/content/uploads/images/info/grn.png" width="30" height="30" style="display:block; margin:0 auto; max-width:28px;">'
+    + '        </td>'
+    + '        <td style="vertical-align:middle; padding:6px 0; font-size:var(--font-size); word-break:break-word;">'
+    + '          Оплата при отриманні<br>'
+    + '          <span style="color:#7f8c8d;"><em>Діє при замовленні від 300 грн</em></span>'
+    + '        </td>'
+    + '      </tr>'
+
+    + '      <tr>'
+    + '        <td style="width:var(--icon-col); vertical-align:middle; padding:6px 10px 6px 0; text-align:center;">'
+    + '          <img alt="" loading="lazy" src="/content/uploads/images/info/raxunok.png" width="30" height="28" style="display:block; margin:0 auto; max-width:35px;">'
+    + '        </td>'
+    + '        <td style="vertical-align:middle; padding:6px 0; font-size:var(--font-size); word-break:break-word;">Безготівковий розрахунок (ФОП/ТОВ)</td>'
+    + '      </tr>'
+    + '    </tbody>'
+    + '  </table>'
+
+    + '  <div style="display:flex; align-items:center; gap:8px; margin:14px 0 0 0;">'
+    + '    <img alt="" loading="lazy" src="/content/uploads/images/info/min-zamovlennja.png" width="25" height="23">'
+    + '    <span style="font-size:var(--font-size);">МІНІМАЛЬНЕ ЗАМОВЛЕННЯ НА САЙТІ <strong>100 ГРН</strong></span>'
+    + '  </div>'
+
+    + '</div>';
+
+  function insertBlock() {
+    var header = document.querySelector('#cart .order-details__header');
+    if (!header) return;
+
+    var oldBlock = document.querySelector('.' + BLOCK_CLASS);
+    if (oldBlock) return;
+
+    header.insertAdjacentHTML('beforebegin', BLOCK_HTML);
+  }
+
+  function init() {
+    insertBlock();
+
+    var observer = new MutationObserver(function () {
+      insertBlock();
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
+<!-- ОРАНЖ ЦВЕТ ТЕКСТА МОБ ПРИ ОПЛАТЕ ФОП/ТОВ -->
+<script>
+(function () {
+  var TARGET_VALUE = '12';
+  var TARGET_COLOR = '#F4950D';
+
+  function syncPaymentTextColor() {
+    var paymentBlock = document.querySelector('.select.select--block.j-payment-select');
+    var select = paymentBlock ? paymentBlock.querySelector('select.j-payment-type') : null;
+    var infoText = document.querySelector('.form-item__text');
+
+    if (!select || !infoText) return;
+
+    if (String(select.value) === TARGET_VALUE) {
+      infoText.style.color = TARGET_COLOR;
+    } else {
+      infoText.style.color = '';
+    }
+  }
+
+  document.addEventListener('change', function (e) {
+    if (e.target && e.target.matches('select.j-payment-type')) {
+      syncPaymentTextColor();
+    }
+  });
+
+  var observer = new MutationObserver(syncPaymentTextColor);
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  syncPaymentTextColor();
+})();
+</script>
+
+<!-- ДОП ОРАНЖ ИНФОРМАЦИЯ ВИДОВ ОПЛАТЫ МОБ-КАРТА В ШОУРУМЕ НАЛИЧКА-->
+<script>
+  (function () {
+  var ALLOWED_VALUES = ['27', '28'];
+  var NOTE_CLASS = 'custom-payment-bag-note';
+  var NOTE_HTML = '<div class="' + NOTE_CLASS + '" style="margin-top:8px;">'
+    + '<p style="margin:0 0 4px 0;"><span style="color:#959595;">Якщо ви зробили попереднє замовлення на самовивіз, то ми з радістю зробимо вам знижку 3% при розрахунку в шоу-румі.</span></p>'
+    + '<p style="margin:0;"><span style="color:#F4950D;">Увага! Звертаємо вашу увагу, при виборі доставки "Самовивіз" та оплаті замовлення в шоурумі, товар бронюється на 5 робочих днів.</span></p>'
+    + '</div>';
+
+  function syncPaymentNote() {
+    var select = document.querySelector('select.j-payment-type');
+  if (!select) return;
+
+  var formItem = select.closest('.form-item');
+  if (!formItem) return;
+
+  var infoText = formItem.querySelector('.form-item__text');
+  if (!infoText) return;
+
+  var oldNote = formItem.querySelector('.' + NOTE_CLASS);
+  var currentValue = String(select.value);
+
+  if (ALLOWED_VALUES.indexOf(currentValue) !== -1) {
+      if (!oldNote) {
+    infoText.insertAdjacentHTML('afterend', NOTE_HTML);
+      }
+    } else {
+      if (oldNote) oldNote.remove();
+    }
+  }
+
+  function init() {
+    syncPaymentNote();
+
+  document.addEventListener('change', function (e) {
+      if (e.target && e.target.matches('select.j-payment-type')) {
+    syncPaymentNote();
+      }
+    });
+
+  document.addEventListener('click', function () {
+    setTimeout(syncPaymentNote, 100);
+    });
+
+  var observer = new MutationObserver(function () {
+    syncPaymentNote();
+    });
+
+  observer.observe(document.body, {
+    childList: true,
+  subtree: true
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
+
+<!-- Виды доставки-власна-нп отделение-нп поштомат -->
+<script>
+(function () {
+  var DELIVERY_NOTES = {
+    '11': 'Доставка замовлень з 15:00 до 18:30 за умови оформлення замовлення до 14:00 та наявності товару! Або наступного дня, якщо замовлення було зроблено після 14:00.<br>Безкоштовна доставка — від 3900 грн.<br>Для замовлень від 1000 до 3900 грн — 300 грн.',
+    '3': 'Від 10 000 грн - безкоштовна доставка до відділення Нової Пошти',
+    '17': 'Від 10 000 грн - безкоштовна доставка до поштомату Нової Пошти',
+    '36': 'Доставляємо по м. Київ, з понеділка по п\'ятницю, з 10:00 до 17:30.<br>Відправка здійснюється протягом 2 годин після підтвердження менеджером товару в шоурумі, та отримання оплати.<br>Доставка проводиться після повної оплати замовлення.<br>Вартість доставки розраховується перевізником.<br>Вага доставки не має перевищувати вагу в 20 кг, та габарити 50х50х150 см.'
+  };
+
+  var NOTE_CLASS = 'createTextCheck';
+  var syncScheduled = false;
+
+  function syncNote() {
+    syncScheduled = false;
+
+    var container = document.querySelector('.j-delivery-main-container');
+    var select = document.querySelector('.j-delivery-main-container select.j-delivery-type');
+
+    if (!container || !select) return;
+
+    var currentValue = String(select.value);
+    var currentNote = DELIVERY_NOTES[currentValue];
+    var oldNote = container.querySelector('.' + NOTE_CLASS);
+
+    if (currentNote) {
+      if (!oldNote) {
+        oldNote = document.createElement('p');
+        oldNote.className = NOTE_CLASS;
+        oldNote.style.marginTop = '10px';
+        oldNote.style.fontSize = '15px';
+        oldNote.style.lineHeight = '1.20';
+        oldNote.style.color = '#959595';
+        container.appendChild(oldNote);
+      }
+
+      if (oldNote.innerHTML !== currentNote) {
+        oldNote.innerHTML = currentNote;
+      }
+    } else {
+      if (oldNote) oldNote.remove();
+    }
+  }
+
+  function scheduleSync() {
+    if (syncScheduled) return;
+    syncScheduled = true;
+    setTimeout(syncNote, 100);
+  }
+
+  document.addEventListener('change', function (e) {
+    if (e.target && e.target.matches('.j-delivery-main-container select.j-delivery-type')) {
+      scheduleSync();
+    }
+  });
+
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.closest('.j-delivery-main-container')) {
+      scheduleSync();
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    syncNote();
+
+    var observer = new MutationObserver(function () {
+      scheduleSync();
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  });
+
+  window.addEventListener('load', syncNote);
+})();
+</script>
+
+
+<!-- тест -->
+        <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', '', 'auto');
+  ga('require', 'ec');
+  ga('set', '&cu', GLOBAL.currency.iso);
+
+   // заменяется кодом инициализации события с расположением "Внутри кода инициализации маркетинговой системы"
+  
+  ga('send', 'pageview');
+
+</script><script src="https://apis.google.com/js/platform.js?onload=renderOptIn" async defer>
+            </script>        <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Залишок на складі</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                                                                        <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0.00 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>            <section class="compare" id="uidd449eca702be1211cbb4c1498d28b4ba" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uidd449eca702be1211cbb4c1498d28b4ba");
+    }, w.ComparisonTable)
+  })(window);
+</script>        

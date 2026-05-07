@@ -1,0 +1,306 @@
+<!-- source: https://jojoba.com.ua/ -->
+<!-- extracted: 2026-05-07T21:31:15.813Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 16329 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <script>
+(function(){
+  "use strict";
+  var FREE_SHIPPING_THRESHOLD = 2600;
+  var CURRENCY = "грн";
+  var COLORS = { track:"#ececec", fill:"#E78692", text:"#333", card:"#fff" };
+  function injectStylesOnce(){
+    if (document.getElementById("fs-progress-style")) return;
+    var s = document.createElement("style");
+    s.id = "fs-progress-style";
+    s.textContent =
+      ".fs-card{background:"+COLORS.card+";border:1px solid #e6e6e6;border-radius:10px;padding:10px 12px;margin:12px 0}"+
+      ".fs-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;color:"+COLORS.text+";font-size:14px;font-weight:600}"+
+      ".fs-track{height:12px;background:"+COLORS.track+";border-radius:999px;overflow:hidden}"+
+      ".fs-fill{height:100%;width:0;background:"+COLORS.fill+";border-radius:999px;transition:width .3s ease}"+
+      ".fs-ok{color:#1a7f37}"+
+      "@media(max-width:768px){.fs-track{height:10px}}";
+    document.head.appendChild(s);
+  }
+  function parseNumber(text){
+    if(!text) return 0;
+    var m = String(text).replace(/\u00A0/g," ").match(/([\d\s]+(?:[.,]\d+)?)/);
+    if(!m) return 0;
+    return Number(m[1].replace(/\s/g,"").replace(",", ".")) || 0;
+  }
+  function subtotalFrom(el){
+    return parseNumber(el && el.textContent);
+  }
+  function mkCard(){
+    var d = document.createElement("div");
+    d.className = "fs-card";
+    d.innerHTML =
+      '<div class="fs-row"><span class="fs-text"></span></div>'+
+      '<div class="fs-track"><div class="fs-fill"></div></div>';
+    return d;
+  }
+  function render(card, subtotal){
+    var left = Math.max(FREE_SHIPPING_THRESHOLD - subtotal, 0);
+    var perc = Math.min(100, Math.round(subtotal / FREE_SHIPPING_THRESHOLD * 100));
+    card.querySelector(".fs-fill").style.width = perc + "%";
+    var t = card.querySelector(".fs-text");
+    if (left > 0){
+      t.textContent = "До безкоштовної доставки залишилось: " + left.toFixed(0) + " " + CURRENCY;
+      t.classList.remove("fs-ok");
+    } else {
+      t.textContent = "Безкоштовна доставка активна ✅";
+      t.classList.add("fs-ok");
+    }
+  }
+  function findCartContexts(){
+    var list = [];
+    document.querySelectorAll(".cart").forEach(function(cart){
+      var total = cart.querySelector(".j-total-sum");
+      var anchor = cart.querySelector(".cart-buttons");
+      if (total && anchor){
+        list.push({ root: cart, anchorBefore: anchor, totalEl: total, kind: "legacy" });
+      }
+    });
+    document.querySelectorAll("#cart.cart__container, .cart__container").forEach(function(box){
+      var root = box.querySelector(".cart__content") || box;
+      var total = root.querySelector(".cart__summary .j-total-sum, .cart__total-price.j-total-sum");
+      var orderBlock = root.querySelector(".cart__order");
+      if (!orderBlock){
+        var btn = root.querySelector('[data-checkout-link], a[href="/checkout/"]');
+        if (btn) orderBlock = btn.closest(".cart__order") || btn.parentElement;
+      }
+      if (total && orderBlock){
+        list.push({ root: root, anchorBefore: orderBlock, totalEl: total, kind: "mobile" });
+      }
+    });
+    return list;
+  }
+  var ctxStore = new WeakMap();
+  function ensureCard(ctx){
+    injectStylesOnce();
+    var cards = ctx.root.querySelectorAll(".fs-card");
+    for (var i=1;i<cards.length;i++) cards[i].remove();
+    var card = cards[0];
+    if (!card){
+      card = mkCard();
+      ctx.anchorBefore.insertAdjacentElement("beforebegin", card);
+    }
+    render(card, subtotalFrom(ctx.totalEl));
+    return card;
+  }
+  function attach(ctx){
+    if (!ctx || !ctx.root) return;
+    ensureCard(ctx);
+    if (ctxStore.has(ctx.root)) return;
+    var state = { ctx: ctx };
+    var raf1 = 0;
+    state.totalObs = new MutationObserver(function(){
+      cancelAnimationFrame(raf1);
+      raf1 = requestAnimationFrame(function(){
+        var card = ctx.root.querySelector(".fs-card");
+        if (card) render(card, subtotalFrom(ctx.totalEl));
+      });
+    });
+    state.totalObs.observe(ctx.totalEl, {childList:true, characterData:true, subtree:true});
+    var raf2 = 0;
+    state.rootObs = new MutationObserver(function(){
+      cancelAnimationFrame(raf2);
+      raf2 = requestAnimationFrame(function(){
+        var freshList = findCartContexts().filter(function(c){ return c.root === ctx.root; });
+        var fresh = freshList[0];
+        if (fresh){
+          ctx = fresh; state.ctx = fresh;
+          ensureCard(fresh);
+          if (state.totalObs) state.totalObs.disconnect();
+          state.totalObs = new MutationObserver(function(){
+            var raf3=0;
+            return function(){
+              cancelAnimationFrame(raf3);
+              raf3 = requestAnimationFrame(function(){
+                var card = fresh.root.querySelector(".fs-card");
+                if (card) render(card, subtotalFrom(fresh.totalEl));
+              });
+            };
+          }());
+          state.totalObs.observe(fresh.totalEl, {childList:true, characterData:true, subtree:true});
+        }
+      });
+    });
+    state.rootObs.observe(ctx.root, {childList:true, subtree:true});
+    ctxStore.set(ctx.root, state);
+  }
+  var scanRaf = 0;
+  function scan(){
+    cancelAnimationFrame(scanRaf);
+    scanRaf = requestAnimationFrame(function(){
+      findCartContexts().forEach(attach);
+    });
+  }
+  window.addEventListener("load", scan);
+  var bodyObs = new MutationObserver(scan);
+  bodyObs.observe(document.documentElement, {childList:true, subtree:true});
+  document.addEventListener("click", function(e){
+    var t = e.target.closest && e.target.closest(".j-increase-p, .j-decrease-p, .j-remove-p, .j-coupon-submit, .j-coupon-add, [data-checkout-link], a[href='/checkout/'], [data-panel], [data-panel-close], .btn");
+    if (t) setTimeout(scan, 200);
+  });
+  var tries=0, tick=setInterval(function(){ tries++; scan(); if (tries>12) clearInterval(tick); }, 400);
+})();
+</script>
+                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Увійти для відображення накопичувальної знижки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                                                                                <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uidb4fbc88d359123c8e604ef5efeed84ad" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uidb4fbc88d359123c8e604ef5efeed84ad");
+    }, w.ComparisonTable)
+  })(window);
+</script>    <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"059255d86b53463582a651d9118367b0","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9f835498ac3570f5',t:'MTc3ODE4OTQ3NA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>

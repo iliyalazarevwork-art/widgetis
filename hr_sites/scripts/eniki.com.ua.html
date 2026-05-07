@@ -1,0 +1,573 @@
+<!-- source: https://eniki.com.ua/ -->
+<!-- extracted: 2026-05-07T21:31:05.815Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 30693 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+                <script src="https://apis.google.com/js/platform.js?onload=renderOptIn" async defer>
+            </script><!-- START: Smart Widget ULTIMATE (Performance Optimized + A11y + UX) -->
+<style>
+    :root {
+        --sw-main: #16A34A; /* Змінено на фірмовий зелений акцент */
+        --sw-close: #334155;
+        --sw-telegram: #24A1DE;
+        --sw-direct-call: #0ea5e9; 
+        --sw-callback: #00E676;   
+        --sw-bg-overlay: rgba(15, 23, 42, 0.85);
+        --sw-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .smart-widget-wrapper {
+        position: fixed;
+        bottom: calc(14px + env(safe-area-inset-bottom));
+        right: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        z-index: 9999;
+        font-family: var(--sw-font);
+        -webkit-tap-highlight-color: transparent;
+        pointer-events: none; /* Пропускаем клики сквозь контейнер */
+    }
+    
+    .smart-widget-wrapper > * { pointer-events: auto; } /* Возвращаем клики элементам */
+
+    /* === ОБЛАЧКО === */
+    #sw-welcome-bubble {
+        position: absolute; bottom: 85px; right: 0; width: 260px;
+        background: #ffffff;
+        border-radius: 20px 20px 4px 20px; padding: 16px 40px 16px 20px;
+        box-shadow: 0 8px 24px -4px rgba(0,0,0,0.15); font-size: 14px; font-weight: 500;
+        color: #1e293b; opacity: 0; visibility: hidden;
+        transform: translateY(10px) scale(0.95); transition: all 0.4s; cursor: pointer;
+        will-change: transform, opacity; /* Оптимизация производительности */
+    }
+    #sw-welcome-bubble.visible { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+    
+    #sw-close-bubble {
+        position: absolute; top: 8px; right: 8px; width: 22px; height: 22px;
+        background: #f1f5f9; border-radius: 50%; border: none; color: #94a3b8;
+        cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+
+    /* === МЕНЮ КНОПОК === */
+    .smart-list {
+        display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px;
+        opacity: 0; visibility: hidden; transform: translateY(20px) scale(0.9);
+        transition: all 0.3s; align-items: center;
+        will-change: transform, opacity;
+    }
+    .smart-list.visible { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+
+    .smart-list-item {
+        display: flex; align-items: center; justify-content: center;
+        width: 60px; height: 60px;
+        border-radius: 50%; color: white;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-decoration: none;
+        position: relative; cursor: pointer; border: none;
+        transition: transform 0.2s;
+    }
+    
+    .smart-list-item::after {
+        content: ''; position: absolute;
+        top: -15px; bottom: -15px; left: -15px; right: -15px;
+    }
+
+    .smart-list-item:active { transform: scale(0.95); }
+    .smart-list-item svg { width: 30px; height: 30px; fill: white; }
+    
+    .bg-callback { background: linear-gradient(135deg, #69F0AE, var(--sw-callback)); }
+    /* Обновленный, более мягкий градиент Viber */
+    .bg-viber { background: linear-gradient(135deg, #7C4DFF, #665DCD); }
+    .bg-telegram { background: linear-gradient(135deg, #38bdf8, var(--sw-telegram)); }
+    .bg-direct { background: linear-gradient(135deg, #60a5fa, var(--sw-direct-call)); }
+
+    @keyframes pulse-neon { 
+        0% { box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.6); } 
+        70% { box-shadow: 0 0 0 18px rgba(0, 230, 118, 0); } 
+        100% { box-shadow: 0 0 0 0 rgba(0, 230, 118, 0); } 
+    }
+    .pulse-green { animation: pulse-neon 2s infinite; }
+
+    .smart-label {
+        position: absolute; right: 72px; top: 50%; transform: translateY(-50%) translateX(10px);
+        background: rgba(15, 23, 42, 0.95); color: white; padding: 6px 14px; border-radius: 8px;
+        font-size: 14px; font-weight: 600; white-space: nowrap; opacity: 0; visibility: hidden; 
+        transition: 0.25s; pointer-events: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .smart-list-item:hover .smart-label { opacity: 1; visibility: visible; transform: translateY(-50%) translateX(0); }
+    .label-permanent { opacity: 1 !important; visibility: visible !important; transform: translateY(-50%) translateX(0); }
+
+    /* === ГЛАВНАЯ КНОПКА === */
+    #smart-toggle-btn {
+        width: 52px; height: 52px;
+        background: var(--sw-main);
+        border-radius: 50%; border: none; cursor: pointer;
+        box-shadow: 0 8px 25px -6px rgba(22, 163, 74, 0.6);
+        display: flex; align-items: center; justify-content: center;
+        position: relative; overflow: hidden; transition: 0.3s;
+    }
+    @media(min-width: 768px) {
+        #smart-toggle-btn { width: 64px; height: 64px; }
+        .smart-widget-wrapper { bottom: calc(20px + env(safe-area-inset-bottom)); right: 20px; }
+    }
+    
+    .icon-cycler { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+    .icon-cycler.hidden { opacity: 0; transform: rotate(90deg); }
+    
+    .cycle-icon { position: absolute; width: 30px; height: 30px; opacity: 0; transform: scale(0.5); transition: 0.4s; fill: white; }
+    .cycle-icon.active { opacity: 1; transform: scale(1); }
+
+    #css-close { position: absolute; width: 100%; height: 100%; opacity: 0; transform: rotate(-90deg); transition: 0.3s; }
+    #css-close.visible { opacity: 1; transform: rotate(0deg); }
+    #css-close::before, #css-close::after { content: ''; position: absolute; width: 4px; height: 26px; background: white; top: 50%; left: 50%; border-radius: 4px; }
+    #css-close::before { transform: translate(-50%, -50%) rotate(45deg); }
+    #css-close::after { transform: translate(-50%, -50%) rotate(-45deg); }
+
+    /* === МОДАЛКА === */
+    .modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: var(--sw-bg-overlay); z-index: 10000;
+        display: flex; align-items: flex-end; justify-content: center;
+        opacity: 0; visibility: hidden; transition: 0.3s; backdrop-filter: blur(4px);
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+    @media(min-width: 768px) { .modal-overlay { align-items: center; padding-bottom: 0; } }
+    
+    .modal-overlay.visible { opacity: 1; visibility: visible; }
+    
+    .callback-modal {
+        background: #ffffff;
+        width: 100%; max-width: 400px; border-radius: 24px 24px 0 0;
+        padding: 30px 25px 40px; box-shadow: 0 -10px 40px rgba(0,0,0,0.2); 
+        transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        color: #1e293b;
+    }
+    @media(min-width: 768px) { .callback-modal { border-radius: 24px; transform: translateY(30px); padding: 40px; } }
+    .modal-overlay.visible .callback-modal { transform: translateY(0); }
+
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .modal-header h3 { margin: 0; font-size: 20px; font-weight: 700; color: #1e293b; }
+    .modal-close-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: #94a3b8; padding: 0; line-height: 1; }
+    
+    #cb-phone-input {
+        width: 100%; padding: 18px; border: 2px solid #e2e8f0; border-radius: 14px; 
+        background: #f8fafc;
+        font-size: 20px; text-align: center; margin: 25px 0; outline: none; box-sizing: border-box;
+        transition: 0.3s; color: #334155; font-weight: 700; letter-spacing: 0.5px;
+        -webkit-appearance: none;
+    }
+    #cb-phone-input:focus { border-color: var(--sw-main); background: #ffffff; }
+    
+    .cb-submit-btn {
+        width: 100%; padding: 18px; background: #94a3b8; color: white;
+        border: none; border-radius: 14px; font-size: 16px; font-weight: 700; 
+        cursor: not-allowed; transition: 0.3s;
+    }
+    .cb-submit-btn.ready { background: var(--sw-callback); color: #064e3b; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 230, 118, 0.4); }
+    .cb-submit-btn.ready:hover { transform: translateY(-2px); }
+
+    /* === TOAST === */
+    #sw-toast {
+        position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
+        background: #00C853; color: white; padding: 14px 28px; border-radius: 50px;
+        box-shadow: 0 10px 30px rgba(0, 200, 83, 0.4); z-index: 10002; 
+        transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
+        font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 8px;
+        opacity: 0; pointer-events: none;
+    }
+    #sw-toast.visible { transform: translateX(-50%) translateY(20px); opacity: 1; }
+</style>
+
+<div class="smart-widget-wrapper">
+    <!-- Облачко -->
+    <div id="sw-welcome-bubble">
+        <button id="sw-close-bubble" aria-label="Закрити">×</button>
+        <div id="sw-bubble-text">👋 Є питання? Ми допоможемо з вибором!</div>
+    </div>
+
+    <!-- Список кнопок -->
+    <div id="smart-list" class="smart-list">
+        <!-- ЗВОНОК -->
+        <button id="trigger-callback" class="smart-list-item bg-callback pulse-green" aria-label="Замовити дзвінок">
+            <svg viewBox="0 0 24 24"><path d="M19.95 21q-3.125 0-6.175-1.362t-5.55-3.863q-2.5-2.5-3.862-5.55T3 4.05q0-.45.3-.75t.75-.3H8.1q.35 0 .625.238t.325.562l.65 3.5q.05.4-.025.675T9.4 8.45L6.975 10.9q1.05 1.8 2.638 3.375T13.1 17.025l2.4-2.4q.25-.25.525-.337t.675-.038l3.5.65q.325.05.563.325t.237.625v4.05q0 .45-.3.75t-.75.3Z"/></svg>
+            <span class="smart-label label-permanent">Передзвоніть мені</span>
+        </button>
+
+        <!-- VIBER -->
+        <a href="viber://chat?number=%2B380963030190" target="_blank" class="smart-list-item bg-viber" aria-label="Написати у Viber">
+            <svg viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741 1.096 1.05-3.657-.238-.378a9.86 9.86 0 01-1.514-5.26c.002-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+            </svg>
+            <span class="smart-label">Viber</span>
+        </a>
+
+        <!-- TELEGRAM -->
+        <a href="https://t.me/Eniki_shop" target="_blank" class="smart-list-item bg-telegram" aria-label="Написати у Telegram">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.69-.52.36-1 .53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.38-.49 1.03-.75 4.03-1.75 6.72-2.9 8.08-3.47 3.85-1.63 4.64-1.92 5.18-1.92.12 0 .38.03.55.16.14.11.18.26.2.43 0 .09.01.19 0 .23z"/></svg>
+            <span class="smart-label">Telegram</span>
+        </a>
+
+        <!-- ПРЯМОЙ ЗВОНОК -->
+        <a href="tel:0963030190" class="smart-list-item bg-direct" aria-label="Зателефонувати">
+            <svg viewBox="0 0 24 24"><path d="M6.62,10.79C8.06,13.62 10.38,15.94 13.21,17.38L15.41,15.18C15.69,14.9 16.08,14.82 16.43,14.93C17.55,15.3 18.75,15.5 20,15.5 A1,1 0 0,1 21,16.5V20A1,1 0 0,1 20,21A17,17 0 0,1 3,4A1,1 0 0,1 4,3H7.5A1,1 0 0,1 8.5,4C8.5,5.25 8.7,6.45 9.07,7.57C9.18,7.92 9.1,8.31 8.82,8.59L6.62,10.79Z"/></svg>
+            <span class="smart-label label-permanent">Зателефонувати</span>
+        </a>
+    </div>
+
+    <!-- Кнопка-переключатель -->
+    <button id="smart-toggle-btn" aria-label="Меню зв'язку" aria-expanded="false">
+        <div id="icon-cycler" class="icon-cycler">
+            <svg class="cycle-icon active" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
+            <svg class="cycle-icon" viewBox="0 0 24 24"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.99.99 0 0 0-1.01.24l-1.57 1.57c-2.83-1.35-5.21-3.72-6.56-6.56l1.57-1.57a.99.99 0 0 0 .24-1.01c-.36-1.11-.56-2.3-.56-3.53a1 1 0 0 0-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.51a1 1 0 0 0-1-1zM18 9h-2.59l3.29-3.29-1.41-1.42L14 7.59V5h-2v5h5V9z"/></svg>
+            <svg class="cycle-icon" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741 1.096 1.05-3.657-.238-.378a9.86 9.86 0 01-1.514-5.26c.002-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+            </svg>
+        </div>
+        <div id="css-close"></div>
+    </button>
+</div>
+
+<!-- МОДАЛКА И ФОРМА -->
+<div class="modal-overlay" id="callback-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="callback-modal">
+        <div class="modal-header">
+            <h3 id="modal-title">Замовити дзвінок</h3>
+            <button id="close-modal" class="modal-close-btn" aria-label="Закрити модальне вікно">×</button>
+        </div>
+        <p style="color:#64748b; font-size:15px; margin:0 0 20px 0;">Введіть номер, і ми зателефонуємо!</p>
+        
+        <form id="cb-form" action="https://formsubmit.co/dima.eniki@gmail.com" method="POST">
+            <input type="tel" id="cb-phone-input" name="phone" placeholder="+380 (__) ___-__-__" autocomplete="tel" aria-label="Ваш номер телефону">
+            
+            <input type="hidden" name="_captcha" value="false">
+            <input type="hidden" name="_subject" value="Новий дзвінок з сайту!">
+            <input type="hidden" name="_template" value="table">
+            <input type="hidden" name="Сторінка" id="page-url">
+            
+            <button type="submit" id="cb-submit" class="cb-submit-btn">Чекаю на дзвінок</button>
+        </form>
+    </div>
+</div>
+
+<div id="sw-toast">
+    <svg style="width:20px;height:20px;fill:white;" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+    Запит прийнято!
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // === 1. ИНИЦИАЛИЗАЦИЯ (ВИДЖЕТ) ===
+    const toggleBtn = document.getElementById('smart-toggle-btn');
+    const menuList = document.getElementById('smart-list');
+    const bubble = document.getElementById('sw-welcome-bubble');
+    const bubbleText = document.getElementById('sw-bubble-text');
+    const closeBubble = document.getElementById('sw-close-bubble');
+    const cycleIcons = document.querySelectorAll('.cycle-icon');
+    const cssClose = document.getElementById('css-close');
+    const iconCycler = document.getElementById('icon-cycler');
+    
+    // === 2. ИНИЦИАЛИЗАЦИЯ (ФОРМА И МАСКА) ===
+    const overlay = document.getElementById('callback-overlay');
+    const cbForm = document.getElementById('cb-form');
+    const phoneInput = document.getElementById('cb-phone-input');
+    const submitBtn = document.getElementById('cb-submit');
+    const closeModalBtn = document.getElementById('close-modal');
+    const toast = document.getElementById('sw-toast');
+
+    // === 3. ЛОГИКА ВИДЖЕТА ===
+    let isOpen = false;
+    let cycleInterval;
+
+    function initGreetings() {
+        const hasSeenFirst = localStorage.getItem('sw_seen_first_greeting');
+        const sessionStarted = sessionStorage.getItem('sw_session_active');
+
+        if (!hasSeenFirst) {
+            setTimeout(() => { if (!isOpen) { showBubble("👋 Є питання? Ми допоможемо з вибором!"); localStorage.setItem('sw_seen_first_greeting', 'true'); setTimeout(hideBubble, 7000); } }, 15000);
+        } else if (!sessionStarted) {
+            setTimeout(() => { if (!isOpen) { showBubble("😊 Раді бачити вас знову! Потрібна допомога?"); setTimeout(hideBubble, 7000); } }, 5000);
+        }
+        sessionStorage.setItem('sw_session_active', 'true');
+    }
+
+    function showBubble(text) { bubbleText.innerText = text; bubble.classList.add('visible'); }
+    function hideBubble() { bubble.classList.remove('visible'); }
+
+    closeBubble.addEventListener('click', (e) => { e.stopPropagation(); hideBubble(); });
+    bubble.addEventListener('click', () => { toggleMenu(); hideBubble(); });
+
+    function startCycle() {
+        let i = 0;
+        cycleInterval = setInterval(() => {
+            cycleIcons.forEach(el => el.classList.remove('active'));
+            i = (i + 1) % cycleIcons.length;
+            cycleIcons[i].classList.add('active');
+        }, 3000);
+    }
+
+    function toggleMenu() {
+        isOpen = !isOpen;
+        menuList.classList.toggle('visible', isOpen);
+        cssClose.classList.toggle('visible', isOpen);
+        iconCycler.classList.toggle('hidden', isOpen);
+        toggleBtn.setAttribute('aria-expanded', isOpen);
+        toggleBtn.style.backgroundColor = isOpen ? 'var(--sw-close)' : 'var(--sw-main)';
+        if (isOpen) { clearInterval(cycleInterval); hideBubble(); } else { startCycle(); }
+    }
+    toggleBtn.addEventListener('click', toggleMenu);
+
+    // === 4. ОТКРЫТИЕ ФОРМЫ (И БЛОКИРОВКА СКРОЛЛА) ===
+    document.getElementById('trigger-callback').onclick = (e) => {
+        e.stopPropagation();
+        if(isOpen) toggleMenu();
+        
+        overlay.classList.add('visible');
+        document.body.style.overflow = 'hidden'; 
+        
+        document.getElementById('page-url').value = window.location.href;
+        
+        setTimeout(() => {
+            phoneInput.focus();
+            if(!phoneInput.value) phoneInput.value = "+380 (";
+        }, 300);
+    };
+    
+    const closeModal = () => {
+        overlay.classList.remove('visible');
+        document.body.style.overflow = ''; 
+    };
+    
+    closeModalBtn.onclick = closeModal;
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+    
+    // NEW: Закрытие по ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && overlay.classList.contains('visible')) {
+            closeModal();
+        }
+    });
+
+    // === 5. МАСКА ТЕЛЕФОНА ===
+    phoneInput.addEventListener('input', function(e) {
+        let value = this.value.replace(/\D/g, '');
+        if (value.length === 0) {
+            this.value = '';
+            submitBtn.classList.remove('ready');
+            return;
+        }
+        if (value.substring(0, 3) !== '380') {
+            if (value.startsWith('80')) value = '3' + value;
+            else if (value.startsWith('0')) value = '38' + value;
+            else value = '380' + value;
+        }
+        value = value.substring(0, 12);
+        let formattedValue = '+380';
+        if (value.length > 3) formattedValue += ' (' + value.substring(3, 5);
+        if (value.length >= 5) formattedValue += ') ' + value.substring(5, 8);
+        if (value.length >= 8) formattedValue += '-' + value.substring(8, 10);
+        if (value.length >= 10) formattedValue += '-' + value.substring(10, 12);
+        
+        this.value = formattedValue;
+        
+        if (value.length === 12) {
+            submitBtn.classList.add('ready');
+            submitBtn.disabled = false;
+        } else {
+            submitBtn.classList.remove('ready');
+            submitBtn.disabled = true;
+        }
+    });
+
+    phoneInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Backspace' && this.value.length <= 6) {
+             e.preventDefault();
+             this.value = '';
+             submitBtn.classList.remove('ready');
+        }
+    });
+
+    // === 6. ОТПРАВКА БЕЗ ПЕРЕЗАГРУЗКИ ===
+    cbForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const rawNum = phoneInput.value.replace(/\D/g, '');
+        if (rawNum.length < 12) return;
+
+        submitBtn.textContent = 'Відправка...';
+        submitBtn.style.opacity = '0.7';
+
+        const formData = new FormData(cbForm);
+
+        fetch(cbForm.action, {
+            method: 'POST',
+            body: formData,
+            headers: { 'Accept': 'application/json' }
+        })
+        .then(response => {
+            closeModal();
+            toast.classList.add('visible');
+            cbForm.reset();
+            submitBtn.textContent = 'Чекаю на дзвінок';
+            submitBtn.classList.remove('ready');
+            submitBtn.style.opacity = '1';
+            setTimeout(() => { toast.classList.remove('visible'); }, 2000);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            closeModal();
+            toast.textContent = "Помилка з'єднання 😔";
+            toast.style.background = "#ef4444";
+            toast.classList.add('visible');
+            setTimeout(() => toast.classList.remove('visible'), 3000);
+        });
+    });
+
+    startCycle();
+    initGreetings();
+});
+</script>
+<!-- END: Smart Widget ULTIMATE -->        <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Корзина</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Количество</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Стоимость</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                                                                        <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Есть скидка по купону?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона или сертификата"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">ОК</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Итого</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Вернуться к покупкам                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Отправить</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uidc6aff91748dba9a43237d4126038d601" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Сравнение товаров</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uidc6aff91748dba9a43237d4126038d601");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

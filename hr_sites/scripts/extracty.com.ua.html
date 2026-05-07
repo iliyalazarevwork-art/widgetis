@@ -1,0 +1,253 @@
+<!-- source: https://extracty.com.ua/ -->
+<!-- extracted: 2026-05-07T21:33:06.729Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 12847 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <script>
+// Створення елемента для віджета
+window.onload = function() {
+    var widgetContainer = document.createElement("a");
+    widgetContainer.href = "https://t.me/Anna_kkuzmina";
+    widgetContainer.target = "_blank";
+    widgetContainer.style.position = "fixed";
+    widgetContainer.style.bottom = "20px";
+    widgetContainer.style.right = "20px";
+    widgetContainer.style.backgroundColor = "white"; // Заливка білим кольором
+    widgetContainer.style.color = "#0088cc"; // Текст синього кольору
+    widgetContainer.style.padding = "10px 20px";
+    widgetContainer.style.borderRadius = "5px";
+    widgetContainer.style.textAlign = "center";
+    widgetContainer.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
+    widgetContainer.style.cursor = "pointer";
+    widgetContainer.style.zIndex = "1000";
+    widgetContainer.style.display = "flex";
+    widgetContainer.style.alignItems = "center";
+    widgetContainer.style.border = "2px solid #0088cc"; // Синя обводка
+    widgetContainer.style.transition = "all 0.3s ease"; // Плавний перехід
+    widgetContainer.style.textDecoration = "none"; // Відсутність підкреслення
+
+    // Створення іконки
+    var telegramIcon = document.createElement("img");
+    telegramIcon.src = "https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg"; // URL до іконки
+    telegramIcon.style.width = "20px";
+    telegramIcon.style.height = "20px";
+    telegramIcon.style.marginRight = "10px";
+
+    // Створення тексту
+    var widgetText = document.createElement("span");
+    widgetText.innerHTML = "Напишіть нам в телеграм!";
+
+    // Додавання іконки та тексту до контейнера
+    widgetContainer.appendChild(telegramIcon);
+    widgetContainer.appendChild(widgetText);
+
+    // Подія для відправлення події в GA4
+    widgetContainer.onclick = function(event) {
+        console.log('Подія кліку спрацювала'); // Лог для перевірки кліку
+
+        // Відправка події в Google Analytics 4
+        if (typeof gtag === 'function') {
+            var referrer = document.referrer; // Джерело трафіку
+            console.log('Відправка події в GA4'); // Лог для перевірки відправки події
+
+            gtag('event', 'telegram_widget_click', {
+                'event_category': 'engagement',
+                'event_label': 'Telegram Widget',
+                'traffic_source': referrer
+            });
+        } else {
+            console.error("Функція gtag не визначена. Перевірте завантаження Google Analytics.");
+        }
+
+        // Відправка події в dataLayer для GTM
+        if (typeof window.dataLayer !== 'undefined') {
+            window.dataLayer.push({
+                event: "telegram_widget_click",
+                eventModel: {
+                    widget_name: "Telegram Widget",
+                    click_destination: "https://t.me/extrctysales"
+                },
+                gtm: {
+                    uniqueEventId: Date.now()
+                }
+            });
+            console.log('Подія telegram_widget_click додана до dataLayer');
+        } else {
+            console.error("dataLayer не визначено. Перевірте наявність dataLayer.");
+        }
+    };
+
+    // Стилі при наведенні на елемент
+    widgetContainer.onmouseover = function() {
+        widgetContainer.style.backgroundColor = "#0088cc"; // Заливка синього кольору
+        widgetContainer.style.color = "white"; // Текст білий
+    };
+
+    // Відновлення початкових стилів, коли миша залишає елемент
+    widgetContainer.onmouseout = function() {
+        widgetContainer.style.backgroundColor = "white"; // Повернення білої заливки
+        widgetContainer.style.color = "#0088cc"; // Повернення синього тексту
+    };
+
+    // Додавання віджета на сторінку
+    document.body.appendChild(widgetContainer);
+};
+</script>
+        <script src="https://apis.google.com/js/platform.js?onload=renderOptIn" async defer>
+            </script>        <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Увійти для відображення накопичувальної знижки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                                                                                <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uid54cab738eeff1b0d395d98b622611a5d" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uid54cab738eeff1b0d395d98b622611a5d");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

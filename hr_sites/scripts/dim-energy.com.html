@@ -1,0 +1,250 @@
+<!-- source: https://dim-energy.com/ -->
+<!-- extracted: 2026-05-07T21:32:58.863Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 9572 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <style>
+
+.contact-button{
+position:fixed;
+bottom:25px;
+right:0;
+background:#6BE675;
+color:#fff;
+padding:14px 22px;
+border-radius:30px 0 0 30px;
+font-size:16px;
+font-weight:bold;
+text-decoration:none;
+box-shadow:0 5px 15px rgba(0,0,0,0.3);
+z-index:9999;
+transition:0.4s;
+}
+
+/* кнопка трохи ховається */
+.contact-button.hide{
+right:-140px;
+}
+
+/* при наведенні висувається */
+.contact-button:hover{
+right:0;
+}
+
+.contact-menu{
+position:fixed;
+bottom:80px;
+right:25px;
+display:none;
+flex-direction:column;
+gap:10px;
+z-index:9999;
+}
+
+.contact-menu a{
+background:white;
+padding:10px 15px;
+border-radius:20px;
+text-decoration:none;
+color:#333;
+box-shadow:0 5px 15px rgba(0,0,0,0.2);
+font-size:14px;
+}
+
+</style>
+
+<div class="contact-menu" id="contactMenu">
+
+<a href="https://t.me/+380685623848" target="_blank">
+Telegram
+</a>
+
+<a href="viber://chat?number=%2B380685623848">
+Viber
+</a>
+
+<a href="tel:+380667865262">
+Подзвонити
+</a>
+
+</div>
+
+<a class="contact-button" id="contactButton" onclick="toggleMenu()">
+⚡ Отримати консультацію
+</a>
+
+<script>
+
+function toggleMenu(){
+var menu=document.getElementById("contactMenu");
+
+if(menu.style.display==="flex"){
+menu.style.display="none";
+}else{
+menu.style.display="flex";
+}
+}
+
+/* ховання кнопки при прокрутці */
+let lastScroll = 0;
+
+window.addEventListener("scroll", function(){
+
+let currentScroll = window.pageYOffset;
+let button = document.getElementById("contactButton");
+
+if(currentScroll > lastScroll){
+button.classList.add("hide");
+}else{
+button.classList.remove("hide");
+}
+
+lastScroll = currentScroll;
+
+});
+
+</script>                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                                                                        <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uidb9bde32139c96f8b0fd9687c927f6b2a" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uidb9bde32139c96f8b0fd9687c927f6b2a");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

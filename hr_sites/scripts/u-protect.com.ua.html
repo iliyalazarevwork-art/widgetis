@@ -1,0 +1,684 @@
+<!-- source: https://u-protect.com.ua/ -->
+<!-- extracted: 2026-05-07T21:32:25.257Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 27971 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <!-- KeyCRM online chat widget begin -->
+<script type="text/javascript">
+(function(w,d,t,u,c){
+  var s=d.createElement(t),j=d.getElementsByTagName(t)[0];s.src=u;s["async"]=true;s.defer=true;s.onload=function(){KeyCRM.render(c);};j.parentNode.insertBefore(s,j)
+})(window, document, "script","https://chat.key.live/bundles/widget.min.js",{token:"a1104674-a6ae-46fc-b490-cfb62cdbffbb"});
+</script>
+<!-- KeyCRM online chat widget end -->
+
+<!-- Delivery desc updater v4 (з перевіркою ціни) -->
+<script>
+(function(){
+  if (window.U_PROTECT_DELIVERY_INFO_V4) return;
+  window.U_PROTECT_DELIVERY_INFO_V4 = true;
+
+  // — CSS grid інжектується зі скрипту щоб завжди бути актуальним —
+  const css = `
+    .up-delivery-widget .delivery-item {
+      display: grid !important;
+      grid-template-columns: 24px 1fr !important;
+      grid-template-areas: "icon text" ". cost" !important;
+      gap: 2px 10px !important;
+      align-items: start !important;
+      margin-bottom: 16px !important;
+    }
+    .up-delivery-widget .delivery-cost {
+      grid-area: cost !important;
+      font-size: 14px;
+      line-height: 1.2;
+      color: #1F2937;
+    }
+    @media (min-width: 420px) {
+      .up-delivery-widget .delivery-item {
+        grid-template-columns: 24px 1fr auto !important;
+        grid-template-areas: "icon text cost" !important;
+        gap: 0 10px !important;
+      }
+      .up-delivery-widget .delivery-cost {
+        align-self: start !important;
+        justify-self: end !important;
+        text-align: right !important;
+        max-width: 140px !important;
+      }
+    }
+  `;
+  const style = document.createElement('style');
+  style.id = 'u-protect-delivery-css';
+  style.textContent = css;
+  document.head.appendChild(style);
+
+  function getLang(){
+    const u = location.href.toLowerCase();
+    return (u.includes('/ru/') || u.endsWith('/ru') || document.documentElement.lang === 'ru') ? 'ru' : 'uk';
+  }
+
+  const T = {
+    uk: {
+      ship:         { today:'Відправимо сьогодні', tomorrow:'Відправимо завтра', monday:'Відправимо в понеділок' },
+      out_of_stock: 'Тимчасово недоступно',
+      incoming:     'Можна оформити попереднє замовлення',
+      preorder:     'Відправимо після надходження',
+      free:         'Безкоштовно*',
+      paid:         'За тарифами перевізника',
+      footnote:     '* Безкоштовна доставка діє з урахуванням умов для конкретного товару. Остаточну вартість доставки підтверджує менеджер.',
+      more:         'Докладніше про доставку',
+      deliveryUrl:  'https://u-protect.com.ua/oplata-i-dostavka/'
+    },
+    ru: {
+      ship:         { today:'Отправим сегодня', tomorrow:'Отправим завтра', monday:'Отправим в понедельник' },
+      out_of_stock: 'Временно недоступно',
+      incoming:     'Можно оформить предзаказ',
+      preorder:     'Отправим после поступления',
+      free:         'Бесплатно*',
+      paid:         'По тарифам перевозчика',
+      footnote:     '* Бесплатная доставка действует с учётом условий для конкретного товара. Окончательную стоимость доставки подтверждает менеджер.',
+      more:         'Подробнее о доставке',
+      deliveryUrl:  'https://u-protect.com.ua/ru/oplata-i-dostavka/'
+    }
+  };
+
+  function getPrice(){
+    const meta = document.querySelector('meta[itemprop="price"]');
+    if (meta){ const v = parseFloat(meta.getAttribute('content')); if (!isNaN(v)) return v; }
+    const el = document.querySelector('.product-price__item, .product-price__price, .product-price');
+    if (el){ const v = parseFloat((el.textContent || '').replace(/[^\d.]/g, '')); if (!isNaN(v)) return v; }
+    return null;
+  }
+
+  function shippingKey(){
+    const n = new Date(), d = n.getDay(), h = n.getHours();
+    const w = d === 0 ? false : (d === 6 ? h < 13 : h < 16);
+    if (d === 0) return 'monday';
+    if (d === 5 && !w) return 'monday';
+    if (d === 6) return w ? 'today' : 'monday';
+    return w ? 'today' : 'tomorrow';
+  }
+
+  function detectStatus(){
+    const el = document.querySelector(
+      '.product-price__availability, .presence-status, [class*="presence-status"]'
+    );
+    const raw = (el?.textContent || '').trim().toLowerCase();
+    if (/передзамовлення|предзаказ|під замовлення|под заказ|preorder/.test(raw))      return 'preorder';
+    if (/очікується надходження|ожидается поступление|очікується|ожидается/.test(raw)) return 'incoming';
+    if (/немає в наявності|нет в наличии/.test(raw))                                   return 'out_of_stock';
+    return 'in_stock';
+  }
+
+  function apply(){
+    const list = document.querySelector('.product__section .delivery-list, .delivery-list');
+    if (!list) return;
+
+    const t      = T[getLang()];
+    const price  = getPrice();
+    const isFree = price !== null && price >= 5000;
+    const st     = detectStatus();
+    const rePickup = /самовивіз|самовывоз/i;
+
+    let descMsg;
+    if (st === 'in_stock')          descMsg = t.ship[shippingKey()];
+    else if (st === 'out_of_stock') descMsg = t.out_of_stock;
+    else if (st === 'incoming')     descMsg = t.incoming;
+    else                            descMsg = t.preorder;
+
+    list.querySelectorAll('.delivery-item').forEach(item => {
+      const info = item.querySelector('.delivery-info');
+      const cost = item.querySelector('.delivery-cost');
+      if (!info || !cost) return;
+
+      const title    = (info.querySelector('.delivery-title')?.textContent || '').trim();
+      const isPickup = rePickup.test(title);
+
+      // Самовивіз не чіпаємо — його cost статичний в HTML
+      if (isPickup) return;
+
+      // НП-рядки: ціна + час відправки (час тільки для товарів в наявності)
+      if (price !== null) {
+        const priceStr = isFree
+          ? '<strong>' + t.free + '</strong>'
+          : '<strong>' + t.paid + '</strong>';
+        const timeStr = st === 'in_stock'
+          ? '<span class="delivery-time">' + descMsg + '</span>'
+          : '';
+        cost.innerHTML = priceStr + timeStr;
+      }
+    });
+
+    // Виноска — показуємо тільки при безкоштовній доставці
+    const fn = list.querySelector('.delivery-footnote');
+    if (fn) fn.style.display = isFree ? 'block' : 'none';
+
+    // Посилання — оновлюємо href з якорем якщо безкоштовна
+    const lnk = list.querySelector('.more-info-link a');
+    if (lnk) lnk.href = t.deliveryUrl + (isFree ? '#free-delivery-terms' : '');
+  }
+
+  function boot(){
+    apply();
+    setTimeout(apply, 300);
+    setTimeout(apply, 800);
+    setTimeout(apply, 1500);
+    setTimeout(apply, 3000);
+  }
+
+  if (document.readyState === 'complete' || document.readyState === 'interactive') setTimeout(boot, 40);
+  else document.addEventListener('DOMContentLoaded', () => setTimeout(boot, 40));
+})();
+</script>
+<!-- Delivery desc updater v4 end -->
+
+<!-- Update recentProducts text begin-->
+<script>
+function removeBr() {
+  const heading = document.querySelector('.recentProducts-head .h2');
+  if (heading && heading.innerHTML.includes('<br')) {
+    heading.innerHTML = heading.innerHTML.replace(/<br\s*\/?>/gi, ' ');
+    console.log('Removed <br>');
+  }
+}
+document.addEventListener('DOMContentLoaded', function() {
+  removeBr(); // Перша спроба одразу
+  // Спостерігаємо за змінами DOM
+  const observer = new MutationObserver(removeBr);
+  observer.observe(document.body, { childList: true, subtree: true });
+});
+</script>
+<!-- Update recentProducts text end  -->
+
+<!--Reading progress bar (scoped) begin-->
+<script>
+(function(){
+  var root = document.getElementById('hs-xray-guide');
+  if(!root) return;
+
+  // Плавні якорі (в межах блоку)
+  root.addEventListener('click', function(e){
+    var a = e.target.closest('a[href^="#"]');
+    if(!a) return;
+    var id = a.getAttribute('href');
+    if(!id || id.length < 2) return;
+    var target = root.querySelector(id);
+    if(!target) return;
+    e.preventDefault();
+    try{ target.scrollIntoView({behavior:'smooth', block:'start'}); }catch(_){ location.hash = id; }
+    if(history && history.replaceState){ history.replaceState(null,'',id); }
+  });
+
+  // Прогрес читання
+  var bar = root.querySelector('.hsx-progress');
+  if(!bar) return;
+  function clamp(v,min,max){ return v<min?min:(v>max?max:v); }
+  function update(){
+    var articleTop  = root.getBoundingClientRect().top + (window.pageYOffset||document.documentElement.scrollTop);
+    var scrollY     = window.pageYOffset || document.documentElement.scrollTop;
+    var start       = articleTop;
+    var end         = start + root.offsetHeight - window.innerHeight;
+    var ratio       = clamp((scrollY - start) / Math.max(1, end - start), 0, 1);
+    bar.style.backgroundSize = (ratio*100) + '% 100%';
+  }
+  update();
+  window.addEventListener('scroll', update, {passive:true});
+  window.addEventListener('resize', update);
+})();
+</script>
+<!--Reading progress bar (scoped) end-->
+
+<!-- Expand button animation begin -->
+<script>
+document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.js-toggle-button');
+    if (!btn) return;
+    btn.classList.toggle('__open');
+});
+</script>
+<!-- Expand button animation end -->
+
+<!-- Warranty begin -->
+<script>
+(function () {
+    function isRuPage() {
+        return window.location.pathname.indexOf('/ru/') === 0;
+    }
+    function normalizeText(str) {
+        return (str || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
+    }
+    function formatNum(num, unit) {
+        return num.replace(',', '.') + '\u00a0' + unit;
+    }
+    function findWarrantyValue() {
+        var isRu = isRuPage();
+        var months = isRu ? 'мес.' : 'міс.';
+        var years  = isRu ? 'г.'   : 'р.';
+        var labelPatterns = isRu
+            ? ['гарантийный срок', 'гарантия']
+            : ['гарантійний термін', 'гарантія'];
+
+        // Стратегія 1: таблиця характеристик — th і td окремо
+        var rows = document.querySelectorAll('tr');
+        for (var i = 0; i < rows.length; i++) {
+            var cells = Array.from(rows[i].querySelectorAll('th, td'));
+            if (cells.length < 2) continue;
+            var labelText = normalizeText(cells[0].textContent);
+            var valueText = (cells[1].textContent || '')
+                .replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim();
+            var isMatch = labelPatterns.some(function (p) {
+                return labelText.indexOf(p) !== -1;
+            });
+            if (!isMatch) continue;
+            var unitInLabel = /міс|мес/i.test(labelText) ? months
+                            : /рік|год\b|лет\b/i.test(labelText) ? years
+                            : '';
+            var numMatch = valueText.match(/(\d+(?:[.,]\d+)?)/);
+            if (numMatch) {
+                var num = numMatch[1];
+                var unit = unitInLabel
+                    || (/міс|мес/i.test(valueText) ? months
+                        : /рік|год|р\./i.test(valueText) ? years
+                        : parseInt(num, 10) > 2 ? months : years);
+                return formatNum(num, unit);
+            }
+            if (valueText && valueText.length < 40) return valueText;
+        }
+
+        // Стратегія 2: inline текст
+        var nodes = document.querySelectorAll('li, p, span, div');
+        for (var j = 0; j < nodes.length; j++) {
+            var raw = nodes[j].innerText || nodes[j].textContent || '';
+            if (!raw || raw.length > 300) continue;
+            var norm = normalizeText(raw);
+            var found = labelPatterns.some(function (p) {
+                return norm.indexOf(p) !== -1;
+            });
+            if (!found) continue;
+            var mm = raw.match(/(\d+(?:[.,]\d+)?)\s*(міс\.?|мес\.?|місяц|месяц)/i);
+            if (mm) return formatNum(mm[1], months);
+            var yy = raw.match(/(\d+(?:[.,]\d+)?)\s*(р\.?|рок|г\.?|год|лет)/i);
+            if (yy) return formatNum(yy[1], years);
+        }
+        return '';
+    }
+
+    function applyWarranty() {
+        var root = document.getElementById('upWarrantyBlock');
+        if (!root) return false;
+        var valueEl = root.querySelector('.up-warranty-value');
+        if (!valueEl) {
+            var mainDiv = root.querySelector('.up-warranty-main');
+            if (!mainDiv) return false;
+            valueEl = document.createElement('span');
+            valueEl.className = 'up-warranty-value';
+            mainDiv.appendChild(valueEl);
+        }
+        var found = findWarrantyValue();
+        if (found) {
+            valueEl.textContent = ' \u00B7\u00A0' + found;
+            root.classList.add('has-value');
+            return true;
+        }
+        return false;
+    }
+
+    function runWithRetry() {
+        var attempts = 0;
+        function tryApply() {
+            attempts++;
+            if (applyWarranty()) return;
+            if (attempts < 12) setTimeout(tryApply, 500);
+        }
+        tryApply();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', runWithRetry);
+    } else {
+        runWithRetry();
+    }
+})();
+</script>
+<!-- Warranty end-->
+
+<!-- Modal window begin-->
+<script>
+(function () {
+    'use strict';
+
+    var scrollY = 0;
+
+    function getModal() {
+        return document.querySelector('[data-up-consult-modal]');
+    }
+
+    function getForm() {
+        return document.querySelector('[data-up-consult-form]');
+    }
+
+    function getPhoneInput() {
+        return document.getElementById('phone');
+    }
+
+    function moveModalToBody() {
+        var modal = getModal();
+        if (modal && !modal.dataset.movedToBody) {
+            document.body.appendChild(modal);
+            modal.dataset.movedToBody = 'true';
+        }
+    }
+
+    function lockScroll() {
+        scrollY = window.scrollY || window.pageYOffset || 0;
+        document.body.style.position = 'fixed';
+        document.body.style.top = '-' + scrollY + 'px';
+        document.body.style.left = '0';
+        document.body.style.right = '0';
+        document.body.style.width = '100%';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function unlockScroll() {
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        document.body.style.width = '';
+        document.body.style.overflow = '';
+        window.scrollTo(0, scrollY);
+    }
+
+    function openModal() {
+        moveModalToBody();
+        var modal = getModal();
+        if (!modal) return;
+        modal.classList.add('is-open');
+        lockScroll();
+    }
+
+    function closeModal() {
+        var modal = getModal();
+        if (!modal) return;
+        modal.classList.remove('is-open');
+        unlockScroll();
+    }
+
+    function initPhoneMask() {
+        var phoneInput = getPhoneInput();
+        if (!phoneInput || phoneInput.dataset.maskReady) return;
+
+        phoneInput.dataset.maskReady = 'true';
+
+        phoneInput.addEventListener('focus', function () {
+            if (this.value === '') this.value = '+380';
+        });
+
+        phoneInput.addEventListener('input', function () {
+            var value = this.value;
+            if (!value.startsWith('+380')) {
+                this.value = '+380';
+                return;
+            }
+
+            var numbers = value.slice(4).replace(/\D/g, '');
+            if (numbers.length > 9) numbers = numbers.slice(0, 9);
+
+            var formatted = '+380';
+            if (numbers.length > 0) formatted += ' ' + numbers.substring(0, 2);
+            if (numbers.length > 2) formatted += ' ' + numbers.substring(2, 5);
+            if (numbers.length > 5) formatted += ' ' + numbers.substring(5, 7);
+            if (numbers.length > 7) formatted += ' ' + numbers.substring(7, 9);
+
+            this.value = formatted;
+        });
+
+        phoneInput.addEventListener('keydown', function (e) {
+            if ((e.key === 'Backspace' || e.key === 'Delete') && this.value === '+380') {
+                e.preventDefault();
+            }
+        });
+    }
+
+    function initFormSubmit() {
+        var form = getForm();
+        if (!form || form.dataset.submitReady) return;
+
+        form.dataset.submitReady = 'true';
+
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            var submitBtn = form.querySelector('.up-consult-submit-btn');
+            var originalText = submitBtn ? submitBtn.textContent : '';
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = submitBtn.dataset.sending || 'Відправка...';
+            }
+
+            try {
+                var response = await fetch('https://keycrm-proxy.u-protect.workers.dev/create-lead', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        full_name: (document.getElementById('name') || {}).value ? document.getElementById('name').value.trim() : '',
+                        email: (document.getElementById('email') || {}).value ? document.getElementById('email').value.trim() : '',
+                        phone: (document.getElementById('phone') || {}).value ? document.getElementById('phone').value.trim() : '',
+                        topic: (document.getElementById('topic') || {}).value || '',
+                        message: (document.getElementById('message') || {}).value ? document.getElementById('message').value.trim() : '',
+                        page_url: window.location.href
+                    })
+                });
+
+                if (response.ok) {
+                    var successMsg = submitBtn.dataset.success || "Дякуємо! Ваша заявка успішно надіслана. Ми зв'яжемося з вами найближчим часом.";
+                    alert(successMsg);
+                    form.reset();
+                    var phoneInput = getPhoneInput();
+                    if (phoneInput) phoneInput.value = '+380';
+                    closeModal();
+                } else {
+                    var errorMsg = submitBtn.dataset.error || 'На жаль, виникла помилка. Спробуйте ще раз або зателефонуйте нам.';
+                    alert(errorMsg);
+                }
+            } catch (error) {
+                var connectionMsg = submitBtn.dataset.connection || "Помилка з'єднання. Перевірте інтернет-з'єднання.";
+                alert(connectionMsg);
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
+            }
+        });
+    }
+
+    document.addEventListener('click', function (e) {
+        var openBtn = e.target.closest('[data-up-consult-open]');
+        if (openBtn) {
+            e.preventDefault();
+            openModal();
+            initPhoneMask();
+            initFormSubmit();
+            return;
+        }
+
+        var closeBtn = e.target.closest('.up-consult-close-btn');
+        if (closeBtn) {
+            e.preventDefault();
+            closeModal();
+            return;
+        }
+
+        var modal = getModal();
+        if (modal && e.target === modal) {
+            closeModal();
+        }
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            closeModal();
+        }
+    });
+
+    function init() {
+        moveModalToBody();
+        initPhoneMask();
+        initFormSubmit();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+</script>
+<!-- Modal window end-->        <script src="https://apis.google.com/js/platform.js?onload=renderOptIn" async defer>
+            </script>        <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                                                                        <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>            <section class="compare" id="uid1428922a643965850b880799fab45202" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uid1428922a643965850b880799fab45202");
+    }, w.ComparisonTable)
+  })(window);
+</script>        

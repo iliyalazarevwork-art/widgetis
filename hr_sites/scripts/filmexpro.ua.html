@@ -1,0 +1,247 @@
+<!-- source: https://filmexpro.ua/ -->
+<!-- extracted: 2026-05-07T21:30:24.751Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 11236 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <style>
+#floating-buttons {
+    position: fixed;
+    right: 20px;
+    bottom: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    z-index: 9999;
+}
+
+#floating-buttons a img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    transition: transform 0.2s;
+}
+
+#floating-buttons a img:hover {
+    transform: scale(1.1);
+}
+</style>
+
+<div id="floating-buttons">
+    <!-- Telegram -->
+    <a href="https://t.me/+380934445575" target="_blank" class="messenger-btn telegram">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram">
+    </a>
+
+    <!-- Viber -->
+    <a href="viber://chat?number=+380637262243" class="messenger-btn viber">
+        <img src="https://images.vexels.com/media/users/3/137420/isolated/preview/6afbb433afc026dcfdf9fbeec26198a2-viber-icon-logo.png" alt="Viber">
+    </a>
+
+    <!-- Binotel -->
+    <div id="binotel-widget"></div>
+</div>
+
+<script type="text/javascript">
+(function(d, w, s) {
+    var widgetHash = 'Glq366eagslRx54db9fW',
+        bch = d.createElement(s);
+    bch.type = 'text/javascript';
+    bch.async = true;
+
+    // Перед завантаженням скрипта Binotel створюємо проксі для його createIcon
+    window.BinotelCreateIconOriginal = w.BinotelCreateIcon;
+    w.BinotelCreateIcon = function(options) {
+        // Якщо іконка Telegram — пропускаємо створення
+        if (options && options.icon && options.icon.includes('telegram')) return;
+        if (window.BinotelCreateIconOriginal) window.BinotelCreateIconOriginal(options);
+    }
+
+    bch.src = '//widgets.binotel.com/chat/widgets/' + widgetHash + '.js';
+    var sn = d.getElementsByTagName(s)[0]; sn.parentNode.insertBefore(bch, sn);
+})(document, window, 'script');
+</script>
+
+
+
+<script>
+window.addEventListener('load', function() {
+    // Шукаємо блок, під яким треба поставити лічильник (іконка мобільної версії)
+    var target = document.querySelector('.footer__mobile-version') || document.querySelector('.footer__payments');
+    
+    if (target) {
+        // Створюємо контейнер для Hotline
+        var hotlineWrap = document.createElement('div');
+        hotlineWrap.style.marginTop = '20px'; // Відступ під написом
+        hotlineWrap.style.textAlign = 'left';
+        hotlineWrap.innerHTML = '<div class="hotline-rating-informer" data-type="4" data-id="40349"></div>';
+        
+        // Вставляємо після цільового блоку
+        target.parentNode.insertBefore(hotlineWrap, target.nextSibling);
+        
+        // Завантажуємо скрипт Hotline
+        var s = document.createElement('script');
+        s.type = 'text/javascript';
+        s.src = "https://hotline.ua/api/widgets/widgets.min.js";
+        document.body.appendChild(s);
+    }
+});
+</script>
+
+
+
+
+<!-- TrustBox widget - Review Collector -->
+
+<div class="trustpilot-widget" data-locale="en-US" data-template-id="56278e9abfbbba0bdcd568bc" data-businessunit-id="69a0655e9ae17628fd3205d5" data-style-height="52px" data-style-width="100%" data-token="7cce032c-856f-4531-86e5-0594f35464cd">
+
+  <a href="https://www.trustpilot.com/review/filmexpro.ua" target="_blank" rel="noopener">Trustpilot</a>
+
+</div>
+
+<!-- End TrustBox widget -->                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                                                                        <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uidc2a30613adf1ab8a55849265570f9177" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uidc2a30613adf1ab8a55849265570f9177");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

@@ -1,0 +1,429 @@
+<!-- source: https://vetermodels.com/ -->
+<!-- extracted: 2026-05-07T21:30:56.500Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 20462 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/8.4.5/swiper-bundle.min.js"></script>
+<script>
+    $(document).ready(function() {
+        
+        const desktopView = $('.product-title').length > 0;
+        const mobileView = $('.main .product.wrapper').length > 0;
+
+        const imagesBlok = desktopView ? $('[data-content-id="poperednі-vіdguki-1"] .product__section') : mobileView ? $('.product__block--raw_1') : null;
+        
+        if (imagesBlok && imagesBlok.length > 0) {
+
+            const images = imagesBlok.find('img');
+
+            const productReviews = $('<section class="product_reviews"></section>');
+            const swiperDiv = $('<div class="swiper"></div>');
+            const swiperWrapper = $('<div class="swiper-wrapper"></div>');
+
+            images.each(function() {
+                const swiperSlide = $('<div class="swiper-slide"></div>').append($(this));
+                swiperWrapper.append(swiperSlide);
+            });
+
+            swiperDiv.append(swiperWrapper);
+            productReviews.append(swiperDiv);
+
+            swiperDiv.append('<div class="swiper-button-next">&nbsp;</div>');
+            swiperDiv.append('<div class="swiper-button-prev">&nbsp;</div>');
+            swiperDiv.append('<div class="swiper-pagination">&nbsp;</div>');
+
+            imagesBlok.find('.text').empty().append(productReviews);
+        }
+
+        var swiper = new Swiper(".swiper", {
+          lazy: true,
+          effect: "coverflow",
+          grabCursor: true,
+          centeredSlides: true,
+          slidesPerView: "auto",
+          coverflowEffect: {
+            rotate: 2,
+            stretch: 0,
+            depth: 50,
+            modifier: 2,
+            slideShadows: true
+          },
+          keyboard: {
+            enabled: true
+          },
+          // mousewheel: {
+          //   thresholdDelta: 70
+          // },
+          spaceBetween: 50,
+          loop: true,
+          navigation: {
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+          }
+        });
+
+        // ***** Start JS desktop version ***** //
+        if (desktopView) {
+            function createNewBlock(groupNumber, sectionName) {
+                const newBlock = $(
+                    `<div class="product__column-item" data-view-block="group_${groupNumber}">
+                        <div class="product__group">
+                            <div class="product__group-item" id="${sectionName}">
+                                <div class="product-heading product-heading--first">
+                                    <div class="product-heading__title"></div>
+                                </div>
+                                <div data-view-block="group_${groupNumber}.0">
+                                    <div class="product__section"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`
+                );
+
+                prodColumnR.append(newBlock);
+                manipulateBlock(newBlock, groupNumber);
+            }
+
+            function manipulateBlock(block, groupNumber) {
+                const productTitle = block.find('.product-heading__title');
+                const productSection = block.find('.product__section');
+                
+                if (groupNumber === 5) {
+                    productTitle.text('Відгуки').attr('id', 'comments');
+                    $('.product-comments-count').appendTo(productTitle);
+                    $('.product-reviews').appendTo(productSection);
+                    $('a.product-heading__tab[href="#vіdguki-1"]').remove();
+                    $('[data-content-id="vіdguki-1"]').remove();
+                } else if (groupNumber === 6) {
+                    productTitle.text('Враження клієнтів');
+                    const existingProductSection = $('[data-content-id="poperednі-vіdguki-1"] .product__section');
+                    existingProductSection.appendTo(productSection);
+                    $('a.product-heading__tab[href="#poperednі-vіdguki-1"]').remove();
+                    $('[data-content-id="poperednі-vіdguki-1"]').remove();
+                }
+            }
+            const prodColumnR = $('.product__column-container.j-product-right-column');
+            createNewBlock(5, "comments_section");
+            if ($('[data-content-id="poperednі-vіdguki-1"] .product__section img').length > 0)
+                createNewBlock(6, "impres_section");
+            
+            $('[data-view-block="group_2"]').attr('id', 'top_section');
+            $('[data-content-id="opis-1"]').css('display', 'block').attr('id', 'opis_section');
+            $('.product').css('padding-top', '0');
+            $('.breadcrumbs').prependTo("section.product");
+            $('.product__bottom-item').appendTo(prodColumnR);
+            
+            const commentsLink = $('.product-rating__comments-link');
+            commentsLink.removeAttr('onclick').addClass('scroll-link');
+
+            $('.scroll-link').click(function(event) {
+                event.preventDefault();
+                smoothScroll($(this.hash));
+            });
+
+        }
+        // ***** End JS desktop version ***** //
+        // ***** //
+        // ***** Start JS mobile version ***** //
+        if (mobileView) {
+
+            const navBlock = $(
+            `<div class="product_nav_wrapper">
+                <div class="product_nav_frame">
+                    <div class="product_nav">
+                        <ul class="page_nav_bar">
+                            <li class="page_nav_item"><a href="#top_section" class="page_nav_link">Усе про товар</a></li>
+                            <li class="page_nav_item"><a href="#product__group--tabs" class="page_nav_link">Доставка/Оплата</a></li>
+                            <li class="page_nav_item"><a href="#product__block--characteristics" class="page_nav_link">Характеристики</a></li>
+                            <li class="page_nav_item"><a href="#product__block--comments" class="page_nav_link">Відгуки</a></li>
+                            <li class="page_nav_item"><a href="#product__block--description" class="page_nav_link">Опис</a></li>
+                            <li class="page_nav_item"><a href="#product__block--raw" class="page_nav_link">Відео</a></li>
+                            <li class="page_nav_item"><a href="#product__block--raw_1" class="page_nav_link">Враження клієнтів</a></li>
+                            <li class="page_nav_item"><a href="#product__block--associatedProducts" class="page_nav_link">Інші товари</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>`
+            );
+
+            $('.product.wrapper').before(navBlock).css('margin-top', '0');
+            
+            $('.product__grid').attr('id', 'top_section').addClass('product__block');
+            $('.product__group--tabs').attr('id', 'product__group--tabs').addClass('product__block');
+
+            var productBlocks = $('.product__block');
+            var scrollNav = $('.product_nav');
+
+            productBlocks.each(function() {
+                var additionalClass = $(this).attr('class').split(' ').find(function(cls) {
+                    return cls.indexOf('product__block--') === 0;
+                });
+                if (additionalClass) {
+                    $(this).attr('id', additionalClass);
+                }
+            });
+
+            scrollNav.on('click', 'a', function(event){
+                event.preventDefault();
+                var navLink = $(this).parent();
+                smoothScroll($(this.hash));
+                positionCurrentNavLink(navLink);
+            });
+
+            var scrollTimer;
+            var navFrame = $('.product_nav_frame');
+
+            $(window).on('scroll', function(){
+                updateNavigation();
+            });
+
+            updateNavigation();
+
+            function updateNavigation(){
+                productBlocks.each(function(){
+                    var sectionName = $(this).attr('id');
+                    var navigationMatch = $('.page_nav_item a[href="#' + sectionName + '"]');
+                    if (navigationMatch.length === 1) {
+                        var navLi = navigationMatch.parent();
+                        var offsetTop = $(this).offset().top;
+                        var windowHeight = $(window).height();
+                        var scrollTop = $(window).scrollTop();
+                        if ((offsetTop - windowHeight/3 < scrollTop) && (offsetTop + $(this).height() - windowHeight/3 > scrollTop)) {
+                            navLi.addClass('active');
+
+                            clearTimeout(scrollTimer);
+                            scrollTimer = setTimeout(function() {
+                                positionCurrentNavLink(navLi);
+                            }, 150);
+
+                        } else {
+                            navLi.removeClass('active');
+                        }
+                    }
+                });
+            }
+
+            function smoothScroll(target) {
+                $('body,html').animate({
+                    scrollTop: target.offset().top - 110
+                }, 800);
+            }
+
+            function positionCurrentNavLink(navLink) {
+                var scrollNavCenter = scrollNav.width() / 2;
+                var targetCenter = (navLink.position().left - scrollNav.position().left) + (navLink.width() / 2);
+                var scrollLeft = targetCenter - scrollNavCenter;
+                scrollNav.animate({scrollLeft: scrollLeft}, 500);
+            }
+
+        }
+        // ***** End JS mobile version ***** //
+
+        if (mobileView || desktopView) {
+
+            // Float Panel //
+            const floatPanel = $('<div id="float_panel"></div>');
+            $('body').append(floatPanel);
+            
+            if (desktopView) {
+                var productImage = $(".gallery__thumb-link img").attr("src");
+                var productName = $(".product-title").text();
+                var productPrice = $(".product-price").clone();
+                var buyButton = $(".product-order__block--buy").clone();
+                
+                floatPanel.empty().append('<img class="prod_img" src="' + productImage + '" alt="Product Image">');
+                floatPanel.append('<p class="h2">' + productName + '</p>');
+                floatPanel.append('<div class="up_btn"><span>в гору</span><svg class="icon icon--arrow-up"><use xlink:href="#icon-arrow-up"></use></svg></div>');
+
+                $('#upButton').remove();
+                $('.up_btn').click(function(event) {
+                    event.preventDefault();
+                    $('body,html').animate({
+                        scrollTop: 0
+                    }, 800);
+                });
+            } 
+            
+            if (mobileView) {
+                var productPrice = $(".product-card__price-box").clone();
+                var buyButton = $(".product-card__order-box").clone();
+            }
+
+            floatPanel.append(productPrice);
+            floatPanel.append(buyButton);
+            
+            function getTopSectionInfo() {
+                const topSection = $('#top_section');
+                const scrollTop = $(window).scrollTop();
+                const topSectionOffset = topSection.offset().top;
+                const topSectionHeight = topSection.outerHeight();
+                return scrollTop <= topSectionOffset + topSectionHeight;
+            }
+
+            function showFloatPanel(isTopSectionVisible) {
+                if (isTopSectionVisible == false) {
+                    floatPanel.addClass("shown");
+                } else {
+                    floatPanel.removeClass("shown");
+                }
+            }
+            
+            let isTopSectionVisible = getTopSectionInfo();
+            showFloatPanel(isTopSectionVisible);
+
+            $(window).scroll(function() {
+                const newTopSectionVisibility = getTopSectionInfo();
+                if (newTopSectionVisibility !== isTopSectionVisible) {
+                    isTopSectionVisible = newTopSectionVisibility;
+                    showFloatPanel(isTopSectionVisible);
+                }
+            });
+            swiper.update();
+        }
+    });
+</script>
+                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                                                                        <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 ₴                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uidfd245e77b980a7663ba9f3d848dc0d3a" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uidfd245e77b980a7663ba9f3d848dc0d3a");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

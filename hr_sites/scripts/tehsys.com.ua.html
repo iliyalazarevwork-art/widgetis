@@ -1,0 +1,185 @@
+<!-- source: https://tehsys.com.ua/ -->
+<!-- extracted: 2026-05-07T21:31:57.393Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 7956 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <script>
+
+(function(){
+
+var catalogMenu = $('.header__bottom')[0];
+var catalogMenuSourceTop = catalogMenu.getBoundingClientRect().top + window.pageYOffset;
+console.log(catalogMenuSourceTop);
+window.onscroll = function() {
+
+    if (catalogMenu.classList.contains('fixed') && window.pageYOffset < catalogMenuSourceTop) {
+        catalogMenu.classList.remove('fixed');
+    } else if (window.pageYOffset > catalogMenuSourceTop) {
+        catalogMenu.classList.add('fixed');
+    }
+};
+
+})()
+
+</script>
+
+<script>
+        (function(w,d,u){
+                var s=d.createElement('script');s.async=true;s.src=u+'?'+(Date.now()/60000|0);
+                var h=d.getElementsByTagName('script')[0];h.parentNode.insertBefore(s,h);
+        })(window,document,'https://cdn.bitrix24.eu/b14062621/crm/site_button/loader_2_5igy1e.js');
+</script>
+
+<script type="text/javascript">
+  if (location.pathname.indexOf("/ru") === 0) {
+    window.BinotelChatSettings = {
+      language: "ru",
+      aa_welcomText:
+        "Здравствуйте! Наши операторы онлайн и готовы ответить на ваши вопросы. Напишите ваше сообщение в чат.",
+      aa_welcomMessageFromEmployeeText:
+        "Рады приветствовать вас на нашем сайте. Что вас интересует? Если возникли вопросы, пишите нам в чат. Мы всегда готовы помочь!",
+      of_welcomText:
+        "Все наши операторы сейчас оффлайн. Оставьте свои контактные данные, и мы свяжемся с вами в ближайшее время. Спасибо за обращение!",
+      nwtf_welcomText:
+        "Здравствуйте! В настоящее время мы не работаем и операторов нет в сети. Оставьте свои контакты, и мы свяжемся с вами в ближайшее время.",
+      cf_welcomText:
+        "Чтобы продолжить общение и мы могли предоставить Вам лучший сервис, заполните, пожалуйста, контактную форму:",
+      qb_1_text: "Швидка відповідь відвідувача 1",
+      qb_2_text: "Швидка відповідь відвідувача 2",
+      qb_3_text: "Швидка відповідь відвідувача 3",
+      wt_welcomeText: "Текст перед вибором групи операторів",
+    };
+  }
+</script>
+
+<script type="text/javascript">
+  (function (d, w, s) {
+    var widgetHash = "1DdEhOv3vwC4jd9himxx",
+      bch = d.createElement(s);
+    bch.type = "text/javascript";
+    bch.async = true;
+    bch.src = "//widgets.binotel.com/chat/widgets/" + widgetHash + ".js";
+    var sn = d.getElementsByTagName(s)[0];
+    sn.parentNode.insertBefore(bch, sn);
+  })(document, window, "script");
+</script>        <script>
+(function(d) {
+d.querySelectorAll('.j-phone-item').forEach(function (el) {
+el.classList.add('binct-phone-number-' + el.getAttribute('data-index'));
+})
+})(document);
+(function(d, w, s) {
+var widgetHash = 'dsgozxowvt7eabkk7jqh', ctw = d.createElement(s); ctw.type = 'text/javascript'; ctw.async = true;
+ctw.src = '//widgets.binotel.com/calltracking/widgets/'+ widgetHash +'.js';
+var sn = d.getElementsByTagName(s)[0]; sn.parentNode.insertBefore(ctw, sn);
+})(document, window, 'script');
+const waitB = setInterval(() => {if (!!window.BinotelCallTracking) {
+for (let key in window.BinotelCallTracking) {
+if(window.BinotelCallTracking[key]['initState']==="success"){
+setTimeout(document.querySelectorAll('.j-phone-item').forEach(item => (item.dataset.fakeHref = 'tel:' + item.textContent.replace(/\D/g, ''))),0)
+clearInterval(waitB)}}}},1000)
+</script>
+            <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0.00 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uid09a6cdf01c68a95dd0ab5a2c9ea39ae6" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uid09a6cdf01c68a95dd0ab5a2c9ea39ae6");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

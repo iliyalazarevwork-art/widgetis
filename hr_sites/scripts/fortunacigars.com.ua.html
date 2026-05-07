@@ -1,0 +1,199 @@
+<!-- source: https://fortunacigars.com.ua/ -->
+<!-- extracted: 2026-05-07T21:31:21.684Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 7463 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <div id="divStop" class="stopModal">
+  <!-- declined Modal content -->
+  <div id="ageNotVerified" class="modal-content">
+    <span class="ageVerification"></span>
+    <p>Доступ на сайт дозволений тільки особам старше 18</p>
+  </div>
+</div>
+
+<div id="divModal" class="queryModal">
+  <!-- Modal content -->
+  <div id="verifyAge" class="modal-content">
+    <span class="ageVerification"></span>
+    <div class="mission">
+       <p>Ласкаво просимо до нашого інтернет-магазину</p>
+       <hr>
+       <p>ВАМ ВЖЕ ВИПОВНИЛОСЬ 18 РОКІВ?</p>
+    </div>
+    <p align="center">
+       <button id="submitBtn" class="button_submit">Так</button>
+       &nbsp;&nbsp;&nbsp;
+       <button id="declineBtn" class="button_decline">Ні</button>
+    </p>
+    <hr>
+    <p>
+       <span class="plus18">18+</span>     
+       <span class="plus18descr">
+       Продукція, представлена на нашому сайті, призначена тільки для осіб, яким виповнилось 18 років.
+       Натискаючи кнопку «Так» ви підтверджуєте своє повноліття, а також надаєте згоду на отримання інформації про продукцію, що представлена на сайті, за допомогою засобів дистанційного зв’язку згідно з ч. 2 ст. 15 Закону України «Про захист прав споживачів»
+      </span> 
+    </p>
+  </div>
+</div>
+
+
+<script>
+// Get the modal
+var queryModal = document.getElementById("divModal");
+var stopModal  = document.getElementById("divStop");
+
+// Get the button that opens the modal
+var btn = document.getElementById("myBtn");
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("ageVerification")[0];
+var divVerify = document.getElementsByClassName("verifyAge")[0];
+
+var submitBtn = document.getElementById("submitBtn");
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+  modal.style.display = "block";
+}
+
+function stopLoad() {
+  localStorage.setItem('fortunaCigarsStopLoad', 'done');
+  location.reload();   // reload the page
+}
+
+submitBtn.onclick = function() {
+  stopModal.style.display  = "none";
+  queryModal.style.display = "none";
+  stopLoad();
+}
+
+declineBtn.onclick = function() {
+  location.href = "https://www.google.com/";
+}
+
+
+if (!localStorage.getItem('fortunaCigarsStopLoad')) {
+  queryModal.style.display = "block";
+
+  if(window.stop !== undefined) {
+    window.stop();
+  } else if (document.execCommand !== undefined) {  // for IE
+    document.execCommand("Stop", false);
+  }
+}
+</script>
+
+<script>
+  // additional age 18+ confirmation on order submit form
+  function age18plusConfirm() {
+       return (confirm('Підтвердіть, що Ваш вік не менше 18 років'))
+  }	 
+  elems = document.getElementsByClassName("btn-input");
+  for (let el of elems) {
+      el.onclick = function() {return age18plusConfirm()};
+  }
+</script>
+                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0.00 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uid47aab166642e26081ead3664ddf81771" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uid47aab166642e26081ead3664ddf81771");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

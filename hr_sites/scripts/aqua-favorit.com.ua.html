@@ -1,0 +1,232 @@
+<!-- source: https://aqua-favorit.com.ua/ -->
+<!-- extracted: 2026-05-07T21:30:30.549Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 11244 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <!-- === Підключення скриптів та стилів PayLate === -->
+<script src="https://paylate.com.ua/js/start.js" charset="UTF-8"></script>
+<script src="https://paylate.com.ua/js/jquery.maskedinput.min.js" charset="UTF-8"></script>
+<link rel="stylesheet" href="https://paylate.com.ua/js/credit.css">
+
+<script>
+// === Налаштування параметрів розстрочки ===
+var pl_options = {
+  pl_type: 2,                     // Тип розстрочки
+  pl_n1: "Три платежі",           // Варіант 1
+  pl_n2: "Шість платежів",        // Варіант 2
+  pl_n3: "Десять платежів",       // Варіант 3
+  pl_bc: "#4e6bb2",               // Колір основного оформлення (блакитний)
+  lang: "ukr"                     // Мова: ukr або ru
+};
+
+$(function () {
+  // === Перевіряємо, що це сторінка товару ===
+  if ($('.product-order').length > 0 && !$('#credit-paylater').length) {
+    // Вставляємо кнопку "Кредит Online" після блоку "Купити"
+    $('.product-order__block--buy').after(
+      '<div id="credit-paylater">Кредит Online</div>'
+    );
+  }
+
+  // === Обробка кліку по кнопці ===
+  $(document).on("click", "#credit-paylater", function () {
+    // --- Отримуємо артикул товару з DOM ---
+    let rawText = $('.product-header__code').text() || '';
+    let article = rawText
+      .replace(/Артикул/g, '')     // Прибираємо слово "Артикул"
+      .replace(/["\s]/g, '')       // Прибираємо лапки та пробіли
+      .trim();                     // Прибираємо зайві пробіли
+
+    // --- Отримуємо назву товару ---
+    let name = $('.product-title').text().trim() || 'Без назви';
+
+    // --- Отримуємо ціну з мета-тега schema.org ---
+    let price = parseFloat(($('meta[itemprop="price"]').attr('content') || '0').replace(',', '.')).toFixed(2);
+
+    // --- Формуємо дані для PayLate ---
+    let credit_data = {
+      id: article,
+      name: name,
+      price: price
+    };
+
+    // Виводимо дані в консоль для перевірки
+    console.log('Дані для buyInCredit:', credit_data);
+
+    // --- Викликаємо функцію PayLate ---
+    if (typeof buyInCredit === 'function') {
+	  let customerEmail = 'info.aquafavorit@gmail.com'; // TODO: замінити на реальний email
+	  buyInCredit(price, article, name, customerEmail);
+    } else {
+      console.warn("Функція buyInCredit не знайдена. Перевірте, чи підключено start.js");
+    }
+  });
+});
+</script>
+<!-- === Стилі для кнопки "Кредит Online" === -->
+<!-- === Стилі для кнопки "Плати пізніше" === -->
+<style>
+#credit-paylater {
+  color: #fff;                  /* Білий текст */
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 18px;
+  line-height: 18px;
+  background: #51b2dd;          /* Синій фон */
+  padding: 9px 9px;           /* Внутрішні відступи */
+  border-radius: 20px;           /* Скруглені кути */
+  cursor: pointer;              /* Курсор миші */
+  display: inline-block;        /* Поводиться як кнопка */
+  text-align: center;           /* Вирівнювання тексту */
+}
+</style>
+        <script type="text/javascript">
+  (function(d, w, s) {
+	var widgetHash = 'dvvv1tenrcm7zjakrot9', ctw = d.createElement(s); ctw.type = 'text/javascript'; ctw.async = true;
+	ctw.src = '//widgets.binotel.com/calltracking/widgets/'+ widgetHash +'.js';
+	var sn = d.getElementsByTagName(s)[0]; sn.parentNode.insertBefore(ctw, sn);
+  })(document, window, 'script');
+</script>         <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Корзина</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Количество</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Стоимость</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                                                                        <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Есть скидка по купону?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона или сертификата"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">ОК</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Итого</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0.00 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Вернуться к покупкам                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформить заказ</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uidb25c999cf031058766e5657164b38e74" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Сравнение товаров</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uidb25c999cf031058766e5657164b38e74");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

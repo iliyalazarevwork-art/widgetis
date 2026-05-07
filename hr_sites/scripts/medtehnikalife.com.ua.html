@@ -1,0 +1,165 @@
+<!-- source: https://medtehnikalife.com.ua/ -->
+<!-- extracted: 2026-05-07T21:30:23.654Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 7016 -->
+
+w.INIT.execute();
+        })(window);
+    });
+</script>
+        <script>
+  (function(w, k) {
+    w[k] = {
+        companyId: '26917',
+        widgetId: '1',
+        hash: '803e1942-8e03-4ad0-9010-b90dc59e1cbf',
+        locale: 'ua',
+    };
+
+    var d = w.document,
+        s = d.createElement('script');
+
+    s.async = true;
+    s.id = k + 'Script';
+    s.src = 'https://static.salesdrive.me/chat-widget/assets/js/widget.js' + '?' + (Date.now() / 3600000 | 0);
+    d.head && d.head.appendChild(s)
+
+  }(window, 'salesDriveChatButton'));
+</script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // Блок "З цим товаром купують"
+  var assoc = document.querySelector('[data-view-block="associatedProducts"]');
+  if (assoc) {
+    var wrap = assoc.closest('.j-product-block');
+    if (wrap) wrap.classList.add('ml-associated');
+  }
+
+  // Блок "Опис"
+  var desc = document.querySelector('.product-description.j-product-description');
+  if (desc) {
+    var dWrap = desc.closest('.product__group-item');
+    if (dWrap) dWrap.classList.add('ml-desc');
+  }
+});
+</script>
+                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Корзина</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Количество</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Стоимость</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Войти для отображения накопительной скидки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                        </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Итого</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Вернуться к покупкам                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформить заказ</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uid547e6628747fa145a292a1bb9757d179" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Сравнение товаров</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uid547e6628747fa145a292a1bb9757d179");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

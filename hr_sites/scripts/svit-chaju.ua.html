@@ -1,0 +1,448 @@
+<!-- source: https://svit-chaju.ua/ -->
+<!-- extracted: 2026-05-07T21:31:19.225Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 16282 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <div class="popup-wrap" id="popup-wrap">
+
+    <a href="javascript:void(0)" class="close-popup" onclick="closepopup()">
+        <svg class="t-popup__close-icon" width="23px" height="23px" viewBox="0 0 23 23" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"> <g stroke="none" stroke-width="1" fill="#24c815" fill-rule="evenodd"> <rect transform="translate(11.313708, 11.313708) rotate(-45.000000) translate(-11.313708, -11.313708) " x="10.3137085" y="-3.6862915" width="2" height="30"></rect> <rect transform="translate(11.313708, 11.313708) rotate(-315.000000) translate(-11.313708, -11.313708) " x="10.3137085" y="-3.6862915" width="2" height="30"></rect> </g> </svg>
+    </a>
+
+    <form id="popup-form" action="" onsubmit="event.preventDefault();">
+        <div class="form-banner">
+            <img src="https://static.tildacdn.com/tild6534-3161-4632-b837-316161373538/noroot.png" alt="banner">
+        </div>
+
+        <div class="form-content">
+
+            <h3>Получить прайс</h3>
+            <p>Заполните форму и мы вышлем Вам прайс для оптовых покупателей</p>
+
+            <input type="text" id="username" placeholder="Имя">
+            <input type="email" id="useremail" placeholder="Email">
+            <input type="tel" id="userphone" placeholder="Телефон">
+
+            <button onclick="sendemail(this)">
+                Отправить
+            </button>
+
+        </div>
+
+        <div id="message-status">
+            <h3>Сообщение отправлено!</h3>
+        </div>
+
+    </form>
+
+</div>
+
+<script>
+
+    function sendemail(){
+
+        let popup = document.getElementById('popup-form');
+
+        let username = document.getElementById("username").value;
+        let useremail = document.getElementById("useremail").value;
+        let userphone = document.getElementById("userphone").value;
+
+        let error = true;
+
+        if(username==""){
+            document.getElementById("username").classList.add('error');
+            error = false;
+        }else{
+            document.getElementById("username").classList.remove('error');
+        }
+        if(useremail==""){
+            document.getElementById("useremail").classList.add('error');
+            error = false;
+        }else{
+            document.getElementById("useremail").classList.remove('error');
+        }
+        if(userphone==""){
+            document.getElementById("userphone").classList.add('error');
+            error = false;
+        }else{
+            document.getElementById("userphone").classList.remove('error');
+        }
+
+        if(!error){
+            return false;
+        }
+
+        const data = {
+            "from" : "email@svit-chaju.com.ua",
+            "emails" : ["vzhgut@svit-chaju.ua", "mlypko@svit-chaju.ua"],
+            "subject" : "Заявка на закупку оптом от "+username,
+            "htmlText" : "<p>Имя: "+username+"</p><p>Email: "+useremail+"</p><p>Телефон: "+userphone+"</p>"
+        }
+
+        console.log(data);
+
+        fetch(
+            'https://esputnik.com/api/v1/message/email',
+            {
+                method: 'POST',
+                mode: 'cors',
+                headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Basic ' + btoa('username:BBD005A8A163BEA61EF1AD00B1D43ACC')
+                    },
+                body: JSON.stringify(data)
+            }
+        );
+
+        showMessage();
+
+        dataLayer.push({
+            'event': 'GAevent',
+            'eventCategory': 'b2b',
+            'eventAction': 'send_wholesale_price_request'
+        })
+
+        setTimeout(function (){
+            closepopup();
+        },2000);
+
+    }
+
+    function closepopup() {
+        let popup = document.getElementById('popup-wrap');
+        popup.style.display = "none";
+        document.location.hash = "#";
+        resetMessage();
+    }
+
+    function openpopup(){
+        let popup = document.getElementById('popup-wrap');
+        popup.style.display = "block";
+    }
+
+    function showMessage(){
+        let popup = document.getElementById('message-status');
+        popup.style.display = "flex";
+    }
+
+    function resetMessage(){
+        let popup = document.getElementById('message-status');
+        popup.style.display = "none";
+        document.getElementById("username").value = "";
+        document.getElementById("useremail").value = "";
+        document.getElementById("userphone").value = "";
+
+        document.getElementById("username").classList.remove('error');
+        document.getElementById("useremail").classList.remove('error');
+        document.getElementById("userphone").classList.remove('error');
+    }
+
+    function locationHashChanged() {
+        if (location.hash === '#popup:myform') {
+            openpopup();
+        }
+    }
+
+    window.onhashchange = locationHashChanged;
+
+document.querySelectorAll('.card.orange .btn, .sc_col-12.popup-caller .btn').forEach((ob)=>{
+ob.addEventListener('click', function(event) {
+  openpopup();
+})});
+
+</script>
+
+<style>
+.popup-wrap {
+  position: fixed;
+  width: 100%;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: none;
+  z-index: 999;
+  overflow-x: auto;
+}
+.popup-wrap * {
+  font-family: inherit;
+}
+.popup-wrap .close-popup {
+  position: absolute;
+  z-index: 2;
+  color: #fff;
+  font-size: 20px;
+  top: 30px;
+  right: 30px;
+}
+.popup-wrap form {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  background-color: #fff;
+  width: 100%;
+  max-width: 560px;
+  margin: 5% auto 0 auto;
+  position: relative;
+}
+.popup-wrap form .form-banner {
+  position: relative;
+  width: 100%;
+  height: 100px;
+  overflow: hidden;
+}
+.popup-wrap form .form-banner img {
+  position: absolute;
+  min-width: 100%;
+  min-height: 100%;
+  object-fit: cover;
+  object-position: left;
+  height: 100%;
+  width: 100%;
+}
+.popup-wrap form .form-content {
+  width: 100%;
+  padding: 25px;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+.popup-wrap form .form-content * {
+  width: 100%;
+  box-sizing: border-box;
+}
+.popup-wrap form .form-content h3 {
+  text-align: center;
+  font-size: 27px;
+  margin-top: 10px;
+  color: #24c815;
+}
+.popup-wrap form .form-content p {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 16px;
+}
+.popup-wrap form .form-content input {
+  margin-bottom: 20px;
+  height: 50px;
+  line-height: 50px;
+  padding-left: 15px;
+  padding-right: 15px;
+  border: 2px solid #24c815;
+  border-radius: 3px;
+}
+.popup-wrap form .form-content input.error {
+  border: 2px solid #B11414;
+}
+.popup-wrap form .form-content button {
+  height: 50px;
+  cursor: pointer;
+  color: #ffffff;
+  background-color: #24c815;
+  border: 0;
+}
+.popup-wrap #message-status {
+  display: none;
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: #fff;
+  justify-content: center;
+  align-self: center;
+  align-items: center;
+}
+.popup-wrap #message-status h3 {
+  text-align: center;
+  font-size: 27px;
+  margin-top: 10px;
+  color: #24c815;
+}
+</style>
+
+<script>
+    !function (t, e, c, n) {
+        var s = e.createElement(c);
+        s.async = 1, s.src = 'https://statics.esputnik.com/scripts/' + n + '.js';
+        var r = e.scripts[0];
+        r.parentNode.insertBefore(s, r);
+        var f = function () {
+            f.c(arguments);
+        };
+        f.q = [];
+        f.c = function () {
+            f.q.push(arguments);
+        };
+        t['eS'] = t['eS'] || f;
+    }(window, document, 'script', 'B9ECD62681DD4B9488896946CA4AE7D0');
+</script><script>eS('init');</script>
+        <script>
+!function(t, e, c, n) {
+    var s = e.createElement(c);
+    s.async = 1, s.src = 'https://statics.esputnik.com/scripts/' + n + '.js';
+    var r = e.scripts[0];
+    r.parentNode.insertBefore(s, r);
+    var f = function() {
+    f.c(arguments);
+};
+    f.q = [];
+    f.c = function() {
+    f.q.push(arguments);
+};
+    t['eS'] = t['eS'] || f;
+}(window, document, 'script', 'BBD005A8A163BEA61EF1AD00B1D43ACC');
+</script>
+<script>
+eS('init', {
+    TRACKING: true,
+    RECOMS: true
+});
+</script>
+            <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                                                                        <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uid0a70bbae0ebd2b4dd9f2be3a33f519b5" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uid0a70bbae0ebd2b4dd9f2be3a33f519b5");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

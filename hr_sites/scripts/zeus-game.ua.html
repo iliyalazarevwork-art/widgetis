@@ -1,0 +1,572 @@
+<!-- source: https://zeus-game.ua/ -->
+<!-- extracted: 2026-05-07T21:31:48.365Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 26993 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <!-- JediDesk widget -->
+             <script type="text/javascript">
+                        window.jediDeskSettings = {
+                        token: "646635427452587a3174643472656d5a6d74774a784f50",
+             };
+             </script>
+
+<script async>!function(e,t){var d=new Date().getTime();e.JediDesk=function(){e.JediDesk.q=arguments},e.JediDesk.q=[];var i=document.createElement("link");i.href="//widget.jedidesk.com/static/css/index_bundle.css?v="+d,i.rel="stylesheet",window.addEventListener("message",function(e){if(!e&&!e.data)return;var t=e.data.options,d=e.data.data,i=new CustomEvent(t,{detail:d});window.dispatchEvent(i)}),document.head.appendChild(i);var a=document.createElement("div");a.id="jedidesk",document.body.appendChild(a);var s=document.createElement("script");s.src="//widget.jedidesk.com/static/js/main.js?v="+d,document.body.appendChild(s)}(window,document);</script>
+
+<!-- ZEUS-Game | Mousepad Calculator (RU/UK) + AddToCart + Checkout Visual Price -->
+<script>
+(function(){
+  /* ===================== НАСТРОЙКИ ===================== */
+  var PRICE_PER_M2 = 2400; // грн/м²
+  var MIN_PRICE    = 399;  // минимальная стоимость
+  var COMMENT_KEY  = 'mp_calc_comment_v1';
+
+  /* ===================== ЯЗЫК/СЛОВАРЬ ===================== */
+  var lang = (document.documentElement.lang || 'ru').toLowerCase().slice(0,2);
+  var dict = {
+    ru: {
+      title:"Конструктор коврика", shape:"Форма", width:"Ширина (мм)", height:"Высота (мм)",
+      photo:"Фотопечать", stitch:"Прошивка краёв", price:"Итоговая стоимость",
+      preview:"Предпросмотр коврика", anySize:"Можно любой размер", circleHint:"Для круга — не используется",
+      addToCart:"Купить", sizeLbl:"Размер", areaLbl:"Площадь", minPrice:"Минимальная стоимость",
+      rect:"Прямоугольный", sqr:"Квадратный", cir:"Круглый",
+      addToCartFail:"Не удалось автоматически добавить товар в корзину. Пожалуйста, отправьте запрос через форму или свяжитесь с менеджером.",
+      calcPriceLabel:"Цена по расчёту калькулятора", willConfirm:"(будет подтверждена менеджером)",
+      clarifyText:/ціну уточнюйте|цену уточняйте/i,
+      askPriceInfo:"Мы рассчитали параметры коврика и скопировали их в буфер обмена. Вставьте эти данные в комментарий к заказу или отправьте менеджеру.",
+      commentPlaceholder:"Параметры коврика по расчёту калькулятора"
+    },
+    uk: {
+      title:"Конструктор килимка", shape:"Форма", width:"Ширина (мм)", height:"Висота (мм)",
+      photo:"Фотодрук", stitch:"Прошивка країв", price:"Підсумкова вартість",
+      preview:"Попередній перегляд килимка", anySize:"Можна будь-який розмір", circleHint:"Для кола — не використовується",
+      addToCart:"Купити", sizeLbl:"Розмір", areaLbl:"Площа", minPrice:"Мінімальна вартість",
+      rect:"Прямокутний", sqr:"Квадратний", cir:"Круглий",
+      addToCartFail:"Не вдалося автоматично додати товар у кошик. Будь ласка, надішліть запит через форму або зв’яжіться з менеджером.",
+      calcPriceLabel:"Ціна за розрахунком калькулятора", willConfirm:"(буде підтверджено менеджером)",
+      clarifyText:/ціну уточнюйте|цену уточняйте/i,
+      askPriceInfo:"Ми розрахували параметри килимка та скопіювали їх у буфер обміну. Вставте ці дані в коментар до замовлення або передайте менеджеру.",
+      commentPlaceholder:"Параметри килимка за розрахунком калькулятора"
+    }
+  };
+  var t = dict[lang] || dict.ru;
+
+  /* ===================== УТИЛИТЫ ===================== */
+  function formatUA(n){
+    try { return new Intl.NumberFormat('uk-UA').format(n); }
+    catch(e){ return String(n); }
+  }
+  function toNum(el){
+    if(!el) return 0;
+    var v=(typeof el.valueAsNumber==='number')
+      ? el.valueAsNumber
+      : parseFloat(String(el.value||'').replace(',','.'));
+    return Number.isFinite(v)?v:0;
+  }
+
+  // клик по «родной» кнопке «Купить/Купити»
+  function addCurrentProductToCart(){
+    var candidates=[
+      '[data-cart-add]','[data-add-to-cart]','[data-action="add-to-cart"]','[data-action="basket-add"]',
+      '[data-qa="add-to-cart"]','.js-add-to-cart','.product__buy button','.buy button',
+      'button[name="buy"]','button.add-to-cart','a.add-to-cart','.btn-buy','.button-buy','.add-to-basket',
+      'form[action*="cart"] button[type="submit"]','form[action*="basket"] button[type="submit"]',
+      'form[action*="checkout"] button[type="submit"]','[href*="/cart/add"]'
+    ];
+    for(var i=0;i<candidates.length;i++){
+      var el=document.querySelector(candidates[i]);
+      if(el && el.offsetParent!==null){
+        el.click();
+        return true;
+      }
+    }
+    // поиск по тексту
+    var texts=['Купить','Купити','В корзину','До кошика','Добавить в корзину','Додати у кошик','Придбати'];
+    var nodes=Array.from(document.querySelectorAll('button, a'));
+    for(var j=0;j<nodes.length;j++){
+      var n=nodes[j];
+      var tx=(n.textContent||'').trim().toLowerCase();
+      if(!tx) continue;
+      for(var k=0;k<texts.length;k++){
+        if(tx.indexOf(texts[k].toLowerCase())!==-1 && n.offsetParent!==null){
+          n.click();
+          return true;
+        }
+      }
+    }
+    // сабмит формы товара (если есть)
+    var form=document.querySelector('form[action*="cart"], form[action*="basket"], form[action*="checkout"]');
+    if(form){
+      form.submit();
+      return true;
+    }
+    return false;
+  }
+
+  // fallback: просто показать инфо + скопировать текст
+  function fallbackAskPrice(comment){
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(comment).catch(function(){});
+    }
+    alert(t.askPriceInfo + "\n\n" + comment);
+  }
+
+  /* ===================== МОНТАЖ КАЛЬКУЛЯТОРА ===================== */
+  function mount(root){
+    if(!root || root.__mpcMounted) return;
+    root.__mpcMounted=true;
+
+    // стили
+    var style=document.createElement('style');
+    style.textContent=`
+      .mpc-wrap{max-width:900px;margin:20px auto;padding:16px;border:2px solid rgba(0,0,0,.2);border-radius:18px;background:#fff;font-family:Arial,sans-serif;color:#000}
+      .mpc-title{margin:0 0 14px;text-align:center;font-size:22px}
+      .mpc-table{border-collapse:collapse;width:100%}
+      .mpc-table th,.mpc-table td{border:1px solid rgba(0,0,0,.3);padding:10px;vertical-align:top}
+      .mpc-table th{background:#fafafa}
+      .mpc-input,.mpc-select{width:100%;padding:8px;border-radius:10px;border:1px solid #000;box-sizing:border-box}
+      .mpc-hint{font-size:12px;color:#666;margin-top:6px}
+      .mpc-price{font-weight:700;color:green;font-size:20px;margin:6px 0 0}
+      .mpc-breakdown{white-space:pre-line;color:#555;font-size:13px;margin-top:6px}
+      .mpc-previewBox{margin-top:18px;text-align:center}
+      .mpc-pad{display:inline-block;width:min(90%,560px);aspect-ratio:3/2;background:linear-gradient(120deg,#ddd,#bbb);border:2px solid #000;border-radius:14px;overflow:hidden;transition:border-radius .4s.ease,aspect-ratio .3s.ease}
+      .mpc-pad img{width:100%;height:100%;object-fit:cover;opacity:.95}
+      .mpc-btn{margin-top:14px;padding:12px 20px;background:#000;color:#fff;border:0;border-radius:10px;cursor:pointer;font-size:16px;font-weight:bold}
+      .mpc-btn:hover{background:#333}
+      .mpc-checkout-note{margin-top:10px;padding:10px;border:1px dashed #2e7d32;background:#f0fff0;border-radius:8px;font-weight:600}
+      .mpc-price-inline{display:inline-block;margin-left:.5rem;padding:.1rem .4rem;border-radius:6px;background:#f0fff0;border:1px dashed #2e7d32;font-weight:700}
+    `;
+    document.head.appendChild(style);
+
+    // разметка
+    root.innerHTML=`
+      <div class="mpc-wrap">
+        <h2 class="mpc-title">${t.title}</h2>
+        <form id="mpc-form">
+          <table class="mpc-table"><tbody>
+            <tr><th>${t.shape}</th><th>${t.price}</th></tr>
+            <tr>
+              <td>
+                <label>${t.shape}</label>
+                <select id="mpc-shape" class="mpc-select">
+                  <option value="rect">${t.rect}</option>
+                  <option value="square">${t.sqr}</option>
+                  <option value="circle">${t.cir}</option>
+                </select>
+                <div class="mpc-hint"></div>
+              </td>
+              <td>
+                <div class="mpc-price" id="mpc-price">0 грн</div>
+                <div class="mpc-breakdown" id="mpc-breakdown"></div>
+              </td>
+            </tr>
+            <tr id="mpc-rowW">
+              <td colspan="2">
+                <label>${t.width}</label>
+                <input id="mpc-w" class="mpc-input" type="number" min="100" step="1" value="900">
+                <div class="mpc-hint">${t.anySize}</div>
+              </td>
+            </tr>
+            <tr id="mpc-rowH">
+              <td colspan="2">
+                <label>${t.height}</label>
+                <input id="mpc-h" class="mpc-input" type="number" min="100" step="1" value="450">
+                <div class="mpc-hint">${t.circleHint}</div>
+              </td>
+            </tr>
+            <tr>
+              <td><label><input id="mpc-photo" type="checkbox"> ${t.photo} +100 грн</label></td>
+              <td><label><input id="mpc-stitch" type="checkbox"> ${t.stitch} +50 грн</label></td>
+            </tr>
+          </tbody></table>
+        </form>
+        <div class="mpc-previewBox">
+          <strong>${t.preview}</strong><br>
+          <div class="mpc-pad" id="mpc-pad"><img id="mpc-img" alt=""></div>
+        </div>
+        <button type="button" class="mpc-btn" id="mpc-buy">${t.addToCart}</button>
+      </div>
+    `;
+
+    // элементы
+    var form=document.getElementById('mpc-form');
+    var shapeEl=document.getElementById('mpc-shape');
+    var wEl=document.getElementById('mpc-w');
+    var hEl=document.getElementById('mpc-h');
+    var rowH=document.getElementById('mpc-rowH');
+    var photoEl=document.getElementById('mpc-photo');
+    var stitchEl=document.getElementById('mpc-stitch');
+    var priceEl=document.getElementById('mpc-price');
+    var brEl=document.getElementById('mpc-breakdown');
+    var pad=document.getElementById('mpc-pad');
+    var buyBtn=document.getElementById('mpc-buy');
+
+    // расчёт
+    function dims(){
+      var shape=shapeEl.value;
+      var w=Math.max(0,toNum(wEl));
+      var h=Math.max(0,toNum(hEl));
+      if(shape==='square'||shape==='circle'){ h=w; }
+      return {shape:shape,w:w,h:h,isCircle:(shape==='circle')};
+    }
+    function areaM2(d){
+      if(d.isCircle){
+        var r=(d.w/2)/1000;
+        return Math.PI*r*r;
+      }
+      return (d.w/1000)*(d.h/1000);
+    }
+    function update(){
+      var d=dims();
+      pad.style.aspectRatio=d.isCircle?'1/1':((d.w>0&&d.h>0)?(d.w+'/'+d.h):'3/2');
+      pad.style.borderRadius=d.isCircle?'9999px':'14px';
+      rowH.style.display=d.isCircle?'none':'';
+
+      var S=areaM2(d), base=S*PRICE_PER_M2, extras=0, lines=[];
+      lines.push(t.sizeLbl+': '+Math.round(d.w)+'×'+Math.round(d.h)+' мм');
+      lines.push(t.areaLbl+': '+S.toFixed(3)+' м² × '+PRICE_PER_M2+' грн/м² = '+Math.round(base)+' грн');
+      if(photoEl && photoEl.checked){
+        extras+=100;
+        lines.push('+ '+t.photo+': 100 грн');
+      }
+      if(stitchEl && stitchEl.checked){
+        extras+=50;
+        lines.push('+ '+t.stitch+': 50 грн');
+      }
+      var total=Math.round(base+extras);
+      if(total<MIN_PRICE){
+        lines.push(t.minPrice+': '+MIN_PRICE+' грн');
+        total=MIN_PRICE;
+      }
+
+      priceEl.textContent=formatUA(total)+' грн';
+      brEl.textContent=lines.join('\n');
+
+      buyBtn.setAttribute("data-price", total);
+      buyBtn.setAttribute("data-size", d.w+"x"+d.h+" мм");
+      buyBtn.setAttribute("data-area", S.toFixed(3));
+      buyBtn.setAttribute("data-photo", photoEl && photoEl.checked ? '1':'0');
+      buyBtn.setAttribute("data-stitch", stitchEl && stitchEl.checked ? '1':'0');
+    }
+    form.addEventListener('input', update, true);
+    form.addEventListener('change', update, true);
+    update();
+
+    // кнопка "Купить"
+    buyBtn.addEventListener('click', function(){
+      var d=dims(), S=areaM2(d), base=S*PRICE_PER_M2, extras=0, opts=[];
+      if(photoEl && photoEl.checked){
+        extras+=100;
+        opts.push((lang==='uk'?'Фотодрук: +100 грн':'Фотопечать: +100 грн'));
+      }
+      if(stitchEl && stitchEl.checked){
+        extras+=50;
+        opts.push((lang==='uk'?'Прошивка країв: +50 грн':'Прошивка краёв: +50 грн'));
+      }
+      var total=Math.round(Math.max(base+extras, MIN_PRICE));
+
+      var comment = t.title+" | "+
+                    t.sizeLbl+": "+Math.round(d.w)+"×"+Math.round(d.h)+" мм | "+
+                    t.areaLbl+": "+S.toFixed(3)+" м² | "+
+                    t.price+": "+total+" грн"+
+                    (opts.length ? " | "+opts.join(" ; ") : "");
+
+      // сохраняем комментарий в sessionStorage
+      try {
+        sessionStorage.setItem(COMMENT_KEY, comment);
+      } catch(e){}
+
+      // пробуем кликнуть родную кнопку "Купить"
+      var added=addCurrentProductToCart();
+      if(!added){
+        // если не получилось — хотя бы даём пользователю текст
+        fallbackAskPrice(comment);
+      }
+      // НИКАКИХ дополнительных редиректов! Сайт сам ведёт на корзину/оформление.
+    });
+  }
+
+  // автомонтаж калькулятора
+  function tryMountAll(){
+    document.querySelectorAll('#mp-calc-root').forEach(mount);
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', tryMountAll);
+  } else {
+    tryMountAll();
+  }
+  new MutationObserver(tryMountAll).observe(document.documentElement,{childList:true,subtree:true});
+  window.addEventListener('popstate', tryMountAll);
+
+  /* ===================== CHECKOUT: ВИЗУАЛЬНАЯ ПОДСТАНОВКА ЦЕНЫ ===================== */
+  (function(){
+    function isCheckout(){ return /\/checkout(\/|$|\?)/.test(location.pathname); }
+    if(!isCheckout()) return;
+
+    // достаём комментарий с параметрами
+    function getComment(){
+      var raw = "";
+
+      // 1) из sessionStorage (после клика по калькулятору)
+      try {
+        raw = sessionStorage.getItem(COMMENT_KEY) || "";
+      } catch(e){ raw = ""; }
+
+      // 2) из параметра ?comment= (на всякий случай, если вдруг где-то используется)
+      if(!raw){
+        try{
+          var q=new URLSearchParams(location.search);
+          raw=q.get('comment')||'';
+        }catch(e){}
+      }
+
+      // 3) из уже существующего поля комментария (если пользователь перешёл позже)
+      var area=document.querySelector('textarea[name*="comment"], textarea#comment, textarea[name="order_comment"], input[name*="comment"]');
+      if(area && area.value){
+        raw=area.value;
+      }else if(area && !area.value && raw){
+        // авто-подстановка в поле комментария
+        area.value = raw;
+      }
+
+      return raw;
+    }
+
+    function parsePriceFromComment(raw){
+      if(!raw) return null;
+
+      // ищем "Підсумкова вартість: 2400 грн" / "Итоговая стоимость: 2400 грн"
+      var m=raw.match(/(?:Підсумкова вартість|Итоговая вартість|Итоговая стоимость)\s*:\s*([\d\s]+)\s*грн/i);
+      if(m) return parseInt(m[1].replace(/\s/g,''),10);
+
+      // запасной вариант — последнее число перед "грн"
+      var m2=raw.match(/(\d[\d\s]*)\s*грн(?!.*\d)/i);
+      if(m2) return parseInt(m2[1].replace(/\s/g,''),10);
+      return null;
+    }
+
+    function renderTotalBadge(price){
+      if(!price) return;
+      if(document.querySelector('.mpc-checkout-note')) return;
+
+      var note=document.createElement('div');
+      note.className='mpc-checkout-note';
+      try {
+        note.textContent=t.calcPriceLabel+': '+new Intl.NumberFormat('uk-UA').format(price)+' грн '+t.willConfirm;
+      } catch(e){
+        note.textContent=t.calcPriceLabel+': '+price+' грн '+t.willConfirm;
+      }
+
+      // ищем блок "Всього / Итого / Разом"
+      var nodes=Array.from(document.querySelectorAll('div,td,span,p,li,section'));
+      var totalNode=nodes.find(function(el){
+        var tx=(el.textContent||'').trim().toLowerCase();
+        return /всього|итого|разом/.test(tx);
+      });
+
+      if(totalNode && totalNode.parentElement){
+        totalNode.parentElement.appendChild(note);
+      } else {
+        var sidebar=document.querySelector('.order-summary,.checkout__summary,.cart__sidebar,.summary,.js-order-summary');
+        if(sidebar) sidebar.appendChild(note); else document.body.appendChild(note);
+      }
+    }
+
+    function renderInlinePrice(price){
+      if(!price) return;
+      var elements=Array.from(document.querySelectorAll('.price, .product__price, .cart-item__price, td, span, div'));
+      elements.forEach(function(el){
+        var tx=(el.textContent||'').trim();
+        if(!tx) return;
+        if(t.clarifyText.test(tx)){
+          if(el.querySelector('.mpc-price-inline')) return;
+          var mark=document.createElement('span');
+          mark.className='mpc-price-inline';
+          try{
+            mark.textContent='≈ '+new Intl.NumberFormat('uk-UA').format(price)+' грн';
+          }catch(e){
+            mark.textContent='≈ '+price+' грн';
+          }
+          el.appendChild(mark);
+        }
+      });
+    }
+
+    function tick(){
+      var comment = getComment();
+      var p = parsePriceFromComment(comment);
+      renderTotalBadge(p);
+      renderInlinePrice(p);
+      // можно очистить комментарий в sessionStorage, чтобы не тянуть старые данные в будущие заказы
+      try { sessionStorage.removeItem(COMMENT_KEY); } catch(e){}
+    }
+
+    if(document.readyState==='loading'){
+      document.addEventListener('DOMContentLoaded', tick);
+    } else {
+      tick();
+    }
+    new MutationObserver(tick).observe(document.documentElement,{childList:true,subtree:true});
+  })();
+
+})();
+</script>
+        <script src="https://apis.google.com/js/platform.js?onload=renderOptIn" async defer>
+            </script>
+
+gtag('config', 'AW-16631451953');        <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Увійдіть для відображення накопичувальної знижки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                                                                                <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uid5ace6b3b30c208491942f5266a33a001" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uid5ace6b3b30c208491942f5266a33a001");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

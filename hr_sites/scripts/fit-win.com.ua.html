@@ -1,0 +1,220 @@
+<!-- source: https://fit-win.com.ua/ -->
+<!-- extracted: 2026-05-07T21:31:38.422Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 7543 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <style>
+  /* Напівпрозорий фон */
+  #popupOverlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 9999;
+  }
+
+  /* Вікно повідомлення */
+  #popup {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #ffffff;
+    color: #333;
+    padding: 25px 30px;
+    width: 340px;
+    border-radius: 12px;
+    text-align: center;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    animation: fadeIn 0.4s ease;
+  }
+
+  #popup h2 {
+    margin-top: 0;
+    color: #0078d7;
+    font-size: 20px;
+  }
+
+  #popup p {
+    margin: 10px 0;
+    line-height: 1.5;
+    font-size: 15px;
+  }
+
+  #confirmBtn {
+    margin-top: 15px;
+    padding: 10px 20px;
+    background: #0078d7;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    transition: background 0.2s ease;
+  }
+
+  #confirmBtn:hover {
+    background: #005fa3;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translate(-50%, -55%); }
+    to { opacity: 1; transform: translate(-50%, -50%); }
+  }
+</style>
+
+<div id="popupOverlay">
+  <div id="popup">
+    <h2>Графік роботи магазину</h2>
+    <p>🛒 Замовлення на сайті приймаються он-лайн <strong>24/7</strong>.</p>
+    <p>📦 Обробка та відправка замовлень: <br><strong>Пн–Пт з 09:00 до 17:00</strong>.</p>
+    <p>🚚 Термін відправки: <strong>2–4 робочих дні</strong>.</p>
+    <button id="confirmBtn">Ознайомлений</button>
+  </div>
+</div>
+
+<script>
+  // --- Функція для роботи з кукі ---
+  function setCookie(name, value, hours) {
+    const d = new Date();
+    d.setTime(d.getTime() + (hours * 60 * 60 * 1000));
+    document.cookie = name + "=" + value + ";expires=" + d.toUTCString() + ";path=/";
+  }
+
+  function getCookie(name) {
+    const cname = name + "=";
+    const decoded = decodeURIComponent(document.cookie);
+    const ca = decoded.split(';');
+    for(let i = 0; i < ca.length; i++) {
+      let c = ca[i].trim();
+      if (c.indexOf(cname) == 0) {
+        return c.substring(cname.length, c.length);
+      }
+    }
+    return "";
+  }
+
+  // --- Головна логіка ---
+  window.addEventListener('load', function() {
+    // Перевіряємо, чи є кукі "popupSeen"
+    if (!getCookie("popupSeen")) {
+      setTimeout(function() {
+        document.getElementById('popupOverlay').style.display = 'block';
+      }, 1500); // показ через 1.5 сек
+    }
+
+    // Кнопка "Ознайомлений" — закриває вікно і ставить кукі на 24 год
+    document.getElementById('confirmBtn').addEventListener('click', function() {
+      document.getElementById('popupOverlay').style.display = 'none';
+      setCookie("popupSeen", "yes", 24); // 24 години
+    });
+  });
+</script>
+                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uid4ee58f7fe253a2e2faf24bd0a0a0d1a8" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uid4ee58f7fe253a2e2faf24bd0a0a0d1a8");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

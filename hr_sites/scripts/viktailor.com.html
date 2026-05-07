@@ -1,0 +1,323 @@
+<!-- source: https://viktailor.com/ -->
+<!-- extracted: 2026-05-07T21:30:51.966Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 13761 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <!-- KeyCRM online chat widget + VikTailor custom launcher (v1) -->
+<script>
+(function(w,d,t,u){
+  var s=d.createElement(t),j=d.getElementsByTagName(t)[0];
+  s.src=u; s.async=true; s.defer=true;
+
+  s.onload=function(){
+    // Render KeyCRM widget
+    if (w.KeyCRM && typeof w.KeyCRM.render === "function") {
+      w.KeyCRM.render({ token:"2a6649e3-403e-43ed-af2a-220d7f204d94" });
+    }
+
+    // Mark / hide native launcher once it appears
+    var tries = 0;
+    var timer = setInterval(function(){
+      tries++;
+
+      // Native KeyCRM toggle container from your DOM
+      var nativeContainer = d.querySelector('.KeyCRM-toggleButtonContainer');
+      var nativeButton = d.querySelector('button.KeyCRM-toggleButton');
+
+      if (nativeContainer) nativeContainer.classList.add('vt-keycrm-native');
+      if (nativeButton) nativeButton.classList.add('vt-keycrm-native-btn');
+
+      // stop when found at least one
+      if (nativeContainer || nativeButton) clearInterval(timer);
+      if (tries > 120) clearInterval(timer); // ~30s
+    }, 250);
+  };
+
+  j.parentNode.insertBefore(s,j);
+})(window, document, "script","https://chat.key.live/bundles/widget.min.js");
+</script>
+
+<style>
+/* =========================
+   VikTailor palette
+   ========================= */
+:root{
+  --vt-ink:#0b0d0c;
+  --vt-panel:#101211;
+  --vt-paper:#f6f4ee;
+  --vt-neon:#c6ff1a;
+  --vt-shadow:0 12px 34px rgba(10,14,12,.25);
+}
+
+/* =========================
+   1) Hide native KeyCRM launcher
+   IMPORTANT: don't use display:none
+   ========================= */
+.KeyCRM-toggleButtonContainer,
+.vt-keycrm-native{
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: scale(.7) !important;
+}
+
+/* резервные селекторы под другие версии */
+.keycrm__launcher,
+.keycrm-launcher,
+.keycrm-widget-button,
+[class*="keycrm"][class*="launcher"],
+[class*="keycrm"][class*="toggle"]{
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* =========================
+   2) Our custom VikTailor button
+   ========================= */
+#vtChatBtn{
+  position: fixed;
+  right: 32px;
+  bottom: 110px;
+
+  width: 62px;
+  height: 62px;
+  border-radius: 999px;
+
+  background: var(--vt-panel);
+  color: var(--vt-paper);
+  border: 1px solid rgba(198,255,26,.65);
+
+  box-shadow: var(--vt-shadow);
+  cursor: pointer;
+  z-index: 999999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+
+#vtChatBtn:hover{
+  transform: translateY(-1px);
+  border-color: var(--vt-neon);
+  box-shadow: 0 14px 40px rgba(10,14,12,.30), 0 0 0 3px rgba(198,255,26,.18);
+}
+
+#vtChatBtn:active{ transform: translateY(0); }
+
+/* маленькая неоновая точка-акцент */
+#vtChatBtn .vt-dot{
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--vt-neon);
+  box-shadow: 0 0 0 3px rgba(198,255,26,.18);
+  margin-left: 6px;
+}
+
+/* svg-иконка белая */
+#vtChatBtn svg{ display:block; }
+#vtChatBtn svg path{ stroke: var(--vt-paper); }
+</style>
+
+<!-- Custom button -->
+<button id="vtChatBtn" type="button" aria-label="Відкрити чат">
+  <!-- simple chat icon -->
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M7.5 18.5L4.5 20V6.5C4.5 5.4 5.4 4.5 6.5 4.5H17.5C18.6 4.5 19.5 5.4 19.5 6.5V14.5C19.5 15.6 18.6 16.5 17.5 16.5H9.5L7.5 18.5Z"
+          stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M8 8.5H16" stroke-width="1.8" stroke-linecap="round"/>
+    <path d="M8 11.5H13.5" stroke-width="1.8" stroke-linecap="round"/>
+  </svg>
+  <span class="vt-dot" aria-hidden="true"></span>
+</button>
+
+<script>
+(function(){
+  function openKeycrm(){
+    // 1) try direct click on native KeyCRM button (your DOM)
+    var btn = document.querySelector('button.KeyCRM-toggleButton');
+    if (btn) { btn.click(); return; }
+
+    // 2) try common fallbacks
+    var selectors = [
+      '.KeyCRM-toggleButtonContainer button',
+      '.keycrm__launcher',
+      '.keycrm-launcher',
+      '.keycrm-widget-button',
+      '[class*="keycrm"][class*="launcher"]',
+      '[class*="keycrm"][class*="toggle"]',
+      '[class*="keycrm"][class*="button"]'
+    ];
+
+    for (var i=0;i<selectors.length;i++){
+      var el = document.querySelector(selectors[i]);
+      if (el) { el.click(); return; }
+    }
+
+    // 3) last fallback: scroll to iframe
+    var iframe = document.querySelector('iframe[src*="key.live"]');
+    if (iframe) iframe.scrollIntoView({block:"end", behavior:"smooth"});
+  }
+
+  var myBtn = document.getElementById('vtChatBtn');
+  if (myBtn) myBtn.addEventListener('click', openKeycrm);
+})();
+</script>
+<!-- /KeyCRM online chat widget + VikTailor custom launcher (v1) -->                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Увійти для відображення накопичувальної знижки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                                                                                <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uid6a953888a1b22084e91df31e6058524f" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uid6a953888a1b22084e91df31e6058524f");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

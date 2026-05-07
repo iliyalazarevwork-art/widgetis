@@ -1,0 +1,289 @@
+<!-- source: https://vertogarment.com/ -->
+<!-- extracted: 2026-05-07T21:34:43.849Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 12881 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <script src="https://api.vertogarment.com/checkout-redesign.js"></script>
+<script src="https://api.vertogarment.com/form/form.js"></script>
+
+<script src="https://api.vertogarment.com/video/js/product-videos.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const faqItems = document.querySelectorAll('.sol-faq-item');
+
+    faqItems.forEach(item => {
+        const questionButton = item.querySelector('.sol-faq-question');
+        const answerDiv = item.querySelector('.sol-faq-answer');
+
+        questionButton.addEventListener('click', () => {
+            const isExpanded = questionButton.getAttribute('aria-expanded') === 'true';
+
+            questionButton.setAttribute('aria-expanded', !isExpanded);
+            
+            if (!isExpanded) {
+                // Відкриваємо відповідь
+                answerDiv.style.maxHeight = answerDiv.scrollHeight + 'px';
+            } else {
+                // Закриваємо відповідь
+                answerDiv.style.maxHeight = '0';
+            }
+        });
+    });
+});
+</script>
+
+<script>
+(function () {
+    const CUSTOM_TEXT = "Під замовлення 2-3 дні";
+    const SOLD_OUT_TEXT = "Немає в наявності";
+    // Замість фіксованого тексту використовуємо регулярний вираз
+    const TARGET_STICKER_PATTERN = /^\d+-\d+\s+дн[іi][в]?$/;
+
+    function debounce(fn, delay) {
+        let t;
+        return function (...args) {
+            clearTimeout(t);
+            t = setTimeout(() => fn.apply(this, args), delay);
+        };
+    }
+
+    // Повертає всі стікер-блоки (десктоп + моб)
+    function getStickerBlocks(scope = document) {
+        return scope.querySelectorAll(".productSticker, .product-sticker");
+    }
+
+    // Перевіряє, чи є в блоці стікер з потрібним текстом (використовує регулярний вираз)
+    function hasTargetSticker(stickerBlock) {
+        const contents = stickerBlock.querySelectorAll(".productSticker-content, .product-sticker__content");
+        return Array.from(contents).some(
+            (el) => {
+                const text = (el.textContent || "").trim();
+                console.log(`Перевіряємо текст стікера: "${text}"`);
+                const matches = TARGET_STICKER_PATTERN.test(text);
+                console.log(`Чи відповідає паттерну: ${matches}`);
+                return matches;
+            }
+        );
+    }
+
+    // Функція для генерації кастомного тексту на основі знайденого стікера
+    function generateCustomText(stickerBlock) {
+        const contents = stickerBlock.querySelectorAll(".productSticker-content, .product-sticker__content");
+        
+        for (const el of contents) {
+            const text = (el.textContent || "").trim();
+            console.log(`Генеруємо текст для: "${text}"`);
+            if (TARGET_STICKER_PATTERN.test(text)) {
+                const customText = `Під замовлення ${text}`;
+                console.log(`Згенерований текст: "${customText}"`);
+                return customText;
+            }
+        }
+        
+        console.log(`Використовуємо fallback: "${CUSTOM_TEXT}"`);
+        return CUSTOM_TEXT; // Fallback до дефолтного значення
+    }
+
+    // Знаходимо релевантні елементи доступності відносно блоку товару
+    function findAvailabilityEls(scope) {
+        const productScope = scope.closest?.(".product") || document;
+        return productScope.querySelectorAll(".product-header__availability, .presence-status");
+    }
+
+    // Головна функція оновлення
+    function updateAvailability() {
+        const stickerBlocks = getStickerBlocks();
+        if (!stickerBlocks.length) return;
+
+        stickerBlocks.forEach((stickerBlock) => {
+            const hasTarget = hasTargetSticker(stickerBlock);
+            const availabilityEls = findAvailabilityEls(stickerBlock);
+
+            availabilityEls.forEach((el) => {
+                const current = (el.textContent || "").trim();
+
+                // Якщо зараз “Немає в наявності” — нічого не змінюємо
+                if (current === SOLD_OUT_TEXT) return;
+
+                // Запам'ятаємо оригінал один раз
+                if (!el.dataset.originalAvailabilitySaved) {
+                    el.dataset.originalAvailability = current;
+                    el.dataset.originalAvailabilitySaved = "1";
+                }
+
+                if (hasTarget) {
+                    const customText = generateCustomText(stickerBlock);
+                    if (el.textContent !== customText) el.textContent = customText;
+                } else {
+                    // Повертаємо оригінал
+                    const original = el.dataset.originalAvailability || "";
+                    if (el.textContent !== original) el.textContent = original;
+                }
+            });
+        });
+    }
+
+    const updateAvailabilityDebounced = debounce(updateAvailability, 80);
+
+    document.addEventListener("DOMContentLoaded", updateAvailability);
+
+    const OBSERVE_WITHIN = [
+        ".product__modifications",
+        ".product__block--modifications", // моб
+        ".productSticker",
+        ".product-sticker",
+        ".product-header__availability",
+        ".presence-status"
+    ].join(", ");
+
+    const bodyObserver = new MutationObserver((mutations) => {
+        for (const m of mutations) {
+            const target = m.target.nodeType === 1 ? m.target : m.target.parentElement;
+            if (!target) continue;
+
+            if (target.closest && target.closest(OBSERVE_WITHIN)) {
+                updateAvailabilityDebounced();
+                break;
+            }
+        }
+    });
+
+    function startObserver() {
+        bodyObserver.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            characterData: true
+        });
+    }
+
+    if (document.body) {
+        startObserver();
+    } else {
+        document.addEventListener("DOMContentLoaded", startObserver);
+    }
+})();
+</script>                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                                                                        <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    ₴0                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>        

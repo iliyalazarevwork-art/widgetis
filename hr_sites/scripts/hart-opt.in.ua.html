@@ -1,0 +1,559 @@
+<!-- source: https://hart-opt.in.ua/ -->
+<!-- extracted: 2026-05-07T21:33:15.608Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 18954 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Модалка</title>
+
+<style>
+/* ================= ПК-модалка ================= */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0,0,0,0);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.4s ease, background 0.4s ease, visibility 0.4s;
+  z-index: 1000;
+}
+
+.modal.show {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  background: rgba(0,0,0,0.6);
+}
+
+.modal-content {
+  background: #fff;
+  padding: 40px 30px;
+  border-radius: 20px;
+  width: 380px;
+  max-width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  transform: translateY(-50px) scale(0.9);
+  opacity: 0;
+  transition: transform 0.4s ease, opacity 0.4s ease;
+  position: relative;
+}
+
+.modal.show .modal-content {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+/* ===== ІЗОЛЬОВАНІ СТИЛІ (НЕ ЛАМАЮТЬ САЙТ) ===== */
+.modal h2,
+.modal-mobile h2 {
+  margin-bottom: 15px;
+  color: #222;
+  font-size: 22px;
+}
+
+.modal p,
+.modal-mobile p {
+  margin-bottom: 25px;
+  color: #555;
+  font-size: 15px;
+}
+
+.modal input,
+.modal-mobile input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.modal input:focus,
+.modal-mobile input:focus {
+  border-color: #ff7f50;
+  box-shadow: 0 0 8px rgba(255,127,80,0.3);
+  outline: none;
+}
+
+.modal button,
+.modal-mobile button {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(90deg, #FFD54F, #FFC107);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: transform 0.2s;
+}
+
+.modal button:hover,
+.modal-mobile button:hover {
+  transform: translateY(-2px);
+}
+
+/* ===== Повідомлення ===== */
+#success-message,
+#mobileSuccess {
+  color: green;
+  margin-top: 15px;
+  font-weight: bold;
+  display: none;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.error-message {
+  color: red;
+  font-size: 13px;
+  margin-bottom: 10px;
+  display: none;
+}
+
+/* ===== Закриття ===== */
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 18px;
+  font-size: 32px;
+  color: #aaa;
+  cursor: pointer;
+}
+
+.close-btn:hover {
+  color: #333;
+  transform: scale(1.2);
+}
+
+/* ================= Мобільна модалка ================= */
+.modal-mobile {
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0,0,0,0);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.4s ease, visibility 0.4s ease, background 0.4s ease;
+  z-index: 1000;
+}
+
+.modal-mobile.show {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  background: rgba(0,0,0,0.6);
+}
+
+.modal-mobile-content {
+  background: #fff;
+  padding: 30px 20px;
+  border-radius: 20px;
+  max-width: 90%;
+  text-align: center;
+  transform: translateY(-30px) scale(0.9);
+  opacity: 0;
+  transition: transform 0.4s ease, opacity 0.4s ease;
+  position: relative;
+}
+
+.modal-mobile.show .modal-mobile-content {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+.close-btn-mobile {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 28px;
+  color: #aaa;
+  cursor: pointer;
+}
+
+/* ================= Плаваюча кнопка ================= */
+#openModalBtn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: linear-gradient(90deg, #FFD54F, #FFC107);
+  color: #1a1a1a;
+  border: none;
+  border-radius: 30px;
+  padding: 12px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(255,193,7,0.3);
+  z-index: 999;
+  white-space: nowrap;
+}
+
+/* ===== Анімація кнопки ===== */
+@keyframes attention {
+  0%,100% { transform: scale(1); }
+  20% { transform: scale(1.1); }
+  40% { transform: scale(1); }
+}
+</style>
+</head>
+
+<body>
+
+<div class="modal" id="popupModal">
+  <div class="modal-content">
+    <span class="close-btn" id="closeModal">&times;</span>
+    <h2>Хочете отримати доступ до каталогу?</h2>
+    <p>Залиште контакти — ми зателефонуємо.</p>
+
+    <form id="contactForm">
+      <input type="text" id="name" placeholder="Ваше імʼя" required>
+      <input type="tel" id="phone" placeholder="Ваш телефон" required>
+      <button type="submit">Відправити</button>
+    </form>
+
+    <div id="success-message">✅ Дякуємо! Ми звʼяжемось з вами.</div>
+  </div>
+</div>
+
+<div class="modal-mobile" id="mobileModal">
+  <div class="modal-mobile-content">
+    <span class="close-btn-mobile" id="closeMobile">&times;</span>
+    <h2>Хочете отримати доступ до каталогу?</h2>
+    <p>Залиште контакти — ми зателефонуємо.</p>
+
+    <form id="mobileForm">
+      <div class="error-message" id="mobileError"></div>
+      <input type="text" id="mobileName" placeholder="Ваше імʼя" required>
+      <input type="tel" id="mobilePhone" placeholder="Ваш телефон" required>
+      <button type="submit">Відправити</button>
+    </form>
+
+    <div id="mobileSuccess">✅ Дякуємо! Ми звʼяжемось з вами.</div>
+  </div>
+</div>
+
+<button id="openModalBtn">Отримати доступ</button>
+
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script>
+emailjs.init("TnlPV3wRMPlbDkA9M");
+
+
+
+
+// ПК-модалка
+const modal = document.getElementById("popupModal");
+const closeBtn = document.getElementById("closeModal");
+const form = document.getElementById("contactForm");
+const submitBtn = form.querySelector("button");
+const phoneInput = document.getElementById("phone");
+const successMsg = document.getElementById("success-message");
+
+// Мобільна модалка
+const mobileModal = document.getElementById("mobileModal");
+const closeMobile = document.getElementById("closeMobile");
+const mobileForm = document.getElementById("mobileForm");
+const mobileError = document.getElementById("mobileError");
+const mobilePhoneInput = document.getElementById("mobilePhone");
+const mobileNameInput = document.getElementById("mobileName");
+const mobileSuccess = document.getElementById("mobileSuccess");
+
+// Показ/приховування
+function showModal() { modal.classList.add("show"); }
+function hideModal() { modal.classList.remove("show"); }
+function showMobileModal() { mobileModal.classList.add("show"); }
+function hideMobileModal() { mobileModal.classList.remove("show"); }
+
+// Кнопка виклику
+const openModalBtn = document.getElementById("openModalBtn");
+openModalBtn.addEventListener("click", () => {
+  if (window.innerWidth <= 768) showMobileModal();
+  else showModal();
+});
+
+// Закриття
+closeBtn.addEventListener("click", hideModal);
+modal.addEventListener("click", e => {
+  if (e.target === modal) hideModal();
+});
+
+closeMobile.addEventListener("click", hideMobileModal);
+mobileModal.addEventListener("click", e => {
+  if (e.target === mobileModal) hideMobileModal();
+});
+
+
+
+// Валідація ПК
+phoneInput.addEventListener("focus", () => {
+  if (!phoneInput.value.startsWith("+380")) phoneInput.value = "+380";
+});
+
+phoneInput.addEventListener("input", () => {
+  let val = phoneInput.value.replace(/\D/g, "");
+  if (val.startsWith("380")) val = val.slice(3);
+  val = val.slice(0, 9);
+  phoneInput.value = "+380" + val;
+});
+
+form.addEventListener("submit", e => {
+  e.preventDefault();
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Відправляємо...";
+
+  emailjs.send("service_tl6ykpq", "template_himotq1", {
+    name: document.getElementById("name").value,
+    phone: phoneInput.value,
+    time: new Date().toLocaleString()
+  }).then(() => {
+    successMsg.style.display = "block";
+    setTimeout(() => successMsg.style.opacity = 1, 50);
+    form.reset();
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Відправити";
+    setTimeout(() => {
+      successMsg.style.opacity = 0;
+      hideModal();
+    }, 3000);
+  });
+});
+
+// Мобільна форма
+mobilePhoneInput.addEventListener("focus", () => {
+  if (!mobilePhoneInput.value.startsWith("+380")) mobilePhoneInput.value = "+380";
+});
+
+mobilePhoneInput.addEventListener("input", () => {
+  let val = mobilePhoneInput.value.replace(/\D/g, "");
+  if (val.startsWith("380")) val = val.slice(3);
+  val = val.slice(0, 9);
+  mobilePhoneInput.value = "+380" + val;
+});
+
+mobileForm.addEventListener("submit", e => {
+  e.preventDefault();
+  mobileError.style.display = "none";
+
+  if (!/^\+380\d{9}$/.test(mobilePhoneInput.value)) {
+    mobileError.textContent = "Телефон некоректний.";
+    mobileError.style.display = "block";
+    return;
+  }
+
+  const btn = mobileForm.querySelector("button");
+  btn.disabled = true;
+  btn.textContent = "Відправляємо...";
+
+  emailjs.send("service_tl6ykpq", "template_himotq1", {
+    name: mobileNameInput.value,
+    phone: mobilePhoneInput.value,
+    time: new Date().toLocaleString()
+  }).then(() => {
+    mobileForm.reset();
+    mobileSuccess.style.display = "block";
+    setTimeout(() => mobileSuccess.style.opacity = 1, 50);
+    btn.disabled = false;
+    btn.textContent = "Відправити";
+    setTimeout(() => {
+      mobileSuccess.style.opacity = 0;
+      hideMobileModal();
+    }, 3000);
+  });
+});
+
+// Анімація кнопки
+setInterval(() => {
+  openModalBtn.style.animation = "attention 1s ease";
+  setTimeout(() => openModalBtn.style.animation = "", 1000);
+}, 5000);
+
+// Відкриття через data-атрибут
+document.querySelectorAll('[data-modal="open"]').forEach(link => {
+  link.addEventListener("click", e => {
+    e.preventDefault();
+    if (window.innerWidth <= 768) showMobileModal();
+    else showModal();
+  });
+});
+</script>
+
+</body>
+</html>
+                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Увійти для відображення накопичувальної знижки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                                                                                <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uid5c820573224537bb5909476c7ffec703" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uid5c820573224537bb5909476c7ffec703");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

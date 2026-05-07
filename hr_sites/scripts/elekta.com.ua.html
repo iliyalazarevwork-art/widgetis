@@ -1,0 +1,289 @@
+<!-- source: https://elekta.com.ua/ -->
+<!-- extracted: 2026-05-07T21:33:04.486Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 15599 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <script>
+// --- ЕДИНЫЙ СКРИПТ ДЛЯ ДВУХ КНОПОК И POPUP-ОКОН ---
+document.addEventListener('DOMContentLoaded', function() {
+
+  // --- ОБЩИЕ НАСТРОЙКИ ДЛЯ TELEGRAM (используются для обеих форм) ---
+  const TELEGRAM_TOKEN = '8099700541:AAHON7mAhGVUDlJ_cR2VL6U_zj8Y8YkoxLo'; // Убедитесь, что токен верный
+  const TELEGRAM_CHAT_ID = '926187856'; // Убедитесь, что ID чата верный (для групп он с минусом)
+
+  // ===================================================================
+  // --- ЛОГИКА ДЛЯ КРУГЛОЙ КНОПКИ-СМАЙЛИКА (которая на всех страницах) ---
+  // ===================================================================
+
+  // Создаем HTML для кнопки и окна смайлика с помощью JavaScript
+  const smileyPopupHTML = `
+    <button id="showSmileyPopup" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background-color: #007bff; color: white; font-size: 28px; border: none; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 999;">💬</button>
+    <div id="smileyPopupOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center;">
+      <div style="background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 400px; position: relative;">
+        <span id="closeSmileyPopup" style="position: absolute; top: 10px; right: 15px; font-size: 28px; cursor: pointer;">&times;</span>
+        <h2>Задать вопрос</h2>
+        <p>Мы свяжемся с вами в ближайшее время!</p>
+        <form id="smileyForm">
+          <input type="tel" name="phone" placeholder="Ваш номер телефона" required style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
+          <textarea name="question" placeholder="Кратко опишите ваш вопрос" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; resize: vertical;"></textarea>
+          <button type="submit" style="width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">Отправить</button>
+        </form>
+      </div>
+    </div>
+  `;
+  // Добавляем этот HTML в конец страницы
+  document.body.insertAdjacentHTML('beforeend', smileyPopupHTML);
+  
+  // Находим элементы для смайлика
+  const showSmileyBtn = document.getElementById('showSmileyPopup');
+  const smileyOverlay = document.getElementById('smileyPopupOverlay');
+  const closeSmileyBtn = document.getElementById('closeSmileyPopup');
+  const smileyForm = document.getElementById('smileyForm');
+
+  if (showSmileyBtn) {
+    showSmileyBtn.addEventListener('click', () => smileyOverlay.style.display = 'flex');
+  }
+  if (closeSmileyBtn) {
+    closeSmileyBtn.addEventListener('click', () => smileyOverlay.style.display = 'none');
+  }
+  if (smileyOverlay) {
+    smileyOverlay.addEventListener('click', (e) => {
+      if (e.target === smileyOverlay) smileyOverlay.style.display = 'none';
+    });
+  }
+
+  // Отправка формы смайлика в Telegram
+  if (smileyForm) {
+    smileyForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const phone = e.target.querySelector('input[name="phone"]').value;
+      const question = e.target.querySelector('textarea[name="question"]').value;
+      let message = `<b>💬 Новая заявка (кнопка-смайлик)!</b>\n\n<b>Телефон:</b> ${phone}\n<b>Вопрос:</b> ${question}`;
+      sendToTelegram(message, e.target);
+    });
+  }
+
+  // =============================================================================
+  // --- ЛОГИКА ДЛЯ КНОПКИ "ПОЛУЧИТЬ КОНСУЛЬТАЦИЮ" (которая на отдельной странице) ---
+  // =============================================================================
+  
+  const consultModal = document.getElementById('consult-modal');
+  const openConsultBtn = document.getElementById('open-modal-btn');
+  const consultForm = document.getElementById('consult-form');
+
+  // Этот код сработает, только если на странице есть кнопка 'open-modal-btn'
+  if (consultModal && openConsultBtn) {
+    const closeConsultBtn = consultModal.querySelector('.modal-close');
+
+    openConsultBtn.addEventListener('click', () => consultModal.style.display = 'flex');
+    closeConsultBtn.addEventListener('click', () => consultModal.style.display = 'none');
+    window.addEventListener('click', (e) => {
+      if (e.target === consultModal) consultModal.style.display = 'none';
+    });
+
+    // Отправка формы консультации в Telegram
+    consultForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const contactMethod = e.target.querySelector('input[name="contactMethod"]:checked').value;
+      const phone = e.target.querySelector('input[name="phone"]').value;
+      const question = e.target.querySelector('textarea[name="question"]').value;
+      let message = `<b>🔔 Новая заявка на консультацию!</b>\n\n<b>Способ связи:</b> ${contactMethod}\n<b>Телефон:</b> ${phone}\n<b>Вопрос:</b> ${question}`;
+      sendToTelegram(message, e.target);
+    });
+  }
+
+  // =============================================================================
+  // --- ОБЩАЯ ФУНКЦИЯ ДЛЯ ОТПРАВКИ В TELEGRAM ---
+  // =============================================================================
+  function sendToTelegram(text, formElement) {
+    const submitButton = formElement.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.textContent;
+    submitButton.disabled = true;
+    submitButton.textContent = 'Отправка...';
+
+    const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
+    const params = { chat_id: TELEGRAM_CHAT_ID, text: text, parse_mode: 'HTML' };
+
+    fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.ok) {
+        alert('Спасибо! Ваша заявка отправлена. Мы скоро с вами свяжемся.');
+        if (smileyOverlay) smileyOverlay.style.display = 'none';
+        if (consultModal) consultModal.style.display = 'none';
+        formElement.reset();
+      } else {
+        throw new Error(data.description);
+      }
+    })
+    .catch(error => {
+      console.error('Ошибка отправки:', error);
+      alert('Произошла ошибка при отправке. Пожалуйста, попробуйте еще раз.');
+    })
+    .finally(() => {
+      submitButton.disabled = false;
+      submitButton.textContent = originalButtonText;
+    });
+  }
+});
+</script>                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Увійти для відображення накопичувальної знижки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                                                                                <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uide37346a4c27a15086cf074727b7aadca" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uide37346a4c27a15086cf074727b7aadca");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

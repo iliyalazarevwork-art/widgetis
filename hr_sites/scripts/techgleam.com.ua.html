@@ -1,0 +1,731 @@
+<!-- source: https://techgleam.com.ua/ -->
+<!-- extracted: 2026-05-07T21:34:33.611Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 27677 -->
+
+w.INIT.execute();
+        })(window);
+    });
+</script>
+        <script>
+(function () {
+  var CUTOFF_HOUR = 18;
+  var CUTOFF_MIN  = 0;
+
+  var style = document.createElement('style');
+  style.textContent = [
+    '.shipTimerWrap{margin-top:14px;margin-bottom:10px;display:block;width:100%;max-width:340px;box-sizing:border-box;font-family:inherit,system-ui,-apple-system,sans-serif;}',
+    '.ship-timer-row{display:flex;align-items:center;gap:12px;padding:8px 12px;border:1px solid #dcdcdc;border-radius:8px;background:#fff;box-sizing:border-box;}',
+    '.ship-timer-icon{display:flex;align-items:center;justify-content:center;font-size:20px;line-height:1;flex-shrink:0;}',
+    '.ship-timer-text{font-size:13px;line-height:1.2;color:#333;font-weight:500;text-align:left;flex:1;}',
+    '.ship-timer-time{font-variant-numeric:tabular-nums;font-weight:700;font-size:14px;color:#000;background:#f4f4f4;padding:2px 6px;border-radius:4px;white-space:nowrap;flex-shrink:0;}',
+    '.ship-cutoff-note{margin-top:6px;font-size:11px;color:#888;text-align:left;padding-left:2px;}',
+    '@media(max-width:768px){.shipTimerWrap{max-width:100%;}}'
+  ].join('');
+  document.head.appendChild(style);
+
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+  function secondsLeft() {
+    var now    = new Date();
+    var cutoff = new Date();
+    cutoff.setHours(CUTOFF_HOUR, CUTOFF_MIN, 0, 0);
+    return Math.floor((cutoff - now) / 1000);
+  }
+
+  function fmt(sec) {
+    if (sec <= 0) return null;
+    return pad(Math.floor(sec / 3600)) + ':' +
+           pad(Math.floor((sec % 3600) / 60)) + ':' +
+           pad(sec % 60);
+  }
+
+  function insertTimer() {
+    if (document.getElementById('shipTimerWrap')) return true;
+    if (secondsLeft() <= 0) return true;
+
+    var orderDiv = document.querySelector('.product-order')
+                || document.querySelector('.product-card__order-box')
+                || document.querySelector('.product-card__purchase');
+
+    if (!orderDiv) return false;
+
+    var wrap = document.createElement('div');
+    wrap.id = 'shipTimerWrap';
+    wrap.className = 'shipTimerWrap';
+    wrap.innerHTML =
+      '<div class="ship-timer-row">' +
+        '<div class="ship-timer-icon">📦</div>' +
+        '<div class="ship-timer-text">Відправимо сьогодні</div>' +
+        '<div class="ship-timer-time" id="shipTime">--:--:--</div>' +
+      '</div>' +
+      '<div class="ship-cutoff-note">При замовленні до 18:00</div>';
+
+    orderDiv.parentNode.insertBefore(wrap, orderDiv.nextSibling);
+
+    var display = document.getElementById('shipTime');
+    (function tick() {
+      var t = fmt(secondsLeft());
+      if (!t) { wrap.style.display = 'none'; return; }
+      display.textContent = t;
+      setTimeout(tick, 1000);
+    })();
+
+    return true;
+  }
+
+  function initWithRetry(attempts) {
+    if (insertTimer()) return;
+    if (attempts <= 0) return;
+    setTimeout(function () { initWithRetry(attempts - 1); }, 400);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { initWithRetry(15); });
+  } else {
+    initWithRetry(15);
+  }
+})();
+</script>
+
+<script>
+(function () {
+  var H = "https://script.google.com/macros/s/AKfycbymbMv3Oi4j9XvXAbItFdV1wSiHYIN36LcXOCBq1eL0eGvXdUTXcK46ctouX97Pjw4/exec?t=br4Wp8nZ6xTm";
+  var QK = "tg_order_queue_v1";
+  var SK = "tg_order_sent_v1";
+  var VK = "tg_visitor_id_v1";
+  var CK = "tgvid";
+  var flushing = false;
+  var inFlight = {};
+
+  function L() { try { console.log.apply(console, arguments); } catch (e) {} }
+  function ni() { return new Date().toISOString(); }
+  function iCP() { return /^\/checkout\/complete\/\d+\/?$/.test(window.location.pathname || ""); }
+  function gOI() {
+    var m = (window.location.pathname || "").match(/^\/checkout\/complete\/(\d+)\/?$/);
+    return m ? m[1] : "";
+  }
+  function lj(k, d) {
+    try {
+      var v = localStorage.getItem(k);
+      return v ? JSON.parse(v) : d;
+    } catch (e) { return d; }
+  }
+  function sj(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  function gq() {
+    var q = lj(QK, []);
+    return Array.isArray(q) ? q : [];
+  }
+  function sq(q) { sj(QK, q.slice(-20)); }
+  function gsm() {
+    var m = lj(SK, {});
+    return m && typeof m === "object" ? m : {};
+  }
+  function mS(id) {
+    var s = gsm();
+    s["" + id] = ni();
+    sj(SK, s);
+  }
+  function aS(id) { return !!gsm()["" + id]; }
+  function enq(p) {
+    if (!p || !p.orderId) return;
+    var q = gq();
+    if (!q.some(function (x) { return "" + x.orderId === "" + p.orderId; })) {
+      q.push(p);
+      sq(q);
+    }
+  }
+  function deq(id) {
+    sq(gq().filter(function (x) { return "" + x.orderId !== "" + id; }));
+  }
+  function uid() {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (ch) {
+      var r = Math.random() * 16 | 0;
+      return (ch === "x" ? r : r & 3 | 8).toString(16);
+    });
+  }
+  function gck(n) {
+    var m = document.cookie.match("(?:^|;)\\s*" + n + "=([^;]*)");
+    return m ? decodeURIComponent(m[1]) : "";
+  }
+  function sck(n, v, d) {
+    document.cookie = n + "=" + encodeURIComponent(v) +
+      "; expires=" + new Date(Date.now() + d * 864e5).toUTCString() +
+      "; path=/; SameSite=Lax";
+  }
+  function gvid() {
+    try {
+      var ls = localStorage.getItem(VK);
+      if (ls) { sck(CK, ls, 365); return ls; }
+      var ck = gck(CK);
+      if (ck) { localStorage.setItem(VK, ck); return ck; }
+      var id = uid();
+      localStorage.setItem(VK, id);
+      sck(CK, id, 365);
+      return id;
+    } catch (e) { return "err"; }
+  }
+  function gcf() {
+    try {
+      var c = document.createElement("canvas");
+      c.width = 300;
+      c.height = 60;
+      var x = c.getContext("2d");
+      x.fillStyle = "#f4a500";
+      x.fillRect(0, 0, 300, 60);
+      x.fillStyle = "#1a3c5e";
+      x.font = "18px Arial,sans-serif";
+      x.textBaseline = "alphabetic";
+      x.fillText("check 1234 abcd", 5, 42);
+      x.fillStyle = "rgba(80,180,50,.85)";
+      x.font = "13px Georgia,serif";
+      x.fillText("AaBbCc 0987654321", 5, 22);
+      return c.toDataURL("image/png").substring(0, 250);
+    } catch (e) { return ""; }
+  }
+  function gwr() {
+    try {
+      var c = document.createElement("canvas");
+      var gl = c.getContext("webgl") || c.getContext("experimental-webgl");
+      if (!gl) return "";
+      var ext = gl.getExtension("WEBGL_debug_renderer_info");
+      return ext ? (gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) || "").substring(0, 120) : "";
+    } catch (e) { return ""; }
+  }
+  function gfp() {
+    try {
+      var p = [
+        (screen.width || 0) + "x" + (screen.height || 0),
+        screen.colorDepth || 0,
+        navigator.language || "",
+        (navigator.userAgentData ? navigator.userAgentData.platform : "") || "",
+        (function () { try { return Intl.DateTimeFormat().resolvedOptions().timeZone; } catch (e) { return ""; } })(),
+        navigator.hardwareConcurrency || 0,
+        navigator.deviceMemory || 0,
+        gcf(),
+        gwr()
+      ].join("|||");
+      var h = 5381;
+      for (var i = 0; i < p.length; i++) h = (((h << 5) + h) + p.charCodeAt(i)) & 0xffffffff;
+      return (h >>> 0).toString(16);
+    } catch (e) { return "err"; }
+  }
+  async function gip() {
+    var ep = ["https://api64.ipify.org?format=json", "https://api.ipify.org?format=json", "https://ipapi.co/json/"];
+    for (var i = 0; i < ep.length; i++) {
+      try {
+        var ct = new AbortController();
+        var t = setTimeout(function () { ct.abort(); }, 4000);
+        var r = await fetch(ep[i], { cache: "no-store", credentials: "omit", signal: ct.signal });
+        clearTimeout(t);
+        var d = await r.json();
+        if (d && d.ip) return d.ip;
+      } catch (e) {}
+    }
+    return "";
+  }
+  function jsonp(url, timeoutMs) {
+    return new Promise(function (resolve) {
+      var cb = "__tg_ip_cb_" + Date.now() + "_" + Math.random().toString(36).slice(2);
+      var script = document.createElement("script");
+      var done = false;
+      var timer;
+
+      function finish(ok, data) {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        if (script.parentNode) script.parentNode.removeChild(script);
+        window[cb] = function () {};
+        setTimeout(function () {
+          try { delete window[cb]; } catch (e) { window[cb] = undefined; }
+        }, 60000);
+        resolve({ ok: ok, data: data || null });
+      }
+
+      window[cb] = function (data) { finish(!!(data && data.ok), data); };
+      script.async = true;
+      script.onerror = function () { finish(false, null); };
+      script.src = url + "&cb=" + encodeURIComponent(cb);
+      timer = setTimeout(function () { finish(false, null); }, timeoutMs || 9000);
+      (document.head || document.documentElement).appendChild(script);
+    });
+  }
+  async function send(pl) {
+    if (!pl || !pl.orderId) return false;
+    if (inFlight["" + pl.orderId]) return false;
+    inFlight["" + pl.orderId] = true;
+    try {
+      var p = {
+        orderId: pl.orderId,
+        ip: (pl.ip || "").substring(0, 50),
+        visitorId: (pl.visitorId || "").substring(0, 50),
+        fingerprint: (pl.fingerprint || "").substring(0, 20),
+        renderer: (pl.renderer || "").substring(0, 100),
+        ts: pl.ts || "",
+        pageUrl: (pl.pageUrl || "").substring(0, 200),
+        userAgent: (pl.userAgent || "").substring(0, 200)
+      };
+      var qs = Object.keys(p).map(function (k) {
+        return encodeURIComponent(k) + "=" + encodeURIComponent(p[k]);
+      }).join("&");
+      var res = await jsonp(H + "&" + qs, 20000);
+      if (res.ok) {
+        L("[ip-log] confirmed", pl.orderId, res.data && res.data.updated ? "updated" : "written");
+        return true;
+      }
+      L("[ip-log] not confirmed", pl.orderId);
+      return false;
+    } catch (e) {
+      L("[ip-log] failed", pl.orderId, e.message);
+      return false;
+    } finally {
+      delete inFlight["" + pl.orderId];
+    }
+  }
+  function sendUpdateWithRetry(id, pl, attempts) {
+    setTimeout(function () {
+      send(pl).then(function (ok) {
+        if (ok) {
+          mS(id);
+          deq(id);
+        } else if (attempts > 1) {
+          sendUpdateWithRetry(id, pl, attempts - 1);
+        }
+      });
+    }, 3000);
+  }
+  async function flush() {
+    if (flushing) return;
+    flushing = true;
+    try {
+      var q = gq();
+      for (var i = 0; i < q.length; i++) {
+        var it = q[i];
+        if (!it || !it.orderId) continue;
+        if (aS(it.orderId)) { deq(it.orderId); continue; }
+        if (await send(it)) { mS(it.orderId); deq(it.orderId); }
+      }
+    } finally {
+      flushing = false;
+    }
+  }
+  async function run() {
+    gvid();
+    await flush();
+    if (!iCP()) return;
+    var id = gOI();
+    if (!id || aS(id)) return;
+    var ipPromise = gip();
+    var ip = await Promise.race([
+      ipPromise,
+      new Promise(function (resolve) { setTimeout(function () { resolve(""); }, 5000); })
+    ]);
+    var pl = {
+      orderId: "" + id,
+      ip: ip || "",
+      visitorId: gvid(),
+      fingerprint: gfp(),
+      renderer: gwr(),
+      ts: ni(),
+      pageUrl: window.location.href,
+      userAgent: navigator.userAgent || ""
+    };
+    if (!ip) {
+      ipPromise.then(function (lateIp) {
+        if (!lateIp) return;
+        var update = {
+          orderId: pl.orderId,
+          ip: lateIp,
+          visitorId: pl.visitorId,
+          fingerprint: pl.fingerprint,
+          renderer: pl.renderer,
+          ts: pl.ts,
+          pageUrl: pl.pageUrl,
+          userAgent: pl.userAgent
+        };
+        sendUpdateWithRetry(id, update, 5);
+      });
+    }
+    enq(pl);
+    if (await send(pl)) { mS(id); deq(id); return; }
+    await new Promise(function (resolve) { setTimeout(resolve, 3000); });
+    if (!aS(id) && await send(pl)) { mS(id); deq(id); return; }
+    await new Promise(function (resolve) { setTimeout(resolve, 5000); });
+    if (!aS(id) && await send(pl)) { mS(id); deq(id); }
+  }
+
+  window.addEventListener("pageshow", flush);
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") flush();
+  });
+  window.addEventListener("online", flush);
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run);
+  else run();
+})();
+
+
+
+
+</script>
+
+
+
+<style>
+  .contact-widget {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 9999;
+  }
+.icon-img {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: contain;
+  display: block;
+}
+
+  .contact-toggle {
+    width: 60px;
+    height: 60px;
+    background: #22c55e; /* green */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.30);
+    transition: 0.25s;
+    user-select: none;
+    position: relative;
+  }
+  .contact-toggle:hover { transform: scale(1.05); }
+
+  /* Chat icon + dots */
+  .contact-toggle svg {
+    width: 28px;
+    height: 28px;
+    fill: #fff;
+  }
+  .contact-toggle .dots {
+    font-size: 30px;
+    color: #fff;
+    display: none;
+    line-height: 1;
+  }
+  .contact-toggle.active .chat-icon { display: none; }
+  .contact-toggle.active .dots { display: block; }
+
+  /* ======= Vibration (ring) animation on CLOSED state only ======= */
+  @keyframes tgRing {
+    0%   { transform: rotate(0deg) translateX(0); }
+    2%   { transform: rotate(-10deg) translateX(-1px); }
+    4%   { transform: rotate(10deg) translateX(1px); }
+    6%   { transform: rotate(-12deg) translateX(-1px); }
+    8%   { transform: rotate(12deg) translateX(1px); }
+    10%  { transform: rotate(-8deg) translateX(-1px); }
+    12%  { transform: rotate(8deg) translateX(1px); }
+    14%  { transform: rotate(0deg) translateX(0); }
+
+    /* pause */
+    100% { transform: rotate(0deg) translateX(0); }
+  }
+
+  /* total cycle 5s: ~1.4s “ring” then ~3.6s pause */
+  .contact-toggle.ring:not(.active) {
+    animation: tgRing 5s ease-in-out infinite;
+    transform-origin: 50% 50%;
+  }
+
+  /* Optional subtle ringing waves */
+  .contact-toggle.ring:not(.active)::before,
+  .contact-toggle.ring:not(.active)::after {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 2px solid rgba(34,197,94,0.25);
+    opacity: 0;
+    transform: scale(0.9);
+    pointer-events: none;
+  }
+  @keyframes wave {
+    0%   { opacity: 0; transform: scale(0.9); }
+    6%   { opacity: 1; transform: scale(1.05); }
+    14%  { opacity: 0; transform: scale(1.18); }
+    100% { opacity: 0; transform: scale(1.18); }
+  }
+  .contact-toggle.ring:not(.active)::before { animation: wave 5s ease-out infinite; }
+  .contact-toggle.ring:not(.active)::after  { animation: wave 5s ease-out infinite 0.12s; }
+
+  /* Items */
+  .contact-items {
+    position: absolute;
+    bottom: 75px;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px);
+    transition: 0.25s ease;
+  }
+  .contact-items.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .contact-items .item {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+    transition: 0.2s;
+    text-decoration: none;
+  }
+  .contact-items .item:hover { transform: scale(1.12); }
+  .contact-items svg { width: 26px; height: 26px; fill: #fff; }
+
+  /* Brand-ish colors */
+  .telegram { background: #229ED9; }  /* Telegram blue */
+  .viber    { background: #7360F2; }  /* Viber purple-ish */
+  .instagram { background: #E1306C; } /* Instagram pink */
+  .phone    { background: #16a34a; }  /* deep green */
+</style>
+
+<div class="contact-widget" id="contactWidget">
+  <!-- Main Button -->
+  <div class="contact-toggle ring" id="contactToggle" aria-label="Контакти">
+    <!-- Chat bubble icon -->
+    <svg class="chat-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm3 6h10v2H7v-2zm0-3h10v2H7V7zm0 6h7v2H7v-2z"/>
+    </svg>
+    <!-- Dots -->
+    <div class="dots" aria-hidden="true">⋯</div>
+  </div>
+
+  <!-- Buttons (order: Telegram → Viber → Instagram → Phone) -->
+  <div class="contact-items" id="contactItems">
+
+<!-- Telegram -->
+<a href="https://t.me/TechGleam_shop" target="_blank" class="item telegram" title="Telegram">
+  <img 
+    src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" 
+    alt="Telegram"
+    class="icon-img"
+  >
+</a>
+
+<!-- Viber -->
+<a href="viber://chat?number=%2B380505490603" class="item viber" title="Viber">
+  <img 
+    src="https://cdn-icons-png.flaticon.com/512/3670/3670059.png"
+    alt="Viber"
+    class="icon-img"
+  >
+</a>
+
+
+<!-- Instagram -->
+<a href="https://www.instagram.com/techgleam.com.ua/" target="_blank" class="item instagram" title="Instagram">
+  <img 
+    src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" 
+    alt="Instagram"
+    class="icon-img"
+  >
+</a>
+
+
+    <!-- Phone -->
+    <a href="tel:+380505490603" class="item phone" title="Телефон">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.8-.4 1.2-.2 1.3.5 2.7.8 4.1.8.7 0 1.3.6 1.3 1.3V21c0 .7-.6 1.3-1.3 1.3C9.6 22.3 1.7 14.4 1.7 4.3 1.7 3.6 2.3 3 3 3h3.7c.7 0 1.3.6 1.3 1.3 0 1.4.3 2.8.8 4.1.1.4 0 .9-.2 1.2l-2 2.2z"/>
+      </svg>
+    </a>
+
+  </div>
+</div>
+
+<script>
+  (function () {
+    const toggle = document.getElementById('contactToggle');
+    const items  = document.getElementById('contactItems');
+    const widget = document.getElementById('contactWidget');
+
+    if (!toggle || !items || !widget) return;
+
+    toggle.addEventListener('click', function (e) {
+      e.stopPropagation();
+      const isOpen = items.classList.toggle('active');
+      toggle.classList.toggle('active', isOpen); // active => show dots, stop ring (by CSS :not(.active))
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!widget.contains(e.target)) {
+        items.classList.remove('active');
+        toggle.classList.remove('active');
+      }
+    });
+  })();
+</script>
+        <script src="https://apis.google.com/js/platform.js?onload=renderOptIn" async defer>
+            </script>        <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Увійти для відображення накопичувальної знижки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                                                                                <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uide85e4d73d34ac9f7c2fe788061867d2f" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uide85e4d73d34ac9f7c2fe788061867d2f");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

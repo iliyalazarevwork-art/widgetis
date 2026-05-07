@@ -1,0 +1,210 @@
+<!-- source: https://termozona.com.ua/ -->
+<!-- extracted: 2026-05-07T21:30:49.740Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 7150 -->
+
+w.INIT.execute();
+        })(window);
+    });
+</script>
+        <!-- KeyCRM online chat widget begin -->
+<script type="text/javascript">
+(function(w,d,t,u,c){
+  var s=d.createElement(t),j=d.getElementsByTagName(t)[0];
+  s.src=u;
+  s["async"]=true;
+  s.defer=true;
+  s.onload=function(){KeyCRM.render(c);};
+  j.parentNode.insertBefore(s,j)
+})(window, document, "script","https://chat.key.live/bundles/widget.min.js",{token:"8c736f19-acbd-4a85-92e0-886170fda241"});
+</script>
+<!-- KeyCRM online chat widget end -->
+
+<style>
+  #custom-chat-notice {
+    position: fixed;
+    right: 24px;
+    bottom: 95px;
+    max-width: 260px;
+    background: #ffffff;
+    color: #1f2933;
+    border-radius: 16px;
+    padding: 14px 18px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+    z-index: 999999;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  #custom-chat-notice.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  #custom-chat-notice strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 15px;
+  }
+
+  #custom-chat-notice .close-chat-notice {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    border: none;
+    background: transparent;
+    font-size: 18px;
+    cursor: pointer;
+    color: #777;
+  }
+
+  @media (max-width: 600px) {
+    #custom-chat-notice {
+      right: 16px;
+      bottom: 90px;
+      max-width: 230px;
+      font-size: 13px;
+    }
+  }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  if (sessionStorage.getItem('customChatNoticeShown')) return;
+
+  setTimeout(function () {
+    var notice = document.createElement('div');
+    notice.id = 'custom-chat-notice';
+    notice.innerHTML = `
+      <button class="close-chat-notice" type="button">×</button>
+      <strong>Потрібна допомога?</strong>
+      Якщо маєте питання — пишіть нам у чат 💬
+    `;
+
+    document.body.appendChild(notice);
+
+    setTimeout(function () {
+      notice.classList.add('show');
+    }, 100);
+
+    sessionStorage.setItem('customChatNoticeShown', '1');
+
+    notice.querySelector('.close-chat-notice').addEventListener('click', function (e) {
+      e.stopPropagation();
+      notice.remove();
+    });
+
+    setTimeout(function () {
+      notice.classList.remove('show');
+      setTimeout(function () {
+        notice.remove();
+      }, 300);
+    }, 10000);
+  }, 2000);
+});
+</script>                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uida45a0eb53b49511a56ee04114852f0a1" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uida45a0eb53b49511a56ee04114852f0a1");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

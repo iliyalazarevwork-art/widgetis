@@ -1,0 +1,237 @@
+<!-- source: https://kivagro.com.ua/ -->
+<!-- extracted: 2026-05-07T21:33:25.674Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 7985 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+
+    /* Стили для модального окна */
+    #popup {
+      display: none; /* Скрыто по умолчанию */
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #ffffff;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      z-index: 9999;
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+    #popup p {
+      font-size: 16px;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    #popup button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #popup button:hover {
+      background-color: #0056b3;
+    }
+
+    /* Мобильные устройства (до 768px) */
+    @media (max-width: 768px) {
+      #popup {
+        width: 90vw !important; /* Занимает почти весь экран */
+        padding: 20px;
+        border-radius: 12px;
+      }
+
+      #popup p {
+        font-size: 14px;
+      }
+
+      #popup button {
+        font-size: 15px;
+        padding: 10px 16px;
+      }
+    }
+
+    /* Очень маленькие экраны (например, смартфоны в портретной ориентации) */
+    @media (max-width: 480px) {
+      #popup p {
+        font-size: 13px;
+      }
+
+      #popup button {
+        font-size: 14px;
+        padding: 8px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Модальное окно -->
+  <div id="popup">
+    <p>
+      На жаль інтернет-магазин тимчасово не працює. Усі співробітники перебувають у лавах ЗСУ.
+    </p>
+    <button onclick="closePopup()">OK</button>
+  </div>
+
+  <script>
+    function setPopupSize() {
+      const screenWidth = window.innerWidth;
+      const screenHeight = window.innerHeight;
+
+      // Базовые размеры при 1600x900
+      const baseWidth = 1600;
+      const baseHeight = 900;
+      const popupBaseWidth = 500;
+      const popupBaseHeight = 200;
+
+      // Рассчитываем коэффициент масштабирования
+      const scale = Math.min(screenWidth / baseWidth, screenHeight / baseHeight);
+
+      const newWidth = popupBaseWidth * scale;
+      const newHeight = popupBaseHeight * scale;
+
+      const popup = document.getElementById('popup');
+
+      // Для мобильных устройств медиа-запросы уже сработают, поэтому здесь только для десктопа
+      if (screenWidth > 768) {
+        popup.style.width = newWidth + 'px';
+        popup.style.height = 'auto';
+      } else {
+        popup.style.width = 'auto'; // Отдадим контроль медиа-запросам
+      }
+    }
+
+    function showPopup() {
+      if (!sessionStorage.getItem('popupShown')) {
+        setPopupSize();
+        document.getElementById('popup').style.display = 'block';
+        sessionStorage.setItem('popupShown', 'true');
+      }
+    }
+
+    function closePopup() {
+      document.getElementById('popup').style.display = 'none';
+    }
+
+    window.addEventListener('load', showPopup);
+    window.addEventListener('resize', setPopupSize);
+  </script>        <script src="https://apis.google.com/js/platform.js?onload=renderOptIn" async defer>
+            </script>        <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Корзина</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Количество</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Стоимость</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Итого</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0.00 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Вернуться к покупкам                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформить заказ</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uid6ca5cdd5c8cc7858ba8780f2ad7602a8" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Сравнение товаров</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uid6ca5cdd5c8cc7858ba8780f2ad7602a8");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

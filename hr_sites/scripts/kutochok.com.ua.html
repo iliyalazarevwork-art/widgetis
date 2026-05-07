@@ -1,0 +1,257 @@
+<!-- source: https://kutochok.com.ua/ -->
+<!-- extracted: 2026-05-07T21:33:30.487Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 10595 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <script type="text/javascript">
+  (function(d, w, s) {
+	var widgetHash = 'waml4r6b74i38437gq5x', gcw = d.createElement(s); gcw.type = 'text/javascript'; gcw.async = true;
+	gcw.src = '//widgets.binotel.com/getcall/widgets/'+ widgetHash +'.js';
+	var sn = d.getElementsByTagName(s)[0]; sn.parentNode.insertBefore(gcw, sn);
+  })(document, window, 'script');
+</script> 
+
+<script type="text/javascript">
+(function(d, w, s) {
+    var widgetHash = 'KyF2u4Qyvad6wlkKfTto', bch = d.createElement(s); bch.type = 'text/javascript'; bch.async = true;
+    bch.src = '//widgets.binotel.com/chat/widgets/' + widgetHash + '.js';
+    var sn = d.getElementsByTagName(s)[0]; sn.parentNode.insertBefore(bch, sn);
+})(document, window, 'script');
+</script>
+
+<script>
+  function isMobileCheck() {
+    const isMobile = {
+      Android: function () {
+        return navigator.userAgent.match(/Android/i);
+      },
+      BlackBerry: function () {
+        return navigator.userAgent.match(/BlackBerry/i);
+      },
+      iOS: function () {
+        return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+      },
+      Opera: function () {
+        return navigator.userAgent.match(/Opera Mini/i);
+      },
+      Windows: function () {
+        return navigator.userAgent.match(/IEMobile/i);
+      },
+      any: function () {
+        return (
+          isMobile.Android() ||
+          isMobile.BlackBerry() ||
+          isMobile.iOS() ||
+          isMobile.Opera() ||
+          isMobile.Windows()
+        );
+      },
+    };
+    return isMobile.any();
+  }
+
+  function isProductPage() {
+    const pathname = window.location.pathname;
+    const isCorrectPath = !!(
+      !pathname.includes("/cart/") && !pathname.includes("/checkout/")
+    );
+
+    const hasProductElements = !!(
+      document.querySelector(".product") ||
+      document.querySelector(".j-buy-button-add")
+    );
+
+    return isCorrectPath && hasProductElements;
+  }
+
+  function insertButtons() {
+    const buyBtn = document.querySelector(".j-buy-button-add");
+    if (!buyBtn) {
+      console.warn("Кнопка покупки не знайдена!");
+      return;
+    }
+
+    const sections = [
+      document.querySelector(".product-description"),
+      // document.querySelector(".product__block--characteristics"),
+      document.querySelector(".product__block--raw_1"),
+      document.querySelector(".product__group--tabs"),
+    ];
+
+    const lang = document.documentElement.getAttribute("lang");
+    const buttonText = lang === "uk" ? "Оформити замовлення" : "Оформить заказ";
+    const buttonText2 = lang === "uk" ? "🛒 Замовити швидко" : "🛒 Заказать в один клик";
+
+    sections.forEach((section) => {
+      if (section) {
+        const newElement = document.createElement("div");
+        newElement.classList.add("product-card__buy-button");
+        newElement.innerHTML = `<button data-skin="mobile" class="customBuyBtn" style="margin-top: 15px !important;">${buttonText}</button>`;
+        section.appendChild(newElement);
+
+				const newElement2 = document.createElement("div");
+        newElement2.classList.add(".product-card__order");
+        newElement2.classList.add(".product-card__order--quick");
+        newElement2.innerHTML = `<button data-skin="mobile" class="customBuyQuickBtn" style="margin-top: 15px !important;">${buttonText2}</button>`;
+        section.appendChild(newElement2);
+      }
+    });
+
+    document.querySelectorAll(".customBuyBtn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const realBuyBtn = document.querySelector(".j-buy-button-add");
+
+        if (realBuyBtn) {
+          realBuyBtn.dispatchEvent(
+            new MouseEvent("click", { bubbles: true, cancelable: true })
+          );
+        } else {
+          console.error("Оригінальна кнопка не знайдена при натисканні!");
+        }
+      });
+    });
+		document.querySelectorAll(".customBuyQuickBtn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+				const realBuyQuick = document.querySelector('.product-card__order--quick a');
+
+        if (realBuyQuick) {
+          realBuyQuick.dispatchEvent(
+            new MouseEvent("click", { bubbles: true, cancelable: true })
+          );
+        } else {
+          console.error("Оригінальна кнопка не знайдена при натисканні!");
+        }
+      });
+    });
+
+    console.log("Додано кастомні кнопки покупки");
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    if (isMobileCheck() && isProductPage()) {
+      insertButtons();
+    }
+  });
+</script>                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Увійти для відображення накопичувальної знижки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                        </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uide4d67553816e01196042804d82553f60" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uide4d67553816e01196042804d82553f60");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

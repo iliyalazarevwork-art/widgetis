@@ -1,0 +1,852 @@
+<!-- source: https://brennenstuhl-ukraine.com.ua/ -->
+<!-- extracted: 2026-05-07T21:30:59.823Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 26919 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <!-- BRENNENSTUHL AI CONSULTANT WIDGET V2 -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet" />
+<style type="text/css">
+/* ========================================================================== */
+/* GLOBAL RESET */
+/* ========================================================================== */
+#brennenstuhl-ai-widget * {
+  box-sizing: border-box;
+}
+
+/* ========================================================================== */
+/* LAUNCHER BUTTON */
+/* ========================================================================== */
+.chat-launcher {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e31e24 0%, #c01820 100%);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(227, 30, 36, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+  z-index: 9998;
+}
+
+.chat-launcher:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(227, 30, 36, 0.6);
+}
+
+.chat-launcher svg {
+  width: 28px;
+  height: 28px;
+  fill: white;
+}
+
+.chat-launcher--hidden {
+  display: none;
+}
+
+/* ========================================================================== */
+/* CHAT WIDGET CONTAINER */
+/* ========================================================================== */
+.chat-widget {
+  position: fixed;
+  right: 20px;
+  bottom: 90px;
+  width: 380px;
+  max-width: 100%;
+  height: 600px;
+  max-height: 100vh;
+  background: #fafafa;
+  border-radius: 12px;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 9999;
+  box-shadow:
+    0px 3px 10px rgba(83, 83, 82, 0.15),
+    -6px 0 12px rgba(0, 0, 0, 0.06),
+    6px 0 12px rgba(0, 0, 0, 0.06),
+    0 10px 18px rgba(0, 0, 0, 0.08);
+  font-family: "Montserrat", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.chat-widget--open {
+  display: flex;
+}
+
+/* ========================================================================== */
+/* HEADER */
+/* ========================================================================== */
+.chat-header {
+  height: 60px;
+  background: #ffffff;
+  color: #535352;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  font-weight: 600;
+  font-size: 16px;
+  border-bottom: 1px solid #d3d3d3;
+}
+
+.chat-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chat-avatar-header {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.chat-header-close {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  line-height: 1;
+  color: #535352;
+}
+
+/* ========================================================================== */
+/* CHAT BODY */
+/* ========================================================================== */
+.chat-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ========================================================================== */
+/* MESSAGE ROW */
+/* ========================================================================== */
+.message-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.message-row-user {
+  justify-content: flex-end;
+}
+
+/* ========================================================================== */
+/* MESSAGE BUBBLES */
+/* ========================================================================== */
+.message-bubble {
+  max-width: 320px;
+  background: #ffffff;
+  color: #000000;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 12px;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.message-bubble-user {
+  max-width: 280px;
+  background: #535352;
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 12px;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+/* Typing indicator */
+.message-typing {
+  display: flex;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.message-typing span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #999;
+  animation: typing 1.4s infinite;
+}
+
+.message-typing span:nth-child(2) { animation-delay: 0.2s; }
+.message-typing span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.7; }
+  30% { transform: translateY(-10px); opacity: 1; }
+}
+
+/* ========================================================================== */
+/* PRODUCT CARD */
+/* ========================================================================== */
+.product-card {
+  width: 340px;
+  max-width: 100%;
+  height: 200px;
+  border: 1px solid #cccccc;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.product-card-top {
+  display: flex;
+  gap: 10px;
+}
+
+.product-card-image {
+  width: 90px;
+  height: 90px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #f5f5f5;
+}
+
+.product-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.product-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  justify-content: center;
+}
+
+.product-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.product-card-title {
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: #000000;
+  flex: 1;
+}
+
+.product-voice-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid #ffffff;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.product-card-prices {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.price-current {
+  font-size: 18px;
+  font-weight: 600;
+  color: #e31e24;
+}
+
+.price-old {
+  font-size: 14px;
+  color: #000000;
+  text-decoration: line-through;
+}
+
+.product-card-desc {
+  font-size: 11px;
+  line-height: 1.35;
+  color: #000000;
+}
+
+.product-card-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.product-card-link a {
+  font-size: 11px;
+  color: #e31e24;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.product-card-link a:hover {
+  text-decoration: underline;
+}
+
+/* ========================================================================== */
+/* INPUT AREA */
+/* ========================================================================== */
+.chat-input-area {
+  height: 72px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff;
+  border-top: 1px solid #d3d3d3;
+}
+
+.chat-input-wrapper {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.chat-input {
+  width: 100%;
+  height: 40px;
+  border-radius: 24px;
+  border: 1px solid #535352;
+  padding: 0 46px 0 16px;
+  font-size: 14px;
+  outline: none;
+  background: #ffffff;
+  font-family: "Montserrat", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.chat-input::placeholder {
+  color: #999999;
+}
+
+.chat-mic-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.chat-mic-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: #535352;
+}
+
+.chat-mic-btn--active {
+  background: #e31e24;
+}
+
+.chat-mic-btn--active svg {
+  fill: #ffffff;
+}
+
+.chat-send-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: #535352;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.chat-send-btn:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+.chat-send-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: #ffffff;
+}
+
+/* ========================================================================== */
+/* RESPONSIVE */
+/* ========================================================================== */
+@media (max-width: 768px) {
+  .chat-widget {
+    width: 100%;
+    max-width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+  }
+
+  .chat-input-area {
+    gap: 8px;
+  }
+}
+
+@supports not (height: 75dvh) {
+  @media (max-width: 768px) {
+    .chat-widget {
+      height: 75vh;
+      max-height: 75vh;
+    }
+  }
+}
+</style>
+
+<div id="brennenstuhl-ai-widget">
+  <button aria-label="Відкрити AI консультанта" class="chat-launcher" id="chatLauncher">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"></path>
+      <path d="M7 9h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"></path>
+    </svg>
+  </button>
+
+  <div class="chat-widget" id="chatWidget">
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <div class="chat-avatar-header">🤖</div>
+        <span>AI Консультант</span>
+      </div>
+      <button aria-label="Закрити чат" class="chat-header-close" id="chatClose">&times;</button>
+    </div>
+
+    <div class="chat-body" id="chatBody"></div>
+
+    <div class="chat-input-area">
+      <div class="chat-input-wrapper">
+        <input autocomplete="off" class="chat-input" id="chatInput" placeholder="Напишіть ваше питання..." type="text" />
+        <button aria-label="Голосовий ввід" class="chat-mic-btn" id="chatMicBtn">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"></path>
+            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"></path>
+          </svg>
+        </button>
+      </div>
+      <button aria-label="Відправити" class="chat-send-btn" id="chatSendBtn">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  const API_URL = 'https://brennenstuhl-ai-backend-production.up.railway.app/api/ask';
+
+  const chatLauncher = document.getElementById('chatLauncher');
+  const chatWidget = document.getElementById('chatWidget');
+  const chatClose = document.getElementById('chatClose');
+  const chatBody = document.getElementById('chatBody');
+  const chatInput = document.getElementById('chatInput');
+  const chatSendBtn = document.getElementById('chatSendBtn');
+  const chatMicBtn = document.getElementById('chatMicBtn');
+
+  let conversationHistory = [];
+  let isLoading = false;
+
+  function init() {
+    addBotMessage('Вітаю! Я AI консультант Brennenstuhl. Готовий відповісти на ваші питання про нашу продукцію. Чим можу допомогти?');
+
+    chatLauncher.addEventListener('click', openChat);
+    chatClose.addEventListener('click', closeChat);
+    chatSendBtn.addEventListener('click', handleSend);
+    chatInput.addEventListener('keypress', handleKeyPress);
+    chatMicBtn.addEventListener('click', handleMicClick);
+  }
+
+  function openChat() {
+    chatWidget.classList.add('chat-widget--open');
+    chatLauncher.classList.add('chat-launcher--hidden');
+    chatInput.focus();
+  }
+
+  function closeChat() {
+    chatWidget.classList.remove('chat-widget--open');
+    chatLauncher.classList.remove('chat-launcher--hidden');
+  }
+
+  function addUserMessage(text) {
+    const messageRow = document.createElement('div');
+    messageRow.className = 'message-row message-row-user';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'message-bubble-user';
+    bubble.textContent = text;
+
+    messageRow.appendChild(bubble);
+    chatBody.appendChild(messageRow);
+    scrollToBottom();
+  }
+
+  function addBotMessage(text) {
+    const messageRow = document.createElement('div');
+    messageRow.className = 'message-row';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'message-bubble';
+    bubble.textContent = text;
+
+    messageRow.appendChild(bubble);
+    chatBody.appendChild(messageRow);
+    scrollToBottom();
+  }
+
+  function addProductCards(products) {
+    if (!products || products.length === 0) return;
+
+    products.forEach(product => {
+      const card = document.createElement('div');
+      card.className = 'product-card';
+
+      const hasDiscount = product.price_regular && product.price_regular > product.price_promo;
+
+      card.innerHTML = `
+        <div class="product-card-top">
+          <div class="product-card-image">
+            <img src="${product.image_url || ''}" alt="${product.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22100%22 height=%22100%22/%3E%3Ctext x=%2250%22 y=%2250%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-size=%2212%22%3ENo image%3C/text%3E%3C/svg%3E'">
+          </div>
+          <div class="product-card-info">
+            <div class="product-card-header">
+              <div class="product-card-title">${product.name}</div>
+            </div>
+            <div class="product-card-prices">
+              <div class="price-current">${product.price_promo} грн</div>
+              ${hasDiscount ? `<div class="price-old">${product.price_regular} грн</div>` : ''}
+            </div>
+          </div>
+        </div>
+        <div class="product-card-desc">${product.description || ''}</div>
+        <div class="product-card-link">
+          <a href="${product.url}">Детальніше →</a>
+          <button class="product-voice-btn" data-product-id="${product.id}" aria-label="Озвучити опис">
+            🔊
+          </button>
+        </div>
+      `;
+
+      const messageRow = document.createElement('div');
+      messageRow.className = 'message-row';
+      messageRow.appendChild(card);
+      chatBody.appendChild(messageRow);
+
+      const voiceBtn = card.querySelector('.product-voice-btn');
+      voiceBtn.addEventListener('click', () => handleProductVoice(product));
+    });
+
+    scrollToBottom();
+  }
+
+  function showTyping() {
+    const messageRow = document.createElement('div');
+    messageRow.className = 'message-row';
+    messageRow.id = 'typing-indicator';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'message-bubble';
+
+    const typing = document.createElement('div');
+    typing.className = 'message-typing';
+    typing.innerHTML = '<span></span><span></span><span></span>';
+
+    bubble.appendChild(typing);
+    messageRow.appendChild(bubble);
+    chatBody.appendChild(messageRow);
+    scrollToBottom();
+  }
+
+  function hideTyping() {
+    const typing = document.getElementById('typing-indicator');
+    if (typing) typing.remove();
+  }
+
+  function scrollToBottom() {
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+
+  function handleKeyPress(e) {
+    if (e.key === 'Enter' && !isLoading) {
+      handleSend();
+    }
+  }
+
+  async function handleSend() {
+    const question = chatInput.value.trim();
+
+    if (!question || isLoading) return;
+
+    addUserMessage(question);
+    chatInput.value = '';
+
+    isLoading = true;
+    chatInput.disabled = true;
+    chatSendBtn.disabled = true;
+
+    showTyping();
+
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: question, history: conversationHistory })
+      });
+
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+
+      const data = await response.json();
+
+      hideTyping();
+      addBotMessage(data.answer);
+
+      if (data.products && data.products.length > 0) {
+        addProductCards(data.products);
+      }
+
+      conversationHistory.push(
+        { role: 'user', content: question },
+        { role: 'assistant', content: data.answer }
+      );
+
+      if (conversationHistory.length > 20) {
+        conversationHistory = conversationHistory.slice(-20);
+      }
+
+    } catch (error) {
+      hideTyping();
+      console.error('Помилка:', error);
+      addBotMessage('Вибачте, виникла помилка. Спробуйте ще раз або зв\'яжіться з нашим менеджером.');
+    } finally {
+      isLoading = false;
+      chatInput.disabled = false;
+      chatSendBtn.disabled = false;
+      chatInput.focus();
+    }
+  }
+
+  function handleMicClick() {
+    console.log('Мікрофон: функціонал буде додано пізніше');
+    chatMicBtn.classList.toggle('chat-mic-btn--active');
+  }
+
+  function handleProductVoice(product) {
+    console.log('Озвучити:', product.name, product.description);
+  }
+
+  const currentPath = window.location.pathname;
+  const allowedPaths = ['/testova/', '/testova', '/ru/testova/', '/ru/testova'];
+
+  if (allowedPaths.includes(currentPath)) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  } else {
+    const widget = document.getElementById('brennenstuhl-ai-widget');
+    if (widget) widget.style.display = 'none';
+  }
+})();
+</script>                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Увійти для відображення накопичувальної знижки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                                                                                <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uid7bc9fff332e96de720ac75a11d1c1595" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uid7bc9fff332e96de720ac75a11d1c1595");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

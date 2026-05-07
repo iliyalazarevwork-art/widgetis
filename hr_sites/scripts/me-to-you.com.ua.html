@@ -1,0 +1,403 @@
+<!-- source: https://me-to-you.com.ua/ -->
+<!-- extracted: 2026-05-07T21:33:51.146Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 16114 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <script>
+(function () {
+  "use strict";
+
+  const LIMIT = 10000;
+  const MESSAGE = "Для заказа свыше 10 000 грн свяжитесь с менеджером";
+
+  const BTN_PHRASES = [
+    "оформити замовлення",
+    "оформить заказ",
+    "оформление заказа",
+    "checkout"
+  ];
+
+  const TOTAL_KEYWORDS = ["всього", "итого", "разом", "до сплати", "до оплати", "total"];
+
+  function isVisible(el) {
+    if (!el || !(el instanceof Element)) return false;
+    const r = el.getBoundingClientRect();
+    return r.width > 0 && r.height > 0;
+  }
+
+  function parseMoney(text) {
+    if (!text) return 0;
+    let s = String(text).replace(/\u00A0/g, " ").trim();
+    s = s.replace(/[^\d.,\s]/g, "");
+    s = s.replace(/\s+/g, "");
+    if (!s) return 0;
+
+    if (s.includes(",")) s = s.replace(/\./g, "").replace(",", ".");
+    else {
+      const parts = s.split(".");
+      if (parts.length > 2) s = parts.slice(0, -1).join("") + "." + parts[parts.length - 1];
+    }
+    const v = parseFloat(s);
+    return Number.isFinite(v) ? v : 0;
+  }
+
+  function ensureBoxTop(id) {
+    let box = document.getElementById(id);
+    if (!box) {
+      box = document.createElement("div");
+      box.id = id;
+      box.style.cssText =
+        "position:sticky;top:0;z-index:99999;margin:0;padding:12px 14px;" +
+        "background:#fff7f7;border-bottom:2px solid #ff4d4d;font-size:14px;line-height:1.35;";
+      document.body.prepend(box);
+    }
+    box.textContent = MESSAGE;
+    return box;
+  }
+
+  function ensureBoxNear(btn) {
+    if (!btn || !btn.parentElement) return;
+    let box = document.getElementById("limit-10k-box");
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "limit-10k-box";
+      box.style.cssText =
+        "margin:10px 0;padding:10px 12px;border:2px solid #ff4d4d;" +
+        "border-radius:10px;background:#fff7f7;font-size:14px;line-height:1.35;";
+    }
+    box.textContent = MESSAGE;
+    if (!box.isConnected) btn.parentElement.insertBefore(box, btn);
+  }
+
+  function removeBox(id) {
+    const box = document.getElementById(id);
+    if (box) box.remove();
+  }
+
+  function setDisabled(el, disabled) {
+    if (!el) return;
+
+    el.dataset.limit10k = "1";
+
+    if (el.tagName === "BUTTON" || (el.tagName === "INPUT" && (el.type === "submit" || el.type === "button"))) {
+      el.disabled = !!disabled;
+    } else if (el.tagName === "A") {
+      if (disabled) {
+        if (!el.dataset.oldHref) el.dataset.oldHref = el.getAttribute("href") || "";
+        el.setAttribute("href", "javascript:void(0)");
+        el.setAttribute("aria-disabled", "true");
+        el.style.pointerEvents = "none";
+      } else {
+        if (el.dataset.oldHref) el.setAttribute("href", el.dataset.oldHref);
+        el.removeAttribute("aria-disabled");
+        el.style.pointerEvents = "";
+      }
+    }
+
+    el.style.opacity = disabled ? "0.55" : "";
+    el.style.cursor = disabled ? "not-allowed" : "";
+  }
+
+  // -------- Общие функции поиска суммы/кнопки --------
+  function findCheckoutButtonIn(root) {
+    if (!root) return null;
+    const nodes = Array.from(root.querySelectorAll("button,a,input[type='submit'],input[type='button']")).filter(isVisible);
+    for (const el of nodes) {
+      const txt = ((el.innerText || el.textContent || el.value || "") + "").trim().toLowerCase();
+      if (!txt) continue;
+      if (BTN_PHRASES.some(p => txt.includes(p))) return el;
+    }
+    return null;
+  }
+
+  function getTotalFrom(root) {
+    if (!root) root = document.body;
+
+    const leafs = Array.from(root.querySelectorAll("*"))
+      .filter(el => el.children.length === 0 && isVisible(el));
+
+    let best = 0;
+
+    for (const el of leafs) {
+      const txt = (el.textContent || "").trim();
+      if (!txt || txt.length > 160) continue;
+      const low = txt.toLowerCase();
+
+      if (TOTAL_KEYWORDS.some(k => low.includes(k)) && /\d/.test(low)) {
+        const v = parseMoney(txt);
+        if (v > best) best = v;
+      }
+      if ((low.includes("грн") || low.includes("₴")) && /\d/.test(low)) {
+        const v = parseMoney(txt);
+        if (v > best) best = v;
+      }
+    }
+
+    if (best === 0) {
+      for (const el of leafs) {
+        const low = (el.textContent || "").toLowerCase();
+        if (!TOTAL_KEYWORDS.some(k => low.includes(k))) continue;
+        const p = el.parentElement;
+        if (!p) continue;
+
+        const inside = Array.from(p.querySelectorAll("*"))
+          .filter(x => x.children.length === 0 && isVisible(x));
+
+        for (const x of inside) {
+          const v = parseMoney(x.textContent || "");
+          if (v > best) best = v;
+        }
+      }
+    }
+
+    return best;
+  }
+
+  // -------- 1) Корзина (ПК+моб): блокируем только кнопку оформления --------
+  function findCartContainerFromButton(btn) {
+    if (!btn) return null;
+    let el = btn;
+    for (let i = 0; i < 8; i++) {
+      if (!el || !el.parentElement) break;
+      el = el.parentElement;
+      const t = (el.textContent || "").toLowerCase();
+      if (t.includes("кошик") || t.includes("корзин")) return el;
+      if ((t.includes("всього") || t.includes("итого") || t.includes("разом")) && t.length > 50) return el;
+    }
+    return document.body;
+  }
+
+  function applyCartLimit() {
+    const btn = findCheckoutButtonIn(document.body);
+    if (!btn) { removeBox("limit-10k-box"); return; }
+
+    const container = findCartContainerFromButton(btn);
+    const total = getTotalFrom(container);
+    const over = total > LIMIT;
+
+    setDisabled(btn, over);
+    if (over) ensureBoxNear(btn);
+    else removeBox("limit-10k-box");
+  }
+
+  function interceptCart(e) {
+    const b = e.target && e.target.closest ? e.target.closest("[data-limit10k='1']") : null;
+    if (!b) return;
+
+    const container = findCartContainerFromButton(b);
+    const total = getTotalFrom(container);
+    if (total > LIMIT) {
+      e.preventDefault();
+      e.stopPropagation();
+      ensureBoxNear(b);
+      return false;
+    }
+  }
+
+  document.addEventListener("click", interceptCart, true);
+  document.addEventListener("touchstart", interceptCart, true);
+
+  // -------- 2) Страница оформления (checkout): защита, даже если попали напрямую --------
+  function isCheckoutPage() {
+    const p = (location.pathname || "").toLowerCase();
+    const q = (location.search || "").toLowerCase();
+    return p.includes("checkout") || p.includes("order") || q.includes("checkout") || q.includes("order");
+  }
+
+  function findCheckoutSubmitButton() {
+    // На оформлении обычно есть submit или кнопка подтверждения
+    const candidates = Array.from(document.querySelectorAll("button,input[type='submit'],a"))
+      .filter(isVisible);
+
+    // сначала — по тексту
+    for (const el of candidates) {
+      const t = ((el.innerText || el.textContent || el.value || "") + "").trim().toLowerCase();
+      if (!t) continue;
+      if (BTN_PHRASES.some(p => t.includes(p)) || t.includes("підтверд") || t.includes("подтверд") || t.includes("оплат") || t.includes("сплат")) {
+        return el;
+      }
+    }
+    // если не нашли — берём первый submit
+    const submit = document.querySelector("button[type='submit'],input[type='submit']");
+    return submit && isVisible(submit) ? submit : null;
+  }
+
+  function applyCheckoutGuard() {
+    if (!isCheckoutPage()) { removeBox("limit-10k-checkout"); return; }
+
+    const total = getTotalFrom(document.body);
+    const over = total > LIMIT;
+
+    const btn = findCheckoutSubmitButton();
+    if (btn) setDisabled(btn, over);
+
+    if (over) ensureBoxTop("limit-10k-checkout");
+    else removeBox("limit-10k-checkout");
+  }
+
+  document.addEventListener("submit", function (e) {
+    if (!isCheckoutPage()) return;
+    const total = getTotalFrom(document.body);
+    if (total > LIMIT) {
+      e.preventDefault();
+      e.stopPropagation();
+      applyCheckoutGuard();
+      return false;
+    }
+  }, true);
+
+  // -------- Запуск --------
+  applyCartLimit();
+  applyCheckoutGuard();
+  setInterval(function () {
+    applyCartLimit();
+    applyCheckoutGuard();
+  }, 800);
+
+})();
+</script>
+                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                                                                        <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uidb63bf3d87cc4e19551d84acb4497f3be" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uidb63bf3d87cc4e19551d84acb4497f3be");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

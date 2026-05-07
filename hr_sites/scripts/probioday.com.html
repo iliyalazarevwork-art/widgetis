@@ -1,0 +1,540 @@
+<!-- source: https://probioday.com/ -->
+<!-- extracted: 2026-05-07T21:34:12.590Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 22052 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <script src="https://api.dreamagency.com.ua/project-client/probioday/index.js"></script>
+<!-- СКРИПТ С ФАЙЛА НАЧАЛО ====================================-->
+<script type="text/javascript">
+(function() {
+  'use strict';
+
+  const FREE_DELIVERY_THRESHOLD = {
+    uk: 1500,
+    en: 55
+  };
+  const ACCENT_COLOR = '#a2ca6c';
+
+  // Визначення мови сайту
+  function getLanguage() {
+    return window.location.pathname.includes('/en/') ? 'en' : 'uk';
+  }
+
+  // Отримання порогу доставки для поточної мови
+  function getThreshold() {
+    return FREE_DELIVERY_THRESHOLD[getLanguage()];
+  }
+
+  // Тексти для різних мов
+  const translations = {
+    uk: {
+      success: 'Вітаємо! Ваші товари ми доставимо безкоштовно.',
+      continue: 'Додавайте далі, щоб отримати безкоштовну доставку.',
+      remaining: 'Залишилось {amount} грн до безкоштовної доставки',
+      alt: 'Безкоштовна доставка'
+    },
+    en: {
+      success: 'Congratulations! We will deliver your goods for free.',
+      continue: 'Add more to get free delivery.',
+      remaining: '€{amount} left until free delivery',
+      alt: 'Free delivery'
+    }
+  };
+
+  // Створення HTML блоку з прогресом
+  function createProgressBlock() {
+    const lang = getLanguage();
+    const texts = translations[lang];
+    
+    const block = document.createElement('div');
+    block.id = 'free-delivery-progress';
+    block.style.cssText = `
+      background: white;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    `;
+
+    block.innerHTML = `
+      <div style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: #333;">
+        <span id="delivery-message"></span>
+      </div>
+      <div style="position: relative; width: 100%; height: 12px; background: #e0e0e0; border-radius: 6px; overflow: visible;">
+        <div id="delivery-progress-bar" style="position: relative; height: 100%; background: ${ACCENT_COLOR}; width: 0%; transition: width 0.3s ease;">
+          <img src="https://probioday.com/content/uploads/images/icon-free-delivery.png" 
+               style="position: absolute; right: -12px; top: 15%; transform: translateY(-50%); height: 40px; width: auto;" 
+               alt="${texts.alt}">
+        </div>
+      </div>
+      <div id="delivery-remaining" style="font-size: 14px; color: #666; margin-top: 8px;"></div>
+    `;
+
+    return block;
+  }
+
+  // Оновлення прогресу
+  function updateProgress(totalSum) {
+    const progressBar = document.getElementById('delivery-progress-bar');
+    const message = document.getElementById('delivery-message');
+    const remaining = document.getElementById('delivery-remaining');
+
+    if (!progressBar || !message || !remaining) return;
+
+    const lang = getLanguage();
+    const texts = translations[lang];
+    const threshold = getThreshold();
+    const currentSum = parseFloat(totalSum) || 0;
+    const percentage = Math.min((currentSum / threshold) * 100, 100);
+
+    progressBar.style.width = percentage + '%';
+
+    if (currentSum >= threshold) {
+      message.textContent = texts.success;
+      message.style.color = ACCENT_COLOR;
+      remaining.textContent = '';
+    } else {
+      const diff = threshold - currentSum;
+      message.textContent = texts.continue;
+      message.style.color = '#333';
+      remaining.textContent = texts.remaining.replace('{amount}', diff.toFixed(2));
+    }
+  }
+
+  // Отримання суми з елемента j-total-sum
+  function getTotalSum() {
+    const totalElement = document.querySelector('.j-total-sum, [class*="j-total-sum"]');
+    if (totalElement) {
+      const text = totalElement.textContent || totalElement.innerText;
+      // Видаляємо всі нецифрові символи крім крапки/коми
+      const numStr = text.replace(/[^\d.,]/g, '').replace(',', '.');
+      return parseFloat(numStr) || 0;
+    }
+    return 0;
+  }
+
+  // Вставка блоку в потрібне місце
+  function insertProgressBlock() {
+    try {
+      // Шукаємо cart або cart-drawer
+      const cart = document.getElementById('cart');
+      const cartDrawer = document.getElementById('cart-drawer');
+      
+      console.log('insertProgressBlock - cart:', cart, 'cartDrawer:', cartDrawer);
+      
+      // Перевіряємо, чи блок вже існує
+      if (document.getElementById('free-delivery-progress')) {
+        console.log('Progress block already exists');
+        return;
+      }
+
+      // Перевіряємо, чи є блок checkout на сторінці
+      const checkoutBlock = document.querySelector('.checkout, [class*="checkout"]');
+      const modalOverlay = document.getElementById('modal-overlay');
+      
+      // Обробка cart-drawer (мобільна версія)
+      if (cartDrawer) {
+        console.log('Processing cart-drawer');
+        const progressBlock = createProgressBlock();
+        
+        // Шукаємо cart__summary в cart-drawer
+        const cartSummary = cartDrawer.querySelector('.cart__summary, [class*="cart__summary"]');
+        console.log('cartSummary in cart-drawer:', cartSummary);
+        
+        if (cartSummary) {
+          cartSummary.insertAdjacentElement('afterend', progressBlock);
+          console.log('Progress block inserted after cart__summary in cart-drawer');
+          updateProgress(getTotalSum());
+          return;
+        }
+        
+        // Fallback для cart-drawer
+        const cartAdditional = cartDrawer.querySelector('.j-cart-additional, [class*="j-cart-additional"]');
+        if (cartAdditional) {
+          cartAdditional.insertAdjacentElement('beforebegin', progressBlock);
+          console.log('Progress block inserted before j-cart-additional in cart-drawer');
+          updateProgress(getTotalSum());
+          return;
+        }
+        
+        // Якщо немає потрібних блоків - нічого не робимо
+        console.log('No suitable container found in cart-drawer - skipping');
+        return;
+      }
+      
+      // Обробка cart
+      if (!cart) return;
+      
+      const isInModal = modalOverlay && modalOverlay.contains(cart);
+      console.log('isInModal:', isInModal, 'checkoutBlock:', checkoutBlock);
+
+      // Якщо не в модалці і немає checkout - не додаємо
+      if (!isInModal && !checkoutBlock) {
+        console.log('Conditions not met - skipping');
+        return;
+      }
+
+      const progressBlock = createProgressBlock();
+
+      if (isInModal) {
+        // Якщо cart в modal-overlay
+        
+        // Перевіряємо мобільну версію: cart__summary
+        const cartSummary = cart.querySelector('.cart__summary, [class*="cart__summary"]');
+        
+        console.log('cartSummary found:', cartSummary);
+        
+        // Якщо знайдено cart__summary - це мобільна версія
+        if (cartSummary) {
+          // Вставляємо після cart__summary
+          cartSummary.insertAdjacentElement('afterend', progressBlock);
+          console.log('Progress block inserted after cart__summary');
+          updateProgress(getTotalSum());
+          return;
+        }
+
+        // Десктопна версія модального вікна: вставляємо перед j-cart-additional
+        const cartAdditional = cart.querySelector('.j-cart-additional, [class*="j-cart-additional"]');
+        console.log('cartAdditional found:', cartAdditional);
+        
+        if (cartAdditional) {
+          // Вставляємо перед j-cart-additional
+          cartAdditional.insertAdjacentElement('beforebegin', progressBlock);
+          console.log('Progress block inserted before j-cart-additional');
+          updateProgress(getTotalSum());
+          return;
+        }
+
+        // Fallback: шукаємо cart-section і вставляємо після нього
+        const cartSection = cart.querySelector('.cart-section, [class*="cart-section"]');
+        console.log('cartSection found:', cartSection);
+        
+        if (cartSection) {
+          cartSection.insertAdjacentElement('afterend', progressBlock);
+          console.log('Progress block inserted after cart-section');
+          updateProgress(getTotalSum());
+          return;
+        }
+
+        // Останній fallback для модального вікна - додаємо в кінець cart
+        console.log('Using fallback - appending to cart');
+        cart.appendChild(progressBlock);
+        updateProgress(getTotalSum());
+      } else {
+        // Якщо cart НЕ в modal - це сторінка checkout
+        // Шукаємо checkout-aside і вставляємо після cart всередині checkout-aside
+        const checkoutAside = document.querySelector('.checkout-aside, [class*="checkout-aside"]');
+        
+        if (checkoutAside && checkoutAside.contains(cart)) {
+          // Вставляємо відразу після cart в його батьківський елемент
+          cart.insertAdjacentElement('afterend', progressBlock);
+          updateProgress(getTotalSum());
+          return;
+        }
+
+        // Fallback - вставляємо після cart
+        const cartParent = cart.parentElement;
+        if (cartParent) {
+          cart.insertAdjacentElement('afterend', progressBlock);
+          updateProgress(getTotalSum());
+          return;
+        }
+
+        // Останній fallback - додаємо в cart
+        cart.appendChild(progressBlock);
+        updateProgress(getTotalSum());
+      }
+    } catch (e) {
+      console.error('Insert progress block error:', e);
+    }
+  }
+
+  // Спостереження за змінами
+  function observeChanges() {
+    // Відстежуємо появу modal-overlay та cart в ньому, або cart-drawer
+    const bodyObserver = new MutationObserver((mutations) => {
+      // Обмежуємо частоту перевірок
+      if (bodyObserver.isProcessing) return;
+      bodyObserver.isProcessing = true;
+
+      setTimeout(() => {
+        try {
+          for (const mutation of mutations) {
+            if (mutation.addedNodes.length) {
+              const modalOverlay = document.getElementById('modal-overlay');
+              const cart = document.getElementById('cart');
+              const cartDrawer = document.getElementById('cart-drawer');
+              
+              // Перевіряємо modal-overlay з cart або cart-drawer
+              if ((modalOverlay && cart && modalOverlay.contains(cart)) || cartDrawer) {
+                if (!document.getElementById('free-delivery-progress')) {
+                  insertProgressBlock();
+                }
+              }
+              break; // Виходимо після першої перевірки
+            }
+          }
+        } catch (e) {
+          console.error('Free delivery progress error:', e);
+        }
+        bodyObserver.isProcessing = false;
+      }, 100);
+    });
+
+    // Спостерігаємо за body для динамічних елементів
+    bodyObserver.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+
+    // Відстежуємо зміни суми
+    const updateSum = () => {
+      try {
+        const totalElement = document.querySelector('.j-total-sum, [class*="j-total-sum"]');
+        if (totalElement) {
+          const observer = new MutationObserver(() => {
+            try {
+              updateProgress(getTotalSum());
+            } catch (e) {
+              console.error('Progress update error:', e);
+            }
+          });
+
+          observer.observe(totalElement, {
+            childList: true,
+            characterData: true,
+            subtree: true
+          });
+        }
+      } catch (e) {
+        console.error('Total sum observer error:', e);
+      }
+    };
+
+    updateSum();
+    
+    // Перевіряємо cart або cart-drawer раз на 2 секунди (замість 500мс)
+    let checkInterval = setInterval(() => {
+      try {
+        if (!document.getElementById('free-delivery-progress')) {
+          const cart = document.getElementById('cart');
+          const cartDrawer = document.getElementById('cart-drawer');
+          if (cart || cartDrawer) {
+            insertProgressBlock();
+          }
+        } else {
+          // Якщо блок існує, оновлюємо прогрес
+          updateProgress(getTotalSum());
+        }
+      } catch (e) {
+        console.error('Cart check error:', e);
+        // Зупиняємо інтервал при критичній помилці
+        clearInterval(checkInterval);
+      }
+    }, 2000);
+  }
+
+  // Ініціалізація
+  function init() {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        insertProgressBlock();
+        observeChanges();
+      });
+    } else {
+      insertProgressBlock();
+      observeChanges();
+    }
+  }
+
+  init();
+})();
+</script>
+<!-- СКРИПТ С ФАЙЛА КОНЕЦ ====================================-->
+
+
+
+<script type="text/javascript">
+(function(d, w, s) {
+    var widgetHash = '0KnLBpdrRZhKOxAlCrVP', bch = d.createElement(s); bch.type = 'text/javascript'; bch.async = true;
+    bch.src = '//widgets.binotel.com/chat/widgets/' + widgetHash + '.js';
+    var sn = d.getElementsByTagName(s)[0]; sn.parentNode.insertBefore(bch, sn);
+})(document, window, 'script');
+</script>
+
+<style type="text/css">
+    body #bingc-passive-get-phone-form span.bingc-sample-countdown-timer {
+        display: none;
+    }
+
+    body #bingc-active-get-phone-form span.bingc-sample-countdown-timer {
+        display: none;
+    }
+</style>   <script type="text/javascript">
+  (function(d, w, s) {
+	var widgetHash = 'kfdlpele30vfmfhxdpz4', gcw = d.createElement(s); gcw.type = 'text/javascript'; gcw.async = true;
+	gcw.src = '//widgets.binotel.com/getcall/widgets/'+ widgetHash +'.js';
+	var sn = d.getElementsByTagName(s)[0]; sn.parentNode.insertBefore(gcw, sn);
+  })(document, window, 'script');
+</script> 
+
+<script>
+    !function (t, e, c, n) {
+        var s = e.createElement(c);
+        s.async = 1, s.src = 'https://scripts.claspo.io/scripts/' + n + '.js';
+        var r = e.scripts[0];
+        r.parentNode.insertBefore(s, r);
+        var f = function () {
+            f.c(arguments);
+        };
+        f.q = [];
+        f.c = function () {
+            f.q.push(arguments);
+        };
+        t['claspo'] = t['claspo'] || f;
+    }(window, document, 'script', '67D2D924E5664D298CC7C5FE18C2C318');
+</script><script>claspo('init');</script>                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                                                                        <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uide659bba5e81f90042ac2226755356068" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uide659bba5e81f90042ac2226755356068");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

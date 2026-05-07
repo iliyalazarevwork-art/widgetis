@@ -1,0 +1,561 @@
+<!-- source: https://voge-shop.com.ua/ -->
+<!-- extracted: 2026-05-07T21:34:45.591Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 21656 -->
+
+w.INIT.execute();
+        })(window);
+    });
+</script>
+        <!-- Telegram chat icon button -->
+<a href="https://t.me/voge_ua" target="_blank" rel="noopener" class="telegram-btn">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram">
+</a>
+
+<style>
+.telegram-btn {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  z-index: 9999;
+  display: inline-block;
+}
+
+.telegram-btn img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.telegram-btn img:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+}
+</style>
+
+
+<!-- KeyCRM online chat widget begin -->
+<script type="text/javascript">
+(function(w,d,t,u,c){
+  var s=d.createElement(t),j=d.getElementsByTagName(t)[0];s.src=u;s["async"]=true;s.defer=true;s.onload=function(){KeyCRM.render(c);};j.parentNode.insertBefore(s,j)
+})(window, document, "script","https://chat.key.live/bundles/widget.min.js",{token:"732d1a3e-168d-46e0-a657-42612bf941ca"});
+</script>
+<!-- KeyCRM online chat widget end -->
+
+
+<script>
+(function () {
+    const CONFIG = {
+        THRESHOLD: 2500, // Поріг безкоштовної доставки
+        TOTAL_SELECTORS: [
+            '.cart-footer-b .j-total-sum', 
+            '.cart__total-price.j-total-sum', 
+            '.total-sum .j-total-sum',
+            '.j-total-sum',
+            '.cart-total__sum'
+        ],
+        COLOR_MAIN: '#8B1F2F', // Бордовий колір бренду
+        COLOR_BG: '#f0f0f0',
+        WIDGET_ID: 'free-shipping-box'
+    };
+
+    let isRendering = false;
+
+    // Функція витягування чистої ціни
+    function getCartData() {
+        for (const selector of CONFIG.TOTAL_SELECTORS) {
+            const el = document.querySelector(selector);
+            if (el && el.textContent.trim()) {
+                // Видаляємо все крім цифр, крапок та ком
+                const priceText = el.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
+                const price = parseFloat(priceText);
+                if (!isNaN(price) && price > 0) return { price, el };
+            }
+        }
+        return null;
+    }
+
+    function renderWidget() {
+        if (isRendering) return;
+        
+        const data = getCartData();
+        if (!data) return;
+
+        let box = document.getElementById(CONFIG.WIDGET_ID);
+        
+        if (!box) {
+            isRendering = true;
+            box = document.createElement('div');
+            box.id = CONFIG.WIDGET_ID;
+            box.style.cssText = `
+                width: 100%; border: 1px solid #e1e1e1; border-radius: 12px;
+                padding: 16px; margin: 15px 0; background: #ffffff;
+                box-sizing: border-box; font-family: Arial, sans-serif; clear: both;
+            `;
+            const parent = data.el.closest('div');
+            if (parent && parent.parentElement) {
+                parent.parentElement.appendChild(box);
+            }
+            isRendering = false;
+        }
+
+        const diff = Math.max(0, CONFIG.THRESHOLD - data.price);
+        const percent = Math.min(100, (data.price / CONFIG.THRESHOLD) * 100);
+        const isFree = diff <= 0;
+
+        // Зберігаємо статус для додавання коментаря в замовлення
+        localStorage.setItem('freeShippingStatus', isFree ? 'yes' : 'no');
+
+        box.innerHTML = `
+            <div style="text-align: center; margin-bottom: 10px; font-size: 14px; font-weight: bold; color: #333;">
+                ${isFree 
+                    ? 'Вітаємо! Ви отримали безкоштовну доставку 🎉' 
+                    : `До безкоштовної доставки: <span style="color: ${CONFIG.COLOR_MAIN};">${diff.toLocaleString()} грн</span>`
+                }
+            </div>
+            <div style="width: 100%; background: ${CONFIG.COLOR_BG}; height: 8px; border-radius: 10px; overflow: hidden;">
+                <div style="width: ${percent}%; background: ${CONFIG.COLOR_MAIN}; height: 100%; transition: width 0.5s ease-out;"></div>
+            </div>
+            <div style="margin-top: 10px; color: #666; font-size: 11px; text-align: center; line-height: 1.4; border-top: 1px solid #eee; padding-top: 8px;">
+                ℹ️ Безкоштовна доставка не поширюється на варіант оплати "покупка частинами" від monobank та ПриватБанк.
+            </div>
+        `;
+    }
+
+    // Розумний наглядач за змінами в кошику
+    const observer = new MutationObserver((mutations) => {
+        const isOurWidgetChange = mutations.every(m => m.target.id === CONFIG.WIDGET_ID || m.target.closest && m.target.closest('#' + CONFIG.WIDGET_ID));
+        if (!isOurWidgetChange) renderWidget();
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Додавання мітки в коментар при натисканні "Оформити"
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.j-submit');
+        if (btn) {
+            const comment = document.querySelector('textarea[name="Recipient[comment]"]');
+            const status = localStorage.getItem('freeShippingStatus');
+            if (comment && status === 'yes') {
+                const prefix = "Безкоштовна доставка у подарунок";
+                if (!comment.value.includes(prefix)) {
+                    comment.value = (prefix + "\n" + comment.value).trim();
+                }
+            }
+        }
+    });
+
+    // Стартовий запуск
+    renderWidget();
+})();
+</script>
+
+
+
+<script>
+(function() {
+  function initMotoSelect() {
+    const commentField = document.querySelector('textarea[name="Recipient[comment]"]');
+    if (!commentField || document.querySelector("select[name='MotoModel']")) {
+      return false;
+    }
+
+    // --- Десктопна структура (dt/dd) ---
+    const desktopWrapper = commentField.closest("dd");
+    if (desktopWrapper) {
+      const label = document.createElement("dt");
+      label.className = "form-head";
+      label.textContent = "Оберіть вашу модель мотоцикла";
+
+      const container = document.createElement("dd");
+      container.className = "form-item";
+
+      const select = buildSelect(commentField);
+      container.appendChild(select);
+
+      desktopWrapper.insertAdjacentElement("afterend", container);
+      desktopWrapper.insertAdjacentElement("afterend", label);
+      return true;
+    }
+
+    // --- Мобільна структура (.form-item) ---
+    const mobileWrapper = commentField.closest(".form-item");
+    if (mobileWrapper) {
+      const newItem = document.createElement("div");
+      newItem.className = "form-item";
+
+      const title = document.createElement("div");
+      title.className = "form-item__title";
+      title.textContent = "Оберіть вашу модель мотоцикла";
+
+      const content = document.createElement("div");
+      content.className = "form-item__content";
+
+      const select = buildSelect(commentField);
+      content.appendChild(select);
+
+      newItem.appendChild(title);
+      newItem.appendChild(content);
+
+      mobileWrapper.insertAdjacentElement("afterend", newItem);
+      return true;
+    }
+
+    return false;
+  }
+
+  // Функція створення select
+  function buildSelect(commentField) {
+    const select = document.createElement("select");
+    select.className = "input";
+    select.name = "MotoModel";
+    select.required = true; // ✅ обов’язкове поле
+
+    const models = [
+      "Loncin LX250-15 CR4",
+      "Loncin LX250GY-3K SX2 4V",
+      "Loncin LX250-15D 4V",
+      "Loncin LX250GY-3G DS2",
+      "Loncin LX250GY-3 SX2",
+      "Loncin LX300GY SX2 Pro (Однофарний)",
+      "Loncin LX300GY-A DS2 Pro (Карбюраторний Rally)",
+      "Voge 300R",
+      "Voge 300RR",
+      "Voge 300AC (ACX)",
+      "Voge 300DS",
+      "Voge 300 Rally (Інжектор)",
+      "Voge 500R",
+      "Voge 500DS",
+      "Voge 500AC",
+      "Voge 525R",
+      "Voge 525RR",
+      "Voge 525DSX",
+      "Voge 525ACX",
+      "Voge 650DS",
+      "Voge 900DSX",
+      "Інший бренд мотоцикла"
+    ];
+
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "— Оберіть модель —";
+    select.appendChild(placeholder);
+
+    models.forEach(m => {
+      const opt = document.createElement("option");
+      opt.value = m;
+      opt.textContent = m;
+      select.appendChild(opt);
+    });
+
+    select.addEventListener("change", function() {
+      removeError(select);
+      updateComment(commentField, this.value);
+    });
+
+    // === Перевірка при відправці ===
+    try {
+      const submitBtn = document.querySelector('.j-submit');
+      if (submitBtn) {
+        submitBtn.addEventListener('click', function (e) {
+          if (!select.value) {
+            e.preventDefault(); // ❌ блокуємо відправку
+            showError(select, "Заповнити поле");
+            return false;
+          }
+          updateComment(commentField, select.value);
+        });
+      }
+    } catch(e) {
+      console.warn('Moto model insert error', e);
+    }
+
+    return select;
+  }
+
+  // Оновлення поля коментаря
+  function updateComment(commentField, model) {
+    const prefix = "Модель мотоцикла:";
+    let lines = commentField.value.split("\n").filter(l => !l.startsWith(prefix));
+    if (model) {
+      lines.unshift(prefix + " " + model);
+    }
+    commentField.value = lines.join("\n").trim();
+  }
+
+  // Показати помилку
+  function showError(select, message) {
+    const wrapper = select.closest('.form-item') || select.parentElement;
+    if (!wrapper) return;
+
+    wrapper.classList.add("error");
+    let errorMsg = wrapper.querySelector(".form-error");
+    if (!errorMsg) {
+      errorMsg = document.createElement("div");
+      errorMsg.className = "form-error";
+      errorMsg.style.color = "red";   // ✅ червоний колір
+      errorMsg.style.fontSize = "13px";
+      errorMsg.style.marginTop = "4px";
+      wrapper.appendChild(errorMsg);
+    }
+    errorMsg.textContent = message;
+  }
+
+  // При виборі моделі прибираємо помилку
+  function removeError(select) {
+    const wrapper = select.closest('.form-item') || select.parentElement;
+    if (!wrapper) return;
+
+    wrapper.classList.remove("error");
+    const errorMsg = wrapper.querySelector(".form-error");
+    if (errorMsg) errorMsg.remove();
+  }
+
+  // Чекаємо поки форма підвантажиться (важливо для PWA)
+  const timer = setInterval(() => {
+    if (initMotoSelect()) {
+      clearInterval(timer);
+    }
+  }, 500);
+})();
+</script>
+
+<script>
+(function() {
+  function initFioValidation() {
+    const input = document.querySelector('input[name="Recipient[name]"]');
+    if (!input) return false;
+
+    const form = input.closest("form");
+    if (!form) return false;
+
+    const regex = /^[A-Za-zА-Яа-яІіЇїЄєҐґ']+\s+[A-Za-zА-Яа-яІіЇїЄєҐґ']+\s+[A-Za-zА-Яа-яІіЇїЄєҐґ']+$/;
+
+    function validate() {
+      const value = input.value.trim();
+
+      if (!value) {
+        showError(input, "Вкажіть Прізвище Ім'я По-батькові");
+        return false;
+      }
+
+      if (!regex.test(value)) {
+        showError(input, "Для відправлення потрібно вказати Прізвище Ім'я По-батькові");
+        return false;
+      }
+
+      removeError(input);
+      return true;
+    }
+
+    // 🔹 М’яка перевірка
+    input.addEventListener("blur", validate);
+
+    // 🔴 ГОЛОВНЕ — перехоплюємо submit форми
+    form.addEventListener("submit", function(e) {
+      if (!validate()) {
+        e.preventDefault();
+        e.stopPropagation(); // важливо для Хорошоп
+        input.focus();
+        return false;
+      }
+    });
+
+    return true;
+  }
+
+  // === ТІ Ж ФУНКЦІЇ (як у тебе) ===
+
+  function showError(input, message) {
+    const wrapper = input.closest('.form-item') || input.parentElement;
+    if (!wrapper) return;
+
+    wrapper.classList.add("error");
+
+    let errorMsg = wrapper.querySelector(".form-error");
+    if (!errorMsg) {
+      errorMsg = document.createElement("div");
+      errorMsg.className = "form-error";
+      errorMsg.style.color = "red";
+      errorMsg.style.fontSize = "13px";
+      errorMsg.style.marginTop = "4px";
+      wrapper.appendChild(errorMsg);
+    }
+
+    errorMsg.textContent = message;
+  }
+
+  function removeError(input) {
+    const wrapper = input.closest('.form-item') || input.parentElement;
+    if (!wrapper) return;
+
+    wrapper.classList.remove("error");
+
+    const errorMsg = wrapper.querySelector(".form-error");
+    if (errorMsg) errorMsg.remove();
+  }
+
+  // Чекаємо рендер (як у тебе)
+  const timer = setInterval(() => {
+    if (initFioValidation()) {
+      clearInterval(timer);
+    }
+  }, 500);
+
+})();
+</script>                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Увійти для відображення накопичувальної знижки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                                                                                <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uid8dd883c8b138594507bbd4356e84dd99" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uid8dd883c8b138594507bbd4356e84dd99");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

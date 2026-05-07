@@ -1,0 +1,360 @@
+<!-- source: https://kolchuga.pro/ -->
+<!-- extracted: 2026-05-07T21:33:28.404Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 19675 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <script>
+  (function(w, k) {
+    w[k] = {
+        companyId: '12177',
+        widgetId: '1',
+        hash: '46f88449-2357-4fa2-a818-44038fddbf83',
+        locale: 'ua',
+    };
+
+    var d = w.document,
+        s = d.createElement('script');
+
+    s.async = true;
+    s.id = k + 'Script';
+    s.src = 'https://static.salesdrive.me/chat-widget/assets/js/widget.js' + '?' + (Date.now() / 3600000 | 0);
+    d.head && d.head.appendChild(s)
+
+  }(window, 'salesDriveChatButton'));
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    const detectLang = () =>
+        window.location.pathname.startsWith("/ru/") ? "ru" : "ua";
+
+    const menuSets = {
+        protection: {
+            ua: [
+                { href: "/typy-tekhnolohii-ta-materialy/", text: "Типи, технології та матеріали" },
+                { href: "/nadiinist-ta-harantii/", text: "Надійність та гарантії" },
+                { href: "/tochnyi-pidbir/", text: "Точний підбір" },
+                { href: "/vstanovlennia-zakhystu/", text: "Встановлення захисту" }
+            ],
+            ru: [
+                { href: "/ru/typy-tekhnolohii-ta-materialy/", text: "Типы, технологии и материалы" },
+                { href: "/ru/nadiinist-ta-harantii/", text: "Надежность и гарантии" },
+                { href: "/ru/tochnyi-pidbir/", text: "Точный подбор" },
+                { href: "/ru/vstanovlennia-zakhystu/", text: "Установка защиты" }
+            ]
+        },
+        client: {
+            ua: [
+                { href: "/oplata-i-dostavka/", text: "Оплата і доставка" },
+                { href: "/obmin-ta-povernennia/", text: "Обмін та повернення" },
+                { href: "/znyzhka-dlia-syl-oborony-ta-volonteriv/", text: "Знижки військовим" },
+                { href: "/partnerska-prohrama-loialnosti-mizh-kolchuga-ta-prosalon/", text: "Програма лояльності" },
+                { href: "/uhoda-korystuvacha/", text: "Угода користувача" }
+            ],
+            ru: [
+                { href: "/ru/oplata-i-dostavka/", text: "Оплата и доставка" },
+                { href: "/ru/obmin-ta-povernennia/", text: "Обмен и возврат" },
+                { href: "/ru/znyzhka-dlia-syl-oborony-ta-volonteriv/", text: "Скидки военным" },
+                { href: "/ru/partnerska-prohrama-loialnosti-mizh-kolchuga-ta-prosalon/", text: "Программа лояльности" },
+                { href: "/ru/uhoda-korystuvacha/", text: "Пользовательское соглашение" }
+            ]
+        }
+    };
+
+    const buildDropdown = (anchorSelector, itemsList) => {
+        const anchor = document.querySelector(anchorSelector);
+        if (!anchor) return;
+
+        const wrapper = anchor.parentElement;
+        wrapper.classList.add("nav-item--with-sub");
+
+        const trigger = document.createElement("span");
+        trigger.className = "nav-subtoggle";
+        trigger.innerHTML = `
+            <svg class="icon icon--arrow-down-light">
+                <use xlink:href="#icon-arrow-down-light"></use>
+            </svg>
+        `;
+        anchor.after(trigger);
+
+        const list = document.createElement("ul");
+        list.className = "nav-submenu";
+
+        itemsList.forEach(entry => {
+            const li = document.createElement("li");
+            const link = document.createElement("a");
+            link.href = entry.href;
+            link.textContent = entry.text;
+            li.appendChild(link);
+            list.appendChild(li);
+        });
+
+        wrapper.appendChild(list);
+
+        trigger.addEventListener("click", e => {
+            e.preventDefault();
+            list.classList.toggle("is-open");
+        });
+
+        wrapper.addEventListener("mouseenter", () => list.classList.add("is-open"));
+        wrapper.addEventListener("mouseleave", () => list.classList.remove("is-open"));
+    };
+
+    const activeLang = detectLang();
+
+    buildDropdown(
+        activeLang === "ru"
+            ? ".site-menu__item a[href*='/ru/typy-tekhnolohii-ta-materialy/']"
+            : ".site-menu__item a[href*='/typy-tekhnolohii-ta-materialy/']",
+        menuSets.protection[activeLang]
+    );
+
+    buildDropdown(
+        activeLang === "ru"
+            ? ".site-menu__item a[href*='/ru/oplata-i-dostavka/']"
+            : ".site-menu__item a[href*='/oplata-i-dostavka/']",
+        menuSets.client[activeLang]
+    );
+
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+if (window.location.pathname.includes("/pytannia-vidpovidi/")) {
+
+    const article =
+        document.querySelector('.page-faq .article-text') ||
+        document.querySelector('.page-faq .blog__inner .text');
+    if (!article) return;
+
+    const headers = article.querySelectorAll('h2');
+
+    headers.forEach((h2) => {
+        const arrow = document.createElement('span');
+        arrow.classList.add('faq-arrow');
+        arrow.innerHTML = `
+            <svg class="icon icon--arrow-down-light">
+                <use xlink:href="#icon-arrow-down-light"></use>
+            </svg>`;
+        h2.appendChild(arrow);
+
+        const answerWrapper = document.createElement('div');
+        answerWrapper.classList.add('faq-answer');
+
+        let next = h2.nextElementSibling;
+        while (next && next.tagName !== 'H2') {
+            const toMove = next;
+            next = next.nextElementSibling;
+            answerWrapper.appendChild(toMove);
+        }
+
+        h2.insertAdjacentElement('afterend', answerWrapper);
+
+        h2.addEventListener('click', () => {
+            h2.classList.toggle('active');
+
+            const isOpen = h2.classList.contains('active');
+            answerWrapper.style.maxHeight = isOpen ? answerWrapper.scrollHeight + 'px' : '0px';
+        });
+
+        document.body.classList.add('faq-ready');
+    });
+
+}
+});
+</script>
+
+<script>
+const replacements = [
+  ["/content/images/25/300x200e80nn0/yak-samostiino-vstanovyty-zakhyst-kolchuga-pokrokova-instruktsiia-38581763984013", "/content/images/25/300x200e80nn0/yak-samostiino-vstanovyty-zakhyst-kolchuga-pokrokova-instruktsiia-96025790666967"],
+  ["/content/images/25/1200x400e80nn0/yak-samostiino-vstanovyty-zakhyst-kolchuga-pokrokova-instruktsiia-26303948662749", "/content/images/25/1200x400e80nn0/yak-samostiino-vstanovyty-zakhyst-kolchuga-pokrokova-instruktsiia-33917733948803"],
+  ["/content/images/24/300x200e80nn0/chym-vidrizniaietsia-kholodnokatana-stal-vid-hariachekatanoi-i-chomu-tse-vazhlyvo-dlia-vashoho-avto-89566234896749", "/content/images/24/300x200e80nn0/chym-vidrizniaietsia-kholodnokatana-stal-vid-hariachekatanoi-i-chomu-tse-vazhlyvo-dlia-vashoho-avto-12210983175098"],
+  ["/content/images/24/1200x400e80nn0/chym-vidrizniaietsia-kholodnokatana-stal-vid-hariachekatanoi-i-chomu-tse-vazhlyvo-dlia-vashoho-avto-77654607926753", "/content/images/24/1200x400e80nn0/chym-vidrizniaietsia-kholodnokatana-stal-vid-hariachekatanoi-i-chomu-tse-vazhlyvo-dlia-vashoho-avto-31338520169356"],
+  ["/content/images/23/300x200e80nn0/pokryttia-standart-whitecover-zipoflex-aluox-yake-obraty-73569443277735", "/content/images/23/300x200e80nn0/pokryttia-standart-whitecover-zipoflex-aluox-yake-obraty-11693181224072"],
+  ["/content/images/23/1200x400e80nn0/pokryttia-standart-whitecover-zipoflex-aluox-yake-obraty-91739336606674", "/content/images/23/1200x400e80nn0/pokryttia-standart-whitecover-zipoflex-aluox-yake-obraty-54051341779117"],
+  ["/content/images/22/300x200e80nn0/tsynkove-pokryttia-kolchuga-yak-vono-pratsiuie-i-chomu-podovzhuie-zhyttia-metalu-73065661882125", "/content/images/22/300x200e80nn0/tsynkove-pokryttia-kolchuga-yak-vono-pratsiuie-i-chomu-podovzhuie-zhyttia-metalu-46356859097834"],
+  ["/content/images/22/1200x400e80nn0/tsynkove-pokryttia-kolchuga-yak-vono-pratsiuie-i-chomu-podovzhuie-zhyttia-metalu-76849397035688", "/content/images/22/1200x400e80nn0/tsynkove-pokryttia-kolchuga-yak-vono-pratsiuie-i-chomu-podovzhuie-zhyttia-metalu-69528936336698"],
+  ["/content/images/21/300x200e80nn0/yak-pereviryty-oryhinalnist-zakhystu-kolchuga-ta-unyknuty-pidrobky-77975298518814", "/content/images/21/300x200e80nn0/yak-pereviryty-oryhinalnist-zakhystu-kolchuga-ta-unyknuty-pidrobky-94121435700489"],
+  ["/content/images/21/1200x400e80nn0/yak-pereviryty-oryhinalnist-zakhystu-kolchuga-ta-unyknuty-pidrobky-52328921326973", "/content/images/21/1200x400e80nn0/yak-pereviryty-oryhinalnist-zakhystu-kolchuga-ta-unyknuty-pidrobky-17145676441231"],
+  ["/content/images/20/300x200e80nn0/chomu-zakhyst-dvyhuna-kolchuga-koshtuie-dorozhche-i-chomu-tse-vypravdano-52487716938842", "/content/images/20/300x200e80nn0/chomu-zakhyst-dvyhuna-kolchuga-koshtuie-dorozhche-i-chomu-tse-vypravdano-92790164921563"],
+  ["/content/images/20/1200x400e80nn0/chomu-zakhyst-dvyhuna-kolchuga-koshtuie-dorozhche-i-chomu-tse-vypravdano-48017510117180", "/content/images/20/1200x400e80nn0/chomu-zakhyst-dvyhuna-kolchuga-koshtuie-dorozhche-i-chomu-tse-vypravdano-76612761064116"],
+  ["/content/images/19/300x200e80nn0/zakhyst-dvyhuna-koly-vin-potriben-i-yakyi-obraty-63177790506413", "/content/images/19/300x200e80nn0/zakhyst-dvyhuna-koly-vin-potriben-i-yakyi-obraty-18307030810600"],
+  ["/content/images/19/1200x400e80nn0/zakhyst-dvyhuna-koly-vin-potriben-i-yakyi-obraty-97090345050442", "/content/images/19/1200x400e80nn0/zakhyst-dvyhuna-koly-vin-potriben-i-yakyi-obraty-93001616552597"],
+  ["/content/images/26/300x200e80nn0/partnerska-prohrama-loialnosti-mizh-kolchuga-ta-prosalon-30706018909143", "/content/images/1/300x200e80nn0/partnerska-prohrama-loialnosti-mizh-kolchuga-ta-prosalon-15956606532806"],
+  ["/content/images/26/1200x400e80nn0/partnerska-prohrama-loialnosti-mizh-kolchuga-ta-prosalon-65786349906242", "/content/images/1/1200x400e80nn0/partnerska-prohrama-loialnosti-mizh-kolchuga-ta-prosalon-76669243546412"],
+  ["/content/images/27/300x200e80nn0/znyzhka-dlia-syl-oborony-ta-volonteriv-66483554914323", "/content/images/1/300x200e80nn0/znyzhka-dlia-syl-oborony-ta-volonteriv-36480285018603"],
+  ["/content/images/27/1200x400e80nn0/znyzhka-dlia-syl-oborony-ta-volonteriv-36538172737545", "/content/images/1/1200x400e80nn0/znyzhka-dlia-syl-oborony-ta-volonteriv-68588441601687"],
+];
+document.addEventListener("DOMContentLoaded", () => {
+  if (!document.body.classList.contains("ru-RU")) return;
+  document.querySelectorAll("img").forEach((img) => {
+    let src = img.getAttribute("src");
+    if (!src) return;
+    for (const [oldUrl, newUrl] of replacements) {
+      if (src.includes(oldUrl)) {
+        src = src.replace(oldUrl, newUrl);
+      }
+    }
+    img.setAttribute("src", src);
+  });
+});
+</script>        <script src="https://apis.google.com/js/platform.js?onload=renderOptIn" async defer>
+            </script>        <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Увійти для відображення накопичувальної знижки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                                                                                <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uidd2bd97e4dc9659839b13a18908039c8a" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uidd2bd97e4dc9659839b13a18908039c8a");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

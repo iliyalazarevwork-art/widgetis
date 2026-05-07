@@ -1,0 +1,182 @@
+<!-- source: https://highline.com.ua/ -->
+<!-- extracted: 2026-05-07T21:32:25.048Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 7682 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <script>
+function updateDeliveryDate() {
+    const outOfStockElement = document.querySelector('.product-header__availability--out-of-stock');
+    const unavailableStatusElement = document.querySelector('.presence-status--unavailable');
+    const deliveryNP1 = document.getElementById("delivery-novaposhta-1");
+    const deliveryNP2 = document.getElementById("delivery-novaposhta-2");
+    const deliveryUP = document.getElementById("delivery-ukrposhta");
+
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentDay = now.getDay();
+    const currentDate = now.getDate();
+    const currentMonth = now.getMonth() + 1;
+
+    let deliveryDate;
+    let deliveryText;
+
+    if (currentDay >= 1 && currentDay <= 5) {
+        if (currentHour < 15) {
+            deliveryDate = `сьогодні`;
+        } else {
+            deliveryDate = `завтра`;
+        }
+        deliveryText = `Відправимо ${deliveryDate}`;
+    } else if (currentDay === 6) {
+        if (currentHour < 12) {
+            deliveryDate = `сьогодні`;
+        } else {
+            const monday = new Date(now.getTime() + (2 * 24 * 60 * 60 * 1000));
+            deliveryDate = `${monday.getDate().toString().padStart(2, '0')}.${(monday.getMonth() + 1).toString().padStart(2, '0')}`;
+        }
+        deliveryText = `Відправимо ${deliveryDate}`;
+    } else {
+        const monday = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+        deliveryDate = `${monday.getDate().toString().padStart(2, '0')}.${(monday.getMonth() + 1).toString().padStart(2, '0')}`;
+        deliveryText = `Відправимо ${deliveryDate}`;
+    }
+
+    if (!outOfStockElement && !unavailableStatusElement) {
+        if (deliveryNP1) deliveryNP1.textContent = deliveryText;
+        if (deliveryNP2) deliveryNP2.textContent = deliveryText;
+        if (deliveryUP) deliveryUP.textContent = deliveryText;
+    }
+
+    if (outOfStockElement) {
+        const group3Element = document.querySelector('div[data-view-block="group_3"]');
+        if (group3Element) group3Element.style.display = 'none';
+    }
+
+    if (unavailableStatusElement) {
+        const tabsElement = document.querySelector('.product__group--tabs');
+        if (tabsElement) tabsElement.style.display = 'none';
+    }
+}
+
+document.addEventListener("DOMContentLoaded", updateDeliveryDate);
+</script>
+
+
+        <script src="https://apis.google.com/js/platform.js?onload=renderOptIn" async defer>
+            </script><script type="text/javascript">
+var ZCallbackWidgetLinkId  = 'fcf12aae39d3fbcdd3ac71bb9b383f80';
+var ZCallbackWidgetDomain  = 'my.zadarma.com';
+(function(){
+    var lt = document.createElement('script');
+    lt.type ='text/javascript';
+    lt.charset = 'utf-8';
+    lt.async = true;
+    lt.src = 'https://' + ZCallbackWidgetDomain + '/callbackWidget/js/main.min.js?v=1.15.4';
+    var sc = document.getElementsByTagName('script')[0];
+    if (sc) sc.parentNode.insertBefore(lt, sc);
+    else document.documentElement.firstChild.appendChild(lt);
+})();
+</script>        <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uid9a1e4b12b418a953e3f1168b2338c454" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uid9a1e4b12b418a953e3f1168b2338c454");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

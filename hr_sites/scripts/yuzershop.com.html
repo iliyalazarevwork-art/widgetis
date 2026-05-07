@@ -1,0 +1,503 @@
+<!-- source: https://yuzershop.com/ -->
+<!-- extracted: 2026-05-07T21:34:51.328Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 19214 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <style>
+/* ===== HERO ===== */
+.yz-hero {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 10px;
+}
+.yz-hero-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+.yz-left h2 { font-size: 28px; margin-bottom: 10px; }
+.yz-actions { margin-top: 20px; display: flex; gap: 10px; }
+.yz-btn {
+  padding: 12px 20px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: 0.3s;
+  cursor: pointer;
+  border: none;
+  font-size: 15px;
+}
+.yz-main { background: #0088cc; color: #fff; }
+.yz-light { background: #eee; color: #333; }
+.yz-btn:hover { transform: translateY(-3px); }
+.yz-right { display: flex; flex-direction: column; gap: 10px; }
+.yz-box { padding: 15px; background: #f5f5f5; border-radius: 12px; }
+@media (max-width: 768px) {
+  .yz-hero-inner { grid-template-columns: 1fr; }
+}
+
+/* ===== МОДАЛЬНЕ ВІКНО КОНСУЛЬТАЦІЇ ===== */
+.yz-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 999999;
+  align-items: center;
+  justify-content: center;
+}
+.yz-modal-overlay.active {
+  display: flex;
+}
+.yz-modal {
+  background: #fff;
+  border-radius: 20px;
+  padding: 32px 28px 28px;
+  max-width: 420px;
+  width: 90%;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  animation: yzModalIn 0.3s ease;
+}
+@keyframes yzModalIn {
+  from { opacity: 0; transform: scale(0.9) translateY(20px); }
+  to   { opacity: 1; transform: scale(1)   translateY(0); }
+}
+.yz-modal-close {
+  position: absolute;
+  top: 14px; right: 18px;
+  font-size: 22px;
+  cursor: pointer;
+  color: #888;
+  background: none;
+  border: none;
+  line-height: 1;
+}
+.yz-modal-close:hover { color: #333; }
+.yz-modal h3 {
+  margin: 0 0 6px;
+  font-size: 20px;
+  color: #111;
+}
+.yz-modal p {
+  margin: 0 0 24px;
+  color: #555;
+  font-size: 14px;
+}
+.yz-modal-channels {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+.yz-modal-channel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: #111;
+  font-size: 13px;
+  font-weight: 600;
+  transition: transform 0.2s ease;
+}
+.yz-modal-channel:hover { transform: translateY(-3px); }
+.yz-modal-channel-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.yz-modal-channel-icon svg {
+  width: 32px;
+  height: 32px;
+  fill: #fff;
+}
+.yz-icon-tg  { background: #2AABEE; }
+.yz-icon-vb  { background: #7360F2; }
+.yz-icon-wa  { background: #25D366; }
+.yz-modal-phones {
+  border-top: 1px solid #eee;
+  padding-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.yz-modal-phone {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #111;
+  text-decoration: none;
+}
+.yz-modal-phone:hover { color: #0088cc; }
+.yz-modal-phone-op {
+  font-size: 11px;
+  color: #888;
+  font-weight: 400;
+  margin-left: 2px;
+}
+
+/* ===== КАРТКИ ТОВАРІВ ===== */
+.slideCarousel-screen,
+.catalog-carousel,
+.catalog-carousel__container,
+.catalog-carousel__wrap,
+.promo-slider-list {
+  overflow: visible !important;
+}
+.catalog-carousel__item,
+.promo-slider-i {
+  overflow: visible !important;
+  padding-top: 6px;
+  margin-top: -6px;
+}
+.catalogCard {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: visible !important;
+  position: relative;
+}
+.catalogCard:hover {
+  transform: translateY(-6px) !important;
+  box-shadow: 0 14px 28px rgba(0,0,0,0.14) !important;
+  z-index: 20;
+}
+.catalogCard-box, .catalogCard-extra { overflow: visible !important; }
+
+/* ===== КАТЕГОРІЇ — підменю ===== */
+.products-menu__title {
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  border-radius: 8px;
+  padding: 2px 4px;
+}
+.products-menu__item:hover .products-menu__title {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 6px 18px rgba(218,165,32,0.45);
+  z-index: 10;
+  position: relative;
+}
+.productsMenu-submenu {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+  pointer-events: none;
+}
+.products-menu__item:hover .productsMenu-submenu,
+.products-menu__item.is-hover .productsMenu-submenu {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* підменю що вилізає за правий край — відкривати вліво */
+.productsMenu-submenu.yz-flip-left {
+  left: auto !important;
+  right: 0 !important;
+}
+
+/* ===== ПЛАВНЕ ПОЯВА ===== */
+.yz-animate {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.6s ease;
+}
+.yz-animate.show { opacity: 1; transform: translateY(0); }
+
+/* ===== FLOATING BUTTON ===== */
+.yz-contact-btn {
+  position: fixed;
+  right: 22px; bottom: 22px;
+  width: 68px; height: 68px;
+  border-radius: 50%;
+  background: #0088cc;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 12px 28px rgba(0,0,0,.22);
+  z-index: 99999;
+  transition: transform .25s ease, box-shadow .25s ease;
+  border: none;
+}
+.yz-contact-btn:hover { transform: translateY(-3px); box-shadow: 0 16px 34px rgba(0,0,0,.26); }
+.yz-contact-btn::before {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(0,136,204,.35);
+  animation: yzPulse 2s infinite;
+}
+@keyframes yzPulse {
+  0%   { transform: scale(1);    opacity: .9; }
+  70%  { transform: scale(1.55); opacity: 0; }
+  100% { transform: scale(1.55); opacity: 0; }
+}
+.yz-contact-btn svg { width: 30px; height: 30px; fill: #fff; position: relative; z-index: 1; }
+@media (max-width: 768px) {
+  .yz-contact-btn { right: 16px; bottom: 16px; }
+}
+</style>
+
+<!-- МОДАЛЬНЕ ВІКНО -->
+<div class="yz-modal-overlay" id="yzModal">
+  <div class="yz-modal">
+    <button class="yz-modal-close" id="yzModalClose">✕</button>
+    <h3>Зв'яжіться з нами</h3>
+    <p>Оберіть зручний спосіб — відповімо швидко</p>
+
+    <div class="yz-modal-channels">
+      <a href="https://t.me/yuzer_mt" target="_blank" rel="noopener" class="yz-modal-channel">
+        <div class="yz-modal-channel-icon yz-icon-tg">
+          <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+        </div>
+        Telegram
+      </a>
+
+      <a href="viber://chat?number=%2B380963840620" class="yz-modal-channel">
+        <div class="yz-modal-channel-icon yz-icon-vb">
+          <svg viewBox="0 0 24 24"><path d="M11.4 0C5.9 0 .5 4.1.5 9.5c0 2.8 1.2 5.4 3.3 7.2v3.3l3-1.6c1.4.5 2.9.8 4.4.8C16.8 19.2 22 14.8 22 9.5 22 4.2 17.3 0 11.4 0zM8.1 6.4l1.5 1.6c.1.1.1.2 0 .3L9 9.1c-.1.1-.1.3 0 .4 1 1.1 2 2 3.1 2.8.1.1.3.1.4 0l.8-.7c.1-.1.2-.1.3 0l1.6 1.4c.1.1.1.3 0 .4l-.7.8c-.9 1-2.3.9-3.4.1-1.6-1.1-3-2.5-4.1-4-.9-1.2-.9-2.6.1-3.5l.6-.8c.2-.2.4-.2.5 0z"/></svg>
+        </div>
+        Viber
+      </a>
+
+      <a href="https://wa.me/380963840620" target="_blank" rel="noopener" class="yz-modal-channel">
+        <div class="yz-modal-channel-icon yz-icon-wa">
+          <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+        </div>
+        WhatsApp
+      </a>
+    </div>
+
+    <div class="yz-modal-phones">
+      <a href="tel:+380732181828" class="yz-modal-phone">
+        📞 073 218-18-28 <span class="yz-modal-phone-op">Lifecell</span>
+      </a>
+      <a href="tel:+380963840620" class="yz-modal-phone">
+        📞 096 384-06-20 <span class="yz-modal-phone-op">Kyivstar</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- FLOATING BUTTON -->
+<button class="yz-contact-btn" id="yzContactBtn" aria-label="Зв'язок">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M12 3C7.03 3 3 6.58 3 11c0 2.31 1.08 4.41 2.84 5.93V21l4.01-2.18c.67.18 1.38.28 2.15.28 4.97 0 9-3.58 9-8s-4.03-8-9-8Zm-3.2 6.2h6.4v1.6H8.8V9.2Zm0 3.1h4.8v1.6H8.8v-1.6Z"/>
+  </svg>
+</button>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  /* ===== HERO — вставка між банером і хітами ===== */
+  const isHome =
+    window.location.pathname === "/" ||
+    window.location.pathname === "";
+
+  if (isHome && !document.querySelector('.yz-hero')) {
+    const hero = document.createElement('div');
+    hero.className = 'yz-hero';
+    hero.innerHTML = `
+      <div class="yz-hero-inner">
+        <div class="yz-left">
+          <h2>Підбір акумуляторів та інверторів</h2>
+          <p>Допоможемо підібрати рішення під вашу задачу швидко і без переплат</p>
+          <div class="yz-actions">
+            <button class="yz-btn yz-main" id="yzHeroConsult">Консультація</button>
+            <a href="/hotovi-akumuliatorni-zbirky/" class="yz-btn yz-light">Каталог</a>
+          </div>
+        </div>
+        <div class="yz-right">
+          <div class="yz-box">⚡ Готові рішення</div>
+          <div class="yz-box">🔋 Підбір під задачу</div>
+          <div class="yz-box">💬 Швидка відповідь</div>
+        </div>
+      </div>`;
+
+    /* Знаходимо секцію "Хіти продажу" і вставляємо hero ПЕРЕД нею */
+    const promo = document.querySelector('section.promo, .promo-container, .catalogTabs');
+    const main  = document.querySelector('main');
+    if (promo && promo.closest('section')) {
+      promo.closest('section').before(hero);
+    } else if (main) {
+      /* якщо не знайшли — просто prepend */
+      main.prepend(hero);
+    }
+  }
+
+  /* ===== МОДАЛЬНЕ ВІКНО ===== */
+  const modal      = document.getElementById('yzModal');
+  const modalClose = document.getElementById('yzModalClose');
+  const floatBtn   = document.getElementById('yzContactBtn');
+  const heroConsult = document.getElementById('yzHeroConsult');
+
+  function openModal()  { modal && modal.classList.add('active'); }
+  function closeModal() { modal && modal.classList.remove('active'); }
+
+  if (floatBtn)    floatBtn.addEventListener('click', openModal);
+  if (modalClose)  modalClose.addEventListener('click', closeModal);
+
+  /* кнопка "Консультація" в hero — делегуємо, бо hero може ще не існувати */
+  document.addEventListener('click', function(e) {
+    if (e.target && e.target.id === 'yzHeroConsult') openModal();
+    if (e.target === modal) closeModal();
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  /* ===== ПІДМЕНЮ — виправлення виходу за правий край ===== */
+  function fixSubmenus() {
+    document.querySelectorAll('.productsMenu-submenu').forEach(function(sub) {
+      const rect = sub.getBoundingClientRect();
+      if (rect.right > window.innerWidth - 10) {
+        sub.classList.add('yz-flip-left');
+      }
+    });
+  }
+
+  /* Запускаємо при hover на кожен пункт меню */
+  document.querySelectorAll('.products-menu__item').forEach(function(item) {
+    item.addEventListener('mouseenter', function() {
+      setTimeout(fixSubmenus, 50);
+    });
+  });
+
+  /* ===== ПЛАВНА ПОЯВА ===== */
+  const animEls = document.querySelectorAll('section, .yz-hero');
+  animEls.forEach(el => el.classList.add('yz-animate'));
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('show'); });
+  }, { threshold: 0.12 });
+  animEls.forEach(el => observer.observe(el));
+
+});
+</script>        <script src="https://apis.google.com/js/platform.js?onload=renderOptIn" async defer>
+            </script>        <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Увійти для відображення накопичувальної знижки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                        </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uid92c150dd0d7a4cf88946d4cabcb52cb3" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uid92c150dd0d7a4cf88946d4cabcb52cb3");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

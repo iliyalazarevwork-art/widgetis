@@ -1,0 +1,188 @@
+<!-- source: https://miykamin.com.ua/ -->
+<!-- extracted: 2026-05-07T21:33:54.734Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 7861 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Контейнер для ПК версії
+        const pcContainer = document.querySelector('.product-order__row');
+        // Контейнер для мобільної версії
+        const mobileContainer = document.querySelector('.product-card__purchase');
+
+        // Додаємо кнопку для ПК версії
+        if (pcContainer) {
+            const pcButton = document.createElement('a');
+            pcButton.textContent = 'ЗАМОВИТИ КОНСУЛЬТАЦІЮ';
+            pcButton.className = 'btn btn--block btn--secondary';
+            pcButton.href = '#'; // Для коректного виклику форми
+            pcButton.setAttribute('data-modal', '#call-me'); // Виклик ПК-форми
+            pcContainer.appendChild(pcButton);
+            console.log('Кнопка успішно додана до ПК версії!');
+        } else {
+            console.error('Контейнер для ПК не знайдено!');
+        }
+
+        // Додаємо кнопку для мобільної версії
+        if (mobileContainer) {
+            const mobileButton = document.createElement('a');
+            mobileButton.textContent = 'ЗАМОВИТИ КОНСУЛЬТАЦІЮ';
+            mobileButton.className = 'btn btn--block btn--secondary';
+            mobileButton.href = '#callback-form'; // Виклик мобільної форми
+            mobileButton.setAttribute('data-panel', '');
+            mobileButton.setAttribute('data-menu', 'callback');
+            mobileContainer.appendChild(mobileButton);
+            console.log('Кнопка успішно додана до мобільної версії!');
+        } else {
+            console.error('Контейнер для мобільної версії не знайдено!');
+        }
+    });
+</script>
+
+
+
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Відстеження натискання на телефони
+        document.querySelectorAll('.j-phone-item').forEach(function (phoneLink) {
+            phoneLink.addEventListener('click', function (event) {
+                const phoneNumber = this.getAttribute('href');
+                fbq('track', 'Contact', { 
+                    contact_type: 'Phone', 
+                    value: phoneNumber 
+                });
+            });
+        });
+
+        // Відстеження натискання на Viber
+        document.querySelectorAll('a[href^="viber://"]').forEach(function (viberLink) {
+            viberLink.addEventListener('click', function (event) {
+                event.preventDefault(); // Блокує стандартну дію
+                const contact = this.getAttribute('href');
+                fbq('track', 'Contact', { 
+                    contact_type: 'Viber', 
+                    value: contact 
+                });
+                // Додаємо таймаут перед перенаправленням
+                setTimeout(() => {
+                    window.location.href = contact;
+                }, 200);
+            });
+        });
+
+        // Відстеження натискання на Telegram
+        document.querySelectorAll('a[href^="tg://"]').forEach(function (telegramLink) {
+            telegramLink.addEventListener('click', function (event) {
+                event.preventDefault(); // Блокує стандартну дію
+                const contact = this.getAttribute('href');
+                fbq('track', 'Contact', { 
+                    contact_type: 'Telegram', 
+                    value: contact 
+                });
+                // Додаємо таймаут перед перенаправленням
+                setTimeout(() => {
+                    window.location.href = contact;
+                }, 200);
+            });
+        });
+    });
+</script>
+
+
+
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KF5ZL4DG"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+        <script type="text/javascript">
+    (function (d,s,u,e,p) {
+      p=d.getElementsByTagName(s)[0],e=d.createElement(s),e.async=1,e.src=u,p.parentNode.insertBefore(e, p);
+    })(document, 'script', 'https://script.ringostat.com/v4/10/1081852ee16736f276d392a168aa514bc579d45b.js');
+    var pw = function() {if (typeof(ringostatAnalytics) === "undefined") {setTimeout(pw,100);} else {ringostatAnalytics.sendHit('pageview');}};
+    pw();
+</script>        <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">ОФОРМИТИ ЗАМОВЛЕННЯ</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>        

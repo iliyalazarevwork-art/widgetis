@@ -1,0 +1,733 @@
+<!-- source: https://rekuperator.in.ua/ -->
+<!-- extracted: 2026-05-07T21:31:07.393Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 30052 -->
+
+w.INIT.execute();
+        })(window);
+    });
+</script>
+        <script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Debug: DOMContentLoaded event fired.');
+    var modalOverlay = document.querySelector('#modal-overlay');
+    if (!modalOverlay) {
+        console.log('Debug: #modal-overlay не найден на странице.');
+        return;
+    }
+
+    console.log('Debug: #modal-overlay найден.');
+
+    function checkText() {
+        var text = modalOverlay.textContent;
+        console.log('Debug: Текущий текст внутри #modal-overlay:', text);
+        if (text.includes('Дякуємо за запит. Ми зателефонуємо вам найближчим часом.') 
+            || text.includes('Спасибо за запрос. Мы свяжемся с вами в ближайшее время')) {
+            console.log('Debug: Обнаружен нужный текст. Отправляем событие в dataLayer.');
+            dataLayer.push({'event': 'popup_callback_form_submitted'});
+            return true;
+        }
+        return false;
+    }
+
+    if (checkText()) {
+        console.log('Debug: Нужный текст уже присутствует, событие отправлено.');
+        return; 
+    }
+
+    var observer = new MutationObserver(function(mutations) {
+        console.log('Debug: Изменение в #modal-overlay. Проверяем текст заново.');
+        mutations.forEach(function() {
+            if (checkText()) {
+                console.log('Debug: Текст найден во время наблюдения. Отключаем observer.');
+                observer.disconnect();
+            }
+        });
+    });
+
+    observer.observe(modalOverlay, { childList: true, subtree: true, characterData: true });
+    console.log('Debug: MutationObserver запущен. Ожидаем изменений в #modal-overlay.');
+});
+</script>
+
+<div class="gsb-buttons active has-shadow right-side vertical-menu gsb-buttons-ua" id="gsb-buttons-1416" data-id="1416" style="font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, Oxygen-Sans, Ubuntu, Cantarell, &quot;Helvetica Neue&quot;, sans-serif;">
+	 <div class="gsb-buttons-content">
+		<div class="gsb-button-list ginger-menu-none">
+                
+                <div class="chat-button chat-button-ua" style="display: none;">
+                                       <a href="https://wa.me/380938155017" data-scb="Whatsapp" target="_blank" class="scb-tooltip channel-whatsapp chat-button-link button-link-whatsapp-1416 gsb-social-channel" id="chat-button-whatsapp-1416" data-channel="whatsapp" data-tooltip-dir="left"><span class="sr-only">Whatsapp</span><span class="chat-button-icon chat-button-whatsapp-1416"><svg viewBox="0 0 56.693 56.693" xml:space="preserve" xmlns="http://www.w3.org/2000/svg"><path class="st0" d="m46.38 10.714c-4.6512-4.6565-10.836-7.222-17.427-7.2247-13.578 0-24.63 11.051-24.635 24.633-0.0019 4.342 1.1325 8.58 3.2884 12.316l-3.495 12.766 13.06-3.4257c3.5982 1.9626 7.6495 2.9971 11.773 2.9985h0.01 2e-4c13.577 0 24.629-11.052 24.635-24.635 0.0024-6.5826-2.5577-12.772-7.2088-17.428zm-17.426 37.902h-0.0083c-3.674-0.0014-7.2777-0.9886-10.422-2.8541l-0.7476-0.4437-7.7497 2.0328 2.0686-7.5558-0.4869-0.7748c-2.0496-3.26-3.1321-7.028-3.1305-10.897 0.0044-11.289 9.19-20.474 20.484-20.474 5.469 0.0017 10.61 2.1344 14.476 6.0047 3.8658 3.8703 5.9936 9.0148 5.9914 14.486-0.0046 11.29-9.1899 20.476-20.476 20.476z"></path><path class="st0" d="m40.185 33.281c-0.6155-0.3081-3.6419-1.797-4.2061-2.0026-0.5642-0.2054-0.9746-0.3081-1.3849 0.3081-0.4103 0.6161-1.59 2.0027-1.9491 2.4136-0.359 0.4106-0.7182 0.4623-1.3336 0.1539-0.6155-0.3081-2.5989-0.958-4.95-3.0551-1.83-1.6323-3.0653-3.6479-3.4245-4.2643-0.359-0.6161-0.0382-0.9492 0.27-1.2562 0.2769-0.2759 0.6156-0.7189 0.9234-1.0784 0.3077-0.3593 0.4103-0.6163 0.6155-1.0268 0.2052-0.4109 0.1027-0.7704-0.0513-1.0784-0.1539-0.3081-1.3849-3.3379-1.8978-4.5706-0.4998-1.2001-1.0072-1.0375-1.3851-1.0566-0.3585-0.0179-0.7694-0.0216-1.1797-0.0216s-1.0773 0.1541-1.6414 0.7702c-0.5642 0.6163-2.1545 2.1056-2.1545 5.1351 0 3.0299 2.2057 5.9569 2.5135 6.3676 0.3077 0.411 4.3405 6.6282 10.515 9.2945 1.4686 0.6343 2.6152 1.013 3.5091 1.2966 1.4746 0.4686 2.8165 0.4024 3.8771 0.2439 1.1827-0.1767 3.6419-1.489 4.1548-2.9267 0.513-1.438 0.513-2.6706 0.359-2.9272-0.1538-0.2567-0.5642-0.4108-1.1797-0.719z"></path></svg></span></a>
+                 </div>
+                
+                 <div class="chat-button chat-button-ua" style="display: none;">
+                    <a href="viber://chat?number=380938155017" data-scb="Viber" target="_blank" class="scb-tooltip channel-viber chat-button-link button-link-viber-1416 gsb-social-channel" id="chat-button-viber-1416" data-channel="viber" data-tooltip-dir="left"><span class="sr-only">Viber</span><span class="chat-button-icon chat-button-viber-1416"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M11.398.002C9.473.028 5.33.344 3.014 2.467c-1.72 1.7-2.32 4.23-2.39 7.353-.06 3.1-.13 8.95 5.5 10.54v2.42s-.038.97.602 1.17c.8.25 1.24-.5 2-1.3l1.4-1.58c3.85.32 6.8-.42 7.14-.53.78-.25 5.18-.81 5.9-6.652.74-6.03-.36-9.83-2.34-11.55l-.01-.002c-.6-.55-3-2.3-8.37-2.32 0 0-.396-.025-1.038-.016zm.067 1.697c.545-.003.88.02.88.02 4.54.01 6.71 1.38 7.22 1.84 1.67 1.43 2.528 4.856 1.9 9.892-.6 4.88-4.17 5.2-4.83 5.4-.28.1-2.88.73-6.152.52 0 0-2.44 2.94-3.2 3.7-.12.13-.26.17-.35.15-.13-.03-.17-.2-.16-.4l.02-4.02c-4.77-1.32-4.49-6.302-4.44-8.902.06-2.6.55-4.732 2-6.172 1.957-1.77 5.475-2 7.1-2.02zm.36 2.6a.299.299 0 0 0-.3.299.3.3 0 0 0 .3.3 5.631 5.631 0 0 1 4.03 1.59c1.1 1.06 1.62 2.48 1.64 4.34a.3.3 0 0 0 .3.3v-.01a.3.3 0 0 0 .3-.3 6.451 6.451 0 0 0-1.81-4.76c-1.2-1.16-2.692-1.76-4.462-1.76zm-3.954.7a.955.955 0 0 0-.615.12h-.012c-.4.24-.788.54-1.148.94-.27.32-.42.64-.46.95a1.24 1.24 0 0 0 .05.541l.02.01a13.722 13.722 0 0 0 1.2 2.6 15.383 15.383 0 0 0 2.32 3.171l.03.04.04.03.06.06a15.603 15.603 0 0 0 3.18 2.33c1.32.72 2.122 1.06 2.602 1.2V17c.14.04.268.06.398.06a1.84 1.84 0 0 0 1.102-.472c.4-.35.7-.738.93-1.148v-.01c.23-.43.15-.84-.18-1.12a13.632 13.632 0 0 0-2.15-1.54c-.5-.28-1.03-.1-1.24.17l-.45.57c-.23.28-.65.24-.65.24l-.012.01c-3.12-.8-3.95-3.96-3.95-3.96s-.04-.43.25-.65l.56-.45c.27-.22.46-.74.17-1.25a13.522 13.522 0 0 0-1.54-2.15.843.843 0 0 0-.504-.3zm4.473.9a.3.3 0 0 0 .002.6 3.78 3.78 0 0 1 2.65 1.15 3.5 3.5 0 0 1 .9 2.57.3.3 0 0 0 .3.299l.01.012a.3.3 0 0 0 .3-.301c.03-1.2-.34-2.2-1.07-3s-1.75-1.25-3.05-1.34a.3.3 0 0 0-.042 0zm.5 1.62a.305.305 0 0 0-.018.611c1 .05 1.47.55 1.53 1.58a.3.3 0 0 0 .3.29h.01a.3.3 0 0 0 .29-.32c-.07-1.34-.8-2.09-2.1-2.16a.305.305 0 0 0-.012 0z"></path></svg></span></a>
+				  </div>                  
+
+                  <div class="chat-button chat-button-ua" style="display: none;">
+						<a href="https://telegram.me/Climate_Specialist" data-scb="Telegram" target="_blank" class="scb-tooltip channel-telegram chat-button-link button-link-telegram-1416 gsb-social-channel" id="chat-button-telegram-1416" data-channel="telegram" data-tooltip-dir="left"><span class="sr-only">Telegram</span><span class="chat-button-icon chat-button-telegram-1416"><svg xmlns="http://www.w3.org/2000/svg" height="512" viewBox="0 0 24 24" width="512"><path d="M9.417 15.18l-.397 5.584c.568 0 .814-.244 1.11-.537l2.663-2.545 5.518 4.04c1.012.564 1.725.267 1.998-.93L23.93 3.82h.001c.32-1.496-.54-2.08-1.527-1.714l-21.3 8.15c-1.453.564-1.43 1.374-.247 1.74L6.3 13.69l12.643-7.91c.595-.394 1.136-.176.69.218z"></path></svg></span></a>
+				  </div>
+
+				  <div class="chat-button chat-button-ua" style="display: none;">
+						<a href="tel:+380938155017" data-scb="Phone" target="" class="scb-tooltip channel-phone chat-button-link button-link-phone-1416 gsb-social-channel" id="chat-button-phone-1416" data-channel="phone" data-tooltip-dir="left"><span class="sr-only">Phone</span><span class="chat-button-icon chat-button-phone-1416"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 405.333 405.333"><path d="M373.333 266.88c-25.003 0-49.493-3.904-72.704-11.563-11.328-3.904-24.192-.896-31.637 6.7l-46.016 34.752c-52.8-28.18-86.592-61.952-114.39-114.368l33.813-44.928c8.512-8.512 11.563-20.97 7.915-32.64-7.723-23.36-11.648-47.872-11.648-72.832 0-17.643-14.357-32-32-32H32C14.357 0 0 14.357 0 32c0 205.845 167.488 373.333 373.333 373.333 17.643 0 32-14.357 32-32V298.88c0-17.643-14.357-32-32-32z"></path></svg></span></a>
+				  </div>
+
+			</div>			
+			<div class="gsb-trigger">
+
+    				<div class="gsb-trigger-button">
+    
+    					<div class="gsb-trigger-top cooltipz--visible" data-tooltip-dir="left" data-scb="Contact us">
+    						<a role="button" href="#" class="chat-button-link"><span class="sr-only">Contact Us</span><div class="chat-button-icon"><svg style="enable-background:new 1 -1 100 100;" version="1.1" viewBox="1 -1 100 100" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M82,9.5H20c-5.5,0-10,4.5-10,10v42c0,5.5,4.5,10,10,10h8v17l25-17h29c5.5,0,10-4.5,10-10v-42C92,14,87.5,9.5,82,9.5z   M31.8,29.5h20.4c1.7,0,3,1.3,3,3s-1.3,3-3,3H31.8c-1.6,0-3-1.3-3-3C28.8,30.9,30.1,29.5,31.8,29.5z M68.2,49.5H31.8  c-1.6,0-3-1.3-3-3c0-1.6,1.3-3,3-3h36.4c1.7,0,3,1.3,3,3S69.9,49.5,68.2,49.5z"></path></svg></div></a>
+    					</div>
+    
+    					<div class="gsb-trigger-bottom">
+    						<a role="button" href="#" class="chat-button-link" data-tooltip-dir="left"><span class="sr-only">Close</span><span class="chat-button-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="#ffffff" viewBox="0 0 30 30" width="90" height="90"><path d="M7 4c-.256 0-.512.097-.707.293l-2 2a1 1 0 0 0 0 1.414L11.586 15l-7.293 7.293a1 1 0 0 0 0 1.414l2 2a1 1 0 0 0 1.414 0L15 18.414l7.293 7.293a1 1 0 0 0 1.414 0l2-2a1 1 0 0 0 0-1.414L18.414 15l7.293-7.293a1 1 0 0 0 0-1.414l-2-2a1 1 0 0 0-1.414 0L15 11.586 7.707 4.293C7.512 4.097 7.256 4 7 4z"></path></svg></span></a>
+    					</div>
+    
+    				</div>
+						
+			</div>
+
+		</div> 
+
+    </div>
+
+
+<style>
+.messeger-icon-footer {
+  font-size: 18px;
+}
+.messeger-icon-footer:hover {
+  color: #d7ff05 !important;
+}
+.messeger-icon-footer.fa-viber {
+  color: #e0c4ff;
+  font-size: 24px;
+}
+.messeger-icon-footer.fa-telegram-plane {
+  color: #c3e3ff;
+  font-size: 24px;
+}
+.messeger-icon-footer.fa-whatsapp {
+  color: #6ebf58;
+  font-size: 24px;
+}
+
+.gsb-buttons .chat-button-link.has-image .chat-button-icon,
+.gsb-trigger-button {
+  height: 54px;
+  width: 54px;
+}
+
+.gsb-buttons .exit-intent:before {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  content: "";
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  visibility: hidden;
+  z-index: 100;
+  transition: 0.75s ease-in-out;
+  -webkit-transition: 0.75s ease-in-out;
+  -moz-transition: 0.75s ease-in-out;
+}
+
+.gsb-buttons .exit-intent.left-position:before {
+  clip-path: circle(0px at 0px calc(100% - 0px));
+}
+
+.gsb-buttons .exit-intent.right-position:before {
+  clip-path: circle(0px at calc(100% - 0px) calc(100% - 0px));
+}
+
+.gsb-buttons .exit-intent.active:before {
+  visibility: visible;
+  clip-path: circle(100%);
+}
+
+.gsb-social-channel.channel-instagram {
+  background: #fed975;
+  background: -moz-linear-gradient(
+    45deg,
+    #fed975 0,
+    #fa7e1e 26%,
+    #d62977 50%,
+    #962fbf 75%,
+    #4f5ad5 100%
+  );
+  background: -webkit-gradient(
+    left bottom,
+    right top,
+    color-stop(0, #fed975),
+    color-stop(26%, #fa7e1e),
+    color-stop(50%, #d62977),
+    color-stop(75%, #962fbf),
+    color-stop(100%, #4f5ad5)
+  );
+  background: -webkit-linear-gradient(
+    45deg,
+    #fed975 0,
+    #fa7e1e 26%,
+    #d62977 50%,
+    #962fbf 75%,
+    #4f5ad5 100%
+  );
+  background: -o-linear-gradient(
+    45deg,
+    #fed975 0,
+    #fa7e1e 26%,
+    #d62977 50%,
+    #962fbf 75%,
+    #4f5ad5 100%
+  );
+  background: -ms-linear-gradient(
+    45deg,
+    #fed975 0,
+    #fa7e1e 26%,
+    #d62977 50%,
+    #962fbf 75%,
+    #4f5ad5 100%
+  );
+  background: linear-gradient(
+    45deg,
+    #fed975 0,
+    #fa7e1e 26%,
+    #d62977 50%,
+    #962fbf 75%,
+    #4f5ad5 100%
+  );
+}
+
+.ginger-btn-bounce + .gsb-pending-message,
+.ginger-btn-fade > .gsb-pending-message,
+.ginger-btn-none > .gsb-pending-message,
+.ginger-btn-pulse > .gsb-pending-message,
+.ginger-btn-shockwave + .gsb-pending-message,
+.ginger-btn-spin > .gsb-pending-message,
+.ginger-btn-waggle + .gsb-pending-message,
+.ginger-btn-zoom + .gsb-pending-message,
+.gsb-buttons,
+[data-scb=""][class*="cooltipz"]::after,
+[data-scb=""][class*="cooltipz"]::before,
+[data-scb=""][data-tooltip-dir]::after,
+[data-scb=""][data-tooltip-dir]::before {
+  display: none;
+}
+
+.gsb-buttons.active {
+  display: block;
+}
+
+.gsb-buttons,
+.gsb-buttons *,
+.gsb-buttons :after,
+.gsb-buttons :before {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.gsb-buttons {
+  position: fixed;
+  left: 20px;
+  bottom: 16px;
+  z-index: 999999;
+}
+
+.gsb-buttons-content,
+.gsb-trigger {
+  position: relative;
+}
+
+.gsb-buttons.right-side {
+  right: 14px;
+  left: auto;
+  bottom: 50px;
+}
+
+@media(max-width:767px){
+.gsb-buttons.right-side {
+    bottom: 14px;
+}
+}
+
+.gsb-buttons .chat-button-link {
+  padding: 10px;
+  border-radius: 50%;
+  display: block;
+  height: 54px;
+  width: 54px;
+  text-align: center;
+  color: #fff;
+}
+
+.gsb-buttons .chat-button-icon.is-image,
+.gsb-buttons .chat-button-link.has-image {
+  padding: 0;
+}
+
+.gsb-buttons .chat-button-link svg {
+  fill: #ffffff;
+}
+
+.gsb-buttons .chat-button {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  padding: 4px;
+}
+
+.gsb-trigger-button {
+  display: block;
+  position: relative;
+}
+
+.gsb-buttons svg {
+  width: 100%;
+  height: 100%;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.gsb-buttons .chat-button-icon {
+  height: 34px;
+  width: 34px;
+  display: block;
+  text-align: center;
+  border-radius: 50%;
+}
+
+.gsb-buttons .chat-button-icon img,
+.gsb-trigger .gsb-trigger-bottom,
+.gsb-trigger .gsb-trigger-top {
+  height: 54px;
+  width: 54px;
+  border-radius: 50%;
+}
+
+.gsb-trigger {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  padding: 4px;
+}
+
+.gsb-trigger .gsb-trigger-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: visible;
+  opacity: 1;
+  z-index: 101;
+}
+
+.gsb-buttons.open-buttons .gsb-trigger .gsb-trigger-top,
+.gsb-trigger .gsb-trigger-bottom {
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.gsb-trigger .gsb-trigger-bottom {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: 0.25s linear;
+}
+
+.gsb-buttons .gsb-trigger .chat-button-icon {
+  transition: 0.25s linear;
+}
+
+.gsb-buttons.open-buttons .gsb-trigger .gsb-trigger-bottom {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 101;
+}
+
+.gsb-buttons .gsb-trigger .gsb-trigger-bottom a .chat-button-icon {
+  transform: scale(0.7) rotate(250deg);
+}
+
+.gsb-buttons.open-buttons .gsb-trigger .gsb-trigger-bottom a .chat-button-icon {
+  transform: scale(1) rotate(360deg);
+}
+
+.gsb-button-list .chat-button {
+  position: absolute;
+  bottom: 0;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: all 0.2s linear;
+  transform: scale(0.25) rotate(-180deg);
+  transition-delay: 0s !important;
+}
+
+.gsb-buttons.open-buttons .gsb-button-list .chat-button {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.gsb-pending-message {
+  display: block;
+  position: absolute;
+  top: -3%;
+  right: -3%;
+  height: auto;
+  width: auto;
+  line-height: 1;
+  background: red;
+  color: #fff;
+  padding: 3px;
+  font-size: 10px;
+  border-radius: 50%;
+  text-align: center;
+  z-index: 11;
+  min-width: 16px;
+  min-height: 16px;
+}
+
+#gsb-buttons-1416 .gsb-trigger .gsb-trigger-top .chat-button-link,
+#gsb-buttons-1416 .gsb-trigger .gsb-trigger-bottom .chat-button-link {
+  background: #e64056;
+  color: #ffffff;
+}
+
+#gsb-buttons-1416 .gsb-trigger .gsb-trigger-top .chat-button-link:hover,
+#gsb-buttons-1416 .gsb-trigger .gsb-trigger-bottom .chat-button-link:hover {
+  background: #fccc26;
+}
+
+#gsb-buttons-1416 .channel-phone {
+  background: #00bb70;
+  color: #ffffff;
+}
+#gsb-buttons-1416 .channel-whatsapp {
+  background: #4dc247;
+  color: #ffffff;
+}
+
+#gsb-buttons-1416.open-buttons .gsb-button-list .chat-button-en:nth-child(1) {
+  -webkit-transform: translateY(-122px);
+  transform: translateY(-122px) scale(1);
+  display: block;
+}
+#gsb-buttons-1416.open-buttons .gsb-button-list .chat-button-en:nth-child(2) {
+  -webkit-transform: translateY(-61px);
+  transform: translateY(-61px) scale(1);
+  display: block;
+}
+
+#gsb-buttons-1416.open-buttons .gsb-button-list .chat-button-ua:nth-child(1) {
+  -webkit-transform: translateY(-243px);
+  transform: translateY(-243px) scale(1);
+  display: block;
+}
+#gsb-buttons-1416.open-buttons .gsb-button-list .chat-button-ua:nth-child(2) {
+  -webkit-transform: translateY(-182px);
+  transform: translateY(-182px) scale(1);
+  display: block;
+}
+#gsb-buttons-1416.open-buttons .gsb-button-list .chat-button-ua:nth-child(3) {
+  -webkit-transform: translateY(-122px);
+  transform: translateY(-122px) scale(1);
+  display: block;
+}
+#gsb-buttons-1416.open-buttons .gsb-button-list .chat-button-ua:nth-child(4) {
+  -webkit-transform: translateY(-61px);
+  transform: translateY(-61px) scale(1);
+  display: block;
+}
+
+.gsb-buttons.has-shadow .gsb-button-list .chat-button a:hover {
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.6);
+  -webkit-box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.6);
+}
+.gsb-buttons.open-buttons .gsb-button-list .chat-button {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.gsb-trigger-button a:after,
+.gsb-buttons #chat-button-phone-1416:hover:after,
+.gsb-buttons #chat-button-whatsapp-1416:hover:after,
+.gsb-buttons #chat-button-viber-1416:hover:after,
+.gsb-buttons #chat-button-telegram-1416:hover:after {
+  background-color: #ffffff;
+  color: #000000;
+  border-radius: 5px;
+  font-size: 14px;
+  line-height: 20px;
+  right: calc(100% + 14px / 2);
+  top: 50%;
+  -webkit-transform: translate(var(--cooltipz-slide, 6px), -50%);
+  transform: translate(var(--cooltipz-slide, 6px), -50%);
+  -webkit-transform-origin: left;
+  transform-origin: left;
+  margin-right: calc(5px * 2);
+  opacity: 100%;
+  -webkit-transition-delay: var(--cooltipz-delay-show, 0s);
+  transition-delay: var(--cooltipz-delay-show, 0s);
+  transition: all var(--cooltipz-timing, 120ms) ease-out
+    var(--cooltipz-timing, 120ms);
+  pointer-events: none;
+  position: absolute;
+  padding: 2px;
+  border: var(--cooltipz-border-width, 0) var(--cooltipz-border-style, solid)
+    var(--cooltipz-border-color, #1f1f1f);
+  -webkit-box-shadow: 0 1.9px 7.8px rgba(0, 0, 0, 0.3);
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 10px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-style: normal;
+  font-weight: 400;
+  padding: 4px 10px;
+  text-indent: 0;
+  text-shadow: none;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.gsb-trigger-button a:before,
+.gsb-buttons #chat-button-phone-1416:hover:before,
+.gsb-buttons #chat-button-whatsapp-1416:hover:before,
+.gsb-buttons #chat-button-viber-1416:hover:before,
+.gsb-buttons #chat-button-telegram-1416:hover:before {
+  content: "";
+  position: absolute;
+  right: calc(100% + 1px);
+  top: 50%;
+  border: 5px solid transparent;
+  border-left-color: #ffffff;
+  transform: translateY(-50%);
+  transition: all 120ms ease-out;
+  z-index: 110;
+  opacity: 1;
+  visibility: visible;
+}
+
+.gsb-trigger-button a:after {
+  content: "Contact Us";
+  width: 96px;
+}
+.gsb-buttons-ua .gsb-trigger-button a:after {
+  content: "Зв'яжіться з нами";
+  width: 144px;
+}
+.gsb-buttons-ua .gsb-trigger-ru .gsb-trigger-button a:after {
+  content: "Свяжитесь с нами";
+  width: 144px;
+}
+.gsb-buttons.open-buttons .gsb-trigger-button a:after,
+.gsb-buttons.open-buttons .gsb-trigger-button a:before {
+  display: none;
+}
+
+.gsb-buttons #chat-button-phone-1416:hover:after {
+  content: "Phone";
+  width: 70px;
+}
+.gsb-buttons .chat-button-ua #chat-button-phone-1416:hover:after {
+  content: "Телефон";
+  width: 80px;
+}
+.gsb-buttons #chat-button-whatsapp-1416:hover:after {
+  content: "Whatsapp";
+  width: 90px;
+}
+.gsb-buttons #chat-button-viber-1416:hover:after {
+  content: "Viber";
+  width: 60px;
+}
+.gsb-buttons #chat-button-telegram-1416:hover:after {
+  content: "Telegram";
+  width: 80px;
+}
+
+#gsb-buttons-1416 .channel-viber {
+  background: #774d99;
+  color: #ffffff;
+}
+
+#gsb-buttons-1416 .channel-telegram {
+  background: #0088cc;
+  color: #ffffff;
+}
+
+.gsb-buttons .sr-only {
+  display: none;
+}
+
+</style>
+
+
+<script>
+    $(document).ready(function() {
+        $('#gsb-buttons-1416 .gsb-trigger-button').click(function(event) {
+            event.preventDefault();
+            $('#gsb-buttons-1416 .chat-button').toggle();
+            $('#back-to-top').toggle();
+            $('#gsb-buttons-1416').toggleClass('open-buttons');
+        });
+    });
+</script>        <script src="https://apis.google.com/js/platform.js?onload=renderOptIn" async defer>
+            </script>        <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Увійти для відображення накопичувальної знижки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                                                                                <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uida6d37e5d89bd99b1dd0b82d5be4bced9" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uida6d37e5d89bd99b1dd0b82d5be4bced9");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

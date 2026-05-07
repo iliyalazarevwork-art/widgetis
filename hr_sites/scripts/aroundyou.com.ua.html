@@ -1,0 +1,364 @@
+<!-- source: https://aroundyou.com.ua/ -->
+<!-- extracted: 2026-05-07T21:32:37.767Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 13711 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <style>
+/* --- Chat widget AroundYou --- */
+.au-chat-widget {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 9999;
+  font-family: "Montserrat", sans-serif;
+}
+
+.au-chat-button {
+  width: 64px;
+  height: 64px;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e7a19d 0%, #d98b86 100%);
+  box-shadow: 0 10px 24px rgba(59, 67, 68, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform .25s ease, box-shadow .25s ease;
+  animation: pulse 2.5s infinite;
+}
+
+.au-chat-button:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 14px 30px rgba(59, 67, 68, 0.22);
+}
+
+.au-chat-button svg {
+  width: 28px;
+  height: 28px;
+  fill: #fff;
+}
+
+.au-chat-popup {
+  position: absolute;
+  right: 0;
+  bottom: 82px;
+  width: 300px;
+  padding: 18px;
+  border-radius: 20px;
+  background: #f5f3f1;
+  border: 1px solid rgba(217, 139, 134, 0.22);
+  box-shadow: 0 18px 45px rgba(59, 67, 68, 0.16);
+  display: none;
+  overflow: hidden;
+  animation: auFadeIn .25s ease;
+}
+
+.au-chat-popup.active {
+  display: block;
+}
+
+.au-chat-popup::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  background: linear-gradient(90deg, #d98b86 0%, #e7a19d 100%);
+}
+
+.au-chat-title {
+  margin: 6px 0 8px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #3b4344;
+}
+
+.au-chat-text {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: #6a7172;
+}
+
+.au-chat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.au-chat-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  text-decoration: none;
+  background: #ffffff;
+  border: 1px solid rgba(59, 67, 68, 0.08);
+  color: #3b4344;
+  font-size: 15px;
+  font-weight: 600;
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.au-chat-link:hover {
+  transform: translateX(2px);
+  border-color: rgba(217, 139, 134, 0.45);
+  box-shadow: 0 8px 18px rgba(59, 67, 68, 0.08);
+}
+
+.au-chat-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.au-chat-note {
+  margin-top: 14px;
+  font-size: 12px;
+  color: #8b8f90;
+}
+
+.au-online {
+  display: inline-block;
+  margin-left: 6px;
+  width: 8px;
+  height: 8px;
+  background: #4cd964;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(76,217,100,0.8);
+}
+
+/* анімації */
+@keyframes auFadeIn {
+  from {opacity: 0; transform: translateY(10px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+
+@keyframes pulse {
+  0% {box-shadow: 0 0 0 0 rgba(217,139,134,0.4);}
+  70% {box-shadow: 0 0 0 12px rgba(217,139,134,0);}
+  100% {box-shadow: 0 0 0 0 rgba(217,139,134,0);}
+}
+
+/* мобілка */
+@media (max-width: 767px) {
+  .au-chat-widget { right: 16px; bottom: 16px; }
+  .au-chat-button { width: 58px; height: 58px; }
+  .au-chat-popup {
+    width: calc(100vw - 32px);
+    bottom: 72px;
+  }
+}
+</style>
+
+<div class="au-chat-widget">
+  <button class="au-chat-button" id="auChatButton">
+    <svg viewBox="0 0 24 24">
+      <path d="M12 3C6.5 3 2 7 2 11.8c0 2.1.9 4.1 2.4 5.6L3.2 21l4.1-1.3c1.5.6 3.1.9 4.7.9 5.5 0 10-4 10-8.8S17.5 3 12 3z"/>
+    </svg>
+  </button>
+
+  <div class="au-chat-popup" id="auChatPopup">
+    <div class="au-chat-title">Ми поруч 💛</div>
+    <p class="au-chat-text">
+      Напишіть нам — допоможемо з вибором та оформленням замовлення
+    </p>
+
+    <div class="au-chat-list">
+
+      <!-- TELEGRAM ПЕРШИЙ -->
+      <a class="au-chat-link" href="https://t.me/yuliia_tiutiunik" target="_blank">
+        <img class="au-chat-icon" src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg">
+        Telegram <span class="au-online"></span>
+      </a>
+
+      <a class="au-chat-link" href="viber://chat?number=%2B380667700968" target="_blank">
+        <img class="au-chat-icon" src="https://cdn-icons-png.flaticon.com/512/3670/3670059.png">
+        Viber
+      </a>
+
+      <a class="au-chat-link" href="https://wa.me/380667700968" target="_blank">
+        <img class="au-chat-icon" src="https://cdn-icons-png.flaticon.com/512/3536/3536445.png">
+        WhatsApp
+      </a>
+
+    </div>
+
+    <div class="au-chat-note">
+      Зазвичай відповідаємо протягом 5–15 хв
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const button = document.getElementById('auChatButton');
+  const popup = document.getElementById('auChatPopup');
+
+  button.addEventListener('click', function (e) {
+    e.stopPropagation();
+    popup.classList.toggle('active');
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('.au-chat-widget')) {
+      popup.classList.remove('active');
+    }
+  });
+})();
+</script>                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Увійти для відображення накопичувальної знижки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                                                                                <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uidefd4dd4ac97d09825464824706776633" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uidefd4dd4ac97d09825464824706776633");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

@@ -1,0 +1,203 @@
+<!-- source: https://krkr.com.ua/ -->
+<!-- extracted: 2026-05-07T21:30:33.257Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 11769 -->
+
+w.INIT.execute();
+        })(window);
+    });
+</script>
+        <script async src="https://subscriptions.rewish.io/rewish-lib.min.js?key=xVem%2FA7y2YIF2YAtu71MHmX%2BP5SjBXWWLYalmhcz6UhLObLV4LTj9fZAsq8tN%2FP%2BPmGTa6lyAotSKZsSu%2Fz%2BcKY5OxjnHcetg8DPyA678aWiDpEWmRDa82SuCf6jwHSxHU64gKxxO1TjB%2FQ5RPwbIQ%3D%3D"></script>
+<script src="/rewish-inject.nbsoft.js" defer></script>
+        <script src="https://apis.google.com/js/platform.js?onload=renderOptIn" async defer>
+            </script><script>
+    !function (t, e, c, n) {
+        var s = e.createElement(c);
+        s.async = 1, s.src = 'https://statics.esputnik.com/scripts/' + n + '.js';
+        var r = e.scripts[0];
+        r.parentNode.insertBefore(s, r);
+        var f = function () {
+            f.c(arguments);
+        };
+        f.q = [];
+        f.c = function () {
+            f.q.push(arguments);
+        };
+        t['eS'] = t['eS'] || f;
+    }(window, document, 'script', '7965E99BD807406A8D50EC86F6F57A75');
+var serviceOrigin="https://push.esputnik.com",currentVersion="1.2";self.addEventListener("install",function(a){self.skipWaiting()});self.addEventListener("activate",function(a){a.waitUntil(trackNewServiceWorkerActivation())});self.addEventListener("push",onPushNotification);self.addEventListener("notificationclick",function(a){var b=determineClickedLink(a);a.notification.close();b&&a.waitUntil(clients.openWindow(b))});
+function onPushNotification(a){console.log("Push message",a);var b=(new Promise(function(c,d){try{var e=a.data?a.data.json():null;c(e)}catch(f){c(null)}})).then(function(c){return c?showNotification(c).then(function(){var d=JSON.stringify({id:c.id});return fetch(serviceOrigin+"/v1/notification/read",{method:"POST",headers:{"Content-Type":"application/json"},body:d})}):getNotificationContent()});a.waitUntil(b)}
+function getNotificationContent(){return self.registration.pushManager.getSubscription().then(function(a){return fetch(serviceOrigin+"/v1/notification/get?token="+encodeURIComponent(a.endpoint)).then(function(b){if(200===b.status)return b.text().then(function(c){console.log(c);c=JSON.parse(c);return showNotification(c)})})})}
+function showNotification(a){if(a){var b=a.content;b.data=getNotificationData(a);b.requireInteraction=a.interactionRequired?!0:!1;return self.registration.showNotification(b.title,b)}}function getNotificationData(a){var b={};b.clickReference=a.content.link;b.notificationId=a.id;b.actionLinks=collectActionLinks(a.content.actions);return b}function determineClickedLink(a){var b=a.notification.data;if(b)return a.action?b.actionLinks[a.action]:b.clickReference}
+function collectActionLinks(a){var b={};a&&0<a.length&&a.forEach(function(c){b[c.action]=c.link});return b}function trackNewServiceWorkerActivation(){return self.registration.pushManager.getSubscription().then(function(a){return a?a.endpoint:null}).then(function(a){if(a)return fetch(serviceOrigin+"/v1/subscription/sw/version",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({version:currentVersion,endpoint:a})})}).catch(function(a){})};
+</script><script>eS('init');</script>
+
+<!-- SendPulse Live Chat -->
+<script src="https://cdn.pulse.is/livechat/loader.js"
+        data-live-chat-id="695fd14e05592ce0f80f425a"
+        async></script>
+
+<script>
+  document.addEventListener('spLiveChatLoaded', function () {
+
+    // 1) Визначаємо мобільну версію
+    var isMobile = window.innerWidth <= 768;
+
+    // 2) Виставляємо різну позицію
+    var chatBottom = isMobile ? '80px' : '110px';
+
+    window.sp.liveChat.config({
+      chatPosition: {
+        bottom: chatBottom,
+        right: '24px'
+      },
+      custom_img_button: {
+        url: 'https://krkr.com.ua/content/uploads/images/stickers.png',
+        hover_url: 'https://krkr.com.ua/content/uploads/images/stickers.png'
+      },
+      language: 'uk'
+    });
+  });
+</script>
+        <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                                                                        <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                      </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uid8c2955786200f19ef338c1baaedebce1" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uid8c2955786200f19ef338c1baaedebce1");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

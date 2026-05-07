@@ -1,0 +1,674 @@
+<!-- source: https://vitberry.com.ua/ -->
+<!-- extracted: 2026-05-07T21:30:53.568Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 29283 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <!-- FAQ section begin -->
+<script>
+const questions = document.querySelectorAll('.faq-question');
+
+questions.forEach(q => {
+  q.addEventListener('click', () => {
+    const isActive = q.classList.contains('active');
+    questions.forEach(item => {
+      item.classList.remove('active');
+      item.nextElementSibling.style.maxHeight = null;
+      item.nextElementSibling.style.paddingBottom = "0";
+    });
+
+    if (!isActive) {
+      q.classList.add('active');
+      const answer = q.nextElementSibling;
+      answer.style.maxHeight = answer.scrollHeight + "px";
+      answer.style.paddingBottom = "15px";
+    }
+  });
+});
+</script>
+<!-- FAQ section end -->
+
+
+<script>
+//таймкр доставки
+
+(function() {
+    var runUniversalTimer = function() {
+        if (document.querySelector('.shipping-timer-dobavki')) return;
+
+        // 1. ВИЗНАЧЕННЯ МОВИ
+        var path = window.location.pathname;
+        var docLang = document.documentElement.lang.toLowerCase();
+        
+        var isRu = path.includes('/ru/') || path.includes('/rus/') || docLang === 'ru';
+        var isEn = path.includes('/en/') || path.includes('/eng/') || docLang === 'en';
+        
+        var lang = {
+            inStock: isEn ? "in stock" : (isRu ? "в наличии" : "в наявності"),
+            notInStock: isEn ? "out of stock" : (isRu ? "нет в наличии" : "немає в наявності"),
+            orderWithin: isEn ? "Order within" : (isRu ? "Закажите в течение" : "Замовте протягом"),
+            andWeShip: isEn ? "and we will ship it" : (isRu ? "и мы отправим заказ" : "і ми відправимо замовлення"),
+            today: isEn ? "TODAY!" : (isRu ? "СЕГОДНЯ!" : "СЬОГОДНІ!"),
+            h: isEn ? " h " : (isRu ? " ч " : " год "),
+            m: isEn ? " min " : (isRu ? " мин " : " хв "),
+            s: isEn ? " sec" : (isRu ? " сек" : " сек"),
+            buy: isEn ? ["buy", "order"] : (isRu ? ["купить", "заказать"] : ["купити", "замовити"])
+        };
+
+        // 2. ПЕРЕВІРКА НАЯВНОСТІ
+        var bodyText = document.body.innerText.toLowerCase() || "";
+        var isInStock = bodyText.includes(lang.inStock) && !bodyText.includes(lang.notInStock);
+        if (!isInStock) return;
+
+        // 3. ПЕРЕВІРКА ЧАСУ (Пн-Пт, 8:00 - 17:00)
+        var now = new Date();
+        var day = now.getDay(); 
+        var hour = now.getHours();
+        if (!(day >= 1 && day <= 5 && hour >= 8 && hour < 17)) return;
+
+        // 4. ПОШУК КНОПКИ
+        var allButtons = document.querySelectorAll('.product-order__row, .product-card__order--normal');
+        var buyBtn = null;
+
+        for (var i = 0; i < allButtons.length; i++) {
+            var txt = allButtons[i].innerText.toLowerCase();
+            if ((txt.includes(lang.buy[0]) || txt.includes(lang.buy[1])) && allButtons[i].offsetWidth > 0) {
+                buyBtn = allButtons[i];
+                break;
+            }
+        }
+
+        if (buyBtn) {
+            var timerWrap = document.createElement('div');
+            timerWrap.className = 'shipping-timer-dobavki';
+            timerWrap.style.cssText = "margin: 15px 0; padding: 12px; border-radius: 10px; background-color: #ffffff; border: 1px solid #16a34a; display: flex; align-items: center; gap: 10px;  box-sizing: border-box; clear: both; width: 100%;";
+
+            var deadline = new Date();
+            deadline.setHours(17, 0, 0);
+            
+            var update = function() {
+                var diff = deadline - new Date();
+                if (diff <= 0) {
+                    timerWrap.style.display = 'none';
+                    return;
+                }
+                var h = Math.floor(diff / 1000 / 60 / 60);
+                var m = Math.floor((diff / 1000 / 60) % 60);
+                var s = Math.floor((diff / 1000) % 60);
+                var timeStr = (h > 0 ? h + lang.h : "") + m + lang.m + s + lang.s;
+                
+                timerWrap.innerHTML = '<span style="font-size: 22px; flex-shrink: 0;">📦</span>' +
+                    '<div style="font-size: 13px; color: #2F2A25; line-height: 1.3;">' +
+                    lang.orderWithin + ' <b style="color: #16a34a;">' + timeStr + '</b>,<br>' +
+                    lang.andWeShip + ' <b style="text-transform: uppercase;">' + lang.today + '</b>' +
+                    '</div>';
+            };
+
+            update();
+            setInterval(update, 1000);
+
+            var parent = buyBtn.parentElement;
+            if (parent.offsetWidth < 150) parent = parent.parentElement;
+            parent.insertBefore(timerWrap, parent.firstChild);
+        }
+    };
+
+    var timerInterval = setInterval(runUniversalTimer, 500);
+    setTimeout(function() { clearInterval(timerInterval); }, 15000);
+    runUniversalTimer();
+})();
+</script>
+
+
+
+
+
+
+
+<!-- <script>
+  (function () {
+    // --- 1. НАСТРОЙКИ КНОПОК И БАЗОВЫЕ СТИЛИ МОДАЛКИ ---
+
+    var buttonTextUkrainian = "Цікавить співпраця або опт?";
+    var buttonTextRussian = "Интресует сотрудничество или ОПТ";
+
+    var buttonStyles =
+      " display: block;text-align: center;margin-top: 15px;font-weight: bold;font-size: 16px;color: #ff8c00;background-color: transparent;padding: 10px 5px;border-radius: 12px;text-decoration: none;transition: background-color 0.3s;cursor: pointer;border: 2px solid #ff8c00;";
+
+    // Базовые стили + Стили формы
+    var minimalModalCSS = `
+        #vitModalOverlay {
+            display: none;
+            position: fixed;
+            z-index: 9998;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            cursor: pointer;
+        }
+        #vitModalContent {
+            position: fixed;
+            z-index: 9999;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            border-radius: 18px;
+            max-width: 90vw;
+            width: 600px; /* Можете изменить */
+            max-height: 85vh;
+            overflow-y: auto;
+            cursor: default;
+            box-shadow: 0 8px 28px rgba(2,6,23,.28);
+            /* Убрал отступы, т.к. ваш .panelW их задаст */
+        }
+        /* Адаптация для мобильных */
+        @media (max-width: 640px) {
+            #vitModalContent {
+                width: 92vw;
+            }
+            #vitModalContent #vit-opt .panelW {
+                 padding: 20px !important;
+            }
+        }
+        .vitModalClose {
+            position: absolute;
+            z-index: 10000;
+            top: 10px;
+            right: 15px;
+            font-size: 30px;
+            font-weight: bold;
+            color: #6b7280;
+            cursor: pointer;
+            line-height: 1;
+            padding: 5px;
+        }
+        .vitModalClose:hover {
+            color: #252229;
+        }
+        
+        /* 1. ВАШИ СТИЛИ (немного откорректировал отступы) */
+        #vit-opt{--bg:#fafafa;--card:#fff;--muted:#6b7280;--text:#252229;--accent:#16a3a;--accent2:#0ea5e9;--ring:rgba(14,165,233,.35);--shadow:0 8px 28px rgba(2,6,23,.28);--soft:0 6px 18px rgba(2,6,23,.06);--r:18px;--r-lg:26px;--gap:clamp(16px,2.5vw,22px); padding: clamp(18px,3.2vw,32px); padding-top: 40px;}
+        #vit-opt a.ctaW{font-size: clamp(16px, 1.7vw, 18px);display:inline-flex;align-items:center;gap:10px;padding:10px 16px;background:linear-gradient(135deg,var(--accent),#22c55e);color:#fff;border-radius:14px;text-decoration:none;transition:.2s ease;box-shadow:var(--soft)}
+        #vit-opt a.ctaW:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+        #vit-opt .btnW{cursor:pointer;border:0;border-radius:14px;padding:12px 16px;font-weight:700;background:#22c55e;color:#fff;box-shadow:var(--shadow);transition:.2s ease; width: 100%;}
+        /* #vit-opt .panelW{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--soft);padding:clamp(18px,3.2vw,32px)} */ /* Этот стиль теперь применен к #vit-opt */
+        #vit-opt .btnW:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(22,163,74,.25)}
+        #vit-opt label{font-size:13px;font-weight:600;color:#334155; display: block;} /* Добавил display: block */
+        #vit-opt input,#vit-opt select,#vit-opt textarea{border:1px solid #e2e8f0;border-radius:14px;padding:12px 14px;font-size:15px;background:#fff;outline:none;transition:border-color .15s ease, box-shadow .15s ease; width: 100%;} /* Добавил width: 100% */
+        #vit-opt input:focus,#vit-opt select:focus,#vit-opt textarea:focus{border-color:var(--accent2);box-shadow:0 0 0 6px var(--ring)}
+        #vit-opt h3.secW{font-size:clamp(22px,2.8vw,30px);margin:0 0 2px}
+        #vit-opt p.subW{color:var(--muted);margin:0 0 18px}
+        #vit-opt .stackW{display:grid;gap:var(--gap)}
+        #leadMsg { margin-top: 15px; font-weight: 600; color: var(--accent); text-align: center; } /* Стили для сообщений */
+    `;
+
+    // --- 2. HTML-СКЕЛЕТ МОДАЛКИ ---
+
+    var modalHTML = `
+        <div id="vitModalOverlay">
+            <div id="vitModalContent">
+                <span class="vitModalClose" title="Закрити">&times;</span>
+                
+                <div id="vit-opt">
+                    <h3 class="secW">Отримайте оптовий прайс і персональні умови</h3>
+                    <p class="subW">Заповніть форму &mdash; надішлемо прайс і наявність.</p>
+                    <form class="stackW" id="leadForm" method="post">
+                        <label><input name="name" placeholder="Ім’я*" required="" /></label> 
+                        <label><input name="company" placeholder="Компанія" /></label> 
+                        <label><input inputmode="tel" name="phone" pattern="[0-9]{7,}" placeholder="Телефон*" required="" title="Будь ласка, введіть тільки цифри" type="tel" /></label> 
+                        <label><input name="email" placeholder="Email*" required="" type="email" /></label> 
+                        <label><textarea name="comments" placeholder="Розкажіть про себе" rows="3" style="resize: vertical;"></textarea></label> 
+                        <input name="utm_source" type="hidden" /> 
+                        <input name="utm_medium" type="hidden" /> 
+                        <input name="utm_campaign" type="hidden" /> 
+                        <input name="utm_content" type="hidden" /> 
+                        <input name="utm_term" type="hidden" /> 
+                        <input name="gclid" type="hidden" />
+                        <button class="btnW" type="submit">Отримати прайс та умови</button> 
+                        <small class="subW" style="text-align: center; font-size: 12px; margin-top: 5px;">Натискаючи &laquo;Надіслати&raquo;, ви погоджуєтеся з обробкою персональних даних.</small>
+                    </form>
+                    <div id="leadMsg"></div>
+                </div>
+                
+            </div>
+        </div>
+    `;
+
+    // --- 3. ЛОГИКА ФОРМЫ (ИСПРАВЛЕНО) ---
+
+    function initializeFormLogic() {
+      
+      // Находим элементы формы (теперь это делается сразу, без DOMContentLoaded)
+      const form = document.getElementById("leadForm");
+      if (!form) {
+          console.error("Не удалось найти форму #leadForm");
+          return;
+      }
+
+      const msg = document.getElementById("leadMsg");
+      const btn = form.querySelector('button[type="submit"]');
+
+      // 1) Проставляем UTM/gclid из URL (это правильно)
+      const params = new URLSearchParams(location.search);
+      [
+        "utm_source",
+        "utm_medium",
+        "utm_campaign",
+        "utm_content",
+        "utm_term",
+        "gclid",
+      ].forEach((k) => {
+        const v = params.get(k);
+        if (v)
+          form
+            .querySelectorAll(`[name="${k}"]`)
+            .forEach((i) => (i.value = v));
+      });
+
+      // 2) Отправка как FormData (это правильно)
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        btn.disabled = true;
+        const origText = btn.textContent;
+        btn.textContent = "Надсилаємо...";
+        if (msg) msg.textContent = ""; // Очищаем сообщение
+
+        try {
+          const data = new FormData(form);
+          const webAppUrl =
+            "https://script.google.com/macros/s/AKfycbxKXkFhcP3XfKvqqgdgd2TB6CW9CseAnxLd--B01dgJCuf8AlV3AOCcw1ZhLdIkT7DT/exec";
+
+          const res = await fetch(webAppUrl, {
+            method: "POST",
+            body: data,
+          });
+          const text = await res.text();
+
+          let result;
+          try {
+            result = JSON.parse(text);
+          } catch {
+            throw new Error("Сервер повернув не-JSON: " + text);
+          }
+
+          if (result.status === "success") {
+            form.reset();
+            btn.textContent = "✓ Відправлено";
+            if (msg)
+              msg.textContent =
+                "Дякуємо! Ми звʼяжемося з вами найближчим часом.";
+
+            // Отправляем событие в Google Tag Manager
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({
+              event: "cooperation_form_submission",
+              form_name: "request_for_cooperation_modal", // Лучше указать, что это модалка
+              utm_source: data.get("utm_source"),
+              utm_medium: data.get("utm_medium"),
+              utm_campaign: data.get("utm_campaign"),
+            });
+            
+            // Автоматически закрываем окно через 2.5 секунды
+            setTimeout(closeCoopModal, 2500);
+
+          } else {
+            throw new Error(
+              result.message || "Сталася помилка під час відправки."
+            );
+          }
+        } catch (err) {
+          console.error(err);
+          if (msg) msg.textContent = "Помилка: " + err.message;
+          btn.textContent = "Спробувати ще раз";
+          btn.disabled = false; // Позволяем попробовать еще раз
+        } 
+        // Убрали finally, т.к. при успехе мы не хотим возвращать кнопку в исходное состояние
+      });
+    }
+
+    // --- 4. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (УЛУЧШЕНО) ---
+
+    function openCoopModal() {
+      var overlay = document.getElementById("vitModalOverlay");
+      if (overlay) overlay.style.display = "block";
+    }
+
+    function closeCoopModal() {
+      var overlay = document.getElementById("vitModalOverlay");
+      if (overlay) overlay.style.display = "none";
+      
+      // 3. ДОБАВЛЕНА ЛОГИКА СБРОСА ФОРМЫ
+      const form = document.getElementById('leadForm');
+      if(form) {
+          const msg = document.getElementById('leadMsg');
+          const btn = form.querySelector('button[type="submit"]');
+          if (msg) msg.textContent = '';
+          if (btn) {
+              btn.disabled = false;
+              btn.textContent = 'Отримати прайс та умови';
+          }
+          form.reset();
+          // Повторно проставляем UTM, т.к. reset() их стер
+           const params = new URLSearchParams(location.search);
+           ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'gclid'].forEach(k => {
+               const v = params.get(k);
+               if (v) form.querySelectorAll(`[name="${k}"]`).forEach(i => i.value = v);
+           });
+      }
+    }
+
+    // Создает модалку и стили (один раз)
+    function createModalEnvironment() {
+      if (document.getElementById("vitModalOverlay")) {
+        return;
+      }
+      var styleTag = document.createElement("style");
+      styleTag.type = "text/css";
+      styleTag.innerHTML = minimalModalCSS; 
+      document.head.appendChild(styleTag);
+
+      var modalDiv = document.createElement("div");
+      modalDiv.innerHTML = modalHTML;
+      document.body.appendChild(modalDiv.firstElementChild); 
+
+      var overlay = document.getElementById("vitModalOverlay");
+      overlay
+        .querySelector(".vitModalClose")
+        .addEventListener("click", closeCoopModal);
+      overlay.addEventListener("click", function (e) {
+        if (e.target.id === "vitModalOverlay") {
+          closeCoopModal();
+        }
+      });
+      
+      // 4. Инициализируем логику
+      initializeFormLogic();
+    }
+
+    // --- 5. ФУНКЦИЯ ДОБАВЛЕНИЯ КНОПОК (без изменений) ---
+
+    function addCustomPriceInfo() {
+      if (!window.location.href.includes("shop")) {
+        return;
+      }
+
+      var isRussianVersion = window.location.href.includes("/ru/");
+      var currentButtonText = isRussianVersion
+        ? buttonTextRussian
+        : buttonTextUkrainian;
+
+      // Мобильная версия
+      var mobilePriceBoxes = document.querySelectorAll(
+        ".product-card__discount"
+      );
+      mobilePriceBoxes.forEach(function (priceBox) {
+        if (!priceBox.parentNode.querySelector(".custom-price-button")) {
+          var newLink = document.createElement("a");
+          newLink.classList.add("custom-price-button");
+          newLink.textContent = currentButtonText;
+          newLink.style.cssText = buttonStyles;
+          newLink.addEventListener("click", function (e) {
+            e.preventDefault();
+            openCoopModal();
+          });
+          priceBox.insertAdjacentElement("afterend", newLink);
+        }
+      });
+
+      // Десктопная версия
+      var desktopTargetRow = document.querySelector(
+        ".product__section--price .product__row"
+      );
+      if (desktopTargetRow) {
+        if (
+          !desktopTargetRow.parentNode.querySelector(".custom-price-button")
+        ) {
+          var newLink = document.createElement("a");
+          newLink.classList.add("custom-price-button");
+          newLink.textContent = currentButtonText;
+          newLink.style.cssText = buttonStyles;
+          newLink.addEventListener("click", function (e) {
+            e.preventDefault();
+            openCoopModal();
+          });
+          desktopTargetRow.insertAdjacentElement("afterend", newLink);
+        }
+      }
+    }
+
+    // --- 6. ЗАПУСК И НАБЛЮДЕНИЕ (MutationObserver) ---
+
+    if (document.readyState === "complete") {
+      createModalEnvironment();
+      addCustomPriceInfo();
+    } else {
+      window.addEventListener("load", function () {
+        createModalEnvironment();
+        addCustomPriceInfo();
+      });
+    }
+
+    var targetNode = document.body;
+    var config = { childList: true, subtree: true, attributes: false };
+
+    var observerCallback = function (mutationsList, observer) {
+      let nodeAdded = false;
+      for (let mutation of mutationsList) {
+        if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+          nodeAdded = true;
+          break;
+        }
+      }
+      if (nodeAdded) {
+        setTimeout(addCustomPriceInfo, 100);
+      }
+    };
+
+    let debouncedCallback = (function () {
+      let timer = 0;
+      return function (mutationsList, observer) {
+        clearTimeout(timer);
+        timer = setTimeout(() => observerCallback(mutationsList, observer), 50);
+      };
+    })();
+
+    var observer = new MutationObserver(debouncedCallback);
+
+    window.addEventListener("load", function () {
+        // Проверка страницы что бы не запускать наблюдаттель на не нужных страницах
+        if (window.location.href.includes("shop")) {
+            observer.observe(targetNode, config);
+        }
+    });
+    
+  })();
+</script> -->        <script>
+    !function (t, e, c, n) {
+        var s = e.createElement(c);
+        s.async = 1, s.src = 'https://statics.esputnik.com/scripts/' + n + '.js';
+        var r = e.scripts[0];
+        r.parentNode.insertBefore(s, r);
+        var f = function () {
+            f.c(arguments);
+        };
+        f.q = [];
+        f.c = function () {
+            f.q.push(arguments);
+        };
+        t['eS'] = t['eS'] || f;
+    }(window, document, 'script', '6C80E5E203174F3F805775C1E0A20BDA');
+</script>
+<script>eS('init', {
+    TRACKING: false,
+    RECOMS: true
+});
+if (document.querySelectorAll('.banners-group .banners').length > 0) {
+  eS('sendEvent', 'MainPage');
+}
+
+
+if (document.querySelectorAll('.error-page-container').length > 0 || document.querySelectorAll('.error-page__info').length > 0) {
+  eS('sendEvent', 'NotFound');
+}
+</script>
+
+            <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Увійти для відображення накопичувальної знижки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                                                                                <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uidb38a3431fdb46c74afdd4d0e49afca8e" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uidb38a3431fdb46c74afdd4d0e49afca8e");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

@@ -1,0 +1,656 @@
+<!-- source: https://lartek.com.ua/ -->
+<!-- extracted: 2026-05-07T21:33:32.357Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 19859 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <style>
+#lartek-chat-icons{
+  position: fixed;
+  right: 16px;
+  bottom: 42px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#lartek-chat-icons a{
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none !important;
+  border: 2px solid rgba(255,255,255,.9);
+  box-shadow: 0 4px 10px rgba(0,0,0,.14);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+#lartek-chat-icons a:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(0,0,0,.18);
+}
+
+#lartek-chat-icons a svg{
+  width: 25px;
+  height: 25px;
+  display: block;
+  fill: #fff;
+}
+
+#lartek-chat-icons .tg{
+  background: #229ED9;
+}
+
+#lartek-chat-icons .vb{
+  background: #7360F2;
+}
+
+@media (max-width: 767px){
+  #lartek-chat-icons{
+    right: 12px;
+    bottom: 36px;
+    gap: 8px;
+  }
+
+  #lartek-chat-icons a{
+    width: 46px;
+    height: 46px;
+  }
+
+  #lartek-chat-icons a svg{
+    width: 22px;
+    height: 22px;
+  }
+}
+</style>
+
+<div id="lartek-chat-icons">
+  <a class="tg" href="https://t.me/Lartek_parts_bot" target="_blank" rel="noopener noreferrer" aria-label="Telegram">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M21.5 4.5 3.8 11.3c-.8.3-.8.8.1 1.1l4.5 1.4 1.7 5.4c.2.6.5.8.9.8.3 0 .5-.1.8-.4l2.5-2.4 4.9 3.6c.9.5 1.5.2 1.7-.8l3-14.5c.2-.9-.3-1.3-1.2-.9ZM9.2 13.2l8.5-5.4c.4-.2.7 0 .4.3l-7.3 6.6-.3 2.9-1.3-4.4Z"/>
+    </svg>
+  </a>
+
+  <a class="vb" href="viber://chat?number=%2B380983208040" aria-label="Viber">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12.1 2C7 2 3 5.4 3 9.8c0 2.2 1 4.2 2.8 5.6V22l3.3-1.8c.9.2 1.8.3 2.7.3 5 0 9.2-3.4 9.2-7.8S17.2 2 12.1 2Zm4.2 11.2c-.2.5-1 .9-1.5 1-.4.1-.9.1-2.6-.5-2.2-.8-3.7-2.9-3.8-3.1-.1-.1-.9-1.1-.9-2.2 0-1 .5-1.6.8-1.8.2-.2.4-.3.6-.3h.4c.2 0 .3.1.4.4.2.4.6 1.5.7 1.6.1.1.1.2 0 .4s-.1.2-.2.4c-.1.1-.2.3-.3.4-.1.1-.2.2-.1.4.1.2.5.9 1.2 1.4.8.7 1.5 1 1.7 1.1.2.1.3.1.5-.1.1-.1.5-.6.6-.8.1-.2.3-.2.5-.1s1.2.6 1.4.7c.2.1.3.2.4.3.1.1.1.5-.1.9Z"/>
+    </svg>
+  </a>
+</div>
+
+
+
+
+<style>
+/* ===== ЄДИНИЙ СТИЛЬ ОПИСУ ТОВАРУ ===== */
+#tab-description,
+#tab-description *,
+.tab-pane,
+.tab-pane *,
+.product-tabs,
+.product-tabs *,
+.product-description,
+.product-description *,
+.product_description,
+.product_description *,
+.rte,
+.rte *,
+.entry-content,
+.entry-content *,
+.description,
+.description *,
+[class*="description"],
+[class*="description"] * {
+  box-sizing: border-box !important;
+}
+
+#tab-description,
+.tab-pane,
+.product-tabs,
+.product-description,
+.product_description,
+.rte,
+.entry-content,
+.description,
+[class*="description"] {
+  font-family: Arial, sans-serif !important;
+  font-size: 15px !important;
+  line-height: 1.6 !important;
+  color: #222 !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+#tab-description p,
+.tab-pane p,
+.product-tabs p,
+.product-description p,
+.product_description p,
+.rte p,
+.entry-content p,
+.description p,
+[class*="description"] p,
+#tab-description div,
+.tab-pane div,
+.product-tabs div,
+.product-description div,
+.product_description div,
+.rte div,
+.entry-content div,
+.description div,
+[class*="description"] div {
+  font-family: Arial, sans-serif !important;
+  font-size: 15px !important;
+  line-height: 1.6 !important;
+  color: #222 !important;
+  margin: 0 0 12px !important;
+}
+
+#tab-description ul,
+#tab-description ol,
+.tab-pane ul,
+.tab-pane ol,
+.product-tabs ul,
+.product-tabs ol,
+.product-description ul,
+.product-description ol,
+.product_description ul,
+.product_description ol,
+.rte ul,
+.rte ol,
+.entry-content ul,
+.entry-content ol,
+.description ul,
+.description ol,
+[class*="description"] ul,
+[class*="description"] ol {
+  margin: 0 0 14px 20px !important;
+  padding: 0 !important;
+}
+
+#tab-description li,
+.tab-pane li,
+.product-tabs li,
+.product-description li,
+.product_description li,
+.rte li,
+.entry-content li,
+.description li,
+[class*="description"] li {
+  font-family: Arial, sans-serif !important;
+  font-size: 15px !important;
+  line-height: 1.55 !important;
+  margin-bottom: 6px !important;
+  color: #222 !important;
+}
+
+#tab-description h1,
+#tab-description h2,
+#tab-description h3,
+#tab-description h4,
+#tab-description h5,
+.tab-pane h1,
+.tab-pane h2,
+.tab-pane h3,
+.tab-pane h4,
+.tab-pane h5,
+.product-tabs h1,
+.product-tabs h2,
+.product-tabs h3,
+.product-tabs h4,
+.product-tabs h5,
+.product-description h1,
+.product-description h2,
+.product-description h3,
+.product-description h4,
+.product-description h5,
+.product_description h1,
+.product_description h2,
+.product_description h3,
+.product_description h4,
+.product_description h5,
+.rte h1,
+.rte h2,
+.rte h3,
+.rte h4,
+.rte h5,
+.entry-content h1,
+.entry-content h2,
+.entry-content h3,
+.entry-content h4,
+.entry-content h5,
+.description h1,
+.description h2,
+.description h3,
+.description h4,
+.description h5,
+[class*="description"] h1,
+[class*="description"] h2,
+[class*="description"] h3,
+[class*="description"] h4,
+[class*="description"] h5 {
+  font-family: Arial, sans-serif !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+  color: #111 !important;
+  margin: 18px 0 10px !important;
+}
+
+#tab-description h1,
+.tab-pane h1,
+.product-tabs h1,
+.product-description h1,
+.product_description h1,
+.rte h1,
+.entry-content h1,
+.description h1,
+[class*="description"] h1 {
+  font-size: 24px !important;
+}
+
+#tab-description h2,
+.tab-pane h2,
+.product-tabs h2,
+.product-description h2,
+.product_description h2,
+.rte h2,
+.entry-content h2,
+.description h2,
+[class*="description"] h2 {
+  font-size: 22px !important;
+}
+
+#tab-description h3,
+.tab-pane h3,
+.product-tabs h3,
+.product-description h3,
+.product_description h3,
+.rte h3,
+.entry-content h3,
+.description h3,
+[class*="description"] h3 {
+  font-size: 19px !important;
+}
+
+#tab-description h4,
+#tab-description h5,
+.tab-pane h4,
+.tab-pane h5,
+.product-tabs h4,
+.product-tabs h5,
+.product-description h4,
+.product-description h5,
+.product_description h4,
+.product_description h5,
+.rte h4,
+.rte h5,
+.entry-content h4,
+.entry-content h5,
+.description h4,
+.description h5,
+[class*="description"] h4,
+[class*="description"] h5 {
+  font-size: 17px !important;
+}
+
+#tab-description img,
+.tab-pane img,
+.product-tabs img,
+.product-description img,
+.product_description img,
+.rte img,
+.entry-content img,
+.description img,
+[class*="description"] img {
+  max-width: 100% !important;
+  height: auto !important;
+  display: block !important;
+  margin: 10px 0 !important;
+  border-radius: 8px !important;
+}
+
+#tab-description iframe,
+.tab-pane iframe,
+.product-tabs iframe,
+.product-description iframe,
+.product_description iframe,
+.rte iframe,
+.entry-content iframe,
+.description iframe,
+[class*="description"] iframe {
+  max-width: 100% !important;
+}
+
+
+/* ===== Lartek breadcrumbs: компактно, без ховання, з переносом ===== */
+nav.breadcrumbs.lartek-bc-compact {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: flex-start !important;
+    gap: 4px 8px !important;
+    margin: 0 0 12px !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    white-space: normal !important;
+}
+
+/* Кожна крихта */
+nav.breadcrumbs.lartek-bc-compact .breadcrumbs-i {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    min-width: 0 !important;
+    flex: 0 1 auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: #9aa5b1 !important;
+    font-size: 12px !important;
+    line-height: 1.25 !important;
+}
+
+/* Скидаємо старі кастомні класи, якщо були */
+nav.breadcrumbs.lartek-bc-compact .breadcrumbs-i.lartek-show,
+nav.breadcrumbs.lartek-bc-compact .breadcrumbs-i.lartek-bc-item,
+nav.breadcrumbs.lartek-bc-compact .breadcrumbs-i.lartek-last,
+nav.breadcrumbs.lartek-bc-compact .breadcrumbs-i.lartek-ellipsis {
+    display: inline-flex !important;
+}
+
+/* Текст крихт */
+nav.breadcrumbs.lartek-bc-compact .breadcrumbs-i a,
+nav.breadcrumbs.lartek-bc-compact .breadcrumbs-i a:link,
+nav.breadcrumbs.lartek-bc-compact .breadcrumbs-i a:visited,
+nav.breadcrumbs.lartek-bc-compact .breadcrumbs-i span[itemprop="name"] {
+    display: inline !important;
+    max-width: none !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    color: #6f7f90 !important;
+    text-decoration: none !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    font-size: 12px !important;
+    line-height: 1.25 !important;
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+/* При наведенні тільки підкреслення */
+nav.breadcrumbs.lartek-bc-compact .breadcrumbs-i a:hover,
+nav.breadcrumbs.lartek-bc-compact .breadcrumbs-i a:focus,
+nav.breadcrumbs.lartek-bc-compact .breadcrumbs-i a:active {
+    color: #6f7f90 !important;
+    text-decoration: underline !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Стрілки SVG */
+nav.breadcrumbs.lartek-bc-compact .icon--breadcrumbs-arrow {
+    width: 10px !important;
+    height: 10px !important;
+    min-width: 10px !important;
+    min-height: 10px !important;
+    margin: 0 2px !important;
+    color: #c2cad2 !important;
+    fill: currentColor !important;
+    flex: 0 0 auto !important;
+}
+
+/* Кнопка повернутися */
+nav.breadcrumbs.lartek-bc-compact .lartek-breadcrumb-back,
+nav.breadcrumbs.lartek-bc-compact .lartek-breadcrumb-back:link,
+nav.breadcrumbs.lartek-bc-compact .lartek-breadcrumb-back:visited {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 24px !important;
+    padding: 0 10px !important;
+    margin-left: auto !important;
+    border: 1px solid #d6dee6 !important;
+    border-radius: 4px !important;
+    background: #fff !important;
+    color: #6f7f90 !important;
+    text-decoration: none !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    box-shadow: none !important;
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+nav.breadcrumbs.lartek-bc-compact .lartek-breadcrumb-back:hover,
+nav.breadcrumbs.lartek-bc-compact .lartek-breadcrumb-back:focus,
+nav.breadcrumbs.lartek-bc-compact .lartek-breadcrumb-back:active {
+    color: #6f7f90 !important;
+    text-decoration: underline !important;
+    border-color: #d6dee6 !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Мобільна */
+@media (max-width: 768px) {
+    nav.breadcrumbs.lartek-bc-compact {
+        gap: 4px 6px !important;
+        margin-bottom: 10px !important;
+    }
+
+    nav.breadcrumbs.lartek-bc-compact .breadcrumbs-i,
+    nav.breadcrumbs.lartek-bc-compact .breadcrumbs-i a,
+    nav.breadcrumbs.lartek-bc-compact .breadcrumbs-i span[itemprop="name"] {
+        font-size: 11px !important;
+        line-height: 1.25 !important;
+    }
+
+    nav.breadcrumbs.lartek-bc-compact .icon--breadcrumbs-arrow {
+        width: 9px !important;
+        height: 9px !important;
+        min-width: 9px !important;
+        min-height: 9px !important;
+    }
+
+    nav.breadcrumbs.lartek-bc-compact .lartek-breadcrumb-back {
+        height: 22px !important;
+        padding: 0 8px !important;
+        font-size: 9px !important;
+    }
+}
+</style>
+
+<script>
+(function () {
+    function cleanupOldBreadcrumbArtifacts(nav) {
+        nav.classList.remove('lartek-bc');
+
+        nav.querySelectorAll('.breadcrumbs-i').forEach(function (item) {
+            item.classList.remove('lartek-show', 'lartek-last', 'lartek-bc-item', 'lartek-ellipsis');
+            item.style.display = '';
+        });
+
+        nav.querySelectorAll('[data-lartek-ellipsis="1"]').forEach(function (el) {
+            el.remove();
+        });
+    }
+
+    function ensureBackButton(nav) {
+        if (nav.querySelector('.lartek-breadcrumb-back')) return;
+
+        var back = document.createElement('a');
+        back.href = '#';
+        back.className = 'lartek-breadcrumb-back';
+        back.textContent = /\/ru\//.test(location.pathname) ? 'НАЗАД' : 'ПОВЕРНУТИСЯ';
+
+        back.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = '/';
+            }
+        });
+
+        nav.appendChild(back);
+    }
+
+    function initCompactBreadcrumbs() {
+        document.querySelectorAll('nav.breadcrumbs').forEach(function (nav) {
+            cleanupOldBreadcrumbArtifacts(nav);
+            nav.classList.add('lartek-bc-compact');
+            ensureBackButton(nav);
+        });
+    }
+
+    function boot() {
+        initCompactBreadcrumbs();
+
+        var tries = 0;
+        var timer = setInterval(function () {
+            initCompactBreadcrumbs();
+            tries++;
+            if (tries > 20) clearInterval(timer);
+        }, 400);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot);
+    } else {
+        boot();
+    }
+})();
+</script>
+                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Увійти для відображення накопичувальної знижки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                        </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uidb9a8adf3687473cd15f3fa0f9c5a2bf8" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uidb9a8adf3687473cd15f3fa0f9c5a2bf8");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

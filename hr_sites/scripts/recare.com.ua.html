@@ -1,0 +1,315 @@
+<!-- source: https://recare.com.ua/ -->
+<!-- extracted: 2026-05-07T21:31:41.581Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 14696 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <script> 
+class Scaleo {
+    static token = 'ae78d51d';  // Replace with the actual token   
+    static goal_id = 9;
+    static endpoint = 'https://fmtarget.com';  // Replace with the actual endpoint URL     
+    static cache = [];
+    static getVar = 'click_id';  // Replace with the specific `get_var` variable from PHP
+    static cookieName = 'sc_click_id';  // Replace with the specific `cookie_name` variable from PHP
+    static notifyUrl = 'https://tools.procare.com.ua/scaleo?source=recare';
+
+    static init() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlPath = window.location.pathname;
+
+        if (urlPath.startsWith('/checkout/complete0/')) {
+            const orderId = document.querySelector("div.h2")?.innerHTML.trim().split("№")[1];
+            const amountText = document.querySelector(".order-summary-b")?.innerHTML;
+            const amount = amountText ? amountText.replace(' грн', '').trim() : null;
+
+            if (orderId && amount) {
+                Scaleo.postback(orderId, amount);
+            }
+            return;
+        }       
+
+        // Check for custom getVar parameter
+        if (urlParams.has(Scaleo.getVar) && urlParams.get(Scaleo.getVar)) {
+            const clickId = urlParams.get(Scaleo.getVar);
+            Scaleo.setCookie(clickId);
+
+            // Redirect to current URL without the custom parameter
+            const newUrl = Scaleo.getCurPageParam('', [Scaleo.getVar]);
+            window.location.replace(newUrl);
+        }
+    }
+
+    static pixel() {
+        let src = 'https://fmtarget.com/track/img?goal_id=' + Scaleo.goal_id;
+        // Create the img element
+        const img = document.createElement('img');
+
+        // Set the src attribute (replace with the actual image URL)
+        img.src = src;
+
+        // Optionally, set other attributes like alt, width, height, etc.
+        img.alt = 'Description of the image';
+        img.width = 1; // Adjust width as needed
+        img.height = 1; // Adjust height as needed
+
+        // Insert the img element at the beginning of the body
+        document.body.insertBefore(img, document.body.firstChild);        
+    }
+
+    static postback(orderId, amount) {
+        // Placeholder function; implement postback logic here if needed.
+        console.log(`Postback called with params: ${orderId}, ${amount}`);
+        const clickId = Scaleo.getCookie(Scaleo.cookieName);
+        if (clickId && !Scaleo.cache[orderId]) {
+            const url = Scaleo.getPostBackUrl(clickId, amount, orderId);
+            Scaleo.cache[orderId] = amount;
+            /*var xhr = new XMLHttpRequest();
+            xhr.open("GET", url, true);
+            xhr.onload = function () {
+                console.log(xhr.responseText);
+            };
+            xhr.send();*/
+            // notify
+            let url2 = Scaleo.notifyUrl;
+            let params = `order_id=${orderId}&amount=${amount}&click_id=${clickId}`;
+            var http = new XMLHttpRequest();
+            http.open('POST', url2, true);
+
+            //Send the proper header information along with the request
+            http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+            http.send(params);
+        }
+    }
+    
+    static getPostBackUrl(clickId, amount, orderId) {
+        return `${Scaleo.endpoint}/track/conv?click_id=${clickId}&amount=${amount}&adv_order_id=${orderId}&token=${Scaleo.token}`;
+    }
+
+    static getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        return parts.length === 2 ? parts.pop().split(';').shift() : null;
+    }
+
+    static async getWebPage(url) {
+        const response = await fetch(url);
+        const content = await response.json();
+        return content;
+    }    
+
+    static setCookie(clickId, set = 1) {
+        const expires = new Date();
+        const days = set === 1 ? 7 : -7;
+        expires.setDate(expires.getDate() + days);
+        document.cookie = `${Scaleo.cookieName}=${clickId};expires=${expires.toUTCString()};path=/`;
+    }
+
+    static getCurPageParam(param, excludeParams = []) {
+        const url = new URL(window.location.href);
+        excludeParams.forEach(p => url.searchParams.delete(p));
+        return url.toString();
+    }
+}
+
+// Run on page load
+Scaleo.init();
+
+// Update the scaleo function to return a promise from Scaleo.postback
+function scaleo(data) {
+    return new Promise((resolve, reject) => {
+        if (typeof data.response.attributes !== 'undefined') {
+            const order_id = data.response.attributes.order_id;
+            const amount = data.response.attributes.cart.total.total.sum;
+
+            // Assuming Scaleo.postback itself can handle a callback or returns a promise
+            Scaleo.postback(order_id, amount)
+                .then(resolve) // Resolve when Scaleo.postback is complete
+                .catch(reject); // Reject if an error occurs
+        } else {
+            resolve(); // Resolve immediately if no postback is needed
+        }
+    });
+}
+
+
+const originalResponseTextGetter = Object.getOwnPropertyDescriptor(XMLHttpRequest.prototype, 'responseText').get;
+let orderOkRedirect = false;
+Object.defineProperty(XMLHttpRequest.prototype, 'responseText', {
+    get: function () {
+        // Call the original getter to get the actual responseText
+        let responseText = originalResponseTextGetter.call(this);
+
+        try {
+            // Attempt to parse the responseText as JSON
+            const responseData = JSON.parse(responseText);
+
+            // Check the conditions
+            if (responseData.response?.redirect && responseData.response?.attributes?.order_id > 0) {
+                // Modify the redirect property
+                orderOkRedirect = responseData.response.redirect;
+                responseData.response.redirect = `#${responseData.response.redirect}`;
+
+                //Scaleo.pixel();
+                scaleo(responseData);
+
+                setTimeout(function(){
+                    window.location.href = orderOkRedirect;
+                },1000);
+                
+                // Convert the modified object back to JSON string
+                responseText = JSON.stringify(responseData);
+            }
+        } catch (e) {
+            // If parsing fails, just return the original responseText
+            console.warn("Failed to parse responseText as JSON:", e);
+        }
+
+        return responseText;
+    }
+});
+</script> 
+<script async src="https://static.sppopups.com/assets/loader.js" data-chats-widget-id="4dc9193b-2386-470c-bdd0-f95bb8f123ca"></script>                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                                                                        <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>            <section class="compare" id="uidb55ad2251eaa648186c69ab71cf52e0e" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uidb55ad2251eaa648186c69ab71cf52e0e");
+    }, w.ComparisonTable)
+  })(window);
+</script>        

@@ -1,0 +1,682 @@
+<!-- source: https://kulturrra.coffee/ -->
+<!-- extracted: 2026-05-07T21:30:38.465Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 25853 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
+
+<style>
+  @font-face{
+    font-family:"Museo Sans Cyrl";
+    src:url("/fonts/MuseoSansCyrl-300.woff2") format("woff2"),
+        url("/fonts/MuseoSansCyrl-300.woff") format("woff");
+    font-weight:300; font-style:normal; font-display:swap;
+  }
+
+  :root{
+    --brand-red:#ce332b;
+    --chat-font:"Museo Sans Cyrl", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    --hdr-xpad: 24px;
+  }
+
+  .n8n-chat .chat-window{
+    border-radius:20px !important;
+    overflow:hidden;
+    font-family:var(--chat-font);
+  }
+
+  .n8n-chat .chat-header{
+    position:relative;
+    background:var(--brand-red) !important;
+    min-height:80px;
+    display:flex; flex-direction:column; align-items:flex-start;
+    padding:24px var(--hdr-xpad);
+  }
+
+  .n8n-chat .chat-header h1,
+  .n8n-chat .chat-header h2,
+  .n8n-chat .chat-header h3,
+  .n8n-chat .chat-header h4,
+  .n8n-chat .chat-header .chat-heading{
+    display:none !important;
+  }
+
+  .n8n-chat .chat-header::before{
+    content:"";
+    display:block;
+    align-self:flex-start;
+    width:min(560px, calc(100% - (var(--hdr-xpad)*2)));
+    height:100px;
+    aspect-ratio:auto;
+    background:url("https://kulturrra.pages.dev/chat-title.svg") center/contain no-repeat;
+    margin:0;
+    pointer-events:none;
+  }
+
+  .n8n-chat .chat-header p{
+    align-self:flex;
+    margin:0 0 0px;
+    text-align:left;
+    color:#fff;
+  }
+
+  .n8n-chat .chat-header button,
+  .n8n-chat .chat-header [role="button"]{
+    color:#fff !important;
+    z-index:1; position:relative;
+  }
+
+  .n8n-chat .chat-body {
+    position: relative;
+    z-index: 0;
+  }
+
+
+  .n8n-chat .chat-messages-list::before{ content:""; position:sticky; top:0; display:block; height:0; }
+
+  .n8n-chat .chat-messages-list,
+  .n8n-chat [class*="messages"]{
+    display:flex !important;
+    flex-direction:column !important;
+  }
+
+  .n8n-chat .chat-message{ border-radius:20px !important; }
+  .n8n-chat .chat-message-from-user{ background:var(--brand-red) !important; color:#fff !important; }
+  .n8n-chat .chat-message-from-bot{ background:#fff !important; color:#111 !important; }
+  .n8n-chat .chat-message-markdown p{ margin:0.25rem 0; }
+
+  .n8n-chat .chat-footer textarea,
+  .n8n-chat .chat-footer input{
+    border-radius:20px !important;
+    font-family:var(--chat-font);
+  }
+
+  .n8n-chat button[class*="launcher"],
+  .n8n-chat .chat-launcher{
+    background:var(--brand-red) !important; color:#fff !important;
+    border-radius:20px !important;
+  }
+
+  .n8n-chat .chat-footer textarea,
+  .n8n-chat .chat-footer input[type="text"],
+  .n8n-chat .chat-footer input[type="search"],
+  .n8n-chat .chat-footer input[type="email"]{
+    border-radius:0 var(--r) var(--r) 0 !important;
+  }
+
+  .n8n-chat .chat-footer button[type="submit"],
+  .n8n-chat .chat-footer button[class*="send"]{
+    background:var(--brand-red) !important; color:#fff !important;
+    border-radius:var(--r) !important;
+    border-radius:0 var(--r) var(--r) 0 !important;
+    border:none !important;
+  }
+
+  .n8n-chat .chat-footer button svg{ fill:#fff !important; stroke:#fff !important; }
+
+  .n8n-chat .chat-footer > *:last-child{
+    background:var(--brand-red) !important;
+    border-radius:0 var(--r) var(--r) 0 !important;
+  }
+
+  .chat-window-wrapper .chat-window-toggle,
+  .chat-window-wrapper .chat-window-toggle:hover,
+  .chat-window-wrapper .chat-window-toggle:focus{
+    background-color:var(--brand-red);
+  }
+
+  .n8n-chat .chat-header .chat-new-btn{
+    position:absolute; right:12px; top:10px;
+    padding:6px 10px;
+    font-size:25px; line-height:1; font-weight:600;
+    background:rgba(255,255,255,.15);
+    color:#fff; border:1px solid rgba(255,255,255,.35);
+    border-radius:12px; cursor:pointer;
+  }
+  .n8n-chat .chat-header .chat-new-btn:hover{ background:rgba(255,255,255,.25); }
+
+  .n8n-chat .chat-header .chat-beta-badge{
+    position:absolute; top:10px; right:60px;
+    padding:4px 10px;
+    font-size:12px; line-height:1; font-weight:700; letter-spacing:.02em;
+    color:#fff; background:rgba(255,255,255,.15);
+    border:1px solid rgba(255,255,255,.35);
+    border-radius:999px;
+    backdrop-filter:saturate(120%) blur(6px);
+    pointer-events:none;
+    }
+  @media (max-width:420px){
+    .n8n-chat .chat-header .chat-beta-badge{ right:12px; top:44px; }
+ }
+.n8n-chat .chat-header .chat-beta-badge{
+  position: absolute !important;
+  left: 16px;
+  top: 12px;
+  display: inline-flex !important;   /* shrink to content */
+  width: auto !important;            /* override any 100% rules */
+  inline-size: fit-content !important; /* extra safety for some UIs */
+  white-space: nowrap;               /* keep it on one line */
+  margin: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+.n8n-chat .chat-header::before{
+  margin-top: 5px; 
+}
+
+</style>
+
+<script type="module">
+  const WIDGET_KEY = 'sessionId';
+  const META_KEY   = 'sessionMeta.v1';
+  const TTL_MS     = 60 * 60 * 1000;
+
+  const now = () => Date.now();
+  const rnd = () => crypto.randomUUID?.() || (now() + '-' + Math.random().toString(36).slice(2));
+
+  function seedOrRefreshSession(){
+    let meta; try { meta = JSON.parse(localStorage.getItem(META_KEY)||'null'); } catch {}
+    if (!meta?.id || meta.expiresAt <= now()){
+      meta = { id: rnd(), expiresAt: now() + TTL_MS };
+    } else {
+      meta.expiresAt = now() + TTL_MS;
+    }
+    localStorage.setItem(META_KEY, JSON.stringify(meta));
+    localStorage.setItem(WIDGET_KEY, meta.id);
+    return meta.id;
+  }
+  const sessionId = seedOrRefreshSession();
+
+  ['click','keydown','touchstart','visibilitychange','pageshow'].forEach(evt => {
+    addEventListener(evt, () => seedOrRefreshSession(), { passive:true });
+  });
+
+  import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+
+  createChat({
+    webhookUrl: 'https://n8n.fst-analytics.pp.ua/webhook/92975319-2354-4ced-9a35-7192286b0394/chat',
+    chatSessionKey: WIDGET_KEY,
+    loadPreviousSession: true,
+    initialMessages: [],
+    i18n: {
+      en: {
+        title: '',
+        subtitle: "так, я справжній, так, я шарю у спешелті",
+        footer: '',
+        inputPlaceholder: 'Що підказати сьогодні?',
+      },
+    },
+  });
+
+  (() => {
+  const placeBeta = () => {
+    const header = document.querySelector('.n8n-chat .chat-header');
+    if (!header || header.querySelector('.chat-beta-badge')) return !!header;
+    const b = document.createElement('span');
+    b.className = 'chat-beta-badge';
+    b.textContent = 'Бета-версія';
+    header.style.position = 'relative';
+    header.appendChild(b);
+    return true;
+  };
+  if (!placeBeta()) {
+    new MutationObserver((_, o) => { if (placeBeta()) o.disconnect(); })
+      .observe(document.body, { childList: true, subtree: true });
+  }
+})();
+
+  (() => {
+    const OPEN_KEY = 'n8nChat.open.v1';
+    const SEL = {
+      launcher: '.n8n-chat .chat-launcher, .chat-window-wrapper .chat-window-toggle, .n8n-chat button[aria-label]',
+      window:   '.n8n-chat .chat-window'
+    };
+
+    const wasOpen = localStorage.getItem(OPEN_KEY) === '1';
+
+    const isVisible = (el) => {
+      if (!el) return false;
+      const cs = getComputedStyle(el);
+      if (cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0') return false;
+      const r = el.getBoundingClientRect();
+      return r.width > 0 && r.height > 0;
+    };
+
+    const isOpen = () => {
+      const launcher = document.querySelector(SEL.launcher);
+      if (launcher) {
+        const exp = launcher.getAttribute('aria-expanded');
+        if (exp !== null) return exp === 'true';
+        const label = (launcher.getAttribute('aria-label') || '').toLowerCase();
+        if (label.includes('close')) return true;
+        if (label.includes('open')) return false;
+      }
+      return isVisible(document.querySelector(SEL.window));
+    };
+
+    const markOpenState = (() => {
+      let t = null, last = null;
+      const write = () => {
+        const open = isOpen();
+        if (open !== last) {
+          localStorage.setItem(OPEN_KEY, open ? '1' : '0');
+          last = open;
+        }
+        t = null;
+      };
+      return () => { if (!t) t = setTimeout(write, 50); };
+    })();
+
+    const watch = () => {
+      const launcher = document.querySelector(SEL.launcher);
+      const win = document.querySelector(SEL.window);
+      const cfg = { attributes: true, attributeFilter: ['aria-expanded','aria-label','style','class'], subtree: false };
+
+      const mo1 = new MutationObserver(markOpenState);
+      const mo2 = new MutationObserver(markOpenState);
+      if (launcher) mo1.observe(launcher, cfg);
+      if (win) mo2.observe(win, cfg);
+
+      const mo3 = new MutationObserver(markOpenState);
+      mo3.observe(document.body, { childList: true, subtree: true });
+
+      markOpenState();
+    };
+
+    const tryOpen = () => {
+      const launcher = document.querySelector(SEL.launcher);
+      if (!launcher) return false;
+      if (wasOpen && !isOpen()) setTimeout(() => launcher.click(), 100);
+      return true;
+    };
+
+    if (!tryOpen()) {
+      const obs = new MutationObserver(() => { if (tryOpen()) obs.disconnect(); });
+      obs.observe(document.body, { childList: true, subtree: true });
+    }
+
+    const bootWatchers = () => {
+      const haveBits = document.querySelector(SEL.launcher) || document.querySelector(SEL.window);
+      if (haveBits) { watch(); return true; }
+      return false;
+    };
+    if (!bootWatchers()) {
+      const obs2 = new MutationObserver((_m, o) => { if (bootWatchers()) o.disconnect(); });
+      obs2.observe(document.body, { childList: true, subtree: true });
+    }
+
+    document.addEventListener('click', (e) => {
+      if (e.target.closest(SEL.launcher)) setTimeout(markOpenState, 0);
+    }, true);
+  })();
+
+  (() => {
+    const SESSION_KEY   = 'sessionId';
+    const STORE_PREFIX  = 'n8nChat.history.v5.';
+    const LIST_SELECTORS = [
+      '.n8n-chat .chat-messages-list',
+      '.n8n-chat [class*="messages"]',
+      '.n8n-chat .chat-body',
+      '.n8n-chat .chat-main'
+    ];
+    const MSG_SEL  = '.chat-message';
+    const BODY_SEL = '.chat-message-markdown';
+
+    const getSID   = () => localStorage.getItem(SESSION_KEY) || '';
+    const storeKey = sid => `${STORE_PREFIX}${sid}`;
+
+    const h32 = (s) => {
+      let h = 2166136261 >>> 0;
+      for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+      return (h >>> 0).toString(36);
+    };
+
+    const readCache = (sid) => {
+      try { return JSON.parse(localStorage.getItem(storeKey(sid)) || 'null'); } catch { return null; }
+    };
+    const serializeList = (list) =>
+      Array.from(list.querySelectorAll(MSG_SEL)).map(n => ({
+        role: n.classList.contains('chat-message-from-user') ? 'user' : 'bot',
+        html: (n.querySelector(BODY_SEL) || n).innerHTML
+      }));
+
+    const makeWriter = (sid) => {
+      let timer = null;
+      return (list) => {
+        if (timer) return;
+        timer = setTimeout(() => {
+          try { localStorage.setItem(storeKey(sid), JSON.stringify({ ts: Date.now(), msgs: serializeList(list) })); }
+          finally { timer = null; }
+        }, 150);
+      };
+    };
+
+    const findList = () => {
+      for (const sel of LIST_SELECTORS) {
+        const el = document.querySelector(sel);
+        if (el) return el;
+      }
+      const first = document.querySelector('.n8n-chat ' + MSG_SEL);
+      return first ? first.parentElement : null;
+    };
+
+    const appendMsgNode = (list, msg, mark) => {
+      const el = document.createElement('div');
+      el.className = `chat-message ${msg.role === 'user' ? 'chat-message-from-user' : 'chat-message-from-bot'}`;
+      if (mark) el.dataset.src = mark;
+      const body = document.createElement('div');
+      body.className = 'chat-message-markdown';
+      body.innerHTML = msg.html;
+      el.appendChild(body);
+      list.appendChild(el);
+      return el;
+    };
+
+    const restoreFromCache = (list) => {
+      const sid = getSID(); if (!sid) return false;
+      const data = readCache(sid); if (!data?.msgs?.length) return false;
+      for (const m of data.msgs) appendMsgNode(list, m, 'cache');
+      list.scrollTop = list.scrollHeight;
+      return true;
+    };
+
+    const boot = () => {
+      const sid = getSID(); if (!sid) return false;
+      const list = findList(); if (!list) return false;
+
+      list.style.display = 'flex';
+      list.style.flexDirection = 'column';
+      restoreFromCache(list);
+      list.scrollTop = list.scrollHeight;
+
+      const writeCache = makeWriter(sid);
+      const seen = new WeakSet();
+      let mutating = false;
+
+      const mo = new MutationObserver(muts => {
+        if (mutating) return;
+        const toProcess = [];
+
+        for (const m of muts) {
+          m.addedNodes.forEach(n => {
+            if (!(n instanceof HTMLElement)) return;
+            let msg = n.matches?.(MSG_SEL) ? n : n.querySelector?.(MSG_SEL);
+            if (!msg || seen.has(msg)) return;
+            seen.add(msg);
+            toProcess.push(msg);
+          });
+        }
+        if (!toProcess.length) return;
+
+        mutating = true;
+        try {
+          for (const msg of toProcess) {
+            if (msg !== list.lastElementChild) list.appendChild(msg);
+          }
+        } finally { mutating = false; }
+
+        writeCache(list);
+        list.scrollTop = list.scrollHeight;
+      });
+
+      mo.observe(list, { childList: true, subtree: true });
+      return true;
+    };
+
+    if (!boot()) {
+      const obs = new MutationObserver((_m, o) => { if (boot()) o.disconnect(); });
+      obs.observe(document.body, { childList: true, subtree: true });
+    }
+
+    document.addEventListener('click', (e) => {
+      const a = e.target.closest('.n8n-chat .chat-messages-list a');
+      if (!a) return;
+      e.preventDefault(); window.open(a.href, '_blank', 'noopener');
+    });
+  })();
+
+  (() => {
+    const SESSION_KEY  = 'sessionId';
+    const META_KEY     = 'sessionMeta.v1';
+    const STORE_VERS   = ['v5','v4','v3'];
+    const GREETING     = 'Привіт, чим можу допомогти?';
+    const LIST_SEL     = '.n8n-chat .chat-messages-list';
+
+    const now = () => Date.now();
+    const newId = () => (crypto.randomUUID?.() || `${now()}-${Math.random().toString(36).slice(2)}`);
+
+    const getSID = () => localStorage.getItem(SESSION_KEY) || '';
+    const setSID = (id, ttlMs=60*60*1000) => {
+      localStorage.setItem(SESSION_KEY, id);
+      localStorage.setItem(META_KEY, JSON.stringify({ id, expiresAt: now()+ttlMs }));
+    };
+
+    const clearHistoryFor = (sid) => {
+      if (!sid) return;
+      for (const v of STORE_VERS) localStorage.removeItem(`n8nChat.history.${v}.${sid}`);
+    };
+
+    const injectGreeting = (list, text) => {
+      const msg = document.createElement('div');
+      msg.className = 'chat-message chat-message-from-bot';
+      msg.dataset.src = 'cache';
+      const body = document.createElement('div');
+      body.className = 'chat-message-markdown';
+      body.textContent = text;
+      msg.appendChild(body);
+      list.appendChild(msg);
+    };
+
+    const writeCache = (sid, list) => {
+      const msgs = [...list.querySelectorAll('.chat-message')].map(n => ({
+        role: n.classList.contains('chat-message-from-user') ? 'user' : 'bot',
+        html: (n.querySelector('.chat-message-markdown') || n).innerHTML
+      }));
+      localStorage.setItem(`n8nChat.history.v5.${sid}`, JSON.stringify({ ts: now(), msgs }));
+    };
+
+    const placeButton = () => {
+      const header = document.querySelector('.n8n-chat .chat-header');
+      if (!header || header.querySelector('.chat-new-btn')) return !!header;
+
+      const btn = document.createElement('button');
+      btn.className = 'chat-new-btn';
+      btn.type = 'button';
+      btn.textContent = '↻';
+
+      btn.addEventListener('click', () => {
+        const oldSid = getSID();
+        clearHistoryFor(oldSid);
+
+        const newSid = newId();
+        setSID(newSid);
+
+        const list = document.querySelector(LIST_SEL);
+        if (list) {
+          list.innerHTML = '';
+          list.style.display = 'flex';
+          list.style.flexDirection = 'column';
+          // injectGreeting(list, GREETING);
+          writeCache(newSid, list);
+          list.scrollTop = list.scrollHeight;
+        }
+        location.reload();
+      });
+
+      header.style.position = 'relative';
+      header.appendChild(btn);
+      return true;
+    };
+
+    if (!placeButton()) {
+      new MutationObserver((_, obs) => { if (placeButton()) obs.disconnect(); })
+        .observe(document.body, { childList: true, subtree: true });
+    }
+  })();
+
+  (() => {
+    const HOOK = 'https://n8n.fst-analytics.pp.ua/webhook/92975319-2354-4ced-9a35-7192286b0394/chat';
+    const origFetch = window.fetch;
+    window.fetch = async (input, init = {}) => {
+      const url = typeof input === 'string' ? input : input?.url;
+      if (url && url.startsWith(HOOK)) {
+        if (init.body && typeof init.body === 'string' && init.headers && /json/i.test(init.headers['Content-Type']||'')) {
+          try {
+            const data = JSON.parse(init.body);
+            data[WIDGET_KEY] = localStorage.getItem(WIDGET_KEY) || sessionId;
+            init.body = JSON.stringify(data);
+          } catch {}
+        }
+        if (init.body instanceof FormData) {
+          init.body.set(WIDGET_KEY, localStorage.getItem(WIDGET_KEY) || sessionId);
+        }
+      }
+      return origFetch(input, init);
+    };
+  })();
+</script>
+                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                                                                        <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uidcd78b6b7c1c508421c10f8a1474bb47c" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uidcd78b6b7c1c508421c10f8a1474bb47c");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

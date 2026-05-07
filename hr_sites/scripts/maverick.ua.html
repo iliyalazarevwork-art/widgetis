@@ -1,0 +1,579 @@
+<!-- source: https://maverick.ua/ -->
+<!-- extracted: 2026-05-07T21:30:35.306Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 23869 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <script>
+    !function (t, e, c, n) {
+        var s = e.createElement(c);
+        s.async = 1, s.src = 'https://statics.esputnik.com/scripts/' + n + '.js';
+        var r = e.scripts[0];
+        r.parentNode.insertBefore(s, r);
+        var f = function () {
+            f.c(arguments);
+        };
+        f.q = [];
+        f.c = function () {
+            f.q.push(arguments);
+        };
+        t['eS'] = t['eS'] || f;
+    }(window, document, 'script', 'BBCC89F953FA470FA996A21F2710F4C8');
+</script><script>eS('init');</script>
+
+<script>
+(function() {
+  'use strict';
+
+  var CONFIG = {
+    N8N_WEBHOOK_URL: 'https://maverick.ugc-up.com/webhook/abandoned-cart',
+    DEBOUNCE_MS: 3000,
+    DEBUG: false
+  };
+
+  // Селектори полів — спільні для десктоп і мобайл
+  var FIELD_MAP = [
+    { key: 'name',    selectors: ['input[name="Recipient[delivery_name]"]', 'input[name*="name"]'] },
+    { key: 'phone',   selectors: ['input[name="Recipient[delivery_phone]"]', 'input[name*="phone"]'] },
+    { key: 'city',    selectors: ['input[name="Recipient[delivery_city]"]', 'input[name*="city"]'] },
+    { key: 'email',   selectors: ['input[name="Recipient[delivery_email]"]', 'input[name*="email"]'] },
+    { key: 'comment', selectors: ['textarea[name="Recipient[comment]"]'] }
+  ];
+
+  function log() {
+    if (CONFIG.DEBUG) console.log.apply(console, ['[ACT]'].concat(Array.prototype.slice.call(arguments)));
+  }
+
+  function getVisitorId() {
+    var key = '_act_vid', id = null;
+    try { id = localStorage.getItem(key); } catch(e) {}
+    if (!id) { id = 'v_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9); try { localStorage.setItem(key, id); } catch(e) {} }
+    return id;
+  }
+
+  function getSessionId() {
+    var key = '_act_sid', id = null;
+    try { id = sessionStorage.getItem(key); } catch(e) {}
+    if (!id) { id = 's_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6); try { sessionStorage.setItem(key, id); } catch(e) {} }
+    return id;
+  }
+
+  function isCheckoutPage() {
+    var path = window.location.pathname.toLowerCase();
+    if (path.indexOf('/checkout/complete/') !== -1) return false;
+    if (path.indexOf('/profile/') !== -1) return false;
+    return path.indexOf('/checkout') !== -1;
+  }
+
+  function isThankYouPage() {
+    return window.location.pathname.toLowerCase().indexOf('/checkout/complete/') !== -1;
+  }
+
+  // Знайти перший елемент по масиву селекторів
+  function qsFirst(selectors, parent) {
+    parent = parent || document;
+    for (var i = 0; i < selectors.length; i++) {
+      try { var el = parent.querySelector(selectors[i]); if (el) return el; } catch(e) {}
+    }
+    return null;
+  }
+
+function collectFormData() {
+    var data = {};
+    FIELD_MAP.forEach(function(f) {
+      for (var i = 0; i < f.selectors.length; i++) {
+        try {
+          var el = document.querySelector(f.selectors[i]);
+          if (el && el.value && el.value.trim()) { data[f.key] = el.value.trim(); break; }
+        } catch(e) {}
+      }
+    });
+    
+    // Мобільне місто: беремо data-value з активного елемента dropdown
+    if (!data.city || /^\d+$/.test(data.city)) {
+      try {
+        var activeCity = document.querySelector('.j-option-item.is-active[data-value]');
+        if (activeCity) {
+          var cityName = activeCity.getAttribute('data-value');
+          if (cityName && cityName.trim()) data.city = cityName.trim();
+        }
+      } catch(e) {}
+    }
+    
+    // Також перевіряємо десктопний варіант — текст в полі може бути "м. Київ"
+    if (data.city && /^\d+$/.test(data.city)) {
+      try {
+        var cityInput = document.querySelector('input[name*="city"]');
+        if (cityInput) {
+          var parent = cityInput.closest('.select-field, .field, .form-group');
+          if (parent) {
+            var selected = parent.querySelector('.selected-text, .select-value, [class*="selected"]');
+            if (selected && selected.textContent.trim()) data.city = selected.textContent.trim();
+          }
+        }
+      } catch(e) {}
+    }
+    
+    return data;
+  }
+
+  /**
+   * Збір товарів — універсальний: десктоп + мобайл Horoshop
+   */
+  function collectCartData() {
+    var cartData = { items: [], total: '', count: 0 };
+    try {
+      // Універсальний селектор: j-cart-product є і на десктопі і на мобайлі
+      var items = document.querySelectorAll('.j-cart-product');
+      
+      if (items.length === 0) {
+        // Фолбеки
+        items = document.querySelectorAll('li.order-i, .order-details__block, .cart-item');
+      }
+
+      items.forEach(function(item) {
+        // Назва — пробуємо мобільний і десктопний
+        var nameEl = qsFirst([
+          '.cart-item__title',         // мобайл
+          '.order-i-title a',          // десктоп
+          '.order-i-title'             // десктоп фолбек
+        ], item);
+        var name = nameEl ? nameEl.textContent.trim().substring(0, 120) : '';
+
+        // Ціна
+        var priceEl = qsFirst([
+          '.cart-item__price',         // мобайл
+          '.j-cart-product-price',     // universal
+          '.order-i-cost',             // десктоп
+          '.cart-item__cost'           // мобайл альт
+        ], item);
+        var price = priceEl ? priceEl.textContent.trim() : '';
+
+        // Кількість
+        var qtyEl = qsFirst([
+          '.j-quantity-p',             // universal
+          '.counter-field',            // десктоп
+          'input[type="number"]'       // фолбек
+        ], item);
+        var quantity = qtyEl ? (qtyEl.value || '1') : '1';
+
+        // Зображення
+        var imgEl = qsFirst([
+          '.cart-item__image img',     // мобайл
+          '.cart-item-image img',      // мобайл альт
+          '.order-i-image img',        // десктоп
+          'img'                        // фолбек
+        ], item);
+        var image = '';
+        if (imgEl) {
+          image = imgEl.src || imgEl.getAttribute('data-src') || '';
+          // Більше зображення
+          if (image.indexOf('78x78') !== -1) image = image.replace('78x78', '300x300');
+        }
+
+        // URL товару
+        var linkEl = item.querySelector('a[href]');
+        var url = linkEl ? linkEl.href : '';
+
+        if (name) {
+          cartData.items.push({ name: name, price: price, quantity: quantity, url: url, image: image });
+        }
+      });
+
+      // Загальна сума
+      var totalEl = qsFirst([
+        '.j-total-sum',               // universal
+        '.order-summary-b',           // десктоп
+        '.cart-total__sum',            // мобайл
+        '.checkout-total-sum'          // фолбек
+      ]);
+      if (totalEl) cartData.total = totalEl.textContent.trim();
+
+      cartData.count = cartData.items.length;
+    } catch(e) { log('Cart collect error:', e); }
+    return cartData;
+  }
+
+  /**
+   * Збір даних зі сторінки "Дякуємо"
+   */
+  function collectOrderData() {
+    var data = { form_data: {}, cart: { items: [], total: '', count: 0 }, order_number: '' };
+    try {
+      // Номер замовлення
+      var headers = document.querySelectorAll('h1, h2, .h2, .checkout-complete__title');
+      for (var h = 0; h < headers.length; h++) {
+        var m = headers[h].textContent.match(/№\s*(\d+)/);
+        if (m) { data.order_number = m[1]; break; }
+      }
+
+      // Дані замовника
+      var dts = document.querySelectorAll('dt.check-h, .order-info dt, .checkout-complete dt');
+      var dds = document.querySelectorAll('dd.check-b, .order-info dd, .checkout-complete dd');
+      for (var i = 0; i < dts.length && i < dds.length; i++) {
+        var label = dts[i].textContent.trim().toLowerCase();
+        var value = dds[i] ? dds[i].textContent.trim() : '';
+        if (label.indexOf('прізвище') !== -1 || label.indexOf("ім'я") !== -1 || label.indexOf('имя') !== -1) data.form_data.name = value;
+        else if (label.indexOf('телефон') !== -1) data.form_data.phone = value;
+        else if (label.indexOf('місто') !== -1 || label.indexOf('город') !== -1) data.form_data.city = value;
+        else if (label.indexOf('email') !== -1 || label.indexOf('пошта') !== -1) data.form_data.email = value;
+      }
+
+      // Товари — з тими самими універсальними селекторами
+      var items = document.querySelectorAll('.j-cart-product, li.order-i, .order-details__block');
+      items.forEach(function(item) {
+        var nameEl = qsFirst(['.cart-item__title', '.order-i-title a', '.order-i-title'], item);
+        var name = nameEl ? nameEl.textContent.trim().substring(0, 120) : '';
+        var priceEl = qsFirst(['.cart-item__price', '.j-cart-product-price', '.order-i-cost'], item);
+        var price = priceEl ? priceEl.textContent.trim() : '';
+        var imgEl = qsFirst(['.cart-item__image img', '.order-i-image img', 'img'], item);
+        var image = imgEl ? (imgEl.src || '') : '';
+        if (image.indexOf('78x78') !== -1) image = image.replace('78x78', '300x300');
+        var quantity = '1';
+        var qtyEl = qsFirst(['.j-quantity-p', '.counter-field', 'input[type="number"]'], item);
+        if (qtyEl) quantity = qtyEl.value || '1';
+        var linkEl = item.querySelector('a[href]');
+        var url = linkEl ? linkEl.href : '';
+        if (name) {
+          data.cart.items.push({ name: name, price: price, quantity: quantity, url: url, image: image });
+        }
+      });
+
+      var totalEl = qsFirst(['.j-total-sum', '.order-summary-b', '.cart-total__sum']);
+      if (totalEl) data.cart.total = totalEl.textContent.trim();
+      data.cart.count = data.cart.items.length;
+    } catch(e) { log('Order parse error:', e); }
+    return data;
+  }
+
+  var sendTimer = null;
+  var lastSentHash = '';
+  var lastCartJson = '';
+
+  function sendToN8N(eventType) {
+    var payload;
+
+    if (eventType === 'order_completed') {
+      var orderData = collectOrderData();
+      payload = {
+        event: 'order_completed',
+        visitor_id: getVisitorId(),
+        session_id: getSessionId(),
+        timestamp: new Date().toISOString(),
+        page_url: window.location.href,
+        order_number: orderData.order_number,
+        form_data: orderData.form_data,
+        cart: orderData.cart
+      };
+    } else {
+      var formData = collectFormData();
+      var cartData = collectCartData();
+
+      // Зберігаємо кошик якщо він не пустий
+      if (cartData.items.length > 0) {
+        lastCartJson = JSON.stringify(cartData);
+      }
+      // Якщо кошик пустий — пробуємо збережений
+      if (cartData.items.length === 0 && lastCartJson) {
+        try { cartData = JSON.parse(lastCartJson); } catch(e) {}
+      }
+
+      var hash = JSON.stringify(formData) + '|' + cartData.count;
+      if (hash === lastSentHash && eventType === 'field_input') return;
+      lastSentHash = hash;
+
+      payload = {
+        event: eventType || 'field_input',
+        visitor_id: getVisitorId(),
+        session_id: getSessionId(),
+        timestamp: new Date().toISOString(),
+        page_url: window.location.href,
+        referrer: document.referrer || '',
+        form_data: formData,
+        cart: cartData
+      };
+    }
+
+    log('SEND:', eventType, payload);
+
+    var json = JSON.stringify(payload);
+    try {
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(CONFIG.N8N_WEBHOOK_URL, new Blob([json], { type: 'application/json' }));
+        return;
+      }
+    } catch(e) {}
+    try {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', CONFIG.N8N_WEBHOOK_URL, true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send(json);
+    } catch(e) {}
+  }
+
+  function debouncedSend(eventType) {
+    if (sendTimer) clearTimeout(sendTimer);
+    sendTimer = setTimeout(function() { sendToN8N(eventType); }, CONFIG.DEBOUNCE_MS);
+  }
+
+  function findField(fieldDef) {
+    for (var i = 0; i < fieldDef.selectors.length; i++) {
+      try { var el = document.querySelector(fieldDef.selectors[i]); if (el) return el; } catch(e) {}
+    }
+    return null;
+  }
+
+  function attachFieldListeners() {
+    FIELD_MAP.forEach(function(f) {
+      var el = findField(f);
+      if (el && !el._actTracked) {
+        el._actTracked = true;
+        el.addEventListener('input', function() { debouncedSend('field_input'); });
+        el.addEventListener('change', function() { sendToN8N('field_change'); });
+        el.addEventListener('blur', function() { if (el.value && el.value.trim()) debouncedSend('field_blur'); });
+      }
+    });
+
+    // Поллінг міста (автокомпліт — часто через кастомний dropdown)
+    FIELD_MAP.forEach(function(f) {
+      if (f.key !== 'city') return;
+      var el = findField(f);
+      if (el && !el._actCityPoll) {
+        el._actCityPoll = true;
+        var lastVal = '';
+        setInterval(function() {
+          var v = el.value;
+          if (v !== lastVal && v.trim()) { lastVal = v; debouncedSend('field_change'); }
+        }, 1500);
+      }
+    });
+
+    // Кнопки кількості — universal
+    try {
+      document.querySelectorAll('.j-increase-p, .j-decrease-p, .counter-plus, .counter-minus').forEach(function(btn) {
+        if (!btn._actTracked) { btn._actTracked = true; btn.addEventListener('click', function() { setTimeout(function() { sendToN8N('cart_qty_change'); }, 500); }); }
+      });
+      document.querySelectorAll('.j-remove-p, .cart-item__remove').forEach(function(btn) {
+        if (!btn._actTracked) { btn._actTracked = true; btn.addEventListener('click', function() { setTimeout(function() { sendToN8N('cart_item_removed'); }, 500); }); }
+      });
+    } catch(e) {}
+  }
+
+  function observeDOM() {
+    if (!window.MutationObserver) return;
+    var observer = new MutationObserver(function(mutations) {
+      var hasNew = mutations.some(function(m) { return m.addedNodes.length > 0; });
+      if (hasNew) {
+        attachFieldListeners();
+        var cart = collectCartData();
+        if (cart.items.length > 0) {
+          lastCartJson = JSON.stringify(cart);
+          log('Cart updated via DOM:', cart.items.length, 'items');
+        }
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
+
+  function trackPageLeave() {
+    window.addEventListener('beforeunload', function() { sendToN8N('page_leave'); });
+    document.addEventListener('visibilitychange', function() {
+      if (document.visibilityState === 'hidden') sendToN8N('tab_hidden');
+    });
+  }
+
+  function waitForCart(callback, attempts) {
+    attempts = attempts || 0;
+    var cart = collectCartData();
+    if (cart.items.length > 0) {
+      lastCartJson = JSON.stringify(cart);
+      callback();
+    } else if (attempts < 15) {
+      // Чекаємо до 15 секунд (15 * 1000мс)
+      setTimeout(function() { waitForCart(callback, attempts + 1); }, 1000);
+    } else {
+      callback();
+    }
+  }
+
+  function init() {
+    log('Init, path:', window.location.pathname);
+
+    if (isThankYouPage()) {
+      log('Order completed');
+      setTimeout(function() { sendToN8N('order_completed'); }, 2000);
+      try { sessionStorage.removeItem('_act_sid'); } catch(e) {}
+      return;
+    }
+
+    if (isCheckoutPage()) {
+      log('Checkout — tracking ON');
+      attachFieldListeners();
+      observeDOM();
+      trackPageLeave();
+
+      // Поллінг для пізно завантажених полів
+      var pollCount = 0;
+      var poller = setInterval(function() {
+        attachFieldListeners();
+        pollCount++;
+        if (pollCount > 30) clearInterval(poller);
+      }, 2000);
+
+      // Чекаємо кошик і відправляємо checkout_started
+      waitForCart(function() {
+        sendToN8N('checkout_started');
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>                <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                                                                        <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uid071b56bafe02136ae978c5c86e005ba8" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uid071b56bafe02136ae978c5c86e005ba8");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

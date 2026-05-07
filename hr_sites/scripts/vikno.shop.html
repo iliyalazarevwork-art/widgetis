@@ -1,0 +1,673 @@
+<!-- source: https://vikno.shop/ -->
+<!-- extracted: 2026-05-07T21:30:51.915Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 25005 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Затемнений фон */
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7); /* Затемнений фон з прозорістю 0.5 */
+      display: none;
+      z-index: 999;
+    }
+
+    .vikno-popup-container {
+      position: fixed;
+      bottom: 0px;
+      left: 0px;
+      z-index: 1000;
+      width: 401px;
+      height: 249px;
+      overflow: hidden;
+      left: -2000px;
+    }
+
+    #vikno-popup-content {
+      width: 201px;
+      height: 249px;
+      margin-left: 0px;
+    }
+
+    #vikno-corner-block {
+      position: absolute;
+      top: 5px;
+      right: 0;
+      left: 170px;
+      width: 200px;
+      height: 60px;
+      background-color: #ffffff;
+      border: 0px solid #00adfc;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+      border-radius: 25px 25px 25px 0px;
+      padding: 10px;
+      padding-right: 10px;
+      text-align: left;
+      font-size: 15px;
+      line-height: 20px;
+    }
+
+    #closeVikno {
+      position: fixed;
+      bottom: 249px;
+      left: -90px;
+      width: 30px;
+      height: 30px;
+      border-radius: 100%;
+      background-color: #ffdc10;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      font-size: 14px;
+      color: black;
+      box-shadow: 0 0px 2px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      left: -2000px;
+      z-index: 1000;
+    }
+
+    #vkladka {
+      position: fixed;
+      bottom: 0px;
+      right: 0px;
+      width: 170px;
+      height: 35px;
+      background-color: #ffdc10;
+      border-radius: 10px 0 0 0;
+      box-shadow: 0 0px 2px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+    }
+
+    #vkladka-content {
+      color: black;
+      font-weight: bold;
+      font-size: 12px;
+      padding: 0px;
+      cursor: pointer;
+      text-align: center;
+      margin-right: -27px;
+      margin-top: 7px;
+      z-index: 1000000;
+    }
+
+    #vkladka-image {
+      width: 30px;
+      height: 20px;
+      display: block;
+      position: absolute;
+      top: 5px;
+      left: 7px;
+    }
+
+    #callBtnContainer {
+      position: fixed;
+      bottom: 120px;
+      margin-left: 175px;
+      left: -2000px;
+      z-index: 10000;
+      animation: scaleAnimation 1s ease-in-out infinite alternate;
+    }
+
+    @keyframes scaleAnimation {
+      0% {
+        transform: scale(1);
+      }
+      100% {
+        transform: scale(1.1);
+      }
+    }
+
+    #callBtn {
+      color: black !important;
+      border: none;
+      cursor: pointer;
+      border-radius: 30px !important;
+      font-weight: bold !important;
+      background-color: #ffdc10 !important;
+      box-shadow: 0 0px 2px rgba(0, 0, 0, 0.3);
+      padding: 10px 10px;
+      text-decoration: none;
+      display: inline-block;
+      left: -2000px;
+      z-index: 10000;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Затемнений фон -->
+  <div id="overlay"></div>
+
+  <div id="vikno-popup-container" class="vikno-popup-container">
+    <div id="vikno-corner-block">
+      Бажаєте безкоштовний замір?
+    </div>
+    <div id="callBtnContainer">
+      <a id="callBtn" href="https://vikno.shop/zamir" target="_blank">Виклик замірника</a>
+    </div>
+    <img id="vikno-popup-content" src="https://vikno.shop/content/uploads/images/zamershik_1.png" alt="Зображення">
+  </div>
+
+  <div id="closeVikno">X</div>
+
+  <!-- Новий контейнер vkladka -->
+  <div id="vkladka" class="vkladka">
+    <div id="vkladka-content">Виклик замірника</div>
+    <img id="vkladka-image" src="https://vikno.shop/content/uploads/images/ruletka.png" alt="Зображення">
+  </div>
+
+  <script>
+    function viknoSlideIn() {
+      var container = document.getElementById('vikno-popup-container');
+      container.style.left = '5px';
+      var callBtnContainer = document.getElementById('callBtnContainer');
+      callBtnContainer.style.left = '5px';
+      var closeVikno = document.getElementById('closeVikno');
+      closeVikno.style.left = '355px';
+
+      // Зберегти інформацію у локальне сховище про те, що поп-ап був вже відображений
+      localStorage.setItem('popupDisplayed', 'true');
+
+      // Відобразити затемнений фон
+      var overlay = document.getElementById('overlay');
+      overlay.style.display = 'block';
+    }
+
+    function closePopup() {
+      var container = document.getElementById('vikno-popup-container');
+      container.style.left = '-2000px';
+      var callBtnContainer = document.getElementById('callBtnContainer');
+      callBtnContainer.style.left = '-2000px';
+      closeVikno.style.left = '-2000px';
+
+      // Приховати затемнений фон
+      var overlay = document.getElementById('overlay');
+      overlay.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      // Перевірити, чи поп-ап вже був відображений під час поточного сеансу
+      var popupDisplayed = localStorage.getItem('popupDisplayed');
+
+      // Якщо поп-ап ще не відображався, відобразити його після таймауту
+      if (!popupDisplayed) {
+        setTimeout(viknoSlideIn, 10000);
+      }
+    });
+
+    var closeVikno = document.getElementById('closeVikno');
+    var vkladka = document.getElementById('vkladka');
+
+    // Додати обробник подій для вкладки
+    vkladka.addEventListener('click', function () {
+      // Відобразити поп-ап миттєво
+      var container = document.getElementById('vikno-popup-container');
+      container.style.left = '5px';
+      var callBtnContainer = document.getElementById('callBtnContainer');
+      callBtnContainer.style.left = '5px';
+      closeVikno.style.left = '355px';
+
+      // Відобразити затемнений фон
+      var overlay = document.getElementById('overlay');
+      overlay.style.display = 'block';
+    });
+
+    // Додати обробник подій для закриття поп-апу при кліку на фон або "X"
+    document.getElementById('overlay').addEventListener('click', closePopup);
+    closeVikno.addEventListener('click', closePopup);
+  </script>
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Акція 500 грн Кешбеку на кожному вікні</title>
+    
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script type="text/javascript">
+       (function(){
+          emailjs.init("cL1Uztg1nngymuEUZ");
+       })();
+    </script>
+
+    <style>
+        /* --- ІЗОЛЬОВАНІ СТИЛІ ДЛЯ ПОПАПУ --- */
+
+        /* Темний фон - тепер він за замовчуванням ПРИХОВАНИЙ через display: none */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none; /* Гарантує, що сайт не буде перекритий при завантаженні */
+            justify-content: center;
+            align-items: center;
+            z-index: 999999; /* Робимо індекс максимально високим, щоб бути над усіма елементами сайту */
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Основний блок попапу з вашим зображенням */
+        .popup-content {
+            position: relative;
+            width: 380px; 
+            height: 675px; 
+            background-image: url('https://vikno.shop/content/uploads/images/kashback.png');
+            background-size: cover;
+            background-position: center;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center; 
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Кнопка закриття (хрестик) */
+        .popup-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 35px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            z-index: 1020; 
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .popup-close:hover {
+            color: #ffd700;
+        }
+
+        /* Форма, що розтягується на весь попап */
+        .cashback-form {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Блок з полями вводу (прозорий) */
+        .form-fields {
+            width: 85%;
+            max-width: 300px;
+            z-index: 1010; 
+        }
+
+        .form-fields .form-group {
+            margin-bottom: 15px;
+            text-align: left; /* Вирівнювання тексту вліво */
+        }
+
+        /* Текст підписів чорний */
+        .form-fields .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #000000 !important; /* Force чорний колір */
+        }
+
+        .form-fields .form-group .required {
+            color: #ff4d4d;
+        }
+
+        /* Поля: полупрозорий фон + синя рамка 1px */
+        .form-fields .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #0056b3 !important; 
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+            background-color: rgba(255, 255, 255, 0.85) !important;
+            color: #333 !important;
+        }
+
+        .form-fields .form-group input:focus {
+            background-color: rgba(255, 255, 255, 1) !important;
+            border-color: #002d62 !important; 
+            outline: none;
+        }
+
+        /* Підказка під полем телефону чорна */
+        .form-fields .form-group small {
+            display: block;
+            color: #000000 !important;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        /* Невидима кнопка на весь фон */
+        .submit-overlay-btn {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent; 
+            border: none;
+            cursor: pointer;
+            z-index: 1005; 
+        }
+    </style>
+</head>
+<body>
+
+    <div id="popup-form" class="popup-overlay">
+        <div class="popup-content">
+            <div class="popup-close" id="close-popup" title="Закрити">&times;</div>
+
+            <form id="cashback-form" class="cashback-form">
+                <div class="form-fields">
+                    <div class="form-group">
+                        <label for="name">Ім'я <span class="required">*</span></label>
+                        <input type="text" id="name" name="user_name" required placeholder="Ваше ім'я">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="city">Населений пункт <span class="required">*</span></label>
+                        <input type="text" id="city" name="city" required placeholder="Ваше місто/село">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Номер телефону <span class="required">*</span></label>
+                        <input type="tel" id="phone" name="phone" required placeholder="+380XXXXXXXXX" pattern="^\+380\d{9}$">
+                        <small>Формат: +380XXXXXXXXX</small>
+                    </div>
+                </div>
+
+                <button type="submit" id="submit-btn" class="submit-overlay-btn"></button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const popup = document.getElementById('popup-form');
+        const closeBtn = document.getElementById('close-popup');
+        const form = document.getElementById('cashback-form');
+        const submitBtn = document.getElementById('submit-btn');
+
+        // Функція для плавного показу попапу
+        function showPopup() {
+            popup.style.display = 'flex';
+            setTimeout(() => {
+                popup.style.opacity = '1';
+            }, 10);
+        }
+
+        // Функція для плавного приховування попапу
+        function hidePopup() {
+            popup.style.opacity = '0';
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, 300); // Час збігається з transition в CSS
+        }
+
+        // Автоматичне відкриття строго через 5 секунд після завантаження (з перевіркою URL)
+        window.addEventListener('load', () => {
+            // Список URL-адрес, на яких попап показувати НЕ потрібно
+            const excludedPaths = [
+                '/kalkuliator-metaloplastykovykh-vikon/',
+                '/zamir/',
+                '/store-reviews/',
+                '/rehuliuvannia-plastykovykh-vikon/',
+                '/balkony-pid-kliuch/',
+                '/frantsuzkyi-balkon/',
+                '/balkon003/',
+                '/balkon001/',
+                '/balkon002/',
+                '/balkon004/',
+                '/balkon005/',
+                '/balkon006/',
+                '/balkon007/',
+                '/balkon008/',
+                '/balkon009/',
+                '/prybudova-balkonu.-prybudova-do-budynku/',
+                '/balkon-pid-kliuch-kyiv/'
+            ];
+
+            const currentPath = window.location.pathname;
+
+            // Перевіряємо, чи містить поточна адреса хоча б один шлях зі списку
+            const isExcluded = excludedPaths.some(path => currentPath.includes(path));
+
+            // Якщо сторінка не входить до списку виключень, запускаємо таймер
+            if (!isExcluded) {
+                setTimeout(showPopup, 5000); 
+            }
+        });
+
+        // Закриття по хрестику
+        closeBtn.addEventListener('click', hidePopup);
+
+        // Закриття по кліку на темний фон поза попапом
+        popup.addEventListener('click', (e) => {
+            if (e.target === popup) {
+                hidePopup();
+            }
+        });
+
+        // Відправка форми
+        form.addEventListener('submit', function(event) {
+            event.preventDefault(); 
+            submitBtn.style.cursor = 'wait';
+
+            const serviceID = 'service_727u0l1';
+            const templateID = 'template_u32vxho';
+
+            emailjs.sendForm(serviceID, templateID, this)
+                .then(() => {
+                    alert('Дякуємо! Ваша заявка на кешбек успішно відправлена.');
+                    form.reset(); 
+                    hidePopup();
+                }, (err) => {
+                    alert('Сталася помилка при відправці. Перевірте з\'єднання та спробуйте ще раз.');
+                    console.error('EmailJS Error:', err);
+                })
+                .finally(() => {
+                    submitBtn.style.cursor = 'pointer';
+                });
+        });
+    </script>
+
+</body>
+</html>        <div style="display:none;">
+<script type="text/javascript">
+    /* <![CDATA[ */
+    var google_conversion_id = 514-375-2333;
+    var google_custom_params = window.google_tag_params;
+    var google_remarketing_only = true;
+    /* ]]> */
+</script>
+<script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js">
+</script>
+<noscript>
+    <div style="display:inline;">
+        <img height="1" width="1" style="border-style:none;" alt="" src="//googleads.g.doubleclick.net/pagead/viewthroughconversion/514-375-2333/?guid=ON&script=0"/>
+    </div>
+</noscript>
+</div>        <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Увійти для відображення накопичувальної знижки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                                                                                <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        Є купон зі знижкою?                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0.00 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>            <section class="compare" id="uidc2e6cb2ce9678323d195ef0a1aa0e72f" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uidc2e6cb2ce9678323d195ef0a1aa0e72f");
+    }, w.ComparisonTable)
+  })(window);
+</script>        

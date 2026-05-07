@@ -1,0 +1,286 @@
+<!-- source: https://safeyourlove.com/ -->
+<!-- extracted: 2026-05-07T21:30:35.297Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 12911 -->
+
+w.INIT.execute();
+        })(window);
+    });
+</script>
+                <script src="https://apis.google.com/js/platform.js?onload=renderOptIn" async defer>
+            </script>
+
+<!-- BEGIN GCR Language Code -->
+
+<script>
+
+window.___gcfg = {
+
+lang: 'uk'
+
+};
+
+</script>
+
+<!-- END GCR Language Code --><script>
+  setTimeout(function() {
+    var script = document.createElement('script');
+    script.async = true;
+    script.src = "https://static.sppopups.com/assets/loader.js";
+    script.setAttribute('data-chats-widget-id', '30ea972d-af7f-46ea-91cf-47c538df0fc4');
+    document.body.appendChild(script);
+  }, 15000); // 15000 мс = 15 секунд
+</script>
+<script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "teo45sjoew");
+</script><script>
+    !function (t, e, c, n) {
+        var s = e.createElement(c);
+        s.async = 1, s.src = 'https://statics.esputnik.com/scripts/' + n + '.js';
+        var r = e.scripts[0];
+        r.parentNode.insertBefore(s, r);
+        var f = function () {
+            f.c(arguments);
+        };
+        f.q = [];
+        f.c = function () {
+            f.q.push(arguments);
+        };
+        t['eS'] = t['eS'] || f;
+    }(window, document, 'script', '7EED2EA5C1744ED4AD522674381BCC07');
+</script><script>eS('init');</script><script src="https://cdn.loyalshop.app/prod/loader.js?shop=shop-xwdikx&api=https://api.loyalshop.app" defer></script><style>
+/* === Фікс переміщеного блоку рекомендацій === */
+
+.text .related-goods a,
+.text .article__associated-products a {
+  color: inherit;
+}
+
+.text .related-goods .catalog-card__title a,
+.text .article__associated-products .catalog-card__title a,
+.text .article__associated-products .productsSlider-title .a-link {
+  color: #222 !important;
+}
+
+.text .related-goods a.btn--primary,
+.text .related-goods a.j-buy-button-add,
+.text .article__associated-products a.btn--special,
+.text .article__associated-products a.j-buy-button-add {
+  color: #fff !important;
+}
+
+.text .related-goods a.btn--outline,
+.text .related-goods a.j-buy-button-remove,
+.text .article__associated-products a.btn--outline,
+.text .article__associated-products a.j-buy-button-remove {
+  color: #AC018F !important;
+}
+
+.text .article__associated-products .productsSlider-title,
+.text .related-goods .catalog-card__title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 2.8em;
+  line-height: 1.4;
+}
+
+/* ПРИМУСОВО обрізаємо Swiper по боках */
+.text .article__associated-products .productsSlider-container {
+  overflow: hidden !important;
+  padding-bottom: 20px;
+}
+
+/* Відступ під кнопкою для blur-свічення */
+.text .article__associated-products .productsSlider-order {
+  padding-bottom: 10px;
+}
+.text .related-goods .catalog-card__purchase {
+  padding-bottom: 10px;
+}
+
+/* Прибираємо чорні лінії над картками (тільки на самому <li>, не чіпаючи кнопки) */
+.text .article__associated-products .productsSlider-i {
+  border-top: none !important;
+  border: none !important;
+  background-image: none !important;
+}
+.text .article__associated-products .productsSlider-i::before,
+.text .article__associated-products .productsSlider-i::after {
+  display: none !important;
+  content: none !important;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var article = document.querySelector('.article-text, .article .text');
+  var recommend = document.querySelector('.article__associated-products, .related-goods');
+  if (!article || !recommend) return;
+
+  var h2s = article.querySelectorAll('h2');
+  if (h2s.length < 3) return;
+
+  var thirdH2 = h2s[2];
+  thirdH2.parentNode.insertBefore(recommend, thirdH2);
+
+  // ВАЖЛИВО: після переміщення примусово переініціалізуємо Swiper,
+  // щоб він перерахував розміри слайдів під нову ширину контейнера
+  setTimeout(function () {
+    try {
+      if (window.Face && typeof window.Face.initAssociatedProductsSwipers === 'function') {
+        window.Face.initAssociatedProductsSwipers();
+      }
+      // Також тригеримо resize, щоб Swiper-Update спрацював
+      window.dispatchEvent(new Event('resize'));
+    } catch (e) {}
+  }, 100);
+});
+</script>        <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                                                                        <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        🎁 Додати промокод                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uid0c0d411f8c57d26880f77b5205c4d662" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uid0c0d411f8c57d26880f77b5205c4d662");
+    }, w.ComparisonTable)
+  })(window);
+</script>    <script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"rayId":"9f83539be88f21e1","version":"2025.9.1","r":1,"serverTiming":{"name":{"cfExtPri":true,"cfEdge":true,"cfOrigin":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}},"token":"0d691c14c1ce409ab1a7d115d5c416d7","b":1}' crossorigin="anonymous"></script>

@@ -1,0 +1,262 @@
+<!-- source: https://snamiplus.com.ua/ -->
+<!-- extracted: 2026-05-07T21:32:22.960Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 9742 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <script>
+document.addEventListener("DOMContentLoaded", function () {
+  const phrases = [
+    "Блендер Philips",
+    "Мультиварка Tefal",
+    "Ваги кухонні Ardesto",
+    "Тостер Philips",
+    "Пральна машина Samsung",
+    "Сушильна машина Beko",
+    "Газова плита Indesit",
+    "Пилосос для дому",
+    "Техніка для кухні",
+    "Мікрохвильовка Whirlpool"
+  ];
+
+  const input = document.querySelector('.search__input');
+  if (!input) return;
+
+  let phraseIndex = 0;
+  let charIndex = 0;
+  let isDeleting = false;
+
+  function type() {
+    const currentPhrase = phrases[phraseIndex];
+    const currentText = currentPhrase.substring(0, charIndex);
+    input.setAttribute("placeholder", currentText);
+
+    if (!isDeleting && charIndex < currentPhrase.length) {
+      charIndex++;
+      setTimeout(type, 100);
+    } else if (isDeleting && charIndex > 0) {
+      charIndex--;
+      setTimeout(type, 50);
+    } else {
+      isDeleting = !isDeleting;
+      if (!isDeleting) {
+        phraseIndex = (phraseIndex + 1) % phrases.length;
+      }
+      setTimeout(type, 1200); // Пауза між словами
+    }
+  }
+
+  type();
+});
+</script>
+
+
+
+<div id="popup" style="
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 250px;
+    padding: 15px;
+    background: #3e8734;
+    color: white;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    display: none;
+    z-index: 9999;
+">
+    <p>0% на всі товари 😊<br>
+    по кредиту від SenseBank<br> до 10 місяців.
+    </p>
+    <button onclick="closePopup()" style="
+        
+        background: red;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        margin-top: 10px;
+        cursor: pointer;
+    ">Закрити</button>
+<button onclick="closePopup()" style="
+        background: red;
+        color: white;
+        border: none;
+        padding: 5px 40px;
+        margin-top: 30px;
+        cursor: pointer;
+    "><a href="https://snamiplus.com.ua/tovary-v-kredyt/" style="
+    color: white;">
+  До кредиту
+</a></button>
+</div>
+
+<script>
+    function showPopup() {
+        document.getElementById("popup").style.display = "block";
+    }
+
+    function closePopup() {
+        document.getElementById("popup").style.display = "none";
+    }
+
+    // Перевіряємо, чи popup вже показували в цій сесії
+    const popupShown = sessionStorage.getItem("popupShown");
+
+    if (!popupShown) {
+        setTimeout(() => {
+            showPopup();
+            sessionStorage.setItem("popupShown", "true"); // Ставимо позначку, що показано
+        }, 3000);
+    }
+</script>
+
+
+<style>
+.telegram-float {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+.telegram-float:hover {
+}
+</style>
+
+<a class="telegram-float" href="https://t.me/SnamiPlusBot?start=start" target="_blank" style="display: inline-block; width: 100px; height: 100px;">
+  <img src="https://snamiplus.com.ua/content/uploads/images/tgspbot.gif" alt="Перейти до бота" style="width: 100%; height: 100%; object-fit: contain; display: block; border: none;">
+</a>
+
+            <script>
+    (function(d) {
+        d.querySelectorAll('.j-phone-item').forEach(function (el) {
+            el.classList.add('binct-phone-number-' + el.getAttribute('data-index'));
+        })
+    })(document);
+    (function(d, w, s) {
+        var widgetHash = 'd08nt2vjtmsnuryj5096', ctw = d.createElement(s); ctw.type = 'text/javascript'; ctw.async = true;
+        ctw.src = '//widgets.binotel.com/calltracking/widgets/'+ widgetHash +'.js';
+        var sn = d.getElementsByTagName(s)[0]; sn.parentNode.insertBefore(ctw, sn);
+      })(document, window, 'script');
+    </script> 
+            <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Увійти для відображення накопичувальної знижки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                        </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                        </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uid7c0adbd267907f03b0174dcc7ad93ae0" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uid7c0adbd267907f03b0174dcc7ad93ae0");
+    }, w.ComparisonTable)
+  })(window);
+</script>    

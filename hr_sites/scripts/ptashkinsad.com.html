@@ -1,0 +1,337 @@
+<!-- source: https://ptashkinsad.com/ -->
+<!-- extracted: 2026-05-07T21:30:28.268Z -->
+<!-- start: w.INIT.execute(); end: </body> -->
+<!-- length: 14475 -->
+
+w.INIT.execute();
+  })(window)
+</script>
+        <!-- KeyCRM online chat widget begin -->
+<script type="text/javascript">
+(function(w,d,t,u,c){
+  var s=d.createElement(t),j=d.getElementsByTagName(t)[0];s.src=u;s["async"]=true;s.defer=true;s.onload=function(){KeyCRM.render(c);};j.parentNode.insertBefore(s,j)
+})(window, document, "script","https://chat.key.live/bundles/widget.min.js",{token:"014e5726-34c0-4256-bc32-dd90c49c7650"});
+</script>
+<!-- KeyCRM online chat widget end -->
+
+<script>
+(function () {
+  const q = new URLSearchParams({
+    url: location.href,
+    referrer: document.referrer || '',
+    userAgent: navigator.userAgent,
+    t: Date.now()
+  });
+  new Image().src = 'https://maluchok.lzrv.agency/track-visit?' + q.toString();
+})();
+</script>
+
+<script>
+(function () {
+  if (window.location.pathname !== '/checkout/') {
+    return;
+  }
+
+  fetch('https://maluchok.lzrv.agency/checkout-allowed-status', {
+    method: 'GET',
+    credentials: 'include'
+  })
+    .then(function (response) {
+      if (!response.ok) {
+        return null;
+      }
+      return response.text();
+    })
+    .then(function (text) {
+      if (!text) {
+        return;
+      }
+
+      var value = text.trim().toLowerCase();
+
+      if (value === 'false') {
+        var ref = document.referrer;
+        var hasPrev = false;
+
+        if (ref) {
+          try {
+            var refUrl = new URL(ref);
+            hasPrev =
+              refUrl.origin === window.location.origin &&
+              refUrl.pathname !== window.location.pathname;
+          } catch (e) {
+            hasPrev = false;
+          }
+        }
+
+        if (hasPrev) {
+          window.location.href = ref;
+        } else {
+          window.location.href = '/';
+        }
+      }
+    })
+    .catch(function (error) {
+      console.error('Ошибка запроса /checkout-allowed-status:', error);
+          });
+})();
+</script>
+
+<script>
+    (function () {
+
+        var CONFIG = {
+            styleId: "marquee-inline-styles",
+
+            anchors: [
+                {selector: ".header", position: "before"},
+            ],
+
+            phrases: [
+                "✨Безкоштовна доставка Новою поштою у відділення/поштомат замовлень від 2500 грн (не діє під час акцій)✨",
+                "✨ Обробка замовлень протягом 2 робочих днів. Відправка здійснюється у понеділок, середу та пʼятницю✨",
+             
+            ],
+            css: `
+
+    `
+        };
+
+        if (!document.getElementById(CONFIG.styleId)) {
+            var style = document.createElement("style");
+            style.id = CONFIG.styleId;
+            style.appendChild(document.createTextNode(CONFIG.css));
+            document.head.appendChild(style);
+        }
+
+        function insertAfter(el, node) {
+            el.parentNode.insertBefore(node, el.nextSibling);
+        }
+
+        function insertBefore(el, node) {
+            el.parentNode.insertBefore(node, el);
+        }
+
+        function findAnchor() {
+            for (var i = 0; i < CONFIG.anchors.length; i++) {
+                var item = CONFIG.anchors[i];
+                var el = document.querySelector(item.selector);
+                if (el) return {el: el, position: item.position};
+            }
+            return null;
+        }
+
+        function createMarquee() {
+            if (document.querySelector(".marquee-wrapper")) return;
+
+            var wrapper = document.createElement("div");
+            wrapper.className = "marquee-wrapper";
+
+            var track = document.createElement("div");
+            track.className = "marquee-track";
+
+
+            for (var blockIndex = 0; blockIndex < 2; blockIndex++) {
+                var content = document.createElement("div");
+                content.className = "marquee-content";
+
+
+                for (var i = 0; i < 15; i++) {
+                    CONFIG.phrases.forEach(function (p) {
+                        var div = document.createElement("div");
+                        div.className = "marquee-text";
+                        div.textContent = p;
+                        content.appendChild(div);
+                    });
+                }
+
+                track.appendChild(content);
+            }
+
+            wrapper.appendChild(track);
+
+            var anchor = findAnchor();
+
+            if (anchor) {
+                if (anchor.position === "after") insertAfter(anchor.el, wrapper);
+                else insertBefore(anchor.el, wrapper);
+            } else {
+                document.body.insertBefore(wrapper, document.body.firstChild);
+            }
+        }
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", createMarquee);
+        } else {
+            createMarquee();
+        }
+    })();
+</script>        <div style="display:none;">
+<script type="text/javascript">
+    /* <![CDATA[ */
+    var google_conversion_id = AW-1019303150;
+    var google_custom_params = window.google_tag_params;
+    var google_remarketing_only = true;
+    /* ]]> */
+</script>
+<script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js">
+</script>
+<noscript>
+    <div style="display:inline;">
+        <img height="1" width="1" style="border-style:none;" alt="" src="//googleads.g.doubleclick.net/pagead/viewthroughconversion/AW-1019303150/?guid=ON&script=0"/>
+    </div>
+</noscript>
+</div><script src="https://cdn.loyalshop.app/prod/loader.js?shop=shop-tl33gy&api=https://api.loyalshop.app" defer></script>        <section
+    id="cart"
+    class="popup __cart"
+    style="display: none;"
+>
+    <div class="popup-block">
+        <a class="popup-close" onclick="Modal.close(); return false;" href="javascript:;">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </a>
+        <div class="popup-title">Кошик</div>
+        <div class="cart">
+            <div class="cart-content">
+                <div class="loader-container j-cart-loader">
+                    <div class="loader-spinner loader-spinner--block"></div>
+                </div>
+                <table class="cart-items">
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="cart-header">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Кількість</span></div>
+                        </td>
+                        <td class="cart-header __cost">
+                            <div class="cart-header-b"><span
+                                        class="cart-header-content">Вартість</span></div>
+                        </td>
+                    </tr>
+                    </thead>
+                                                                                <tfoot class="cart-foot">
+                                            <tr>
+                            <td class="cart-cell __image"></td>
+                            <td class="cart-cell" colspan="3">
+                                                                                                            <div class="cart-discount">
+                                            <div class="cart-discount-l">
+                                                <a
+                                                    class="link link--pseudo"
+                                                    href="javascript:"
+                                                    onclick="Modal.open('#sign-in'); return false;"
+                                                >
+                                                        <span class="link__text">
+                                                            Увійти для відображення накопичувальної знижки                                                        </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                                                                                                                                                                                <div class="cart-discount">
+                                                <div class="cart-discount-l">
+                                                    <div class="cart-discount-info j-coupon-add-container">
+                                                        <a
+                                                            class="link link--pseudo j-coupon-add"
+                                                            href="#"
+                                                        >
+                                                            <span class="link__text">
+                                                        <b>Маєте промокод або сертифікат?</b>                                                    </span></a>
+                                                </div>
+                                                <div
+                                                    class="cart-discount-coupon j-coupon-add-form"
+                                                    style="display: none;"
+                                                >
+                                                    <div class="coupon">
+                                                        <div class="coupon-input">
+                                                            <input
+                                                                class="coupon-field field errorBox-popup j-coupon-input"
+                                                                value=""
+                                                                autocomplete="off"
+                                                                placeholder="код купона чи сертифікату"
+                                                                type="text"
+                                                            >
+                                                            <div class="coupon-cancel j-coupon-cancel">
+                                                                <svg class="icon icon--cross-bold"><use xlink:href="#icon-cross-bold"></use></svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="coupon-submit">
+                                                            <button class="btn __small j-coupon-submit">
+                                                                <span class="btn-content">OK</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                                                </td>
+                        </tr>
+                                        <tr>
+                        <td class="cart-footer" colspan="4">
+                            <div class="cart-summary">
+                                <div class="cart-footer-h">Всього</div>
+                                <div class="cart-footer-b cart-cost j-total-sum">
+                                    0 грн                                </div>
+                            </div>
+                            <div class="cart-buttons">
+                                <div class="cart-btnBack">
+                                    <button
+                                        class="btn __clear"
+                                        onclick="Modal.close(); return false;"
+                                    >
+                                        <span class="btn-content">
+                                            <svg class="icon icon--arrow-left2"><use xlink:href="#icon-arrow-left2"></use></svg>
+                                            Повернутись до покупок                                         </span>
+                                    </button>
+                                </div>
+                                <div class="cart-btnOrder">
+                                    <a
+                                        class="btn __special"
+                                        rel="nofollow"
+                                        href="/checkout/"
+                                    >
+                                        <span class="btn-content">Оформити замовлення</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="j-cart-additional">
+                            </div>
+        </div>
+    </div>
+</section>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const ajaxCart = AjaxCart.getInstance();
+
+      ajaxCart.skin = "modal";
+      ajaxCart.remove_product_on_zero = true;
+    }, w.AjaxCart);
+  })(window);
+</script>    <section class="compare" id="uid111ed9c4e2e9fcad22733126e6010903" style="display: none;">
+    <div class="compare-container">
+        <div class="compare-close j-close" role="button">
+            <svg class="icon icon--cross"><use xlink:href="#icon-cross"></use></svg>
+        </div>
+        <div class="compare-header">
+            <div class="compare-header-wrp">
+                <div class="compare-h">Порівняння товарів</div>
+                <div class="compare-filter j-tabs"></div>
+            </div>
+        </div>
+        <div class="j-loader" style="position: absolute;top:55px;left:0;right:0;bottom:0; z-index: 1000; background: rgba(255,255,255,.5)"><div class="loader" style="width: 10px; height: 10px; position: absolute; top: 50%;left:50%;margin:-5px 0 0 -5px;"></div></div>
+        <div class="compare-body j-content"></div>
+    </div>
+</section>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ComparisonTable.createInstance("default", "#uid111ed9c4e2e9fcad22733126e6010903");
+    }, w.ComparisonTable)
+  })(window);
+</script>    
