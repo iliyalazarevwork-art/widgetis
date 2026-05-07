@@ -2,7 +2,7 @@
   min-height: 100vh;
   background: #fff;
   color: #000;
-  padding-top: calc(var(--promo-strip-h, 0px) + 64px);
+  padding-top: calc(var(--promo-strip-h, 0px) + var(--page-top));
 }
 
 .simple-doc-page__container {

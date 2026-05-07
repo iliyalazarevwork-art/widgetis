@@ -161,6 +161,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outlin
   /* ── Layout ── */
   --topbar-h:    60px;
   --bottomnav-h: 64px;
+  --page-top:    80px;  /* consistent top padding for all public pages */
 }
 
 html {

@@ -50,6 +50,8 @@ export interface PlanCardProps {
   highlighted?: boolean
   dimmed?: boolean
   urlFocused?: boolean
+  /** Mobile-only: card is the most centered one on screen (managed by parent). */
+  mobileActive?: boolean
   /** Pre-rendered CTA element (button/link/InterestButton). */
   cta: ReactNode
   trialNote?: ReactNode
@@ -92,6 +94,7 @@ export function PlanCard({
   highlighted = false,
   dimmed = false,
   urlFocused = false,
+  mobileActive = false,
   cta,
   trialNote,
   foundingPrice,
@@ -111,6 +114,7 @@ export function PlanCard({
     highlighted && 'pricing__card--highlight',
     dimmed && 'pricing__card--dimmed',
     urlFocused && 'pricing__card--url-focused',
+    mobileActive && 'pricing__card--active',
   ]
     .filter(Boolean)
     .join(' ')

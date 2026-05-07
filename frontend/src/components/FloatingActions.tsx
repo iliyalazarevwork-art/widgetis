@@ -16,6 +16,7 @@ const STICKY_CTA_EXCLUDED = [
   '/cabinet',
   '/payment',
   '/admin',
+  '/pricing',
 ]
 
 export function FloatingActions() {

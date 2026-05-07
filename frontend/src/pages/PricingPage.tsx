@@ -138,6 +138,32 @@ export function PricingPage() {
   const handleFeatureToggle = (key: string) => setOpenFeature((prev) => (prev === key ? null : key))
   const [planData, setPlanData] = useState<Record<string, ApiPlanData>>({})
   const [widgets, setWidgets] = useState<ApiWidget[]>([])
+  const [mobileCenteredPlan, setMobileCenteredPlan] = useState<string | null>(null)
+
+  useEffect(() => {
+    const planIds = PLANS.map(p => p.id)
+    const update = () => {
+      if (window.innerWidth >= 720) { setMobileCenteredPlan(null); return }
+      const mid = window.innerHeight / 2
+      let closest: string | null = null
+      let minDist = Infinity
+      for (const id of planIds) {
+        const el = document.getElementById(id)
+        if (!el) continue
+        const rect = el.getBoundingClientRect()
+        const dist = Math.abs(rect.top + rect.height / 2 - mid)
+        if (dist < minDist) { minDist = dist; closest = id }
+      }
+      setMobileCenteredPlan(closest)
+    }
+    window.addEventListener('scroll', update, { passive: true })
+    window.addEventListener('resize', update, { passive: true })
+    update()
+    return () => {
+      window.removeEventListener('scroll', update)
+      window.removeEventListener('resize', update)
+    }
+  }, [])
 
   useEffect(() => {
     get<{ data: ApiPlanData[] }>('/plans')
@@ -555,6 +581,7 @@ export function PricingPage() {
                 highlighted={!hashTargetsAPlan && plan.highlighted}
                 dimmed={isCurrent || isBelow}
                 urlFocused={hashPlan === plan.id}
+                mobileActive={mobileCenteredPlan === plan.id}
                 badge={badge}
                 cta={cta}
                 trialNote={trialNote}

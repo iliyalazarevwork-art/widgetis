@@ -3,7 +3,7 @@
 .widget-page {
   min-height: 100vh;
   background: #0A0A0A;
-  padding-top: calc(var(--promo-strip-h, 0px) + 64px);
+  padding-top: calc(var(--promo-strip-h, 0px) + var(--page-top));
   color: #F0F0F0;
 }
 
@@ -277,7 +277,7 @@
 /* ── Buy card (sticky, right) ── */
 .widget-page__buy {
   position: sticky;
-  top: calc(var(--promo-strip-h, 0px) + 64px + 20px);
+  top: calc(var(--promo-strip-h, 0px) + var(--page-top) + 20px);
   display: flex;
   flex-direction: column;
   gap: 16px;

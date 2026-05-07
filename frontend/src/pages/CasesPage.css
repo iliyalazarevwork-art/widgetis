@@ -3,7 +3,7 @@
 .cases-page {
   min-height: 100vh;
   background: var(--bg-primary);
-  padding-top: calc(var(--promo-strip-h, 0px) + 64px);
+  padding-top: calc(var(--promo-strip-h, 0px) + var(--page-top));
 }
 
 /* ── Hero ── */
