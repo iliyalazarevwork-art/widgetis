@@ -1,0 +1,2 @@
+import{i as e}from"./datepicker-D2V_UxMy.js";import{i as t}from"./router-DCmbCLbj.js";var n=e();function r(){return(0,n.jsx)(t,{to:`/pricing`,replace:!0})}export{r as default};
+//# sourceMappingURL=ChoosePlanPage-D4yQHPI7.js.map

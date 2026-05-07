@@ -1,5 +1,6 @@
 node_modules
-dist
+# dist is committed — pre-built locally via `npm run build:prerender`
+# and copied verbatim into nginx by frontend/Dockerfile.
 .vite
 *.local
 .logs

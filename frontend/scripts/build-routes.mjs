@@ -59,7 +59,7 @@ function getChangefreq(path) {
  * @returns {Promise<string[] | null>}
  */
 async function fetchWidgetSlugsFromApi() {
-  const url = `${BACKEND_URL}/api/v1/widgets`
+  const url = `${BACKEND_URL}/api/v1/products?per_page=100`
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(10_000) })
     if (!res.ok) {

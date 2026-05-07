@@ -234,6 +234,52 @@ ssh root@204.168.206.10 "
 
 ---
 
+## SEO-prerender — обязательный шаг перед `task deploy`
+
+Фронт собирается **локально** (не в Docker) — через `npm run build:prerender`. Готовый `frontend/dist/` коммитится в git, на сервере nginx-контейнер просто отдаёт его как есть.
+
+**Зачем prerender:** ~32 публичные страницы (главная, /widgets, /pricing, /cases, /widgets/{slug} × 20, юридические) рендерятся через headless Chromium и сохраняются как статические HTML в `dist/<route>/index.html`. Google видит полный HTML с meta-тегами, Product schema и BreadcrumbList сразу, без ожидания JS-рендеринга. Sitemap.xml тоже генерируется динамически из API.
+
+### Workflow
+
+Prerender запускается **автоматически** в `task deploy` (Phase C в `deploy:pre`). Ничего вручную делать не нужно — `task deploy` сам:
+
+1. Проверки кода (pint, eslint, phpstan, tsc, phpunit, vitest) — Phase A+B
+2. Запускает `npm run build:prerender` против `https://api.widgetis.com` — Phase C
+3. Если `frontend/dist/` или sitemap изменились — auto-commit `chore(frontend): rebuild dist [auto-prerender]`
+4. Дальше обычный поток: бэкап БД → push → ssh → docker build → up
+
+**Время prerender:** ~15–20 секунд на 32 страницы.
+
+### Если хочешь использовать локальный backend вместо prod API
+
+```bash
+PRERENDER_BACKEND_URL=http://127.0.0.1:9001 task deploy
+```
+
+### Ручной запуск prerender (без деплоя)
+
+```bash
+cd frontend
+BACKEND_URL=http://127.0.0.1:9001 npm run build:prerender
+```
+
+### Скрипты
+
+- `frontend/scripts/build-routes.mjs` — тянет список виджетов из `BACKEND_URL/api/v1/products`, fallback на `widget-slugs.ts`.
+- `frontend/scripts/generate-sitemap.mjs` — пишет `dist/sitemap.xml` и `public/sitemap.xml`.
+- `frontend/scripts/prerender.mjs` — поднимает локальный HTTP-сервер на `dist/`, проксирует `/api/*` на `BACKEND_URL`, обходит маршруты Playwright'ом, сохраняет HTML.
+
+### Что в Docker
+
+`frontend/Dockerfile` теперь однослойный — просто nginx, который копирует `dist/`. Никакого vite, npm, playwright. Прод-билд занимает ~5 секунд.
+
+### Если забыл сделать prerender
+
+Задеплоится **старый** `dist/` из последнего коммита. Контента не пропадёт, но новые виджеты/страницы не попадут в HTML. Нужно повторить workflow и сделать новый деплой.
+
+---
+
 ## Откат
 
 ```bash

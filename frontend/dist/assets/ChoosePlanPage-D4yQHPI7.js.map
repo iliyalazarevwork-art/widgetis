@@ -1,0 +1,1 @@
+{"version":3,"file":"ChoosePlanPage-D4yQHPI7.js","names":[],"sources":["../../src/pages/cabinet/ChoosePlanPage.tsx"],"sourcesContent":["import { Navigate } from 'react-router-dom'\n\nexport default function ChoosePlanPage() {\n  return <Navigate to=\"/pricing\" replace />\n}\n"],"mappings":"gGAEA,SAAwB,GAAiB,CACvC,OAAO,EAAA,EAAA,KAAC,EAAD,CAAU,GAAG,WAAW,QAAA,GAAU,CAAA"}

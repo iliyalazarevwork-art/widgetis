@@ -332,6 +332,20 @@ tasks:
     internal: true
     cmds:
       - echo "[vitest]  start" && (cd frontend && time npm test) && echo "[vitest]  done"
+  _deploy:pre:prerender:
+    internal: true
+    cmds:
+      - |
+        echo "[prerender] start"
+        (cd frontend && BACKEND_URL="${PRERENDER_BACKEND_URL:-https://api.widgetis.com}" npm run build:prerender)
+        git add frontend/dist frontend/public/sitemap.xml
+        if git diff --cached --quiet -- frontend/dist frontend/public/sitemap.xml; then
+          echo "[prerender] no changes in dist/ — skipping commit"
+        else
+          git commit -m "chore(frontend): rebuild dist [auto-prerender]"
+          echo "[prerender] committed dist/ changes"
+        fi
+        echo "[prerender] done"
 
   # Phase A — auto-fixes (мутируют файлы; должны завершиться ДО проверок,
   # которые читают те же файлы). Pint → PHP, ESLint → TS — не пересекаются,
@@ -352,12 +366,14 @@ tasks:
       - _deploy:pre:vitest
 
   deploy:pre:
-    desc: "Предеплойные проверки (параллельно): pint+eslint → phpstan+tsc+phpunit+vitest"
+    desc: "Предеплойные проверки: pint+eslint → phpstan+tsc+phpunit+vitest → SEO-prerender"
     cmds:
       - echo "▶ Phase A — auto-fixes (pint + eslint, parallel)"
       - task: _deploy:pre:fix
       - echo "▶ Phase B — checks + tests (phpstan + tsc + phpunit + vitest, parallel)"
       - task: _deploy:pre:check
+      - echo "▶ Phase C — frontend SEO-prerender + sitemap"
+      - task: _deploy:pre:prerender
 
   deploy:
     desc: "Полный деплой: проверки → бэкап → деплой → смоук  ·  task deploy"

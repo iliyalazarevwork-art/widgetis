@@ -1,0 +1,128 @@
+import{i as e}from"./datepicker-D2V_UxMy.js";import{n as t}from"./router-DCmbCLbj.js";import{n}from"./brand-wHAYTM3s.js";import{t as r}from"./SeoHead-650U0yNu.js";/* empty css                        */var i=`  <h1>Політика конфіденційності</h1>
+  <h1>SaaS-платформи Widgetis</h1>
+  <div class="subtitle">(Захист персональних даних)</div>
+
+  <div class="meta">
+    м. Дніпро<br>
+    09 квітня 2026 року
+  </div>
+
+  <p>
+    Ця Політика конфіденційності (далі — <strong>«Політика»</strong>) визначає порядок збирання, обробки, зберігання та захисту персональних даних користувачів SaaS-платформи <strong>«Widgetis»</strong> (далі — <strong>«Платформа»</strong>), яка належить фізичній особі-підприємцю <strong>Зайцеву Данилу Ігоровичу</strong>, ІПН <strong>3757102813</strong> (далі — <strong>«Виконавець»</strong>).
+  </p>
+  <p>
+    Використовуючи Платформу, Ви підтверджуєте, що ознайомились з цією Політикою та надаєте згоду на обробку Ваших персональних даних у порядку та на умовах, визначених нижче.
+  </p>
+
+  <!-- 1 -->
+  <h2>1. Які дані ми збираємо</h2>
+
+  <p class="clause"><span class="clause-num">1.1.</span> <strong>Дані, які Ви надаєте безпосередньо:</strong></p>
+  <p class="clause" style="padding-left: 20pt;">а) адреса електронної пошти — при реєстрації;</p>
+  <p class="clause" style="padding-left: 20pt;">б) ім'я та прізвище — при заповненні профілю (за бажанням);</p>
+  <p class="clause" style="padding-left: 20pt;">в) номер телефону — при заповненні профілю (за бажанням);</p>
+  <p class="clause" style="padding-left: 20pt;">г) адреса інтернет-магазину — при підключенні сайту до Платформи;</p>
+  <p class="clause" style="padding-left: 20pt;">ґ) дані, що передаються через форми зворотного зв'язку.</p>
+
+  <p class="clause"><span class="clause-num">1.2.</span> <strong>Дані, які збираються автоматично:</strong></p>
+  <p class="clause" style="padding-left: 20pt;">а) IP-адреса;</p>
+  <p class="clause" style="padding-left: 20pt;">б) тип та версія браузера;</p>
+  <p class="clause" style="padding-left: 20pt;">в) дата, час та тривалість відвідування;</p>
+  <p class="clause" style="padding-left: 20pt;">г) сторінки, які Ви відвідуєте;</p>
+  <p class="clause" style="padding-left: 20pt;">ґ) дані файлів cookie (див. розділ 6).</p>
+
+  <p class="clause"><span class="clause-num">1.3.</span> <strong>Платіжні дані.</strong> Виконавець <strong>не зберігає</strong> дані банківських карток. Усі платежі обробляються через сертифікованих платіжних провайдерів (WayForPay, plata by mono) відповідно до стандартів PCI DSS.</p>
+
+  <!-- 2 -->
+  <h2>2. Мета обробки даних</h2>
+
+  <p class="clause"><span class="clause-num">2.1.</span> Персональні дані обробляються виключно для таких цілей:</p>
+  <p class="clause" style="padding-left: 20pt;">а) створення та обслуговування облікового запису;</p>
+  <p class="clause" style="padding-left: 20pt;">б) надання доступу до функціоналу Платформи відповідно до обраного тарифного плану;</p>
+  <p class="clause" style="padding-left: 20pt;">в) обробка платежів та управління підпискою;</p>
+  <p class="clause" style="padding-left: 20pt;">г) надсилання сервісних повідомлень (підтвердження реєстрації, зміна тарифу, нагадування про оплату);</p>
+  <p class="clause" style="padding-left: 20pt;">ґ) технічна підтримка та відповіді на запити;</p>
+  <p class="clause" style="padding-left: 20pt;">д) покращення якості Платформи та аналітика використання;</p>
+  <p class="clause" style="padding-left: 20pt;">е) виконання вимог чинного законодавства.</p>
+  <p class="clause"><span class="clause-num">2.2.</span> Виконавець не використовує персональні дані для автоматизованого прийняття рішень або профілювання.</p>
+
+  <!-- 3 -->
+  <h2>3. Правові підстави обробки</h2>
+
+  <p class="clause"><span class="clause-num">3.1.</span> Обробка персональних даних здійснюється на підставі:</p>
+  <p class="clause" style="padding-left: 20pt;">а) згоди Замовника, наданої при реєстрації на Платформі (ст. 6 Закону України «Про захист персональних даних»);</p>
+  <p class="clause" style="padding-left: 20pt;">б) необхідності виконання договору (<a href="/offer">Публічна оферта</a>);</p>
+  <p class="clause" style="padding-left: 20pt;">в) законних інтересів Виконавця (забезпечення безпеки Платформи, запобігання шахрайству).</p>
+
+  <!-- 4 -->
+  <h2>4. Передача даних третім особам</h2>
+
+  <p class="clause"><span class="clause-num">4.1.</span> Виконавець не продає, не обмінює та не передає персональні дані третім особам, за винятком таких випадків:</p>
+  <p class="clause" style="padding-left: 20pt;">а) <strong>платіжні провайдери</strong> (WayForPay, plata by mono) — для обробки платежів;</p>
+  <p class="clause" style="padding-left: 20pt;">б) <strong>сервіси розсилки</strong> — для надсилання сервісних повідомлень;</p>
+  <p class="clause" style="padding-left: 20pt;">в) <strong>хостинг-провайдери</strong> — для зберігання та обробки даних;</p>
+  <p class="clause" style="padding-left: 20pt;">г) <strong>державні органи</strong> — на підставі обов'язкового запиту відповідно до чинного законодавства України.</p>
+  <p class="clause"><span class="clause-num">4.2.</span> Усі треті сторони, яким передаються дані, зобов'язані забезпечити їх захист на рівні, не нижчому за встановлений цією Політикою.</p>
+
+  <!-- 5 -->
+  <h2>5. Зберігання та захист даних</h2>
+
+  <p class="clause"><span class="clause-num">5.1.</span> Персональні дані зберігаються протягом усього строку дії облікового запису Замовника та протягом 30 (тридцяти) календарних днів після його видалення.</p>
+  <p class="clause"><span class="clause-num">5.2.</span> Для захисту персональних даних Виконавець застосовує такі заходи:</p>
+  <p class="clause" style="padding-left: 20pt;">а) шифрування даних при передачі (SSL/TLS);</p>
+  <p class="clause" style="padding-left: 20pt;">б) обмежений доступ до персональних даних лише для уповноважених осіб;</p>
+  <p class="clause" style="padding-left: 20pt;">в) регулярне оновлення програмного забезпечення;</p>
+  <p class="clause" style="padding-left: 20pt;">г) резервне копіювання даних.</p>
+  <p class="clause"><span class="clause-num">5.3.</span> Виконавець вживає всіх розумних заходів для запобігання несанкціонованому доступу, зміні, розкриттю або знищенню персональних даних.</p>
+
+  <!-- 6 -->
+  <h2>6. Файли cookie</h2>
+
+  <p class="clause"><span class="clause-num">6.1.</span> Платформа використовує файли cookie для:</p>
+  <p class="clause" style="padding-left: 20pt;">а) забезпечення роботи авторизації та збереження сесії;</p>
+  <p class="clause" style="padding-left: 20pt;">б) збереження налаштувань користувача;</p>
+  <p class="clause" style="padding-left: 20pt;">в) аналітики відвідуваності, поведінки на сторінках та ефективності рекламних кампаній, зокрема через Google Analytics, Microsoft Clarity та Meta Pixel, у знеособленому або агрегованому вигляді.</p>
+  <p class="clause"><span class="clause-num">6.2.</span> Ви можете відмовитись від використання файлів cookie через налаштування браузера. Однак це може обмежити функціональність Платформи.</p>
+
+  <!-- 7 -->
+  <h2>7. Права Замовника</h2>
+
+  <p class="clause"><span class="clause-num">7.1.</span> Відповідно до Закону України «Про захист персональних даних», Замовник має право:</p>
+  <p class="clause" style="padding-left: 20pt;">а) знати про джерела збирання, місцезнаходження своїх персональних даних, мету їх обробки;</p>
+  <p class="clause" style="padding-left: 20pt;">б) отримати інформацію про умови надання доступу до персональних даних третім особам;</p>
+  <p class="clause" style="padding-left: 20pt;">в) на доступ до своїх персональних даних;</p>
+  <p class="clause" style="padding-left: 20pt;">г) вимагати виправлення неточних або неповних даних;</p>
+  <p class="clause" style="padding-left: 20pt;">ґ) вимагати видалення персональних даних;</p>
+  <p class="clause" style="padding-left: 20pt;">д) відкликати згоду на обробку персональних даних;</p>
+  <p class="clause" style="padding-left: 20pt;">е) оскаржити дії Виконавця щодо обробки персональних даних до Уповноваженого Верховної Ради України з прав людини або до суду.</p>
+  <p class="clause"><span class="clause-num">7.2.</span> Для реалізації вищезазначених прав Замовник може звернутись на адресу <strong>hello@widgetis.com</strong>. Запити розглядаються протягом 10 (десяти) робочих днів.</p>
+
+  <!-- 8 -->
+  <h2>8. Зміни до Політики</h2>
+
+  <p class="clause"><span class="clause-num">8.1.</span> Виконавець має право вносити зміни до цієї Політики, публікуючи оновлену версію на сайті widgetis.com.</p>
+  <p class="clause"><span class="clause-num">8.2.</span> Про суттєві зміни Замовники будуть повідомлені електронною поштою. Продовження використання Платформи після публікації змін означає прийняття оновленої Політики.</p>
+
+  <!-- 9 -->
+  <h2>9. Контактна інформація</h2>
+
+  <p class="clause">З питань захисту персональних даних звертайтесь:</p>
+
+  <table>
+    <tbody>
+      <tr>
+        <td style="width:40%; font-weight:bold;">Відповідальна особа</td>
+        <td>ФОП Зайцев Данило Ігорович</td>
+      </tr>
+      <tr>
+        <td style="font-weight:bold;">E-mail</td>
+        <td>hello@widgetis.com</td>
+      </tr>
+      <tr>
+        <td style="font-weight:bold;">Сайт</td>
+        <td>widgetis.com</td>
+      </tr>
+    </tbody>
+  </table>
+`,a=e();function o(){return(0,a.jsxs)(`div`,{className:`simple-doc-page`,children:[(0,a.jsx)(r,{title:`Політика конфіденційності — ${n}`,description:`Політика конфіденційності Widgetis: як ми збираємо, обробляємо та захищаємо ваші персональні дані.`,path:`/privacy`}),(0,a.jsxs)(`main`,{className:`simple-doc-page__container`,children:[(0,a.jsx)(t,{to:`/`,className:`simple-doc-page__back`,children:`← На головну`}),(0,a.jsx)(`article`,{className:`simple-doc-page__offer`,dangerouslySetInnerHTML:{__html:i}})]})]})}export{o as PrivacyPage};
+//# sourceMappingURL=PrivacyPage-dSMJCQKo.js.map
