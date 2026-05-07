@@ -1,0 +1,103 @@
+// source: https://aquaura.com.ua/
+// extracted: 2026-05-07T21:20:48.703Z
+// scripts: 2
+
+// === script #1 (length=506) ===
+document.addEventListener("DOMContentLoaded", function () {
+    const bannerImgs = document.querySelectorAll('.banners__item .banner-image img');
+    bannerImgs.forEach(function (img) {
+      const screenWidth = window.innerWidth;
+      if (screenWidth > 1024 && img.src.includes('/1920x768')) {
+        const highResSrc = img.src.replace('/1920x768', '/3840x1536');
+        img.src = highResSrc;
+        img.removeAttribute('srcset');
+        img.removeAttribute('sizes');
+      }
+    });
+  });
+
+// === script #2 (length=2111) ===
+function fixPriceFilter(urlToCheck) {
+  if (!urlToCheck.includes('sort_price=ASC')) {
+    return;
+  }
+
+  const hasRequestPrice = jQuery('.catalogCard-price, .catalog-card__price').filter(function () {
+    return jQuery(this).text().trim() === 'Ціну уточнюйте';
+  }).length > 0;
+
+  if (!hasRequestPrice) {
+    return;
+  }
+
+  const $min = jQuery('input[data-name="filter[price][min]"], input[name="filter[price][min]"]');
+  const $max = jQuery('input[data-name="filter[price][max]"], input[name="filter[price][max]"]');
+
+  if (!$min.length || !$max.length) {
+    return;
+  }
+
+  let minVal = parseInt($min.val(), 10);
+  let maxVal = parseInt($max.val(), 10);
+
+  if (!maxVal || maxVal < 1) {
+    return;
+  }
+
+  if (minVal === 0) {
+    minVal = 1;
+    $min.val(1);
+  }
+
+  const currentUrl = new URL(urlToCheck, window.location.origin);
+
+  let path = currentUrl.pathname;
+  const filterIndex = path.indexOf('/filter/');
+
+  if (filterIndex === -1) {
+    return;
+  }
+
+  let beforeFilter = path.substring(0, filterIndex + '/filter/'.length);
+  let filterSlug = path.substring(filterIndex + '/filter/'.length);
+
+  filterSlug = filterSlug.replace(/^\/+|\/+$/g, '');
+
+  let parts = filterSlug
+    .split(';')
+    .map(p => p.trim())
+    .filter(Boolean);
+
+  const pricePart = 'price=' + minVal + '-' + maxVal;
+  let priceFound = false;
+
+  parts = parts.map(function (part) {
+    if (part.indexOf('price=') === 0) {
+      priceFound = true;
+      return pricePart;
+    }
+    return part;
+  });
+
+  if (!priceFound) {
+    parts.push(pricePart);
+  }
+
+  let newPath = beforeFilter + parts.join(';') + '/';
+  let newUrl = currentUrl.origin + newPath + currentUrl.search;
+
+  if (newUrl !== window.location.href) {
+    console.log('Redirect →', newUrl);
+    window.location.href = newUrl;
+  }
+}
+
+jQuery(document).ready(function () {
+  fixPriceFilter(window.location.href);
+});
+
+jQuery(document).ajaxComplete(function (event, xhr, settings) {
+  if (settings.url && settings.url.includes('sort_price=ASC')) {
+    fixPriceFilter(settings.url);
+  }
+});

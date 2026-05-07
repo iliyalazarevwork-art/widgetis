@@ -1,0 +1,209 @@
+// source: https://clickstore.com.ua/
+// extracted: 2026-05-07T21:20:34.081Z
+// scripts: 1
+
+// === script #1 (length=8170) ===
+$(document).ready(function() {
+        const resources = {
+            ru: {
+                translation: {
+                    "popupText": "Здесь вы можете принять или отклонить все или некоторые файлы cookie, чтобы обеспечить вам максимальное удобство использования сайта. Не волнуйтесь, вы можете изменить свое решение в любое время, настроив файлы cookie.",
+                    "button1": "Разрешить все",
+                    "button2": "Отклонить все",
+                    "button3": "Настроить",
+                    "saveButton": "Сохранить",
+                    "option1": "Analytics Storage",
+                    "option2": "Ad Storage",
+                    "option3": "Ad User Data",
+                    "option4": "Ad Personalization",
+                    "option5": "Все необходимые"
+                }
+            },
+            uk: {
+                translation: {
+                    "popupText": "Тут ви можете прийняти або відхилити всі або деякі файли cookie, щоб забезпечити максимальну зручність використання сайту. Не хвилюйтеся, ви можете змінити своє рішення в будь-який час, настроївши файли cookie",
+                    "button1": "Дозволити всі",
+                    "button2": "Відхилити всі",
+                    "button3": "Налаштувати",
+                    "saveButton": "Зберегти",
+                    "option1": "Analytics Storage",
+                    "option2": "Ad Storage",
+                    "option3": "Ad User Data",
+                    "option4": "Ad Personalization",
+                    "option5": "Всі необхідні"
+                }
+            }
+        };
+
+        const currentLanguage = window.location.pathname.includes('/ru/') ? 'ru' : 'uk';
+
+        i18next.init({
+            lng: currentLanguage,
+            debug: true,
+            resources
+        }, function(err, t) {
+            updateContent();
+        });
+
+        function updateContent() {
+            $('[data-i18n]').each(function() {
+                $(this).text(i18next.t($(this).attr('data-i18n')));
+            });
+        }
+
+        if (!getCookie("popupDismissed")) {
+            function showPopup() {
+                const overlay = $('<div></div>').css({
+                    position: 'fixed',
+                    bottom: '0',
+                    left: '0',
+                    width: '100%',
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: '1000'
+                });
+
+                const popup = $('<div></div>').css({
+                    backgroundColor: '#b893c2',
+                    padding: '20px',
+                    borderRadius: '0',
+                    textAlign: 'center',
+                    width: '100%',
+                    marginBottom: '0'
+                });
+
+                const popupText = $('<p data-i18n="popupText"></p>').css({
+                    margin: '0 0 10px 0'
+                });
+                popup.append(popupText);
+
+                const buttonStyle = {
+                    margin: '5px',
+                    padding: '10px 20px',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    outline: 'none',
+                    transition: 'background-color 0.3s ease'
+                };
+
+                const buttonHoverStyle = {
+                    backgroundColor: '#d0d0d0'
+                };
+
+                const button1 = $('<button data-i18n="button1"></button>').css({
+                    ...buttonStyle,
+                    backgroundColor: '#27f117'
+                }).hover(function() {
+                    $(this).css(buttonHoverStyle);
+                }, function() {
+                    $(this).css({
+                        ...buttonStyle,
+                        backgroundColor: '#27f117'
+                    });
+                }).click(function() {
+                    setCookie("popupDismissed", "true", 7);
+                    overlay.remove();
+                });
+
+                const button2 = $('<button data-i18n="button2"></button>').css({
+                    ...buttonStyle,
+                    backgroundColor: '#fff'
+                }).hover(function() {
+                    $(this).css(buttonHoverStyle);
+                }, function() {
+                    $(this).css({
+                        ...buttonStyle,
+                        backgroundColor: '#fff'
+                    });
+                }).click(function() {
+                    setCookie("popupDismissed", "true", 7);
+                    overlay.remove();
+                });
+
+                const button3 = $('<button data-i18n="button3"></button>').css({
+                    ...buttonStyle,
+                    backgroundColor: '#fff'
+                }).hover(function() {
+                    $(this).css(buttonHoverStyle);
+                }, function() {
+                    $(this).css({
+                        ...buttonStyle,
+                        backgroundColor: '#fff'
+                    });
+                }).click(function() {
+                    const checkboxContainer = $('<div></div>').css({
+                        textAlign: 'left',
+                        marginTop: '10px',
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        justifyContent: 'center'
+                    });
+
+                    for (let i = 1; i <= 5; i++) {
+                        const checkboxLabel = $('<label></label>').css({
+                            display: 'inline-block',
+                            margin: '5px'
+                        });
+
+                        const checkbox = $('<input type="checkbox">').css({
+                            marginRight: '5px'
+                        });
+
+                        checkboxLabel.append(checkbox).append(i18next.t('option' + i));
+                        checkboxContainer.append(checkboxLabel);
+                    }
+
+                    const saveButton = $('<button data-i18n="saveButton"></button>').css({
+                        ...buttonStyle,
+                        marginTop: '10px',
+                        backgroundColor: '#fff'
+                    }).hover(function() {
+                        $(this).css(buttonHoverStyle);
+                    }, function() {
+                        $(this).css({
+                            ...buttonStyle,
+                            backgroundColor: '#fff'
+                        });
+                    }).click(function() {
+                        setCookie("popupDismissed", "true", 7);
+                        overlay.remove();
+                    });
+
+                    checkboxContainer.append(saveButton);
+                    popup.append(checkboxContainer);
+                    button3.prop('disabled', true);
+                    updateContent();
+                });
+
+                popup.append(button1);
+                popup.append(button2);
+                popup.append(button3);
+                overlay.append(popup);
+                $('body').append(overlay);
+                updateContent();
+            }
+
+            showPopup();
+        }
+
+        function setCookie(name, value, days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = "expires=" + date.toUTCString();
+            document.cookie = name + "=" + value + ";" + expires + ";path=/;Secure";
+        }
+
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+    });

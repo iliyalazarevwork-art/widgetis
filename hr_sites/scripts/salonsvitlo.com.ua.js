@@ -1,0 +1,687 @@
+// source: https://salonsvitlo.com.ua/
+// extracted: 2026-05-07T21:22:33.452Z
+// scripts: 3
+
+// === script #1 (length=1541) ===
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.querySelector(".reviews__add-comment");
+  if (!form) return;
+
+  // стартово ховаємо
+  form.classList.add("is-hidden");
+
+  // вставляємо кнопку перед формою
+  const btn = document.createElement("div");
+  btn.className = "review-toggle-btn";
+  btn.innerHTML = '<span class="review-toggle-dot"></span>Залишити відгук';
+  form.parentNode.insertBefore(btn, form);
+
+  let open = false;
+
+  function killAutoFocusScroll() {
+    // якщо щось встигло сфокуситись і браузер скролить — прибираємо фокус
+    if (document.activeElement && document.activeElement !== document.body) {
+      try { document.activeElement.blur(); } catch(e) {}
+    }
+  }
+
+  btn.addEventListener("click", function () {
+    const prevScrollY = window.scrollY; // запам’ятали позицію
+
+    open = !open;
+
+    if (open) {
+      form.classList.remove("is-hidden");
+      btn.innerHTML = '<span class="review-toggle-dot"></span>Сховати форму';
+    } else {
+      form.classList.add("is-hidden");
+      btn.innerHTML = '<span class="review-toggle-dot"></span>Залишити відгук';
+    }
+
+    // повертаємо скрол на місце (на випадок автофокуса/автоскролу шаблону)
+    requestAnimationFrame(() => {
+      window.scrollTo(0, prevScrollY);
+      killAutoFocusScroll();
+      // ще раз через тик — інколи фокус прилітає трохи пізніше
+      setTimeout(() => {
+        window.scrollTo(0, prevScrollY);
+        killAutoFocusScroll();
+      }, 50);
+    });
+  });
+});
+
+// === script #2 (length=32371) ===
+(function () {
+  'use strict';
+
+  // ============================================================
+  // Salonsvitlo custom behaviors — mobile-optimized build
+  //
+  // Optimization layers:
+  //   §-1 LCP banner protection (keep fetchpriority=high sticky)
+  //   §0  Lazy-loading observer (catches imgs during parse)
+  //   §1  Preconnect hints for third-party origins
+  //   §2  All modules wrapped in requestIdleCallback
+  //   §7  OPTIONAL interaction-gated Binotel/Plerdy loader
+  // ============================================================
+
+  var rIC = window.requestIdleCallback || function (fn) { return setTimeout(fn, 1); };
+
+  function onReady(fn) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', fn, { once: true });
+    } else { fn(); }
+  }
+
+  // ============================================================
+  // §-1. LCP BANNER PROTECTION (runs immediately, not idle)
+  // ------------------------------------------------------------
+  // Horoshop's theme scripts clone/re-render the banner img at
+  // runtime, stripping fetchpriority="high" in the process.
+  // We re-apply it whenever we see .banner-img in the DOM.
+  // ============================================================
+  (function protectBanner() {
+    function boost() {
+      var banners = document.querySelectorAll('.banner-img');
+      for (var i = 0; i < banners.length; i++) {
+        var b = banners[i];
+        if (b.fetchPriority !== 'high') b.fetchPriority = 'high';
+        if (b.loading === 'lazy') b.loading = 'eager';
+        b.setAttribute('data-keep-eager', '1');
+      }
+    }
+    boost();
+    var mo = new MutationObserver(boost);
+    mo.observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['fetchpriority', 'loading']
+    });
+    setTimeout(function () { mo.disconnect(); }, 10000);
+  })();
+
+  // ============================================================
+  // §0. LAZY-LOADING  (runs ASAP, NOT idle — the earlier the better)
+  // ------------------------------------------------------------
+  // Catches <img> elements as they enter the DOM and marks them
+  // loading="lazy", EXCEPT the first ~3 above-fold images which are
+  // likely LCP candidates (hero banner, etc). Those get fetchpriority
+  // boosted instead. Respects data-keep-eager.
+  // ============================================================
+  (function installLazyLoader() {
+    var eagerCount = 0;
+    var EAGER_LIMIT = 3;
+
+    function markLazy(img) {
+      if (!img || img.tagName !== 'IMG') return;
+      if (img.loading === 'eager' || img.loading === 'lazy') return;
+      if (img.hasAttribute('data-keep-eager')) return;
+
+      var rect = null;
+      try { rect = img.getBoundingClientRect(); } catch (e) {}
+
+      // Case A: layout ready and image is in the top viewport — keep eager, boost
+      if (rect && rect.width > 0 && rect.top < 600) {
+        if ('fetchPriority' in img) img.fetchPriority = 'high';
+        eagerCount++;
+        return;
+      }
+      // Case B: layout not ready yet and we're under the budget — assume hero
+      if (rect && rect.width === 0 && eagerCount < EAGER_LIMIT) {
+        eagerCount++;
+        return;
+      }
+      // Everything else: defer
+      img.loading = 'lazy';
+      if (!img.decoding) img.decoding = 'async';
+    }
+
+    try {
+      var existing = document.querySelectorAll('img');
+      for (var i = 0; i < existing.length; i++) markLazy(existing[i]);
+    } catch (e) {}
+
+    var mo = new MutationObserver(function (records) {
+      for (var i = 0; i < records.length; i++) {
+        var added = records[i].addedNodes;
+        for (var j = 0; j < added.length; j++) {
+          var n = added[j];
+          if (!n || n.nodeType !== 1) continue;
+          if (n.tagName === 'IMG') {
+            markLazy(n);
+          } else if (n.querySelectorAll) {
+            var nested = n.querySelectorAll('img');
+            for (var k = 0; k < nested.length; k++) markLazy(nested[k]);
+          }
+        }
+      }
+    });
+    mo.observe(document.documentElement, { childList: true, subtree: true });
+  })();
+
+  // ============================================================
+  // §1. PRECONNECT HINTS  (runs ASAP, free latency win)
+  // ------------------------------------------------------------
+  // Warms TLS handshakes with third-party origins so when their
+  // scripts eventually load, the connection is already established.
+  // ============================================================
+  (function preconnect() {
+    var origins = [
+      'https://widgets.binotel.com',
+      'https://my.binotel.ua'
+    ];
+    if (!document.head) return;
+    for (var i = 0; i < origins.length; i++) {
+      var href = origins[i];
+      if (document.head.querySelector('link[rel="preconnect"][href="' + href + '"]')) continue;
+      var link = document.createElement('link');
+      link.rel = 'preconnect';
+      link.href = href;
+      link.crossOrigin = '';
+      document.head.appendChild(link);
+    }
+  })();
+
+  // ============================================================
+  // §2. Shared MutationObserver infrastructure
+  // ------------------------------------------------------------
+  // Modules register coalesced callbacks so we only pay for one
+  // observer on the main content tree.
+  // ============================================================
+  var dirtyCallbacks = [];
+  var dirty = false;
+  function scheduleRun() {
+    if (dirty) return;
+    dirty = true;
+    rIC(function () {
+      dirty = false;
+      for (var i = 0; i < dirtyCallbacks.length; i++) {
+        try { dirtyCallbacks[i](); } catch (e) {}
+      }
+    });
+  }
+  function registerObserver(cb) { dirtyCallbacks.push(cb); cb(); }
+
+  onReady(function () {
+    rIC(function () {
+      var root = document.querySelector('main') || document.body;
+      new MutationObserver(scheduleRun).observe(root, { childList: true, subtree: true });
+    });
+  });
+
+// ============================================================
+  // §3. Inject custom stylesheet (once, on idle)
+  // ============================================================
+  onReady(function () {
+    rIC(function () {
+      if (document.getElementById('salonsvitlo-custom-css')) return;
+      var style = document.createElement('style');
+      style.id = 'salonsvitlo-custom-css';
+      style.textContent = [
+        '.has-free-delivery{display:flex;align-items:center;justify-content:flex-start;gap:8px}',
+        '.free-delivery-badge{display:inline-flex;align-items:center;border:1px solid #e1e1e1;border-radius:4px;padding:2px 6px;background:transparent;color:#008840;font-size:14px;margin-top:4px}',
+        '.return-note{color:#008840;font-size:14px;font-weight:500;margin-top:6px;text-align:left}',
+        '.eta-suffix{margin-left:4px;opacity:.85}',
+        '.catalog-card__presence{color:#008840!important}',
+        '.products-list__presence{color:#008840!important}',
+        '.presence-status{color:#008840!important}',
+        '.product-header__availability{color:#008840!important}',
+        '.catalogTabs-nav-a{cursor:pointer;transition:opacity .2s}.catalogTabs-nav-a:hover{opacity:.65;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}.catalogTabs-nav-a::after{content:"";display:inline-block;width:18px;height:18px;margin-left:6px;vertical-align:middle;background-image:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23030304\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M5 12h14M12 5l7 7-7 7\'/%3E%3C/svg%3E");background-repeat:no-repeat;background-size:contain;transition:transform .2s}.catalogTabs-nav-a:hover::after{transform:translateX(4px)}',
+        '@media(max-width:767px){.main-nav--catalog-with-icon .main-nav__item--basic{background:#E9C60B!important}.main-nav--catalog-with-icon .main-nav__item--basic .main-nav__link{color:#030304!important;font-weight:700!important}}',
+        '@media(max-width:767px){.catalog-controls__item--filter .btn--clear{background-color:#4A86C8!important;color:#fff!important;border:none!important;border-radius:4px!important;padding:8px 16px!important;font-weight:600!important}.catalog-controls__item--filter svg{fill:#fff!important}}'
+      ].join('');
+      document.head.appendChild(style);
+    });
+  });
+  // ============================================================
+  // MODULE 1: Hide "Немає в наявності" filter option
+  // ============================================================
+  var HIDDEN_RE = /(немає[^<]*наяв|наяв[^<]*немає)/i;
+  function hideOutOfStockFilter() {
+    var items = document.querySelectorAll('.filter-lv1-i:not([data-oos-hidden])');
+    for (var i = 0; i < items.length; i++) {
+      var li = items[i];
+      var title = li.querySelector('.filter-title');
+      if (!title) continue;
+      if (HIDDEN_RE.test(title.textContent)) {
+        li.style.display = 'none';
+        li.setAttribute('data-oos-hidden', '1');
+      }
+    }
+  }
+  onReady(function () { rIC(function () { registerObserver(hideOutOfStockFilter); }); });
+
+// ============================================================
+  // MODULE 2: Free-delivery badge for products > 1500 UAH
+  // ============================================================
+  function addDeliveryBadges() {
+    var containers = document.querySelectorAll(
+      '.product-price__box:not([data-fd-done]), .product-card__price-box:not([data-fd-done])'
+    );
+    for (var i = 0; i < containers.length; i++) {
+      var c = containers[i];
+      c.setAttribute('data-fd-done', '1');
+      var meta = c.querySelector('meta[itemprop="price"]');
+      if (!meta) continue;
+      var raw = (meta.content || '').replace(/\s/g, '').replace(',', '.');
+      var price = parseFloat(raw);
+      if (!(price > 1500)) continue;
+      c.classList.add('has-free-delivery');
+      var badge = document.createElement('div');
+      badge.className = 'free-delivery-badge';
+      badge.textContent = 'Безкоштовна доставка';
+      c.appendChild(badge);
+    }
+  }
+  onReady(function () { rIC(function () { registerObserver(addDeliveryBadges); }); });
+  // ============================================================
+  // MODULE 3: "Розділ" filter — keep header-matched items, sort uk
+  // ============================================================
+  var ukCollator = (typeof Intl !== 'undefined' && Intl.Collator) ? new Intl.Collator('uk') : null;
+  function sortRozdelFilter() {
+    var block = document.querySelector('.filter-section[data-filter-id="4510"]');
+    if (!block || block.getAttribute('data-sorted') === '1') return;
+    var list = block.querySelector('.filter-lv1');
+    if (!list) return;
+
+    var headerSet = Object.create(null);
+    var headerItems = document.querySelectorAll('.productsMenu-submenu-t');
+    if (!headerItems.length) return;
+    for (var i = 0; i < headerItems.length; i++) {
+      var t = (headerItems[i].textContent || '').trim();
+      if (t) headerSet[t] = true;
+    }
+
+    var rawItems = list.querySelectorAll('li.filter-lv1-i');
+    var decorated = [];
+    for (var j = 0; j < rawItems.length; j++) {
+      var el = rawItems[j];
+      var titleEl = el.querySelector('.filter-title');
+      var title = titleEl ? (titleEl.textContent || '').trim() : '';
+      if (headerSet[title]) decorated.push({ el: el, title: title });
+    }
+    if (!decorated.length) return;
+
+    decorated.sort(function (a, b) {
+      return ukCollator ? ukCollator.compare(a.title, b.title) : a.title.localeCompare(b.title, 'uk');
+    });
+
+    var frag = document.createDocumentFragment();
+    for (var k = 0; k < decorated.length; k++) frag.appendChild(decorated[k].el);
+    if (list.replaceChildren) list.replaceChildren(frag);
+    else { list.innerHTML = ''; list.appendChild(frag); }
+
+    var toggle = block.querySelector('.filter-toggle');
+    if (toggle) list.parentElement.appendChild(toggle);
+
+    block.setAttribute('data-sorted', '1');
+  }
+  onReady(function () { rIC(function () { registerObserver(sortRozdelFilter); }); });
+
+  // ============================================================
+  // MODULE 4: Availability "Відправимо" — Kyiv time via Intl
+  // ============================================================
+  var UA_MONTHS = ['січня','лютого','березня','квітня','травня','червня','липня','серпня','вересня','жовтня','листопада','грудня'];
+  var WEEKDAY_MAP = { Mon:1, Tue:2, Wed:3, Thu:4, Fri:5, Sat:6, Sun:0 };
+
+  function getKyivNow() {
+    try {
+      var parts = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Europe/Kyiv',
+        year: 'numeric', month: 'numeric', day: 'numeric',
+        hour: 'numeric', hour12: false, weekday: 'short'
+      }).formatToParts(new Date());
+      var o = {};
+      for (var i = 0; i < parts.length; i++) o[parts[i].type] = parts[i].value;
+      return {
+        year: parseInt(o.year, 10),
+        month: parseInt(o.month, 10),
+        day: parseInt(o.day, 10),
+        hour: parseInt(o.hour === '24' ? '0' : o.hour, 10),
+        dow: WEEKDAY_MAP[o.weekday] != null ? WEEKDAY_MAP[o.weekday] : new Date().getDay()
+      };
+    } catch (e) {
+      var n = new Date();
+      return { year: n.getFullYear(), month: n.getMonth()+1, day: n.getDate(), hour: n.getHours(), dow: n.getDay() };
+    }
+  }
+
+  function updateAvailability() {
+    var els = document.querySelectorAll(
+      '.product-header__availability:not([data-eta-done]), .presence-status:not([data-eta-done])'
+    );
+    if (!els.length) return;
+    var now = getKyivNow();
+
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i];
+      var text = (el.textContent || '').trim();
+      var appendix = '';
+
+      if (text.indexOf('Під замовлення') === 0) {
+        var m = text.match(/до\s+(\d+)\s+дн/);
+        var days = m ? parseInt(m[1], 10) : 30;
+        var d = new Date(now.year, now.month - 1, now.day);
+        d.setDate(d.getDate() + days);
+        appendix = 'Відправимо ' + d.getDate() + ' ' + UA_MONTHS[d.getMonth()];
+      } else if (text === 'В наявності') {
+        if (now.dow === 0 || now.dow === 6) {
+          var d2 = new Date(now.year, now.month - 1, now.day);
+          d2.setDate(d2.getDate() + (now.dow === 6 ? 2 : 1));
+          appendix = 'Відправимо ' + String(d2.getDate()).padStart(2,'0') + '.' + String(d2.getMonth()+1).padStart(2,'0');
+        } else if (now.dow === 5 && now.hour >= 12) {
+          appendix = 'Відправимо в понеділок';
+        } else {
+          appendix = now.hour < 12 ? 'Відправимо сьогодні' : 'Відправимо завтра';
+        }
+      } else { continue; }
+
+      var span = document.createElement('span');
+      span.className = 'eta-suffix';
+      span.textContent = ' — ' + appendix;
+      el.appendChild(span);
+      el.setAttribute('data-eta-done', '1');
+    }
+  }
+  onReady(function () { rIC(function () { registerObserver(updateAvailability); }); });
+
+ // ============================================================
+  // MODULE 5: "Обмін/Повернення 14 днів" note
+  // ============================================================
+  function addReturnNote() {
+    var row = document.querySelector('.product-order__row');
+    if (!row || row.getAttribute('data-return-note') === '1') return;
+    var note = document.createElement('div');
+    note.className = 'return-note';
+    note.textContent = 'Обмін/Повернення 14 днів';
+    row.insertAdjacentElement('afterend', note);
+    row.setAttribute('data-return-note', '1');
+  }
+  onReady(function () { rIC(function () { registerObserver(addReturnNote); }); });
+
+/// ============================================================
+  // MODULE 5a: Remove header margin-bottom on mobile
+  // ============================================================
+  function fixHeaderMargin() {
+    if (window.innerWidth > 767) return;
+    var h = document.querySelector('.header');
+    if (h && h.style.marginBottom !== '0px') {
+      h.style.setProperty('margin-bottom', '0px', 'important');
+    }
+  }
+  onReady(function () { rIC(function () { registerObserver(fixHeaderMargin); }); });
+
+// ============================================================
+  // MODULE 8: Cart icon inline with price on mobile
+  // ============================================================
+  var CART_SVG = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#030304" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>';
+  var CHECK_SVG = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#030304" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none"><polyline points="20 6 9 17 4 12"/></svg>';
+
+  function styleCartBtn(btn, svg) {
+    btn.style.cssText = 'width:36px;height:36px;min-width:unset;padding:0;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:0;line-height:0;flex-shrink:0;background:#E9C60B';
+    btn.innerHTML = svg;
+  }
+
+  function isMobileGrid() {
+    var cards = document.querySelectorAll('.catalog-card__content');
+    if (cards.length < 3) return false;
+    var r0 = cards[0].getBoundingClientRect();
+    var r2 = cards[2].getBoundingClientRect();
+    return Math.abs(r0.top - r2.top) > 5;
+  }
+
+  function inlineCartButton() {
+    if (!isMobileGrid()) return;
+    var cards = document.querySelectorAll('.catalog-card__content:not([data-cart-done])');
+    cards.forEach(function(card) {
+      card.setAttribute('data-cart-done', '1');
+      var buyBtn = card.querySelector('.j-buy-button-add');
+      var pricesEl = card.querySelector('.catalog-card__prices');
+      var presenceEl = card.querySelector('.catalog-card__presence');
+      var purchaseEl = card.querySelector('.catalog-card__purchase');
+      if (!buyBtn || !pricesEl) return;
+
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:flex-end;justify-content:space-between;width:100%;gap:6px';
+      var leftCol = document.createElement('div');
+      leftCol.style.cssText = 'display:flex;flex-direction:column;flex:1;min-width:0';
+      card.insertBefore(row, pricesEl);
+      leftCol.appendChild(pricesEl);
+      if (presenceEl) leftCol.appendChild(presenceEl);
+      row.appendChild(leftCol);
+      styleCartBtn(buyBtn, CART_SVG);
+      row.appendChild(buyBtn);
+      if (purchaseEl) purchaseEl.style.display = 'none';
+
+      var observer = new MutationObserver(function() {
+        var newRemove = card.querySelector('.j-buy-button-remove');
+        var newAdd = card.querySelector('.j-buy-button-add');
+        if (newRemove && !newRemove.getAttribute('data-icon-done')) {
+          newRemove.setAttribute('data-icon-done', '1');
+          styleCartBtn(newRemove, CHECK_SVG);
+          row.appendChild(newRemove);
+        }
+        if (newAdd && !newAdd.getAttribute('data-icon-done')) {
+          newAdd.setAttribute('data-icon-done', '1');
+          styleCartBtn(newAdd, CART_SVG);
+          row.appendChild(newAdd);
+        }
+        if (purchaseEl) purchaseEl.style.display = 'none';
+      });
+      observer.observe(card, { childList: true, subtree: true });
+    });
+  }
+  onReady(function () { rIC(function () { registerObserver(inlineCartButton); }); });
+
+// ============================================================
+  // MODULE 9: Merge storefront sections into tabs (mobile only)
+  // ============================================================
+  function mergeMobileTabs() {
+    if (window.innerWidth > 767) return;
+    if (document.getElementById('sv-mobile-tabs')) return;
+    var sections = Array.from(document.querySelectorAll('.storefront'));
+    if (sections.length < 2) return;
+    var seeAllUrls = {
+      'Хіти': '/katalog/filter/icons=1/',
+      'Новинки': '/katalog/filter/icons=3/',
+      'Знижки до -60%': '/aktsii/'
+    };
+    var tabNav = document.createElement('div');
+    tabNav.id = 'sv-mobile-tabs';
+    tabNav.style.cssText = 'display:flex;gap:0;border-bottom:2px solid #eee;margin-bottom:16px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;justify-content:center';
+    sections.forEach(function(s, i) {
+      var h = s.querySelector('h2.heading');
+      var name = h ? h.innerText.replace(/\s*→\s*$/,'').trim() : 'Tab ' + i;
+      var btn = document.createElement('button');
+      btn.textContent = name;
+      btn.setAttribute('data-tab-idx', i);
+      btn.style.cssText = 'padding:10px 20px;border:none;background:none;cursor:pointer;font-size:15px;white-space:nowrap;flex-shrink:0;transition:all .2s;' +
+        (i===0 ? 'font-weight:600;border-bottom:3px solid #E9C60B;margin-bottom:-2px;color:#030304' :
+                 'font-weight:600;border-bottom:3px solid transparent;margin-bottom:-2px;color:#666');
+      tabNav.appendChild(btn);
+    });
+    sections[0].parentNode.insertBefore(tabNav, sections[0]);
+    sections.forEach(function(s, i) {
+      var h = s.querySelector('h2.heading');
+      var name = h ? h.innerText.replace(/\s*→\s*$/,'').trim() : '';
+      if (h) h.style.display = 'none';
+      s.style.display = i === 0 ? 'block' : 'none';
+      var wrapper = s.querySelector('.carousel__wrapper');
+      if (wrapper && !wrapper.getAttribute('data-see-all')) {
+        wrapper.setAttribute('data-see-all', '1');
+        var url = seeAllUrls[name] || '/katalog/';
+        var item = document.createElement('div');
+        item.className = 'carousel__item';
+        item.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;flex-direction:column;flex-shrink:0;width:120px;vertical-align:top';
+        var link = document.createElement('a');
+        link.href = url;
+        link.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;min-height:160px;text-decoration:none;color:#030304;gap:12px;padding:16px;box-sizing:border-box';
+        link.innerHTML = '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#030304" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M13 8l4 4-4 4"/></svg><span style="font-size:12px;text-align:center;line-height:1.3">Дивитись<br>всі</span>';
+        item.appendChild(link);
+        wrapper.appendChild(item);
+      }
+    });
+    tabNav.querySelectorAll('button').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var idx = parseInt(this.getAttribute('data-tab-idx'));
+        tabNav.querySelectorAll('button').forEach(function(b) {
+          b.style.fontWeight = '600';
+          b.style.borderBottom = '3px solid transparent';
+          b.style.color = '#666';
+        });
+        this.style.borderBottom = '3px solid #E9C60B';
+        this.style.color = '#030304';
+        sections.forEach(function(s, i) {
+          s.style.display = i === idx ? 'block' : 'none';
+        });
+      });
+    });
+  }
+  onReady(function () { rIC(function () { registerObserver(mergeMobileTabs); }); });
+
+  // ============================================================
+  // MODULE 6: Viber button injection for bwchat widget
+  // ============================================================
+  var VIBER_HREF = 'viber://chat?number=%2B380678121277';
+  var VIBER_SVG = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="#7360F2"/><path d="M11.6001 4C10.3154 4.01867 7.55541 4.22933 6.01341 5.64467C4.86808 6.79133 4.46408 8.46667 4.42208 10.5447C4.38008 12.622 4.32541 16.5173 8.08008 17.5733H8.08208L8.07941 19.184C8.07941 19.184 8.05475 19.8353 8.48608 19.9687C9.00408 20.13 9.30874 19.6353 9.80608 19.1007C10.0774 18.8073 10.4541 18.378 10.7374 18.0473C13.3041 18.2647 15.2787 17.77 15.5041 17.6973C16.0214 17.5293 18.9547 17.1533 19.4321 13.2593C19.9254 9.246 19.1921 6.706 17.8721 5.562C17.4747 5.19533 15.8681 4.02867 12.2887 4.01333C12.2887 4.01333 12.0254 3.99667 11.5974 4.002L11.6001 4ZM11.6387 5.12867C12.0021 5.126 12.2254 5.14 12.2254 5.14C15.2534 5.15333 16.7034 6.06533 17.0401 6.37067C18.1567 7.32733 18.7267 9.616 18.3107 12.9687V12.97C17.9081 16.222 15.5281 16.426 15.0894 16.5667C14.9027 16.6267 13.1681 17.058 10.9874 16.916C10.9874 16.916 9.36341 18.876 8.85608 19.3853C8.77608 19.4653 8.68275 19.4967 8.62141 19.4813C8.53475 19.4593 8.51075 19.356 8.51141 19.2053L8.52475 16.5267C5.35008 15.6467 5.53475 12.332 5.57141 10.5967C5.60741 8.86067 5.93341 7.438 6.90208 6.48133C8.20875 5.29933 10.5514 5.136 11.6421 5.128L11.6387 5.12867ZM11.8921 6.86333C11.7807 6.86333 11.6901 6.95333 11.6894 7.06467C11.6894 7.176 11.7781 7.26667 11.8894 7.268C12.9721 7.27467 13.8534 7.626 14.5747 8.32933C15.2901 9.02667 15.6547 9.97467 15.6634 11.2187C15.6647 11.33 15.7567 11.4187 15.8681 11.4187C15.9787 11.4173 16.0681 11.3267 16.0681 11.216C16.0587 9.89333 15.6561 8.81867 14.8574 8.04C14.0641 7.26667 13.0621 6.87133 11.8921 6.86333ZM9.25208 7.32667C9.12541 7.30533 8.98541 7.33 8.84141 7.40467L8.83474 7.406C8.54808 7.57067 8.29074 7.78067 8.07074 8.02733C8.06941 8.03 8.06675 8.03 8.06541 8.03267C7.88741 8.248 7.78541 8.458 7.75874 8.66467C7.75341 8.69533 7.75208 8.72667 7.75408 8.758C7.75408 8.84867 7.76875 8.938 7.79741 9.02467L7.80608 9.03133C7.89608 9.35133 8.12141 9.882 8.60941 10.7673C8.88941 11.2793 9.21141 11.7673 9.57341 12.2247C9.75341 12.454 9.94674 12.6733 10.1534 12.8807L10.2414 12.9687C10.4481 13.174 10.6681 13.3687 10.8974 13.5487C11.3547 13.9107 11.8427 14.2333 12.3547 14.5133C13.2401 15.002 13.7721 15.2267 14.0907 15.3173L14.0974 15.3267C14.1841 15.3547 14.2741 15.3693 14.3654 15.3687C14.3961 15.37 14.4267 15.3687 14.4574 15.3633C14.6641 15.3393 14.8754 15.2367 15.0894 15.0567C15.0921 15.0567 15.0914 15.0553 15.0947 15.0533C15.3414 14.8333 15.5501 14.5733 15.7147 14.288L15.7167 14.2813C15.8667 13.9933 15.8167 13.72 15.5967 13.5347C15.5941 13.5347 15.1314 13.148 14.9054 12.9813C14.6654 12.8113 14.4187 12.6533 14.1634 12.508C13.8234 12.318 13.4754 12.4373 13.3314 12.624L13.0334 13C12.8801 13.1887 12.5954 13.164 12.5954 13.164C10.5154 12.6333 9.95874 10.5273 9.95874 10.5273C9.95874 10.5273 9.93408 10.2433 10.1241 10.09L10.4994 9.79133C10.6841 9.648 10.8034 9.3 10.6127 8.95933C10.4681 8.704 10.3101 8.45533 10.1394 8.216C9.97274 7.98933 9.58874 7.52733 9.58608 7.526C9.49474 7.416 9.37941 7.34933 9.25141 7.328L9.25208 7.32667ZM12.2454 7.91333C12.1401 7.91467 12.0521 7.996 12.0454 8.10133C12.0387 8.21267 12.1221 8.30933 12.2334 8.31733C13.0067 8.374 13.5781 8.628 13.9967 9.084C14.4167 9.54267 14.6167 10.1 14.6007 10.7973C14.5994 10.9093 14.6874 11.0013 14.8007 11.004C14.9114 11.006 15.0041 10.9173 15.0074 10.806C15.0241 10.0227 14.7847 9.344 14.2961 8.81C13.8027 8.27 13.1114 7.97467 12.2627 7.91267H12.2467L12.2454 7.91333ZM12.5541 9C12.4474 9.00133 12.3607 9.08467 12.3541 9.19133C12.3487 9.30267 12.4341 9.398 12.5461 9.40467C12.8947 9.42333 13.1294 9.52133 13.2881 9.686C13.4481 9.84933 13.5467 10.0993 13.5654 10.462C13.5721 10.5733 13.6654 10.6587 13.7774 10.6533C13.8887 10.648 13.9741 10.5533 13.9687 10.442C13.9487 10.0127 13.8254 9.65667 13.5821 9.404C13.3374 9.152 12.9867 9.02133 12.5687 8.99933H12.5567L12.5541 9Z" fill="white"/></svg>';
+
+  function injectViber() {
+    var omnichannel = document.getElementById('bwc-chat-omnichannel');
+    if (!omnichannel) return false;
+    if (omnichannel.querySelector('.bwc-viber-channel')) return true;
+    var tgBtn = omnichannel.querySelector('.bwc-telegram-channel');
+    if (!tgBtn) return false;
+
+    var viberBtn = tgBtn.cloneNode(true);
+    viberBtn.classList.remove('bwc-telegram-channel');
+    viberBtn.classList.add('bwc-viber-channel');
+    viberBtn.href = VIBER_HREF;
+    viberBtn.setAttribute('aria-label', 'Написати у Viber');
+
+    // Replace the SVG icon
+    var existingSvg = viberBtn.querySelector('svg');
+    if (existingSvg) {
+      var tmp = document.createElement('div');
+      tmp.innerHTML = VIBER_SVG;
+      existingSvg.parentNode.replaceChild(tmp.firstChild, existingSvg);
+    } else {
+      viberBtn.insertAdjacentHTML('afterbegin', VIBER_SVG);
+    }
+
+    // Rename the label — BWChat keeps the text in a nested
+    // <span class="bwc-telegram-text">, not as a direct text node.
+    var textEls = viberBtn.querySelectorAll('.bwc-telegram-text');
+    for (var i = 0; i < textEls.length; i++) {
+      textEls[i].textContent = 'Viber';
+      textEls[i].classList.remove('bwc-telegram-text');
+      textEls[i].classList.add('bwc-viber-text');
+    }
+    // Also rename the icon wrapper class for consistency
+    var iconEls = viberBtn.querySelectorAll('.bwc-telegram-icon');
+    for (var j = 0; j < iconEls.length; j++) {
+      iconEls[j].classList.remove('bwc-telegram-icon');
+      iconEls[j].classList.add('bwc-viber-icon');
+    }
+    // Safety net: any stray direct text nodes
+    var kids = viberBtn.childNodes;
+    for (var k = 0; k < kids.length; k++) {
+      if (kids[k].nodeType === 3) {
+        kids[k].textContent = kids[k].textContent
+          .replace(/telegram\s*bot/gi, 'Viber')
+          .replace(/telegram/gi, 'Viber');
+      }
+    }
+
+    tgBtn.parentNode.insertBefore(viberBtn, tgBtn);
+    return true;
+  }
+
+  onReady(function () {
+    rIC(function () {
+      if (injectViber()) return;
+      var viberObserver;
+      var giveUp = setTimeout(function () { if (viberObserver) viberObserver.disconnect(); }, 20000);
+      var container = document.getElementById('bwc-chat-omnichannel') || document.body;
+      viberObserver = new MutationObserver(function () {
+        if (injectViber()) { viberObserver.disconnect(); clearTimeout(giveUp); }
+      });
+      viberObserver.observe(container, { childList: true, subtree: true });
+    });
+  });
+
+  // ============================================================
+  // §7. OPTIONAL: Interaction-gated Binotel + Plerdy loaders
+  // ------------------------------------------------------------
+  // ⚠️  READ BEFORE UNCOMMENTING  ⚠️
+  //
+  // This block replaces Horoshop's setTimeout-based loading of
+  // Binotel and Plerdy with first-interaction gating. Bounced
+  // sessions never pay the cost; engaged sessions get the widgets
+  // a few hundred ms after they start scrolling.
+  //
+  // STEPS to enable:
+  //   1. In Horoshop admin, FULLY REMOVE the current Binotel and
+  //      Plerdy script tags. If you don't do this first, they
+  //      will load TWICE.
+  //   2. Replace the two URLs below with the exact URLs you're
+  //      currently using (find them in DevTools Network tab).
+  //   3. Uncomment the entire block (remove the /* and */).
+  //   4. Test on desktop AND mobile. Verify both widgets appear
+  //      after you scroll or tap.
+  // ============================================================
+  /*
+  (function gateThirdParties() {
+    var BINOTEL_URL = 'https://widgets.binotel.com/getcall/widgets/imaq0bri4bxy55wyfb0b.js';
+    var PLERDY_URL  = 'https://a.plerdy.com/public/main.js'; // <-- verify this URL!
+
+    var loaded = false;
+    var events = ['scroll', 'touchstart', 'mousemove', 'keydown', 'click'];
+    var opts = { once: true, passive: true, capture: true };
+
+    function inject(src) {
+      var s = document.createElement('script');
+      s.src = src;
+      s.async = true;
+      document.head.appendChild(s);
+    }
+    function loadAll() {
+      if (loaded) return;
+      loaded = true;
+      inject(BINOTEL_URL);
+      inject(PLERDY_URL);
+      for (var i = 0; i < events.length; i++) {
+        window.removeEventListener(events[i], loadAll, opts);
+      }
+    }
+    for (var i = 0; i < events.length; i++) {
+      window.addEventListener(events[i], loadAll, opts);
+    }
+    // Safety net: load after 15s even without interaction
+    setTimeout(loadAll, 15000);
+  })();
+  */
+
+})();
+
+// === script #3 (length=606) ===
+(function () {
+  var DELAY_MS = window.innerWidth <= 768 ? 15000 : 8000;
+  
+  function loadBinotel() {
+    var s1 = document.createElement('script');
+    s1.type = 'text/javascript';
+    s1.async = true;
+    s1.src = 'https://widgets.binotel.com/chat/widgets/VBpkLeYT8D0rsexAtaDd.js';
+    document.head.appendChild(s1);
+
+    var s2 = document.createElement('script');
+    s2.type = 'text/javascript';
+    s2.async = true;
+    s2.src = 'https://widgets.binotel.com/getcall/widgets/imaq0bri4bxy55wyfb0b.js';
+    document.head.appendChild(s2);
+  }
+
+  setTimeout(loadBinotel, DELAY_MS);
+})();

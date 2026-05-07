@@ -1,0 +1,99 @@
+// source: https://vaporesso.com.ua/
+// extracted: 2026-05-07T21:23:06.229Z
+// scripts: 1
+
+// === script #1 (length=3995) ===
+document.addEventListener('DOMContentLoaded', function() {
+  const styles = `
+    .tg-floating-wrap {
+      position: fixed; bottom: 35px; right: 25px; z-index: 9999;
+      display: flex; flex-direction: column; align-items: flex-end;
+      font-family: Arial, sans-serif;
+    }
+    @media (max-width: 768px) {
+      .tg-floating-wrap { bottom: 85px; right: 15px; }
+    }
+    .tg-btn {
+      width: 60px; height: 60px; background-color: #2AABEE;
+      border: none; border-radius: 50%; cursor: pointer;
+      box-shadow: 0 4px 15px rgba(42, 171, 238, 0.4);
+      display: flex; justify-content: center; align-items: center;
+      transition: transform 0.3s ease, background-color 0.3s;
+      padding: 0; outline: none;
+      animation: tg-pulse 2s infinite;
+    }
+    .tg-btn:hover {
+      background-color: #2298d6; transform: scale(1.05); animation: none;
+    }
+    .tg-btn svg { width: 36px; height: 36px; }
+    @keyframes tg-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(42, 171, 238, 0.6); }
+      70% { box-shadow: 0 0 0 15px rgba(42, 171, 238, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(42, 171, 238, 0); }
+    }
+    .tg-menu {
+      position: absolute; bottom: 75px; right: 0;
+      background: #ffffff; width: 230px; border-radius: 12px;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.15); overflow: hidden;
+      opacity: 0; visibility: hidden;
+      transform: translateY(20px) scale(0.95);
+      transform-origin: bottom right;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    .tg-menu.open {
+      opacity: 1; visibility: visible; transform: translateY(0) scale(1);
+    }
+    .tg-menu-header {
+      background: #f8f9fa; padding: 12px 15px; font-size: 13px;
+      text-transform: uppercase; font-weight: 700; color: #666;
+      border-bottom: 1px solid #eee; text-align: center; letter-spacing: 0.5px;
+    }
+    .tg-menu-item {
+      display: flex; align-items: center; padding: 14px 15px;
+      text-decoration: none !important; color: #333 !important;
+      font-size: 15px; font-weight: 500; transition: background 0.2s, color 0.2s;
+    }
+    .tg-menu-item:not(:last-child) { border-bottom: 1px solid #f0f0f0; }
+    .tg-menu-item:hover { background: #f4fafe; color: #2AABEE !important; }
+    .tg-icon { margin-right: 12px; font-size: 20px; }
+  `;
+  
+  const styleSheet = document.createElement("style");
+  styleSheet.type = "text/css";
+  styleSheet.innerText = styles;
+  document.head.appendChild(styleSheet);
+
+  const widgetHTML = `
+    <div class="tg-menu" id="tgMenu">
+      <div class="tg-menu-header">Зв'яжіться з нами</div>
+      <a href="https://t.me/Vaporesso_support_bot" target="_blank" class="tg-menu-item">
+        <span class="tg-icon">💬</span> Чат підтримки
+      </a>
+      <a href="https://t.me/Vaporesso_ua_bot" target="_blank" class="tg-menu-item">
+        <span class="tg-icon">📢</span> Новини та акції
+      </a>
+    </div>
+    <button class="tg-btn" id="tgBtn" aria-label="Відкрити меню Telegram">
+      <svg viewBox="0 0 24 24"><path fill="#ffffff" d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c-.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"></path></svg>
+    </button>
+  `;
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'tg-floating-wrap';
+  wrapper.innerHTML = widgetHTML;
+  document.body.appendChild(wrapper);
+
+  const btn = document.getElementById('tgBtn');
+  const menu = document.getElementById('tgMenu');
+
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    menu.classList.toggle('open');
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!menu.contains(e.target) && !btn.contains(e.target)) {
+      menu.classList.remove('open');
+    }
+  });
+});

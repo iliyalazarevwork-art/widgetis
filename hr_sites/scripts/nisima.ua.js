@@ -1,0 +1,247 @@
+// source: https://nisima.ua/
+// extracted: 2026-05-07T21:20:16.313Z
+// scripts: 2
+
+// === script #1 (length=3817) ===
+(function(){
+  const TH=2000;
+  const SUM_SELECTORS=[
+    ".cart__total-price.j-total-sum",
+    ".cart-footer-b.cart-cost.j-total-sum",
+    ".cart-footer-b.j-total-sum",
+    ".order-summary-b.j-total-sum",
+    ".order-details__total.j-total-sum",
+    ".j-total-sum"
+  ];
+  const CONTAINER_SELECTORS=[
+    ".cart__summary",
+    ".cart-summary",
+    ".order-summary",
+    ".order-details",
+    ".popup-cart__footer",
+    ".cart-total"
+  ];
+  const BLOCK_CLASS="free-shipping-progress";
+
+  function parseMoney(t){
+    if(!t) return 0;
+    let s=String(t).replace(/[\u00A0\u202F\u2007\s]/g,"").replace(/грн|₴/gi,"");
+    const m=s.match(/[\d.,]+/);
+    if(!m) return 0;
+    let n=m[0];
+    const d=n.lastIndexOf("."), c=n.lastIndexOf(",");
+    if(d!==-1 && c!==-1){
+      if(d>c) n=n.replace(/,/g,"");
+      else n=n.replace(/\./g,"").replace(",",".");
+    }else if(c!==-1 && d===-1){
+      n=n.replace(",",".");
+    }
+    return parseFloat(n)||0;
+  }
+
+  function getContainer(sumEl){
+    for(const sel of CONTAINER_SELECTORS){
+      const c=sumEl.closest(sel);
+      if(c) return c;
+    }
+    return sumEl.parentElement;
+  }
+
+  function ensureBlock(sumEl){
+    const container=getContainer(sumEl);
+    if(!container) return null;
+
+    if(!sumEl.dataset.fspId) sumEl.dataset.fspId=Math.random().toString(36).slice(2,10);
+    let block=container.querySelector(`.${BLOCK_CLASS}[data-fsp-anchor="${sumEl.dataset.fspId}"]`);
+    if(block) return block;
+
+    block=document.createElement("div");
+    block.className=BLOCK_CLASS;
+    block.setAttribute("data-fsp-anchor",sumEl.dataset.fspId);
+    block.innerHTML=
+      '<div class="free-shipping-progress__row">'+
+        '<svg class="free-shipping-progress__icon" viewBox="0 0 24 24" aria-hidden="true">'+
+          '<path fill="currentColor" d="M3 7a2 2 0 0 1 2-2h10a1 1 0 0 1 1 1v3h3.2a1 1 0 0 1 .8.4l2 2.666A1 1 0 0 1 22 12v5a2 2 0 0 1-2 2h-.126a2.75 2.75 0 0 1-5.748 0H9.874a2.75 2.75 0 0 1-5.748 0H4a2 2 0 0 1-2-2V7Zm3.25 12a1.25 1.25 0 1 0 0-2.5 1.25 1.25 0 0 0 0 2.5Zm11 0a1.25 1.25 0 1 0 0-2.5 1.25 1.25 0 0 0 0 2.5ZM16 10v4h4v-1.667L18.7 10H16Z"/>'+
+        '</svg>'+
+        '<div class="free-shipping-progress__text"></div>'+
+      '</div>'+
+      '<div class="free-shipping-progress__bar"><div class="free-shipping-progress__fill"></div></div>';
+
+    sumEl.insertAdjacentElement("afterend",block);
+    return block;
+  }
+
+  function updateFor(sumEl){
+    const total=parseMoney(sumEl.textContent);
+    const remaining=Math.max(TH-total,0);
+    const percent=Math.max(0,Math.min(total/TH*100,100));
+    const block=ensureBlock(sumEl);
+    if(!block) return;
+    const t=block.querySelector(".free-shipping-progress__text");
+    const f=block.querySelector(".free-shipping-progress__fill");
+    if(!t||!f) return;
+    t.textContent=remaining>0?`До безкоштовної доставки залишилось: ${Math.ceil(remaining)} грн`:`Безкоштовна доставка!`;
+    f.style.width=percent.toFixed(2)+"%";
+  }
+
+  function collectSumEls(){
+    const out=[], seen=new Set();
+    for(const sel of SUM_SELECTORS){
+      document.querySelectorAll(sel).forEach(el=>{
+        if(!el || seen.has(el)) return;
+        seen.add(el);
+        out.push(el);
+      });
+    }
+    return out;
+  }
+
+  let timer=null;
+  function schedule(){
+    if(timer) return;
+    timer=setTimeout(()=>{
+      timer=null;
+      collectSumEls().forEach(updateFor);
+    },150);
+  }
+
+  function start(){
+    schedule();
+    new MutationObserver(schedule).observe(document.documentElement,{subtree:true,childList:true,characterData:true});
+    window.addEventListener("resize",schedule,{passive:true});
+  }
+
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",start);
+  else start();
+})();
+
+// === script #2 (length=4212) ===
+(function () {
+    const STORAGE_KEY = "memorialShownDate";
+    let isRunning = false;
+    let initialized = false;
+
+    function alreadyShownToday() {
+        const today = new Date().toDateString();
+        return localStorage.getItem(STORAGE_KEY) === today;
+    }
+
+    function markAsShown() {
+        const today = new Date().toDateString();
+        localStorage.setItem(STORAGE_KEY, today);
+    }
+
+    function isMemorialTime() {
+        const now = new Date();
+        return now.getHours() === 9 && now.getMinutes() === 0;
+    }
+
+    function lockPage() {
+        document.body.style.overflow = 'hidden';
+        document.addEventListener('click', stopAll, true);
+        document.addEventListener('keydown', stopKeys, true);
+        document.addEventListener('touchstart', stopAll, true);
+    }
+
+    function unlockPage() {
+        document.body.style.overflow = '';
+        document.removeEventListener('click', stopAll, true);
+        document.removeEventListener('keydown', stopKeys, true);
+        document.removeEventListener('touchstart', stopAll, true);
+    }
+
+    function stopAll(e) {
+        e.stopPropagation();
+        e.preventDefault();
+    }
+
+    function stopKeys(e) {
+        if (
+            e.key === "F5" ||
+            (e.ctrlKey && e.key.toLowerCase() === "r") ||
+            e.key === "Escape"
+        ) {
+            e.preventDefault();
+        }
+    }
+
+    function injectOverlay() {
+        if (document.getElementById('memorial-overlay')) return;
+
+        var style = document.createElement('style');
+        style.textContent = [
+            '#memorial-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:999999;display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;color:#fff;font-family:Arial,sans-serif;}',
+            '#memorial-overlay img{width:120px;margin-bottom:20px;}',
+            '#memorial-text{font-size:22px;font-weight:bold;line-height:1.4;}',
+            '#memorial-timer{margin-top:20px;font-size:28px;background:#fff;color:#000;padding:10px 20px;border-radius:10px;}'
+        ].join('');
+        document.head.appendChild(style);
+
+        var div = document.createElement('div');
+        div.id = 'memorial-overlay';
+        div.innerHTML = [
+            '<img src="/content/uploads/images/candle.png" alt="Свічка" width="120">',
+            '<div id="memorial-text">Вшануй пам\'ять загиблих<br>унаслідок війни росії<br>проти України</div>',
+            '<div id="memorial-timer">01:00</div>'
+        ].join('');
+        document.body.appendChild(div);
+    }
+
+    function startMemorial() {
+        if (alreadyShownToday() || isRunning) return;
+
+        injectOverlay();
+
+        var overlay = document.getElementById('memorial-overlay');
+        var timerEl = document.getElementById('memorial-timer');
+
+        if (!overlay || !timerEl) return;
+
+        isRunning = true;
+        overlay.style.display = 'flex';
+        lockPage();
+
+        var now = new Date();
+        var timeLeft = 60 - now.getSeconds();
+        if (timeLeft <= 0) timeLeft = 1;
+
+        timerEl.textContent = "00:" + (timeLeft < 10 ? '0' + timeLeft : timeLeft);
+
+        var interval = setInterval(function () {
+            timeLeft--;
+            timerEl.textContent = "00:" + (timeLeft < 10 ? '0' + timeLeft : timeLeft);
+
+            if (timeLeft <= 0) {
+                clearInterval(interval);
+                overlay.style.display = 'none';
+                unlockPage();
+                markAsShown();
+                isRunning = false;
+            }
+        }, 1000);
+    }
+
+    function checkTime() {
+        if (isMemorialTime()) {
+            startMemorial();
+        }
+    }
+
+    function init() {
+        if (initialized) return;
+        initialized = true;
+        checkTime();
+        setInterval(checkTime, 1000);
+    }
+
+    if (document.body) {
+        init();
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+    window.addEventListener('load', init);
+
+})();

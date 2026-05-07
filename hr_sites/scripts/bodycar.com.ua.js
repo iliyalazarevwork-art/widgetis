@@ -1,0 +1,40 @@
+// source: https://bodycar.com.ua/
+// extracted: 2026-05-07T21:20:26.619Z
+// scripts: 1
+
+// === script #1 (length=1458) ===
+document.addEventListener("DOMContentLoaded", function() {
+    // Отримуємо елемент з класом search__input
+    const searchInputElement = document.querySelector('.search__input');
+    const overlayBackgroundElement = document.querySelector('.sol-overlay__background_search');
+
+    if (searchInputElement && overlayBackgroundElement) {
+        // Функція для перевірки наявності класу is-focused
+        function checkFocus() {
+            if (searchInputElement.classList.contains('is-focused')) {
+                overlayBackgroundElement.style.display = 'block';
+            } else {
+                overlayBackgroundElement.style.display = 'none';
+            }
+        }
+
+        // Виконуємо перевірку при завантаженні сторінки
+        checkFocus();
+
+        // Створюємо спостерігача за змінами класу
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.attributeName === 'class') {
+                    checkFocus();
+                }
+            });
+        });
+
+        // Налаштовуємо спостерігача на спостереження за змінами класу
+        observer.observe(searchInputElement, { attributes: true });
+
+        // Також додаємо відслідковування фокусу і втрати фокусу для надійності
+        searchInputElement.addEventListener('focus', checkFocus);
+        searchInputElement.addEventListener('blur', checkFocus);
+    }
+});

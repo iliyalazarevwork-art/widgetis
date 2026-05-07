@@ -1,0 +1,43 @@
+// source: https://rincom.in.ua/
+// extracted: 2026-05-07T21:22:29.895Z
+// scripts: 1
+
+// === script #1 (length=1822) ===
+document.getElementById('socialToggle').addEventListener('click', function() {
+            const socialIcons = document.getElementById('socialIcons');
+            const socialContainer = document.getElementById('socialContainer');
+            const closeIcon = document.getElementById('closeIcon');
+            const socialIconCycles = document.querySelectorAll('.social-icon-cycle');
+            
+            // Add animation class for the button click effect
+            this.classList.add('animate');
+            setTimeout(() => {
+                this.classList.remove('animate');
+            }, 600);
+            
+            // Check if the menu is currently collapsed (and is about to be opened)
+            const isOpening = socialIcons.classList.contains('collapsed');
+
+            // Toggle the main classes
+            socialIcons.classList.toggle('collapsed');
+            socialContainer.classList.toggle('collapsed-state');
+            this.classList.toggle('active');
+            
+            if (isOpening) {
+                // Menu is opening
+                closeIcon.classList.add('visible');
+                // Hide cycling icons completely to stop and reset their animation
+                socialIconCycles.forEach(icon => {
+                    icon.style.display = 'none'; 
+                });
+                this.style.backgroundColor = '#2a9d8f';
+            } else {
+                // Menu is closing
+                closeIcon.classList.remove('visible');
+                // Show cycling icons again, which will restart their animation from the beginning
+                socialIconCycles.forEach(icon => {
+                    icon.style.display = 'block'; 
+                });
+                this.style.backgroundColor = '#e63946';
+            }
+        });

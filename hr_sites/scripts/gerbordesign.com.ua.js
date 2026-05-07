@@ -1,0 +1,239 @@
+// source: https://gerbordesign.com.ua/
+// extracted: 2026-05-07T21:21:27.765Z
+// scripts: 3
+
+// === script #1 (length=1014) ===
+document.addEventListener('DOMContentLoaded', function() {
+  function updateMenuImages() {
+    // Оставляем только обработку .main-nav__item img
+    const selectors = [
+      '.main-nav__item img'
+    ];
+
+    document.querySelectorAll(selectors.join(',')).forEach(img => {
+      const realSrc =
+        img.dataset.src ||
+        img.dataset.srcset ||
+        img.getAttribute('data-src') ||
+        img.getAttribute('data-srcset') ||
+        img.src;
+
+      if (realSrc && realSrc.includes('/content/images/')) {
+        // Заменяем любые размеры (например 33x33, 110x110, 120x120 и т.п.) на 440x440
+        const newSrc = realSrc.replace(/\d{2,3}x\d{2,3}/gi, '440x440');
+
+        img.src = newSrc;
+        img.srcset = newSrc;
+        img.dataset.src = newSrc;
+        img.dataset.srcset = newSrc;
+
+        img.setAttribute('width', '440');
+        img.setAttribute('height', '440');
+      }
+    });
+  }
+
+  // Запуск функции сразу после загрузки страницы
+  updateMenuImages();
+});
+
+// === script #2 (length=911) ===
+document.addEventListener('DOMContentLoaded', function () {
+  function hideEmptyMenuImages() {
+    document.querySelectorAll('.main-nav .image__box').forEach(box => {
+      const img = box.querySelector('img');
+      const realSrc =
+        img?.dataset.src ||
+        img?.dataset.srcset ||
+        img?.getAttribute('data-src') ||
+        img?.getAttribute('data-srcset') ||
+        img?.src;
+
+      // Ищем родительский .main-nav__icon, если он есть
+      const iconWrapper = box.closest('.main-nav__icon');
+
+      if (!realSrc || realSrc.trim() === '') {
+        box.classList.add('no-image');
+        if (iconWrapper) iconWrapper.classList.add('no-image');
+      } else {
+        box.classList.remove('no-image');
+        if (iconWrapper) iconWrapper.classList.remove('no-image');
+      }
+    });
+  }
+
+  // Запуск функции сразу после загрузки страницы
+  hideEmptyMenuImages();
+});
+
+// === script #3 (length=5418) ===
+(() => {
+  const norm = (s) => (s || "").replace(/\s+/g, " ").trim();
+
+  const toast = (msg, isError = false) => {
+    const note = document.createElement("div");
+    note.textContent = msg;
+    note.style.cssText =
+      "position:fixed;z-index:99999;right:16px;bottom:16px;padding:10px 12px;border-radius:10px;" +
+      "font:14px/1.2 system-ui;box-shadow:0 8px 24px rgba(0,0,0,.25);" +
+      (isError ? "background:#7a1f1f;color:#fff;" : "background:#111;color:#fff;");
+    document.body.appendChild(note);
+    setTimeout(() => note.remove(), 1800);
+  };
+
+  const extractPriceText = () => {
+    const el = document.querySelector(".product-price__item");
+    if (!el) return "";
+    const text = Array.from(el.childNodes)
+      .filter((n) => n.nodeType === Node.TEXT_NODE)
+      .map((n) => n.textContent)
+      .join(" ");
+    return norm(text);
+  };
+
+  const getValueByLabel = (label) => {
+    const table = document.querySelector("table.product-features__table");
+    if (!table) return "";
+    const rows = Array.from(table.querySelectorAll("tr.product-features__row"));
+    const row = rows.find(
+      (r) => norm(r.querySelector(".product-features__cell-title")?.textContent) === label
+    );
+    if (!row) return "";
+    const td = row.querySelector("td.product-features__cell");
+    if (!td) return "";
+    return norm(td.querySelector("a")?.textContent || td.textContent);
+  };
+
+  const extractSku = () => norm(document.querySelector(".product-header__code")?.textContent || "");
+
+  const pageLang = (document.documentElement.getAttribute("lang") || "").toLowerCase();
+  const isUK = pageLang.startsWith("uk");
+
+  const buildOutput = () => {
+    const url = window.location.href;
+    const sku = extractSku();
+    const price = extractPriceText();
+    const width = getValueByLabel("Ширина, см"); // у вас ширина одинаковая в обеих локализациях? если нет — продублируйте как ниже
+
+    // используем let (будем присваивать)
+    let title = "";
+    let collection = "";
+    let brand = "";
+    let color = "";
+    let depth = "";
+    let height = "";
+    let length = "";
+
+    const dims = [];
+
+    if (isUK) {
+      title = getValueByLabel("Тип товару");
+      collection = getValueByLabel("Колекція");
+      brand = getValueByLabel("Бренд"); // если в UA так
+      color = getValueByLabel("Колір");
+
+      depth  = getValueByLabel("Глибина, см");
+      height = getValueByLabel("Висота, см");
+      length = getValueByLabel("Довжина, см");
+
+      if (width)  dims.push(`Ширина: ${width} см`);
+      if (depth)  dims.push(`Глибина: ${depth} см`);
+      if (length) dims.push(`Довжина: ${length} см`);
+      if (height) dims.push(`Висота: ${height} см`);
+
+      return `${url}
+
+${sku}
+${[title, collection, brand].filter(Boolean).join(" ")}
+
+Колір: ${color}
+
+${dims.join("\n")}
+
+Ціна: ${price}
+`;
+    } else {
+      title = getValueByLabel("Тип товара");
+      collection = getValueByLabel("Коллекция");
+      brand = getValueByLabel("Бренд"); // если в RU тоже "Бренд". Если "Бренд" не находит — замените на "Бренд"->"Бренд" или "Производитель" и т.д.
+      color = getValueByLabel("Цвет");
+
+      depth  = getValueByLabel("Глубина, см");
+      height = getValueByLabel("Высота, см");
+      length = getValueByLabel("Длина, см");
+
+      if (width)  dims.push(`Ширина: ${width} см`);
+      if (depth)  dims.push(`Глубина: ${depth} см`);
+      if (length) dims.push(`Длина: ${length} см`);
+      if (height) dims.push(`Высота: ${height} см`);
+
+      return `${url}
+
+⬆️ ${sku}
+${[title, collection, brand].filter(Boolean).join(" ")}
+
+Цвет: ${color}
+
+${dims.join("\n")}
+
+Цена: ${price}
+`;
+    }
+  };
+
+  const copyToClipboard = async (text) => {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    ta.setSelectionRange(0, ta.value.length);
+    const ok = document.execCommand("copy");
+    document.body.removeChild(ta);
+    if (!ok) throw new Error("copy failed");
+    return true;
+  };
+
+  const doCopy = async () => {
+    const output = buildOutput();
+    try {
+      await copyToClipboard(output);
+      toast("✅ Скопійовано — можна надіслати клієнту");
+      console.log(output);
+    } catch (e) {
+      window.prompt("Скопіюйте вручну:", output);
+    }
+  };
+
+  const codeEl = document.querySelector(".product-header__code");
+  if (!codeEl) return;
+
+  codeEl.addEventListener("click", (e) => {
+    e.preventDefault?.();
+    e.stopPropagation?.();
+    doCopy();
+  });
+
+  // (мобильный long-press оставлен как у вас)
+  let pressTimer = null;
+  codeEl.addEventListener("touchstart", () => {
+    pressTimer = setTimeout(() => doCopy(), 600);
+  }, { passive: true });
+
+  const clearPress = () => {
+    if (pressTimer) clearTimeout(pressTimer);
+    pressTimer = null;
+  };
+  codeEl.addEventListener("touchend", clearPress, { passive: true });
+  codeEl.addEventListener("touchmove", clearPress, { passive: true });
+  codeEl.addEventListener("touchcancel", clearPress, { passive: true });
+
+})();

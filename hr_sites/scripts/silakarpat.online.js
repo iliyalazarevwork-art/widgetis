@@ -1,0 +1,849 @@
+// source: https://silakarpat.online/
+// extracted: 2026-05-07T21:20:27.942Z
+// scripts: 1
+
+// === script #1 (length=37393) ===
+document.addEventListener('DOMContentLoaded', function() {
+    'use strict';
+    
+    // --- Визначення пристрою та браузера ---
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    const isTablet = window.matchMedia('(min-width: 769px) and (max-width: 1024px)').matches;
+    const supportsWebP = checkWebPSupport();
+    
+    console.log('🚀 Початок оптимізації HoroShop...');
+    
+    // --- 1. Виправлення посилань для SEO ---
+    function fixSEOLinks() {
+        console.log('🔗 Виправлення SEO посилань...');
+        
+        // Конвертація data-fake-href в справжні href
+        const fakeHrefLinks = document.querySelectorAll('a[data-fake-href]');
+        let convertedCount = 0;
+        
+        fakeHrefLinks.forEach(link => {
+            const fakeHref = link.getAttribute('data-fake-href');
+            
+            if (fakeHref && fakeHref !== '#' && !fakeHref.startsWith('javascript:')) {
+                const decodedHref = decodeURIComponent(fakeHref);
+                link.setAttribute('href', decodedHref);
+                link.removeAttribute('data-fake-href');
+                convertedCount++;
+            }
+        });
+        
+        // Виправлення посилань галереї з data-href
+        const galleryLinks = document.querySelectorAll('a.gallery__thumb-link.j-gallery-thumb[data-href]');
+        galleryLinks.forEach(link => {
+            const dataHref = link.getAttribute('data-href');
+            if (dataHref && !dataHref.startsWith('javascript:')) {
+                const decodedHref = decodeURIComponent(dataHref);
+                link.setAttribute('href', decodedHref);
+                link.setAttribute('aria-label', 'Переглянути зображення продукту');
+                link.removeAttribute('data-href');
+                convertedCount++;
+                
+            }
+        });
+        
+        // Виправлення телефонних посилань
+        const phoneLinks = document.querySelectorAll('a.j-phone-item, a.phones__item-link, a.footer__contacts-item-link');
+        phoneLinks.forEach(link => {
+            const dataHref = link.getAttribute('data-fake-href') || link.getAttribute('href');
+            if (dataHref && dataHref.includes('tel:')) {
+                const cleanPhone = dataHref.replace('tel:', '').replace(/%2B/g, '+');
+                link.setAttribute('href', `tel:$`);
+                link.setAttribute('aria-label', 'Зателефонувати');
+                link.removeAttribute('data-fake-href');
+            }
+        });
+        
+        // Виправлення соціальних посилань
+        fixSocialMediaLinks();
+        
+        // Email посилання
+        const emailLinks = document.querySelectorAll('a[data-fake-href*="mailto:"], a[href*="mailto:"]');
+        emailLinks.forEach(link => {
+            const href = link.getAttribute('data-fake-href') || link.getAttribute('href');
+            if (href) {
+                const decodedEmail = decodeURIComponent(href);
+                link.setAttribute('href', decodedEmail);
+                link.setAttribute('aria-label', 'Написати email');
+                link.removeAttribute('data-fake-href');
+            }
+        });
+        
+        // Кнопки з javascript:void(0)
+        const voidButtons = document.querySelectorAll('a[href="javascript:void(0);"]');
+        voidButtons.forEach(button => {
+            const modalTarget = button.getAttribute('data-modal');
+            button.setAttribute('href', modalTarget || '#');
+            button.setAttribute('role', 'button');
+        });
+        
+        console.log(`✅ Конвертовано $ посилань для SEO`);
+    }
+    
+    // --- 2. Виправлення соціальних мереж ---
+    function fixSocialMediaLinks() {
+        // Instagram
+        const instagramLinks = document.querySelectorAll('a[data-fake-href*="instagram"], a[href*="instagram"]');
+        instagramLinks.forEach(link => {
+            const href = link.getAttribute('data-fake-href') || link.getAttribute('href');
+            if (href) {
+                link.setAttribute('href', href);
+                link.setAttribute('aria-label', 'Наш Instagram');
+                link.removeAttribute('data-fake-href');
+            }
+        });
+        
+        // Telegram
+        const telegramLinks = document.querySelectorAll('a[data-fake-href*="t.me"], a[data-fake-href*="tg://"]');
+        telegramLinks.forEach(link => {
+            let href = link.getAttribute('data-fake-href');
+            if (href === 'tg://resolve?domain=telegram') {
+                href = 'https://t.me/sofiamazur';
+            }
+            link.setAttribute('href', href);
+            link.setAttribute('aria-label', 'Написати в Telegram');
+            link.removeAttribute('data-fake-href');
+        });
+        
+        // WhatsApp та Viber
+        const messengerLinks = document.querySelectorAll('a[data-fake-href*="whatsapp"], a[data-fake-href*="viber"]');
+        messengerLinks.forEach(link => {
+            let href = link.getAttribute('data-fake-href');
+            if (href.includes('whatsapp')) {
+                href = href.includes('api.whatsapp.com') ? href : 'https://api.whatsapp.com/send?phone=380987260217';
+                link.setAttribute('aria-label', 'Написати в WhatsApp');
+            } else if (href.includes('viber')) {
+                href = href.includes('viber://') ? href : 'viber://chat?number=%2B380987260217';
+                link.setAttribute('aria-label', 'Зв\'язатися через Viber');
+            }
+            link.setAttribute('href', href);
+            link.removeAttribute('data-fake-href');
+        });
+    }
+    
+    // --- 3. Оптимізація продуктивності ---
+    function optimizePerformance() {
+        console.log('⚡ Оптимізація продуктивності...');
+        
+        // Видалення lazy loading з LCP зображення
+        const galleryImages = document.querySelectorAll('.gallery__img');
+        galleryImages.forEach((img, index) => {
+            if (index === 0) {
+                img.removeAttribute('loading');
+                img.setAttribute('fetchpriority', 'high');
+                img.setAttribute('data-lcp', 'true');
+            }
+        });
+        
+        // Preconnect для зовнішніх ресурсів
+        addPreconnectLinks();
+        
+        // Lazy loading для інших зображень
+        setupIntersectionObserver();
+        
+        // Пасивні прослуховувачі
+        setupPassiveListeners();
+    }
+    
+    function addPreconnectLinks() {
+        const preconnectUrls = [
+            'https://fonts.googleapis.com',
+            'https://fonts.gstatic.com',
+            'https://www.googletagmanager.com'
+        ];
+        
+        preconnectUrls.forEach(url => {
+            const link = document.createElement('link');
+            link.rel = 'preconnect';
+            link.href = url;
+            if (url.includes('gstatic')) link.crossOrigin = 'anonymous';
+            document.head.appendChild(link);
+        });
+    }
+    
+    function setupIntersectionObserver() {
+        const imageObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
+                        img.removeAttribute('data-src');
+                    }
+                    if (supportsWebP && img.dataset.webp) {
+                        img.src = img.dataset.webp;
+                    }
+                    imageObserver.unobserve(img);
+                }
+            });
+        }, { rootMargin: '50px 0px', threshold: 0.01 });
+        
+        document.querySelectorAll('img:not([data-lcp])').forEach(img => {
+            imageObserver.observe(img);
+        });
+    }
+    
+    function setupPassiveListeners() {
+        const passiveEvents = ['scroll', 'touchstart', 'touchmove', 'wheel'];
+        passiveEvents.forEach(eventName => {
+            document.addEventListener(eventName, function() {}, { passive: true });
+        });
+    }
+    
+    // --- 4. Accessibility оптимізація ---
+    function improveAccessibility() {
+        console.log('♿ Покращення доступності...');
+        
+        // Кнопки та посилання
+        const buttons = document.querySelectorAll(
+            'button.search__button, button.counter-btn.__minus, button.counter-btn.__plus, ' +
+            'button.btn[data-panel], a.btn[href="#menu"], a.btn[data-button-action="search-toggle"], ' +
+            'a.j-compare-link, a.j-favorite-link, a.btn[href="#cart-drawer"], button.modal-close-btn, ' +
+            'a.j-buy-button-add, button.j-product-increase, button.j-product-decrease'
+        );
+        
+        buttons.forEach(button => {
+            if (!button.getAttribute('aria-label')) {
+                setAriaLabel(button);
+            }
+        });
+        
+        // Хлібні крихти
+        const breadcrumbHome = document.querySelector('.breadcrumbs__item a[href*="silakarpat.online"]');
+        if (breadcrumbHome && !breadcrumbHome.innerText.trim()) {
+            breadcrumbHome.setAttribute('aria-label', 'Головна сторінка');
+        }
+        
+        // Картки товарів
+        document.querySelectorAll('a.catalog-card__link').forEach(link => {
+            if (!link.getAttribute('aria-label')) {
+                const card = link.closest('.catalog-card');
+                const title = card?.querySelector('.catalog-card__title')?.innerText.trim();
+                link.setAttribute('aria-label', title || 'Переглянути товар');
+            }
+        });
+        
+        // Логотип бренду
+        const productLogoLink = document.querySelector('a.gallery__product-logo');
+        if (productLogoLink && !productLogoLink.getAttribute('aria-label')) {
+            const logoImg = productLogoLink.querySelector('img');
+            if (logoImg && logoImg.alt) {
+                productLogoLink.setAttribute('aria-label', `Перейти до товарів бренду $`);
+            } else {
+                productLogoLink.setAttribute('aria-label', 'Перейти до сторінки бренду');
+            }
+        }
+        
+        // Форми
+        setupFormAccessibility();
+        
+        // Live region для динамічних повідомлень
+        setupLiveRegion();
+    }
+    
+    function setAriaLabel(element) {
+        const labelMap = {
+            '.search__button': 'Виконати пошук',
+            '.counter-btn.__minus, .counter__btn--minus': 'Зменшити кількість',
+            '.counter-btn.__plus, .counter__btn--plus': 'Збільшити кількість',
+            '[data-panel="contacts"]': 'Відкрити контакти',
+            '[href="#menu"]': 'Відкрити головне меню',
+            '[data-button-action="search-toggle"]': 'Відкрити пошук',
+            '.j-compare-link': 'Перейти до порівняння',
+            '.j-favorite-link': 'Перейти до обраних',
+            '[href="#cart-drawer"]': 'Відкрити кошик',
+            '.modal-close-btn': 'Закрити вікно',
+            '.j-buy-button-add': 'Купити товар',
+            '.j-product-increase': 'Додати до кошика',
+            '.j-product-decrease': 'Вилучити з кошика'
+        };
+        
+        for (const [selector, label] of Object.entries(labelMap)) {
+            if (element.matches(selector)) {
+                const isDisabled = element.hasAttribute('disabled');
+                element.setAttribute('aria-label', label + (isDisabled ? ' (недоступно)' : ''));
+                
+                if (selector === '[href="#menu"]') {
+                    element.setAttribute('aria-expanded', 'false');
+                    element.addEventListener('click', () => {
+                        const isExpanded = element.getAttribute('aria-expanded') === 'true';
+                        element.setAttribute('aria-expanded', !isExpanded);
+                    });
+                }
+                break;
+            }
+        }
+    }
+    
+    function setupFormAccessibility() {
+        const inputs = document.querySelectorAll('input.counter-field, input.counter__input, input[type="search"]');
+        
+        inputs.forEach((input, index) => {
+            if (!input.id) {
+                input.id = `input-${Date.now()}-$`;
+            }
+            
+            const existingLabel = document.querySelector(`label[for="$"]`);
+            if (!existingLabel) {
+                const card = input.closest('.catalog-card');
+                const title = card?.querySelector('.catalog-card__title')?.innerText.trim() || 'товару';
+                
+                const label = document.createElement('label');
+                label.setAttribute('for', input.id);
+                label.className = 'visually-hidden';
+                label.textContent = input.matches('[type="search"]') ? 'Пошук товарів' : `Кількість для $`;
+                input.parentNode.insertBefore(label, input);
+                
+                if (input.matches('.counter-field, .counter__input')) {
+                    const description = document.createElement('span');
+                    description.id = `desc-$`;
+                    description.className = 'visually-hidden';
+                    description.textContent = `Від ${input.dataset.min || 1} до ${input.dataset.max || 'необмежено'}`;
+                    input.parentNode.appendChild(description);
+                    input.setAttribute('aria-describedby', description.id);
+                }
+            }
+        });
+    }
+    
+    function setupLiveRegion() {
+        if (!document.querySelector('[aria-live]')) {
+            const liveRegion = document.createElement('div');
+            liveRegion.setAttribute('aria-live', 'polite');
+            liveRegion.className = 'visually-hidden';
+            liveRegion.id = 'live-announcer';
+            document.body.appendChild(liveRegion);
+            
+            window.announceToScreenReader = function(message) {
+                liveRegion.textContent = message;
+                setTimeout(() => liveRegion.textContent = '', 1000);
+            };
+        }
+    }
+    
+    // --- 5. SEO структуровані дані ---
+    function addStructuredData() {
+        console.log('📊 Додавання структурованих даних...');
+        
+        if (!document.querySelector('script[type="application/ld+json"]')) {
+            const structuredData = {
+                "@context": "https://schema.org",
+                "@type": "Store",
+                "name": "HoroShop - Сила Карпат",
+                "url": "https://silakarpat.online",
+                "telephone": ["+380987260217", "+380931099261"],
+                "email": "silakarpat.info@gmail.com",
+                "sameAs": [
+                    "https://instagram.com/Mazur_ecoshop",
+                    "https://t.me/sofiamazur"
+                ],
+                "address": {
+                    "@type": "PostalAddress",
+                    "addressCountry": "UA"
+                },
+                "priceRange": "₴₴",
+                "paymentAccepted": "Cash, Credit Card"
+            };
+            
+            const script = document.createElement('script');
+            script.type = 'application/ld+json';
+            script.textContent = JSON.stringify(structuredData);
+            document.head.appendChild(script);
+        }
+    }
+    
+    // --- 6. Мета-теги та налаштування ---
+    function optimizeMetaTags() {
+        console.log('🏷️ Оптимізація мета-тегів...');
+        
+        // Мова сторінки
+        if (!document.documentElement.getAttribute('lang')) {
+            document.documentElement.setAttribute('lang', 'uk');
+        }
+        
+        // Viewport
+        let viewportMeta = document.querySelector('meta[name="viewport"]');
+        if (viewportMeta) {
+            const content = viewportMeta.getAttribute('content');
+            if (content.includes('maximum-scale=1') || content.includes('user-scalable=no')) {
+                viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1, user-scalable=yes');
+            }
+        } else {
+            viewportMeta = document.createElement('meta');
+            viewportMeta.name = 'viewport';
+            viewportMeta.content = 'width=device-width, initial-scale=1, user-scalable=yes';
+            document.head.appendChild(viewportMeta);
+        }
+        
+        // Безпека зовнішніх посилань
+        document.querySelectorAll('a[target="_blank"]').forEach(link => {
+            let rel = link.getAttribute('rel') || '';
+            if (!rel.includes('noopener')) rel += ' noopener';
+            if (!rel.includes('noreferrer')) rel += ' noreferrer';
+            link.setAttribute('rel', rel.trim());
+        });
+    }
+    
+    // --- 7. Стилі та UX ---
+    function addOptimizedStyles() {
+        if (!document.getElementById('horoshop-optimization-styles')) {
+            const style = document.createElement('style');
+            style.id = 'horoshop-optimization-styles';
+            style.innerHTML = `
+                .visually-hidden {
+                    position: absolute;
+                    width: 1px;
+                    height: 1px;
+                    margin: -1px;
+                    padding: 0;
+                    overflow: hidden;
+                    clip: rect(0, 0, 0, 0);
+                    border: 0;
+                }
+                
+                /* Покращена фокусування */
+                button:focus, a:focus, input:focus, select:focus, textarea:focus {
+                    outline: 3px solid #0066CC !important;
+                    outline-offset: 2px;
+                    box-shadow: 0 0 0 5px rgba(0, 102, 204, 0.2) !important;
+                    border-radius: 4px;
+                }
+                
+                /* ВИПРАВЛЕННЯ КОНТРАСТНОСТІ */
+                /* Статус "В наявності" - WCAG AA відповідний зелений */
+                .presence-status,
+                .product-header__availability, 
+                .mobile-product-header__availability {
+                    color: #006B3C !important;
+                    background-color: #F0F8F0 !important;
+                    font-weight: 600 !important;
+                    padding: 4px 8px !important;
+                    border-radius: 4px !important;
+                    border: 1px solid #006B3C !important;
+                }
+                
+                /* Покращення контрасту основного тексту */
+                body, .product-card, .empty-list__text {
+                    color: #212121 !important;
+                    line-height: 1.5 !important;
+                }
+                
+                .p-review-author__name, 
+                .p-review-meta__time, 
+                .footer {
+                    color: #212121 !important;
+                    font-size: clamp(16px, 4vw, 18px);
+                }
+                
+                .footer__development-link {
+                    color: #0066CC !important;
+                    text-decoration: underline;
+                }
+                
+                
+                /* Спеціально для counter кнопок */
+                .counter__btn, .counter-btn {
+                    min-width: 48px !important;
+                    min-height: 48px !important;
+                    padding: 12px !important;
+                    margin: 4px !important;
+                    font-size: 18px !important;
+                    font-weight: bold !important;
+                    border: 2px solid #0066CC !important;
+                    background-color: #FFFFFF !important;
+                    color: #0066CC !important;
+                    border-radius: 6px !important;
+                }
+                
+                .counter__btn:hover, .counter-btn:hover {
+                    background-color: #0066CC !important;
+                    color: #FFFFFF !important;
+                }
+                
+                .counter__btn:disabled, .counter-btn:disabled {
+                    background-color: #F5F5F5 !important;
+                    border-color: #CCCCCC !important;
+                    color: #666666 !important;
+                    cursor: not-allowed !important;
+                }
+                
+                /* Counter input поле */
+                .counter__input, input[type="number"] {
+                    min-width: 60px !important;
+                    min-height: 48px !important;
+                    padding: 12px 8px !important;
+                    font-size: 16px !important;
+                    text-align: center !important;
+                    border: 2px solid #CCCCCC !important;
+                    border-radius: 4px !important;
+                    color: #212121 !important;
+                    background-color: #FFFFFF !important;
+                }
+                
+                .counter__input:focus, input[type="number"]:focus {
+                    border-color: #0066CC !important;
+                    outline: 3px solid #0066CC !important;
+                    outline-offset: 1px !important;
+                }
+                
+                /* Counter контейнер */
+                .counter__container, .counter__box, .counter__field {
+					display: flex !important;
+					align-items: center !important;
+					gap: 8px !important; /* Збільшено gap для кращої відстані */
+					margin: 8px 0 !important;
+					min-width: 180px !important; /* Забезпечує простір для кнопок і поля вводу */
+					flex-wrap: nowrap !important; /* Запобігає перенесенню елементів */
+				}
+                
+                /* Сенсорна взаємодія */
+                .touch-active {
+                    background-color: rgba(0, 102, 204, 0.1) !important;
+                    transform: scale(0.95) !important;
+                    transition: all 0.1s ease !important;
+                }
+                
+                /* Логотипи та посилання */
+                .gallery__product-logo {
+                    min-width: 48px !important;
+                    min-height: 48px !important;
+                    display: inline-block !important;
+                    padding: 8px !important;
+                    border-radius: 4px !important;
+                }
+                
+                .gallery__product-logo:focus {
+                    outline: 3px solid #0066CC !important;
+                    background-color: rgba(0, 102, 204, 0.1) !important;
+                }
+                
+                /* Адаптивні покращення для мобільних */
+                @media (max-width: 768px) {
+                    button, a, [role="button"], input[type="number"] {
+                        min-width: 52px !important;
+                        min-height: 52px !important;
+                        padding: 14px !important;
+                        margin: 4px !important;
+                    }
+                    
+                    .counter__btn, .counter-btn {
+                        min-width: 52px !important;
+                        min-height: 52px !important;
+                        font-size: 20px !important;
+                        margin: 6px !important;
+                    }
+                    
+                    .counter__input, input[type="number"] {
+                        min-width: 70px !important;
+                        min-height: 52px !important;
+                        font-size: 18px !important;
+                    }
+                }
+                
+                /* Анімації для покращення UX */
+                @media (prefers-reduced-motion: no-preference) {
+                    button, a {
+                        transition: transform 0.1s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
+                    }
+                    
+                    button:hover:not(:disabled), a:hover {
+                        transform: translateY(-1px) !important;
+                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+                    }
+                }
+                
+                /* Покращення для зображень */
+                img {
+                    transition: opacity 0.3s ease;
+                }
+                
+                img[data-lcp] {
+                    opacity: 1 !important;
+                }
+                
+                /* Додаткові покращення контрастності */
+                .empty-list__text {
+                    color: #212121 !important;
+                    background-color: #F8F9FA !important;
+                    padding: 16px !important;
+                    border-radius: 8px !important;
+                    border: 1px solid #E9ECEF !important;
+                }
+                
+                /* Покращення для product-card */
+                .product-card {
+                    border: 1px solid #E9ECEF !important;
+                    background-color: #FFFFFF !important;
+                    color: #212121 !important;
+                }
+                
+                /* Висококонтрастний режим */
+                @media (prefers-contrast: high) {
+                    .presence-status,
+                    .product-header__availability, 
+                    .mobile-product-header__availability {
+                        color: #000000 !important;
+                        background-color: #FFFF00 !important;
+                        border-color: #000000 !important;
+                    }
+                    
+                    button, a, [role="button"] {
+                        border: 3px solid #000000 !important;
+                        background-color: #FFFFFF !important;
+                        color: #000000 !important;
+                    }
+                    
+                    button:focus, a:focus, input:focus {
+                        outline: 4px solid #000000 !important;
+                        box-shadow: none !important;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
+    
+    // --- 8. Сенсорна взаємодія ---
+    function setupTouchInteractions() {
+        if (isMobile) {
+            document.querySelectorAll('button, a, [role="button"]').forEach(element => {
+                element.addEventListener('touchstart', function() {
+                    this.classList.add('touch-active');
+                }, { passive: true });
+                
+                element.addEventListener('touchend', function() {
+                    this.classList.remove('touch-active');
+                }, { passive: true });
+                
+                element.addEventListener('touchcancel', function() {
+                    this.classList.remove('touch-active');
+                }, { passive: true });
+            });
+        }
+    }
+    
+    // --- 9. Спостерігач мутацій для динамічного контенту ---
+    function setupMutationObserver() {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                    // Нові кнопки
+                    const newButtons = document.querySelectorAll(
+                        'button.search__button:not([aria-label]), ' +
+                        'button.modal-close-btn:not([aria-label]), ' +
+                        '.counter-btn:not([aria-label])'
+                    );
+                    newButtons.forEach(setAriaLabel);
+                    
+                    // Нові інпути
+                    const newInputs = document.querySelectorAll(
+                        'input.counter-field:not([id]), ' +
+                        'input.counter__input:not([id]), ' +
+                        'input[type="search"]:not([id])'
+                    );
+                    newInputs.forEach(setupInputAccessibility);
+                    
+                    // Нові посилання товарів
+                    const newProductLinks = document.querySelectorAll('a.catalog-card__link:not([aria-label])');
+                    newProductLinks.forEach(link => {
+                        const card = link.closest('.catalog-card');
+                        const title = card?.querySelector('.catalog-card__title')?.innerText.trim();
+                        link.setAttribute('aria-label', title || 'Переглянути товар');
+                    });
+                    
+                    // Нові fake-href посилання
+                    const newFakeLinks = document.querySelectorAll('a[data-fake-href]');
+                    newFakeLinks.forEach(link => {
+                        const fakeHref = link.getAttribute('data-fake-href');
+                        if (fakeHref && fakeHref !== '#' && !fakeHref.startsWith('javascript:')) {
+                            const decodedHref = decodeURIComponent(fakeHref);
+                            link.setAttribute('href', decodedHref);
+                            link.removeAttribute('data-fake-href');
+                        }
+                    });
+                    
+                    // Нові gallery__thumb-link з data-href
+                    const newGalleryLinks = document.querySelectorAll('a.gallery__thumb-link.j-gallery-thumb[data-href]');
+                    newGalleryLinks.forEach(link => {
+                        const dataHref = link.getAttribute('data-href');
+                        if (dataHref && !dataHref.startsWith('javascript:')) {
+                            const decodedHref = decodeURIComponent(dataHref);
+                            link.setAttribute('href', decodedHref);
+                            link.setAttribute('aria-label', 'Переглянути зображення продукту');
+                            link.removeAttribute('data-href');
+                            
+                            // Додавання alt для внутрішніх img, якщо вони існують
+                            const img = link.querySelector('img');
+                            if (img && !img.getAttribute('alt')) {
+                                img.setAttribute('alt', 'Зображення продукту Мелатонін Р.К. 60 таблеток');
+                            }
+                        }
+                    });
+                }
+            });
+        });
+        
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
+    
+    function setupInputAccessibility(input) {
+        const index = Array.from(document.querySelectorAll('input')).indexOf(input);
+        input.id = `input-dynamic-${Date.now()}-$`;
+        
+        const card = input.closest('.catalog-card');
+        const title = card?.querySelector('.catalog-card__title')?.innerText.trim() || 'товару';
+        
+        const label = document.createElement('label');
+        label.setAttribute('for', input.id);
+        label.className = 'visually-hidden';
+        label.textContent = input.matches('[type="search"]') ? 'Пошук товарів' : `Кількість для $`;
+        input.parentNode.insertBefore(label, input);
+    }
+    
+    // --- 10. WebP підтримка ---
+    function checkWebPSupport() {
+        return new Promise(resolve => {
+            const webP = new Image();
+            webP.onload = webP.onerror = () => resolve(webP.height === 2);
+            webP.src = 'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
+        });
+    }
+    
+    // --- 11. Виправлення контрастності та розмірів ---
+    function fixAccessibilityIssues() {
+        console.log('🎨 Виправлення контрастності та розмірів...');
+        
+        // Виправлення зеленого кольору "В наявності" на WCAG AA сумісний
+        document.querySelectorAll('.presence-status, [style*="color: #17b260"]').forEach(element => {
+            element.style.color = '#006B3C';
+            element.style.backgroundColor = '#F0F8F0';
+            element.style.fontWeight = '600';
+            element.style.padding = '4px 8px';
+            element.style.borderRadius = '4px';
+            element.style.border = '1px solid #006B3C';
+        });
+        
+        // Виправлення основного тексту body
+        document.body.style.color = '#212121';
+        document.body.style.lineHeight = '1.5';
+        
+        // Виправлення тексту порожнього списку
+        document.querySelectorAll('.empty-list__text').forEach(element => {
+            element.style.color = '#212121';
+            element.style.backgroundColor = '#F8F9FA';
+            element.style.padding = '16px';
+            element.style.borderRadius = '8px';
+            element.style.border = '1px solid #E9ECEF';
+        });
+        
+        // Виправлення product-card контрастності
+        document.querySelectorAll('.product-card').forEach(card => {
+            card.style.border = '1px solid #E9ECEF';
+            card.style.backgroundColor = '#FFFFFF';
+            card.style.color = '#212121';
+        });
+        
+        // Збільшення областей дотику для counter кнопок
+        document.querySelectorAll('.counter__btn, .counter-btn').forEach(btn => {
+            btn.style.minWidth = '48px';
+            btn.style.minHeight = '48px';
+            btn.style.padding = '12px';
+            btn.style.margin = '4px';
+            btn.style.fontSize = '18px';
+            btn.style.fontWeight = 'bold';
+            btn.style.border = '2px solid #0066CC';
+            btn.style.backgroundColor = '#FFFFFF';
+            btn.style.color = '#0066CC';
+            btn.style.borderRadius = '6px';
+            btn.style.touchAction = 'manipulation';
+        });
+        
+        // Збільшення input полів counter
+        document.querySelectorAll('.counter__input, input[type="number"]').forEach(input => {
+            input.style.minWidth = '60px';
+            input.style.minHeight = '48px';
+            input.style.padding = '12px 8px';
+            input.style.fontSize = '16px';
+            input.style.textAlign = 'center';
+            input.style.border = '2px solid #CCCCCC';
+            input.style.borderRadius = '4px';
+            input.style.color = '#212121';
+            input.style.backgroundColor = '#FFFFFF';
+        });
+        
+        // Мобільні розміри
+        if (isMobile) {
+            document.querySelectorAll('.counter__btn, .counter-btn').forEach(btn => {
+                btn.style.minWidth = '52px';
+                btn.style.minHeight = '52px';
+                btn.style.fontSize = '20px';
+                btn.style.margin = '6px';
+            });
+            
+            document.querySelectorAll('.counter__input, input[type="number"]').forEach(input => {
+                input.style.minWidth = '70px';
+                input.style.minHeight = '52px';
+                input.style.fontSize = '18px';
+            });
+        }
+        
+        console.log('✅ Контрастність та розміри виправлено');
+    }
+    // --- Ініціалізація всіх оптимізацій ---
+    function initializeOptimizations() {
+        try {
+            // Критичні оптимізації (синхронно)
+            fixSEOLinks();
+            optimizeMetaTags();
+            addOptimizedStyles();
+            fixAccessibilityIssues();
+            
+            // Менш критичні оптимізації
+            setTimeout(() => {
+                improveAccessibility();
+                optimizePerformance();
+                addStructuredData();
+                setupTouchInteractions();
+                setupMutationObserver();
+                
+                console.log('✅ Всі оптимізації HoroShop завершено!');
+                
+                // Повідомлення для розробників
+                if (window.location.hostname === 'localhost' || window.location.hostname.includes('dev')) {
+                    console.log('📋 Звіт про оптимізацію:', {
+                        seoLinks: document.querySelectorAll('a[href]:not([href^="#"]):not([href^="javascript:"])').length,
+                        accessibleButtons: document.querySelectorAll('button[aria-label], a[aria-label]').length,
+                        optimizedImages: document.querySelectorAll('img[fetchpriority], img[data-lcp]').length,
+                        structuredData: !!document.querySelector('script[type="application/ld+json"]'),
+                        contrastFixed: document.querySelectorAll('[style*="#006B3C"]').length
+                    });
+                }
+            }, 100);
+            
+        } catch (error) {
+            console.error('❌ Помилка при ініціалізації оптимізацій:', error);
+        }
+    }
+    
+    // Запуск оптимізацій
+    initializeOptimizations();
+    
+    // Додаткові оптимізації після повного завантаження
+    window.addEventListener('load', () => {
+        // Service Worker для кешування
+        if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
+            navigator.serviceWorker.register('/sw.js').catch(() => {
+                console.log('Service Worker не знайдено, створіть файл sw.js для кешування');
+            });
+        }
+        
+        console.log('🎉 HoroShop повністю оптимізовано!');
+    });
+});

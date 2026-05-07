@@ -1,0 +1,566 @@
+// source: https://kapuni.shop/
+// extracted: 2026-05-07T21:20:11.432Z
+// scripts: 6
+
+// === script #1 (length=4605) ===
+(function () {
+  if (window.__kapuniB2bBannerInit) return;
+  window.__kapuniB2bBannerInit = true;
+
+  var STORAGE_KEY = "kapuni_b2b_banner_closed";
+  var HIDE_HOURS = 24;
+
+  var closed = localStorage.getItem(STORAGE_KEY);
+  if (closed && Date.now() - Number(closed) < HIDE_HOURS * 36e5) return;
+
+  var style = document.createElement("style");
+  style.textContent = [
+    '#kapuni-b2b-banner{display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;box-sizing:border-box!important;padding:10px 40px 10px 16px!important;text-align:center!important;background:linear-gradient(135deg,hsl(220 20% 4%) 0%,hsl(220 25% 8%) 50%,hsl(220 20% 6%) 100%)!important;border-bottom:1px solid hsl(220 20% 14%)!important;position:sticky!important;top:0!important;z-index:999!important;overflow:hidden!important;cursor:pointer!important;text-decoration:none!important;color:inherit!important;}',
+    '#kapuni-b2b-banner::before{content:"";position:absolute;inset:-120px -80px auto auto;width:260px;height:260px;border-radius:9999px;background:radial-gradient(circle,hsl(160 100% 50%/0.10) 0%,transparent 70%);pointer-events:none;}',
+    '#kapuni-b2b-banner .kb-inner{font-size:14px!important;line-height:1.35!important;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif!important;}',
+    '#kapuni-b2b-banner .kb-w{color:#fff!important;font-weight:500!important;}',
+    '#kapuni-b2b-banner .kb-g{font-weight:700!important;background-image:linear-gradient(90deg,#00ffb2,#00d4ff,#a855f7,#f97316,#eab308,#22c55e,#00ffb2,#00d4ff,#a855f7,#00ffb2)!important;background-size:300% 100%!important;-webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;animation:kbWave 4s linear infinite!important;}',
+    '#kapuni-b2b-banner .kb-close{position:absolute!important;right:10px!important;top:50%!important;transform:translateY(-50%)!important;background:none!important;border:none!important;color:hsl(0 0% 100%/0.4)!important;font-size:18px!important;cursor:pointer!important;padding:4px 6px!important;line-height:1!important;z-index:2!important;transition:color .2s!important;}',
+    '#kapuni-b2b-banner .kb-close:hover{color:hsl(0 0% 100%/0.8)!important;}',
+    '@keyframes kbWave{0%{background-position:0% 50%}100%{background-position:-300% 50%}}'
+  ].join("\n");
+  document.head.appendChild(style);
+
+  var isRu =
+    /^ru$/i.test(document.documentElement.lang || "") ||
+    /(^|\/)ru(\/|$)/i.test(location.pathname) ||
+    /[?&](lang|locale)=ru\b/i.test(location.search);
+
+  var white = isRu ? "Приглашаем к сотрудничеству " : "Запрошуємо до співпраці ";
+  var glow  = isRu ? "настоящих профессионалов" : "справжніх професіоналів";
+
+  var banner = document.createElement("a");
+  banner.id = "kapuni-b2b-banner";
+  banner.href = "http://b2b.kapuni.shop";
+  banner.target = "_blank";
+  banner.rel = "noopener";
+  banner.innerHTML =
+    '<span class="kb-inner"><span class="kb-w">' + white + '</span>' +
+    '<span class="kb-g">' + glow + '</span></span>' +
+    '<button class="kb-close" aria-label="Close">&times;</button>';
+
+  banner.querySelector(".kb-close").addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    localStorage.setItem(STORAGE_KEY, String(Date.now()));
+    banner.remove();
+  });
+
+  var MOBILE = 768;
+
+  function findHeader() {
+    var sel = ["header",'[role="banner"]',"#header",".header",".site-header",".header-wrapper"];
+    for (var i = 0; i < sel.length; i++) {
+      var el = document.querySelector(sel[i]);
+      if (el && el.offsetHeight > 20) return el;
+    }
+    return null;
+  }
+
+  function place() {
+    if (window.innerWidth < MOBILE) {
+      var bg = document.querySelector(".banners-group");
+      if (bg) { bg.insertAdjacentElement("beforebegin", banner); return; }
+    }
+    var header = findHeader();
+    if (header) header.insertAdjacentElement("beforebegin", banner);
+    else document.body.insertBefore(banner, document.body.firstChild);
+  }
+
+  function init() {
+    place();
+    var last = window.innerWidth < MOBILE;
+    window.addEventListener("resize", function () {
+      var now = window.innerWidth < MOBILE;
+      if (now !== last) { last = now; place(); }
+    });
+  }
+
+  var tries = 0;
+  var timer = setInterval(function () {
+    tries++;
+    var ready = (window.innerWidth < MOBILE) ? !!document.querySelector(".banners-group") : !!findHeader();
+    if (ready || tries > 40) { clearInterval(timer); init(); }
+  }, 150);
+})();
+
+// === script #2 (length=3734) ===
+(function () {
+  // Працюємо тільки на десктопі
+  if (window.innerWidth < 1024) return;
+
+  function initSearchTyping() {
+    var inputs = document.querySelectorAll('.search__input');
+    if (!inputs.length) return;
+
+    var searchInput = null;
+    for (var i = 0; i < inputs.length; i++) {
+      var el = inputs[i];
+      if (el.offsetParent !== null && el.getBoundingClientRect().width > 0) {
+        searchInput = el;
+        break;
+      }
+    }
+    if (!searchInput) return;
+
+    var htmlLang = (document.documentElement.lang || '').toLowerCase();
+    var isRu = htmlLang.indexOf('ru') !== -1;
+
+    // ТУТ РЕДАГУЄМО СПИСОК ФРАЗ
+    var phrasesUa = [
+      'пошук товарів',
+      'розетка Schneider Electric',
+      'дифавтомат CHINT',
+      'LED лампа Eurolamp',
+      'щиток для квартири',
+      'автоматичний вимикач 16А',
+      'реле напруги Zubr',
+      'розумне реле Wi-Fi'
+    ];
+
+    var phrasesRu = [
+      'поиск товаров',
+      'розетка Schneider Electric',
+      'дифавтомат CHINT',
+      'LED лампа Eurolamp',
+      'щиток для квартиры',
+      'автоматический выключатель 16А',
+      'реле напряжения Zubr',
+      'умное реле Wi-Fi'
+    ];
+
+    var phrases = isRu ? phrasesRu : phrasesUa;
+
+    var index = 0;
+    var charIndex = 0;
+    var typingTimer = null;
+    var pauseAfterWord = 1500;
+    var speed = 80;
+    var userInteracted = false;
+
+    // кольори для переливання (бірюзовий → сірий)
+    var startColor = [0, 255, 178];   // #00ffb2
+    var endColor   = [158, 158, 158]; // #9e9e9e
+
+    function setPlaceholderColor(progress) {
+      // progress 0..1
+      var r = Math.round(startColor[0] + (endColor[0] - startColor[0]) * progress);
+      var g = Math.round(startColor[1] + (endColor[1] - startColor[1]) * progress);
+      var b = Math.round(startColor[2] + (endColor[2] - startColor[2]) * progress);
+      var color = 'rgb(' + r + ',' + g + ',' + b + ')';
+      searchInput.style.setProperty('--search-ph-color', color);
+    }
+
+    // прибираємо статичний плейсхолдер із верстки
+    searchInput.setAttribute('placeholder', '');
+    setPlaceholderColor(0); // починаємо з бірюзового
+
+    function typeNextChar() {
+      if (!searchInput || userInteracted) return;
+
+      var text = phrases[index];
+      if (charIndex === 0) {
+        searchInput.setAttribute('placeholder', '');
+        setPlaceholderColor(0);
+      }
+
+      if (charIndex < text.length) {
+        searchInput.setAttribute('placeholder', text.slice(0, charIndex + 1));
+
+        var progress = text.length ? charIndex / text.length : 1;
+        setPlaceholderColor(progress);
+
+        charIndex++;
+        typingTimer = setTimeout(typeNextChar, speed);
+      } else {
+        // слово повністю – робимо плейсхолдер "нативним" сірим
+        setPlaceholderColor(1);
+        typingTimer = setTimeout(function () {
+          if (userInteracted) return;
+          index = (index + 1) % phrases.length;
+          charIndex = 0;
+          typeNextChar();
+        }, pauseAfterWord);
+      }
+    }
+
+    function stopTyping() {
+      userInteracted = true;
+      if (typingTimer) {
+        clearTimeout(typingTimer);
+        typingTimer = null;
+      }
+      // фіксуємо нормальний колір плейсхолдера
+      searchInput.style.setProperty('--search-ph-color', '#9e9e9e');
+    }
+
+    searchInput.addEventListener('focus', stopTyping);
+    searchInput.addEventListener('input', stopTyping);
+    searchInput.addEventListener('keydown', stopTyping);
+
+    typeNextChar();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSearchTyping);
+  } else {
+    initSearchTyping();
+  }
+})();
+
+// === script #3 (length=3283) ===
+(function () {
+  function initBannerCarousel() {
+    // тільки десктоп
+    if (window.innerWidth < 1024) return;
+
+    var section = document.querySelector('.banners.banners--3x');
+    if (!section) return;
+
+    // щоб не ініціалізувати двічі
+    if (section.dataset.carouselInit === '1') return;
+    section.dataset.carouselInit = '1';
+
+    var wrapper = section.querySelector('.banners__wrapper');
+    if (!wrapper) return;
+    var container = wrapper.querySelector('.banners__container');
+    if (!container) return;
+    var grid = container.querySelector('.banners__grid');
+    if (!grid) return;
+
+    var cols = Array.prototype.slice.call(grid.children);
+    if (!cols.length) return;
+
+    // створюємо viewport та track
+    var viewport = document.createElement('div');
+    viewport.className = 'banner-carousel__viewport';
+
+    var track = document.createElement('div');
+    track.className = 'banner-carousel__track';
+
+    cols.forEach(function (col) {
+      track.appendChild(col);
+    });
+
+    grid.innerHTML = '';
+    grid.classList.add('banner-carousel');
+    viewport.appendChild(track);
+    grid.appendChild(viewport);
+
+    // стрілки
+    var prev = document.createElement('button');
+    prev.type = 'button';
+    prev.className = 'banner-carousel__arrow banner-carousel__arrow--prev';
+    prev.innerHTML =
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" fill="currentColor"/></svg>';
+
+    var next = document.createElement('button');
+    next.type = 'button';
+    next.className = 'banner-carousel__arrow banner-carousel__arrow--next';
+    next.innerHTML =
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z" fill="currentColor"/></svg>';
+
+    grid.appendChild(prev);
+    grid.appendChild(next);
+
+    var index = 0;
+    var visiblePerView = 3;         // скільки банерів видно одночасно
+    var total = cols.length;
+    var maxIndex = Math.max(0, total - visiblePerView);
+
+    function update() {
+      var percent = -(100 / visiblePerView) * index;
+      track.style.transform = 'translateX(' + percent + '%)';
+    }
+
+    function goPrev() {
+      index = index <= 0 ? maxIndex : index - 1;
+      update();
+      restartAuto();
+    }
+
+    function goNext() {
+      index = index >= maxIndex ? 0 : index + 1;
+      update();
+      restartAuto();
+    }
+
+    prev.addEventListener('click', goPrev);
+    next.addEventListener('click', goNext);
+
+    // автопрокрутка
+    var autoTimer;
+    function startAuto() {
+      if (maxIndex === 0) return;
+      autoTimer = setInterval(function () {
+        goNext();
+      }, 5000); // 5 секунд
+    }
+
+    function stopAuto() {
+      if (autoTimer) {
+        clearInterval(autoTimer);
+        autoTimer = null;
+      }
+    }
+
+    function restartAuto() {
+      stopAuto();
+      startAuto();
+    }
+
+    section.addEventListener('mouseenter', stopAuto);
+    section.addEventListener('mouseleave', startAuto);
+
+    update();
+    startAuto();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBannerCarousel);
+  } else {
+    initBannerCarousel();
+  }
+})();
+
+// === script #4 (length=5434) ===
+(function () {
+  // ---- НАЛАШТУВАННЯ
+  const BRAND_ACCENT = "#00ffb2";
+  const BG_DARK = "#0b0f10";
+  const TEXT_LIGHT = "#ffffff";
+  const FRIDAY_START_HOUR = 18;
+  const HIDE_MINUTES = 5; // 5 хвилин не показувати після закриття
+
+  // ---- Перевірка таймера приховування
+  const lastClose = sessionStorage.getItem("kapuniBannerClosedAt");
+  if (lastClose && Date.now() - parseInt(lastClose, 10) < HIDE_MINUTES * 60 * 1000) return;
+
+  // ---- Прев’ю: ?previewWeekendBanner=1 або localStorage.previewWeekendBanner = '1'
+  const qs = new URLSearchParams(location.search);
+  const FORCE_PREVIEW = qs.has("previewWeekendBanner") || localStorage.getItem("previewWeekendBanner") === "1";
+
+  // ---- Визначення мови
+  function getSiteLang() {
+    const htmlLang = (document.documentElement.lang || "").toLowerCase();
+    if (htmlLang.startsWith("ru")) return "ru";
+    const p = location.pathname.replace(/\/+$/,'');
+    if (p === "/ru" || p.startsWith("/ru/")) return "ru";
+    return "uk";
+  }
+  const LANG = getSiteLang();
+
+  // ---- Час Київ
+  function kyivNowDate() {
+    const parts = new Intl.DateTimeFormat("uk-UA", {
+      timeZone: "Europe/Kyiv",
+      year: "numeric", month: "2-digit", day: "2-digit",
+      hour: "2-digit", minute: "2-digit", second: "2-digit",
+      hour12: false
+    }).formatToParts(new Date());
+    const get = (t) => parts.find(p => p.type === t).value;
+    return new Date(`${get("year")}-${get("month")}-${get("day")}T${get("hour")}:${get("minute")}:${get("second")}`);
+  }
+
+  function isShowWindowKyiv(d) {
+    if (FORCE_PREVIEW) return true;
+    const day = d.getDay(); const hour = d.getHours();
+    if (day === 5) return hour >= FRIDAY_START_HOUR;
+    return (day === 6 || day === 0);
+  }
+
+  function nextMondayKyiv(fromDate) {
+    const day = fromDate.getDay();
+    let add = (1 - day + 7) % 7;
+    if (add === 0) add = 7;
+    const m = new Date(fromDate);
+    m.setDate(m.getDate() + add);
+    return m;
+  }
+
+  function formatByLang(d, lang) {
+    const locale = lang === "ru" ? "ru-RU" : "uk-UA";
+    return new Intl.DateTimeFormat(locale, {
+      timeZone: "Europe/Kyiv",
+      day: "2-digit", month: "2-digit", year: "numeric"
+    }).format(d);
+  }
+
+  const nowKyiv = kyivNowDate();
+  if (!isShowWindowKyiv(nowKyiv)) return;
+
+  const mondayStr = formatByLang(nextMondayKyiv(nowKyiv), LANG);
+
+  // ---- I18N короткий текст
+  const i18n = {
+    uk: {
+      body: `🦆 Пан Капунь відпочиває на вихідних! Ваше замовлення буде опрацьовано <strong>у понеділок ${mondayStr} з 10:00</strong>.`,
+      close: "Закрити"
+    },
+    ru: {
+      body: `🦆 Пан Капунь отдыхает на выходных! Ваш заказ будет обработан <strong>в понедельник ${mondayStr} с 10:00</strong>.`,
+      close: "Закрыть"
+    }
+  };
+  const T = i18n[LANG];
+
+  // ---- СТИЛІ
+  const css = `
+  #kapuniWeekendBanner {
+    position: fixed; top: 0; left: 0; right: 0;
+    width: 100%; background: ${BG_DARK};
+    color: ${TEXT_LIGHT};
+    border-bottom: 2px solid ${BRAND_ACCENT};
+    z-index: 99999;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Arial, sans-serif;
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  #kapuniWeekendBanner .inner {
+    max-width: 1200px; margin: 0 auto; padding: 8px 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  #kapuniWeekendBanner .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: ${BRAND_ACCENT}; box-shadow: 0 0 10px ${BRAND_ACCENT};
+  }
+  #kapuniWeekendBanner .msg { font-size: 14px; line-height: 1.35; flex: 1 1 auto; }
+  #kapuniWeekendBanner .msg strong { color: ${BRAND_ACCENT}; }
+  #kapuniWeekendBanner .close {
+    background: transparent; border: none; color: ${TEXT_LIGHT};
+    font-size: 18px; cursor: pointer; padding: 4px 8px;
+  }
+  @media (min-width: 768px){ #kapuniWeekendBanner .msg { font-size: 15px; } }
+  `;
+
+  // ---- HTML
+  const bar = document.createElement("div");
+  bar.id = "kapuniWeekendBanner";
+  bar.innerHTML = `
+    <div class="inner">
+      <span class="dot" aria-hidden="true"></span>
+      <div class="msg">${T.body}</div>
+      <button class="close" aria-label="${T.close}" title="${T.close}">×</button>
+    </div>
+  `;
+
+  const style = document.createElement("style");
+  style.textContent = css;
+
+  const originalBodyPaddingTop = getComputedStyle(document.body).paddingTop;
+  const originalHtmlScrollPaddingTop = getComputedStyle(document.documentElement).scrollPaddingTop;
+
+  function mount() {
+    document.documentElement.prepend(style);
+    document.body.prepend(bar);
+    requestAnimationFrame(() => {
+      const h = bar.offsetHeight || 0;
+      document.body.style.paddingTop = `calc(${originalBodyPaddingTop} + ${h}px)`;
+      document.documentElement.style.scrollPaddingTop = `calc(${originalHtmlScrollPaddingTop || "0px"} + ${h}px)`;
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", mount);
+  } else {
+    mount();
+  }
+
+  // ---- Закриття
+  bar.querySelector(".close").addEventListener("click", function(){
+    sessionStorage.setItem("kapuniBannerClosedAt", Date.now().toString());
+    document.body.style.paddingTop = originalBodyPaddingTop || "";
+    document.documentElement.style.scrollPaddingTop = originalHtmlScrollPaddingTop || "";
+    bar.remove();
+    style.remove();
+  });
+})();
+
+// === script #5 (length=986) ===
+document.addEventListener("DOMContentLoaded", function() {
+    // Знайдемо контейнер футера
+    var footerWrap = document.querySelector(".footer__col-wrap");
+
+    if (footerWrap) {
+        // Створюємо новий div для зображення
+        var imageContainer = document.createElement("div");
+        imageContainer.className = "footer__image-container";
+        imageContainer.style.textAlign = "center"; // Вирівнюємо по центру
+
+        // Створюємо зображення
+        var img = document.createElement("img");
+        img.src = "https://file.kapuni.shop/~/share/ggFfJQNrt3SG/ID15807728_Kapuni_AIM-logo_Schneider.png";
+        img.alt = "Kapuni AIM Logo";
+        img.style.maxWidth = "150px"; // Адаптація розміру
+        img.style.height = "auto";
+        img.style.marginTop = "10px";
+
+        // Додаємо зображення в контейнер
+        imageContainer.appendChild(img);
+
+        // Додаємо контейнер у футер
+        footerWrap.appendChild(imageContainer);
+    }
+});
+
+// === script #6 (length=2160) ===
+(function() {
+    // Функція для показу пасхалки
+    function showEasterEgg() {
+      // Створюємо елемент зображення, якщо його ще немає
+      var egg = document.getElementById("easterEgg");
+      if (!egg) {
+        egg = document.createElement("img");
+        egg.id = "easterEgg";
+        egg.src = "https://file.kapuni.shop/~/share/pH69RNEdwx3w/kapun_duck.png";
+        // Початкові стилі: розташування за межами екрану (знизу)
+        egg.style.position = "fixed";
+        egg.style.bottom = "-200px";
+        egg.style.left = "10px";
+        egg.style.width = "150px"; // регулюйте за потребою
+        egg.style.zIndex = "9999";
+        egg.style.transition = "bottom 0.5s ease-in-out";
+        document.body.appendChild(egg);
+      }
+      
+      // Відтворення звуку Toasty (зверніть увагу, що клікове подія дозволяє відтворення на мобільних)
+      var audio = new Audio("https://file.kapuni.shop/~/share/T7z9rMawc2qS/toasty-mk-101soundboards.mp3");
+      audio.play();
+      
+      // Запускаємо анімацію: через 100 мс зображення піднімається у видиму область
+      setTimeout(function() {
+        egg.style.bottom = "10px";
+      }, 100);
+      
+      // Через 1.5 сек. повертаємо зображення назад (зникає)
+      setTimeout(function() {
+        egg.style.bottom = "-200px";
+      }, 1500);
+      
+      // Після завершення анімації видаляємо елемент із DOM
+      setTimeout(function() {
+        if (egg.parentNode) {
+          egg.parentNode.removeChild(egg);
+        }
+      }, 2500);
+    }
+    
+    // Робимо функцію доступною глобально, якщо знадобиться виклик ззовні
+    window.showEasterEgg = showEasterEgg;
+    
+    // Додаємо обробник події для всіх кнопок "Купити"
+    document.addEventListener('DOMContentLoaded', function() {
+      // Знаходимо всі елементи, що відповідають тригеру (за класом j-buy-button-add)
+      var buyButtons = document.querySelectorAll('.j-buy-button-add');
+      buyButtons.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          // Виклик функції при кліку
+          window.showEasterEgg();
+        });
+      });
+    });
+  })();

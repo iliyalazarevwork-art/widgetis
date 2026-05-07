@@ -1,0 +1,187 @@
+// source: https://zakwatches.com.ua/
+// extracted: 2026-05-07T21:23:16.011Z
+// scripts: 3
+
+// === script #1 (length=738) ===
+// На странице оформления заказа
+document.addEventListener("DOMContentLoaded", function() {
+    var form = document.querySelector("form"); // Найти форму заказа
+    if (!form) return;
+
+    // Создаем скрытое поле honeypot
+    var hpField = document.createElement("input");
+    hpField.type = "text";
+    hpField.name = "hp_field"; // имя для проверки
+    hpField.style.display = "none"; // скрытое для пользователя
+    form.appendChild(hpField);
+
+    // Проверка перед отправкой
+    form.addEventListener("submit", function(e) {
+        if (hpField.value !== "") {
+            // Если поле заполнено, это бот
+            e.preventDefault();
+            alert("Ошибка: подозрительная активность");
+        }
+    });
+});
+
+// === script #2 (length=1533) ===
+(function waitBannersGroup() {
+  const bannersGroup = document.querySelector('.banners-group');
+  if (!bannersGroup) {
+    setTimeout(waitBannersGroup, 100);
+    return;
+  }
+
+  if (document.querySelector('.home-categories')) return;
+
+  const html = `
+    <div class="home-categories-wrapper">
+      <div class="home-categories">
+        
+        <a href="/male/" class="home-category">
+          <div class="home-category-card">
+            <img src="https://zakwatches.com.ua/content/images/34/500x500l80nn0/87760817904778.webp" alt="">
+          </div>
+          <span>Чоловічі</span>
+        </a>
+
+        <a href="/female/" class="home-category">
+          <div class="home-category-card">
+            <img src="https://zakwatches.com.ua/content/images/35/500x500l80nn0/92569313337660.webp" alt="">
+          </div>
+          <span>Жіночі</span>
+        </a>
+
+        <a href="/sport/" class="home-category">
+          <div class="home-category-card">
+            <img src="https://zakwatches.com.ua/content/images/41/500x500l80nn0/51354797323950.webp" alt="">
+          </div>
+          <span>Спортивні</span>
+        </a>
+
+        <a href="/mekhanichni/" class="home-category">
+          <div class="home-category-card">
+            <img src="https://zakwatches.com.ua/content/images/1/500x500l80nn0/52184925804208.webp" alt="">
+          </div>
+          <span>Механічні</span>
+        </a>
+
+      </div>
+    </div>
+  `;
+
+  bannersGroup.insertAdjacentHTML('afterend', html);
+})();
+
+// === script #3 (length=2724) ===
+// мобильная версия css
+(function () {
+
+  function applyMobileCategories() {
+
+    if (window.innerWidth > 768) return;
+    if (document.getElementById('mobile-home-categories-style')) return;
+
+    const style = document.createElement('style');
+    style.id = 'mobile-home-categories-style';
+
+    style.innerHTML = `
+      /* ===== MOBILE HOME CATEGORIES (LIKE DESKTOP) ===== */
+
+      .home-categories {
+        display: flex !important;
+        justify-content: flex-start !important;
+        gap: 0px !important;
+        overflow-x: auto !important;
+        padding: 10px 0px 10px !important;
+        scroll-snap-type: x mandatory !important;
+        -webkit-overflow-scrolling: touch !important;
+      margin: 10px 0 0 0;
+      }
+
+      .home-categories::-webkit-scrollbar {
+        display: none !important;
+      }
+
+.home-category {
+  flex: 0 0 62% !important;   /* было 72% */
+  scroll-snap-align: start !important;
+  text-align: center !important;
+}
+
+.home-category-card {
+  height: 230px !important;   /* чуть ниже */
+  border-radius: 22px !important;
+  background: #2f3438 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 12px 28px rgba(0,0,0,.28) !important;
+}
+
+.home-category-card img {
+  max-width: 100% !important;  /* чуть компактнее */
+  max-height: 68% !important;
+}
+
+      .home-category span {
+        display: block !important;
+        margin-top: 12px !important;
+        font-size: 18px !important;
+        font-weight: 500 !important;
+        color: #111 !important;
+        position: static !important;
+        text-shadow: none !important;
+      }
+
+      @media (max-width: 440px) {
+        .home-category {
+          flex: 0 0 24% !important;
+        padding-left: 10px;
+        }
+
+       .heading.heading--l {
+            text-align: center;
+         }
+
+        .home-category-card {
+          height: 160px !important;
+        }
+
+        .home-category span {
+             font-size: 14px !important;
+        }
+/***бордер на товары на главной***/
+
+.storefront .carousel__item {
+    border: 1px solid #aba9a9;
+    padding: 10px 10px 10px 10px !important;
+    margin: 0 0 0 0;
+}
+.storefront .carousel__item:first-child {
+    border-radius: 0px 0 0 0px;
+} 
+.storefront .carousel__item:last-child {
+    border-radius: 0 0px 0px 0;
+}
+.storefront .product-sticker.product-sticker--modern.j-product-stickers {
+    margin: 0px 0 0 -10px;
+}
+
+
+
+
+
+
+
+      } /****END MEDIA**/
+    `;
+
+    document.head.appendChild(style);
+  }
+
+  applyMobileCategories();
+  window.addEventListener('resize', applyMobileCategories);
+
+})();

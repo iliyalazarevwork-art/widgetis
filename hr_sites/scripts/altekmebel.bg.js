@@ -1,0 +1,148 @@
+// source: https://altekmebel.bg/
+// extracted: 2026-05-07T21:19:52.209Z
+// scripts: 2
+
+// === script #1 (length=654) ===
+var _protocol="https:"==document.location.protocol?"https://":"http://";
+    _site_hash_code = "ade8b840e938a1fe073fceef88884789",_suid=70970, plerdyScript=document.createElement("script");
+    plerdyScript.setAttribute("defer",""),plerdyScript.dataset.plerdymainscript="plerdymainscript",
+    plerdyScript.src="https://a.plerdy.com/public/js/click/main.js?v="+Math.random();
+    var plerdymainscript=document.querySelector("[data-plerdymainscript='plerdymainscript']");
+    plerdymainscript&&plerdymainscript.parentNode.removeChild(plerdymainscript);
+    try{document.head.appendChild(plerdyScript)}catch(t){console.log(t,"unable add script tag")}
+
+// === script #2 (length=4625) ===
+(() => {
+  const CONVERSION_RATE = 1.95583;
+  let isProcessing = false;
+
+  const injectStyles = () => {
+    if (document.getElementById("dual-price-style")) return;
+    const style = document.createElement("style");
+    style.id = "dual-price-style";
+    style.textContent = `
+      .dual-price {
+        font-weight: bold;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: baseline !important;
+        gap: 12px !important;
+        flex-wrap: wrap;
+      }
+      
+      /* Шрифт для каталога (Евро) */
+      .catalogCard-price .dual-price, 
+      .catalog-card__price .dual-price {
+        font-size: 18px;
+      }
+
+      /* Шрифт для страницы товара (Евро) */
+      .product-price__item .dual-price,
+      .product-card__price--new .dual-price {
+        font-size: 26px; 
+        margin-bottom: 5px;
+      }
+
+      /* УМЕНЬШЕННЫЙ ШРИФТ ДЛЯ ЛЕВОВ */
+      .currency-bgn {
+        font-size: 0.75em; /* Левы на 20% меньше чем евро */
+        color: #555;      /* Чуть более мягкий цвет для левов */
+      }
+
+      .price-old {
+        text-decoration: line-through;
+        color: #888;
+        font-weight: normal;
+        margin-right: 5px;
+        font-size: 0.75em;
+      }
+      .price-new.price-accent { color: #e60000; }
+      .price-new.price-normal { color: #222; }
+      
+      .currency-block { 
+        display: flex; 
+        align-items: baseline; 
+      }
+    `;
+    document.head.appendChild(style);
+  };
+
+  function convertEURtoBGN(value) {
+    if (!value) return "0,00";
+    const cleanValue = value.toString().replace(/[^\d.,]/g, "").replace(",", ".");
+    const num = parseFloat(cleanValue);
+    if (isNaN(num)) return "0,00";
+    return (num * CONVERSION_RATE).toFixed(2).replace(".", ",");
+  }
+
+  function convertAndRender() {
+    if (isProcessing) return;
+    isProcessing = true;
+
+    const priceBlocks = document.querySelectorAll(
+      '.catalogCard-price, .catalog-card__price, .product-price__item, .product-card__price--new'
+    );
+
+    priceBlocks.forEach(block => {
+      if (block.querySelector('.dual-price')) return;
+
+      const container = block.closest('.product-card__price-box, .catalogCard-priceBox, .product-price__box, .catalogCard, .catalog-card, .product-price');
+      if (!container) return;
+
+      const oldBlock = container.querySelector(
+        '.product-card__old-price, .catalogCard-old-price, .catalogCard-oldPrice, .catalog-card__old-price, .product-price__old-price, .product-price__old'
+      );
+
+      const newTextRaw = block.textContent.trim();
+      const newEURNum = parseFloat(newTextRaw.replace(/[^\d.,]/g, "").replace(",", "."));
+      if (isNaN(newEURNum)) return;
+
+      const newBGN = convertEURtoBGN(newTextRaw);
+      const newEURDisplay = newEURNum.toFixed(2).replace(".", ",");
+      
+      let htmlBGN = "", htmlEUR = "", isPromo = false;
+
+      if (oldBlock && oldBlock.textContent.trim() !== "" && getComputedStyle(oldBlock).display !== 'none') {
+        const oldTextRaw = oldBlock.textContent.trim();
+        const oldEURNum = parseFloat(oldTextRaw.replace(/[^\d.,]/g, "").replace(",", "."));
+        
+        if (!isNaN(oldEURNum) && oldEURNum > newEURNum) {
+          isPromo = true;
+          const oldBGN = convertEURtoBGN(oldTextRaw);
+          const oldEURDisplay = oldEURNum.toFixed(2).replace(".", ",");
+          
+          oldBlock.style.setProperty('display', 'none', 'important');
+          
+          htmlEUR = `<span class="price-old">${oldEURDisplay} €</span><span class="price-new price-accent">${newEURDisplay} €</span>`;
+          htmlBGN = `<span class="price-old">${oldBGN} лв.</span><span class="price-new price-accent">${newBGN} лв.</span>`;
+        }
+      }
+
+      if (!isPromo) {
+        htmlEUR = `<span class="price-new price-normal">${newEURDisplay} €</span>`;
+        htmlBGN = `<span class="price-new price-normal">${newBGN} лв.</span>`;
+      }
+
+      // Добавлены классы currency-eur и currency-bgn для разного стиля
+      block.innerHTML = `
+        <div class="dual-price">
+          <div class="currency-block currency-eur">${htmlEUR}</div>
+          <div class="currency-block currency-bgn">${htmlBGN}</div>
+        </div>
+      `;
+    });
+
+    isProcessing = false;
+  }
+
+  injectStyles();
+  convertAndRender();
+
+  let timeout;
+  const observer = new MutationObserver(() => {
+    clearTimeout(timeout);
+    timeout = setTimeout(convertAndRender, 100);
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+})();

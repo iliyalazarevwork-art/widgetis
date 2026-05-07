@@ -1,0 +1,148 @@
+// source: https://deshevle-net.com.ua/
+// extracted: 2026-05-07T21:19:03.652Z
+// scripts: 1
+
+// === script #1 (length=6287) ===
+document.addEventListener('DOMContentLoaded', function () {
+        const creditPopup = document.getElementById('creditpopup');
+        const openBtn = document.getElementById('creditpopupOpen');
+        const closeBtn = document.getElementById('creditpopupClose');
+        const iframe = document.getElementById('creditWidgetIframe');
+
+        // Улучшенная функция получения цены с дополнительными вариантами
+        function getProductPrice() {
+            // 1. Пытаемся получить цену из meta-тега в различных блоках
+            const priceMeta = document.querySelector('[itemprop="price"][content]');
+            if (priceMeta && priceMeta.getAttribute('content')) {
+                return priceMeta.getAttribute('content');
+            }
+
+            // 2. Ищем цену в блоках с классами product-card__price--new и product-card__price
+            const priceBlocks = [
+                '.product-card__price--new',
+                '.product-card__price',
+                '.product-price__box [itemprop="price"]',
+                '.product-price__item--new',
+                '.product-price__item',
+                '.price--new',
+                '.price'
+            ];
+
+            for (const selector of priceBlocks) {
+                const priceEl = document.querySelector(selector);
+                if (priceEl) {
+                    const priceText = priceEl.textContent.trim();
+                    const numericPrice = priceText.replace(/\D/g, '');
+                    if (numericPrice) return numericPrice;
+                }
+            }
+
+            // 3. Альтернативный поиск по структуре цены (число + "грн")
+            const priceElements = document.querySelectorAll('*');
+            for (const el of priceElements) {
+                if (el.children.length === 0 && el.textContent.includes('грн')) {
+                    const priceText = el.textContent.trim();
+                    const numericPrice = priceText.replace(/\D/g, '');
+                    if (numericPrice) return numericPrice;
+                }
+            }
+
+            return null;
+        }
+
+        // Улучшенная функция получения названия товара
+        function getProductName() {
+            const nameEl = document.querySelector('.product-title, .product-card__title, h1');
+            return nameEl ? nameEl.textContent.trim() : '';
+        }
+
+        // Улучшенная функция получения артикула с дополнительными вариантами
+        function getProductArticle() {
+            // 1. Первый вариант: product-header__code
+            const articleBlock1 = document.querySelector('.product-header__code');
+            if (articleBlock1) {
+                const articleText = articleBlock1.textContent.replace('Артикул', '').trim();
+                if (articleText) return articleText;
+            }
+
+            // 2. Второй вариант: product-meta__item с текстом "Артикул:"
+            const articleBlocks = document.querySelectorAll('.product-meta__item');
+            for (const block of articleBlocks) {
+                const nameElement = block.querySelector('.product-meta__name');
+                if (nameElement && nameElement.textContent.includes('Артикул')) {
+                    const articleText = block.textContent.replace(/Артикул:/g, '').trim();
+                    if (articleText) return articleText;
+                }
+            }
+
+            // 3. Третий вариант: другие возможные селекторы
+            const articleEl = document.querySelector('.product-article, .sku, [itemprop="sku"]');
+            if (articleEl) {
+                return articleEl.textContent.replace('Код:', '').trim();
+            }
+
+            return '';
+        }
+
+        // Улучшенная функция получения изображения товара
+        function getProductImage() {
+            // 1. Первый вариант: gallery__photo-img (основное фото)
+            let imgEl = document.querySelector('.gallery__photo-img[src], .gallery__photo-img[data-src]');
+            
+            // 2. Второй вариант: gallery__img (альтернативное фото)
+            if (!imgEl) {
+                imgEl = document.querySelector('.gallery__img[src], .gallery__img[data-src]');
+            }
+            
+            // 3. Третий вариант: другие возможные селекторы
+            if (!imgEl) {
+                imgEl = document.querySelector('.product-image img[src], .main-product-image[src], [itemprop="image"][src]');
+            }
+            
+            if (!imgEl) return '';
+
+            // Получаем src, учитывая data-src и srcset
+            let src = imgEl.getAttribute('src') || 
+                      imgEl.getAttribute('data-src') || 
+                      (imgEl.getAttribute('srcset') ? imgEl.getAttribute('srcset').split(' ')[0] : '');
+
+            // Если путь относительный, добавляем домен
+            if (src && !src.startsWith('http')) {
+                src = window.location.origin + src;
+            }
+
+            return src;
+        }
+
+        function openCreditWidget() {
+            const price = getProductPrice();
+            const model = encodeURIComponent(getProductName());
+            const articul = encodeURIComponent(getProductArticle());
+            const img = encodeURIComponent(getProductImage());
+            const url = encodeURIComponent(window.location.href);
+
+            if (!price) {
+                alert('Не удалось определить цену товара');
+                return;
+            }
+
+            const widgetUrl = `https://sfr.kiev.ua:9000/index.html?clientid=deshevle-net.com.ua
+            &model=${model}
+            &articul=${articul}
+            &price=${price}
+            &img=${img}
+            &url=${url}
+            &creditType=1,2
+            &instPeriods=3,6
+            &banks=idea,factoring,otp,pumb,alpha,alians,globus,unex`.replace(/\s+/g, '');
+
+            iframe.src = widgetUrl;
+            creditPopup.style.display = 'flex';
+        }
+
+        openBtn.addEventListener('click', openCreditWidget);
+        closeBtn.addEventListener('click', () => creditPopup.style.display = 'none');
+        creditPopup.addEventListener('click', (e) => {
+            if (e.target === creditPopup) creditPopup.style.display = 'none';
+        });
+    });

@@ -1,0 +1,118 @@
+// source: https://4gadget.com.ua/
+// extracted: 2026-05-07T21:19:35.539Z
+// scripts: 2
+
+// === script #1 (length=742) ===
+if (window.location.pathname.indexOf('/ru') === 0) 
+    {
+(function(d, w, s) {
+    var widgetHash = 'KvNi8tS3RuCe6vEimfpO', bch = d.createElement(s); bch.type = 'text/javascript'; bch.async = true;
+    bch.src = '//widgets.binotel.com/chat/widgets/' + widgetHash + '.js';
+    var sn = d.getElementsByTagName(s)[0]; sn.parentNode.insertBefore(bch, sn);
+})(document, window, 'script');
+}
+    else 
+  {
+(function(d, w, s) {
+    var widgetHash = 'j1tXkRPwJd8fnoTvRIiQ', bch = d.createElement(s); bch.type = 'text/javascript'; bch.async = true;
+    bch.src = '//widgets.binotel.com/chat/widgets/' + widgetHash + '.js';
+    var sn = d.getElementsByTagName(s)[0]; sn.parentNode.insertBefore(bch, sn);
+})(document, window, 'script');
+}
+
+// === script #2 (length=2230) ===
+document.addEventListener('DOMContentLoaded', function () {
+  const input = document.querySelector('.search__input');
+  const searchWrap = document.querySelector('.search');
+
+  if (!input || !searchWrap) return;
+
+  input.setAttribute('placeholder', '');
+
+  const animated = document.createElement('div');
+  animated.className = 'search__animated-placeholder';
+  animated.innerHTML = `
+    <span class="search__animated-text"></span>
+    <span class="search__animated-cursor"></span>
+  `;
+  searchWrap.appendChild(animated);
+
+  const textEl = animated.querySelector('.search__animated-text');
+
+  const phrases = [
+    'велонавігатор edge 1050',
+    'ехолот deeper smart sonar',
+    'хронограф херо',
+    'tactix 8',
+    'venu білий'
+  ];
+
+  let phraseIndex = 0;
+  let charIndex = 0;
+  let isDeleting = false;
+  let timer;
+
+  function hideAnimated() {
+    animated.classList.add('is-hidden');
+  }
+
+  function showAnimated() {
+    if (!input.value.trim() && document.activeElement !== input) {
+      animated.classList.remove('is-hidden');
+    }
+  }
+
+  function typeLoop() {
+    if (input.value.trim() || document.activeElement === input) {
+      hideAnimated();
+      timer = setTimeout(typeLoop, 300);
+      return;
+    }
+
+    showAnimated();
+
+    const currentPhrase = phrases[phraseIndex];
+    const visibleText = currentPhrase.substring(0, charIndex);
+    textEl.textContent = visibleText;
+
+    let speed = 90;
+
+    if (!isDeleting) {
+      charIndex++;
+      speed = 90;
+
+      if (charIndex > currentPhrase.length) {
+        isDeleting = true;
+        speed = 1400;
+      }
+    } else {
+      charIndex--;
+      speed = 45;
+
+      if (charIndex < 0) {
+        isDeleting = false;
+        charIndex = 0;
+        phraseIndex = (phraseIndex + 1) % phrases.length;
+        speed = 500;
+      }
+    }
+
+    timer = setTimeout(typeLoop, speed);
+  }
+
+  input.addEventListener('focus', hideAnimated);
+
+  input.addEventListener('blur', function () {
+    showAnimated();
+  });
+
+  input.addEventListener('input', function () {
+    if (input.value.trim()) {
+      hideAnimated();
+    } else {
+      showAnimated();
+    }
+  });
+
+  typeLoop();
+});

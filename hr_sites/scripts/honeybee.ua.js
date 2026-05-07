@@ -1,0 +1,702 @@
+// source: https://honeybee.ua/
+// extracted: 2026-05-07T21:21:35.703Z
+// scripts: 3
+
+// === script #1 (length=2350) ===
+(function($) {
+  const videos = [
+    {
+      productUrl: "https://honeybee.ua/kostium-sport-xs-s-marsala/",
+      videoLink: "https://honeybee.ua/content/uploads/files/img_2452.mp4"
+    },
+    {
+      productUrl: "https://honeybee.ua/kostium-bomber-bezh-shokolad-xs-s/",
+      videoLink: "https://honeybee.ua/content/uploads/files/img_1766-.mp4"
+    },
+    {
+      productUrl: "https://honeybee.ua/kostium-kuliska-xs-s-hrafit/",
+      videoLink: "https://honeybee.ua/content/uploads/files/img_1767.mp4"
+    },
+    {
+      productUrl: "https://honeybee.ua/kostium-minimal-mood/",
+      videoLink: "https://honeybee.ua/content/uploads/files/img_2027.mp4"
+    },
+    {
+      productUrl: "https://honeybee.ua/kostium-kuliska-xs-s-marsala/",
+      videoLink: "https://honeybee.ua/content/uploads/files/img_2452%281%29.mp4"
+    }
+  ];
+
+  const selector = '#main > div.wrapper > section > div > div.product__column.product__column--right.product__column--sticky > div > div:nth-child(3) > div > div:nth-child(4) > div > div';
+  let lastUrl = '';
+  let originalContent = null;
+
+  function replaceVideo() {
+    const current = videos.find(v => location.href.startsWith(v.productUrl));
+    const $target = $(selector);
+    if (!$target.length) return;
+
+    if (current) {
+      if (!originalContent) originalContent = $target.html();
+      if (!$target.find('video').length) {
+        $target.html(`
+          <video autoplay loop muted playsinline preload="metadata" style="
+            width: 100%;
+            max-width: 600px;
+            display: block;
+            margin: 20px auto;
+            pointer-events: none;
+          " webkit-playsinline>
+            <source src="${current.videoLink}" type="video/mp4">
+          </video>
+        `);
+      }
+    } else if (originalContent !== null) {
+      $target.html(originalContent);
+      originalContent = null;
+    }
+  }
+
+  function observeUrlChanges() {
+    const observer = new MutationObserver(() => {
+      if (location.href !== lastUrl) {
+        lastUrl = location.href;
+        setTimeout(replaceVideo, 500);
+      }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
+
+  $(document).ready(() => {
+    lastUrl = location.href;
+    replaceVideo();
+    observeUrlChanges();
+  });
+})(jQuery);
+
+// === script #2 (length=14944) ===
+/**
+ * ============================================
+ * УНИВЕРСАЛЬНАЯ ФОТО-ГАЛЕРЕЯ
+ * Модульный JavaScript с внешними CSS
+ * ============================================
+ */
+
+(function() {
+    'use strict';
+
+    // ========================================
+    // КОНФИГУРАЦИЯ
+    // ========================================
+
+    const CONFIG = {
+        // Пути к CSS файлам
+        cssFiles: {
+            desktop: './css/desktop.css',  // Укажите правильный путь
+            mobile: './css/mobile.css'     // Укажите правильный путь
+        },
+
+        // Куда вставлять слайдер
+        targetSelectors: [
+            '#main > div.wrapper',
+            '#page > main > div > div.product__bottom > div.product__group.product__group--tabs'
+        ],
+
+        // Массив изображений
+        images: [
+            "https://honeybee.ua/content/images/33/14937089146913_+f90984f4d1.jpg",
+            "https://honeybee.ua/content/images/33/58150223452984_+0fef29cfc0.jpg",
+            "https://honeybee.ua/content/images/33/17142425606540_+1693d38c93.jpg",
+            "https://honeybee.ua/content/images/33/31963765000983_+5f97289b07.jpg",
+            "https://honeybee.ua/content/images/33/92729370979894_+a5c968dce2.jpg",
+            "https://honeybee.ua/content/images/33/73722653656556_+efa011ea41.jpg",
+            "https://honeybee.ua/content/images/33/24828868629931_+6c55e0bc43.jpg",
+            "https://honeybee.ua/content/images/33/58556413260084_+62c26b81e5.jpg",
+            "https://honeybee.ua/content/images/33/57112767161194_+672b3ee794.jpg",
+            "https://honeybee.ua/content/images/33/56753949816207_+c989993d65.jpg",
+            "https://honeybee.ua/content/images/33/27709854564591_+52dd808d13.png",
+            "https://honeybee.ua/content/images/33/84992573415189_+2988abcc1f.png"
+        ],
+
+        // Настройки слайдера
+        imagesPerSlide: 2,
+        minSlides: 3,
+        slidesPerView: 3,
+        spaceBetween: 4,
+        loop: true,
+        speed: 300,
+        autoplay: false, // или { delay: 3000 }
+
+        // Визуальные настройки
+        maxWidth: '650px',
+        slideGap: '4px',
+        arrowSize: '40px',
+        arrowBg: 'rgba(0,0,0,0.3)',
+        arrowBgHover: 'rgba(0,0,0,0.6)',
+        arrowColor: '#fff',
+        borderRadius: '4px',
+
+        // Позиция вставки
+        insertPosition: 'append' // 'prepend' или 'append'
+    };
+
+    // ========================================
+    // ЗАГРУЗКА ВНЕШНИХ РЕСУРСОВ
+    // ========================================
+
+    /**
+     * Загрузка CSS файла
+     */
+    function loadCSS(href, id = null) {
+        return new Promise((resolve, reject) => {
+            // Проверяем, не загружен ли уже
+            if (id && document.getElementById(id)) {
+                console.log(`✅ CSS already loaded: ${id}`);
+                resolve();
+                return;
+            }
+
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = href;
+            if (id) link.id = id;
+
+            link.onload = () => {
+                console.log(`✅ CSS loaded: ${href}`);
+                resolve();
+            };
+
+            link.onerror = () => {
+                console.warn(`⚠️ Failed to load CSS: ${href}`);
+                reject(new Error(`Failed to load CSS: ${href}`));
+            };
+
+            document.head.appendChild(link);
+        });
+    }
+
+    /**
+     * Загрузка Swiper CSS
+     */
+    function loadSwiperCSS() {
+        return loadCSS(
+            'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css',
+            'swiper-css'
+        );
+    }
+
+    /**
+     * Загрузка Swiper JS
+     */
+    function loadSwiperJS() {
+        return new Promise((resolve, reject) => {
+            if (window.Swiper) {
+                console.log('✅ Swiper already loaded');
+                resolve();
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js';
+            script.onload = () => {
+                console.log('✅ Swiper JS loaded');
+                resolve();
+            };
+            script.onerror = () => {
+                console.error('❌ Failed to load Swiper JS');
+                reject(new Error('Failed to load Swiper JS'));
+            };
+            document.head.appendChild(script);
+        });
+    }
+
+   
+
+   
+
+    // ========================================
+    // УСТАНОВКА CSS ПЕРЕМЕННЫХ
+    // ========================================
+
+    function setCSSVariables() {
+        const root = document.documentElement;
+
+        root.style.setProperty('--gallery-max-width', CONFIG.maxWidth);
+        root.style.setProperty('--gallery-slide-gap', CONFIG.slideGap);
+        root.style.setProperty('--gallery-space-between', CONFIG.spaceBetween + 'px');
+        root.style.setProperty('--gallery-arrow-size', CONFIG.arrowSize);
+        root.style.setProperty('--gallery-arrow-bg', CONFIG.arrowBg);
+        root.style.setProperty('--gallery-arrow-bg-hover', CONFIG.arrowBgHover);
+        root.style.setProperty('--gallery-arrow-color', CONFIG.arrowColor);
+        root.style.setProperty('--gallery-slides-per-view', CONFIG.slidesPerView);
+        root.style.setProperty('--gallery-images-per-slide', CONFIG.imagesPerSlide);
+        root.style.setProperty('--gallery-border-radius', CONFIG.borderRadius);
+
+        console.log('✅ CSS variables set');
+    }
+
+    // ========================================
+    // СОЗДАНИЕ HTML СТРУКТУРЫ
+    // ========================================
+
+    /**
+     * Создание массива слайдов из изображений
+     */
+    function createSlides(images, imagesPerSlide, minSlides) {
+        const slideCount = Math.max(
+            Math.ceil(images.length / imagesPerSlide),
+            minSlides
+        );
+
+        console.log(`🎬 Creating ${slideCount} slides from ${images.length} images`);
+
+        return Array.from({ length: slideCount }, (_, i) => {
+            const slideImages = [];
+            for (let j = 0; j < imagesPerSlide; j++) {
+                const imageIndex = (i * imagesPerSlide + j) % images.length;
+                slideImages.push(images[imageIndex]);
+            }
+            return slideImages;
+        });
+    }
+
+    /**
+     * Создание DOM элемента слайда
+     */
+    function createSlideElement(images) {
+        const slide = document.createElement('div');
+        slide.className = 'swiper-slide';
+
+        const imagesContainer = document.createElement('div');
+        imagesContainer.className = 'universal-gallery-images';
+
+        images.forEach((src, index) => {
+            const img = document.createElement('img');
+            img.src = src;
+            img.alt = `Gallery image ${index + 1}`;
+            img.loading = 'lazy';
+            
+            // Обработка ошибок загрузки
+            img.onerror = function() {
+                console.warn(`⚠️ Failed to load image: ${src}`);
+                this.style.display = 'none';
+            };
+
+            imagesContainer.appendChild(img);
+        });
+
+        slide.appendChild(imagesContainer);
+        return slide;
+    }
+
+    /**
+     * Создание SVG иконки стрелки
+     */
+    function createArrowIcon(direction) {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('viewBox', '0 0 11 20');
+        svg.setAttribute('fill', 'none');
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('fill', 'currentColor');
+
+        if (direction === 'prev') {
+            path.setAttribute('d', 'M10.617 0.924C10.888 1.195 10.888 1.635 10.617 1.906L1.802 10.72L10.617 19.535C10.888 19.806 10.888 20.246 10.617 20.517C10.346 20.788 9.906 20.788 9.635 20.517L0.566 11.448C0.164 11.046 0.164 10.395 0.566 9.993L9.635 0.924C9.906 0.653 10.346 0.653 10.617 0.924Z');
+        } else {
+            path.setAttribute('d', 'M0.383 20.076C0.112 19.805 0.112 19.365 0.383 19.094L9.198 10.28L0.383 1.465C0.112 1.194 0.112 0.754 0.383 0.483C0.654 0.212 1.094 0.212 1.365 0.483L10.434 9.552C10.836 9.954 10.836 10.605 10.434 11.007L1.365 20.076C1.094 20.347 0.654 20.347 0.383 20.076Z');
+        }
+
+        svg.appendChild(path);
+        return svg;
+    }
+
+    /**
+     * Создание кнопки навигации
+     */
+    function createNavigationButton(direction) {
+        const button = document.createElement('button');
+        button.className = `universal-gallery-btn universal-gallery-btn-${direction}`;
+        button.setAttribute('aria-label', direction === 'prev' ? 'Предыдущий слайд' : 'Следующий слайд');
+        button.appendChild(createArrowIcon(direction));
+        return button;
+    }
+
+    /**
+     * Создание полной HTML структуры галереи
+     */
+    function createGalleryHTML() {
+        const slides = createSlides(
+            CONFIG.images,
+            CONFIG.imagesPerSlide,
+            CONFIG.minSlides
+        );
+
+        // Главный контейнер
+        const wrapper = document.createElement('div');
+        wrapper.className = 'universal-photo-gallery-wrapper';
+
+        // Контейнер слайдера
+        const gallery = document.createElement('div');
+        gallery.className = 'universal-photo-gallery';
+
+        // Swiper контейнер
+        const swiper = document.createElement('div');
+        swiper.className = 'swiper';
+
+        // Обёртка слайдов
+        const swiperWrapper = document.createElement('div');
+        swiperWrapper.className = 'swiper-wrapper';
+
+        // Добавляем слайды
+        slides.forEach(slideImages => {
+            swiperWrapper.appendChild(createSlideElement(slideImages));
+        });
+
+        // Собираем структуру
+        swiper.appendChild(swiperWrapper);
+        gallery.appendChild(swiper);
+        gallery.appendChild(createNavigationButton('prev'));
+        gallery.appendChild(createNavigationButton('next'));
+        wrapper.appendChild(gallery);
+
+        return wrapper;
+    }
+
+    // ========================================
+    // ПОИСК И ВСТАВКА
+    // ========================================
+
+    /**
+     * Поиск целевого элемента для вставки
+     */
+    function findTargetElement() {
+        for (const selector of CONFIG.targetSelectors) {
+            const element = document.querySelector(selector);
+            if (element) {
+                console.log(`✅ Target found: "${selector}"`);
+                return element;
+            }
+        }
+        console.error('❌ No target element found');
+        return null;
+    }
+
+    /**
+     * Вставка галереи в DOM
+     */
+    function insertGallery(targetElement, galleryHTML) {
+        if (CONFIG.insertPosition === 'prepend') {
+            targetElement.insertBefore(galleryHTML, targetElement.firstChild);
+        } else {
+            targetElement.appendChild(galleryHTML);
+        }
+        console.log('✅ Gallery inserted into DOM');
+    }
+
+    // ========================================
+    // ИНИЦИАЛИЗАЦИЯ SWIPER
+    // ========================================
+
+    /**
+     * Инициализация Swiper слайдера
+     */
+    function initSwiper() {
+        const swiperConfig = {
+            slidesPerView: CONFIG.slidesPerView,
+            spaceBetween: CONFIG.spaceBetween,
+            loop: CONFIG.loop,
+            speed: CONFIG.speed,
+            navigation: {
+                prevEl: '.universal-gallery-btn-prev',
+                nextEl: '.universal-gallery-btn-next',
+            },
+            watchOverflow: false,
+            observer: true,
+            observeParents: true,
+            // Accessibility
+            a11y: {
+                enabled: true,
+                prevSlideMessage: 'Предыдущий слайд',
+                nextSlideMessage: 'Следующий слайд',
+            },
+            // Keyboard control
+            keyboard: {
+                enabled: true,
+                onlyInViewport: true,
+            }
+        };
+
+        // Добавляем autoplay если настроено
+        if (CONFIG.autoplay) {
+            swiperConfig.autoplay = typeof CONFIG.autoplay === 'object'
+                ? CONFIG.autoplay
+                : { delay: 3000, disableOnInteraction: false };
+        }
+
+        console.log('⚙️ Swiper config:', swiperConfig);
+
+        const swiperInstance = new Swiper('.universal-photo-gallery .swiper', swiperConfig);
+
+        console.log('✅ Swiper initialized');
+        console.log(`📊 Slides: ${swiperInstance.slides.length}, Per view: ${CONFIG.slidesPerView}`);
+
+        // Логирование событий (можно отключить в продакшене)
+        swiperInstance.on('slideChange', () => {
+            console.log(`📍 Active slide: ${swiperInstance.activeIndex}`);
+        });
+
+        return swiperInstance;
+    }
+
+    // ========================================
+    // ГЛАВНАЯ ФУНКЦИЯ ИНИЦИАЛИЗАЦИИ
+    // ========================================
+
+    async function initGallery() {
+        try {
+            console.log('🚀 Universal Gallery: Initialization started');
+            console.log(`📱 Screen: ${window.innerWidth}x${window.innerHeight}px`);
+
+            // 1. Загружаем стили
+            await loadSwiperCSS();
+
+            // 2. Загружаем Swiper JS
+            await loadSwiperJS();
+
+            // 3. Устанавливаем CSS переменные
+            setCSSVariables();
+
+            // 4. Находим целевой элемент
+            const targetElement = findTargetElement();
+            if (!targetElement) {
+                throw new Error('Target element not found');
+            }
+
+            // 5. Создаём HTML
+            console.log('📦 Creating gallery HTML...');
+            const galleryHTML = createGalleryHTML();
+
+            // 6. Вставляем в DOM
+            insertGallery(targetElement, galleryHTML);
+
+            // 7. Инициализируем Swiper (небольшая задержка для рендеринга)
+            setTimeout(() => {
+                const swiperInstance = initSwiper();
+                console.log('🎉 Universal Gallery: Ready!');
+
+                // Делаем экземпляр доступным глобально (опционально)
+                window.universalGallery = {
+                    swiper: swiperInstance,
+                    config: CONFIG
+                };
+            }, 100);
+
+        } catch (error) {
+            console.error('❌ Universal Gallery error:', error);
+        }
+    }
+
+    // ========================================
+    // ЗАПУСК
+    // ========================================
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initGallery);
+    } else {
+        initGallery();
+    }
+
+})();
+
+// === script #3 (length=7405) ===
+(function ($) {
+        'use strict';
+
+        // Утилиты
+        const Utils = {
+            lang() {
+                const lang = (document.documentElement.getAttribute('lang') || '').toLowerCase();
+                if (lang.startsWith('uk')) return 'uk';
+                if (lang.startsWith('ru')) return 'ru';
+                return 'en';
+            },
+
+            wait(selector, callback, timeout = 6000, step = 120) {
+                const startTime = Date.now();
+
+                const checkElement = () => {
+                    const element = $(selector).first();
+                    if (element.length) {
+                        return callback(element);
+                    }
+                    if (Date.now() - startTime > timeout) {
+                        return;
+                    }
+                    setTimeout(checkElement, step);
+                };
+
+                checkElement();
+            },
+
+            once(query) {
+                return $(query).length ? $(query).first() : null;
+            }
+        };
+
+        // Модуль бегущей строки
+        const Marquee = {
+            presets: {
+                uk: ['Індивідуальне пошиття від 175см', 'Безкоштовна доставка від 4000 uah', 'Гарантія якості'],
+                ru: ['Индивидуальный пошив от 175см', 'Бесплатная доставка от 4000 uah', 'Гарантия качества']
+            },
+
+            getDataPhrases(lang) {
+                const rawData = $('html').attr('data-marquee-' + lang);
+                return rawData ? rawData.split('|').map(s => s.trim()).filter(Boolean) : null;
+            },
+
+            getPhrases(lang) {
+                const globalPhrases = window.MARQUEE_PHRASES && window.MARQUEE_PHRASES[lang];
+                return globalPhrases ||
+                    this.getDataPhrases(lang) ||
+                    this.presets[lang] ||
+                    this.presets.en || [];
+            },
+
+            createView(items, repeat = 5) {
+                const wrapper = $('<div class="marquee-wrapper">');
+                const inner = $('<div class="marquee-inner">');
+
+                for (let i = 0; i < repeat; i++) {
+                    items.forEach(text => {
+                        $('<div class="marquee-text">').text(text).appendTo(inner);
+                    });
+                }
+
+                wrapper.append(inner);
+                return wrapper;
+            },
+
+            mountAfter($anchor) {
+                if ($('.marquee-wrapper').length) return;
+                const phrases = this.getPhrases(Utils.lang());
+                $anchor.after(this.createView(phrases));
+            },
+
+            cloneAfterHeader() {
+                const $source = $('.marquee-wrapper').first();
+                if (!$source.length) return;
+                $('#header').after($source.clone(true));
+            },
+
+            init() {
+                const lang = Utils.lang();
+                if (!['uk', 'ru', 'en'].includes(lang)) return;
+
+                const anchors = [
+                    'body > div.container > div.header > div > div.header__top',
+                    '#header',
+                    'body > div.marquee-wrapper'
+                ];
+
+                anchors.forEach(selector => {
+                    Utils.wait(selector, $anchor => {
+                        if (selector === '#header') {
+                            if (!$('.marquee-wrapper').length) {
+                                this.mountAfter($anchor);
+                            } else {
+                                this.cloneAfterHeader();
+                            }
+                        } else {
+                            this.mountAfter($anchor);
+                        }
+                    });
+                });
+            }
+        };
+
+        // Модуль даты доставки
+        const DeliveryDate = {
+            defaults: {
+                selectors: [],
+                offsetDays: 3,
+                texts: {
+                    uk: {prefix: 'Орієнтовна дата доставки'},
+                    ru: {prefix: 'Ориентировочная дата доставки'}
+                },
+                insert: 'before'
+            },
+
+            formatDate(date) {
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                return `${day}.${month}.${year}`;
+            },
+
+            createWrapper(prefix, dateString) {
+                return `<div class="product__group-item j-product-block">
+                <div class="product__section mb-0">
+                    <div class="delivery-date">Орієнтовна дата доставки <strong>${dateString}</strong></div>
+                </div>
+            </div>`;
+            },
+
+            computeDeliveryDate(offsetDays) {
+                const date = new Date();
+                date.setDate(date.getDate() + offsetDays);
+                return date;
+            },
+
+            insertElement($reference, html, mode) {
+                const insertMethods = {
+                    append: () => $reference.append(html),
+                    before: () => $reference.before(html),
+                    after: () => $reference.after(html)
+                };
+
+                (insertMethods[mode] || insertMethods.after)();
+            },
+
+            init(userConfig = {}) {
+                const config = Object.assign({}, this.defaults, userConfig);
+                const dateString = this.formatDate(this.computeDeliveryDate(config.offsetDays));
+                const html = this.createWrapper(config.prefix, dateString);
+
+                config.selectors.forEach(selectorConfig => {
+                    const {selector, insert} = typeof selectorConfig === 'string'
+                        ? {selector: selectorConfig, insert: config.insert}
+                        : {selector: selectorConfig.selector, insert: selectorConfig.insert || config.insert};
+
+                    const $reference = Utils.once(selector);
+                    if (!$reference) return;
+
+                    // Удаляем существующий блок доставки
+                    $reference.closest('div').find('.delivery-date').closest('.j-product-block').remove();
+
+                    // Вставляем новый блок
+                    this.insertElement($reference, html, insert);
+                });
+            }
+        };
+
+        // Инициализация jQuery-зависимых модулей
+        $(function () {
+            Marquee.init();
+            DeliveryDate.init({
+                selectors: [
+                    {
+                        selector: "#page > main > div > div.product__grid > div.product__column.product__column--right > div.product__block.product__block--orderBox.j-product-block > div > div.product-card.product-card--main > div",
+                        insert: 'before'
+                    },
+                    {
+                        selector: "#main > div.wrapper > section > div > div.product__column.product__column--right.product__column--sticky > div > div:nth-child(1) > div > div:nth-child(5)",
+                        insert: 'after'
+                    }
+                ],
+                offsetDays: 2
+            });
+        });
+
+    })(window.jQuery);

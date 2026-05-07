@@ -1,0 +1,60 @@
+// source: https://kartoteka.in.ua/
+// extracted: 2026-05-07T21:19:18.918Z
+// scripts: 1
+
+// === script #1 (length=2416) ===
+function changePreorderColor() {
+	var tmp = document.querySelector('.product-header__availability');
+	if (tmp != null && tmp.textContent.trim() == 'Передзамовлення') tmp.classList.add('preorder');
+}
+changePreorderColor();
+
+function placeBadges() {
+	var searchParams = [
+		{ search: 'Гра року', replace: 'spiel', link: '5' },
+		{ search: 'Golden Geek', replace: 'golden-geek', link: '8' },
+		{ search: 'Топ для вечірки', replace: 'party', link: '4' },
+		{ search: 'Топ для двох', replace: 'duel', link: '3' },
+		{ search: "Топ для сім'ї", replace: 'family', link: '2' },
+		{ search: 'Топ кооп', replace: 'coop', link: '1' },
+		{ search: 'Топ соло', replace: 'solo', link: '9' },
+		{ search: '18+', replace: 'adult', link: '13' },
+		{ search: 'Топ для дітей', replace: 'kids', link: '14' },
+		{ search: 'Хіт', replace: 'hit', link: '15' },
+		{ search: 'Вічна класика', replace: 'classic', link: '16'},
+		{ search: 'Топ 20', replace: 'top20', link: '10' },
+		{ search: 'Топ 50', replace: 'top50', link: '11' },
+		{ search: 'Топ 100', replace: 'top100', link: '12' },
+		{ search: 'Для великої компанії', replace: 'big-company', link: '17' },
+		{ search: 'Швидка', replace: 'fast', link: '18' },
+		{ search: 'Детектив', replace: 'detective', link: '19' },
+		{ search: 'Мафія', replace: 'mafia', link: '20' },
+		{ search: 'У дорогу', replace: 'travel', link: '21' },
+	];
+
+	searchParams.forEach(element => {
+		var toReplace = Array.from(document.getElementsByTagName('p')).find(x=>x.innerText === element.search);
+		if (toReplace != null) {
+			var img = document.createElement('img');
+			img.classList.add(element.replace);
+			var a = document.createElement('a');
+			a.href = '/nastilni-ihry/filter/nagorodiVibr=' + element.link + '/';
+			a.classList.add('no-decor');
+			a.appendChild(img);
+			toReplace.parentNode.replaceChild(a, toReplace);
+		}
+	});
+}
+placeBadges();
+
+function footerImage() {
+	var footerSubscribe = document.createElement('a'); 
+	footerSubscribe.href = '/email/';
+	var footerSubscribeImg = document.createElement('img');
+	footerSubscribeImg.classList.add('footer-subscribe'); 
+	footerSubscribe.appendChild(footerSubscribeImg);
+	var footerElement = document.getElementsByClassName('footer__col--double')[1];
+	if (footerElement == null) return;
+	footerElement.getElementsByClassName('footer__col-wrap')[0].appendChild(footerSubscribe);
+}
+footerImage();

@@ -1,0 +1,477 @@
+// source: https://neman-mebel.com/
+// extracted: 2026-05-07T21:20:04.993Z
+// scripts: 3
+
+// === script #1 (length=1757) ===
+(function() {
+  function initNemanGallery() {
+    var gallery = document.getElementById('nemanGallery');
+    
+    if (!gallery) {
+      return false; // Тихо выходим
+    }
+
+    var track = gallery.querySelector('.gallery-track');
+    var dots = gallery.querySelectorAll('.gallery-dot');
+    var slides = gallery.querySelectorAll('.gallery-slide');
+    
+    if (!track || !dots.length || !slides.length) {
+      return false;
+    }
+
+    console.log('✓ Галерея найдена, запускаем карусель');
+
+    var currentIndex = 0;
+    var totalSlides = slides.length;
+    var autoplayInterval;
+
+    function goToSlide(index) {
+      currentIndex = index;
+      track.style.transform = 'translateX(-' + (currentIndex * 100) + '%)';
+      
+      for (var i = 0; i < dots.length; i++) {
+        dots[i].classList.remove('active');
+      }
+      dots[currentIndex].classList.add('active');
+    }
+
+    function nextSlide() {
+      currentIndex = (currentIndex + 1) % totalSlides;
+      goToSlide(currentIndex);
+    }
+
+    // Автопрокрутка
+    autoplayInterval = setInterval(nextSlide, 4000);
+
+    // Клик по точкам
+    for (var i = 0; i < dots.length; i++) {
+      (function(index) {
+        dots[index].addEventListener('click', function() {
+          clearInterval(autoplayInterval);
+          goToSlide(index);
+          autoplayInterval = setInterval(nextSlide, 4000);
+        });
+      })(i);
+    }
+
+    return true;
+  }
+
+  // Проверяем только 1 раз после загрузки DOM
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(initNemanGallery, 100); // Даем время на загрузку
+    });
+  } else {
+    setTimeout(initNemanGallery, 100);
+  }
+})();
+
+// === script #2 (length=971) ===
+setTimeout(function() {
+  var track = document.getElementById('galleryTrack');
+  var dotsContainer = document.getElementById('galleryDots');
+  
+  if (!track || !dotsContainer) return;
+  
+  var dots = dotsContainer.children;
+  var current = 0;
+  
+  setInterval(function() {
+    current = (current + 1) % 3;
+    track.style.transform = 'translateX(-' + (current * 100) + '%)';
+    
+    for (var i = 0; i < dots.length; i++) {
+      dots[i].className = i === current ? 'gallery-dot active' : 'gallery-dot';
+    }
+  }, 4000);
+  
+  // Клик по точкам
+  for (var i = 0; i < dots.length; i++) {
+    (function(index) {
+      dots[index].addEventListener('click', function() {
+        current = index;
+        track.style.transform = 'translateX(-' + (current * 100) + '%)';
+        for (var j = 0; j < dots.length; j++) {
+          dots[j].className = j === current ? 'gallery-dot active' : 'gallery-dot';
+        }
+      });
+    })(i);
+  }
+}, 1000);
+
+// === script #3 (length=15485) ===
+document.addEventListener('DOMContentLoaded', () => {
+
+// ================== ЧАСТЬ 1: ФИКС ШАПКИ ==================
+const fixHeaderStyle = () => {
+    const header = document.querySelector('.header');
+    const mainContent = document.querySelector('main') || document.querySelector('.page-content') || document.body;
+
+    if (!header || !mainContent) return;
+
+    Object.assign(header.style, {
+        position: 'fixed',
+        top: '0',
+        left: '0',
+        width: '100%',
+        zIndex: '1000',
+        backgroundColor: 'rgba(255, 255, 255, 0.35)',
+        backdropFilter: 'blur(10px)',
+        webkitBackdropFilter: 'blur(10px)',
+        boxShadow: '0 4px 30px rgba(0, 0, 0, 0.05)',
+        transition: 'all 0.3s ease',
+    });
+
+    const height = header.getBoundingClientRect().height;
+    const safeHeight = height > 20 ? height : 80;
+
+    const path = window.location.pathname;
+
+    const isHomePage = /^\/(ua\/|ru\/|en\/)?$/.test(path);
+
+    const isProductPage = path.includes('/product/') || path.includes('/p/');
+
+    const isCatalogPage =
+        (path.includes('/catalog/') || path.includes('/katalog/') ||
+        !!document.querySelector('.banners--block')) &&
+        !isProductPage &&
+        !isHomePage;
+
+    const isStaticPage = !isHomePage && !isProductPage && !isCatalogPage;
+
+   if (isHomePage) {
+    mainContent.style.paddingTop = '0px';
+} else if (isProductPage) {
+    mainContent.style.paddingTop = safeHeight + 20 + 'px';
+} else if (isCatalogPage) {
+    mainContent.style.paddingTop = '0px';
+
+    const catalog = document.querySelector('.catalog');
+if (catalog) {
+    if (window.innerWidth > 768) {
+        catalog.style.paddingTop = safeHeight + 'px';
+    } else {
+        catalog.style.paddingTop = ''; // на мобилке управляет CSS
+    }
+}
+
+
+    const bannerBlock = document.querySelector('.catalog__content .banners--block');
+    if (bannerBlock) {
+        bannerBlock.style.position = 'relative';
+        bannerBlock.style.zIndex = '0';
+    }
+
+} else {
+    mainContent.style.paddingTop = safeHeight + 50 + 'px';
+}
+
+
+    if (isStaticPage) {
+        mainContent.classList.add('has-fixed-header');
+    }
+
+    console.log('✅ Header height:', safeHeight + 'px');
+    console.log('✅ Page type:', { isHomePage, isProductPage, isCatalogPage, isStaticPage });
+};
+
+fixHeaderStyle();
+setTimeout(fixHeaderStyle, 500);
+setTimeout(fixHeaderStyle, 2000);
+
+window.addEventListener('resize', () => { fixHeaderStyle(); }, { passive: true });
+
+// Уменьшение шапки при скролле
+window.addEventListener('scroll', () => {
+    const header = document.querySelector('.header');
+    if (!header) return;
+    if (window.scrollY > 120) {
+        header.classList.add('shrink');
+    } else {
+        header.classList.remove('shrink');
+    }
+}, { passive: true });
+
+// ================== ЧАСТЬ 2: i18n ==================
+const getLang = () => {
+    if (window.location.pathname.startsWith('/en/')) return 'en';
+    if (window.location.pathname.startsWith('/ru/')) return 'ru';
+    return 'uk';
+};
+const lang = getLang();
+
+const i18n = {
+    consult: {
+        title: {
+            uk: 'ПОТРІБНА КОНСУЛЬТАЦІЯ?',
+            en: 'NEED A CONSULTATION?',
+            ru: 'НУЖНА КОНСУЛЬТАЦИЯ?',
+        },
+        desc: {
+            uk: "Наші менеджери швидко з вами зв'яжуться, допоможуть підібрати матеріали, кольори та надішлють креслення.",
+            en: 'Our managers will contact you shortly to help choose materials, colors, and send drawings.',
+            ru: 'Наши менеджеры быстро с вами свяжутся, помогут подобрать материалы, цвета и пришлют чертежи.',
+        },
+        name: { uk: "Ваше ім'я", en: 'Your Name', ru: 'Ваше имя' },
+        submit: { uk: 'Відправити', en: 'Send', ru: 'Отправить' },
+        success: {
+            uk: "Дякуємо! Ми зв'яжемося з вами.",
+            en: 'Thank you! We will contact you.',
+            ru: 'Спасибо! Мы свяжемся с вами.',
+        },
+        error: {
+            uk: 'Помилка надсилання. Спробуйте пізніше.',
+            en: 'Error sending. Please try again later.',
+            ru: 'Ошибка отправки. Попробуйте позже.',
+        },
+        valError: {
+            uk: "Введіть коректне ім'я та номер",
+            en: 'Please enter valid name and number',
+            ru: 'Введите корректное имя и номер',
+        },
+        telegramHeader: {
+            uk: 'Нова заявка',
+            en: 'New Inquiry',
+            ru: 'Новая заявка',
+        },
+    },
+    banner: {
+        before: {
+            uk: "Загальний об'єм виробництва сягає понад",
+            en: 'Total production volume reaches over',
+            ru: 'Общий объем производства достигает более',
+        },
+        after: {
+            uk: 'замовлень в місяць.',
+            en: 'orders per month.',
+            ru: 'заказов в месяц.',
+        },
+        btn: { uk: 'Каталог', en: 'Catalog', ru: 'Каталог' },
+    },
+};
+
+// ================== ЧАСТЬ 3.1: ФОРМА КОНСУЛЬТАЦИИ ==================
+(() => {
+    const target = document.querySelector('section.frontBrands');
+    if (!target) return;
+
+    const style = document.createElement('style');
+    style.textContent = `
+.consult-form-wrapper { display: flex; flex-wrap: wrap; justify-content: space-between; background-color: #fff; border-radius: 30px; padding: 50px 40px; margin: 50px auto; width: 100%; max-width: 1100px; font-family: 'Jura', sans-serif; box-shadow: 0 8px 24px rgba(0,0,0,0.1); gap: 20px; box-sizing: border-box; }
+.consult-left, .consult-right { flex: 1 1 45%; box-sizing: border-box; }
+.consult-left { background-image: url('https://neman-mebel.com/content/images/28/test-54022047843360_+9814cd3654.jpg'); background-size: cover; background-position: center; border-radius: 20px; min-height: 300px; }
+.consult-right h2 { font-family: 'Jura', sans-serif; font-size: 28px; margin-bottom: 20px; line-height: 1.2; font-weight: bold; }
+.consult-right p { font-size: 16px; line-height: 1.5; margin-bottom: 25px; color: #222; }
+.consult-right input, .consult-right textarea { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; background: #f9f9f9; color: #333; font-size: 16px; outline: none; box-sizing: border-box; }
+.consult-right button { width: 100%; padding: 16px; font-size: 16px; background-color: #000; color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: background 0.3s ease; }
+@media (max-width: 768px) { .consult-form-wrapper { flex-direction: column; padding: 30px 20px; } .consult-left, .consult-right { flex: 1 1 100%; min-height: 200px; } }
+    `;
+    document.head.appendChild(style);
+
+    const block = document.createElement('div');
+    block.className = 'consult-form-wrapper';
+    block.innerHTML = `
+<div class="consult-left"></div>
+<div class="consult-right">
+    <h2>${i18n.consult.title[lang]}</h2>
+    <p>${i18n.consult.desc[lang]}</p>
+    <input type="text" placeholder="${i18n.consult.name[lang]}" id="consultName" required />
+    <input type="email" placeholder="Email" id="consultEmail" />
+    <input type="tel" placeholder="Phone" id="consultPhone" value="+380" required />
+    <textarea placeholder="Info" id="consultText"></textarea>
+    <button id="consultSubmit">${i18n.consult.submit[lang]}</button>
+    <div id="consultMessage" style="margin-top: 10px; font-weight: bold;"></div>
+</div>
+    `;
+    target.parentNode.insertBefore(block, target);
+
+    block.querySelector('#consultSubmit').addEventListener('click', () => {
+        const name = document.getElementById('consultName').value.trim();
+        const phone = document.getElementById('consultPhone').value.trim();
+        const email = document.getElementById('consultEmail').value.trim();
+        const text = document.getElementById('consultText').value.trim();
+        const message = document.getElementById('consultMessage');
+
+        if (!name || phone.length < 10) {
+            message.style.color = '#ff4444';
+            message.textContent = i18n.consult.valError[lang];
+            return;
+        }
+
+        const token = '7591817410:AAGxhOCgKD3a3MSckq6tLSnImsgJ-idTh2E';
+        const chatId = '908782803';
+        const msg = `📩 ${i18n.consult.telegramHeader[lang]}:\n👤 Name: ${name}\n📞 Phone: ${phone}\n📧 Email: ${email}\n📝 Text: ${text}`;
+
+        fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: chatId, text: msg }),
+        })
+        .then((res) => {
+            if (res.ok) {
+                message.style.color = '#28a745';
+                message.textContent = i18n.consult.success[lang];
+                document.getElementById('consultName').value = '';
+                document.getElementById('consultPhone').value = '+380';
+                document.getElementById('consultText').value = '';
+            } else throw new Error('Err');
+        })
+        .catch(() => {
+            message.style.color = '#ff4444';
+            message.textContent = i18n.consult.error[lang];
+        });
+    });
+})();
+
+// ================== ЧАСТЬ 3.2: ПРОИЗВОДСТВЕННЫЙ БАННЕР ==================
+(() => {
+    const about = document.querySelector('.about-neman');
+    if (!about) return;
+
+    const banner = document.createElement('div');
+    banner.className = 'production-banner';
+    banner.innerHTML = `
+<div class="pb-inner">
+    <span class="pb-text-before">${i18n.banner.before[lang]}</span>
+    <span class="pb-number">500+</span>
+    <span class="pb-text-after">${i18n.banner.after[lang]}</span>
+</div>
+<a href="/katalog/" class="catalog-btn">${i18n.banner.btn[lang]}</a>
+    `;
+    about.parentNode.insertBefore(banner, about.nextSibling);
+
+    const style = document.createElement('style');
+    style.textContent = `
+.production-banner { font-family: 'Montserrat', sans-serif; max-width: 1100px; margin: 30px auto; padding: 20px; border-radius: 20px; background: #fff; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+.pb-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; }
+.pb-text-before, .pb-text-after { font-size: 20px; color: #555; }
+.pb-number { font-weight: 800; font-size: 48px; color: #ffb100; line-height: 1; }
+.catalog-btn { font-size: 16px; display: inline-block; padding: 16px 40px; background: #ffb100; border-radius: 70px; text-decoration: none; color: #000; font-weight: bold; transition: 0.3s; }
+.catalog-btn:hover { background: #e09b00; transform: translateY(-2px); }
+@media (max-width: 680px) { .pb-number { font-size: 36px; } .pb-text-before, .pb-text-after { font-size: 16px; } }
+    `;
+    document.head.appendChild(style);
+
+    const numberEl = banner.querySelector('.pb-number');
+    let startTimestamp = null;
+    const DURATION = 5000;
+    const TARGET = 3000;
+
+    const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / DURATION, 1);
+        numberEl.textContent = Math.floor(progress * TARGET) + '+';
+        if (progress < 1) window.requestAnimationFrame(step);
+        else numberEl.textContent = '3000+';
+    };
+
+    if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                window.requestAnimationFrame(step);
+                observer.disconnect();
+            }
+        });
+        observer.observe(banner);
+    } else {
+        window.requestAnimationFrame(step);
+    }
+})();
+
+// ================== ЧАСТЬ 4: ПАРАЛЛАКС + ZOOM ДЛЯ БАННЕРА ==================
+(() => {
+    const banner = document.querySelector('.banner');
+    const bannerImg = document.querySelector('.banner-image img');
+    if (!banner) return;
+
+    let ticking = false;
+
+    window.addEventListener('scroll', () => {
+        if (!ticking) {
+            window.requestAnimationFrame(() => {
+                const scrollPos = window.pageYOffset;
+                const isMobile = window.innerWidth <= 768;
+                const parallaxSpeed = isMobile ? 0.4 : 0.5;
+                const fadeDistance = isMobile ? 500 : 800;
+
+                const offset = scrollPos * parallaxSpeed;
+                const opacity = Math.max(0, 1 - scrollPos / fadeDistance);
+                const scale = 1 + Math.min(scrollPos / 500, 1) * 0.2;
+
+                banner.style.setProperty('--parallax-offset', offset + 'px');
+                banner.style.setProperty('--parallax-opacity', opacity);
+
+                if (bannerImg) {
+                    bannerImg.style.setProperty('--zoom-scale', scale);
+                }
+
+                ticking = false;
+            });
+            ticking = true;
+        }
+    }, { passive: true });
+})();
+
+// ================== ЧАСТЬ 5: ПЕРЕНОС БАННЕРА В BODY ==================
+(() => {
+    const bannerSection = document.querySelector('.banners--cover');
+    if (bannerSection && bannerSection.parentNode !== document.body) {
+        document.body.prepend(bannerSection);
+
+        bannerSection.style.cssText += 'width: 100% !important; max-width: 100% !important; margin: 0 !important; left: 0 !important; right: 0 !important;';
+
+        bannerSection.querySelectorAll('.banners__container, .banners__slider, .banners__slider-wrapper, .gallery-track, .owl-stage-outer, .owl-stage')
+            .forEach((el) => {
+                el.style.cssText += 'width: 100% !important; max-width: 100% !important; box-sizing: border-box !important;';
+            });
+
+        setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 100);
+        setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 1000);
+    }
+})();
+
+// ================== ЧАСТЬ 6: КАРУСЕЛЬ ПАРТНЁРОВ ==================
+(() => {
+    const container =
+        document.querySelector('.frontBrands__grayscale') ||
+        document.querySelector('section.frontBrands__grayscale') ||
+        document.querySelector('.frontBrands > div') ||
+        document.querySelector('section.frontBrands');
+
+    if (!container) {
+        console.warn('⚠️ Контейнер партнерів не знайдено');
+        return;
+    }
+
+    const brands = Array.from(container.querySelectorAll('img')).map((img) => img.parentElement);
+
+    if (brands.length === 0) {
+        console.warn('⚠️ Логотипів не знайдено');
+        return;
+    }
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'brands-carousel-wrapper';
+    wrapper.style.cssText = `
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        gap: 60px !important;
+        align-items: center !important;
+        width: max-content !important;
+        animation: brands-scroll 50s linear infinite;
+    `;
+
+    brands.forEach((brand) => { wrapper.appendChild(brand.cloneNode(true)); });
+    for (let i = 0; i < 3; i++) {
+        brands.forEach((brand) => { wrapper.appendChild(brand.cloneNode(true)); });
+    }
+
+    container.innerHTML = '';
+    container.appendChild(wrapper);
+    container.style.cssText += 'overflow: hidden !important; padding: 50px 0 !important;';
+
+    console.log('✅ Карусель партнерів успішно створена!');
+})();
+
+});

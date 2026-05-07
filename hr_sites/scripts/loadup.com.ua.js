@@ -1,0 +1,1375 @@
+// source: https://loadup.com.ua/
+// extracted: 2026-05-07T21:18:58.301Z
+// scripts: 19
+
+// === script #1 (length=732) ===
+function addLink() {
+    var body_element = document.getElementsByTagName('body')[0];
+	var novib = 'all:unset';
+    var selection;
+    selection = window.getSelection();
+    var pagelink = "<a style='"+novib+"' href='"+document.location.href+"'>&zwnj;</a>";
+    var copytext = "<a style='"+novib+"' href='"+document.location.href+"'>" + selection + "</a>" + pagelink;
+    var newdiv = document.createElement('div');
+    newdiv.style.position='absolute';
+    newdiv.style.left='-99999px';
+    body_element.appendChild(newdiv);
+    newdiv.innerHTML = copytext;
+    selection.selectAllChildren(newdiv);
+    window.setTimeout(function() {
+        body_element.removeChild(newdiv);
+    },0);
+}
+document.oncopy = addLink;
+
+// === script #2 (length=1750) ===
+function applyMenuColors() {
+    // Цвет в меню
+    const rulesl = [
+      { hrefs: ['/ru/pidibraty-podarunok/', '/pidibraty-podarunok/'], className: '__hover_4ever' },
+      { hrefs: ['/ru/novyi-rik/', '/novyi-rik/'], className: '__hover_4ever_red' },
+      { hrefs: ['/ru/sale/', '/sale/'], className: '__hover_4ever_purp' },
+      { hrefs: ['/ru/edc/', '/edc/'], className: '__hover_4ever_bl' },
+      { hrefs: ['/ru/tovary-dlia-blekautu/', '/tovary-dlia-blekautu/'], className: '__hover_4ever_bl' }
+    ];
+    
+    rulesl.forEach(rule => {
+      // Десктопное меню — <a> внутри .products-menu__item
+      document.querySelectorAll('.header__wrapper .products-menu__container .products-menu__item .products-menu__title-link').forEach(link => {
+        if (rule.hrefs.includes(link.getAttribute('href'))) {
+          link.closest('.header__wrapper .products-menu__container .products-menu__item')?.classList.add(rule.className);
+        }
+      });
+    
+      // Мобильное меню — <a.main-nav__link> или <div.main-nav__link> с data-href
+      document.querySelectorAll('.main-nav .main-nav__item').forEach(item => {
+        const aLink = item.querySelector('.main-nav a.main-nav__link');
+        const divLink = item.querySelector('.main-nav div.main-nav__link');
+    
+        const href = aLink?.getAttribute('href') || divLink?.getAttribute('data-href');
+    
+        if (href && rule.hrefs.includes(href)) {
+          item.classList.add(rule.className);
+        }
+      });
+    });
+  }
+  applyMenuColors();
+  document.addEventListener('DOMContentLoaded', function () {
+      applyMenuColors();
+      // повтор після mmenu
+      setTimeout(applyMenuColors, 1000);
+      setTimeout(applyMenuColors, 2500);
+  });
+
+// === script #3 (length=813) ===
+var
+      headers = $('.article-text h3, .blog h3, .article-text h2, .blog h2'),
+      output = $('<ol>');
+    headers.each(function (index) {
+      if (this.id === '') {
+        this.id = 'id-' + index;
+      }
+      output.append($('<li>').append(
+        $('<a>', { href: location.href.split('#')[0] + '#' + this.id }).text($(this).text()))
+      );
+    });
+    $('.article__meta, .article-meta').after(
+      $('<div>', { class: 'article-contents' })
+        .append($('<div>', { style: 'font-weight: bold;' }).text('Суть:'))
+        .append(output)
+    );
+    $('body').on('click', '[href*="#"]', function(e){
+          var fixed_offset = 100;
+          $('html,body').stop().animate({ scrollTop: $(this.hash).offset().top - fixed_offset }, 500);
+          e.preventDefault();
+        });
+
+// === script #4 (length=947) ===
+(function(){
+        document.addEventListener('DOMContentLoaded',function(){
+            document.querySelectorAll('[data-fake-href*="viber://chat?number=%2Bloadup"]').forEach(function(el){
+                el.innerText='Чат Viber';
+            });
+            document.querySelectorAll('[data-fake-href*="viber://chat?number=%2Bloadup"]').forEach(function(el){
+                el.setAttribute('href','https://tinyurl.com/lupbt');
+    el.removeAttribute('data-fake-href');
+            });
+            document.querySelectorAll('[data-fake-href*="tg://resolve?domain=LoadUp_uabot"]').forEach(function(el){
+                el.innerText='Чат Telegram';
+            });
+            document.querySelectorAll('[data-fake-href*="tg://resolve?domain=LoadUp_uabot"]').forEach(function(el){
+                el.setAttribute('href','https://t.me/LoadUp_uabot');
+    el.removeAttribute('data-fake-href');
+            });
+        });
+    })();
+
+// === script #5 (length=1019) ===
+jQuery(function() {
+    jQuery('.phones__callback-link')
+        .removeAttr('data-modal')
+        .attr('href', '')
+        .addClass('tl-call-catcher');
+    jQuery('.phones__callback').html(jQuery('.phones__callback').html());
+    jQuery('.phones__callback-link').click(e => e.preventDefault());
+    
+    {
+    jQuery('[href="#callback-form"], [href="#callback"], [data-modal="#call-me"]').each(function() {
+        let par = jQuery(this).parent();
+        let el =  jQuery(this);
+        let f_html = jQuery(this)
+            .removeAttr('data-modal')
+            .attr('href', '')[0].outerHTML;
+    
+        jQuery(el).remove();
+        jQuery(par).append('<div class="tl-call-catcher">'+f_html+'</div>');
+        jQuery('.tl-call-catcher a').click(e => e.preventDefault());
+    })
+    }
+    
+    
+    var s = document.createElement("script");
+    s.type = "text/javascript";
+    s.src = "//anixgroup.pbx.vega.ua/public/widget/call-catcher/lib-v3.js";
+    jQuery("body").append(s);
+    })
+
+// === script #6 (length=1859) ===
+let jLang = $('html').attr('lang');
+if (document.querySelector('.j-installment-button')) {
+    
+
+    // Проверяем, равно ли lang "ru"
+    if (jLang=== "ru") {
+    // Добавляем класс на элемент #installments-cart-calc
+    $('#installments-cart-calc').addClass('installments-cart-lang');
+    }
+
+  // Обрабатываем десктопную версию с атрибутом 'onclick'
+  $(".j-installment-button").each(function () {
+      let onclickValue = $(this).attr("onclick");
+      if (onclickValue && onclickValue.includes("Modal.open")) {
+          let updatedValue = onclickValue.replace("#installments-cart", "#installments-cart-calc");
+          $(this).attr("onclick", updatedValue);
+      }
+  });
+
+
+  // Обрабатываем мобильную версию с атрибутом 'data-panel'
+  $(".j-installment-button").each(function () {
+      let dataPanelValue = $(this).attr("data-panel");
+      if (dataPanelValue && dataPanelValue === "installments-cart") {
+          $(this).attr("data-panel", "installments-cart-calc");
+
+          // Дополнительно вызываем Modal.open при клике, если это необходимо
+          $(this).on("click", function (e) {
+              e.preventDefault(); // Предотвращаем стандартное поведение ссылки
+              //Modal.open('#installments-cart-calc');
+ console.log('azazaza');
+              $('#installments-cart-calc').css("display", "block");
+              $('body').css("overflow", "hidden");
+          });
+      }
+  });
+  $(".installments-cart-calc_modal_close").each(function () {
+          $(this).on("click", function (e) {
+              e.preventDefault();
+              $('#installments-cart-calc').css("display", "none");
+              $('body').css("overflow", "auto");
+          });
+  });
+  $("#installments-cart-calc .cart__close").on("click", function (e) {
+              $('body').css("overflow", "auto");
+    });
+}
+
+// === script #7 (length=3165) ===
+// Проверяем наличие элементов с классом product-price__item
+    if ($('.product-price__item, .product-card__price').length) {
+        // Функция для пересчёта и обновления значения
+        function updatePaymentValue() {
+            // Берём значение цены из meta (ищем внутри обоих возможных классов)
+            let price = parseFloat($('.product-price__item meta[itemprop="price"], .product-card__price meta[itemprop="price"]').attr('content'));
+    
+            if (!isNaN(price)) {
+                // Проверяем значение price
+                let buttonParent = $('.j-installment-button').closest('.product-order__block, .product-card__order'); // Находим родительский элемент кнопки
+    
+                if (price < 1000) {
+                    buttonParent.hide(); // Скрываем родительский элемент
+                    return; // Завершаем выполнение функции, если цена меньше 1000
+                } else {
+                    buttonParent.show(); // Показываем родительский элемент
+                }
+    
+                // Если цена >= 1000, продолжаем расчёт
+                let selectedValue = parseInt($('.installments-select select').val());
+    
+                if (!isNaN(selectedValue) && selectedValue > 0) {
+                    // Рассчитываем значение и обновляем j-payments-value
+                    let paymentValue = Math.ceil(price / selectedValue);
+    
+                    // Обновляем j-payments-value
+                    $('.j-payments-value').text(paymentValue);
+                }
+            }
+        }
+    
+        // Инициализируем расчёт при загрузке страницы
+        updatePaymentValue();
+    
+        // Добавляем обработчик события change для select
+        $('.installments-select select').on('change', function () {
+            updatePaymentValue();
+        });
+    };
+    
+        if ($(".product__grid").length > 0) {
+            
+            console.log("Класс .product__grid найден. Проверяем URL...");
+    
+            // Функция для получения параметров из URL
+            function getUrlParameter(name) {
+                let url = new URL(window.location.href);
+                return url.searchParams.get(name);
+            }
+    
+            // Проверяем, есть ли параметр idl
+            let refId = getUrlParameter('idl');
+            
+            if (refId) {
+                console.log("Найден идентификатор: " + refId);
+    
+                // Ищем кнопку "Купить" и триггерим клик
+                let buyButton = $(".j-buy-button-add");
+                
+                if (buyButton.length > 0) {
+                    console.log("Кнопка 'Купить' найдена, выполняем клик...");
+                    setTimeout(function() {
+                        buyButton.trigger("click"); // Симулируем нажатие кнопки
+                    }, 1000);
+                } else {
+                    console.log("Кнопка 'Купить' НЕ найдена!");
+                }
+            } else {
+                console.log("Идентификатор idl не найден.");
+            }
+        } else {
+            console.log("Класс .product__grid НЕ найден. Код не выполняется.");
+        }
+
+// === script #8 (length=2395) ===
+// Подсчет выгоды 
+    
+    $(document).ready(function () {
+        if ($('.product-price__old-price, .product-card--main .product-card__old-price').length) {
+
+        // HTML для вставки
+        let profitHtml = `
+            <div class="product-price__profit ${jLang === 'ru' ? 'product-price__profit-ru' : ''}">
+                <div class="product-price__profit-text price__profit-item-uk">
+                    Ви заощаджуєте: <div class="product-price__profit-wrapp"><span class="product-price__profit-item">0</span> ₴</div>
+                </div>
+                <div class="product-price__profit-text price__profit-item-ru">
+                    Вы экономите: <div class="product-price__profit-wrapp"><span class="product-price__profit-item">0</span> ₴</div>
+                </div>
+            </div>`;
+    
+        let targetElement, oldPriceText, newPriceText;
+    
+        // Определяем версию сайта (десктоп или моб)
+        if ($('.product-price').length) {
+            targetElement = $('.product-price');
+            newPriceText = $('.product-price__item--new meta[itemprop="price"]').attr('content');
+            oldPriceText = $('.product-price__old-price').text();
+        } else if ($('.product-card--main .product-card__price-box').length) {
+            
+            targetElement = $('.product-card--main .product-card__price-box');
+            newPriceText = $('.product-card--main .product-card__price--new meta[itemprop="price"]').attr('content');
+            oldPriceText = $('.product-card--main .product-card__old-price').text();
+        }
+    
+        if (targetElement && targetElement.length) {
+            // Вставляем HTML
+            targetElement.after(profitHtml);
+    
+            // Исправляем парсинг цены (надёжно извлекаем число)
+            let newPrice = parseInt(newPriceText.replace(/\s+/g, '').match(/\d+/));
+            let oldPrice = parseInt(oldPriceText.replace(/\s+/g, '').match(/\d+/));
+    
+            // Проверка на успешное извлечение цены
+            if (!isNaN(oldPrice) && !isNaN(newPrice) && oldPrice > newPrice) {
+                let profit = oldPrice - newPrice;
+                $('.product-price__profit-item').text(profit);
+            } else {
+                console.warn('⚠️ Не удалось извлечь цены для расчёта!', { oldPriceText, newPriceText });
+            }
+        }
+    }
+    });
+
+// === script #9 (length=3477) ===
+document.addEventListener('DOMContentLoaded', function () {
+    let jLang = document.documentElement.lang; // 'ru' або 'uk'
+
+    let textTop = jLang === 'ru' ? 'До бесплатной доставки осталось:' : 'До безкоштовної доставки залишилось:';
+    let labelPickup = jLang === 'ru' ? 'Самовывоз' : 'Самовивіз';
+    let labelCourier = jLang === 'ru' ? 'Отделение/почтомат' : 'Відділення/поштомат';
+    let labelDone = jLang === 'ru' ? 'Бесплатная доставка' : 'Безкоштовна доставка';
+
+    function parseNumber(str) {
+        return parseFloat(str.replace(/\s+/g, '').replace(',', '.'));
+    }
+
+    function renderBlock(priceValue, isMobile) {
+        // Видалити попередній блок, якщо є
+        document.querySelectorAll('.blockStrip').forEach(el => el.remove());
+
+        // Обчислення
+        const remaining = Math.max(0, 1500 - priceValue);
+        const percent = Math.min((priceValue / 1500) * 100, 100).toFixed(2);
+
+        // Створення HTML блоку
+        const wrapper = document.createElement('div');
+        wrapper.className = 'blockStrip' + (jLang === 'ru' ? ' blockStrip-lang' : '');
+        wrapper.innerHTML = `
+            <div class="blockStripTop">
+                <div class="blockStripTopLeft">
+                    <img src="/content/uploads/images/loadup/svg/free_delivery_1.png" class="lockStripTopLeftLogo">
+                    <p class="blockStripTopLeftText">${priceValue >= 1500 ? labelDone : textTop}</p>
+                </div>
+            </div>
+            <div>
+                <div class="blockStripBottomStrip">
+                    <span class="blockStripBottomStripSpan" style="width: ${percent}%"></span>
+                </div>
+                <div class="blockStripBottomPrice">
+                    <span class="blockStripBottomPriceOne">
+                        <span style="white-space: nowrap;">0 грн</span><br>${labelPickup}
+                    </span>
+                    <span class="blockStripBottomPriceThree">
+                        <span class="blockStripBottomPriceChange" style="white-space: nowrap;">${remaining.toFixed(2)} грн</span><br>${labelCourier}
+                    </span>
+                </div>
+            </div>
+        `;
+
+        // Вставка у відповідне місце
+        if (isMobile) {
+            let target = document.querySelector('.cart__summary');
+            if (target) target.insertAdjacentElement('afterend', wrapper);
+        } else {
+            let target = document.querySelector('.cart .cart-items');
+            if (target) target.insertAdjacentElement('afterend', wrapper);
+        }
+    }
+
+    function observeAndRender() {
+        const isMobile = document.querySelector('[data-skin="mobile"]') !== null;
+        const targetSelector = isMobile ? '.cart__summary .j-total-sum' : '.cart-summary .j-total-sum, #cart .j-total-sum';
+        const priceBlock = document.querySelector(targetSelector);
+
+        if (!priceBlock) return;
+
+        const raw = priceBlock.textContent.trim();
+        const price = parseNumber(raw);
+        if (!isNaN(price)) {
+            renderBlock(price, isMobile);
+        }
+    }
+
+    // Відкладений старт
+    setTimeout(observeAndRender, 500);
+
+    // Динамічний спостерігач за DOM
+    const observer = new MutationObserver(() => {
+        setTimeout(observeAndRender, 2000);
+console.log(1)
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+});
+
+// === script #10 (length=2863) ===
+// Модальне вікно вибору мови START (версія з оптимізованим переходом і префетчем)
+(function () {
+  const html = `
+  <div id="choise-lang" class="overlay" style="display: none;">
+    <section id="choise-lang-section" class="popup __login">
+      <div class="popup-block login">
+        <div class="choise-lang-header">
+          <p class="h2">Оберіть, будь ласка, мову</p>
+        </div>
+        <div class="login-body">
+          <div class="login-tabs-content">
+            <div class="choise-lang-bottom">
+              <a class="btn __special ua_lang"><span class="btn-content">Українська</span></a>
+              <a class="btn __special ru_lang"><span class="btn-content">Російська</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>`;
+
+  document.addEventListener("DOMContentLoaded", function () {
+    // 1) Вставляємо HTML модалки
+    document.body.insertAdjacentHTML("beforeend", html);
+    const modal = document.getElementById('choise-lang');
+
+    // 2) Показуємо лише на першому візиті
+    if (!localStorage.getItem('lang_selected')) {
+      modal.style.display = "block";
+    }
+
+    const ruBtn = modal.querySelector('.ru_lang');
+    const uaBtn = modal.querySelector('.ua_lang');
+
+    // --- Допоміжні функції без жорсткого домену, збереження ?query і #hash
+    function toRuUrl() {
+      const { pathname, search, hash } = window.location;
+      if (/^\/ru(\/|$)/.test(pathname)) return null; // вже RU
+      return `/ru${pathname === '/' ? '/' : pathname}${search}${hash}`;
+    }
+
+    function toUaUrl() {
+      const { pathname, search, hash } = window.location;
+      if (!/^\/ru(\/|$)/.test(pathname)) return null; // вже UA
+      const newPath = pathname.replace(/^\/ru(\/?)/, '/');
+      return `${newPath}${search}${hash}`;
+    }
+
+    // 3) Обробники кліків
+    ruBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      localStorage.setItem('lang_selected', 'true');
+      const target = toRuUrl();
+      if (target) window.location.assign(target);
+      else modal.style.display = "none";
+    });
+
+    uaBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      localStorage.setItem('lang_selected', 'true');
+      const target = toUaUrl();
+      if (target) window.location.assign(target);
+      else modal.style.display = "none";
+    });
+
+    // 4) (Опціонально) Prefetch альтернативної локалі, щоб прискорити перехід
+    if (!localStorage.getItem('lang_selected')) {
+      const alt = /^\/ru(\/|$)/.test(location.pathname) ? toUaUrl() : toRuUrl();
+      if (alt) {
+        const link = document.createElement('link');
+        link.rel = 'prefetch';
+        link.href = alt;
+        document.head.appendChild(link);
+      }
+    }
+  });
+})();
+// Модальне вікно вибору мови END
+
+// === script #11 (length=4381) ===
+// КНОПКИ ДЗВІНКУ І ЧАТУ START
+  document.addEventListener("DOMContentLoaded", function () {
+    const html_support = `
+       <div class="support-online">
+      <div class="support-content" style="display: none;">
+        <span class="span_link" id="call-center-btn">
+          <i aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 0h24v24H0z" fill="none"></path>
+                <path fill="white" d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"></path>
+            </svg>
+          </i>
+          <span>Дзвінок з кол центру</span>
+        </span>
+
+        <a class="sms" href="https://t.me/LoadUp_uabot">
+          <i aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 496 512">
+              <path fill="white" d="M248 8C111 8 0 119 0 256S111 504 248 504 496 393 496 256 385 8 248 8zM363 176.7c-3.7 39.2-19.9 134.4-28.1 178.3-3.5 18.6-10.3 24.8-16.9 25.4-14.4 1.3-25.3-9.5-39.3-18.7-21.8-14.3-34.2-23.2-55.3-37.2-24.5-16.1-8.6-25 5.3-39.5 3.7-3.8 67.1-61.5 68.3-66.7 .2-.7 .3-3.1-1.2-4.4s-3.6-.8-5.1-.5q-3.3 .7-104.6 69.1-14.8 10.2-26.9 9.9c-8.9-.2-25.9-5-38.6-9.1-15.5-5-27.9-7.7-26.8-16.3q.8-6.7 18.5-13.7 108.4-47.2 144.6-62.3c68.9-28.6 83.2-33.6 92.5-33.8 2.1 0 6.6 .5 9.6 2.9a10.5 10.5 0 0 1 3.5 6.7A43.8 43.8 0 0 1 363 176.7z"></path>
+            </svg>
+          </i>
+          <span>Telegram</span>
+        </a>
+      </div>
+      <a class="btn-support">
+        <div class="animated infinite zoomIn kenit-alo-circle"></div>
+        <div class="animated infinite pulse kenit-alo-circle-fill"></div>
+        <div class="flip-card" id="auto-flip-card">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <i aria-hidden="true">
+                <svg width="28" height="29" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M25.99 7.744a2 2 0 012 2v11.49a2 2 0 01-2 2h-1.044v5.162l-4.752-5.163h-7.503a2 2 0 01-2-2v-1.872h10.073a3 3 0 003-3V7.744zM19.381 0a2 2 0 012 2v12.78a2 2 0 01-2 2h-8.69l-5.94 6.453V16.78H2a2 2 0 01-2-2V2a2 2 0 012-2h17.382z" fill=" #FFFFFF" fill-rule="evenodd"></path>
+                </svg>
+              </i>    </div>
+            <div class="flip-card-back">
+              <i aria-hidden="true">
+                <svg width="28" height="28" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0 0h24v24H0z" fill="none"></path>
+                    <path fill="white" d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"></path>
+                </svg>
+              </i>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>`;
+    
+    document.body.insertAdjacentHTML("beforeend", html_support);
+      
+    const btnSupport = document.querySelector('a.btn-support');
+    const supportContent = document.querySelector('.support-content');
+
+    // Клік по кнопці відкриття
+    btnSupport.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (supportContent.style.display === 'block') {
+        supportContent.style.display = 'none';
+      } else {
+        supportContent.style.display = 'block';
+      }
+    });
+
+    // Зупинка поширення події всередині блоку
+    supportContent.addEventListener('click', function (e) {
+      e.stopPropagation();
+    });
+
+    // Клік поза блоком — сховати
+    document.addEventListener('click', function () {
+      supportContent.style.display = 'none';
+    });
+
+   const callBtn = document.getElementById('call-center-btn');
+    callBtn.addEventListener('click', function () {
+      const btn = document.querySelector('.unitalk-root .go1190280751');
+      if (btn) btn.click();
+ });
+});
+  
+  setInterval(function () {
+    const card = document.getElementById('auto-flip-card');
+    card.classList.toggle('flipped');
+  }, 4000);
+  // КНОПКИ ДЗВІНКУ І ЧАТУ END
+
+// === script #12 (length=1246) ===
+document.addEventListener("DOMContentLoaded", function () {
+    const bannerA = document.querySelector("a.banner-a[href='#mm-0001']");
+    const headerMenuButton = document.querySelector("#header > div.header__left > div.header__button > a[href='#menu']");
+    function waitForElement(selector, callback) {
+        const check = setInterval(() => {
+            const el = document.querySelector(selector);
+            if (el) {
+                clearInterval(check);
+                callback(el);
+            }
+        }, 50);
+    }
+    function findTargetLink() {
+        const items = document.querySelectorAll("#start li.main-nav__item");
+        for (const li of items) {
+            if (li.querySelector(".main-nav__link.mm-next-text[data-href='/pidibraty-podarunok/']")) {
+                return li.querySelector("a");
+            }
+        }
+        return null;
+    }
+    bannerA.addEventListener("click", function (e) {
+        e.preventDefault();
+        headerMenuButton.click();
+        const interval = setInterval(() => {
+            const link = findTargetLink();
+            if (link) {
+                clearInterval(interval);
+                link.click();
+            }
+        }, 50);
+    });
+});
+
+// === script #13 (length=2617) ===
+(function () {
+  const TEXT = {
+    uk: "Відправка на таксі здійснюється з понеділка по п'ятницю з 11.00 до 17.00",
+    ru: "Отправка на такси осуществляется с понедельника по пятницу с 11:00 до 17:00"
+  };
+
+  const WATCHDOG_INTERVAL_MS = 300;
+  const WATCHDOG_TOTAL_MS = 3000;
+
+  const lang = (document.documentElement.getAttribute('lang') || '').toLowerCase().startsWith('ru') ? 'ru' : 'uk';
+
+  function createTaxiNode() {
+    const p = document.createElement('p');
+    p.className = 'my-taxi-info';
+    p.style.marginTop = '10px';
+    p.style.fontSize = '14px';
+    p.style.color = '#999';
+    p.textContent = TEXT[lang];
+    return p;
+  }
+
+  function updateTaxiTextOnce() {
+    const select = document.querySelector('.j-delivery-type');
+    if (!select) {
+      document.querySelectorAll('.my-taxi-info').forEach(el => el.remove());
+      return;
+    }
+    document.querySelectorAll('.my-taxi-info').forEach(el => el.remove());
+
+    if (select.value !== '17') return;
+
+    const container = document.querySelector('.j-delivery-main-container') || select.closest('dd') || select.parentElement;
+    if (!container) return;
+
+    const node = createTaxiNode();
+    container.appendChild(node);
+  }
+
+  let watchdogTimer = null;
+  let watchdogInterval = null;
+  function startWatchdog() {
+    if (watchdogTimer) clearTimeout(watchdogTimer);
+    if (watchdogInterval) { clearInterval(watchdogInterval); watchdogInterval = null; }
+
+    updateTaxiTextOnce();
+
+    const start = Date.now();
+    watchdogInterval = setInterval(() => {
+      updateTaxiTextOnce();
+      if (Date.now() - start >= WATCHDOG_TOTAL_MS) {
+        clearInterval(watchdogInterval);
+        watchdogInterval = null;
+      }
+    }, WATCHDOG_INTERVAL_MS);
+
+    watchdogTimer = setTimeout(() => {
+      if (watchdogInterval) { clearInterval(watchdogInterval); watchdogInterval = null; }
+      watchdogTimer = null;
+    }, WATCHDOG_TOTAL_MS + 200);
+  }
+
+  document.addEventListener('change', function (e) {
+    if (e.target && e.target.matches && e.target.matches('.j-delivery-type')) {
+      startWatchdog();
+    }
+  }, true);
+
+  document.addEventListener('click', function (e) {
+    const target = e.target;
+    if (target.closest && (target.closest('.selectboxit-container') || target.matches('.j-delivery-type') || target.closest('.j-delivery-main-container'))) {
+      setTimeout(startWatchdog, 120);
+    }
+  }, true);
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startWatchdog);
+  } else {
+    startWatchdog();
+  }
+})();
+
+// === script #14 (length=2417) ===
+(function () {
+    let executed = false;
+    let timer = null;
+    const GIFT_SLUG = '/pidibraty-podarunok/';
+    const NEWYEAR_SLUG = '/novyi-rik/';
+
+    function endsWithSlug(url, slug) {
+        return url.endsWith(slug);
+    }
+
+    function runMenuScript() {
+        if (executed) return;
+        executed = true;
+
+        /* 1. li з "Новий рік" */
+        const sourceLi = Array.from(
+            document.querySelectorAll('#menu li.main-nav__item')
+        ).find(li => {
+            const div = li.querySelector('div[data-href]');
+            return div && endsWithSlug(div.dataset.href, NEWYEAR_SLUG);
+        });
+        if (!sourceLi) return;
+
+        /* 2. panel "Підібрати подарунок" */
+        const targetPanel = Array.from(
+            document.querySelectorAll('#menu .mm-panel.mm-hasnavbar')
+        ).find(panel => {
+            const title = panel.querySelector('a.mm-title[href]');
+            return title && endsWithSlug(title.getAttribute('href'), GIFT_SLUG);
+        });
+        if (!targetPanel) return;
+
+        /* 3. Вставка li */
+        const targetUl = targetPanel.querySelector('.mm-body ul');
+        if (!targetUl) return;
+
+        sourceLi.remove();
+
+        // if (targetUl.children.length > 0) {
+        //     targetUl.insertBefore(sourceLi, targetUl.children[1]);
+        // } else {
+        //     targetUl.appendChild(sourceLi);
+        // }
+        targetUl.insertBefore(sourceLi, targetUl.firstElementChild);
+
+        /* 4–6. Кнопка назад */
+        const liLink = sourceLi.querySelector('a[data-target]');
+        if (!liLink) return;
+
+        const submenuPanel = document.querySelector(liLink.dataset.target);
+        if (!submenuPanel) return;
+
+        const backBtn = submenuPanel.querySelector('a.mm-btn.mm-prev');
+        if (!backBtn) return;
+
+        const newTarget = `#${targetPanel.id}`;
+        backBtn.setAttribute('data-target', newTarget);
+        backBtn.setAttribute('href', newTarget);
+    }
+
+    document.addEventListener('click', function (e) {
+        const link = e.target.closest(
+            'a[href="#menu"], a.banner-a[href="#mm-0001"]'
+        );
+        if (!link) return;
+        if (timer || executed) return;
+        timer = setTimeout(() => {
+            runMenuScript();
+            document.removeEventListener('click', arguments.callee);
+        }, 500);
+    });
+})();
+
+// === script #15 (length=601) ===
+document.addEventListener('DOMContentLoaded', function () {
+    var iframes = document.querySelectorAll('iframe[data-src]');
+    for (var i = 0; i < iframes.length; i++) {
+      var el = iframes[i];
+      // Add native lazy-loading if not set
+      if (!el.getAttribute('loading')) {
+        el.setAttribute('loading', 'lazy');
+      }
+      // Move data-src -> src if src is missing
+      if (!el.getAttribute('src')) {
+        var ds = el.getAttribute('data-src');
+        if (ds) el.setAttribute('src', ds);
+      }
+      // Cleanup
+      el.removeAttribute('data-src');
+    }
+  });
+
+// === script #16 (length=3680) ===
+(function () {
+    if (window.innerWidth < 1024) return;
+    document.addEventListener('DOMContentLoaded', function () {
+        const menu = document.querySelector(
+            '.header__bottom ul.products-menu__container'
+        );
+        if (!menu) return;
+
+        /* === 1. "Підібрати подарунок" === */
+        const giftItem = Array.from(
+            menu.querySelectorAll('li.products-menu__item')
+        ).find(li => {
+            const a = li.querySelector('.products-menu__title-link');
+            return a && (
+                a.getAttribute('href') === '/pidibraty-podarunok/' ||
+                a.getAttribute('href') === '/ru/pidibraty-podarunok/'
+            );
+        });
+        if (!giftItem) return;
+
+        /* === 2. "Новий Рік" (a + ul) === */
+        const newYearItem = Array.from(
+            menu.querySelectorAll('li.products-menu__item')
+        ).find(li => {
+            const a = li.querySelector('.products-menu__title-link');
+            return a && (
+                a.getAttribute('href') === '/novyi-rik/' ||
+                a.getAttribute('href') === '/ru/novyi-rik/'
+            );
+        });
+        if (!newYearItem) return;
+
+        const newYearLink = newYearItem.querySelector('.products-menu__title-link');
+        const newYearHref = newYearLink.getAttribute('href');
+        const newYearText = newYearLink.textContent.trim();
+
+        /* === 3. UL куди вставляємо === */
+        const targetUl = giftItem.querySelector(
+            'div.productsMenu-submenu > ul.productsMenu-submenu-w'
+        );
+        if (!targetUl) return;
+
+        if (targetUl.querySelector(`a[href="${newYearHref}"]`)) return;
+
+        /* === 4. Створюємо головний li === */
+        const li = document.createElement('li');
+        li.className = 'productsMenu-submenu-i';
+
+        li.innerHTML = `
+            <a class="productsMenu-submenu-a" href="${newYearHref}">
+                <div class="productsMenu-submenu-image">
+                    <img
+                        alt="${newYearText}"
+                        title="${newYearText}"
+                        width="50"
+                        height="50"
+                        src="/content/images/21/50x50l80nn0/59182303295615.webp"
+                    >
+                </div>
+                <span class="productsMenu-submenu-t">${newYearText}</span>
+            </a>
+        `;
+
+        /* === 5. Копіюємо UL з "Новий Рік" і трансформуємо === */
+        const sourceUl = newYearItem.querySelector(
+            'div.productsMenu-submenu > ul.productsMenu-submenu-w'
+        );
+
+        if (sourceUl) {
+            const newUl = document.createElement('ul');
+            newUl.className = 'productsMenu-list';
+
+            sourceUl.querySelectorAll('li.productsMenu-submenu-i').forEach(oldLi => {
+                const oldA = oldLi.querySelector('a');
+                if (!oldA) return;
+
+                const href = oldA.getAttribute('href');
+                const text = oldA.querySelector('.productsMenu-submenu-t')?.textContent.trim();
+                if (!href || !text) return;
+
+                const newLi = document.createElement('li');
+                newLi.className = 'productsMenu-list-i';
+
+                newLi.innerHTML = `
+                    <a href="${href}">
+                        <span>${text}</span>
+                    </a>
+                `;
+
+                newUl.appendChild(newLi);
+            });
+
+            li.appendChild(newUl);
+        }
+
+        /* === 6. Вставляємо ПЕРШИМ === */
+        targetUl.insertBefore(li, targetUl.firstElementChild);
+    });
+})();
+
+// === script #17 (length=14108) ===
+// ПЕРЕДЗАМОВЛЕННЯ START
+document.addEventListener('DOMContentLoaded', function () {
+  (function ($) {
+    $(function () {
+
+      // ✅ 1) Проверка наличия стикера
+      var $product = $('main .product[itemtype="https://schema.org/Product"]');
+      var $stickers = $product.find('.productSticker-item.__, .product-sticker__item.product-sticker__item--');
+      if (!$stickers.length) return;
+
+			var hasPreorderText = false;
+			$stickers.each(function () {
+			  var t = ($(this).text() || '').trim();
+			  if (t.indexOf('Передзамовлення') !== -1 || t.indexOf('Предзаказ') !== -1) {
+			    hasPreorderText = true;
+			    return false; // break
+			  }
+			});
+			if (!hasPreorderText) return;
+
+			$product.addClass('product_preorder');
+
+      // ✅ 2) Куда добавлять кнопку
+      var $buyBlock = $('.product__section.product__section--order, .product-card__order-box .product-card__purchase').first();
+      if (!$buyBlock.length) return;
+
+      // ✅ 3) Язык
+      var jLang = (document.documentElement.lang || 'ru').toLowerCase();
+
+      // ✅ 4) Языковые переменные
+      var textTitle = jLang === 'ru' ? 'Предзаказ' : 'Передзамовлення';
+      var labelTelephone = jLang === 'ru' ? 'Телефон' : 'Телефон';
+      var labelBtn = jLang === 'ru' ? 'Оформить передзаказ' : 'Оформити передзамовлення';
+      var labelAgreement1 = jLang === 'ru'
+        ? 'Подтверждая заказ, я принимаю условия '
+        : 'Підтверджуючи передзамовлення, я приймаю умови ';
+      var labelAgreement2 = jLang === 'ru'
+        ? 'пользовательского соглашения'
+        : 'угоди користувача';
+
+      var labelName = jLang === 'ru' ? 'Имя' : "Ім'я";
+      var labelComment = jLang === 'ru' ? 'Комментарий' : 'Коментар';
+      var labelDesc = jLang === 'ru'
+        ? 'Оставьте контакты — мы уточним срок и свяжемся с Вами.'
+        : "Залиште контакти — ми уточнимо термін і зв'яжемося з Вами.";
+
+      var labelSending = jLang === 'ru' ? 'Отправляем...' : 'Надсилаємо...';
+      var labelSendError = jLang === 'ru'
+        ? 'Не удалось отправить. Попробуйте ещё раз.'
+        : 'Не вдалося відправити. Спробуйте ще раз.';
+
+      // ✅ Мягкая валидация телефона (12 цифр: 38 + 10)
+      var labelPhoneInvalid = jLang === 'ru'
+        ? 'Введите номер полностью (формат: +38 (0XX) XXX XXXX)'
+        : 'Введіть номер повністю (формат: +38 (0XX) XXX XXXX)';
+
+      // ✅ URL отправки
+      var ajaxUrl = 'https://limitless.org.ua/loadup/send_preorder.php';
+
+      // На всякий случай — ссылка на соглашение (можешь заменить)
+      var agreementUrl = '/privacypolicy/';
+
+      // ✅ защита от дубля кнопки
+      if ($buyBlock.find('.js-preorder-modal-btn').length) return;
+
+      // ✅ 5) Добавляем кнопку
+      $buyBlock.append(
+        '<button type="button" class="preorderModal__btn js-preorder-modal-btn">' + textTitle + '</button>'
+      );
+
+      // ✅ 6) Создаём модалку (один раз)
+      if (!$('#preorderModal').length) {
+        var modalHtml = '' +
+          '<div class="preorderModal" id="preorderModal" aria-hidden="true">' +
+            '<div class="preorderModal__overlay" data-preorder-modal-close="1"></div>' +
+            '<div class="preorderModal__dialog" role="dialog" aria-modal="true" aria-labelledby="preorderModalTitle">' +
+              '<div class="preorderModal__header">' +
+                '<h3 class="preorderModal__title" id="preorderModalTitle">' + textTitle + '</h3>' +
+                '<button class="preorderModal__close" type="button" aria-label="Закрыть" data-preorder-modal-close="1">' +
+                  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">' +
+                    '<path d="M18 6L6 18"></path>' +
+                    '<path d="M6 6l12 12"></path>' +
+                  '</svg>' +
+                '</button>' +
+              '</div>' +
+              '<div class="preorderModal__body">' +
+                '<p class="preorderModal__desc">' + labelDesc + '</p>' +
+
+                '<form id="preorderModalForm" autocomplete="on">' +
+                  '<div class="preorderModal__row">' +
+                    '<label class="preorderModal__label" for="po_name">' + labelName + '</label>' +
+                    '<input class="preorderModal__input" id="po_name" name="name" type="text" placeholder="' + labelName + '" required>' +
+                  '</div>' +
+
+                  '<div class="preorderModal__row">' +
+                    '<label class="preorderModal__label" for="po_phone">' + labelTelephone + '</label>' +
+                    '<input class="preorderModal__input" id="po_phone" name="phone" type="tel" placeholder="+38 ..." required>' +
+                    '<div class="preorderModal__fieldError" id="po_phone_error"></div>' +
+                  '</div>' +
+
+                  '<div class="preorderModal__row">' +
+                    '<label class="preorderModal__label" for="po_comment">' + labelComment + '</label>' +
+                    '<textarea class="preorderModal__textarea" id="po_comment" name="comment" placeholder=""></textarea>' +
+                  '</div>' +
+
+                  // Hidden: языки / страница / товар / стикеры
+                  '<input type="hidden" id="po_lang" name="lang" value="">' +
+                  '<input type="hidden" id="po_page_url" name="page_url" value="">' +
+                  '<input type="hidden" id="po_page_title" name="page_title" value="">' +
+                  '<input type="hidden" id="po_product_name" name="product_name" value="">' +
+                  '<input type="hidden" id="po_product_sku" name="product_sku" value="">' +
+                  '<input type="hidden" id="po_product_price" name="product_price" value="">' +
+                  '<input type="hidden" id="po_sticker_text" name="sticker_text" value="">' +
+
+                  '<div class="preorderModal__actions">' +
+                    '<button class="preorderModal__submit" id="po_submit" type="submit">' + labelBtn + '</button>' +
+                    '<div class="preorderModal__note">' +
+                      labelAgreement1 +
+                      '<a href="' + agreementUrl + '" target="_blank" rel="noopener">' + labelAgreement2 + '</a>' +
+                    '</div>' +
+                  '</div>' +
+                '</form>' +
+
+                '<div class="preorderModal__error" id="preorderModalError"></div>' +
+                '<div class="preorderModal__success" id="preorderModalSuccess">' +
+                  (jLang === 'ru'
+                    ? 'Спасибо! Заявка отправлена. Мы свяжемся с Вами в ближайшее время.'
+                    : "Дякуємо! Заявку відправлено. Ми зв'яжемося з Вами найближчим часом."
+                  ) +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+
+        $('body').append(modalHtml);
+      }
+
+      var $modal = $('#preorderModal');
+      var lastActiveElement = null;
+
+      // ✅ Санитизация текста (убираем опасные символы / управляющие / ограничиваем длину)
+      function sanitizeText(str, maxLen) {
+        if (str === null || typeof str === 'undefined') return '';
+        str = String(str);
+
+        // убираем управляющие символы
+        str = str.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '');
+
+        // режем потенциально опасные символы для инъекций
+        str = str.replace(/[<>]/g, '');
+
+        str = str.trim();
+        if (maxLen && str.length > maxLen) str = str.slice(0, maxLen);
+
+        return str;
+      }
+
+      function readProductData() {
+        var nameEl = document.querySelector('.product__section--header h1');
+        var skuEl = document.querySelector('.product__section--header meta[itemprop="sku"]');
+        var priceEl = document.querySelector('head meta[property="product:price:amount"]');
+
+        return {
+          product_name: nameEl ? (nameEl.textContent || '').trim() : '',
+          product_sku: skuEl ? (skuEl.getAttribute('content') || '').trim() : '',
+          product_price: priceEl ? (priceEl.getAttribute('content') || '').trim() : ''
+        };
+      }
+
+      function readStickerText() {
+        var arr = [];
+        $stickers.each(function () {
+          var t = ($(this).text() || '').trim();
+          if (t) arr.push(t);
+        });
+        return arr.join(' | ');
+      }
+
+      // ✅ Телефон: проверка (12 цифр и начинается с 38)
+      function isValidUAPhone(val) {
+        var digits = String(val || '').replace(/\D/g, '');
+        return digits.length === 12 && digits.startsWith('38');
+      }
+
+      function setPhoneError(show) {
+        var $input = $('#po_phone');
+        var $err = $('#po_phone_error');
+
+        if (show) {
+          $input.addClass('is-invalid');
+          $err.text(labelPhoneInvalid).show();
+        } else {
+          $input.removeClass('is-invalid');
+          $err.text('').hide();
+        }
+      }
+
+      function openModal() {
+        lastActiveElement = document.activeElement;
+
+        var page_url = window.location.href;
+
+        $('#po_lang').val(jLang);
+        $('#po_page_url').val(page_url);
+        $('#po_page_title').val(document.title);
+
+        var p = readProductData();
+        $('#po_product_name').val(p.product_name);
+        $('#po_product_sku').val(p.product_sku);
+        $('#po_product_price').val(p.product_price);
+
+        $('#po_sticker_text').val(readStickerText());
+
+        $('#preorderModalSuccess').hide();
+        $('#preorderModalError').hide().text('');
+        $('#preorderModalForm').show();
+
+        // сброс ошибок телефона
+        setPhoneError(false);
+
+        // reset кнопки
+        $('#po_submit').prop('disabled', false).text(labelBtn);
+
+        $modal.addClass('is-open').attr('aria-hidden', 'false');
+
+        setTimeout(function () {
+          $('#po_name').trigger('focus');
+        }, 0);
+
+        $('html, body').css('overflow', 'hidden');
+      }
+
+      function closeModal() {
+        if (!$modal.hasClass('is-open')) return;
+
+        $modal.removeClass('is-open').attr('aria-hidden', 'true');
+        $('html, body').css('overflow', '');
+
+        if (lastActiveElement) {
+          try { lastActiveElement.focus(); } catch (e) {}
+        }
+      }
+
+      // Открыть
+      $(document).on('click', '.js-preorder-modal-btn', function (e) {
+        e.preventDefault();
+        openModal();
+      });
+
+      // Закрыть по оверлею/крестику
+      $(document).on('click', '[data-preorder-modal-close]', function () {
+        closeModal();
+      });
+
+      // Закрыть по ESC
+      $(document).on('keydown', function (e) {
+        if (e.key === 'Escape') closeModal();
+      });
+
+      // ✅ Submit -> мягкая валидация телефона + отправка
+      $(document).on('submit', '#preorderModalForm', function (e) {
+        e.preventDefault();
+
+        var $form = $(this);
+        var $btn = $('#po_submit');
+        var $err = $('#preorderModalError');
+
+        $err.hide().text('');
+
+        // ✅ Проверка телефона (не отправляем, если невалидный)
+        var phoneVal = $('#po_phone').val();
+        if (!isValidUAPhone(phoneVal)) {
+          setPhoneError(true);
+          $('#po_phone').trigger('focus');
+          return;
+        } else {
+          setPhoneError(false);
+        }
+
+        // ✅ Санитизируем поля перед отправкой
+        var safeName = sanitizeText($('#po_name').val(), 80);
+        var safeComment = sanitizeText($('#po_comment').val(), 500);
+
+        $('#po_name').val(safeName);
+        $('#po_comment').val(safeComment);
+
+        // блокируем кнопку
+        $btn.prop('disabled', true).text(labelSending);
+
+        $.ajax({
+          url: ajaxUrl,
+          method: 'POST',
+          data: $form.serialize(),
+          crossDomain: true,
+          timeout: 20000,
+          dataType: 'json',
+          headers: { 'Accept': 'application/json' },
+          success: function (res) {
+            $form.hide();
+            $('#preorderModalSuccess').show();
+
+            // закрываем только при успехе
+            setTimeout(closeModal, 3000);
+          },
+          error: function (xhr) {
+            var msg = labelSendError;
+
+            if (xhr && xhr.responseText) {
+              var shortText = String(xhr.responseText).slice(0, 200);
+              msg += '\n' + shortText;
+            }
+
+            $err.text(msg).show();
+            $btn.prop('disabled', false).text(labelBtn);
+          }
+        });
+      });
+
+      // ✅ Маска телефона (делегировано)
+      function formatUAPhone(value) {
+        var digits = String(value || '').replace(/\D/g, '');
+
+        if (!digits.startsWith('38')) digits = '38' + digits;
+        digits = digits.substring(0, 12);
+
+        var formatted = '+38';
+        if (digits.length > 2) formatted += ' (' + digits.substring(2, 5);
+        if (digits.length >= 5) formatted += ') ' + digits.substring(5, 8);
+        if (digits.length >= 8) formatted += ' ' + digits.substring(8, 12);
+
+        return formatted;
+      }
+
+      $(document).on('input', '#po_phone', function () {
+        this.value = formatUAPhone(this.value);
+
+        // мягко убираем ошибку при достижении валидного состояния
+        if (isValidUAPhone(this.value)) {
+          setPhoneError(false);
+        }
+      });
+
+      $(document).on('keydown', '#po_phone', function (e) {
+        if (e.key !== 'Backspace') return;
+
+        var pos = this.selectionStart;
+        var val = this.value;
+
+        if (pos && /[\s\(\)]/.test(val[pos - 1])) {
+          e.preventDefault();
+          this.setSelectionRange(pos - 1, pos - 1);
+        }
+      });
+
+      $(document).on('blur', '#po_phone', function () {
+        // мягко показываем ошибку, но НЕ стираем значение
+        var digitsLen = this.value.replace(/\D/g, '').length;
+        if (digitsLen > 0 && !isValidUAPhone(this.value)) {
+          setPhoneError(true);
+        }
+      });
+
+    });
+  })(jQuery);
+});
+// ПЕРЕДЗАМОВЛЕННЯ END
+
+// === script #18 (length=3636) ===
+// Подарункові сети в головне моб меню START
+document.addEventListener('DOMContentLoaded', function () {
+  (function ($) {
+    $(function () {
+      var HREF_TO_MOVE = '/podarunkovi-sety/1571/';
+
+      var intervalId = null;
+      var observer = null;
+
+      function moveGiftSetsItem() {
+        var $targetList = $('#start .menu__section.j-catalog-nav ul.main-nav').first();
+        if (!$targetList.length) return false;
+
+        // Уже есть в целевом списке
+        if ($targetList.find('a.main-nav__link[href="' + HREF_TO_MOVE + '"]').length) {
+          return true;
+        }
+
+        // Ищем исходный пункт в любом месте меню
+        var $sourceLink = $('#menu a.main-nav__link[href="' + HREF_TO_MOVE + '"]').first();
+        if (!$sourceLink.length) return false;
+
+        var $li = $sourceLink.closest('li');
+        if (!$li.length) return false;
+
+        // Вырезаем
+        $li.detach();
+
+        // Доработка ссылки: слева (иконка+название), справа стрелка
+        var $a = $li.find('a.main-nav__link[href="' + HREF_TO_MOVE + '"]').first();
+        if ($a.length) {
+          // Иконка слева (если есть)
+          var $icon = $a.find('.main-nav__icon').first().detach();
+
+          // Текст категории (без иконки)
+          var labelText = $.trim($a.text());
+
+          // Пересобираем содержимое
+          $a.empty().addClass('giftSets__link');
+
+          var $left = $('<span class="giftSets__left"></span>');
+          if ($icon.length) $left.append($icon);
+
+          var $label = $('<span class="giftSets__label"></span>').text(labelText);
+          $left.append($label);
+
+          var $arrow = $(
+            '<span class="giftSets__arrow" aria-hidden="true">' +
+              '<svg class="icon"><use xlink:href="#icon-arrow-left"></use></svg>' +
+            '</span>'
+          );
+
+          $a.append($left).append($arrow);
+        }
+
+        // Вставляем вторым элементом (после первого li)
+        var $firstLi = $targetList.children('li').first();
+        if ($firstLi.length) $firstLi.after($li);
+        else $targetList.prepend($li);
+
+        return true;
+      }
+
+      function startMoveFlow() {
+        // ❌ Не выполнять на PC
+        if ($('footer .footer__mobile-version').length) return;
+
+        // чистим прошлые попытки
+        if (intervalId) {
+          clearInterval(intervalId);
+          intervalId = null;
+        }
+        if (observer) {
+          try { observer.disconnect(); } catch (e) {}
+          observer = null;
+        }
+
+        // лёгкая задержка, чтобы меню успело открыться/дорисоваться
+        setTimeout(function () {
+          moveGiftSetsItem();
+
+          var tries = 0;
+          intervalId = setInterval(function () {
+            tries++;
+            if (moveGiftSetsItem() || tries >= 40) {
+              clearInterval(intervalId);
+              intervalId = null;
+            }
+          }, 250);
+
+          var menuEl = document.getElementById('menu');
+          if (menuEl && window.MutationObserver) {
+            observer = new MutationObserver(function () {
+              if (moveGiftSetsItem()) {
+                try { observer.disconnect(); } catch (e) {}
+                observer = null;
+              }
+            });
+            observer.observe(menuEl, { childList: true, subtree: true });
+          }
+        }, 50);
+      }
+
+      // ✅ Запуск ТОЛЬКО при клике на открытие меню
+      $(document).on('click', 'a[href="#menu"]', function () {
+        startMoveFlow();
+      });
+
+    });
+  })(jQuery);
+});
+// Подарункові сети в головне моб меню END
+
+// === script #19 (length=613) ===
+//Шолом на стікер ЗСУ START
+document.addEventListener('DOMContentLoaded', function () {
+  (function ($) {
+    $(function () {
+      var $main = $('main');
+      var $sticker_zsu = $main.find('.productSticker-item.__, .product-sticker__item.product-sticker__item--');
+      if (!$sticker_zsu.length) return;
+      $sticker_zsu.each(function () {
+        var $item = $(this);
+        var text = $item.text().trim().toUpperCase();
+        if (text.includes('ЗСУ') || text.includes('ВСУ')) {
+          $item.addClass('has-zsu');
+        }
+      });
+    });
+  })(jQuery);
+});
+//Шолом на стікер ЗСУ END

@@ -1,0 +1,25 @@
+// source: https://myvitamins.com.ua/
+// extracted: 2026-05-07T21:19:13.648Z
+// scripts: 2
+
+// === script #1 (length=999) ===
+$(function() {
+  if ($("html").attr('lang') == 'uk') {
+        $('.footer__development').html('<div class="makers" style="padding-bottom: 20px;">Реклама та просування - <a href="https://sovamarketing.com.ua/" target="_blank" style="font-weight:700; color:#fff;">SoVa Marketing</div>');
+        $('.footer__base').append('<div class="makers" style="padding-bottom: 20px;">Реклама та просування - <a href="https://sovamarketing.com.ua/" target="_blank" style="font-weight:700; color:#fff;">SoVa Marketing</div>')
+    } else {
+        $('.footer__development').html('<div class="makers" style="padding-bottom: 20px;">Реклама и продвижение - <a href="https://sovamarketing.com.ua/" target="_blank" style="font-weight:700; color:#fff;">SoVa Marketing</div>');
+        $('.footer__base').append('<div class="makers" style="padding-bottom: 20px;">Реклама и продвижение - <a href="https://sovamarketing.com.ua/" target="_blank" style="font-weight:700; color:#fff;">SoVa Marketing</div>');
+    };
+});
+
+// === script #2 (length=810) ===
+$(function() {
+  if ($("html").attr('lang') == 'uk') {
+        $('.product-order').after('<p style="margin-bottom:20px"><a class="btn" style="padding:0px 20px" href="https://t.me/myvitamins1/">Замовити в Телеграм</a></p>');
+        $('.product-card__order').after('<div class="product-card__order product-card__order--quick"><a class="btn btn--block" href="https://t.me/myvitamins1/">Замовити в Телеграм</a></div>');
+    } else {
+        $('.product-order').after('<p style="margin-bottom:20px"><a class="btn" style="padding:0px 20px" href="https://t.me/myvitamins1/">Заказать в Телеграм</a></p>');
+        $('.product-card__order').after('<div class="product-card__order product-card__order--quick"><a class="btn btn--block" href="https://t.me/myvitamins1/">Заказать в Телеграм</a></div>');
+    };
+});

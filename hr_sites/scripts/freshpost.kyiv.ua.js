@@ -1,0 +1,12 @@
+// source: https://freshpost.kyiv.ua/
+// extracted: 2026-05-07T21:21:26.151Z
+// scripts: 1
+
+// === script #1 (length=656) ===
+var _protocol="https:"==document.location.protocol?" https://":" http://";
+    _site_hash_code = "72d1a599dfebad58d830dee45ae1f58e",_suid=37389, plerdyScript=document.createElement("script");
+    plerdyScript.setAttribute("defer",""),plerdyScript.dataset.plerdymainscript="plerdymainscript",
+    plerdyScript.src="https://a.plerdy.com/public/js/click/main.js?v="+Math.random();
+    var plerdymainscript=document.querySelector("[data-plerdymainscript='plerdymainscript']");
+    plerdymainscript&&plerdymainscript.parentNode.removeChild(plerdymainscript);
+    try{document.head.appendChild(plerdyScript)}catch(t){console.log(t,"unable add script tag")}

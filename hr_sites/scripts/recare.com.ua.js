@@ -1,0 +1,168 @@
+// source: https://recare.com.ua/
+// extracted: 2026-05-07T21:20:01.104Z
+// scripts: 1
+
+// === script #1 (length=6612) ===
+class Scaleo {
+    static token = 'ae78d51d';  // Replace with the actual token   
+    static goal_id = 9;
+    static endpoint = 'https://fmtarget.com';  // Replace with the actual endpoint URL     
+    static cache = [];
+    static getVar = 'click_id';  // Replace with the specific `get_var` variable from PHP
+    static cookieName = 'sc_click_id';  // Replace with the specific `cookie_name` variable from PHP
+    static notifyUrl = 'https://tools.procare.com.ua/scaleo?source=recare';
+
+    static init() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlPath = window.location.pathname;
+
+        if (urlPath.startsWith('/checkout/complete0/')) {
+            const orderId = document.querySelector("div.h2")?.innerHTML.trim().split("№")[1];
+            const amountText = document.querySelector(".order-summary-b")?.innerHTML;
+            const amount = amountText ? amountText.replace(' грн', '').trim() : null;
+
+            if (orderId && amount) {
+                Scaleo.postback(orderId, amount);
+            }
+            return;
+        }       
+
+        // Check for custom getVar parameter
+        if (urlParams.has(Scaleo.getVar) && urlParams.get(Scaleo.getVar)) {
+            const clickId = urlParams.get(Scaleo.getVar);
+            Scaleo.setCookie(clickId);
+
+            // Redirect to current URL without the custom parameter
+            const newUrl = Scaleo.getCurPageParam('', [Scaleo.getVar]);
+            window.location.replace(newUrl);
+        }
+    }
+
+    static pixel() {
+        let src = 'https://fmtarget.com/track/img?goal_id=' + Scaleo.goal_id;
+        // Create the img element
+        const img = document.createElement('img');
+
+        // Set the src attribute (replace with the actual image URL)
+        img.src = src;
+
+        // Optionally, set other attributes like alt, width, height, etc.
+        img.alt = 'Description of the image';
+        img.width = 1; // Adjust width as needed
+        img.height = 1; // Adjust height as needed
+
+        // Insert the img element at the beginning of the body
+        document.body.insertBefore(img, document.body.firstChild);        
+    }
+
+    static postback(orderId, amount) {
+        // Placeholder function; implement postback logic here if needed.
+        console.log(`Postback called with params: ${orderId}, ${amount}`);
+        const clickId = Scaleo.getCookie(Scaleo.cookieName);
+        if (clickId && !Scaleo.cache[orderId]) {
+            const url = Scaleo.getPostBackUrl(clickId, amount, orderId);
+            Scaleo.cache[orderId] = amount;
+            /*var xhr = new XMLHttpRequest();
+            xhr.open("GET", url, true);
+            xhr.onload = function () {
+                console.log(xhr.responseText);
+            };
+            xhr.send();*/
+            // notify
+            let url2 = Scaleo.notifyUrl;
+            let params = `order_id=${orderId}&amount=${amount}&click_id=${clickId}`;
+            var http = new XMLHttpRequest();
+            http.open('POST', url2, true);
+
+            //Send the proper header information along with the request
+            http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+            http.send(params);
+        }
+    }
+    
+    static getPostBackUrl(clickId, amount, orderId) {
+        return `${Scaleo.endpoint}/track/conv?click_id=${clickId}&amount=${amount}&adv_order_id=${orderId}&token=${Scaleo.token}`;
+    }
+
+    static getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        return parts.length === 2 ? parts.pop().split(';').shift() : null;
+    }
+
+    static async getWebPage(url) {
+        const response = await fetch(url);
+        const content = await response.json();
+        return content;
+    }    
+
+    static setCookie(clickId, set = 1) {
+        const expires = new Date();
+        const days = set === 1 ? 7 : -7;
+        expires.setDate(expires.getDate() + days);
+        document.cookie = `${Scaleo.cookieName}=${clickId};expires=${expires.toUTCString()};path=/`;
+    }
+
+    static getCurPageParam(param, excludeParams = []) {
+        const url = new URL(window.location.href);
+        excludeParams.forEach(p => url.searchParams.delete(p));
+        return url.toString();
+    }
+}
+
+// Run on page load
+Scaleo.init();
+
+// Update the scaleo function to return a promise from Scaleo.postback
+function scaleo(data) {
+    return new Promise((resolve, reject) => {
+        if (typeof data.response.attributes !== 'undefined') {
+            const order_id = data.response.attributes.order_id;
+            const amount = data.response.attributes.cart.total.total.sum;
+
+            // Assuming Scaleo.postback itself can handle a callback or returns a promise
+            Scaleo.postback(order_id, amount)
+                .then(resolve) // Resolve when Scaleo.postback is complete
+                .catch(reject); // Reject if an error occurs
+        } else {
+            resolve(); // Resolve immediately if no postback is needed
+        }
+    });
+}
+
+
+const originalResponseTextGetter = Object.getOwnPropertyDescriptor(XMLHttpRequest.prototype, 'responseText').get;
+let orderOkRedirect = false;
+Object.defineProperty(XMLHttpRequest.prototype, 'responseText', {
+    get: function () {
+        // Call the original getter to get the actual responseText
+        let responseText = originalResponseTextGetter.call(this);
+
+        try {
+            // Attempt to parse the responseText as JSON
+            const responseData = JSON.parse(responseText);
+
+            // Check the conditions
+            if (responseData.response?.redirect && responseData.response?.attributes?.order_id > 0) {
+                // Modify the redirect property
+                orderOkRedirect = responseData.response.redirect;
+                responseData.response.redirect = `#${responseData.response.redirect}`;
+
+                //Scaleo.pixel();
+                scaleo(responseData);
+
+                setTimeout(function(){
+                    window.location.href = orderOkRedirect;
+                },1000);
+                
+                // Convert the modified object back to JSON string
+                responseText = JSON.stringify(responseData);
+            }
+        } catch (e) {
+            // If parsing fails, just return the original responseText
+            console.warn("Failed to parse responseText as JSON:", e);
+        }
+
+        return responseText;
+    }
+});

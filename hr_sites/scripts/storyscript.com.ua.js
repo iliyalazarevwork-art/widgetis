@@ -1,0 +1,160 @@
+// source: https://storyscript.com.ua/
+// extracted: 2026-05-07T21:19:59.162Z
+// scripts: 2
+
+// === script #1 (length=902) ===
+document.addEventListener("DOMContentLoaded", function() {
+  // Створюємо контейнер для форми
+  var formContainer = document.createElement("div");
+  formContainer.id = "custom-form-container";
+  formContainer.style.marginTop = "40px";
+  formContainer.style.marginBottom = "40px";
+
+  // Додаємо сам скрипт SendPulse Webform
+  var script = document.createElement("script");
+  script.src = "//web.webformscr.com/apps/fc3/build/loader.js";
+  script.async = true;
+  script.setAttribute('sp-form-id', 'd02b8bbdf7347843e95ddf7a1c7fa2dc3fdeb2de49ba54d141b2532d1c121762');
+
+  // Додаємо скрипт у контейнер
+  formContainer.appendChild(script);
+
+  // Знаходимо футер і вставляємо форму перед ним
+  var footer = document.querySelector("footer");
+  if (footer) {
+    footer.parentNode.insertBefore(formContainer, footer);
+  } else {
+    console.warn("Футер не знайдено на сторінці.");
+  }
+});
+
+// === script #2 (length=7106) ===
+(function () {
+  var KEY = "7GbCS9kQJNi1MPRxVofEGf688OQJyWq3zJcSCYRHYTgnq1lsTahVQZ%2BahNfrP%2BMCizU%2FGbyTYYkdrgykAiUhzYVT0eaINm2q%2BLOOewdip5Rjb2A4YbSF3xR9kdKoazaBA0X9PF0nYXzkodGWQZTGxvI%2BA0gCpfhu49jRJwY7D5k%3D";
+
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
+
+  function init() {
+    // прибираємо попередні стилі, щоб не тягнули кнопку вліво
+    ['rewish-on-photo-style','rewish-floating-style','ss-rewish-inline-style',
+     'rewish-floating-force-style','rewish-bottom-left-style','rewish-bottom-right-style']
+      .forEach(function(id){ var el=document.getElementById(id); if(el) el.remove(); });
+    render();
+  }
+
+  function isProductPage() {
+    return !!(
+      document.querySelector('[itemtype*="schema.org/Product"]') ||
+      document.querySelector('meta[itemprop="price"]') ||
+      document.querySelector('.product, .product-page, .product__info')
+    );
+  }
+
+  // ===== helpers to read reliable title/description =====
+  function safeText(x){ return (x||'').replace(/\s+/g,' ').trim(); }
+  function readJSONLDProduct() {
+    var blocks = Array.from(document.querySelectorAll('script[type="application/ld+json"]'));
+    for (var i=0;i<blocks.length;i++){
+      try {
+        var data = JSON.parse(blocks[i].textContent.trim());
+        var arr = Array.isArray(data) ? data : [data];
+        for (var j=0;j<arr.length;j++){
+          var o = arr[j];
+          if (!o) continue;
+          var graph = o['@graph'];
+          if (Array.isArray(graph)) {
+            var fromGraph = graph.find(function(n){ return n && /Product/i.test(n['@type']||''); });
+            if (fromGraph) return fromGraph;
+          }
+          if (/@?Product/i.test(o['@type']||'')) return o;
+        }
+      } catch(e){}
+    }
+    return null;
+  }
+  function getTitle(){
+    var p = readJSONLDProduct(); if (p && p.name) { var n=safeText(p.name); if(n && !/^Головна$/i.test(n)) return n; }
+    var ogt = document.querySelector('meta[property="og:title"]'); if (ogt && ogt.content) { var n2=safeText(ogt.content); if(n2 && !/^Головна$/i.test(n2)) return n2; }
+    var el = document.querySelector('[itemprop="name"], .product__title, .page-title, h1'); var n3=safeText(el && el.textContent); if(n3 && !/^Головна$/i.test(n3)) return n3;
+    return ''; // не беремо document.title, щоб не було «Головна»
+  }
+  function getDescription(){
+    var p = readJSONLDProduct(); if (p && p.description) { var d=safeText(p.description); if(d && !/^Головна$/i.test(d) && d.length>20) return d.slice(0,300)+(d.length>300?'…':''); }
+    var ogd = document.querySelector('meta[property="og:description"]'); if (ogd && ogd.content) { var d2=safeText(ogd.content); if(d2 && d2.length>20) return d2.slice(0,300)+(d2.length>300?'…':''); }
+    var descEl = document.querySelector('[itemprop="description"]'); var d3 = descEl ? (descEl.tagName==='META' ? descEl.getAttribute('content') : descEl.textContent) : ''; d3=safeText(d3);
+    if (d3 && d3.length>20) return d3.slice(0,300)+(d3.length>300?'…':'');
+    return '';
+  }
+
+  function render() {
+    var node = document.getElementById('rewish-floating');
+    if (!isProductPage()) { if (node) node.remove(); return; }
+
+    if (!node) {
+      node = document.createElement('div');
+      node.id = 'rewish-floating';
+      node.className = 'rewish-logo';
+
+      var title = getTitle(); if (title) node.setAttribute('data-rewish-title', title);
+      var desc  = getDescription(); if (desc) node.setAttribute('data-rewish-description', desc);
+      node.setAttribute('data-rewish-link', location.href);
+
+      var priceMeta = document.querySelector('meta[itemprop="price"]');
+      var priceText = (priceMeta && priceMeta.content) ||
+                      safeText((document.querySelector('[itemprop="price"], .product__price, .price')||{}).textContent);
+      var priceNum  = priceText && parseFloat(String(priceText).replace(/[^\d.,]/g,'').replace(',','.'));
+      if (!isNaN(priceNum) && priceNum > 0) node.setAttribute('data-rewish-price', String(Math.round(priceNum)));
+
+      var curr = safeText((document.querySelector('meta[itemprop="priceCurrency"]')||{}).content || '').toUpperCase() || 'UAH';
+      var MAP  = { UAH:1, USD:2, EUR:3, GBP:4, PLN:5 };
+      if (MAP[curr]) node.setAttribute('data-rewish-currency', String(MAP[curr]));
+
+      var img = safeText((document.querySelector('meta[property="og:image"]')||{}).content) ||
+                safeText((document.querySelector('[itemprop="image"]')||{}).content) ||
+                (document.querySelector('.product__gallery img, .product-gallery img, .gallery img, .slick-active img')||{}).src || '';
+      if (img) node.setAttribute('data-rewish-picture', img);
+
+      node.innerHTML =
+        '<div class="rewish-logo-icon" aria-hidden="true"></div>' +
+        '<span class="rewish-logo-tooltip" style="margin-left:8px;">Додати у Rewish</span>';
+
+      document.body.appendChild(node);
+    }
+
+    // Стилі: ПРАВИЙ-НИЖНІЙ (як ти хочеш)
+    var st = document.getElementById('rewish-bottom-right-style');
+    if (!st) {
+      st = document.createElement('style');
+      st.id = 'rewish-bottom-right-style';
+      st.textContent =
+        '#rewish-floating{' +
+          'position:fixed!important; right:20px!important; bottom:20px!important;' +
+          'top:auto!important; left:auto!important;' +
+          'display:inline-flex!important; align-items:center!important; gap:8px!important;' +
+          'padding:10px 14px!important; border-radius:999px!important; background:#fff!important;' +
+          'border:1px solid rgba(0,0,0,.08)!important; box-shadow:0 8px 20px rgba(0,0,0,.15)!important;' +
+          'z-index:2147483647!important; cursor:pointer!important' +
+        '}' +
+        '#rewish-floating .rewish-logo-icon{width:20px!important; height:20px!important; display:inline-block!important}' +
+        '@media(max-width:480px){#rewish-floating .rewish-logo-tooltip{display:none!important}}';
+      document.head.appendChild(st);
+    }
+
+    // підвантажимо ядро, якщо його не додали в <head>
+    var hasCore = Array.prototype.some.call(document.scripts, function(s){ return s.src.indexOf('subscriptions.rewish.io/rewish-lib.min.js')>-1; });
+    if (!hasCore) {
+      var s = document.createElement('script'); s.async = true;
+      s.src = 'https://subscriptions.rewish.io/rewish-lib.min.js?key=' + KEY;
+      document.head.appendChild(s);
+    }
+
+    // оновити картинку ще раз через 1с (коли галерея прогрузиться)
+    setTimeout(function(){
+      var n = document.getElementById('rewish-floating'); if (!n) return;
+      var pic = safeText((document.querySelector('meta[property="og:image"]')||{}).content) ||
+                safeText((document.querySelector('[itemprop="image"]')||{}).content) ||
+                (document.querySelector('.product__gallery img, .product-gallery img, .gallery img, .slick-active img')||{}).src || '';
+      if (pic) n.setAttribute('data-rewish-picture', pic);
+    }, 1000);
+  }
+})();

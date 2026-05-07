@@ -1,0 +1,668 @@
+// source: https://decomo.com.ua/
+// extracted: 2026-05-07T21:19:50.770Z
+// scripts: 3
+
+// === script #1 (length=3024) ===
+(function() {
+    
+    // --- ОСНОВНА ЛОГІКА ---
+    function runMainLogic($) {
+        
+        // --- 1. ВИЗНАЧАЄМО МОВУ ---
+        var siteLang = document.documentElement.lang || 'uk'; 
+
+        // --- 2. Функція, яка перевіряє статус ---
+        function checkAndUpdateStockStatus() {
+            setTimeout(function() {
+                var notifyButton = $('a[data-skin="waiting_list"], button[data-skin="presence_notification-mobile"]');
+                var activeButton = $('.modification__button--active');
+                
+                // --- Очищення ---
+                $('.modification__head').find('.stock-warning-message').remove();
+                if (activeButton.length) {
+                    activeButton.removeClass('active-out-of-stock');
+                }
+
+                // --- Головна логіка ---
+                if (notifyButton.length > 0) {
+                    
+                    // 1. Стилізуємо АКТИВНУ кнопку
+                    if (activeButton.length > 0 && !activeButton.hasClass('modification__button--stockout')) {
+                        activeButton.addClass('active-out-of-stock');
+                    }
+                    
+                    // === 2. ОБИРАЄМО ПОТРІБНИЙ ТЕКСТ ===
+                    var warningText;
+                    
+                    if (siteLang === 'ru') {
+                        // Російська версія
+                        warningText = '<span class="stock-warning-message">Данного размера нет в наличии</span>';
+                    } else {
+                        // Українська версія
+                        warningText = '<span class="stock-warning-message">На жаль, розмір зараз відсутній</span>';
+                    }
+                    
+                    // 3. Вставляємо текст
+                    var modTitle = activeButton.closest('.modification').find('.modification__title');
+                    if (modTitle.length > 0) {
+                        $(warningText).insertAfter(modTitle);
+                    }
+                }
+            }, 100); // 100мс - страховка
+        }
+
+        // --- 3. Запускаємо перевірку ПРИ ПЕРШОМУ ЗАВАНТАЖЕННІ ---
+        checkAndUpdateStockStatus();
+
+        // --- 4. Встановлюємо "слухач" на ВСІ майбутні AJAX-запити ---
+        $(document).ajaxComplete(function(event, xhr, settings) {
+            checkAndUpdateStockStatus();
+        });
+    }
+
+    // --- "ЗАВАНТАЖУВАЧ" ---
+    function initStockHighlighter() {
+        var checkInterval = setInterval(function() {
+            if (window.jQuery && (document.querySelector('.j-product-right-column') || document.querySelector('.product__column--right'))) {
+                clearInterval(checkInterval);
+                runMainLogic(window.jQuery);
+            }
+        }, 100); 
+        
+        setTimeout(function() {
+            clearInterval(checkInterval);
+        }, 10000);
+    }
+
+    // --- Запускаємо наш "Завантажувач" ---
+    initStockHighlighter();
+    
+})();
+
+// === script #2 (length=17677) ===
+// Запускаємо після повного завантаження сторінки
+window.addEventListener('load', function() {
+
+  // Даємо 100мс, щоб Хорошоп точно відпрацював
+  setTimeout(() => {
+    const startTime = Date.now();
+    console.log('Video script started (V54 Random Video) at:', new Date().toISOString());
+
+    function createVideo() {
+      // --- ІЗМІНА V54: Випадковий вибір відео ---
+      // 1. Знаходимо ВСІ посилання .mp4
+      const mp4Links = document.querySelectorAll('a[href$=".mp4"]');
+
+      // 2. Перевіряємо, чи є хоча б одне
+      if (mp4Links.length === 0) {
+        console.log('MP4 links not found on page');
+        return false; // Відео не знайдено, виходимо
+      }
+
+      // 3. Обираємо випадковий індекс
+      const randomIndex = Math.floor(Math.random() * mp4Links.length);
+      const selectedLink = mp4Links[randomIndex]; // Беремо випадкове посилання
+
+      // 4. Отримуємо URL з обраного посилання
+      const videoSrc = selectedLink.getAttribute('href');
+      console.log(`Found $ MP4s. Selected random index $:`, videoSrc);
+      // --- КІНЕЦЬ ЗМІНИ ---
+
+      let modificationButtons = null;
+      let selectedModificationValue = null;
+      let actionButtonClicked = false;
+
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+      const originalSize = isMobile ? '160px' : '180px';
+      const minimizedSize = isMobile ? '120px' : '140px';
+
+      const defaultRight = isMobile ? '15px' : '30px';
+      const defaultBottom = isMobile ? '15px' : '30px';
+
+      // --- КРУЖОК (КОНТЕЙНЕР) ---
+      const container = document.createElement('div');
+      container.className = 'parentBlockVideo-custom';
+      container.id = 'video-card-custom';
+      container.style.position = 'fixed';
+      container.style.right = defaultRight;
+      container.style.left = 'auto';
+      container.style.bottom = defaultBottom;
+      container.style.zIndex = '1000';
+      container.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+      container.style.borderRadius = '50%';
+      container.style.overflow = 'hidden';
+      container.style.width = originalSize;
+      container.style.height = originalSize;
+      container.style.border = '2px solid #ff4c34';
+      container.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+      container.style.cursor = 'pointer';
+      container.style.opacity = '1';
+      container.style.transition = 'width 0.3s ease-out, height 0.3s ease-out, transform 0.2s ease-out';
+      container.style.userSelect = 'none';
+      document.body.appendChild(container);
+
+      // --- ВІДЕО В КРУЖКУ ---
+      const video = document.createElement('video');
+      video.id = 'video-custom';
+      video.src = videoSrc + '?v=' + Math.floor(Math.random() * 100) + 1; // Використовуємо обраний videoSrc
+      video.loop = true;
+      video.autoplay = true;
+      video.preload = 'none';
+      video.muted = true;
+      video.controls = false;
+      video.setAttribute('webkit-playinginline', '');
+      video.setAttribute('playsinline', 'playsinline');
+      video.style.width = '100%';
+      video.style.height = '100%';
+      video.style.objectFit = 'cover';
+      video.ondragstart = () => false;
+      container.appendChild(video);
+
+      // --- ПІДКАЗКА (TOOLTIP) ---
+      let tooltip = null;
+      if (!isMobile) {
+        tooltip = document.createElement('div');
+        tooltip.id = 'video-tooltip-custom';
+        tooltip.innerText = "Дивитись прев'ю";
+        tooltip.style.position = 'fixed';
+        const tooltipBottom = parseFloat(defaultBottom) + (parseFloat(originalSize) / 2) - 17;
+        tooltip.style.bottom = tooltipBottom + 'px';
+        const tooltipRight = parseFloat(defaultRight) + parseFloat(originalSize) + 10;
+        tooltip.style.right = tooltipRight + 'px';
+        tooltip.style.backgroundColor = 'white';
+        tooltip.style.color = '#333';
+        tooltip.style.padding = '8px 12px';
+        tooltip.style.borderRadius = '6px';
+        tooltip.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+        tooltip.style.fontSize = '14px';
+        tooltip.style.fontWeight = '500';
+        tooltip.style.whiteSpace = 'nowrap';
+        tooltip.style.opacity = '0';
+        tooltip.style.visibility = 'hidden';
+        tooltip.style.transform = 'translateX(10px)';
+        tooltip.style.transition = 'all 0.2s ease-out';
+        tooltip.style.zIndex = '999';
+        document.body.appendChild(tooltip);
+      }
+
+      // --- ЛОГІКА FULLSCREEN ---
+
+      let isFullscreen = false;
+      let overlay = null;
+      let fullscreenVideo = null;
+      let closeButton = null;
+      let actionButton = null;
+      let isProcessingAction = false;
+
+      function handleClick() {
+        if (isFullscreen || isProcessingAction) return;
+
+        if (tooltip) {
+          tooltip.style.opacity = '0';
+          tooltip.style.visibility = 'hidden';
+          tooltip.style.transform = 'translateX(10px)';
+        }
+
+        // 1. Створюємо темний оверлей
+        overlay = document.createElement('div');
+        overlay.id = 'video-overlay-custom';
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.bottom = '0';
+        overlay.style.right = '0';
+        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
+        overlay.style.zIndex = '2147483646';
+        overlay.style.cursor = 'pointer';
+        overlay.style.opacity = '0';
+        overlay.style.transition = 'opacity 0.3s ease-out';
+        overlay.style.display = 'flex';
+        overlay.style.flexDirection = 'column';
+        overlay.style.justifyContent = 'center';
+        overlay.style.alignItems = 'center';
+        overlay.style.padding = '10px';
+        document.body.appendChild(overlay);
+
+        // 2. Створюємо копію відео для оверлею (з тим самим випадковим videoSrc)
+        fullscreenVideo = document.createElement('video');
+        fullscreenVideo.src = videoSrc; // Використовуємо той самий випадковий URL
+        fullscreenVideo.loop = true;
+        fullscreenVideo.autoplay = true;
+        fullscreenVideo.muted = true;
+        fullscreenVideo.controls = false;
+        fullscreenVideo.setAttribute('playsinline', 'playsinline');
+        fullscreenVideo.style.width = 'auto';
+        fullscreenVideo.style.height = 'auto';
+        fullscreenVideo.style.maxWidth = isMobile ? '90vw' : '480px';
+        fullscreenVideo.style.maxHeight = isMobile ? '60%' : '65%';
+        fullscreenVideo.style.borderRadius = '8px';
+        fullscreenVideo.style.opacity = '0';
+        fullscreenVideo.style.transition = 'opacity 0.3s 0.1s ease-out';
+        fullscreenVideo.style.cursor = 'default';
+        overlay.appendChild(fullscreenVideo);
+
+        // 3. КОНТЕЙНЕР ДЛЯ РОЗМІРІВ (Тільки відображення)
+        modificationButtons = document.querySelectorAll('.modification__list .modification__button');
+        if (modificationButtons.length > 0) {
+          const modificationContainer = document.createElement('div');
+          modificationContainer.id = 'video-mods-container';
+          modificationContainer.style.marginTop = isMobile ? '10px' : '15px';
+          modificationContainer.style.display = 'flex';
+          modificationContainer.style.flexWrap = 'wrap';
+          modificationContainer.style.justifyContent = 'center';
+          modificationContainer.style.gap = '8px';
+          modificationContainer.style.maxWidth = '90%';
+
+          modificationButtons.forEach(button => {
+            const text = button.textContent.trim().split('\n')[0].trim();
+            const value = button.dataset.value;
+            const isStockout = button.classList.contains('modification__button--stockout');
+
+            const modButton = document.createElement('div');
+            modButton.innerText = text;
+            modButton.dataset.value = value;
+            modButton.style.padding = isMobile ? '4px 6px' : '8px 12px';
+            modButton.style.fontSize = isMobile ? '11px' : '14px';
+            modButton.style.border = '2px solid #ccc';
+            modButton.style.borderRadius = '6px';
+            modButton.style.backgroundColor = 'white';
+            modButton.style.color = '#333';
+            modButton.style.cursor = 'default';
+
+            if (isStockout) {
+                modButton.style.opacity = '0.5';
+                modButton.style.cursor = 'not-allowed';
+                modButton.style.textDecoration = 'line-through';
+                modButton.style.backgroundColor = '#f0f0f0';
+            }
+            modificationContainer.appendChild(modButton);
+          });
+
+          overlay.appendChild(modificationContainer);
+        }
+
+        // 4. КНОПКА ДІЇ ("Обрати розмір")
+        actionButton = document.createElement('button');
+        actionButton.id = 'video-action-btn-custom';
+        actionButton.innerText = 'Обрати розмір';
+        actionButton.style.backgroundColor = '#ff4c34';
+        actionButton.style.color = 'white';
+        actionButton.style.border = 'none';
+        actionButton.style.borderRadius = '8px';
+        actionButton.style.padding = '12px 24px';
+        actionButton.style.fontSize = '18px';
+        actionButton.style.fontWeight = 'bold';
+        actionButton.style.cursor = 'pointer';
+        actionButton.style.marginTop = isMobile ? '10px' : '15px';
+        actionButton.style.opacity = '0';
+        actionButton.style.transition = 'opacity 0.3s 0.1s ease-out';
+        overlay.appendChild(actionButton);
+
+        actionButton.addEventListener('click', function(e) {
+          e.stopPropagation();
+          if (isProcessingAction) return;
+          // Перевірка більше не потрібна
+
+          isProcessingAction = true;
+          actionButton.innerText = '...';
+          actionButton.disabled = true;
+
+          closeFullscreen();
+
+          setTimeout(() => {
+              const selector = isMobile ? 'div[data-view-block="modifications"]' : '.product__modifications';
+              const modificationsBlock = document.querySelector(selector);
+              if (modificationsBlock) {
+                  if (isMobile) {
+                      console.log("Mobile: Scrolling to modifications block.");
+                      modificationsBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  } else {
+                      console.log("Desktop: Scrolling top and highlighting.");
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                      setTimeout(() => {
+                        console.log("Applying highlight styles (smooth)...");
+                        modificationsBlock.style.transition = 'outline-color 0.3s ease-out, outline-offset 0.3s ease-out, border-radius 0.3s ease-out, outline-width 0.3s ease-out';
+                        modificationsBlock.style.borderRadius = '10px';
+                        modificationsBlock.style.outlineStyle = 'solid';
+                        modificationsBlock.style.outlineWidth = '3px';
+                        modificationsBlock.style.outlineColor = 'transparent';
+                        modificationsBlock.style.outlineOffset = '5px';
+
+                        setTimeout(() => {
+                            modificationsBlock.style.outlineColor = '#ff4c34';
+                            console.log("Highlight fade-in started.");
+                        }, 10);
+
+                        setTimeout(() => {
+                            console.log("Starting highlight fade-out.");
+                            modificationsBlock.style.outlineColor = 'transparent';
+                            setTimeout(() => {
+                                console.log("Removing outline style.");
+                                modificationsBlock.style.outline = '';
+                                modificationsBlock.style.outlineOffset = '';
+                                modificationsBlock.style.borderRadius = '';
+                                modificationsBlock.style.transition = '';
+                            }, 300);
+                        }, 1500);
+                      }, 50);
+                  }
+              } else {
+                  console.log(`Modifications block ('$') not found for scroll.`);
+              }
+              isProcessingAction = false;
+          }, 350);
+        });
+
+        // 5. Створюємо кнопку "Закрити"
+        closeButton = document.createElement('button');
+        closeButton.id = 'video-close-btn';
+        closeButton.innerHTML = '✕';
+        closeButton.style.position = 'fixed';
+        closeButton.style.top = isMobile ? '10px' : '15px';
+        closeButton.style.right = isMobile ? '10px' : '15px';
+        closeButton.style.width = isMobile ? '40px' : '40px';
+        closeButton.style.height = isMobile ? '40px' : '40px';
+        closeButton.style.backgroundColor = 'rgba(255, 76, 52, 0.8)';
+        closeButton.style.border = '2px solid #ff4c34';
+        closeButton.style.borderRadius = '50%';
+        closeButton.style.color = 'white';
+        closeButton.style.fontSize = '20px';
+        closeButton.style.fontWeight = 'bold';
+        closeButton.style.cursor = 'pointer';
+        closeButton.style.zIndex = '2147483647'; // Макс. z-index
+        closeButton.style.display = 'flex';
+        closeButton.style.alignItems = 'center';
+        closeButton.style.justifyContent = 'center';
+        closeButton.style.opacity = '0';
+        closeButton.style.transition = 'opacity 0.3s ease-out';
+        document.body.appendChild(closeButton);
+
+        // 6. Запускаємо анімацію появи
+        setTimeout(() => {
+          overlay.style.opacity = '1';
+          fullscreenVideo.style.opacity = '1';
+          closeButton.style.opacity = '1';
+          actionButton.style.opacity = '1';
+          fullscreenVideo.play();
+        }, 10);
+
+        // 7. Обробники закриття
+        closeButton.addEventListener('click', closeFullscreen);
+        overlay.addEventListener('click', function(e) {
+          if (e.target === overlay && !isProcessingAction) {
+            closeFullscreen();
+          }
+        });
+
+        isFullscreen = true;
+      }
+
+      function closeFullscreen() {
+        if (!isFullscreen) return;
+
+        overlay.style.opacity = '0';
+        if(closeButton) closeButton.style.opacity = '0';
+
+        setTimeout(() => {
+          if (overlay) overlay.remove();
+          if (closeButton) closeButton.remove();
+          // selectedModificationValue = null;
+        }, 300);
+
+        isFullscreen = false;
+      }
+
+      // Об'єднаний обробник кліку
+      container.addEventListener('click', function(e) {
+        if (!isFullscreen) {
+          container.style.transition = 'width 0.3s ease-out, height 0.3s ease-out, transform 0.2s ease-out';
+          container.style.width = originalSize;
+          container.style.height = originalSize;
+          isMinimized = false;
+          scrollDistance = 0;
+          handleClick();
+        }
+      });
+
+      // Scale-up на hover (тільки для десктопа)
+      if (!isMobile) {
+        container.addEventListener('mouseenter', function() {
+          if (isFullscreen) return;
+
+          container.style.transition = 'width 0.3s ease-out, height 0.3s ease-out, transform 0.2s ease-out';
+          container.style.width = originalSize;
+          container.style.height = originalSize;
+          isMinimized = false;
+          container.style.transform = 'scale(1.1)';
+
+          if (tooltip) {
+            tooltip.style.opacity = '1';
+            tooltip.style.visibility = 'visible';
+            tooltip.style.transform = 'translateX(0)';
+          }
+        });
+
+        container.addEventListener('mouseleave', function() {
+          if (isFullscreen) return;
+          container.style.transform = 'scale(1)';
+
+          if (tooltip) {
+            tooltip.style.opacity = '0';
+            tooltip.style.visibility = 'hidden';
+            tooltip.style.transform = 'translateX(10px)';
+          }
+        });
+      }
+
+      // Зменшення при скролі
+      let lastScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      let scrollDistance = 0;
+      let isMinimized = false;
+
+      window.addEventListener('scroll', function() {
+        if (isFullscreen) return;
+        const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        scrollDistance += Math.abs(currentScrollTop - lastScrollTop);
+        lastScrollTop = currentScrollTop;
+
+        if (scrollDistance > 50 && !isMinimized) {
+          container.style.transition = 'width 0.1s ease-out, height 0.1s ease-out, transform 0.2s ease-out';
+          container.style.width = minimizedSize;
+          container.style.height = minimizedSize;
+          isMinimized = true;
+
+          if (tooltip) {
+            tooltip.style.opacity = '0';
+            tooltip.style.visibility = 'hidden';
+            tooltip.style.transform = 'translateX(10px)';
+          }
+        }
+      });
+
+      return true;
+    }
+
+    // Пробуємо створити відео одразу
+    if (!createVideo()) {
+      console.log('Starting MutationObserver for MP4');
+      const observer = new MutationObserver(() => {
+        if (createVideo()) {
+          console.log('MP4 found via observer');
+          observer.disconnect();
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+    }
+
+  }, 1000); // <-- Затримка 1 секунда
+});
+
+// === script #3 (length=6881) ===
+jQuery(document).ready(function($) {
+    
+    // === НАЛАШТУВАННЯ ПОРОГІВ ===
+    var TIER_1 = 2500; 
+    var TIER_2 = 4200; 
+
+    // === ТЕКСТИ (Без калькуляції) ===
+    var texts = {
+        ua: {
+            // Сума < 2500
+            teaser: "🎁 <b>Акція!</b> Замовте від <b>2500 грн</b> і отримайте килим <b>60х90 у подарунок</b>!",
+            
+            // 2500 <= Сума < 4200
+            tier1: "🎉 Клас! Ви отримуєте <b>килим 60х90 у подарунок!</b> 🎁<br><span style='font-size:12px; opacity:0.9'>Зробіть замовлення від <b>4200 грн</b>, щоб забрати більший килим (80х150)!</span><div style='margin-top:5px; font-size:11px; font-style:italic;'>*Подарунок узгодить менеджер після замовлення</div>",
+            
+            // Сума >= 4200
+            tier2: "🔥 <b>Вітаємо!</b> Ваш подарунок — великий килим <b>80х150!</b> 🎁<div style='margin-top:5px; font-size:11px; font-style:italic;'>*Подарунок узгодить менеджер після замовлення</div>",
+
+            // Верхній мобільний банер
+            mobile_top: "🔥 <b>Акція!</b> Замовте від 2500 грн — отримайте <b>килим у подарунок!</b> 👇"
+        },
+        ru: {
+            teaser: "🎁 <b>Акция!</b> Закажите от <b>2500 грн</b> и получите ковер <b>60х90 в подарок</b>!",
+            
+            tier1: "🎉 Класс! Вы получаете <b>ковер 60х90 в подарок!</b> 🎁<br><span style='font-size:12px; opacity:0.9'>Сделайте заказ от <b>4200 грн</b>, чтобы забрать ковер больше (80х150)!</span><div style='margin-top:5px; font-size:11px; font-style:italic;'>*Подарок согласует менеджер после заказа</div>",
+            
+            tier2: "🔥 <b>Поздравляем!</b> Ваш подарок — большой ковер <b>80х150!</b> 🎁<div style='margin-top:5px; font-size:11px; font-style:italic;'>*Подарок согласует менеджер после заказа</div>",
+
+            mobile_top: "🔥 <b>Акция!</b> Закажите от 2500 грн — получите <b>ковер в подарок!</b> 👇"
+        }
+    };
+
+    function getCurrentLang() {
+        return (window.location.href.indexOf('/ru/') > -1 || $('html').attr('lang') === 'ru') ? 'ru' : 'ua';
+    }
+
+    // === ОТРИМАННЯ СУМИ ===
+    function getCartTotal() {
+        var total = 0;
+        var $totalBlock = $('.j-total-sum').filter(':visible').last();
+        
+        if (!$totalBlock.length) {
+            $totalBlock = $('.popup-total-price .price').filter(':visible').last();
+        }
+
+        if ($totalBlock.length > 0) {
+            // Чистимо все зайве, залишаємо тільки цифри
+            var cleanText = $totalBlock.text().replace(/[^0-9]/g, '');
+            total = parseInt(cleanText);
+        } else {
+            // Резервний підрахунок
+            $('.j-cart-product-cost').each(function() {
+                if($(this).is(':visible')) {
+                    total += parseInt($(this).text().replace(/[^0-9]/g, '')) || 0;
+                }
+            });
+        }
+        return total || 0;
+    }
+
+    // === ЛОГІКА ТА ВІДОБРАЖЕННЯ ===
+    function runPromoEngine() {
+        var cartTotal = getCartTotal();
+        
+        if (cartTotal <= 0) {
+            $('#shipping-notice, #checkout-gift-notice, #mobile-top-notice').hide();
+            return;
+        }
+
+        var lang = getCurrentLang();
+        var message = "";
+        var msgClass = "";
+        var textColor = ""; // Колір тексту всередині span
+
+        if (cartTotal < TIER_1) {
+            // Жовтий (ще немає подарунка)
+            message = texts[lang].teaser;
+            msgClass = "notice-warning";
+            textColor = "#856404"; 
+        } else if (cartTotal >= TIER_1 && cartTotal < TIER_2) {
+            // Зелений (є малий подарунок)
+            message = texts[lang].tier1;
+            msgClass = "notice-success";
+            textColor = "#155724"; 
+        } else {
+            // Зелений (є великий подарунок)
+            message = texts[lang].tier2;
+            msgClass = "notice-success";
+            textColor = "#155724"; 
+        }
+
+        // Функція вставки
+        function placeBlock($target, id, position) {
+            if (!$target.length) return;
+            if (!$target.is(':visible') && id !== 'mobile-top-notice') return;
+
+            var $el = $('#' + id);
+            
+            // Створюємо блок, якщо його немає
+            if ($el.length === 0) {
+                // HACK: font-size: 0 ховає цифри, які додає Хорошоп
+                var html = '<div id="' + id + '" style="margin: 10px 0; display:block; font-size: 0 !important;"></div>';
+                
+                if (position === 'prepend') $target.prepend(html);
+                else $target.after(html);
+                
+                $el = $('#' + id);
+
+                // Клік на мобільному банері
+                if (id === 'mobile-top-notice') {
+                    $el.on('click', function() {
+                        var $t = $('#cart');
+                        if ($t.length) $('html, body').animate({ scrollTop: $t.offset().top - 80 }, 500);
+                    });
+                }
+            }
+
+            // Оновлюємо класи
+            $el.removeClass('notice-warning notice-success').addClass(msgClass);
+
+            // Визначаємо контент
+            var contentHtml = (id === 'mobile-top-notice' && cartTotal < TIER_1) ? texts[lang].mobile_top : message;
+
+            // Вставляємо span з нормальним розміром шрифту всередину "нульового" div
+            // Це ізолює наш текст від системного
+            var safeHtml = '<span style="font-size: 14px; line-height: 1.4; display: block; color: ' + textColor + ';">' + contentHtml + '</span>';
+
+            // Переписуємо контент тільки якщо він змінився
+            var currentContent = $el.find('span').html();
+            if (currentContent !== contentHtml) {
+                $el.html(safeHtml);
+            }
+            
+            $el.show();
+        }
+
+        // 1. Попап кошика
+        placeBlock($('#cart .popup-title'), 'shipping-notice', 'after');
+        
+        // 2. Мобільне меню (Drawer)
+        placeBlock($('#cart-drawer .cart__header'), 'shipping-notice', 'after');
+
+        // 3. Чекаут (Низ - над товарами)
+        placeBlock($('.order-details__header'), 'checkout-gift-notice', 'after');
+        
+        // 4. Чекаут (Верх - Мобайл)
+        if ($(window).width() < 1000 && $('.checkout').length) {
+            placeBlock($('.checkout'), 'mobile-top-notice', 'prepend');
+        } else {
+            $('#mobile-top-notice').hide();
+        }
+    }
+
+    // === ЗАПУСК ===
+    setInterval(runPromoEngine, 1000); // Страховка
+
+    $(document).on('click', '.j-increase-p, .j-decrease-p, .j-remove-p', function() {
+        setTimeout(runPromoEngine, 200);
+    });
+    
+    $(document).ajaxComplete(function() {
+        setTimeout(runPromoEngine, 100);
+    });
+    
+    setTimeout(runPromoEngine, 500);
+});
