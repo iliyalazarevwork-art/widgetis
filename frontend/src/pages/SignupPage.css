@@ -68,6 +68,7 @@
   border-radius: 14px 14px 0 0;
 }
 
+.signup__plan--free,
 .signup__plan--basic,
 .signup__plan--pro,
 .signup__plan--max {
@@ -93,6 +94,7 @@
   flex-shrink: 0;
 }
 
+.signup__plan--free  .signup__plan-icon-wrap { color: var(--plan-basic); }
 .signup__plan--basic .signup__plan-icon-wrap { color: var(--plan-basic); }
 .signup__plan--pro   .signup__plan-icon-wrap { color: var(--accent); }
 .signup__plan--max   .signup__plan-icon-wrap { color: var(--plan-max); }
@@ -888,6 +890,7 @@
     border-radius: 12px;
   }
 
+  .signup__plan--free .signup__plan-icon-wrap,
   .signup__plan--basic .signup__plan-icon-wrap {
     background: rgba(16, 185, 129, 0.1);
     border: 1px solid rgba(16, 185, 129, 0.22);

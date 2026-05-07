@@ -7,12 +7,9 @@ import {
   Mail,
   Globe,
   LoaderCircle,
-  Sprout,
-  Zap,
-  Crown,
   Check,
   BadgeCheck,
-  CalendarClock,
+  CalendarCheck,
   CreditCard,
   RefreshCw,
   Lock,
@@ -21,70 +18,14 @@ import {
 import { platformConfig } from '../data/platforms'
 import type { Platform } from '../data/platforms'
 import { post } from '../api/client'
+import { fetchPlansWithSlugs, type ApiPlan } from '../api/widgets'
 import type { User } from '../types'
 import { useAuth } from '../context/AuthContext'
 import { toast } from 'sonner'
 import wayForPaySymbol from '../assets/logo-wayforpay-symbol.webp'
 import plataSymbol from '../assets/logo-plata-symbol-dark.svg'
+import { getPlan, type PlanSlug } from '../data/plans'
 import './SignupPage.css'
-
-// ─── Plan data ─────────────────────────────────────────────────────────────────
-
-const PLAN_META = {
-  basic: {
-    icon: Sprout,
-    name: 'Basic',
-    pitch: 'Для початку',
-    monthlyPrice: 799,
-    yearlyMonthly: 666,
-    yearlyPrice: 7990,
-    colorClass: 'signup__plan--basic',
-    features: [
-      'Дата доставки',
-      'Безкоштовна доставка',
-      'Бігуча стрічка',
-      'Хто зараз дивиться',
-      '1 сайт',
-      'Email + Telegram підтримка',
-    ],
-  },
-  pro: {
-    icon: Zap,
-    name: 'Pro',
-    pitch: 'Оптимально',
-    monthlyPrice: 1599,
-    yearlyMonthly: 1333,
-    yearlyPrice: 15990,
-    colorClass: 'signup__plan--pro',
-    features: [
-      'Всі 8 віджетів',
-      'Лічильник залишків',
-      'Прогрес кошика',
-      'Фотовідгуки',
-      '3 сайти',
-      'Self-service кастомізація',
-    ],
-  },
-  max: {
-    icon: Crown,
-    name: 'Max',
-    pitch: 'Все включено',
-    monthlyPrice: 2899,
-    yearlyMonthly: 2416,
-    yearlyPrice: 28990,
-    colorClass: 'signup__plan--max',
-    features: [
-      'Всі 17 віджетів',
-      'Кешбек-калькулятор',
-      'Таймер терміновості',
-      '5 сайтів',
-      'VIP підтримка',
-      'Повна кастомізація',
-    ],
-  },
-} as const
-
-type PlanKey = keyof typeof PLAN_META
 
 // ─── OTP input ─────────────────────────────────────────────────────────────────
 
@@ -191,7 +132,7 @@ interface SignupDraft {
   site: string
   platform: Platform
   paymentMethod: PaymentMethodId
-  plan: PlanKey
+  plan: PlanSlug
   billing: 'monthly' | 'yearly'
   resendAvailableAt: number | null
 }
@@ -235,10 +176,39 @@ export function SignupPage() {
 
   const rawPlan = params.get('plan') ?? 'pro'
   const billing = params.get('billing') === 'monthly' ? 'monthly' : 'yearly'
-  const planKey: PlanKey = rawPlan in PLAN_META ? (rawPlan as PlanKey) : 'pro'
-  const plan = PLAN_META[planKey]
+  const validSlugs: PlanSlug[] = ['free', 'pro', 'max']
+  const planKey: PlanSlug = (validSlugs as string[]).includes(rawPlan) ? (rawPlan as PlanSlug) : 'pro'
+
+  const [apiPlans, setApiPlans] = useState<Record<PlanSlug, ApiPlan> | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    fetchPlansWithSlugs()
+      .then(plans => {
+        if (cancelled) return
+        const bySlug = Object.fromEntries(plans.map(p => [p.slug, p])) as Record<PlanSlug, ApiPlan>
+        setApiPlans(bySlug)
+      })
+      .catch(() => { /* keep PLANS fallback */ })
+    return () => { cancelled = true }
+  }, [])
+
+  const basePlan = getPlan(planKey)
+  const apiPlan = apiPlans?.[planKey]
+
+  const plan = {
+    ...basePlan,
+    monthlyPrice: apiPlan?.price_monthly ?? basePlan.monthlyPrice,
+    yearlyPrice: apiPlan?.price_yearly ?? basePlan.yearlyPrice,
+    yearlyMonthly: apiPlan ? Math.round(apiPlan.price_yearly / 12) : basePlan.yearlyMonthly,
+    widgets: apiPlan?.max_widgets ?? basePlan.widgets,
+    sites: apiPlan?.max_sites ?? basePlan.sites,
+    trialDays: apiPlan?.trial_days ?? 0,
+  }
+
   const Icon = plan.icon
   const displayPrice = billing === 'yearly' ? plan.yearlyMonthly : plan.monthlyPrice
+  const colorClass = `signup__plan--${planKey}`
 
   const [emailStatus, setEmailStatus] = useState<EmailStatus>(user ? 'verified' : 'idle')
   const [email, setEmail] = useState(user?.email ?? '')
@@ -457,6 +427,13 @@ export function SignupPage() {
       sessionStorage.removeItem(SIGNUP_DRAFT_KEY)
       try { localStorage.removeItem('wty_add_site_draft') } catch { /* ignore */ }
 
+      // Free plan — no payment required
+      if (planKey === 'free') {
+        toast.info('Активація Free-плану поки не підключена. Зверніться до підтримки.')
+        setLoading(false)
+        return
+      }
+
       if (paymentMethod === 'liqpay') {
         const checkoutRes = await post<LiqPayTrialCheckoutResponse>('/profile/subscription/checkout/trial', {
           plan_slug:      planKey,
@@ -522,8 +499,8 @@ export function SignupPage() {
   return (
     <>
       <SeoHead
-        title="Реєстрація — Widgetis | 7 днів безкоштовно для Хорошоп"
-        description="Зареєструйтесь і отримайте 7 днів безкоштовного доступу до всіх маркетингових віджетів для Хорошоп. Без карти — одразу встановлюйте на магазин."
+        title="Реєстрація — Widgetis | Маркетингові віджети для Хорошоп"
+        description="Зареєструйтесь і отримайте доступ до маркетингових віджетів для Хорошоп. Без карти — одразу встановлюйте на магазин."
         path="/signup"
         noindex
       />
@@ -539,7 +516,7 @@ export function SignupPage() {
           <div className="signup__grid">
 
             {/* ══ Left: Plan summary ══ */}
-            <aside className={`signup__plan ${plan.colorClass}`}>
+            <aside className={`signup__plan ${colorClass}`}>
               <div className="signup__plan-info">
                 <div className="signup__plan-icon-wrap">
                   <Icon size={18} strokeWidth={2} />
@@ -562,21 +539,24 @@ export function SignupPage() {
 
               <div className="signup__plan-price">
                 <span className="signup__plan-amount">{displayPrice.toLocaleString('uk-UA')}</span>
-                <span className="signup__plan-unit">грн/міс</span>
+                {displayPrice > 0 && <span className="signup__plan-unit">грн/міс</span>}
+                {displayPrice === 0 && <span className="signup__plan-unit">грн</span>}
               </div>
 
-              <div className="signup__trial-badge">
-                <CalendarClock size={14} strokeWidth={2} />
-                7 днів безкоштовно
-              </div>
+              {plan.trialDays > 0 && (
+                <div className="signup__trial-badge">
+                  <CalendarCheck size={14} strokeWidth={2.5} />
+                  {plan.trialDays} днів безкоштовно
+                </div>
+              )}
 
               <div className="signup__plan-divider" aria-hidden="true" />
 
               <ul className="signup__plan-features">
                 {plan.features.map(feature => (
-                  <li key={feature} className="signup__plan-feature">
+                  <li key={feature.label} className="signup__plan-feature">
                     <Check size={14} strokeWidth={2.5} />
-                    <span>{feature}</span>
+                    <span>{feature.label}</span>
                   </li>
                 ))}
               </ul>
@@ -760,50 +740,54 @@ export function SignupPage() {
                 </div>
               </div>
 
-              <div className="signup__section-divider" />
+              {planKey !== 'free' && (
+                <>
+                  <div className="signup__section-divider" />
 
-              {/* ── Section 3: Payment ── */}
+                  {/* ── Section 3: Payment ── */}
 
-              <div className="signup__section">
-                <div className="signup__section-hdr">
-                  <CreditCard size={14} strokeWidth={2} className="signup__section-icon" />
-                  <span className="signup__section-title">3. Спосіб оплати</span>
-                </div>
+                  <div className="signup__section">
+                    <div className="signup__section-hdr">
+                      <CreditCard size={14} strokeWidth={2} className="signup__section-icon" />
+                      <span className="signup__section-title">3. Спосіб оплати</span>
+                    </div>
 
-                <div className="signup__payment-list">
-                  {PAYMENT_METHODS.map(method => (
-                    <button
-                      key={method.id}
-                      type="button"
-                      className={`signup__payment-card ${paymentMethod === method.id ? 'signup__payment-card--active' : ''}`}
-                      onClick={() => setPaymentMethod(method.id)}
-                      aria-pressed={paymentMethod === method.id}
-                    >
-                      <div className="signup__payment-card-info">
-                        <span className="signup__payment-card-name">{method.name}</span>
-                        <span className="signup__payment-card-hint">{method.hint}</span>
-                        {method.trial && (
-                          <span className="signup__payment-card-trial">
-                            <Check size={10} strokeWidth={3} />
-                            Тріал 7 днів
-                          </span>
-                        )}
-                      </div>
-                      <img
-                        src={method.symbol}
-                        alt={method.name}
-                        className={`signup__payment-card-logo signup__payment-card-logo--${method.id}`}
-                      />
-                    </button>
-                  ))}
-                </div>
+                    <div className="signup__payment-list">
+                      {PAYMENT_METHODS.map(method => (
+                        <button
+                          key={method.id}
+                          type="button"
+                          className={`signup__payment-card ${paymentMethod === method.id ? 'signup__payment-card--active' : ''}`}
+                          onClick={() => setPaymentMethod(method.id)}
+                          aria-pressed={paymentMethod === method.id}
+                        >
+                          <div className="signup__payment-card-info">
+                            <span className="signup__payment-card-name">{method.name}</span>
+                            <span className="signup__payment-card-hint">{method.hint}</span>
+                            {method.trial && (
+                              <span className="signup__payment-card-trial">
+                                <Check size={10} strokeWidth={3} />
+                                Тріал {plan.trialDays} днів
+                              </span>
+                            )}
+                          </div>
+                          <img
+                            src={method.symbol}
+                            alt={method.name}
+                            className={`signup__payment-card-logo signup__payment-card-logo--${method.id}`}
+                          />
+                        </button>
+                      ))}
+                    </div>
 
-                {!PAYMENT_METHODS.find(m => m.id === paymentMethod)?.trial && (
-                  <p className="signup__payment-notice">
-                    plata by mono списує оплату одразу — тріал не підтримується. Для 7 безкоштовних днів оберіть WayForPay.
-                  </p>
-                )}
-              </div>
+                    {!PAYMENT_METHODS.find(m => m.id === paymentMethod)?.trial && (
+                      <p className="signup__payment-notice">
+                        plata by mono списує оплату одразу — тріал не підтримується. Для {plan.trialDays} безкоштовних днів оберіть WayForPay.
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
 
               <div className="signup__section-divider" />
 
@@ -823,12 +807,14 @@ export function SignupPage() {
                     disabled={!isCtaActive}
                   >
                     {loading
-                      ? <><LoaderCircle size={17} strokeWidth={2.5} className="signup__spinner" /> {paymentMethod === 'wayforpay' ? 'Активуємо тріал...' : 'Переходимо до оплати...'}</>
+                      ? <><LoaderCircle size={17} strokeWidth={2.5} className="signup__spinner" /> {planKey === 'free' ? 'Активуємо...' : paymentMethod === 'wayforpay' ? 'Активуємо тріал...' : 'Переходимо до оплати...'}</>
                       : !isCtaActive
-                        ? <>Почати 7 днів безкоштовно <Lock size={14} strokeWidth={2} /></>
-                        : paymentMethod === 'wayforpay'
-                          ? <>Почати 7 днів безкоштовно <ArrowRight size={15} strokeWidth={2.5} /></>
-                          : <>Перейти до оплати <ArrowRight size={15} strokeWidth={2.5} /></>
+                        ? <>{planKey === 'free' ? 'Активувати Free' : `Почати ${plan.trialDays} днів безкоштовно`} <Lock size={14} strokeWidth={2} /></>
+                        : planKey === 'free'
+                          ? <>Активувати Free <ArrowRight size={15} strokeWidth={2.5} /></>
+                          : paymentMethod === 'wayforpay'
+                            ? <>Почати {plan.trialDays} днів безкоштовно <ArrowRight size={15} strokeWidth={2.5} /></>
+                            : <>Перейти до оплати <ArrowRight size={15} strokeWidth={2.5} /></>
                     }
                   </button>
 
