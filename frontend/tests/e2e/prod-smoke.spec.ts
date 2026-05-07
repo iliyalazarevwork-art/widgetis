@@ -233,8 +233,8 @@ test.describe('prod-smoke', () => {
   test('signup page renders the email field and plan summary', async ({ page }) => {
     await page.goto('/signup?plan=pro&billing=yearly')
     await expect(page.locator('input[type="email"]')).toBeVisible({ timeout: 10_000 })
-    // CTA "Почати 7 днів безкоштовно" — disabled until verification, but must render.
-    await expect(page.getByRole('button', { name: /Почати 7 днів/i })).toBeVisible()
+    // CTA "Почати N днів безкоштовно" — disabled until verification, but must render.
+    await expect(page.getByRole('button', { name: /Почати \d+ днів/i })).toBeVisible()
     // Plan summary block (left column) must render the trial badge.
     await expect(page.locator('.signup__trial-badge')).toBeVisible()
   })
