@@ -10,6 +10,7 @@ See [`CLAUDE.md`](CLAUDE.md) for build instructions and conventions.
   - [cart-recommender](docs/widgets/cart-recommender.md) — smart in-cart product recommender
 - [Deployment](docs/deployment.md)
 - [OpenAPI](docs/openapi.yaml) · [Postman collection](docs/Widgetis-API.postman_collection.json)
+- [Horoshop site discovery](docs/horoshop-discovery.md) — how the 3 249-site list in `hr_sites/` was built ($0, no paid APIs)
 
 ---
 

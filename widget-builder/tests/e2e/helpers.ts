@@ -3,6 +3,16 @@ import type { Page } from '@playwright/test';
 export const TEST_SITES = [
   { name: 'tehnomix', domain: 'tehnomix.com.ua' },
   { name: 'runabags', domain: 'runabags.com.ua' },
+  { name: 'hollyskin', domain: 'hollyskin.com.ua' },
+  { name: 'beelab', domain: 'beelab.ua' },
+  { name: 'snackup', domain: 'snackup.com.ua' },
+  { name: 'krkr', domain: 'krkr.com.ua' },
+  { name: 'florashop', domain: 'florashop.com.ua' },
+  { name: 'teysha', domain: 'teysha.com.ua' },
+  { name: 'bujobox', domain: 'bujobox.com.ua' },
+  { name: 'zaichyk', domain: 'zaichyk.com.ua' },
+  { name: 'delikatto', domain: 'delikatto.com.ua' },
+  { name: 'bag24', domain: 'bag24.com.ua' },
 ] as const;
 
 export const PROXY_BASE = 'http://localhost:3100';
@@ -41,12 +51,32 @@ export async function findProductPath(domain: string): Promise<string> {
   const cached = productPathCache.get(domain);
   if (cached) return cached;
 
-  // Verified product detail paths (live browser DOM checked — j-product-block present)
+  // Verified product detail paths (live browser DOM checked — og:type=product + j-buy-button-add present)
   const verifiedProductPaths: Record<string, string> = {
     'tehnomix.com.ua':
       '/besprovodnaya-bluetooth-kolonka-stereo-bt-tg-165-10-w-biruzovaya/',
     'runabags.com.ua':
       '/rhodes-suede-bag.-zhinocha-sumka-temno-korychneva-z-naturalnoi-zamshi/',
+    'hollyskin.com.ua':
+      '/syrovatka-salmon-dna-pdrn-hollyskin/',
+    'beelab.ua':
+      '/nasinnia-harbuza-z-medom-1000-ml/',
+    'snackup.com.ua':
+      '/dyspenserdliazhuvalnoihumkybubblegum300h/',
+    'krkr.com.ua':
+      '/dr.ceuracle-jeju-matcha-tea-essence-150-ml/',
+    'florashop.com.ua':
+      '/sadzhanets-vynohradu-kyshmysh-kesha-ranno-serednii-termin-dozrivannia/',
+    'teysha.com.ua':
+      '/lampa-s-yskusstvennym-yntellektom-o-nail-white/',
+    'bujobox.com.ua':
+      '/set-stikeriv-mriytadiy-dlia-kolazhiv-3-slidy-chasu-10kh15-sm/',
+    'zaichyk.com.ua':
+      '/hustyi-krem-zmazka-na-hibrydnii-osnovi-sensuva-ultrathick-hybrid-formula-50-ml-rn-zbalansovana/',
+    'delikatto.com.ua':
+      '/znamenytyi-norvezhskyi-karamelnyi-syr-synnve-brunost-fltemysost-480h-norvehiia/',
+    'bag24.com.ua':
+      '/ryukzak-bl-molodizhnij-mini-8-l-chornij-917-00508662-1121720888.html',
   };
 
   const path = verifiedProductPaths[domain] ?? '/';

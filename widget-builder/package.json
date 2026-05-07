@@ -7,7 +7,9 @@
   "scripts": {
     "dev": "jiti server.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:fixtures": "playwright test --config playwright.fixture.config.ts",
+    "test:fixtures:ui": "playwright test --config playwright.fixture.config.ts --ui"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1028.0",

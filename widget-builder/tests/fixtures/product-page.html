@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta property="og:type" content="product">
+  <title>Тестовий Товар XL — ТестМагазин</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; }
+    .product__section--price { margin: 16px 0; font-size: 24px; font-weight: bold; }
+    .product-price { color: #333; }
+    .j-buy-button-add { background: #e44; color: #fff; padding: 12px 24px; border: none; cursor: pointer; font-size: 16px; border-radius: 4px; }
+    .review-item { border: 1px solid #eee; padding: 16px; margin: 8px 0; }
+    .review-item__body { margin-top: 8px; color: #555; }
+    .review-item__name { font-weight: bold; }
+  </style>
+  <script>
+    window.GLOBAL = {
+      URI_PREFIX: '/uk/',
+      cart: { total: 1500, totalNum: 1500 },
+      currency: { iso: 'UAH' },
+      miniCart: { total: 1500 }
+    };
+    window.horoshop = { currency: 'UAH' };
+  </script>
+</head>
+<body>
+  <!-- Header with mini-cart -->
+  <div id="header">
+    <div class="j-mini-cart-total">1&nbsp;500 ₴</div>
+    <div class="j-total-sum">1&nbsp;500 ₴</div>
+  </div>
+
+  <!-- Main product structure -->
+  <div id="page">
+    <main>
+      <div class="wrapper">
+        <div class="product__grid">
+          <div class="product__column product__column--left">
+            <!-- Product images -->
+            <div class="product__images"></div>
+          </div>
+          <div class="product__column product__column--right">
+            <!-- Product header -->
+            <div class="product__section product__section--header">
+              <h1 class="product__title">Тестовий Товар XL</h1>
+            </div>
+
+            <!-- Price section — required by stock-left, buyer-count, trust-badges, delivery-date -->
+            <div class="product__section product__section--price">
+              <span class="product-price">1&nbsp;500 ₴</span>
+              <span class="product-card__price-box">1&nbsp;500 ₴</span>
+            </div>
+
+            <!-- Delivery date insertion point (5th child for delivery-date module default selector) -->
+            <div><div><div><div><div></div></div></div></div></div>
+
+            <!-- Buy button area — required by sticky-buy-button and trust-badges -->
+            <div class="product__buy-button">
+              <div class="cart-buttons cart-buttons--full">
+                <button class="j-buy-button-add cart-buttons__btn">Купити</button>
+              </div>
+              <div class="product-card__order--normal">
+                <button class="j-buy-button-add">Купити</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product block — needed for isHoroshopProductPage detection -->
+        <div class="j-product-block">
+          <!-- Product details, tabs, etc. -->
+        </div>
+
+        <!-- Reviews section — required by photo-video-reviews -->
+        <div class="product__section product__section--reviews">
+          <div class="review-item">
+            <div class="review-item__name">Іван Іваненко</div>
+            <div class="review-item__body">Відмінний товар! Рекомендую всім.</div>
+          </div>
+          <div class="review-item">
+            <div class="review-item__name">Марія Петренко</div>
+            <div class="review-item__body">Дуже задоволена покупкою.</div>
+          </div>
+        </div>
+
+        <!-- Video link for video-preview -->
+        <a href="/test-video.mp4" class="product__video-link">Відеоогляд</a>
+      </div>
+    </main>
+  </div>
+
+  <!-- Mobile cart menu (for cart-goal floating) -->
+  <div class="mm-menu cart">
+    <div class="cart__summary">
+      <div class="j-total-sum">1&nbsp;500 ₴</div>
+    </div>
+  </div>
+
+  <!-- Modal overlay -->
+  <div id="modal-overlay" style="display:none">
+    <div class="j-total-sum">1&nbsp;500 ₴</div>
+  </div>
+
+  <script type="module" src="/tests/fixtures/main.ts"></script>
+</body>
+</html>

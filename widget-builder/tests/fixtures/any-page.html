@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Головна — ТестМагазин</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; }
+    .catalog { padding: 20px; }
+    .product-card { border: 1px solid #eee; padding: 16px; margin: 8px; display: inline-block; }
+  </style>
+  <script>
+    window.GLOBAL = {
+      URI_PREFIX: '/uk/',
+      cart: { total: 0 },
+      currency: { iso: 'UAH' }
+    };
+    window.horoshop = { currency: 'UAH' };
+  </script>
+</head>
+<body>
+  <!-- Header with cart -->
+  <div id="header">
+    <div class="j-mini-cart-total">0 ₴</div>
+    <div class="j-total-sum">0 ₴</div>
+  </div>
+
+  <!-- Cart menu (for cart-goal, minorder-goal) -->
+  <div class="mm-menu cart">
+    <div class="cart__summary">
+      <div class="j-total-sum">0 ₴</div>
+    </div>
+  </div>
+
+  <!-- Catalog grid -->
+  <div class="catalog">
+    <div class="product-card">
+      <span class="product-card__title">Товар 1</span>
+      <span class="product-card__price-box">500 ₴</span>
+    </div>
+    <div class="product-card">
+      <span class="product-card__title">Товар 2</span>
+      <span class="product-card__price-box">800 ₴</span>
+    </div>
+  </div>
+
+  <script type="module" src="/tests/fixtures/main.ts"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Оформлення замовлення — ТестМагазин</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; }
+    .checkout-form { max-width: 600px; margin: 0 auto; padding: 20px; }
+    input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; box-sizing: border-box; }
+    button { background: #e44; color: white; padding: 12px 24px; border: none; cursor: pointer; }
+    .cart-item { padding: 12px; border: 1px solid #eee; margin: 8px 0; }
+    .mm-menu { display: none; }
+  </style>
+  <script>
+    window.GLOBAL = {
+      URI_PREFIX: '/uk/',
+      cart: { total: 2500, totalNum: 2500 },
+      currency: { iso: 'UAH' }
+    };
+    window.horoshop = { currency: 'UAH' };
+    // Checkout page detection
+    window.__checkoutPage = true;
+  </script>
+</head>
+<body>
+  <!-- Header -->
+  <div id="header">
+    <div class="j-mini-cart-total">2&nbsp;500 ₴</div>
+  </div>
+
+  <!-- Cart items (for cart-recommender, progressive-discount, one-plus-one) -->
+  <div id="cart-drawer" class="cart-drawer">
+    <div class="cart-item" data-cart-product-hash="abc123">
+      <span class="cart-item__title">Товар 1</span>
+      <span class="cart-item__price">1&nbsp;200 ₴</span>
+    </div>
+    <div class="cart-item" data-cart-product-hash="def456">
+      <span class="cart-item__title">Товар 2</span>
+      <span class="cart-item__price">1&nbsp;300 ₴</span>
+    </div>
+    <div class="cart__summary">
+      <div class="j-total-sum">2&nbsp;500 ₴</div>
+    </div>
+  </div>
+
+  <!-- Cart summary (for minorder-goal, cart-goal) -->
+  <div class="mm-menu cart" style="display:block">
+    <div class="cart__summary">
+      <div class="j-total-sum">2&nbsp;500 ₴</div>
+    </div>
+  </div>
+
+  <!-- Checkout form -->
+  <div class="checkout-form">
+    <h1>Оформлення замовлення</h1>
+
+    <div class="checkout-fields">
+      <input type="text" name="name" placeholder="Ім'я" />
+      <input type="tel" name="phone" class="j-phone-masked" placeholder="+38 (___) ___-__-__" />
+      <input type="email" name="email" placeholder="Email" />
+    </div>
+
+    <!-- Coupon section (for promo-auto-apply) -->
+    <div class="j-coupon-add">
+      <input class="j-coupon-input" type="text" placeholder="Промокод" />
+      <button class="j-coupon-submit">Застосувати</button>
+    </div>
+
+    <!-- Order total -->
+    <div class="cart-totals">
+      <div class="j-total-sum">2&nbsp;500 ₴</div>
+    </div>
+
+    <button class="j-order-submit checkout-button" type="submit">Замовити</button>
+  </div>
+
+  <script type="module" src="/tests/fixtures/main.ts"></script>
+</body>
+</html>
