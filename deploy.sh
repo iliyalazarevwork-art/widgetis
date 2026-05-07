@@ -251,6 +251,9 @@ if [ -z "$($DC ps -q backend)" ]; then
   phase_end
 else
   # ── Step 3: Migrations (optionally behind maintenance mode) ────────────────
+  # Run migrations from a one-off container built from the *new* image.
+  # `exec` would target the still-running OLD container, which doesn't yet
+  # contain freshly-added migration files.
   if [ "$SKIP_MIGRATE" = false ]; then
     phase "migrations"
     if [ "$MAINTENANCE" = true ]; then
@@ -258,7 +261,7 @@ else
       $DC exec -T --user www-data backend php artisan down --retry=60 || true
     fi
 
-    $DC exec -T --user www-data backend php artisan migrate --force
+    $DC run --rm --user www-data --no-deps backend php artisan migrate --force
 
     if [ "$MAINTENANCE" = true ]; then
       echo "▶ Disabling maintenance mode..."
