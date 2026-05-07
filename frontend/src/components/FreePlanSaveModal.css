@@ -87,70 +87,62 @@
   margin: 0 0 20px;
 }
 
-/* ===== FREE LOSSES ===== */
-.fsm__losses-label {
-  font-size: 12px;
+/* ===== COMPARISON: BEFORE → AFTER ===== */
+.fsm__compare-head {
+  display: grid;
+  grid-template-columns: 1fr 18px 1fr;
+  gap: 10px;
+  margin: 4px 0 10px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-muted);
-  margin: 0 0 8px;
+  letter-spacing: 0.08em;
 }
 
-.fsm__losses {
+.fsm__compare-head-free {
+  color: var(--text-muted);
+}
+
+.fsm__compare-head-pro {
+  color: #60a5fa;
+  text-align: left;
+}
+
+.fsm__compare {
   list-style: none;
   padding: 0;
   margin: 0 0 20px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
 }
 
-.fsm__loss {
-  display: flex;
+.fsm__compare-row {
+  display: grid;
+  grid-template-columns: 1fr 18px 1fr;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: var(--text-secondary);
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  font-size: 13px;
 }
 
-.fsm__loss::before {
-  content: '•';
-  color: #f87171;
-  font-size: 16px;
-  flex-shrink: 0;
-}
-
-/* ===== PRO GAINS ===== */
-.fsm__gains-label {
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+.fsm__compare-from {
   color: var(--text-muted);
-  margin: 0 0 8px;
+  text-decoration: line-through;
+  text-decoration-color: rgba(248, 113, 113, 0.5);
 }
 
-.fsm__gains {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+.fsm__compare-arrow {
+  color: var(--text-muted);
+  justify-self: center;
 }
 
-.fsm__gain {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
+.fsm__compare-to {
   color: var(--text-primary);
-}
-
-.fsm__gain-check {
-  color: #4ade80;
-  flex-shrink: 0;
+  font-weight: 600;
 }
 
 /* ===== FOUNDING BLOCK ===== */

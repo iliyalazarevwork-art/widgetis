@@ -1,4 +1,4 @@
-import { X, Check, Zap } from 'lucide-react'
+import { X, Zap, ArrowRight } from 'lucide-react'
 import { useFoundingRemaining } from '../hooks/useFoundingRemaining'
 import { FOUNDING_PRICE_MONTHLY } from '../data/plans'
 import './FreePlanSaveModal.css'
@@ -44,18 +44,11 @@ const CONTEXT_COPY: Record<
   },
 }
 
-const FREE_LOSSES = [
-  'Тільки 1 сайт',
-  'Ліміти на кожному віджеті',
-  'Тільки українська мова',
-  'Без EN-перекладу',
-]
-
-const PRO_GAINS = [
-  '3 сайти',
-  '11 віджетів без лімітів',
-  'uk + en',
-  'Telegram-підтримка',
+const COMPARISON: Array<{ free: string; pro: string }> = [
+  { free: '1 сайт', pro: '3 сайти' },
+  { free: 'Ліміти на віджетах', pro: '11 віджетів без лімітів' },
+  { free: 'Тільки українська', pro: 'uk + en' },
+  { free: 'Telegram-підтримка', pro: 'Telegram-підтримка' },
 ]
 
 /**
@@ -99,23 +92,17 @@ export function FreePlanSaveModal({
         <h2 className="fsm__title">{title}</h2>
         {subtitle && <p className="fsm__subtitle">{subtitle}</p>}
 
-        {/* Free losses */}
-        <p className="fsm__losses-label">На Free тебе чекає:</p>
-        <ul className="fsm__losses">
-          {FREE_LOSSES.map((item) => (
-            <li key={item} className="fsm__loss">{item}</li>
-          ))}
-        </ul>
-
-        <hr className="fsm__divider" />
-
-        {/* Pro gains */}
-        <p className="fsm__gains-label">Pro знімає всі обмеження:</p>
-        <ul className="fsm__gains">
-          {PRO_GAINS.map((item) => (
-            <li key={item} className="fsm__gain">
-              <Check size={14} strokeWidth={2.5} className="fsm__gain-check" />
-              {item}
+        {/* Comparison: было → будет */}
+        <div className="fsm__compare-head">
+          <span className="fsm__compare-head-free">Free</span>
+          <span className="fsm__compare-head-pro">Pro</span>
+        </div>
+        <ul className="fsm__compare">
+          {COMPARISON.map((row) => (
+            <li key={row.free + row.pro} className="fsm__compare-row">
+              <span className="fsm__compare-from">{row.free}</span>
+              <ArrowRight size={14} strokeWidth={2.5} className="fsm__compare-arrow" />
+              <span className="fsm__compare-to">{row.pro}</span>
             </li>
           ))}
         </ul>
