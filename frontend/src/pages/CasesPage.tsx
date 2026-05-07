@@ -91,6 +91,8 @@ interface PortfolioItem {
   description: string | null
   color: string
   rating: number | null
+  reviewText: string | null
+  storeLogo: string | null
   resultMetric: string | null
   resultPeriod: string | null
   plan: string | null
@@ -107,6 +109,8 @@ function apiCaseToItem(c: ApiCase): PortfolioItem {
     description: c.description,
     color: c.color ?? '#6366f1',
     rating: c.review_rating,
+    reviewText: c.review_text,
+    storeLogo: c.store_logo_url,
     resultMetric: c.result_metric,
     resultPeriod: c.result_period,
     plan: c.plan,
@@ -230,7 +234,12 @@ export function CasesPage() {
 
                 <div className="case-card__body">
                   <header className="case-card__head">
-                    <div className="case-card__avatar" aria-hidden="true">{item.owner.charAt(0)}</div>
+                    <div className="case-card__avatar" aria-hidden="true">
+                      {item.storeLogo
+                        ? <img src={item.storeLogo} alt={item.owner} className="case-card__avatar-img" />
+                        : item.owner.charAt(0)
+                      }
+                    </div>
                     <div className="case-card__meta">
                       <strong className="case-card__name">{item.owner}</strong>
                       <span className="case-card__desc">{item.description}</span>
@@ -270,6 +279,12 @@ export function CasesPage() {
                       </div>
                       <span className="case-card__rating-value">{Number(item.rating).toFixed(1)}</span>
                     </div>
+                  )}
+
+                  {item.reviewText && (
+                    <blockquote className="case-card__quote">
+                      <p>«{item.reviewText}»</p>
+                    </blockquote>
                   )}
 
                   {item.kind === 'case' && item.widgets.length > 0 && (

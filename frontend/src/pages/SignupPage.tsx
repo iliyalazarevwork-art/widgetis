@@ -271,7 +271,7 @@ export function SignupPage() {
 
       setEmailStatus(safeStatus)
       setEmail(draft.email || user?.email || '')
-      setOtp(draft.otp)
+      setOtp('')
       // Prefer session draft site; fall back to localStorage if empty
       const savedSite = draft.site || getSavedSite().url
       const savedPlatform = draft.site ? draft.platform : (getSavedSite().platform)
@@ -432,10 +432,9 @@ export function SignupPage() {
           site_domain: normalizedUrl,
           platform,
         })
-        sessionStorage.removeItem('wty_trial_signup')
+        // Keep wty_trial_signup — TrialSuccessPage reads it to show install instructions
         await refreshUser()
-        toast.success('Free-план активовано!')
-        navigate('/cabinet', { replace: true })
+        navigate('/signup/success', { replace: true })
         return
       }
 

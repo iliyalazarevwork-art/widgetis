@@ -20,9 +20,17 @@ export interface ApiWidget {
   related_slugs: string[] | null
 }
 
+export interface ApiPlanWidget {
+  slug: string
+  name: string
+  icon: string
+}
+
 export interface ApiPlan {
   id: number
   slug: string
+  icon: string
+  color: string
   name: string
   description: string
   price_monthly: number
@@ -35,6 +43,8 @@ export interface ApiPlan {
   languages_supported: string[]
   is_recommended: boolean
   widget_slugs: string[]
+  included_widgets: ApiPlanWidget[]
+  not_included_widgets: ApiPlanWidget[]
 }
 
 interface PaginatedResponse<T> {

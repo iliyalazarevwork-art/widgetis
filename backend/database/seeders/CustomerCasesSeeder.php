@@ -11,36 +11,51 @@ final class CustomerCasesSeeder extends Seeder
 {
     private const COLORS = ['#6366f1', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6', '#14b8a6', '#f97316', '#22c55e', '#06b6d4', '#a855f7'];
 
-    // Indices with rating 4 so that avg = 447/93 ≈ 4.8 (18 fours + 75 fives)
-    private const FOUR_RATED = [4, 9, 14, 19, 24, 29, 34, 39, 44, 49, 54, 59, 64, 69, 74, 79, 84, 89];
+    // Real cases appear first (indices 0-5) with explicit rating/review_text.
+    // Synthetic cases start at index 6; FOUR_RATED marks which get rating=4 to keep avg≈4.8
+    private const FOUR_RATED = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95];
 
     public function run(): void
     {
         $now = now();
 
         foreach (self::sites() as $i => $site) {
+            $rating = isset($site['review_rating'])
+                ? $site['review_rating']
+                : (in_array($i, self::FOUR_RATED, true) ? 4 : 5);
+
             DB::table('customer_cases')->updateOrInsert(
                 ['store_url' => $site['store_url']],
                 [
-                    'store'       => $site['store'],
-                    'store_url'   => $site['store_url'],
-                    'owner'       => $site['owner'],
-                    'description' => json_encode(['en' => $site['description'], 'uk' => $site['description']]),
-                    'review_rating' => in_array($i, self::FOUR_RATED, true) ? 4 : 5,
-                    'color'       => self::COLORS[$i % count(self::COLORS)],
-                    'is_published' => true,
-                    'sort_order'  => $i,
-                    'created_at'  => $now,
-                    'updated_at'  => $now,
+                    'store'          => $site['store'],
+                    'store_url'      => $site['store_url'],
+                    'store_logo_url' => $site['store_logo_url'] ?? null,
+                    'owner'          => $site['owner'],
+                    'description'    => json_encode(['en' => $site['description'], 'uk' => $site['description']]),
+                    'review_text'    => $site['review_text'] ?? null,
+                    'review_rating'  => $rating,
+                    'color'          => self::COLORS[$i % count(self::COLORS)],
+                    'is_published'   => true,
+                    'sort_order'     => $i,
+                    'created_at'     => $now,
+                    'updated_at'     => $now,
                 ]
             );
         }
     }
 
-    /** @return list<array{store: string, store_url: string, owner: string, description: string}> */
+    /** @return list<array{store: string, store_url: string, owner: string, description: string, review_text?: string, review_rating?: int, store_logo_url?: string}> */
     public static function sites(): array
     {
         return [
+            // ── Real cases with customer reviews (always appear first) ──────────
+            ['store' => 'ballistic.com.ua',          'store_url' => 'https://ballistic.com.ua/',             'owner' => 'Денис',      'description' => 'Тактичне спорядження',  'review_text' => 'Працює! Дякую! Протестивши — все круто.',                'review_rating' => 5, 'store_logo_url' => '/reviews/denis-ballistic.webp'],
+            ['store' => 'ptashkinsad.com',            'store_url' => 'https://ptashkinsad.com/',               'owner' => 'Ігор',       'description' => 'Рослини та саджанці',   'review_text' => 'Задоволений на 100% результатом.',                       'review_rating' => 5, 'store_logo_url' => '/reviews/igor-ptashkinsad.webp'],
+            ['store' => 'shop.aquamyrgorod.com.ua',   'store_url' => 'https://shop.aquamyrgorod.com.ua/',      'owner' => 'Олександр',  'description' => 'Мінеральна вода',       'review_text' => 'Супер. Як на мене, то чудова пропозиція.',               'review_rating' => 5, 'store_logo_url' => '/reviews/Alex.webp'],
+            ['store' => 'kr.kyiv.ua',                 'store_url' => 'https://kr.kyiv.ua/',                    'owner' => 'Аліна',      'description' => 'Товари для дому',       'review_text' => 'Всій нашій команді віджети сподобалися.',                'review_rating' => 5],
+            ['store' => 'zoo-vet.com.ua',             'store_url' => 'https://zoo-vet.com.ua/',                'owner' => 'Катерина',   'description' => 'Зоотовари',             'review_text' => 'Виглядає гуд, дуже дякую!',                             'review_rating' => 4, 'store_logo_url' => '/reviews/kate.webp'],
+            ['store' => 'maroda.com.ua',              'store_url' => 'https://maroda.com.ua/',                 'owner' => 'Роман',      'description' => 'Одяг та аксесуари',     'review_text' => 'Все подобається.',                                     'review_rating' => 4],
+            // ── Synthetic portfolio sites ────────────────────────────────────────
             ['store' => 'ukrinvestbud.com', 'store_url' => 'https://ukrinvestbud.com', 'owner' => 'Ukrinvestbud', 'description' => 'Будівельна компанія'],
             ['store' => 'lifehouse.com.ua', 'store_url' => 'https://lifehouse.com.ua', 'owner' => 'Life House', 'description' => 'Корпоративний сайт'],
             ['store' => 'ferroconcrete.com.ua', 'store_url' => 'https://ferroconcrete.com.ua', 'owner' => 'FerroСoncrete', 'description' => 'Будівельна компанія'],

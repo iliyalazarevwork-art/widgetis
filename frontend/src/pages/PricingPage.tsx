@@ -10,12 +10,15 @@ import { fetchWidgets, type ApiWidget } from '../api/widgets'
 import { useAuth } from '../context/AuthContext'
 import { useSettings } from '../context/SettingsContext'
 import { PLANS, SERVICE_COMPARISON_ROWS, type PlanSlug } from '../data/plans'
+import { PLAN_ICON_MAP } from '../components/planIconMap'
 import { useFoundingRemaining } from '../hooks/useFoundingRemaining'
 import type { Subscription } from '../types'
 import './PricingPage.css'
 
 interface ApiPlanData {
   slug: string
+  icon: string
+  color: string
   price_monthly: number
   price_yearly: number
   trial_days: number
@@ -192,6 +195,8 @@ export function PricingPage() {
     const api = planData[plan.id]
     return {
       ...plan,
+      icon: api?.icon ? (PLAN_ICON_MAP[api.icon] ?? plan.icon) : plan.icon,
+      color: api?.color ?? plan.color,
       monthlyPrice: api?.price_monthly ?? plan.monthlyPrice,
       yearlyPrice: api?.price_yearly ?? plan.yearlyPrice,
       yearlyMonthly: api ? Math.round(api.price_yearly / 12) : plan.yearlyMonthly,

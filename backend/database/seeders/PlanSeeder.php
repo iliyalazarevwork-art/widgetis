@@ -14,6 +14,8 @@ class PlanSeeder extends Seeder
         $plans = [
             [
                 'slug' => 'free',
+                'icon' => 'sprout',
+                'color' => '#10B981',
                 'name' => ['en' => 'Free', 'uk' => 'Free'],
                 'description' => ['en' => 'For starting stores', 'uk' => 'Для магазинів-початківців'],
                 'price_monthly' => 0,
@@ -76,6 +78,8 @@ class PlanSeeder extends Seeder
             ],
             [
                 'slug' => 'pro',
+                'icon' => 'zap',
+                'color' => '#3B82F6',
                 'name' => ['en' => 'Pro', 'uk' => 'Pro'],
                 'description' => ['en' => 'Optimal for growth', 'uk' => 'Оптимальний для росту'],
                 'price_monthly' => 499,
@@ -91,6 +95,8 @@ class PlanSeeder extends Seeder
             ],
             [
                 'slug' => 'max',
+                'icon' => 'crown',
+                'color' => '#A855F7',
                 'name' => ['en' => 'Max', 'uk' => 'Max'],
                 'description' => ['en' => 'All widgets, maximum power', 'uk' => 'Усі віджети, максимум можливостей'],
                 'price_monthly' => 699,

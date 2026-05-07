@@ -14,7 +14,8 @@ class CaseController extends CoreBaseController
     public function index(): JsonResponse
     {
         $cases = CustomerCase::where('is_published', true)
-            ->orderByRaw('result_metric IS NULL')
+            ->orderByRaw("(CASE WHEN result_metric IS NOT NULL AND result_metric != '' THEN 3 ELSE 0 END + CASE WHEN review_text IS NOT NULL AND review_text != '' THEN 2 ELSE 0 END + CASE WHEN widgets IS NOT NULL AND jsonb_array_length(widgets) > 0 THEN 1 ELSE 0 END) DESC")
+            ->orderByRaw('review_rating DESC NULLS LAST')
             ->orderBy('sort_order')
             ->get();
 

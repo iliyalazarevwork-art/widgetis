@@ -85,6 +85,7 @@ function SuccessIcon() {
 function ChoiceScreen({ data, onChoice }: { data: SignupData; onChoice: (c: 'self' | 'concierge') => void }) {
   const hasSite = Boolean(data.site)
   const siteHost = hasSite ? siteDisplayHost(data.site) : ''
+  const isFree = data.plan === 'free'
 
   return (
     <div style={{ background: '#0A0A0A', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -93,7 +94,7 @@ function ChoiceScreen({ data, onChoice }: { data: SignupData; onChoice: (c: 'sel
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, textAlign: 'center' }}>
           <SuccessIcon />
           <h1 style={{ margin: 0, color: '#F0F0F0', fontFamily: 'Inter, sans-serif', fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>
-            Оплата пройшла успішно!
+            {isFree ? 'Free-план активовано!' : 'Оплата пройшла успішно!'}
           </h1>
           <p style={{ margin: 0, color: '#8A8A8A', fontSize: 14, lineHeight: 1.5, fontFamily: 'Inter, sans-serif' }}>
             {hasSite

@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { SeoHead } from '../components/SeoHead'
 import { Link, useParams, Navigate } from 'react-router-dom'
 import { WidgetSlug } from '../data/widget-slugs'
@@ -12,13 +12,10 @@ import {
   HeartHandshake,
   Layers,
   X,
-  Sprout,
-  Crown,
-  type LucideIcon,
 } from 'lucide-react'
+import { Wrench } from 'lucide-react'
 import { WidgetIcon } from '../components/WidgetIcon'
 import { WIDGET_ICON_MAP } from '../components/widgetIconMap'
-import { Wrench } from 'lucide-react'
 import { PREVIEW_MAP, DETAIL_PREVIEW_MAP } from '../components/WidgetPreviews'
 import { WidgetCard } from '../components/WidgetCard'
 import { getTagColorClass, type TagSlug } from '../data/widgetTags'
@@ -26,15 +23,9 @@ import { useWidget, usePlansWithSlugs, useWidgets } from '../hooks/useWidgets'
 import type { ApiPlan, ApiWidget } from '../api/widgets'
 import { cases } from '../data/cases'
 import { BRAND_NAME_UPPER } from '../constants/brand'
+import { InterestButton } from '../components/InterestButton'
+import { PLAN_ICON_MAP } from '../components/planIconMap'
 import './WidgetDetailPage.css'
-
-// ─── Plan UI metadata (icon + color — not in API) ─────────────────────────────
-
-const PLAN_UI: Record<string, { icon: LucideIcon; color: string }> = {
-  basic: { icon: Sprout, color: '#10B981' },
-  pro:   { icon: Zap,    color: '#3B82F6' },
-  max:   { icon: Crown,  color: '#A855F7' },
-}
 
 const TAG_BENEFITS: Record<TagSlug, { title: string; text: string }[]> = {
   conversion: [
@@ -96,22 +87,30 @@ const WIDGET_CASE_MAP: Record<string, string[]> = {
   [WidgetSlug.PromoAutoApply]:     ['brewco'],
 }
 
-function PlanUpsellCard({ plan, allWidgets }: { plan: ApiPlan; allWidgets: ApiWidget[] }) {
-  const ui = PLAN_UI[plan.slug] ?? { icon: Zap, color: '#3B82F6' }
-  const PlanIcon = ui.icon
+const UPSELL_SHOW_DEFAULT = 4
 
-  const includedWidgets = plan.widget_slugs
-    .map((s) => allWidgets.find((w) => w.slug === s))
-    .filter((w): w is ApiWidget => Boolean(w))
-  const shown = includedWidgets.slice(0, 4)
-  const extra = Math.max(0, includedWidgets.length - shown.length)
-  const slugSet = new Set(plan.widget_slugs)
-  const notIncluded = allWidgets.filter((w) => !slugSet.has(w.slug)).slice(0, 2)
+function PlanUpsellCard({ plan }: { plan: ApiPlan }) {
+  const [expanded, setExpanded] = useState(false)
+  const PlanIcon = PLAN_ICON_MAP[plan.icon] ?? Zap
+
+  const included = plan.included_widgets
+  const notIncluded = plan.not_included_widgets
+
+  const NOT_INCLUDED_SHOW = 3
+
+  const hasNotIncluded = notIncluded.length > 0
+  // Max has no not-included — show same row count as Free/Pro (included + not-included rows)
+  const collapseAt = hasNotIncluded ? UPSELL_SHOW_DEFAULT : UPSELL_SHOW_DEFAULT + NOT_INCLUDED_SHOW
+  const shownIncluded = expanded ? included : included.slice(0, collapseAt)
+  const hiddenIncluded = Math.max(0, included.length - collapseAt)
+  const shownNotIncluded = expanded ? notIncluded : notIncluded.slice(0, NOT_INCLUDED_SHOW)
+  const hiddenNotIncluded = Math.max(0, notIncluded.length - NOT_INCLUDED_SHOW)
+  const hasHidden = hiddenIncluded > 0 || hiddenNotIncluded > 0
 
   return (
     <div
       className={`widget-page__plan widget-page__plan--${plan.slug}`}
-      style={{ ['--p-color' as string]: ui.color }}
+      style={{ ['--p-color' as string]: plan.color }}
     >
       <div className="widget-page__plan-top">
         <div className="widget-page__plan-ico" aria-hidden="true">
@@ -119,16 +118,17 @@ function PlanUpsellCard({ plan, allWidgets }: { plan: ApiPlan; allWidgets: ApiWi
         </div>
         <div className="widget-page__plan-labels">
           <strong className="widget-page__plan-name">{plan.name}</strong>
-          <span className="widget-page__plan-meta">{plan.max_widgets} віджетів</span>
+          <span className="widget-page__plan-meta">
+            {included.length} {included.length === 1 ? 'віджет' : included.length < 5 ? 'віджети' : 'віджетів'} · {plan.max_sites} {plan.max_sites === 1 ? 'сайт' : plan.max_sites < 5 ? 'сайти' : 'сайтів'}
+          </span>
         </div>
       </div>
-      <div className="widget-page__plan-price">
-        {plan.price_monthly.toLocaleString('uk-UA')} ₴/міс
-      </div>
+
       <div className="widget-page__plan-sep" />
       <p className="widget-page__plan-eyebrow">ЩО ВХОДИТЬ</p>
+
       <ul className="widget-page__plan-list">
-        {shown.map((w) => {
+        {shownIncluded.map((w) => {
           const WIcon = WIDGET_ICON_MAP[w.icon] ?? Wrench
           return (
             <li key={w.slug}>
@@ -140,15 +140,27 @@ function PlanUpsellCard({ plan, allWidgets }: { plan: ApiPlan; allWidgets: ApiWi
             </li>
           )
         })}
-        {extra > 0 && (
-          <li className="widget-page__plan-more">+ ще {extra} віджети</li>
+        {!expanded && hasHidden && (
+          <li className="widget-page__plan-more">
+            <button className="widget-page__plan-expand-btn" onClick={() => setExpanded(true)}>
+              + ще {hiddenIncluded > 0 ? `${hiddenIncluded} ${hiddenIncluded < 5 ? 'віджети' : 'віджетів'}` : `${hiddenNotIncluded} не входять`}
+            </button>
+          </li>
+        )}
+        {expanded && (
+          <li className="widget-page__plan-more">
+            <button className="widget-page__plan-expand-btn" onClick={() => setExpanded(false)}>
+              Згорнути
+            </button>
+          </li>
         )}
       </ul>
-      {notIncluded.length > 0 && (
+
+      {hasNotIncluded && (
         <>
           <div className="widget-page__plan-sep widget-page__plan-sep--dim" />
           <ul className="widget-page__plan-list widget-page__plan-list--off">
-            {notIncluded.map((w) => {
+            {shownNotIncluded.map((w) => {
               const WIcon = WIDGET_ICON_MAP[w.icon] ?? Wrench
               return (
                 <li key={w.slug}>
@@ -160,14 +172,25 @@ function PlanUpsellCard({ plan, allWidgets }: { plan: ApiPlan; allWidgets: ApiWi
                 </li>
               )
             })}
+            {!expanded && hiddenNotIncluded > 0 && (
+              <li className="widget-page__plan-more widget-page__plan-more--off">
+                ще {hiddenNotIncluded} {hiddenNotIncluded < 5 ? 'віджети' : 'віджетів'} не входять
+              </li>
+            )}
           </ul>
         </>
       )}
-      <div className="widget-page__plan-sep" />
-      <Link to="/pricing" className="widget-page__plan-cta">
-        <PlanIcon size={15} strokeWidth={2.5} />
-        Обрати {plan.name}
-      </Link>
+
+      <div className="widget-page__plan-sep widget-page__plan-sep--push" />
+
+      {plan.slug === 'max' ? (
+        <InterestButton type="plan" id="max" />
+      ) : (
+        <Link to={`/pricing#${plan.slug}`} className="widget-page__plan-cta">
+          <PlanIcon size={15} strokeWidth={2.5} />
+          Обрати {plan.name}
+        </Link>
+      )}
     </div>
   )
 }
@@ -322,13 +345,12 @@ export function WidgetDetailPage() {
               <p className="widget-page__buy-sub">Доступний у тарифах</p>
               <div className="widget-page__buy-plans">
                 {containingPlans.map((p) => {
-                  const ui = PLAN_UI[p.slug] ?? { icon: Zap, color: '#3B82F6' }
-                  const PIcon = ui.icon
+                  const PIcon = PLAN_ICON_MAP[p.icon] ?? Zap
                   return (
                     <div
                       key={p.id}
                       className="widget-page__buy-plan"
-                      style={{ ['--p-color' as string]: ui.color }}
+                      style={{ ['--p-color' as string]: p.color }}
                     >
                       <span className="widget-page__buy-plan-ico" aria-hidden="true">
                         <PIcon size={15} strokeWidth={2.25} />
@@ -438,7 +460,7 @@ export function WidgetDetailPage() {
             </p>
             <div className="widget-page__upsell-list">
               {containingPlans.map((p) => (
-                <PlanUpsellCard key={p.id} plan={p} allWidgets={allWidgets} />
+                <PlanUpsellCard key={p.id} plan={p} />
               ))}
             </div>
           </div>

@@ -29,6 +29,8 @@ class Plan extends Model
     /** @var list<string> */
     protected $fillable = [
         'slug',
+        'icon',
+        'color',
         'name',
         'description',
         'price_monthly',

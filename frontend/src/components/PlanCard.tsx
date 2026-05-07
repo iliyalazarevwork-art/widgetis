@@ -179,9 +179,10 @@ export function PlanCard({
         </ul>
       ))}
 
-      {cta}
-
-      {trialNote && <p className="pricing__trial-note">{trialNote}</p>}
+      <div className="pricing__cta-wrap">
+        {cta}
+        {trialNote && <p className="pricing__trial-note">{trialNote}</p>}
+      </div>
     </div>
   )
 }

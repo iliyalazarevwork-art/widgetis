@@ -6,12 +6,40 @@ namespace App\Core\Http\Resources\Api\V1;
 
 use App\Core\Models\Plan;
 use App\Core\Models\PlanFeatureValue;
+use App\Core\Models\Product;
+use App\Enums\ProductStatus;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /** @mixin Plan */
 class PlanResource extends JsonResource
 {
+    /** @var Collection<int, Product>|null */
+    private static ?Collection $allProducts = null;
+
+    /**
+     * @return Collection<int, Product>
+     */
+    private static function allActiveProducts(): Collection
+    {
+        if (self::$allProducts === null) {
+            self::$allProducts = Product::where('status', ProductStatus::Active->value)
+                ->orderBy('sort_order')
+                ->get();
+        }
+
+        return self::$allProducts;
+    }
+
+    /**
+     * Reset the cache between test runs / requests when needed.
+     */
+    public static function resetCache(): void
+    {
+        self::$allProducts = null;
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -36,9 +64,29 @@ class PlanResource extends JsonResource
             ];
         })->values()->all();
 
+        $includedSlugs = $this->whenLoaded(
+            'products',
+            fn () => $this->products->pluck('slug')->flip(),
+            collect()->flip(),
+        );
+
+        $allProducts = self::allActiveProducts();
+
+        $includedWidgets = $allProducts
+            ->filter(fn (Product $p) => $includedSlugs->has($p->slug))
+            ->map(fn (Product $p) => $this->widgetShape($p, $locale))
+            ->values();
+
+        $notIncludedWidgets = $allProducts
+            ->filter(fn (Product $p) => ! $includedSlugs->has($p->slug))
+            ->map(fn (Product $p) => $this->widgetShape($p, $locale))
+            ->values();
+
         return [
             'id' => $this->id,
             'slug' => $this->slug,
+            'icon' => $this->icon,
+            'color' => $this->color,
             'name' => $this->translated('name'),
             'description' => $this->translated('description'),
             'price_monthly' => (float) $this->price_monthly,
@@ -51,13 +99,23 @@ class PlanResource extends JsonResource
             'widget_limits_config' => $this->widget_limits_config,
             'feature_list' => $featureList,
             'is_recommended' => $this->is_recommended,
-            'widget_slugs' => $this->whenLoaded('products', function () {
-                $fromProducts = $this->products->pluck('slug')->all();
-                if (count($fromProducts) > 0) {
-                    return $fromProducts;
-                }
-                return array_keys((array) ($this->widget_limits_config ?? []));
-            }),
+            'widget_slugs' => $includedWidgets->pluck('slug')->values()->all(),
+            'included_widgets' => $includedWidgets,
+            'not_included_widgets' => $notIncludedWidgets,
+        ];
+    }
+
+    /**
+     * @return array{slug: string, name: string, icon: string}
+     */
+    private function widgetShape(Product $product, string $locale): array
+    {
+        $name = $product->name;
+
+        return [
+            'slug' => $product->slug,
+            'name' => is_array($name) ? ($name[$locale] ?? $name['uk'] ?? '') : (string) $name,
+            'icon' => $product->icon ?? '',
         ];
     }
 

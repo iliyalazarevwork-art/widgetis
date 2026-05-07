@@ -647,8 +647,9 @@
 
 .widget-page__upsell-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
+  align-items: stretch;
 }
 
 .widget-page__plan {
@@ -712,6 +713,10 @@
   background: rgba(255, 255, 255, 0.04);
 }
 
+.widget-page__plan-sep--push {
+  margin-top: auto;
+}
+
 .widget-page__plan-eyebrow {
   font-size: 9px;
   font-weight: 700;
@@ -773,6 +778,25 @@
   font-weight: 600;
   color: var(--p-color);
   padding-left: 34px;
+}
+
+.widget-page__plan-more--off {
+  color: rgba(255, 255, 255, 0.25);
+  font-weight: 500;
+  padding-left: 34px;
+}
+
+.widget-page__plan-expand-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--p-color);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
 }
 
 .widget-page__plan-cta {
