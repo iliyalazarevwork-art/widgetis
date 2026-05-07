@@ -47,6 +47,8 @@ class PlanResource extends JsonResource
             'max_sites' => $this->max_sites,
             'max_widgets' => $this->max_widgets,
             'features' => $this->features,
+            'languages_supported' => $this->languages_supported,
+            'widget_limits_config' => $this->widget_limits_config,
             'feature_list' => $featureList,
             'is_recommended' => $this->is_recommended,
             'widget_slugs' => $this->whenLoaded('products', fn () => $this->products->pluck('slug')->all()),

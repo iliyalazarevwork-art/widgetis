@@ -31,6 +31,8 @@ class PlanFactory extends Factory
             'max_sites' => 1,
             'max_widgets' => 5,
             'features' => [],
+            'languages_supported' => ['uk'],
+            'widget_limits_config' => null,
             'is_recommended' => false,
             'sort_order' => 0,
             'is_active' => true,
@@ -44,6 +46,8 @@ class PlanFactory extends Factory
             'price_monthly' => 0,
             'price_yearly' => 0,
             'trial_days' => 0,
+            'languages_supported' => ['uk'],
+            'widget_limits_config' => [],
         ]);
     }
 
@@ -64,6 +68,8 @@ class PlanFactory extends Factory
             'price_yearly' => 5990,
             'max_sites' => 3,
             'max_widgets' => 20,
+            'languages_supported' => ['uk', 'en'],
+            'widget_limits_config' => null,
         ]);
     }
 
@@ -75,6 +81,8 @@ class PlanFactory extends Factory
             'price_yearly' => 12990,
             'max_sites' => 10,
             'max_widgets' => 100,
+            'languages_supported' => ['uk', 'en', 'ru'],
+            'widget_limits_config' => null,
         ]);
     }
 

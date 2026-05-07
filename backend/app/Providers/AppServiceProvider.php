@@ -9,6 +9,7 @@ use App\Core\Models\User;
 use App\Core\Services\Bridge\EloquentSubscriptionGate;
 use App\Core\Services\Bridge\EloquentUserResolver;
 use App\Core\Services\Bridge\EloquentWidgetCatalog;
+use App\Core\Services\Plan\FoundingService;
 use App\Shared\Contracts\SiteOwnershipInterface;
 use App\Shared\Contracts\SubscriptionGateInterface;
 use App\Shared\Contracts\UserResolverInterface;
@@ -34,6 +35,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(SiteOwnershipInterface::class, EloquentSiteOwnership::class);
         $this->app->singleton(WidgetRuntimeStatsInterface::class, EloquentWidgetRuntimeStats::class);
         $this->app->singleton(ComposerInterface::class, OnDemandComposer::class);
+
+        $this->app->singleton(FoundingService::class, fn () => new FoundingService(
+            maxSlots: (int) config('founding.max_slots', 20),
+            proLockedPriceMonthly: (int) config('founding.pro_locked_price_monthly', 299),
+        ));
     }
 
     /**

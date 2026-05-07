@@ -425,6 +425,67 @@ class SubscriptionService
         SubscriptionExpired::dispatch($subscription);
     }
 
+    /**
+     * Downgrade an expired or cancelled subscription to the Free plan.
+     *
+     * This creates or overwrites the user's subscription row with the Free
+     * plan and Active status (free plan users always have "active" access).
+     * No payment is made; Free plan has no trial days and no billing period.
+     */
+    public function downgradeToFree(User $user): Subscription
+    {
+        $freePlan = Plan::where('slug', 'free')->firstOrFail();
+
+        return DB::transaction(function () use ($user, $freePlan) {
+            $subscription = Subscription::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'plan_id' => $freePlan->id,
+                    'billing_period' => BillingPeriod::Monthly->value,
+                    'status' => SubscriptionStatus::Active,
+                    'is_trial' => false,
+                    'trial_ends_at' => null,
+                    'current_period_start' => now(),
+                    'current_period_end' => now()->addYears(100),
+                    'cancelled_at' => null,
+                    'cancel_reason' => null,
+                    'grace_period_ends_at' => null,
+                    'payment_retry_count' => 0,
+                    'next_payment_retry_at' => null,
+                    'payment_provider' => null,
+                    'payment_provider_subscription_id' => null,
+                    'monobank_card_token' => null,
+                    'wayforpay_rec_token' => null,
+                ],
+            );
+
+            ActivityLog::create([
+                'user_id' => $user->id,
+                'action' => 'subscription.downgraded_to_free',
+                'entity_type' => 'subscription',
+                'entity_id' => $subscription->id,
+                'description' => [
+                    'en' => 'Subscription downgraded to Free plan',
+                    'uk' => 'Підписку переведено на безкоштовний план',
+                ],
+                'metadata' => ['plan' => 'free'],
+                'created_at' => now(),
+            ]);
+
+            Log::channel('payments')->info('subscription.downgraded_to_free', [
+                'user_id' => $user->id,
+            ]);
+
+            event(new PlanChanged(
+                UserId::fromString((string) $user->id),
+                null,
+                $freePlan->slug,
+            ));
+
+            return $subscription;
+        });
+    }
+
     public function renew(Subscription $subscription): Subscription
     {
         $billingPeriod = BillingPeriod::from($subscription->billing_period);

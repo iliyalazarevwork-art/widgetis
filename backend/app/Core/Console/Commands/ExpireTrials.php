@@ -16,17 +16,18 @@ class ExpireTrials extends Command
 
     public function handle(SubscriptionService $subscriptionService): int
     {
-        $expired = Subscription::where('status', SubscriptionStatus::Trial)
+        $expired = Subscription::with('user')
+            ->where('status', SubscriptionStatus::Trial)
             ->where('trial_ends_at', '<', now())
             ->get();
 
         $count = 0;
         foreach ($expired as $subscription) {
-            $subscriptionService->expire($subscription);
+            $subscriptionService->downgradeToFree($subscription->user);
             $count++;
         }
 
-        $this->info("Expired {$count} trial subscriptions.");
+        $this->info("Downgraded {$count} expired trial subscriptions to Free plan.");
 
         return self::SUCCESS;
     }

@@ -51,8 +51,20 @@ class SubscriptionLifecycleTest extends TestCase
         return $user;
     }
 
-    public function test_trial_subscription_really_expires_after_three_real_seconds(): void
+    public function test_trial_subscription_downgrades_to_free_after_three_real_seconds(): void
     {
+        Plan::factory()->create([
+            'slug' => 'free',
+            'price_monthly' => 0,
+            'price_yearly' => 0,
+            'trial_days' => 0,
+            'max_sites' => 1,
+            'max_widgets' => 11,
+            'languages_supported' => ['uk'],
+            'widget_limits_config' => null,
+            'sort_order' => -1,
+        ]);
+
         $user = $this->customer();
         $plan = Plan::factory()->create();
 
@@ -73,7 +85,7 @@ class SubscriptionLifecycleTest extends TestCase
         sleep(4);
 
         $exit = $this->artisan('subscriptions:expire-trials')
-            ->expectsOutputToContain('Expired 1 trial')
+            ->expectsOutputToContain('Downgraded 1 expired trial')
             ->run();
 
         $this->assertSame(0, $exit);
@@ -81,14 +93,29 @@ class SubscriptionLifecycleTest extends TestCase
         $fresh = $subscription->fresh();
         $this->assertNotNull($fresh);
         $this->assertSame(
-            SubscriptionStatus::Expired,
+            SubscriptionStatus::Active,
             $fresh->status,
-            'trial_ends_at in the past should flip status to Expired after running subscriptions:expire-trials',
+            'after trial expiry the subscription should stay Active on the Free plan',
         );
+        $this->assertSame('free', $fresh->plan->slug, 'after expiry, subscription should be on Free plan');
+        $this->assertFalse($fresh->is_trial);
+        $this->assertNull($fresh->trial_ends_at);
     }
 
-    public function test_expiration_disables_all_site_widgets_of_the_user(): void
+    public function test_downgrade_to_free_subscription_is_active_and_on_free_plan(): void
     {
+        Plan::factory()->create([
+            'slug' => 'free',
+            'price_monthly' => 0,
+            'price_yearly' => 0,
+            'trial_days' => 0,
+            'max_sites' => 1,
+            'max_widgets' => 11,
+            'languages_supported' => ['uk'],
+            'widget_limits_config' => null,
+            'sort_order' => -1,
+        ]);
+
         $user = $this->customer();
         $plan = Plan::factory()->create();
         $product = Product::factory()->create();
@@ -102,14 +129,14 @@ class SubscriptionLifecycleTest extends TestCase
             'platform' => 'horoshop',
             'status' => 'active',
         ]);
-        $widget = SiteWidget::create([
+        SiteWidget::create([
             'site_id' => $site->id,
             'product_id' => $product->id,
             'is_enabled' => true,
             'config' => ['enabled' => true],
         ]);
 
-        Subscription::factory()->create([
+        $subscription = Subscription::factory()->create([
             'user_id' => $user->id,
             'plan_id' => $plan->id,
             'status' => SubscriptionStatus::Trial,
@@ -122,16 +149,27 @@ class SubscriptionLifecycleTest extends TestCase
 
         $this->artisan('subscriptions:expire-trials')->assertExitCode(0);
 
-        $widget->refresh();
-        $this->assertFalse(
-            (bool) $widget->is_enabled,
-            'widgets must be disabled once the owning subscription expired',
-        );
-        $this->assertNotNull($widget->disabled_at);
+        $fresh = $subscription->fresh();
+        $this->assertSame(SubscriptionStatus::Active, $fresh->status, 'downgraded subscription must stay Active');
+        $this->assertSame('free', $fresh->plan->slug, 'downgraded subscription must be on Free plan');
+        $this->assertFalse($fresh->is_trial);
+        $this->assertNull($fresh->trial_ends_at);
     }
 
-    public function test_widget_access_service_locks_access_once_subscription_expired(): void
+    public function test_widget_access_service_locks_after_downgrade_to_free(): void
     {
+        Plan::factory()->create([
+            'slug' => 'free',
+            'price_monthly' => 0,
+            'price_yearly' => 0,
+            'trial_days' => 0,
+            'max_sites' => 1,
+            'max_widgets' => 11,
+            'languages_supported' => ['uk'],
+            'widget_limits_config' => null,
+            'sort_order' => -1,
+        ]);
+
         $user = $this->customer();
         $plan = Plan::factory()->create();
         $product = Product::factory()->create();
@@ -161,18 +199,31 @@ class SubscriptionLifecycleTest extends TestCase
 
         $this->artisan('subscriptions:expire-trials')->assertExitCode(0);
 
-        // Eloquent relationships inside WidgetAccessService are not cached
-        // across test phases once we reload the user from DB.
+        // After downgrade to Free, the product (which belonged to the old paid plan) is no longer accessible.
         $this->assertFalse(
             $access->canAccessBySlug($userId, $product->slug, ProductAvailability::Available->value, $product->id),
-            'expired subscription must revoke access to plan products',
+            'downgraded-to-free subscription must revoke access to products not in Free plan',
         );
 
-        $this->assertSame(SubscriptionStatus::Expired, $subscription->fresh()->status);
+        $fresh = $subscription->fresh();
+        $this->assertSame(SubscriptionStatus::Active, $fresh->status);
+        $this->assertSame('free', $fresh->plan->slug);
     }
 
-    public function test_http_dashboard_reflects_expiration_immediately(): void
+    public function test_http_dashboard_reflects_downgrade_to_free(): void
     {
+        Plan::factory()->create([
+            'slug' => 'free',
+            'price_monthly' => 0,
+            'price_yearly' => 0,
+            'trial_days' => 0,
+            'max_sites' => 1,
+            'max_widgets' => 11,
+            'languages_supported' => ['uk'],
+            'widget_limits_config' => null,
+            'sort_order' => -1,
+        ]);
+
         $user = $this->customer();
         $plan = Plan::factory()->create();
 
@@ -196,10 +247,10 @@ class SubscriptionLifecycleTest extends TestCase
 
         $post = $this->actingAs($user->fresh(), 'core')->getJson('/api/v1/auth/user');
         $post->assertStatus(200);
-        $this->assertNotSame(
-            'trial',
+        $this->assertSame(
+            'active',
             $post->json('data.subscription_status'),
-            'user endpoint must report the new subscription status after expiration',
+            'user endpoint must report active status after downgrade to Free plan',
         );
     }
 }

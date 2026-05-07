@@ -11,6 +11,7 @@ use App\Core\Http\Controllers\Api\V1\Profile\SubscriptionController;
 use App\Core\Http\Controllers\Api\V1\Public\CaseController;
 use App\Core\Http\Controllers\Api\V1\Public\ConsultationController;
 use App\Core\Http\Controllers\Api\V1\Public\FaqController;
+use App\Core\Http\Controllers\Api\V1\Public\FoundingController;
 use App\Core\Http\Controllers\Api\V1\Public\GuestCheckoutController;
 use App\Core\Http\Controllers\Api\V1\Public\LeadRequestController;
 use App\Core\Http\Controllers\Api\V1\Public\ManagerRequestController;
@@ -44,6 +45,7 @@ Route::prefix('v1')->group(function () {
     Route::get('platforms', [SystemController::class, 'platforms']);
     Route::get('cases', [CaseController::class, 'index']);
     Route::get('faq', [FaqController::class, 'index']);
+    Route::get('founding/remaining', [FoundingController::class, 'remaining']);
     Route::post('consultations', [ConsultationController::class, 'store'])->middleware('throttle:3,60');
     Route::post('manager-requests', [ManagerRequestController::class, 'store'])->middleware('throttle:3,60');
     Route::post('lead-requests', [LeadRequestController::class, 'store'])->middleware('throttle:5,1');

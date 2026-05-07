@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\SmartSearch\Http\Controllers\PublicSearchController;
+use App\WidgetRuntime\Http\Controllers\Api\V1\Admin\DemoAnalyticsController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Admin\DemoSessionController as AdminDemoSessionController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Admin\OnePlusOnePromoController;
 use App\WidgetRuntime\Http\Controllers\Api\V1\Admin\SiteController as AdminSiteController;
