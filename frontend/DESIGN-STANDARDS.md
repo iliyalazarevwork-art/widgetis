@@ -12,7 +12,7 @@
 | Token              | Hex       | CSS Variable  | Role                                              |
 |--------------------|-----------|---------------|----------------------------------------------------|
 | Primary Blue       | `#3B82F6` | `--blue`      | CTA, Pro plan, navigation, links, active elements  |
-| Success Green      | `#10B981` | `--green`     | Basic plan, enabled, success, confirmation          |
+| Success Green      | `#10B981` | `--green`     | Enabled, success, confirmation                      |
 | Accent Purple      | `#A855F7` | `--purple`    | Max plan, hero accent, premium elements             |
 | Telegram Blue      | `#229ED9` | `--telegram`  | Only for Telegram links and support buttons         |
 | Urgency Orange     | `#F97316` | `--orange`    | Timers, urgency, cancellation, warnings             |
@@ -107,9 +107,9 @@ Plans MUST be defined in ONE place (`src/data/plans.ts`) and imported everywhere
 
 | Plan  | Color     | CSS Variable | Price      | Yearly     |
 |-------|-----------|--------------|------------|------------|
-| Basic | `#10B981` | `--green`    | 799 ₴/міс | 7 990 ₴/рік |
-| Pro   | `#3B82F6` | `--blue`     | 1 599 ₴/міс | 15 990 ₴/рік |
-| Max   | `#A855F7` | `--purple`   | 2 899 ₴/міс | 28 990 ₴/рік |
+| Free  | `#94A3B8` | `--slate`    | 0 ₴        | —          |
+| Pro   | `#3B82F6` | `--blue`     | 499 ₴/міс | 4 990 ₴/рік |
+| Max   | `#A855F7` | `--purple`   | 699 ₴/міс | 6 990 ₴/рік |
 
 Each plan has: `id`, `name`, `color`, `icon`, `monthlyPrice`, `yearlyPrice`, `features[]`.
 **Never hardcode plan data in components. Always import from the single source.**
@@ -118,11 +118,11 @@ Each plan has: `id`, `name`, `color`, `icon`, `monthlyPrice`, `yearlyPrice`, `fe
 
 Each plan is represented by a single Lucide icon. These icons are the visual identity of the plan and MUST be used consistently everywhere a plan is displayed (pricing cards, subscription screens, upgrade prompts, widget lock modals, etc.).
 
-| Plan  | Icon (Lucide) | Color      | CSS Variable | Background        |
-|-------|---------------|------------|--------------|-------------------|
-| Basic | `Sprout`      | `#10B981`  | `--green`    | `--green-dim`     |
-| Pro   | `Zap`         | `#3B82F6`  | `--blue`     | `--blue-dim`      |
-| Max   | `Crown`       | `#A855F7`  | `--purple`   | `--purple-dim`    |
+| Plan  | Icon (Lucide) | Color      | CSS Variable | Background              |
+|-------|---------------|------------|--------------|-------------------------|
+| Free  | `Sparkles`    | `#94A3B8`  | `--slate`    | `rgba(148,163,184,0.12)`|
+| Pro   | `Zap`         | `#3B82F6`  | `--blue`     | `--blue-dim`            |
+| Max   | `Crown`       | `#A855F7`  | `--purple`   | `--purple-dim`          |
 
 ### Plan icon container — standard
 
@@ -141,9 +141,9 @@ Lucide icon inside: default `stroke-width`, size `20–22px`, `color` inherits f
 
 ### Rules
 
-- **Never swap a plan's icon** — Basic = Sprout, Pro = Zap, Max = Crown. No substitutions.
+- **Never swap a plan's icon** — Free = Sparkles, Pro = Zap, Max = Crown. No substitutions.
 - **Never hardcode** the icon in a component — always read from `plan.icon` in `src/data/plans.ts`.
-- **Never recolor** the icon away from its plan color — Basic green, Pro blue, Max purple.
+- **Never recolor** the icon away from its plan color — Free slate, Pro blue, Max purple.
 - Use the same tile size (44×44, radius 10) on marketing pages. In cabinet / compact contexts a smaller variant (32×32, radius 8) is allowed, but colors and icons stay identical.
 
 ---

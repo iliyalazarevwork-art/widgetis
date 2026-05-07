@@ -49,9 +49,17 @@ export interface PlanCardProps {
   featureSections: PlanCardFeature[][]
   highlighted?: boolean
   dimmed?: boolean
+  urlFocused?: boolean
   /** Pre-rendered CTA element (button/link/InterestButton). */
   cta: ReactNode
   trialNote?: ReactNode
+  /**
+   * Founding offer: discounted monthly price shown instead of regular price.
+   * When set, the regular price is crossed out and this price is shown big.
+   */
+  foundingPrice?: number
+  /** Pre-rendered founding banner shown above the card content. */
+  foundingBanner?: ReactNode
 }
 
 /**
@@ -79,10 +87,16 @@ export function PlanCard({
   featureSections,
   highlighted = false,
   dimmed = false,
+  urlFocused = false,
   cta,
   trialNote,
+  foundingPrice,
+  foundingBanner,
 }: PlanCardProps) {
-  const price = yearly ? yearlyMonthlyPrice : monthlyPrice
+  const basePrice = yearly ? yearlyMonthlyPrice : monthlyPrice
+  // When founding price is active, show it as the main price; original becomes struck-out
+  const price = foundingPrice ?? basePrice
+  const displayOld = foundingPrice != null ? basePrice : (yearly ? monthlyPrice : undefined)
   const yearlySavings = monthlyPrice * 12 - yearlyPrice
 
   const cardClass = [
@@ -90,12 +104,14 @@ export function PlanCard({
     `pricing__card--${slug}`,
     highlighted && 'pricing__card--highlight',
     dimmed && 'pricing__card--dimmed',
+    urlFocused && 'pricing__card--url-focused',
   ]
     .filter(Boolean)
     .join(' ')
 
   return (
     <div id={slug} className={cardClass}>
+      {foundingBanner}
       {badge}
 
       <div className="pricing__card-top">
@@ -109,13 +125,17 @@ export function PlanCard({
       </div>
 
       <div className="pricing__price-block">
-        {yearly && (
-          <span className="pricing__price-old">{monthlyPrice.toLocaleString('uk-UA')}</span>
+        {displayOld != null && (
+          <span className="pricing__price-old">{displayOld.toLocaleString('uk-UA')}</span>
         )}
-        <span className="pricing__price">{price.toLocaleString('uk-UA')}</span>
-        <span className="pricing__price-unit">грн/міс</span>
+        <span className="pricing__price">{price === 0 ? 'Безкоштовно' : price.toLocaleString('uk-UA')}</span>
+        {price !== 0 && <span className="pricing__price-unit">грн/міс</span>}
       </div>
-      {yearly ? (
+      {foundingPrice != null ? (
+        <p className="pricing__price-annual pricing__price-annual--founding">
+          Засновницька ціна · назавжди
+        </p>
+      ) : yearly && price !== 0 ? (
         <div className="pricing__price-yearly-row">
           <p className="pricing__price-annual">
             {yearlyPrice.toLocaleString('uk-UA')} грн/рік
@@ -124,9 +144,13 @@ export function PlanCard({
             Економія {yearlySavings.toLocaleString('uk-UA')} грн
           </span>
         </div>
-      ) : (
+      ) : price !== 0 ? (
         <p className="pricing__price-annual pricing__price-annual--placeholder">
           При річній оплаті — 2 міс у подарунок
+        </p>
+      ) : (
+        <p className="pricing__price-annual pricing__price-annual--placeholder">
+          Після пробного — без оплати
         </p>
       )}
 

@@ -127,6 +127,28 @@
   }
 }
 
+@keyframes url-focus-pulse {
+  0%   { box-shadow: 0 0 0 3px currentColor, 0 0 32px 6px currentColor; opacity: 0.95; }
+  60%  { box-shadow: 0 0 0 2px currentColor, 0 0 20px 2px currentColor; }
+  100% { box-shadow: 0 0 0 2px currentColor, 0 0 12px 0px currentColor; }
+}
+
+.pricing__card.pricing__card--url-focused.pricing__card--pro {
+  color: #3B82F6;
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 2px #3B82F6, 0 0 20px 2px rgba(59,130,246,0.25);
+  animation: url-focus-pulse 1.4s ease-out forwards;
+  z-index: 2;
+}
+
+.pricing__card.pricing__card--url-focused.pricing__card--max {
+  color: #A855F7;
+  border-color: #A855F7;
+  box-shadow: 0 0 0 2px #A855F7, 0 0 20px 2px rgba(168,85,247,0.25);
+  animation: url-focus-pulse 1.4s ease-out forwards;
+  z-index: 2;
+}
+
 .pricing__badge {
   position: absolute;
   top: -13px;
@@ -839,6 +861,120 @@
   font-size: 13px;
   color: var(--text-muted);
   margin: 0;
+}
+
+/* ── Founding banner ── */
+
+.founding-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, rgba(249,115,22,0.18) 0%, rgba(239,68,68,0.14) 100%);
+  border: 1px solid rgba(249,115,22,0.4);
+  border-radius: 12px;
+  margin-bottom: 4px;
+}
+
+.founding-banner--urgent {
+  background: linear-gradient(135deg, rgba(239,68,68,0.22) 0%, rgba(249,115,22,0.18) 100%);
+  border-color: rgba(239,68,68,0.5);
+  animation: founding-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes founding-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.3); }
+  50%       { box-shadow: 0 0 0 4px rgba(239,68,68,0.08); }
+}
+
+.founding-banner__fire {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.founding-banner__text {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.founding-banner__text strong {
+  color: #F97316;
+  font-weight: 700;
+}
+
+.founding-banner__remaining {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.founding-banner__remaining--urgent {
+  color: #EF4444;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+/* ── Founding price annotation ── */
+
+.pricing__price-annual--founding {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: #F97316;
+  font-weight: 600;
+  margin-top: -6px;
+}
+
+/* ── Free plan icon ── */
+
+.pricing__plan-icon--free { background: rgba(148,163,184,0.12); color: #94A3B8; }
+
+/* ── Free plan feature check / link / toggle colors ── */
+
+.pricing__feature-check--free   { color: #94A3B8; }
+.pricing__feature-link--free:hover  { color: #94A3B8; }
+.pricing__feature-toggle--free  { color: #94A3B8; }
+.pricing__feature-subgroup-title--free { color: #94A3B8; }
+
+/* ── Free plan CTA ── */
+
+.pricing__cta--free {
+  background: rgba(148,163,184,0.08);
+  border-color: rgba(148,163,184,0.35);
+  color: #94A3B8;
+}
+
+.pricing__cta--free:hover {
+  background: rgba(148,163,184,0.15);
+  box-shadow: 0 0 16px rgba(148,163,184,0.12);
+  transform: translateY(-1px);
+}
+
+/* ── Comparison table — free plan column ── */
+
+.pricing__col-free   { color: #94A3B8; }
+.pricing__check--free { color: #94A3B8; }
+.pricing__cell-text--num-free { color: #94A3B8; }
+
+@media (min-width: 720px) {
+  .pricing__col-free {
+    background: rgba(148,163,184,0.05);
+    border: 1px solid rgba(148,163,184,0.2);
+    border-bottom: none;
+  }
+  .pricing__clist-cell--free {
+    background: rgba(148,163,184,0.02);
+  }
+}
+
+/* ── URL-focused card for free ── */
+
+.pricing__card.pricing__card--url-focused.pricing__card--free {
+  color: #94A3B8;
+  border-color: #94A3B8;
+  box-shadow: 0 0 0 2px #94A3B8, 0 0 20px 2px rgba(148,163,184,0.2);
+  animation: url-focus-pulse 1.4s ease-out forwards;
+  z-index: 2;
 }
 
 /* ── Subscriber states ── */

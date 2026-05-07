@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Check, ChevronDown, Send, Minus } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { SeoHead } from '../components/SeoHead'
 import { InterestButton } from '../components/InterestButton'
 import { PlanCard, type PlanCardFeature } from '../components/PlanCard'
@@ -9,6 +9,7 @@ import { fetchWidgets, type ApiWidget } from '../api/widgets'
 import { useAuth } from '../context/AuthContext'
 import { useSettings } from '../context/SettingsContext'
 import { PLANS, SERVICE_COMPARISON_ROWS, type PlanSlug } from '../data/plans'
+import { useFoundingRemaining } from '../hooks/useFoundingRemaining'
 import type { Subscription } from '../types'
 import './PricingPage.css'
 
@@ -26,7 +27,7 @@ interface ApiPlanData {
 const FAQ_ITEMS = [
   {
     q: 'Що таке trial і як він працює?',
-    a: 'Безкоштовний доступ на обраному плані: 7 днів на Basic та 14 днів на Pro і Max. Після закінчення trial автоматично списується оплата. Можна скасувати в будь-який момент до закінчення пробного періоду.',
+    a: 'Безкоштовний доступ на 14 днів на будь-якому плані. Після закінчення trial автоматично списується оплата. Можна скасувати в будь-який момент до закінчення пробного періоду.',
   },
   {
     q: 'Чи можна змінити план?',
@@ -46,9 +47,33 @@ const FAQ_ITEMS = [
   },
   {
     q: 'На скількох сайтах можна використовувати?',
-    a: 'Basic — 1 сайт, Pro — 3 сайти, Max — 5 сайтів. Потрібно більше — напишіть нам.',
+    a: 'Free — 1 сайт, Pro — 3 сайти, Max — 5 сайтів. Потрібно більше — напишіть нам.',
   },
 ]
+
+// ─── Founding banner ─────────────────────────────────────────────────────────
+
+interface FoundingBannerProps {
+  remaining: number
+  total: number
+  lockedPrice: number
+}
+
+function FoundingBanner({ remaining, total, lockedPrice }: FoundingBannerProps) {
+  const urgency = remaining <= 5
+  return (
+    <div className={`founding-banner${urgency ? ' founding-banner--urgent' : ''}`}>
+      <span className="founding-banner__fire">🔥</span>
+      <span className="founding-banner__text">
+        Перші {total} клієнтів — Pro за <strong>{lockedPrice} ₴</strong> назавжди!{' '}
+        {urgency
+          ? <span className="founding-banner__remaining founding-banner__remaining--urgent">Лишилось {remaining}!</span>
+          : <span className="founding-banner__remaining">Лишилось {remaining} з {total}</span>
+        }
+      </span>
+    </div>
+  )
+}
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -83,19 +108,22 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 const PLAN_HEADERS = [
-  { id: 'basic', label: 'Basic', colorClass: 'pricing__col-basic' },
-  { id: 'pro',   label: 'Pro',   colorClass: 'pricing__col-pro'   },
-  { id: 'max',   label: 'Max',   colorClass: 'pricing__col-max'   },
+  { id: 'free', label: 'Free', colorClass: 'pricing__col-free' },
+  { id: 'pro', label: 'Pro', colorClass: 'pricing__col-pro' },
+  { id: 'max', label: 'Max', colorClass: 'pricing__col-max' },
 ] as const
 
-const PLAN_ORDER: Record<string, number> = { basic: 0, pro: 1, max: 2 }
+const PLAN_ORDER: Record<string, number> = { free: 0, pro: 1, max: 2 }
 
 export function PricingPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { user, isLoading: authLoading } = useAuth()
   const settings = useSettings()
   const telegramUrl = settings.socials?.telegram || settings.messengers?.telegram || ''
+  const founding = useFoundingRemaining()
   const [yearly, setYearly] = useState(false)
+  const hashPlan = location.hash.replace(/^#/, '')
   const [sub, setSub] = useState<Subscription | null>(null)
   const [subLoading, setSubLoading] = useState(true)
   const [upgrading, setUpgrading] = useState<string | null>(null)
@@ -151,6 +179,8 @@ export function PricingPage() {
 
   const isSubActive = sub !== null && (sub.status === 'active' || sub.status === 'trial')
   const currentPlanOrder = isSubActive ? (PLAN_ORDER[sub!.plan.slug] ?? -1) : -1
+  const validPlanSlugs = new Set(PLANS.map(p => p.id))
+  const hashTargetsAPlan = validPlanSlugs.has(hashPlan as PlanSlug)
 
   const mergedPlans = PLANS.map(plan => {
     const api = planData[plan.id]
@@ -174,16 +204,12 @@ export function PricingPage() {
       .filter((w): w is ApiWidget => Boolean(w))
       .map((w) => ({ slug: w.slug, name: w.name }))
 
-  const basicSlugs = new Set(mergedPlans.find((p) => p.id === 'basic')?.widgetSlugs ?? [])
   const proSlugs = new Set(mergedPlans.find((p) => p.id === 'pro')?.widgetSlugs ?? [])
 
   const buildExpandableGroups = (planId: PlanSlug, planSlugs: string[]) => {
     if (planId === 'pro') {
-      const inherited = slugsToWidgets(planSlugs.filter((s) => basicSlugs.has(s)))
-      const added = slugsToWidgets(planSlugs.filter((s) => !basicSlugs.has(s)))
       return [
-        { key: 'inherited', title: 'Все з Basic', items: inherited },
-        { key: 'new', title: 'Нові в Pro', items: added },
+        { key: 'new', title: 'Віджети Pro', items: slugsToWidgets(planSlugs) },
       ]
     }
     if (planId === 'max') {
@@ -198,14 +224,14 @@ export function PricingPage() {
   }
 
   const slugsByPlanSet: Record<PlanSlug, Set<string>> = {
-    basic: new Set(mergedPlans.find((p) => p.id === 'basic')?.widgetSlugs ?? []),
-    pro:   new Set(mergedPlans.find((p) => p.id === 'pro')?.widgetSlugs   ?? []),
-    max:   new Set(mergedPlans.find((p) => p.id === 'max')?.widgetSlugs   ?? []),
+    free: new Set(mergedPlans.find((p) => p.id === 'free')?.widgetSlugs ?? []),
+    pro: new Set(mergedPlans.find((p) => p.id === 'pro')?.widgetSlugs ?? []),
+    max: new Set(mergedPlans.find((p) => p.id === 'max')?.widgetSlugs ?? []),
   }
 
   const orderedComparisonSlugs: string[] = []
   const seenComparisonSlugs = new Set<string>()
-  for (const planId of ['basic', 'pro', 'max'] as PlanSlug[]) {
+  for (const planId of ['free', 'pro', 'max'] as PlanSlug[]) {
     for (const slug of slugsByPlanSet[planId]) {
       if (!seenComparisonSlugs.has(slug)) {
         orderedComparisonSlugs.push(slug)
@@ -219,28 +245,28 @@ export function PricingPage() {
     .filter((w): w is ApiWidget => Boolean(w))
     .map((w) => ({
       feature: w.name,
-      basic: slugsByPlanSet.basic.has(w.slug),
-      pro:   slugsByPlanSet.pro.has(w.slug),
-      max:   slugsByPlanSet.max.has(w.slug),
+      free: slugsByPlanSet.free.has(w.slug),
+      pro: slugsByPlanSet.pro.has(w.slug),
+      max: slugsByPlanSet.max.has(w.slug),
     }))
 
   const comparisonRows: Array<{
     feature: string
-    basic: boolean | string
+    free: boolean | string
     pro: boolean | string
     max: boolean | string
   }> = [
     {
       feature: 'Сайтів',
-      basic: String(planData['basic']?.max_sites ?? '—'),
-      pro:   String(planData['pro']?.max_sites   ?? '—'),
-      max:   String(planData['max']?.max_sites   ?? '—'),
+      free: String(planData['free']?.max_sites ?? '1'),
+      pro: String(planData['pro']?.max_sites ?? '—'),
+      max: String(planData['max']?.max_sites ?? '—'),
     },
     {
       feature: 'Кількість віджетів',
-      basic: String(slugsByPlanSet.basic.size),
-      pro:   String(slugsByPlanSet.pro.size),
-      max:   String(slugsByPlanSet.max.size),
+      free: String(slugsByPlanSet.free.size || 11),
+      pro: String(slugsByPlanSet.pro.size || 11),
+      max: String(slugsByPlanSet.max.size || 20),
     },
     ...widgetComparisonRows,
     ...SERVICE_COMPARISON_ROWS,
@@ -374,7 +400,7 @@ export function PricingPage() {
 
             const inheritedCount = expandableGroups.find((g) => g.key === 'inherited')?.items.length ?? 0
             const newCount = expandableGroups.find((g) => g.key === 'new')?.items.length ?? 0
-            const lowerPlanName = plan.id === 'pro' ? 'Basic' : plan.id === 'max' ? 'Pro' : ''
+            const lowerPlanName = plan.id === 'max' ? 'Pro' : ''
             const hint = showExpandable && lowerPlanName
               ? `Все з ${lowerPlanName} (${inheritedCount}) + ще ${newCount} ${newCount === 1 ? 'віджет' : newCount < 5 ? 'віджети' : 'віджетів'}`
               : undefined
@@ -408,8 +434,31 @@ export function PricingPage() {
               <div className="pricing__badge">{plan.badge}</div>
             ) : null
 
-            const cta = !ctaReady ? (
+            // Founding offer: show discounted price on Pro card when slots remain
+          const foundingActive = plan.id === 'pro' && founding != null && founding.remaining > 0
+          const foundingBannerNode = foundingActive && founding != null ? (
+            <FoundingBanner
+              remaining={founding.remaining}
+              total={founding.total}
+              lockedPrice={founding.locked_price_monthly}
+            />
+          ) : undefined
+
+          const cta = !ctaReady ? (
               <span className="pricing__cta pricing__cta--skeleton" />
+            ) : plan.id === 'free' && !isCurrent ? (
+              isSubActive ? (
+                <span className={`pricing__cta pricing__cta--free pricing__cta--disabled`}>
+                  Нижчий план
+                </span>
+              ) : (
+                <Link
+                  to="/signup?plan=free"
+                  className="pricing__cta pricing__cta--free"
+                >
+                  Почати безкоштовно
+                </Link>
+              )
             ) : plan.id === 'max' && !isCurrent ? (
               <InterestButton type="plan" id="max" />
             ) : isCurrent ? (
@@ -446,11 +495,13 @@ export function PricingPage() {
 
             const trialNote = !ctaReady
               ? null
-              : plan.id === 'max' && !isCurrent
-                ? "Менеджер зв'яжеться протягом дня"
-                : !sub
-                  ? '7 днів безкоштовно'
-                  : null
+              : plan.id === 'free'
+                ? null
+                : plan.id === 'max' && !isCurrent
+                  ? "Менеджер зв'яжеться протягом дня"
+                  : !sub
+                    ? '14 днів безкоштовно'
+                    : null
 
             return (
               <PlanCard
@@ -465,11 +516,14 @@ export function PricingPage() {
                 yearly={yearly}
                 capLine={capLine}
                 featureSections={[features]}
-                highlighted={plan.highlighted}
+                highlighted={!hashTargetsAPlan && plan.highlighted}
                 dimmed={isCurrent || isBelow}
+                urlFocused={hashPlan === plan.id}
                 badge={badge}
                 cta={cta}
                 trialNote={trialNote}
+                foundingPrice={foundingActive && founding != null ? founding.locked_price_monthly : undefined}
+                foundingBanner={foundingBannerNode}
               />
             )
           })}
@@ -491,7 +545,7 @@ export function PricingPage() {
             {comparisonRows.map(row => (
               <div key={row.feature} className="pricing__clist-row">
                 <span className="pricing__clist-feature">{row.feature}</span>
-                {(['basic', 'pro', 'max'] as PlanSlug[]).map(planId => (
+                {(['free', 'pro', 'max'] as PlanSlug[]).map(planId => (
                   <span key={planId} className={`pricing__clist-cell pricing__clist-cell--${planId}`}>
                     <CellValue value={row[planId]} planId={planId} />
                   </span>

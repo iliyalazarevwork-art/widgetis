@@ -2,11 +2,11 @@
 // Design system: node I13RR (Pencil)
 // Prices, colors, icons — canonical. Import this everywhere.
 
-import { Sprout, Zap, Crown, type LucideIcon } from 'lucide-react'
+import { Sparkles, Zap, Crown, type LucideIcon } from 'lucide-react'
 import { WIDGET_UA_NAME } from './widget-names'
 import { WidgetSlug } from './widget-slugs'
 
-export type PlanSlug = 'basic' | 'pro' | 'max'
+export type PlanSlug = 'free' | 'pro' | 'max'
 
 export interface PlanDef {
   id: PlanSlug
@@ -27,26 +27,24 @@ export interface PlanDef {
 
 export const PLANS: PlanDef[] = [
   {
-    id: 'basic',
-    name: 'Basic',
-    pitch: 'Для початку',
-    icon: Sprout,
-    color: '#10B981',
-    cssVar: '--green',
-    monthlyPrice: 799,
-    yearlyPrice: 7990,
-    yearlyMonthly: 666,
-    widgets: 4,
+    id: 'free',
+    name: 'Free',
+    pitch: 'Для старту',
+    icon: Sparkles,
+    color: '#94A3B8',
+    cssVar: '--slate',
+    monthlyPrice: 0,
+    yearlyPrice: 0,
+    yearlyMonthly: 0,
+    widgets: 11,
     sites: 1,
     badge: null,
     highlighted: false,
     features: [
-      { label: WIDGET_UA_NAME[WidgetSlug.DeliveryDate], slug: WidgetSlug.DeliveryDate },
-      { label: WIDGET_UA_NAME[WidgetSlug.PromoLine], slug: WidgetSlug.PromoLine },
-      { label: WIDGET_UA_NAME[WidgetSlug.StickyBuyButton], slug: WidgetSlug.StickyBuyButton },
-      { label: WIDGET_UA_NAME[WidgetSlug.TrustBadges], slug: WidgetSlug.TrustBadges },
+      { label: '11 базових віджетів з лімітами', slug: '/catalog' },
       { label: '1 сайт' },
-      { label: 'Email + Telegram підтримка' },
+      { label: 'Тільки українська' },
+      { label: 'Telegram-підтримка' },
     ],
   },
   {
@@ -56,15 +54,15 @@ export const PLANS: PlanDef[] = [
     icon: Zap,
     color: '#3B82F6',
     cssVar: '--blue',
-    monthlyPrice: 1599,
-    yearlyPrice: 15990,
-    yearlyMonthly: 1333,
-    widgets: 8,
+    monthlyPrice: 499,
+    yearlyPrice: 4990,
+    yearlyMonthly: 416,
+    widgets: 11,
     sites: 3,
     badge: 'Обирає 73% клієнтів',
     highlighted: true,
     features: [
-      { label: 'Всі 8 віджетів', slug: '/catalog' },
+      { label: 'Всі 11 віджетів', slug: '/catalog' },
       { label: WIDGET_UA_NAME[WidgetSlug.CartGoal], slug: WidgetSlug.CartGoal },
       { label: WIDGET_UA_NAME[WidgetSlug.BuyerCount], slug: WidgetSlug.BuyerCount },
       { label: WIDGET_UA_NAME[WidgetSlug.PhotoVideoReviews], slug: WidgetSlug.PhotoVideoReviews },
@@ -79,15 +77,15 @@ export const PLANS: PlanDef[] = [
     icon: Crown,
     color: '#A855F7',
     cssVar: '--purple',
-    monthlyPrice: 2899,
-    yearlyPrice: 28990,
-    yearlyMonthly: 2416,
-    widgets: 17,
+    monthlyPrice: 699,
+    yearlyPrice: 6990,
+    yearlyMonthly: 583,
+    widgets: 20,
     sites: 5,
     badge: null,
     highlighted: false,
     features: [
-      { label: 'Всі 17 віджетів', slug: '/catalog' },
+      { label: 'Всі 20 віджетів', slug: '/catalog' },
       { label: WIDGET_UA_NAME[WidgetSlug.SpinTheWheel], slug: WidgetSlug.SpinTheWheel },
       { label: WIDGET_UA_NAME[WidgetSlug.SmsOtpCheckout], slug: WidgetSlug.SmsOtpCheckout },
       { label: '5 сайтів' },
@@ -97,27 +95,35 @@ export const PLANS: PlanDef[] = [
   },
 ]
 
+export const FOUNDING_PRICE_MONTHLY = 299 // ₴ for first 20 customers on Pro
+
+export const PLAN_LANGUAGES: Record<PlanSlug, string[]> = {
+  free: ['uk'],
+  pro: ['uk', 'en'],
+  max: ['uk', 'en', 'ru'],
+}
+
 export const PLAN_COLORS: Record<PlanSlug, string> = {
-  basic: '#10B981',
+  free: '#94A3B8',
   pro: '#3B82F6',
   max: '#A855F7',
 }
 
 export const PLAN_ICONS: Record<PlanSlug, LucideIcon> = {
-  basic: Sprout,
+  free: Sparkles,
   pro: Zap,
   max: Crown,
 }
 
 export const SERVICE_COMPARISON_ROWS: ReadonlyArray<{
   feature: string
-  basic: string
+  free: string
   pro: string
   max: string
 }> = [
-  { feature: 'Кастомізація', basic: 'вкл/викл',     pro: 'менеджер за запитом', max: 'персональний менеджер' },
-  { feature: 'Підтримка',    basic: 'Email',         pro: 'Email + Telegram',     max: 'VIP менеджер' },
-  { feature: 'Trial',        basic: '7 днів',        pro: '14 днів',              max: '14 днів' },
+  { feature: 'Кастомізація', free: 'без кастомізації', pro: 'менеджер за запитом', max: 'персональний менеджер' },
+  { feature: 'Підтримка',    free: 'Telegram',           pro: 'Email + Telegram',     max: 'VIP менеджер' },
+  { feature: 'Trial',        free: '—',                  pro: '14 днів',              max: '14 днів' },
 ]
 
 export function getPlan(slug: PlanSlug): PlanDef {
