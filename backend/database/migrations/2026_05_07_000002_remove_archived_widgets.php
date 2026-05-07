@@ -27,13 +27,15 @@ return new class () extends Migration {
             ->whereIn('product_id', $productIds)
             ->delete();
 
-        // Delete dependent rows in site_widgets
-        DB::table('site_widgets')
+        // Delete dependent rows in wgt_site_widgets (runtime DB)
+        DB::connection('pgsql_runtime')
+            ->table('wgt_site_widgets')
             ->whereIn('product_id', $productIds)
             ->delete();
 
-        // Delete dependent rows in user_widget_grants
-        DB::table('user_widget_grants')
+        // Delete dependent rows in wgt_user_widget_grants (runtime DB)
+        DB::connection('pgsql_runtime')
+            ->table('wgt_user_widget_grants')
             ->whereIn('product_id', $productIds)
             ->delete();
 
