@@ -388,6 +388,7 @@
   color: var(--text-muted);
 }
 
+.pricing__feature-subgroup-title--free  { color: #10b981; }
 .pricing__feature-subgroup-title--basic { color: var(--plan-basic); }
 .pricing__feature-subgroup-title--pro   { color: var(--accent); }
 .pricing__feature-subgroup-title--max   { color: var(--plan-max); }
@@ -932,8 +933,9 @@
 /* ── Free plan feature check / link / toggle colors ── */
 
 .pricing__feature-check--free   { color: #94A3B8; }
-.pricing__feature-link--free:hover  { color: #94A3B8; }
-.pricing__feature-toggle--free  { color: #94A3B8; }
+.pricing__feature-link--free    { color: #10b981; }
+.pricing__feature-link--free:hover  { color: #10b981; }
+.pricing__feature-toggle--free  { color: #10b981; }
 .pricing__feature-subgroup-title--free { color: #94A3B8; }
 
 /* ── Free plan CTA ── */

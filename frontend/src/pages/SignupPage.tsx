@@ -15,7 +15,6 @@ import {
   Lock,
   AlertCircle,
 } from 'lucide-react'
-import { platformConfig } from '../data/platforms'
 import type { Platform } from '../data/platforms'
 import { post } from '../api/client'
 import { fetchPlansWithSlugs, type ApiPlan } from '../api/widgets'
@@ -169,7 +168,7 @@ function normalizeSiteUrl(value: string): string {
 export function SignupPage() {
   const navigate = useNavigate()
   const [params] = useSearchParams()
-  const { user, login } = useAuth()
+  const { user, login, refreshUser } = useAuth()
   const verifyingOtpRef = useRef(false)
   const lastAutoSubmittedOtpRef = useRef('')
   const siteInputRef = useRef<HTMLInputElement>(null)
@@ -434,6 +433,7 @@ export function SignupPage() {
           platform,
         })
         sessionStorage.removeItem('wty_trial_signup')
+        await refreshUser()
         toast.success('Free-план активовано!')
         navigate('/cabinet', { replace: true })
         return
@@ -463,6 +463,7 @@ export function SignupPage() {
       const error = err as Error & { code?: string }
       if (error.code === 'ALREADY_SUBSCRIBED') {
         sessionStorage.removeItem(SIGNUP_DRAFT_KEY)
+        await refreshUser()
         navigate('/cabinet', { replace: true })
       } else {
         toast.error(error.message || 'Не вдалося розпочати оформлення')
@@ -729,20 +730,6 @@ export function SignupPage() {
                   {siteError && <span className="signup__field-hint">{siteError}</span>}
                 </label>
 
-                <div className="signup__platforms">
-                  {platformConfig.map(p => (
-                    <button
-                      key={p.id}
-                      type="button"
-                      disabled={!p.available}
-                      className={`signup__platform ${platform === p.id ? 'signup__platform--active' : ''} ${!p.available ? 'signup__platform--disabled' : ''}`}
-                      onClick={() => p.available && setPlatform(p.id)}
-                    >
-                      {p.label}
-                      {!p.available && <span className="signup__platform-soon">Скоро</span>}
-                    </button>
-                  ))}
-                </div>
               </div>
 
               {planKey !== 'free' && (

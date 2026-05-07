@@ -704,6 +704,24 @@ async function handle(req, res) {
     const visitor = getVisitor(visitorId);
     touchVisitor(visitorId);
 
+    // Route: /robots.txt — disallow all crawling on the preview origin.
+    // The whole subdomain is a third-party-content sandbox; nothing here
+    // should ever land in search results.
+    if ((req.url || '/').split('?')[0] === '/robots.txt') {
+      res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'public, max-age=86400' });
+      res.end('User-agent: *\nDisallow: /\n');
+      return;
+    }
+
+    // Route: / on bare preview.widgetis.com — internal flow always uses
+    // /site/{domain}/..., so a bare root request comes from a crawler or a
+    // user who landed here by mistake. Redirect to the marketing site.
+    if ((req.url || '/') === '/') {
+      res.writeHead(301, { Location: 'https://widgetis.com/', 'Cache-Control': 'public, max-age=3600' });
+      res.end();
+      return;
+    }
+
     // Route: /wheel-variants — pointer design picker
     if ((req.url || '/') === '/wheel-variants' || (req.url || '/') === '/wheel-variants/') {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });

@@ -60,6 +60,10 @@ export interface PlanCardProps {
   foundingPrice?: number
   /** Pre-rendered founding banner shown above the card content. */
   foundingBanner?: ReactNode
+  /** Controlled accordion: key of the currently open expandable (or null). */
+  openFeatureKey?: string | null
+  /** Called when a feature row is toggled; parent closes others. */
+  onFeatureToggle?: (key: string) => void
 }
 
 /**
@@ -92,11 +96,13 @@ export function PlanCard({
   trialNote,
   foundingPrice,
   foundingBanner,
+  openFeatureKey,
+  onFeatureToggle,
 }: PlanCardProps) {
   const basePrice = yearly ? yearlyMonthlyPrice : monthlyPrice
   // When founding price is active, show it as the main price; original becomes struck-out
   const price = foundingPrice ?? basePrice
-  const displayOld = foundingPrice != null ? basePrice : (yearly ? monthlyPrice : undefined)
+  const displayOld = foundingPrice != null ? basePrice : (yearly && monthlyPrice > 0 ? monthlyPrice : undefined)
   const yearlySavings = monthlyPrice * 12 - yearlyPrice
 
   const cardClass = [
@@ -162,7 +168,13 @@ export function PlanCard({
           className={`pricing__features${sectionIdx > 0 ? ' pricing__features--secondary' : ''}`}
         >
           {section.map((f) => (
-            <FeatureRow key={f.key} feature={f} slug={slug} />
+            <FeatureRow
+              key={f.key}
+              feature={f}
+              slug={slug}
+              isOpen={openFeatureKey !== undefined ? openFeatureKey === `${slug}:${f.key}` : undefined}
+              onToggle={onFeatureToggle ? () => onFeatureToggle(`${slug}:${f.key}`) : undefined}
+            />
           ))}
         </ul>
       ))}
@@ -174,8 +186,20 @@ export function PlanCard({
   )
 }
 
-function FeatureRow({ feature, slug }: { feature: PlanCardFeature; slug: string }) {
-  const [open, setOpen] = useState(false)
+function FeatureRow({
+  feature,
+  slug,
+  isOpen,
+  onToggle,
+}: {
+  feature: PlanCardFeature
+  slug: string
+  isOpen?: boolean
+  onToggle?: () => void
+}) {
+  const [localOpen, setLocalOpen] = useState(false)
+  const open = isOpen !== undefined ? isOpen : localOpen
+  const handleToggle = onToggle ?? (() => setLocalOpen((o) => !o))
   const groups = feature.expandable?.filter((g) => g.items.length > 0) ?? []
   const hasExpandable = groups.length > 0
 
@@ -199,7 +223,7 @@ function FeatureRow({ feature, slug }: { feature: PlanCardFeature; slug: string 
           <button
             type="button"
             className={`pricing__feature-toggle pricing__feature-toggle--${slug}`}
-            onClick={() => setOpen((o) => !o)}
+            onClick={handleToggle}
             aria-expanded={open}
           >
             {feature.label}
@@ -237,7 +261,7 @@ function FeatureRow({ feature, slug }: { feature: PlanCardFeature; slug: string 
                   <li key={w.slug}>
                     <Link
                       to={`/widgets/${w.slug}`}
-                      className={`pricing__feature-link pricing__feature-link--${slug}`}
+                      className={`pricing__feature-link pricing__feature-link--${group.key === 'inherited' ? 'pro' : slug}`}
                     >
                       {w.name}
                     </Link>
@@ -252,7 +276,7 @@ function FeatureRow({ feature, slug }: { feature: PlanCardFeature; slug: string 
   )
 }
 
-const PLAN_NAME_SLUG: Record<string, string> = { basic: 'basic', pro: 'pro', max: 'max' }
+const PLAN_NAME_SLUG: Record<string, string> = { free: 'free', basic: 'basic', pro: 'pro', max: 'max' }
 
 function subgroupTitleClass(title: string): string {
   const lastWord = title.trim().split(/\s+/).pop()?.toLowerCase() ?? ''

@@ -131,6 +131,8 @@ export function PricingPage() {
   const [freeSaveModalOpen, setFreeSaveModalOpen] = useState(false)
   // Pending billing period captured when Free CTA is clicked, used after modal
   const [pendingFreeBilling, setPendingFreeBilling] = useState<'monthly' | 'yearly'>('monthly')
+  const [openFeature, setOpenFeature] = useState<string | null>(null)
+  const handleFeatureToggle = (key: string) => setOpenFeature((prev) => (prev === key ? null : key))
   const [planData, setPlanData] = useState<Record<string, ApiPlanData>>({})
   const [widgets, setWidgets] = useState<ApiWidget[]>([])
 
@@ -211,6 +213,11 @@ export function PricingPage() {
   const proSlugs = new Set(mergedPlans.find((p) => p.id === 'pro')?.widgetSlugs ?? [])
 
   const buildExpandableGroups = (planId: PlanSlug, planSlugs: string[]) => {
+    if (planId === 'free') {
+      return [
+        { key: 'new', title: 'Віджети Free', items: slugsToWidgets(planSlugs) },
+      ]
+    }
     if (planId === 'pro') {
       return [
         { key: 'new', title: 'Віджети Pro', items: slugsToWidgets(planSlugs) },
@@ -417,7 +424,7 @@ export function PricingPage() {
             const expandableGroups = buildExpandableGroups(plan.id, plan.widgetSlugs)
             const expandableTotal = expandableGroups.reduce((sum, g) => sum + g.items.length, 0)
             const showExpandable =
-              (plan.id === 'pro' || plan.id === 'max') && expandableTotal > 0
+              (plan.id === 'free' || plan.id === 'pro' || plan.id === 'max') && expandableTotal > 0
 
             const inheritedCount = expandableGroups.find((g) => g.key === 'inherited')?.items.length ?? 0
             const newCount = expandableGroups.find((g) => g.key === 'new')?.items.length ?? 0
@@ -430,7 +437,7 @@ export function PricingPage() {
               const isAllWidgetsRow = showExpandable && idx === 0
               return {
                 key: f.label,
-                label: isAllWidgetsRow ? `Всі ${expandableTotal} віджетів` : f.label,
+                label: isAllWidgetsRow && plan.id !== 'free' ? `Всі ${expandableTotal} віджетів` : f.label,
                 hint: isAllWidgetsRow ? hint : undefined,
                 href:
                   isAllWidgetsRow
@@ -548,6 +555,8 @@ export function PricingPage() {
                 trialNote={trialNote}
                 foundingPrice={foundingActive && founding != null ? founding.locked_price_monthly : undefined}
                 foundingBanner={foundingBannerNode}
+                openFeatureKey={openFeature}
+                onFeatureToggle={handleFeatureToggle}
               />
             )
           })}

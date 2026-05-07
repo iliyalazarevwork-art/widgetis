@@ -209,7 +209,7 @@ for s in emdukt 32codo xwdikx 3ghewz 4pwwhb 73plhd 8dnvt0 9b55ns c4tqvd ekspab j
 done
 ```
 
-Результат:
+Результат (первичная проверка 2026-05-01):
 ```
 200 10024  shop-emdukt    ← живой
 200  9410  shop-32codo    ← живой
@@ -225,24 +225,45 @@ done
 200  9248  shop-wmu4m9    ← живой
 ```
 
+Повторная проверка **2026-05-07** — статусы не изменились, размеры ответов немного выросли:
+```
+200 10192  shop-emdukt    ← живой
+200  9502  shop-32codo    ← живой
+200 15986  shop-xwdikx    ← живой
+200  3440  shop-3ghewz    ← живой
+404    27  shop-4pwwhb    ← удалён
+404    27  shop-73plhd    ← удалён
+404    27  shop-8dnvt0    ← удалён
+404    27  shop-9b55ns    ← удалён
+404    27  shop-c4tqvd    ← удалён
+404    27  shop-ekspab    ← удалён
+404    27  shop-j0757m    ← удалён
+200  9316  shop-wmu4m9    ← живой
+```
+
 ## Подтверждённые валидные shop-id
 
 ```
-shop-emdukt    config 200, 10024 B    ← bioroza.com.ua          (от пользователя)
-shop-32codo    config 200,  9410 B    ← raptor-ua.com           (от пользователя)
-shop-xwdikx    config 200, 15698 B    ← safeyourlove.com        (от пользователя + urlscan + wayback)
-shop-3ghewz    config 200,  3440 B    ← customer-домен неизвестен (CT)
-shop-wmu4m9    config 200,  9248 B    ← customer-домен неизвестен (CT)
+shop-emdukt    config 200, 10192 B    ← bioroza.com.ua          (от пользователя)
+shop-32codo    config 200,  9502 B    ← raptor-ua.com           (от пользователя)
+shop-xwdikx    config 200, 15986 B    ← safeyourlove.com        (от пользователя + urlscan + wayback)
+shop-3ghewz    config 200,  3440 B    ← snackup.com.ua          (subdomain → redirect)
+shop-wmu4m9    config 200,  9316 B    ← bag24.com.ua            (subdomain → redirect)
 ```
 
-## «Удалённые» shop-id из CT (404 на API, но сертификат когда-то выпускали)
+## «Удалённые» shop-id из CT (404 на API, subdomain жив — редиректит на Horoshop-дефолт)
 
-```
-shop-4pwwhb, shop-73plhd, shop-8dnvt0, shop-9b55ns,
-shop-c4tqvd, shop-ekspab, shop-j0757m
-```
+| shop-id | customer-домен | примечание |
+|---|---|---|
+| shop-4pwwhb | shop.aquamyrgorod.com.ua | API 404, subdomain жив |
+| shop-73plhd | zaichyk.com.ua | API 404, subdomain жив |
+| shop-8dnvt0 | shop.aquamyrgorod.com.ua | API 404, subdomain жив |
+| shop-9b55ns | safeyourlove.com | API 404, subdomain жив |
+| shop-c4tqvd | safeyourlove.com | API 404, subdomain жив |
+| shop-ekspab | shop.aquamyrgorod.com.ua | API 404, subdomain жив |
+| shop-j0757m | safeyourlove.com | API 404, subdomain жив |
 
-Скорее всего тестовые/онбординговые tenant'ы, которые потом удалили.
+`shop.aquamyrgorod.com.ua` имел минимум 3 разных shop-id — вероятно пересоздавали тенант при онбординге.
 
 ## Структура slug
 
