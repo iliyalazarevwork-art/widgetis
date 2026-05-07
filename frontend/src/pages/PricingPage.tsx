@@ -4,6 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { SeoHead } from '../components/SeoHead'
 import { InterestButton } from '../components/InterestButton'
 import { PlanCard, type PlanCardFeature } from '../components/PlanCard'
+import { FreePlanSaveModal } from '../components/FreePlanSaveModal'
 import { get } from '../api/client'
 import { fetchWidgets, type ApiWidget } from '../api/widgets'
 import { useAuth } from '../context/AuthContext'
@@ -127,6 +128,9 @@ export function PricingPage() {
   const [sub, setSub] = useState<Subscription | null>(null)
   const [subLoading, setSubLoading] = useState(true)
   const [upgrading, setUpgrading] = useState<string | null>(null)
+  const [freeSaveModalOpen, setFreeSaveModalOpen] = useState(false)
+  // Pending billing period captured when Free CTA is clicked, used after modal
+  const [pendingFreeBilling, setPendingFreeBilling] = useState<'monthly' | 'yearly'>('monthly')
   const [planData, setPlanData] = useState<Record<string, ApiPlanData>>({})
   const [widgets, setWidgets] = useState<ApiWidget[]>([])
 
@@ -282,8 +286,25 @@ export function PricingPage() {
     setUpgrading(null)
   }
 
+  const handleFreeSaveConfirmFree = () => {
+    setFreeSaveModalOpen(false)
+    navigate(`/signup?plan=free&billing=${pendingFreeBilling}`)
+  }
+
+  const handleFreeSaveChoosePro = () => {
+    setFreeSaveModalOpen(false)
+    navigate(`/signup?plan=pro&billing=${pendingFreeBilling}`)
+  }
+
   return (
     <>
+      <FreePlanSaveModal
+        open={freeSaveModalOpen}
+        onClose={() => setFreeSaveModalOpen(false)}
+        onConfirmFree={handleFreeSaveConfirmFree}
+        onChoosePro={handleFreeSaveChoosePro}
+        context="choose_free"
+      />
       <SeoHead
         title="Тарифи на віджети для Хорошоп — від 799 ₴/міс | Widgetis"
         description="Тарифи на маркетингові віджети для Хорошоп: Basic від 799 ₴, Pro 1599 ₴, Max 3990 ₴. До 14 днів безкоштовного тріалу. Скасувати в один клік."
@@ -452,12 +473,15 @@ export function PricingPage() {
                   Нижчий план
                 </span>
               ) : (
-                <Link
-                  to="/signup?plan=free"
+                <button
                   className="pricing__cta pricing__cta--free"
+                  onClick={() => {
+                    setPendingFreeBilling(yearly ? 'yearly' : 'monthly')
+                    setFreeSaveModalOpen(true)
+                  }}
                 >
                   Почати безкоштовно
-                </Link>
+                </button>
               )
             ) : plan.id === 'max' && !isCurrent ? (
               <InterestButton type="plan" id="max" />

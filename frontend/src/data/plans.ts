@@ -129,3 +129,21 @@ export const SERVICE_COMPARISON_ROWS: ReadonlyArray<{
 export function getPlan(slug: PlanSlug): PlanDef {
   return PLANS.find(p => p.id === slug)!
 }
+
+/**
+ * Widget slugs that are only available on the Max plan.
+ * Used by WidgetLockModal to block Pro users from enabling them.
+ */
+export const MAX_ONLY_WIDGETS = [
+  'cart-recommender',
+  'smart-search',
+  'spin-the-wheel',
+  'sms-otp-checkout',
+  'prize-banner',
+  'last-chance-popup',
+  'promo-auto-apply',
+  'progressive-discount',
+  'one-plus-one',
+] as const
+
+export type MaxOnlyWidgetSlug = (typeof MAX_ONLY_WIDGETS)[number]

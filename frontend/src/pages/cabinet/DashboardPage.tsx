@@ -1,19 +1,22 @@
 import { useEffect, useState } from 'react'
-import { Link, Navigate, useSearchParams } from 'react-router-dom'
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { ChevronRight, ChevronDown, CirclePlus, Wand2, Headset, Gift, Check, AlertTriangle, Bell, XCircle, Clock } from 'lucide-react'
 import { get } from '../../api/client'
 import { useAuth } from '../../context/AuthContext'
 import type { DashboardData } from '../../types'
 import { toast } from 'sonner'
 import { PageLoader } from '../../components/PageLoader'
+import { MaxUpsellBanner, shouldShowMaxUpsellBanner, dismissMaxUpsellBanner } from '../../components/MaxUpsellBanner'
 import './styles/dashboard.css'
 
 export default function DashboardPage() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [moreOpen, setMoreOpen] = useState(true)
   const [searchParams, setSearchParams] = useSearchParams()
+  const [maxBannerVisible, setMaxBannerVisible] = useState(false)
 
   useEffect(() => {
     get<{ data: DashboardData }>('/profile/dashboard')
@@ -31,6 +34,12 @@ export default function DashboardPage() {
     }
   }, [searchParams, setSearchParams])
 
+  useEffect(() => {
+    if (data?.plan?.slug === 'pro' && shouldShowMaxUpsellBanner()) {
+      setMaxBannerVisible(true)
+    }
+  }, [data])
+
   if (loading) return <PageLoader />
   if (!data) return <PageLoader label="Не вдалося завантажити дані" />
   if (!data.plan && !data.subscription_status) return <Navigate to="/cabinet/choose-plan" replace />
@@ -41,8 +50,25 @@ export default function DashboardPage() {
   const firstName = user?.name?.trim().split(/\s+/)[0]
   const greeting = firstName ? `Привіт, ${firstName}!` : 'Привіт!'
 
+  const handleMaxBannerDismiss = () => {
+    dismissMaxUpsellBanner()
+    setMaxBannerVisible(false)
+  }
+
+  const handleMaxBannerUpgrade = () => {
+    navigate('/cabinet/plan?upgrade=max')
+  }
+
   return (
     <div className="dash">
+      {/* ── Max upsell banner (Pro users only) ── */}
+      {maxBannerVisible && (
+        <MaxUpsellBanner
+          onUpgradeClick={handleMaxBannerUpgrade}
+          onDismiss={handleMaxBannerDismiss}
+          className="dash__max-upsell"
+        />
+      )}
       {/* ── Plan card ── */}
       <div className="dash__plan" style={{ borderColor: `${planColor}30` }}>
         <div className="dash__plan-top">
