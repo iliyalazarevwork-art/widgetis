@@ -253,6 +253,7 @@ shop-wmu4m9    config 200,  9316 B    ← bag24.com.ua            (subdomain →
 
 ## «Удалённые» shop-id из CT (404 на API, subdomain жив — редиректит на Horoshop-дефолт)
 
+
 | shop-id | customer-домен | примечание |
 |---|---|---|
 | shop-4pwwhb | shop.aquamyrgorod.com.ua | API 404, subdomain жив |
