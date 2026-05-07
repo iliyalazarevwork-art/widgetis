@@ -90,7 +90,7 @@
 }
 
 @media (min-width: 720px) {
-  .pricing__plans { grid-template-columns: repeat(3, 1fr); align-items: start; }
+  .pricing__plans { grid-template-columns: repeat(3, 1fr); align-items: stretch; }
 }
 
 /* ── Plan card ── */
@@ -107,8 +107,8 @@
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.pricing__card.pricing__card--basic { border-color: #10b98170; }
-.pricing__card.pricing__card--max   { border-color: #8b5cf680; }
+.pricing__card.pricing__card--free { border-color: #10b98170; }
+.pricing__card.pricing__card--max  { border-color: #8b5cf680; }
 
 .pricing__card.pricing__card--highlight {
   border-color: var(--accent);

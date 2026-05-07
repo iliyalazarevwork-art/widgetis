@@ -128,8 +128,8 @@ export function PlanCard({
         {displayOld != null && (
           <span className="pricing__price-old">{displayOld.toLocaleString('uk-UA')}</span>
         )}
-        <span className="pricing__price">{price === 0 ? 'Безкоштовно' : price.toLocaleString('uk-UA')}</span>
-        {price !== 0 && <span className="pricing__price-unit">грн/міс</span>}
+        <span className="pricing__price">{price.toLocaleString('uk-UA')}</span>
+        <span className="pricing__price-unit">{price === 0 ? 'грн' : 'грн/міс'}</span>
       </div>
       {foundingPrice != null ? (
         <p className="pricing__price-annual pricing__price-annual--founding">

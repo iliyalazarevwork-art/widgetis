@@ -2,7 +2,7 @@
 // Design system: node I13RR (Pencil)
 // Prices, colors, icons — canonical. Import this everywhere.
 
-import { Sparkles, Zap, Crown, type LucideIcon } from 'lucide-react'
+import { Sprout, Zap, Crown, type LucideIcon } from 'lucide-react'
 import { WIDGET_UA_NAME } from './widget-names'
 import { WidgetSlug } from './widget-slugs'
 
@@ -30,9 +30,9 @@ export const PLANS: PlanDef[] = [
     id: 'free',
     name: 'Free',
     pitch: 'Для старту',
-    icon: Sparkles,
-    color: '#94A3B8',
-    cssVar: '--slate',
+    icon: Sprout,
+    color: '#10B981',
+    cssVar: '--green',
     monthlyPrice: 0,
     yearlyPrice: 0,
     yearlyMonthly: 0,
@@ -104,13 +104,13 @@ export const PLAN_LANGUAGES: Record<PlanSlug, string[]> = {
 }
 
 export const PLAN_COLORS: Record<PlanSlug, string> = {
-  free: '#94A3B8',
+  free: '#10B981',
   pro: '#3B82F6',
   max: '#A855F7',
 }
 
 export const PLAN_ICONS: Record<PlanSlug, LucideIcon> = {
-  free: Sparkles,
+  free: Sprout,
   pro: Zap,
   max: Crown,
 }

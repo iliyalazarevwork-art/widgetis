@@ -1,4 +1,4 @@
-import { X, Check } from 'lucide-react'
+import { X, Check, Zap } from 'lucide-react'
 import { useFoundingRemaining } from '../hooks/useFoundingRemaining'
 import { FOUNDING_PRICE_MONTHLY } from '../data/plans'
 import './FreePlanSaveModal.css'
@@ -124,7 +124,8 @@ export function FreePlanSaveModal({
         {foundingActive && founding != null && (
           <div className="fsm__founding">
             <p className="fsm__founding-title">
-              ⚡ Перші {founding.total} — {proPrice} ₴ замість {normalPrice} ₴
+              <Zap size={14} strokeWidth={2.5} />
+              Перші {founding.total} — {proPrice} ₴ замість {normalPrice} ₴
             </p>
             <p className="fsm__founding-remaining">
               Лишилось {founding.remaining} з {founding.total}
@@ -138,7 +139,8 @@ export function FreePlanSaveModal({
             Все одно Free
           </button>
           <button className="fsm__btn-primary" onClick={onChoosePro}>
-            ⚡ Обрати Pro{' '}
+            <Zap size={16} strokeWidth={2.5} />
+            Обрати Pro{' '}
             {foundingActive ? (
               <>
                 {proPrice} ₴{' '}
