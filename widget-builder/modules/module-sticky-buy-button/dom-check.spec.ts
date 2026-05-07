@@ -35,8 +35,10 @@ for (const site of TEST_SITES) {
       // Widget starts hidden
       await expect(page.locator('#wdg-sticky-buy')).toHaveClass(/wdg-sbuy--hidden/);
 
-      // After scrolling to bottom it should reveal itself
-      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+      // After scrolling 400 px (> SCROLL_THRESHOLD = 300) it must reveal itself.
+      // Scrolling to scrollHeight is wrong on short pages where
+      // scrollHeight - viewportHeight < 300 px.
+      await page.evaluate(() => window.scrollTo(0, 400));
       await page.waitForTimeout(600);
       await expect(page.locator('#wdg-sticky-buy')).not.toHaveClass(/wdg-sbuy--hidden/);
     } finally {
