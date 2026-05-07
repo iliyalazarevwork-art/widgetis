@@ -429,8 +429,13 @@ export function SignupPage() {
 
       // Free plan — no payment required
       if (planKey === 'free') {
-        toast.info('Активація Free-плану поки не підключена. Зверніться до підтримки.')
-        setLoading(false)
+        await post('/profile/subscription/start-free', {
+          site_domain: normalizedUrl,
+          platform,
+        })
+        sessionStorage.removeItem('wty_trial_signup')
+        toast.success('Free-план активовано!')
+        navigate('/cabinet', { replace: true })
         return
       }
 

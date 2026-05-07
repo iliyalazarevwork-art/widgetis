@@ -7,6 +7,7 @@ namespace App\Core\Http\Controllers\Api\V1\Profile;
 use App\Core\Http\Controllers\Api\V1\CoreBaseController;
 use App\Core\Http\Requests\Api\V1\Billing\CancelSubscriptionRequest;
 use App\Core\Http\Requests\Api\V1\Billing\CheckoutRequest;
+use App\Core\Http\Requests\Api\V1\Billing\StartFreeRequest;
 use App\Core\Http\Requests\Api\V1\Billing\StartTrialRequest;
 use App\Core\Http\Requests\Api\V1\Billing\UpgradePreviewRequest;
 use App\Core\Http\Requests\Api\V1\Billing\UpgradeRequest;
@@ -54,6 +55,32 @@ class SubscriptionController extends CoreBaseController
         return $this->success([
             'data' => new SubscriptionResource($subscription->load('plan')),
             'message' => 'Trial started. Expires ' . $subscription->trial_ends_at->toDateString(),
+        ], 201);
+    }
+
+    public function startFree(StartFreeRequest $request): JsonResponse
+    {
+        $validated = $request->validated();
+
+        $user = $this->currentUser();
+
+        if ($user->subscription) {
+            return $this->error('ALREADY_SUBSCRIBED', 'User already has a subscription.', 409);
+        }
+
+        event(new GuestSiteRequested(
+            UserId::fromString((string) $user->id),
+            $validated['site_domain'],
+            $validated['platform'] ?? 'horoshop',
+        ));
+
+        $plan = Plan::where('slug', 'free')->firstOrFail();
+
+        $subscription = $this->subscriptionService->startFree($user, $plan);
+
+        return $this->success([
+            'data' => new SubscriptionResource($subscription->load('plan')),
+            'message' => 'Free plan activated.',
         ], 201);
     }
 

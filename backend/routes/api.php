@@ -93,6 +93,7 @@ Route::prefix('v1')->group(function () {
         Route::post('notifications/{id}/read', [NotificationController::class, 'markAsRead']);
         Route::post('notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
         Route::get('subscription', [SubscriptionController::class, 'show']);
+        Route::post('subscription/start-free', [SubscriptionController::class, 'startFree']);
         Route::post('subscription/start-trial', [SubscriptionController::class, 'startTrial']);
         Route::get('subscription/upgrade-preview', [SubscriptionController::class, 'upgradePreview']);
         Route::post('subscription/upgrade', [SubscriptionController::class, 'upgrade'])

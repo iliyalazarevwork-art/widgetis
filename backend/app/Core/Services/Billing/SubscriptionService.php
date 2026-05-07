@@ -486,6 +486,42 @@ class SubscriptionService
         });
     }
 
+    public function startFree(User $user, Plan $plan): Subscription
+    {
+        return DB::transaction(function () use ($user, $plan) {
+            $subscription = Subscription::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'plan_id' => $plan->id,
+                    'billing_period' => BillingPeriod::Monthly->value,
+                    'status' => SubscriptionStatus::Active,
+                    'is_trial' => false,
+                    'trial_ends_at' => null,
+                    'current_period_start' => now(),
+                    'current_period_end' => now()->addYears(100),
+                    'cancelled_at' => null,
+                    'cancel_reason' => null,
+                    'grace_period_ends_at' => null,
+                    'payment_retry_count' => 0,
+                    'next_payment_retry_at' => null,
+                    'payment_provider' => null,
+                    'payment_provider_subscription_id' => null,
+                    'monobank_card_token' => null,
+                    'wayforpay_rec_token' => null,
+                ],
+            );
+
+            Log::channel('payments')->info('subscription.free_started', [
+                'user_id' => $user->id,
+                'plan' => $plan->slug,
+            ]);
+
+            event(new PlanChanged(UserId::fromString((string) $user->id), null, $plan->slug));
+
+            return $subscription;
+        });
+    }
+
     public function renew(Subscription $subscription): Subscription
     {
         $billingPeriod = BillingPeriod::from($subscription->billing_period);
