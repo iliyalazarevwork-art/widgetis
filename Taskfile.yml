@@ -337,7 +337,15 @@ tasks:
     cmds:
       - |
         echo "[prerender] start"
-        (cd frontend && BACKEND_URL="${PRERENDER_BACKEND_URL:-https://api.widgetis.com}" npm run build:prerender)
+        # Explicit prod-values must override frontend/.env.local (which Vite loads
+        # even during `vite build` and which sets VITE_API_BASE_URL to localhost
+        # for dev). Without this, the production bundle ships hardcoded localhost
+        # URLs and breaks on widgetis.com with CORS errors.
+        (cd frontend && \
+          VITE_API_BASE_URL=/api/v1 \
+          VITE_PREVIEW_BASE_URL=https://preview.widgetis.com \
+          BACKEND_URL="${PRERENDER_BACKEND_URL:-https://api.widgetis.com}" \
+          npm run build:prerender)
         git add frontend/dist frontend/public/sitemap.xml
         if git diff --cached --quiet -- frontend/dist frontend/public/sitemap.xml; then
           echo "[prerender] no changes in dist/ — skipping commit"
