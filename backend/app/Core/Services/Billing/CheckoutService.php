@@ -11,6 +11,7 @@ use App\Core\Models\Subscription;
 use App\Core\Models\User;
 use App\Core\Services\Billing\DTO\CheckoutPayload;
 use App\Core\Services\Billing\DTO\UpgradeQuote;
+use App\Core\Services\Plan\FoundingService;
 use App\Enums\BillingPeriod;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentProvider;
@@ -39,6 +40,7 @@ class CheckoutService
     public function __construct(
         private readonly UniqueOrderNumberProvider $orderNumbers,
         private readonly BillingOrchestrator $orchestrator,
+        private readonly FoundingService $foundingService,
     ) {
     }
 
@@ -110,9 +112,28 @@ class CheckoutService
                 ));
             });
 
-            $amount = $billingPeriod === BillingPeriod::Yearly
-                ? $plan->price_yearly
-                : $plan->price_monthly;
+            // Founding offer: first 20 Pro paying customers get 299 ₴/міс
+            // locked forever. The slot is claimed after payment succeeds (in
+            // SubscriptionActivationService::activateOrRenew), not here.
+            // We only compute the discounted price to charge.
+            //
+            // Yearly founding price: 299 × 10 = 2 990 ₴ (two months free).
+            // If slots are gone, we fall back to the standard plan price.
+            $isProPlan = $plan->slug === 'pro';
+            $isFoundingEligible = $isProPlan
+                && ! (bool) $user->is_founding
+                && $this->foundingService->isAvailable();
+
+            if ($isFoundingEligible) {
+                $lockedMonthly = $this->foundingService->lockedPriceMonthly();
+                $amount = $billingPeriod === BillingPeriod::Yearly
+                    ? $lockedMonthly * 10
+                    : $lockedMonthly;
+            } else {
+                $amount = $billingPeriod === BillingPeriod::Yearly
+                    ? $plan->price_yearly
+                    : $plan->price_monthly;
+            }
 
             $order = Order::create([
                 'order_number'     => $this->orderNumbers->get($siteDomain, $plan->slug),
@@ -124,6 +145,7 @@ class CheckoutService
                 'currency'         => 'UAH',
                 'status'           => OrderStatus::Pending,
                 'payment_provider' => $provider,
+                'notes'            => $isFoundingEligible ? ['founding_price' => true] : null,
             ]);
 
             Subscription::updateOrCreate(

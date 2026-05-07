@@ -51,7 +51,13 @@ class PlanResource extends JsonResource
             'widget_limits_config' => $this->widget_limits_config,
             'feature_list' => $featureList,
             'is_recommended' => $this->is_recommended,
-            'widget_slugs' => $this->whenLoaded('products', fn () => $this->products->pluck('slug')->all()),
+            'widget_slugs' => $this->whenLoaded('products', function () {
+                $fromProducts = $this->products->pluck('slug')->all();
+                if (count($fromProducts) > 0) {
+                    return $fromProducts;
+                }
+                return array_keys((array) ($this->widget_limits_config ?? []));
+            }),
         ];
     }
 

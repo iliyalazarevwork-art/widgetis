@@ -13,6 +13,7 @@ use App\Core\Services\Billing\PaymentProviderRegistry;
 use App\Core\Services\Billing\SubscriptionActivationService;
 use App\Core\Services\Billing\SubscriptionService;
 use App\Core\Services\Billing\WebhookDispatcher;
+use App\Core\Services\Plan\FoundingService;
 use AratKruglik\Monobank\Contracts\ClientInterface as MonobankClient;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
@@ -30,6 +31,7 @@ final class PaymentProviderServiceProvider extends ServiceProvider
         $this->app->singleton(SubscriptionActivationService::class, function (Application $app): SubscriptionActivationService {
             return new SubscriptionActivationService(
                 subscriptionServiceResolver: fn () => $app->make(SubscriptionService::class),
+                foundingService: $app->make(FoundingService::class),
             );
         });
 

@@ -16,6 +16,9 @@ Schedule::command('subscriptions:expire-trials')->dailyAt('04:00');
 // Daily at 04:30: expire grace period subscriptions and disable their widgets
 Schedule::command('subscriptions:process-grace-period')->dailyAt('04:30');
 
+// Daily at 04:15: downgrade cancelled paid subs to Free after their billing period ends
+Schedule::command('subscriptions:downgrade-cancelled')->dailyAt('04:15');
+
 // Daily at 03:00: clean up expired demo sessions
 Schedule::command('demo:cleanup')->dailyAt('03:00');
 

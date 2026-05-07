@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\WidgetRuntime\Http\Controllers\Api\V1\Profile;
 
+use App\Core\Models\User;
+use App\Core\Services\Plan\PlanLimitGate;
 use App\Http\Controllers\Api\V1\BaseController;
 use App\Shared\Contracts\SiteOwnershipInterface;
 use App\Shared\Contracts\SubscriptionGateInterface;
@@ -23,6 +25,7 @@ class SiteController extends BaseController
         private readonly ScriptBuilderService $scriptBuilder,
         private readonly SiteOwnershipInterface $siteOwnership,
         private readonly SubscriptionGateInterface $subscriptionGate,
+        private readonly PlanLimitGate $planLimitGate,
     ) {
     }
 
@@ -62,6 +65,16 @@ class SiteController extends BaseController
         ]);
 
         $userId = UserId::fromString($this->authedUserId());
+
+        $user = User::findOrFail($userId->value);
+
+        if (! $this->planLimitGate->canAddSite($user)) {
+            return $this->error(
+                'PLAN_LIMIT_EXCEEDED',
+                'Your plan does not allow adding more sites. Upgrade to add more.',
+                403,
+            );
+        }
 
         $site = $this->siteService->create(
             $userId,

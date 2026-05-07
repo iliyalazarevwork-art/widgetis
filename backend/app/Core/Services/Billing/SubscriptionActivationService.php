@@ -12,12 +12,16 @@ use App\Core\Models\Order;
 use App\Core\Models\Payment;
 use App\Core\Models\Plan;
 use App\Core\Models\Subscription;
+use App\Core\Models\User;
+use App\Core\Services\Plan\FoundingService;
 use App\Enums\BillingPeriod;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentProvider;
 use App\Enums\PaymentStatus;
 use App\Enums\PaymentType;
 use App\Enums\SubscriptionStatus;
+use App\Exceptions\Plan\AlreadyFoundingException;
+use App\Exceptions\Plan\FoundingSlotsExhaustedException;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -42,6 +46,7 @@ class SubscriptionActivationService
      */
     public function __construct(
         private readonly \Closure $subscriptionServiceResolver,
+        private readonly FoundingService $foundingService,
     ) {
     }
 
@@ -344,6 +349,39 @@ class SubscriptionActivationService
         }
 
         $subscription->update($updates);
+
+        // Founding offer: claim a slot for first-time Pro activations that were
+        // charged at the founding price (order.notes.founding_price = true).
+        // Idempotent: AlreadyFoundingException is swallowed so webhook retries
+        // cannot break the ACK. FoundingSlotsExhaustedException is also swallowed
+        // — the slot count may have dropped between checkout and payment confirm;
+        // the user already paid the discounted amount so we honour it silently.
+        if (! $isRenewal && $subscription->plan?->slug === 'pro') {
+            $rawNotes = $order->notes;
+            /** @var array<string, mixed> $notes */
+            $notes = is_array($rawNotes) ? $rawNotes : [];
+            if (! empty($notes['founding_price'])) {
+                $user = User::find($order->user_id);
+                if ($user !== null) {
+                    try {
+                        $this->foundingService->claimSlot($user);
+                        Log::channel('payments')->info('founding.slot_claimed', [
+                            'user_id' => $user->id,
+                            'order_id' => $order->id,
+                        ]);
+                    } catch (AlreadyFoundingException) {
+                        // User already has a founding slot — idempotent, ignore.
+                    } catch (FoundingSlotsExhaustedException) {
+                        // Race condition: slots ran out between checkout and webhook.
+                        // User paid founding price; honour the discount, skip the flag.
+                        Log::channel('payments')->warning('founding.slots_exhausted_on_claim', [
+                            'user_id' => $order->user_id,
+                            'order_id' => $order->id,
+                        ]);
+                    }
+                }
+            }
+        }
 
         if ($isRenewal) {
             SubscriptionRenewed::dispatch($subscription);

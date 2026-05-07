@@ -28,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
         \App\Core\Console\Commands\ExpireTrials::class,
         \App\Core\Console\Commands\ProcessGracePeriod::class,
         \App\Core\Console\Commands\ChargeRecurringSubscriptions::class,
+        \App\Core\Console\Commands\DowngradeCancelledSubscriptions::class,
     ])
     ->withRouting(
         web: __DIR__.'/../routes/web.php',

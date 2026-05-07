@@ -32,6 +32,7 @@ export interface ApiPlan {
   max_widgets: number
   features: string[]
   feature_list: string[]
+  languages_supported: string[]
   is_recommended: boolean
   widget_slugs: string[]
 }

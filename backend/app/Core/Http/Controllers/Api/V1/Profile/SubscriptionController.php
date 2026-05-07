@@ -38,7 +38,14 @@ class SubscriptionController extends CoreBaseController
 
         $user = $this->currentUser();
 
-        if ($user->subscription) {
+        // Free users may upgrade to a trial. Only block if already on a paid
+        // or trial subscription (any non-Free active subscription).
+        $subscription = $user->subscription;
+        $isOnFreePlan = $subscription !== null
+            && $subscription->plan?->slug === 'free'
+            && $subscription->status === \App\Enums\SubscriptionStatus::Active;
+
+        if ($subscription && ! $isOnFreePlan) {
             return $this->error('ALREADY_SUBSCRIBED', 'User already has a subscription.', 409);
         }
 
