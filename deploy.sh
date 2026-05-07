@@ -226,8 +226,10 @@ rolling_restart() {
 # in parallel (compose v2 build is sequential by default). BUILDKIT_INLINE_CACHE
 # embeds layer cache hints into images so re-builds reuse cached layers.
 if [ "$SKIP_BUILD" = false ]; then
-  phase "docker build (parallel via bake)"
-  DOCKER_BUILDKIT=1 BUILDKIT_INLINE_CACHE=1 COMPOSE_BAKE=true $DC build
+  phase "docker build (parallel via bake, --no-cache, --pull)"
+  # Always a full rebuild — no layer cache, fresh base images. Guarantees
+  # prod ships exactly the source that was just pushed.
+  DOCKER_BUILDKIT=1 COMPOSE_BAKE=true $DC build --no-cache --pull
   phase_end
 fi
 
