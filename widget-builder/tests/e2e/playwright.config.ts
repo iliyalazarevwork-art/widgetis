@@ -10,7 +10,7 @@ export default defineConfig({
   testDir: widgetBuilderDir,
 
   // Discover all per-module e2e test files
-  testMatch: ['modules/**/e2e.test.ts', 'tests/e2e/*.spec.ts'],
+  testMatch: ['modules/**/e2e.test.ts', 'modules/**/dom-check.spec.ts', 'tests/e2e/*.spec.ts'],
 
   globalSetup: resolve(import.meta.dirname, './global-setup.ts'),
 
