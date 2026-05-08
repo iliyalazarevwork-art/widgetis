@@ -54,7 +54,7 @@ export default function stockLeft(
   removeExisting(reference.element);
   if (!reference.element.isConnected) return;
 
-  const badge = createBadge(state.current, i18n.label, unit);
+  const badge = createBadge(state.current, i18n.label, unit, config.urgencyThreshold);
   try {
     insertElement(reference.element, badge, reference.insert);
   } catch {
@@ -149,7 +149,7 @@ function startUpdates(
 
     if (state.current > state.minRemaining && Math.random() < config.decrementProbability) {
       state.current = Math.max(state.current - 1, state.minRemaining);
-      updateCount(badge, state.current);
+      updateCount(badge, state.current, config.urgencyThreshold);
       saveState(state, path);
     }
 

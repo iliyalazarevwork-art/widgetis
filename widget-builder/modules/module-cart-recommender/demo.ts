@@ -70,63 +70,191 @@ function scrapeCartRelated(limit: number): ScrapedSticker[] {
   return results;
 }
 
+// Title and price selectors valid across all known Horoshop themes.
+// `.catalogCard-title` / `.catalogCard-priceBox` cover the camelCase modern
+// theme used by alp.com.ua and others; the rest cover legacy/dash variants.
+const TITLE_SELECTORS =
+  '.catalogCard-title, .productSticker__name, .product-card__name, .catalog-card__title, .name, [itemprop="name"], h2, h3';
+const PRICE_SELECTORS =
+  '.catalogCard-priceBox, .productSticker__price, .product-card__price, .catalog-card__price, .price, [itemprop="price"]';
+
+/**
+ * Pick the first selector whose matched nodes ARE actually product cards
+ * (i.e. each contains a link AND a recognisable title element). This guards
+ * against false positives — e.g. on alp.com.ua `.productSticker` is the
+ * "Top sales / New / Video" badge wrapper INSIDE a card, not the card
+ * itself; matching it returned 14 nodes with no link/title and the loop
+ * silently produced 0 results.
+ */
+function pickValidNodes(root: ParentNode, candidates: readonly string[]): Element[] {
+  for (const sel of candidates) {
+    const matched = Array.from(root.querySelectorAll(sel));
+    if (matched.length === 0) continue;
+    const valid = matched.filter((n) => {
+      const link = n.querySelector('a[href]');
+      const title = n.querySelector(TITLE_SELECTORS);
+      return Boolean(link && title);
+    });
+    if (valid.length > 0) return valid;
+  }
+  return [];
+}
+
+/** Scrape the PDP's "Схожі товари / associated products" block. */
+function scrapeAssociated(limit: number): ScrapedSticker[] {
+  // The associated-products block on Horoshop PDPs:
+  //   <div class="product__block product__block--associatedProducts_1 j-product-block">
+  //     ...carousel of catalogCards...
+  //   </div>
+  // The numeric suffix (`_1`, `_2`, ...) varies — use a class*= match.
+  const blocks = document.querySelectorAll(
+    '[class*="product__block--associatedProducts"], ' +
+    '[data-view-block*="associatedProducts"], ' +
+    '[class*="associated-products"], ' +
+    '.j-similar-products',
+  );
+  if (blocks.length === 0) return [];
+
+  const ownAlias = window.location.pathname.split('/').filter(Boolean).pop();
+  const results: ScrapedSticker[] = [];
+
+  for (const block of blocks) {
+    if (results.length >= limit) break;
+    const cards = pickValidNodes(block, [
+      '.catalogCard',
+      '.productSticker',
+      '.product-card',
+      '.catalog-card--small',
+    ]);
+    for (const card of cards) {
+      if (results.length >= limit) break;
+      const sticker = extractSticker(card, ownAlias);
+      if (sticker) results.push(sticker);
+    }
+  }
+  return results;
+}
+
+/**
+ * Rewrite a relative URL extracted from the page to go through site-proxy.
+ *
+ * On localhost:3100 (site-proxy) the merchant's HTML is served at
+ * /site/{domain}/... but the AJAX-loaded "associatedProducts" block returns
+ * raw upstream HTML where image src/href is relative-root (e.g.
+ * "/content/images/.../foo.jpg"). When we re-use that string elsewhere in
+ * the page the browser resolves it against the page origin and drops the
+ * /site/{domain}/ prefix → the proxy gets a request it can't route → 404.
+ *
+ * This helper detects the proxy prefix from window.location.pathname and
+ * prepends it so relative URLs continue to work after they leave the
+ * original DOM context.
+ */
+function rewriteProxiedUrl(rawUrl: string): string {
+  if (!rawUrl) return '';
+  if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://') || rawUrl.startsWith('//')) {
+    return rawUrl;
+  }
+  const segs = window.location.pathname.split('/').filter(Boolean);
+  if (segs[0] !== 'site' || segs.length < 2) return rawUrl;
+  const proxyPrefix = `/site/${segs[1]}`;
+  if (rawUrl.startsWith(`${proxyPrefix}/`) || rawUrl === proxyPrefix) return rawUrl;
+  if (rawUrl.startsWith('/')) return `${proxyPrefix}${rawUrl}`;
+  return `${proxyPrefix}/${rawUrl}`;
+}
+
+// Attributes commonly used to hold the real image URL on Horoshop / WP /
+// Magento / common lazy-load libs. Order = priority. We trust whichever
+// attribute fires first with a non-placeholder value.
+const IMG_URL_ATTRS = [
+  'data-src',
+  'data-original',
+  'data-lazy-src',
+  'data-lazy',
+  'data-image',
+  'data-bg',
+  'src',
+];
+
+/**
+ * Pull the image URL out of an `<img>` regardless of which lazy-load
+ * scheme the merchant uses. Falls back to the live `img.src` property
+ * (which the browser populates with the absolute URL after JS sets it,
+ * even if no attribute is visible) and finally to the first URL of any
+ * srcset variant. Skips `data:` placeholder URIs.
+ */
+function pickImgUrl(img: HTMLImageElement | null): string {
+  if (!img) return '';
+  for (const attr of IMG_URL_ATTRS) {
+    const v = img.getAttribute(attr);
+    if (v && v.trim() && !v.startsWith('data:')) return v.trim();
+  }
+  for (const attr of ['srcset', 'data-srcset']) {
+    const v = img.getAttribute(attr);
+    if (v && v.trim()) {
+      const first = v.split(',')[0]?.trim().split(/\s+/)[0];
+      if (first && !first.startsWith('data:')) return first;
+    }
+  }
+  // img.src as a property returns the resolved absolute URL the browser
+  // sees right now — works when JS set the src dynamically without our
+  // attribute patches catching it.
+  if (img.src && !img.src.startsWith('data:')) return img.src;
+  return '';
+}
+
+function extractSticker(node: Element, ownAlias: string | undefined): ScrapedSticker | null {
+  if (!(node instanceof HTMLElement)) return null;
+  const link = node.querySelector('a[href]') as HTMLAnchorElement | null;
+  const img = node.querySelector('img') as HTMLImageElement | null;
+  const titleEl = node.querySelector(TITLE_SELECTORS);
+  const priceEl = node.querySelector(PRICE_SELECTORS);
+
+  if (!link || !titleEl) return null;
+  const rawUrl = link.getAttribute('href') ?? '';
+  if (!rawUrl || rawUrl === '#') return null;
+  if (ownAlias && rawUrl.includes(ownAlias)) return null;
+
+  const title = (titleEl.textContent ?? '').trim();
+  if (!title) return null;
+
+  const rawImg = pickImgUrl(img);
+  const priceText = (priceEl?.textContent ?? '').trim();
+
+  return {
+    url: rewriteProxiedUrl(rawUrl),
+    image: rewriteProxiedUrl(rawImg),
+    title,
+    priceNew: parsePrice(priceText),
+    currency: detectCurrency(node),
+  };
+}
+
 function scrapeStickers(limit: number): ScrapedSticker[] {
-  // Horoshop product cards live under .productSticker (mobile + desktop).
-  // Other themes may use generic .product, .product-card — try them as fallback.
+  // Horoshop product cards live under varying class names depending on theme.
+  // `.catalogCard` is the modern Horoshop card (alp.com.ua and similar).
+  // `.productSticker` was historically the card class on older themes — kept
+  // for compatibility but priority is below `.catalogCard` because on modern
+  // themes `.productSticker` is a badge container INSIDE the card.
   const candidates = [
-    '.productSticker',
+    '.catalogCard',
     '.products-list .productSticker',
     '.product-card',
-    '.product',
+    '.catalog-card--small',
     'article[data-product-id]',
     '.j-product-container',
+    '.productSticker',
+    '.product',
   ];
 
-  let nodes: Element[] = [];
-  for (const sel of candidates) {
-    nodes = Array.from(document.querySelectorAll(sel));
-    if (nodes.length > 0) break;
-  }
-
-  // Filter out the current product page's own sticker (own product is not a recommendation)
+  const nodes = pickValidNodes(document, candidates);
   const ownAlias = window.location.pathname.split('/').filter(Boolean).pop();
 
   const results: ScrapedSticker[] = [];
-
   for (const node of nodes) {
     if (results.length >= limit) break;
-    if (!(node instanceof HTMLElement)) continue;
-
-    const link = node.querySelector('a[href]');
-    const img = node.querySelector('img') as HTMLImageElement | null;
-    const titleEl = node.querySelector(
-      '.productSticker__name, .product-card__name, .name, h2, h3, [itemprop="name"]',
-    );
-    const priceEl = node.querySelector(
-      '.productSticker__price, .product-card__price, .price, [itemprop="price"]',
-    );
-
-    if (!link || !titleEl) continue;
-    const url = (link as HTMLAnchorElement).getAttribute('href') ?? '';
-    if (!url || url === '#') continue;
-    if (ownAlias && url.includes(ownAlias)) continue;
-
-    const title = (titleEl.textContent ?? '').trim();
-    if (!title) continue;
-
-    const image = img?.getAttribute('src') ?? img?.getAttribute('data-src') ?? '';
-    const priceText = (priceEl?.textContent ?? '').trim();
-    const priceNew = parsePrice(priceText);
-
-    results.push({
-      url,
-      image,
-      title,
-      priceNew,
-      currency: detectCurrency(node),
-    });
+    const sticker = extractSticker(node, ownAlias);
+    if (sticker) results.push(sticker);
   }
-
   return results;
 }
 
@@ -157,31 +285,22 @@ function buildStoreHomeUrl(): string {
 /** Scrape product stickers from a parsed HTML document. */
 function scrapeFromDoc(doc: Document, origin: string, limit: number): ScrapedSticker[] {
   const candidates = [
-    '.productSticker',
+    '.catalogCard',
     '.catalog-card--small',
     '.product-card',
     'article[data-product-id]',
+    '.productSticker',
   ];
-
-  let nodes: Element[] = [];
-  for (const sel of candidates) {
-    nodes = Array.from(doc.querySelectorAll(sel));
-    if (nodes.length > 0) break;
-  }
+  const nodes = pickValidNodes(doc, candidates);
 
   const results: ScrapedSticker[] = [];
   for (const node of nodes) {
     if (results.length >= limit) break;
-    if (!(node instanceof Element)) continue;
 
     const link = node.querySelector('a[href]') as HTMLAnchorElement | null;
     const img = node.querySelector('img') as HTMLImageElement | null;
-    const titleEl = node.querySelector(
-      '.productSticker__name, .catalog-card__title, .product-card__name, [itemprop="name"], h2, h3',
-    );
-    const priceEl = node.querySelector(
-      '.productSticker__price, .catalog-card__price, .product-card__price, [itemprop="price"]',
-    );
+    const titleEl = node.querySelector(TITLE_SELECTORS);
+    const priceEl = node.querySelector(PRICE_SELECTORS);
 
     if (!link || !titleEl) continue;
     const href = link.getAttribute('href') ?? '';
@@ -232,8 +351,13 @@ async function waitForStickers(maxItems: number, timeoutMs: number): Promise<Scr
   const fromCurrentPage = await new Promise<ScrapedSticker[]>((resolve) => {
     const start = Date.now();
     const tick = (): void => {
+      // 1) PDP "Схожі товари" — most relevant; same-niche, same-vendor.
+      const associated = scrapeAssociated(maxItems);
+      if (associated.length > 0) { resolve(associated); return; }
+      // 2) Cart "you might like" carousel — only present on cart page.
       const cartFound = scrapeCartRelated(maxItems);
       if (cartFound.length > 0) { resolve(cartFound); return; }
+      // 3) Any product cards on the page — category page fallback.
       const found = scrapeStickers(maxItems);
       if (found.length > 0) { resolve(found); return; }
       if (Date.now() - start >= timeoutMs) { resolve([]); return; }

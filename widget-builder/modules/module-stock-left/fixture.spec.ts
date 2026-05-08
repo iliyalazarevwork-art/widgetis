@@ -21,7 +21,7 @@ test.describe(MODULE, () => {
         pulse: true,
         backgroundColor: '#fef2f2',
         textColor: '#b91c1c',
-        accentColor: '#dc2626',
+        dotColor: '#dc2626', numberColor: '#dc2626', urgencyNumberColor: '#dc2626', urgencyThreshold: 3,
       },
       i18n: { ua: { label: 'Залишилось', unit: 'шт' } },
     });
@@ -46,7 +46,7 @@ test.describe(MODULE, () => {
         pulse: true,
         backgroundColor: '#fef2f2',
         textColor: '#b91c1c',
-        accentColor: '#dc2626',
+        dotColor: '#dc2626', numberColor: '#dc2626', urgencyNumberColor: '#dc2626', urgencyThreshold: 3,
       },
       i18n: { ua: { label: 'Залишилось', unit: 'шт' } },
     });
@@ -71,7 +71,7 @@ test.describe(MODULE, () => {
         pulse: true,
         backgroundColor: '#fef2f2',
         textColor: '#b91c1c',
-        accentColor: '#dc2626',
+        dotColor: '#dc2626', numberColor: '#dc2626', urgencyNumberColor: '#dc2626', urgencyThreshold: 3,
       },
       i18n: { ua: { label: 'Залишилось', unit: 'шт' } },
     });
@@ -96,7 +96,7 @@ test.describe(MODULE, () => {
         pulse: true,
         backgroundColor: '#fef2f2',
         textColor: '#b91c1c',
-        accentColor: '#dc2626',
+        dotColor: '#dc2626', numberColor: '#dc2626', urgencyNumberColor: '#dc2626', urgencyThreshold: 3,
       },
       i18n: { ua: { label: 'Залишилось', unit: 'шт' } },
     });

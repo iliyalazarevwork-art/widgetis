@@ -194,7 +194,18 @@ export default function cartRecommender(
       }
     }
 
-    const root = buildPopup(products, lang, headingText, () => closePopup(root), onAddToCart);
+    const colors = {
+      backgroundColor: config.backgroundColor,
+      textColor: config.textColor,
+      priceColor: config.priceColor,
+      borderColor: config.borderColor,
+      accentColor: config.accentColor,
+      accentTextColor: config.accentTextColor,
+      ctaBackground: config.ctaBackground,
+      ctaTextColor: config.ctaTextColor,
+      doneColor: config.doneColor,
+    };
+    const root = buildPopup(products, lang, headingText, colors, () => closePopup(root), onAddToCart);
     document.body.appendChild(root);
 
     function onKeyDown(e: KeyboardEvent): void {

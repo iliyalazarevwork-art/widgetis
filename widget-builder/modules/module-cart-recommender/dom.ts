@@ -27,25 +27,39 @@ function pickLocale<T>(
 
 const STYLE_ID = 'wgts-popup-styles';
 
-const STYLES = `.wgts-popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:2147483646;opacity:0;transition:opacity 200ms ease-out}
-.wgts-popup{position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:16px 16px 0 0;z-index:2147483647;padding:16px 16px 24px;transform:translateY(100%);transition:transform 280ms ease-out;max-height:85vh;overflow-y:auto}
+export interface PopupColors {
+  backgroundColor: string;
+  textColor: string;
+  priceColor: string;
+  borderColor: string;
+  accentColor: string;
+  accentTextColor: string;
+  ctaBackground: string;
+  ctaTextColor: string;
+  doneColor: string;
+}
+
+function buildStyles(c: PopupColors): string {
+  return `.wgts-popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:2147483646;opacity:0;transition:opacity 200ms ease-out}
+.wgts-popup{position:fixed;bottom:0;left:0;right:0;background:${c.backgroundColor};border-radius:16px 16px 0 0;z-index:2147483647;padding:16px 16px 24px;transform:translateY(100%);transition:transform 280ms ease-out;max-height:85vh;overflow-y:auto}
 .wgts-popup__header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.wgts-popup__title{font-size:15px;font-weight:600;color:#3E2A1F;line-height:1.3}
-.wgts-popup__close{width:32px;height:32px;border-radius:999px;border:1.5px solid #d8c9b4;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:#3E2A1F;flex-shrink:0;line-height:1;font-weight:400;transition:background 150ms ease}
+.wgts-popup__title{font-size:15px;font-weight:600;color:${c.textColor};line-height:1.3}
+.wgts-popup__close{width:32px;height:32px;border-radius:999px;border:1.5px solid ${c.borderColor};background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:${c.textColor};flex-shrink:0;line-height:1;font-weight:400;transition:background 150ms ease}
 .wgts-popup__list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
 .wgts-popup__row{display:flex;align-items:center;gap:12px}
-.wgts-popup__img{width:56px;height:56px;border-radius:12px;object-fit:cover;box-sizing:border-box;flex-shrink:0;border:1px solid rgba(199,122,92,.22);box-shadow:0 8px 18px rgba(62,42,31,.12)}
+.wgts-popup__img{width:56px;height:56px;border-radius:12px;object-fit:cover;box-sizing:border-box;flex-shrink:0;border:1px solid ${c.borderColor};box-shadow:0 8px 18px rgba(0,0,0,.12)}
 .wgts-popup__body{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
-.wgts-popup__name{font-size:13px;line-height:1.3;color:#3E2A1F;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.wgts-popup__price{font-size:12px;color:#7A5C4D}
-.wgts-popup__add{width:36px;height:36px;background:#C77A5C;color:#fff;border:0;border-radius:999px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative;transition:background 200ms ease,transform 100ms ease}.wgts-popup__add:active{transform:scale(.9)}.wgts-popup__add::before,.wgts-popup__add::after{content:'';position:absolute;background:#fff;border-radius:2px}.wgts-popup__add::before{width:14px;height:2px}.wgts-popup__add::after{width:2px;height:14px}.wgts-popup__add--done{background:#4CAF50;font-size:16px;font-weight:600}.wgts-popup__add--done::before,.wgts-popup__add--done::after{display:none}
-.wgts-popup__cta{width:100%;padding:14px;border-radius:999px;background:#3E2A1F;color:#fff;font-size:14px;font-weight:600;border:0;cursor:pointer;font-family:inherit}`;
+.wgts-popup__name{font-size:13px;line-height:1.3;color:${c.textColor};display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wgts-popup__price{font-size:12px;color:${c.priceColor}}
+.wgts-popup__add{width:36px;height:36px;background:${c.accentColor};color:${c.accentTextColor};border:0;border-radius:999px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative;transition:background 200ms ease,transform 100ms ease}.wgts-popup__add:active{transform:scale(.9)}.wgts-popup__add::before,.wgts-popup__add::after{content:'';position:absolute;background:${c.accentTextColor};border-radius:2px}.wgts-popup__add::before{width:14px;height:2px}.wgts-popup__add::after{width:2px;height:14px}.wgts-popup__add--done{background:${c.doneColor};font-size:16px;font-weight:600}.wgts-popup__add--done::before,.wgts-popup__add--done::after{display:none}
+.wgts-popup__cta{width:100%;padding:14px;border-radius:999px;background:${c.ctaBackground};color:${c.ctaTextColor};font-size:14px;font-weight:600;border:0;cursor:pointer;font-family:inherit}`;
+}
 
-function ensureStyles(): void {
+function ensureStyles(colors: PopupColors): void {
   if (document.getElementById(STYLE_ID)) return;
   const tag = document.createElement('style');
   tag.id = STYLE_ID;
-  tag.textContent = STYLES;
+  tag.textContent = buildStyles(colors);
   document.head.appendChild(tag);
 }
 
@@ -53,10 +67,11 @@ export function buildPopup(
   products: Product[],
   lang: 'ua' | 'ru' | 'en',
   headingText: string,
+  colors: PopupColors,
   onClose: () => void,
   onAddToCart: (product: Product) => Promise<void>,
 ): HTMLElement {
-  ensureStyles();
+  ensureStyles(colors);
 
   const root = document.createElement('div');
   root.className = 'wgts-popup-root';

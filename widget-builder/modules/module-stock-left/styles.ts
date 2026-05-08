@@ -13,7 +13,9 @@ export function injectStyles(config: StockLeftConfig): void {
 
 function buildCSS(config: StockLeftConfig): string {
   const text = config.textColor;
-  const accent = config.accentColor;
+  const dot = config.dotColor;
+  const num = config.numberColor;
+  const numUrgent = config.urgencyNumberColor;
   const pulse = config.pulse;
 
   return `
@@ -48,22 +50,22 @@ function buildCSS(config: StockLeftConfig): string {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: ${accent};
-  box-shadow: 0 0 0 0 ${accent}66;
+  background: ${dot};
+  box-shadow: 0 0 0 0 ${dot}66;
   ${pulse ? 'animation: wty-stock-left-pulse 1.8s ease-out infinite;' : ''}
 }
 .wty-stock-left__label { opacity: 0.9; }
 .wty-stock-left__count {
   font-weight: 700;
-  color: ${accent};
+  color: ${num};
   font-variant-numeric: tabular-nums;
 }
-.wty-stock-left__unit { opacity: 0.9; }
+.wty-stock-left--low .wty-stock-left__count { color: ${numUrgent}; }
 .wty-stock-left--flash .wty-stock-left__count { animation: wty-stock-left-flash .5s ease; }
 @keyframes wty-stock-left-pulse {
-  0%   { box-shadow: 0 0 0 0 ${accent}66; }
-  70%  { box-shadow: 0 0 0 8px ${accent}00; }
-  100% { box-shadow: 0 0 0 0 ${accent}00; }
+  0%   { box-shadow: 0 0 0 0 ${dot}66; }
+  70%  { box-shadow: 0 0 0 8px ${dot}00; }
+  100% { box-shadow: 0 0 0 0 ${dot}00; }
 }
 @keyframes wty-stock-left-flash {
   0%   { transform: scale(1.25); }

@@ -25,7 +25,14 @@ export const stockLeftSchema = z.object({
   pulse: z.boolean().default(true),
   backgroundColor: z.string().default('#fef2f2'),
   textColor: z.string().default('#b91c1c'),
-  accentColor: z.string().default('#dc2626'),
+  // Pulsing dot — universal "act now" cue. ALWAYS red on every brand;
+  // a brand-coloured dot disappears into dark/monochrome chrome.
+  dotColor: z.string().default('#dc2626'),
+  // Count number — brand accent on calm stock; switches to urgencyNumberColor
+  // when current count is strictly less than urgencyThreshold.
+  numberColor: z.string().default('#dc2626'),
+  urgencyNumberColor: z.string().default('#dc2626'),
+  urgencyThreshold: z.number().int().min(1).default(3),
 });
 
 export type StockLeftConfig = z.infer<typeof stockLeftSchema>;

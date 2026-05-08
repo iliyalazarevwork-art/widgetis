@@ -71,6 +71,10 @@ function pluralUa(n: number, forms: string): string {
   return many ?? '';
 }
 
+function emphasizePercent(template: string, percent: number): string {
+  return template.replace(/\{percent\}%?/g, `<b>${percent}%</b>`);
+}
+
 export function renderBanner(
   refs: BannerRefs,
   itemCount: number,
@@ -94,14 +98,13 @@ export function renderBanner(
   }
 
   if (isTop) {
-    refs.hint.innerHTML = i18n.topReached.replace('{percent}', String(top.percent));
+    refs.hint.innerHTML = emphasizePercent(i18n.topReached, top.percent);
   } else if (next) {
     const remaining = Math.max(0, next.minItems - itemCount);
     const word = pluralUa(remaining, i18n.itemsWord);
-    refs.hint.innerHTML = i18n.nextHint
+    refs.hint.innerHTML = emphasizePercent(i18n.nextHint, next.percent)
       .replace('{remaining}', `<b>${remaining}</b>`)
-      .replace('{items}', word)
-      .replace('{percent}', `<b>${next.percent}%</b>`);
+      .replace('{items}', word);
   } else {
     refs.hint.textContent = '';
   }

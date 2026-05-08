@@ -56,6 +56,10 @@ describe('module-progressive-discount', () => {
         const banner = document.getElementById('pd-banner');
         expect(banner).not.toBeNull();
         expect(banner!.textContent).toContain('Прогресивна знижка');
+        const hint = banner!.querySelector<HTMLElement>('.pd-banner__hint')!;
+        expect(hint.textContent).toContain('10%');
+        expect(hint.textContent).not.toContain('10%%');
+        expect(Array.from(hint.querySelectorAll('b')).at(-1)?.textContent).toBe('10%');
         const input = document.querySelector<HTMLInputElement>('.j-coupon-input')!;
         expect(input.value).toBe('CASH5');
         expect(submitClick).toHaveBeenCalled();
@@ -89,6 +93,8 @@ describe('module-progressive-discount', () => {
         const banner = document.getElementById('pd-banner')!;
         expect(banner.classList.contains('is-top')).toBe(true);
         expect(banner.textContent).toContain('20%');
+        expect(banner.textContent).not.toContain('20%%');
+        expect(banner.querySelector('.pd-banner__hint b')?.textContent).toBe('20%');
         if (typeof dispose === 'function') dispose();
         resolve();
       }, 300);

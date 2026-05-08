@@ -524,6 +524,172 @@ function injectRuntimeScript(html, domain) {
     if (typeof url === 'string') url = rewriteUrl(url);
     return nativeOpen.apply(this, [method, url].concat([].slice.call(arguments, 2)));
   };
+
+  // Catch dynamically-created resource elements (the merchant's JS creates
+  // <link rel="preload">, <img>, <script>, <source>, <iframe> on the fly to
+  // preload images, lazy-load gallery thumbnails, inject tracking pixels,
+  // etc.). Without these patches each one resolves a relative URL like
+  // "/content/images/.../X.jpg" against the page origin (localhost:3100)
+  // and the proxy returns 404 because there is no /site/<domain>/ prefix.
+  function rewriteSrcset(value){
+    if (typeof value !== 'string') return value;
+    return value.replace(/(^|,\\s*)(\\S+)/g, function(_m, sep, url){
+      return sep + rewriteUrl(url);
+    });
+  }
+  function patchAttr(proto, attr){
+    if (!proto) return;
+    var desc = Object.getOwnPropertyDescriptor(proto, attr);
+    if (!desc || !desc.set) return;
+    var rewriter = attr === 'srcset' ? rewriteSrcset : rewriteUrl;
+    Object.defineProperty(proto, attr, {
+      get: desc.get,
+      set: function(v){ desc.set.call(this, typeof v === 'string' ? rewriter(v) : v); },
+      enumerable: desc.enumerable,
+      configurable: true,
+    });
+  }
+  patchAttr(window.HTMLLinkElement && HTMLLinkElement.prototype, 'href');
+  patchAttr(window.HTMLImageElement && HTMLImageElement.prototype, 'src');
+  patchAttr(window.HTMLImageElement && HTMLImageElement.prototype, 'srcset');
+  patchAttr(window.HTMLSourceElement && HTMLSourceElement.prototype, 'src');
+  patchAttr(window.HTMLSourceElement && HTMLSourceElement.prototype, 'srcset');
+  patchAttr(window.HTMLScriptElement && HTMLScriptElement.prototype, 'src');
+  patchAttr(window.HTMLIFrameElement && HTMLIFrameElement.prototype, 'src');
+
+  // Same coverage for setAttribute(): merchants set src/href via either path.
+  var nativeSetAttr = Element.prototype.setAttribute;
+  Element.prototype.setAttribute = function(name, value){
+    if (typeof value === 'string' && this.tagName) {
+      var lower = (name || '').toLowerCase();
+      var tag = this.tagName.toLowerCase();
+      var isResourceAttr =
+        (tag === 'link' && lower === 'href') ||
+        (lower === 'src') ||
+        (lower === 'srcset') ||
+        (lower === 'imagesrcset') ||
+        (tag === 'iframe' && lower === 'src');
+      if (isResourceAttr) {
+        value = (lower === 'srcset' || lower === 'imagesrcset') ? rewriteSrcset(value) : rewriteUrl(value);
+      }
+    }
+    return nativeSetAttr.call(this, name, value);
+  };
+
+  // innerHTML / outerHTML / insertAdjacentHTML — by far the biggest gap
+  // because the HTML parser sets attributes directly (no JS hooks fire)
+  // and the browser's preload scanner starts fetching images IMMEDIATELY
+  // during parsing, before any MutationObserver can intervene. We work
+  // around this by regex-rewriting the raw HTML STRING before it's
+  // parsed — same logic as rewriteHtml() on the server side, just
+  // in-page so AJAX-injected fragments and template renders are covered.
+  function rewriteHtmlString(html){
+    return html
+      .replace(
+        /((?:href|src|action|poster|data-[\\w-]+)\\s*=\\s*["'])\\/(?!\\/|site\\/)/gi,
+        '$1' + PREFIX + '/'
+      )
+      .replace(/srcset\\s*=\\s*"([^"]*)"/gi, function(_m, v){
+        return 'srcset="' + v.replace(/(^|,\\s*)\\/(?!\\/|site\\/)/g, '$1' + PREFIX + '/') + '"';
+      })
+      .replace(/imagesrcset\\s*=\\s*"([^"]*)"/gi, function(_m, v){
+        return 'imagesrcset="' + v.replace(/(^|,\\s*)\\/(?!\\/|site\\/)/g, '$1' + PREFIX + '/') + '"';
+      });
+  }
+  function patchHtmlSink(proto, attr){
+    if (!proto) return;
+    var desc = Object.getOwnPropertyDescriptor(proto, attr);
+    if (!desc || !desc.set) return;
+    Object.defineProperty(proto, attr, {
+      get: desc.get,
+      set: function(v){ desc.set.call(this, typeof v === 'string' ? rewriteHtmlString(v) : v); },
+      enumerable: desc.enumerable,
+      configurable: true,
+    });
+  }
+  patchHtmlSink(Element.prototype, 'innerHTML');
+  patchHtmlSink(Element.prototype, 'outerHTML');
+  var nativeInsertAdj = Element.prototype.insertAdjacentHTML;
+  if (nativeInsertAdj) {
+    Element.prototype.insertAdjacentHTML = function(position, html){
+      return nativeInsertAdj.call(this, position, typeof html === 'string' ? rewriteHtmlString(html) : html);
+    };
+  }
+  if (window.DOMParser) {
+    var nativeParseFromString = DOMParser.prototype.parseFromString;
+    DOMParser.prototype.parseFromString = function(str, mime){
+      return nativeParseFromString.call(this, typeof str === 'string' ? rewriteHtmlString(str) : str, mime);
+    };
+  }
+
+  // Last-resort: a MutationObserver that rewrites resource URLs on any
+  // element added to the DOM. This catches code paths that bypass the
+  // property/setAttribute patches above:
+  //   - innerHTML / insertAdjacentHTML (parser sets attributes directly)
+  //   - elements created BEFORE our patch is installed (rare, but possible
+  //     if upstream uses inline <script> in <head> that runs before us)
+  //   - attribute changes via Reflect.set or framework abstractions
+  // It also walks ALL descendants of an added subtree so a single
+  // innerHTML='...<img>...' covers every nested resource.
+  function fixNode(el){
+    if (!el || el.nodeType !== 1) return;
+    var tag = el.tagName ? el.tagName.toLowerCase() : '';
+    var hrefAttr = el.getAttribute && el.getAttribute('href');
+    var srcAttr = el.getAttribute && el.getAttribute('src');
+    var srcsetAttr = el.getAttribute && el.getAttribute('srcset');
+    var imageSrcsetAttr = el.getAttribute && el.getAttribute('imagesrcset');
+    if (tag === 'link' && hrefAttr) {
+      var fixed = rewriteUrl(hrefAttr);
+      if (fixed !== hrefAttr) nativeSetAttr.call(el, 'href', fixed);
+    }
+    if (srcAttr && (tag === 'img' || tag === 'source' || tag === 'script' || tag === 'iframe' || tag === 'video' || tag === 'audio' || tag === 'embed')) {
+      var f2 = rewriteUrl(srcAttr);
+      if (f2 !== srcAttr) nativeSetAttr.call(el, 'src', f2);
+    }
+    if (srcsetAttr && (tag === 'img' || tag === 'source')) {
+      var f3 = rewriteSrcset(srcsetAttr);
+      if (f3 !== srcsetAttr) nativeSetAttr.call(el, 'srcset', f3);
+    }
+    if (imageSrcsetAttr && tag === 'link') {
+      var f4 = rewriteSrcset(imageSrcsetAttr);
+      if (f4 !== imageSrcsetAttr) nativeSetAttr.call(el, 'imagesrcset', f4);
+    }
+  }
+  function fixSubtree(el){
+    fixNode(el);
+    if (el && el.querySelectorAll) {
+      var nested = el.querySelectorAll('link[href],img[src],img[srcset],source[src],source[srcset],script[src],iframe[src],video[src],audio[src]');
+      for (var i = 0; i < nested.length; i++) fixNode(nested[i]);
+    }
+  }
+  if (window.MutationObserver) {
+    var obs = new MutationObserver(function(mutations){
+      for (var i = 0; i < mutations.length; i++) {
+        var m = mutations[i];
+        if (m.type === 'childList') {
+          for (var j = 0; j < m.addedNodes.length; j++) fixSubtree(m.addedNodes[j]);
+        } else if (m.type === 'attributes') {
+          fixNode(m.target);
+        }
+      }
+    });
+    var attach = function(){
+      if (!document.documentElement) return false;
+      obs.observe(document.documentElement, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['href','src','srcset','imagesrcset'],
+      });
+      return true;
+    };
+    if (!attach()) {
+      // <html> not yet present — try again on DOMContentLoaded.
+      document.addEventListener('readystatechange', function once(){
+        if (attach()) document.removeEventListener('readystatechange', once);
+      });
+    }
+  }
   document.addEventListener('submit', function(e){
     var form = e.target;
     if (!form || !form.action) return;
@@ -553,6 +719,15 @@ function injectRuntimeScript(html, domain) {
   };
 })();</script>`;
 
+  // Inject as the FIRST child of <head> so the property/setAttribute
+  // patches are installed before any merchant JS runs. If we leave it at
+  // </body> end, head-level scripts that create dynamic preload tags or
+  // start image gallery preloads execute first with the unpatched DOM,
+  // and we miss those URLs (alp.com.ua's gallery JS creates 870x1000
+  // preload tags this way).
+  if (/<head[^>]*>/i.test(html)) {
+    return html.replace(/<head[^>]*>/i, (match) => match + runtime);
+  }
   if (/<\/body>/i.test(html)) {
     return html.replace(/<\/body>/i, runtime + '</body>');
   }
