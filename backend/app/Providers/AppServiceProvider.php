@@ -14,9 +14,11 @@ use App\Shared\Contracts\SiteOwnershipInterface;
 use App\Shared\Contracts\SubscriptionGateInterface;
 use App\Shared\Contracts\UserResolverInterface;
 use App\Shared\Contracts\WidgetCatalogInterface;
+use App\Shared\Contracts\WidgetConfigValidatorInterface;
 use App\Shared\Contracts\WidgetRuntimeStatsInterface;
 use App\WidgetRuntime\Services\Bridge\EloquentSiteOwnership;
 use App\WidgetRuntime\Services\Bridge\EloquentWidgetRuntimeStats;
+use App\WidgetRuntime\Services\Bridge\HttpWidgetConfigValidator;
 use App\WidgetRuntime\Services\Widget\CartRecommender\Composer\ComposerInterface;
 use App\WidgetRuntime\Services\Widget\CartRecommender\Composer\OnDemandComposer;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -35,6 +37,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(SiteOwnershipInterface::class, EloquentSiteOwnership::class);
         $this->app->singleton(WidgetRuntimeStatsInterface::class, EloquentWidgetRuntimeStats::class);
         $this->app->singleton(ComposerInterface::class, OnDemandComposer::class);
+
+        $this->app->singleton(WidgetConfigValidatorInterface::class, fn () => new HttpWidgetConfigValidator(
+            baseUrl: (string) config('services.widget_builder.url', 'http://widget-builder:3200'),
+            timeoutSeconds: (int) config('services.widget_builder.validate_timeout', 5),
+        ));
 
         $this->app->singleton(FoundingService::class, fn () => new FoundingService(
             maxSlots: (int) config('founding.max_slots', 20),

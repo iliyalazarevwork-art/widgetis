@@ -18,10 +18,10 @@ class DemoSessionController extends BaseController
      * GET /api/v1/demo-sessions/{code}
      * Fetch an active demo session by its code.
      *
-     * The per-session module list was removed: demo widgets are now a fixed
-     * set baked into the obfuscated bundle served by site-proxy. The response
-     * carries only what the frontend still needs — the code, the target
-     * domain, and the expiry timestamp.
+     * Returns the fields the LiveDemoModal renders (code, domain, expires_at).
+     * The full per-session widget config lives behind /config — the latter is
+     * fetched server-to-server by site-proxy at iframe load time and is not
+     * exposed in this response.
      */
     public function show(string $code): JsonResponse
     {
@@ -39,6 +39,36 @@ class DemoSessionController extends BaseController
             'data' => [
                 'code' => $session->code,
                 'domain' => $session->domain,
+                'landing_path' => $session->landing_path,
+                'expires_at' => $session->expires_at?->toIso8601String(),
+            ],
+        ]);
+    }
+
+    /**
+     * GET /api/v1/demo-sessions/{code}/config
+     * Return the per-session widget config used by site-proxy to inject
+     * window.__WIDGETIS_CFG__ before the demo bundle. Public because
+     * site-proxy reaches it without admin credentials, and the payload is
+     * only useful within the (already public) demo iframe.
+     *
+     * @see docs/agent-config-contract.md
+     */
+    public function config(string $code): JsonResponse
+    {
+        $session = DemoSession::where('code', strtoupper($code))
+            ->active()
+            ->first();
+
+        if ($session === null) {
+            return $this->error('DEMO_NOT_FOUND', 'Demo session not found or expired.', 404);
+        }
+
+        return $this->success([
+            'data' => [
+                'demo_code' => $session->code,
+                'domain' => $session->domain,
+                'config' => $session->config ?? ['modules' => []],
                 'expires_at' => $session->expires_at?->toIso8601String(),
             ],
         ]);

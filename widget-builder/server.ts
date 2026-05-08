@@ -2,6 +2,7 @@ import { createServer, type IncomingMessage } from 'node:http';
 import { networkInterfaces } from 'node:os';
 import { getModuleSchemas, buildModules, type BuildRequest } from './index.js';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { validateDemoPayload } from './validate-demo-config.js';
 
 const PORT = Number(process.env.PORT) || 3200;
 const HOST = process.env.HOST || '127.0.0.1';
@@ -135,6 +136,47 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === 'POST' && req.url === '/validate') {
+    // Validate a demo-session config payload against the real Zod schemas
+    // exported by widget-builder/modules/module-*/schema.ts. Used by the
+    // backend's POST /api/v1/admin/demo-sessions before persisting, so a
+    // malformed config can never reach a merchant's iframe and crash the
+    // bundle with ZodError. Accepts either { modules, ... } or the full
+    // POST body { domain, config: { modules, ... } } — peeling is internal.
+    try {
+      const body = await readBody(req);
+      let payload: unknown;
+      try {
+        payload = JSON.parse(body);
+      } catch (e) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: false, error: `invalid JSON: ${(e as Error).message}` }));
+        return;
+      }
+
+      let result;
+      try {
+        result = validateDemoPayload(payload);
+      } catch (e) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: false, error: (e as Error).message }));
+        return;
+      }
+
+      // 200 either way — backend looks at result.ok. 422 vs 200 collapses
+      // success/failure into HTTP semantics, which is convenient but masks
+      // the case where the validator itself fell over. Keep 200 for "we
+      // ran, here is what we found" and 5xx only for our own bugs.
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(result));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: false, error: message }));
+    }
+    return;
+  }
+
   if (req.method === 'POST' && req.url === '/build') {
     try {
       const body = await readBody(req);
@@ -193,4 +235,5 @@ server.listen(PORT, HOST, () => {
   console.log(`  POST /build      — { modules, obfuscate? } → production.js`);
   console.log(`  POST /deploy     — { site, modules, obfuscate? } → upload to R2, returns { url }`);
   console.log(`  POST /build-demo — { modules: ["promo-line", ...] } → production.js (default configs)`);
+  console.log(`  POST /validate   — { config: {...} } | { modules, ... } → { ok, validated_modules, errors }`);
 });

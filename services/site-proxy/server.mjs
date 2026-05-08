@@ -19,6 +19,12 @@ const TEXT_ASSET_TTL_MS = 60 * 60 * 1000;        // 1h
 const BINARY_ASSET_TTL_MS = 24 * 60 * 60 * 1000; // 24h
 const CACHE_MAX_ENTRIES = 5000;
 
+// Backend base used to resolve per-session demo configs. Defaults to the dev
+// docker-compose service-to-service URL (backend container exposes 8000
+// inside the `widgetis` bridge network — see docker-compose.dev.yml).
+const BACKEND_API_URL = (process.env.BACKEND_API_URL || 'http://backend:8000/api/v1').replace(/\/+$/, '');
+const DEMO_CFG_TTL_MS = 60 * 1000; // 60s — refreshed on each iframe load
+
 const TEXT_EXT = new Set(['js', 'mjs', 'css', 'map', 'json']);
 const BIN_EXT = new Set([
   'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'avif', 'ico', 'bmp',
@@ -81,7 +87,16 @@ function touchVisitor(id) {
 function getVisitor(id) {
   let v = visitors.get(id);
   if (!v) {
-    v = { currentDomain: null, jars: new Map(), touchedAt: Date.now() };
+    v = {
+      currentDomain: null,
+      jars: new Map(),
+      touchedAt: Date.now(),
+      // Per-session demo state. Set when ?demo_code=XXX is observed; cached
+      // briefly so repeated HTML requests within the iframe don't refetch.
+      demoCode: null,
+      demoCfg: null,            // shape: { brand?, modules: {...} }
+      demoCfgFetchedAt: 0,
+    };
     visitors.set(id, v);
   }
   return v;
@@ -310,19 +325,37 @@ function loadDemoBundle() {
   }
 }
 
-function injectDemoBundle(html) {
+function injectDemoBundle(html, demoCfg) {
+  // No per-session config → no widgets to render → don't inline the bundle
+  // source. This keeps a "bare" proxy fetch (no `?demo_code=`) byte-clean:
+  // the merchant's HTML comes through with URL rewriting and runtime
+  // request patching, but zero Widgetis JS or i18n strings. Without this
+  // guard, a clean probe sees the bundle's literal strings ("Залишилось",
+  // "Крутіть колесо", every default i18n key) in the HTML and false-flags
+  // them as merchant content.
+  if (!demoCfg) return html;
   const code = loadDemoBundle();
   if (!code) return html;
   // Inline script — no external request, no source map, impossible to fetch
-  // the raw file via DevTools Network tab. The closing </script> inside the
-  // bundle would break parsing, so escape it defensively.
-  const safe = code.replace(/<\/script/gi, '<\\/script');
+  // the raw file via DevTools Network tab. Escape any sequence that could
+  // close the surrounding <script> tag mid-string.
+  const safe = escapeForInlineScript(code);
+
+  // Per-session config (window.__WIDGETIS_CFG__) — emitted before the bundle
+  // tag so it is on the global by the time module init wrappers read it.
+  // Shape contract: docs/agent-config-contract.md. JSON payload runs through
+  // the same escaper as the bundle so a malicious string field cannot break
+  // out of the script element.
+  const cfgScript = `<script data-widgetis-cfg>window.__WIDGETIS_CFG__=${
+    escapeForInlineScript(JSON.stringify(demoCfg))
+  };</script>`;
+
   // Wrap in load + double-rAF so the bundle runs only after:
   //   1. The page and all site scripts have fully loaded
   //   2. The browser has completed at least one paint cycle
   // This guarantees getBoundingClientRect() returns real dimensions (not 0)
   // when the bundle mounts and measures the marquee element.
-  const tag = `<script data-widgetis-demo>
+  const tag = `${cfgScript}<script data-widgetis-demo>
 console.log('[wgts] script tag executed');
 window.addEventListener('load', function(){
   console.log('[wgts] load fired');
@@ -338,6 +371,128 @@ window.addEventListener('load', function(){
 });
 </script>`;
   return html + tag;
+}
+
+// ── Per-session demo config loader ─────────────────────────────────
+// In-process LRU shared by all visitors so an iframe with the same code on
+// different visitor cookies still hits cache.
+const demoCfgCache = new Map(); // code -> { cfg, expiresAt }
+
+// Hard cap on the cfg payload pulled from the backend. The agent's config is
+// nowhere near this — anything bigger is treated as a misconfiguration or an
+// attempt to bloat the inline script.
+const DEMO_CFG_MAX_BYTES = 100 * 1024;
+
+/**
+ * Make a string safe to embed verbatim inside a <script>...</script> body.
+ * JSON.stringify by itself does not escape '<', '>', '!', '/' nor the U+2028
+ * / U+2029 line separators — any of which can break us out of the script
+ * element on legacy parsers or via <!-- ... </script ... --> tricks.
+ */
+function escapeForInlineScript(s) {
+  return String(s)
+    .replace(/<\/script/gi, '<\\/script')
+    .replace(/<script/gi, '<\\script')
+    .replace(/<!--/g, '<\\!--')
+    // Use Unicode escapes inside the regex literal — embedding the
+    // raw U+2028 / U+2029 characters in source breaks the JS parser
+    // (they are line terminators, not allowed inside a regex literal).
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
+}
+
+/**
+ * Defense in depth: trust the shape of the cfg the backend returns, but only
+ * keep keys we recognise and only allow primitive types where they belong.
+ * Anything unexpected is dropped silently — never thrown — so the demo
+ * gracefully falls back to the bundle's baked-in defaults.
+ *
+ * Contract: docs/agent-config-contract.md.
+ */
+function sanitizeDemoCfg(cfg) {
+  if (!cfg || typeof cfg !== 'object' || Array.isArray(cfg)) return null;
+  const out = {};
+
+  if (typeof cfg.demo_code === 'string' && /^[A-Z0-9]{4,12}$/.test(cfg.demo_code)) {
+    out.demo_code = cfg.demo_code;
+  }
+
+  if (cfg.brand && typeof cfg.brand === 'object' && !Array.isArray(cfg.brand)) {
+    const brand = {};
+    for (const key of ['primary_color', 'accent_color', 'text_color']) {
+      const v = cfg.brand[key];
+      // Only short hex strings — keeps anything weird out of inline CSS later.
+      if (typeof v === 'string' && /^#[0-9A-Fa-f]{3,8}$/.test(v)) brand[key] = v;
+    }
+    if (Object.keys(brand).length > 0) out.brand = brand;
+  }
+
+  if (cfg.modules && typeof cfg.modules === 'object' && !Array.isArray(cfg.modules)) {
+    const modules = {};
+    for (const [slug, raw] of Object.entries(cfg.modules)) {
+      if (typeof slug !== 'string' || !/^[a-z0-9-]{1,64}$/.test(slug)) continue;
+      if (!raw || typeof raw !== 'object' || Array.isArray(raw)) continue;
+      const m = {};
+      if (typeof raw.is_enabled === 'boolean') m.is_enabled = raw.is_enabled;
+      if (raw.config && typeof raw.config === 'object' && !Array.isArray(raw.config)) m.config = raw.config;
+      if (raw.i18n && typeof raw.i18n === 'object' && !Array.isArray(raw.i18n)) m.i18n = raw.i18n;
+      if (Object.keys(m).length > 0) modules[slug] = m;
+    }
+    out.modules = modules;
+  } else {
+    out.modules = {};
+  }
+
+  return out;
+}
+
+async function fetchDemoConfig(code) {
+  if (!code) return null;
+  const upper = code.toUpperCase();
+  const now = Date.now();
+  const cached = demoCfgCache.get(upper);
+  if (cached && cached.expiresAt > now) return cached.cfg;
+
+  try {
+    const url = `${BACKEND_API_URL}/demo-sessions/${encodeURIComponent(upper)}/config`;
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 3000);
+    const res = await fetch(url, { signal: ctrl.signal, headers: { Accept: 'application/json' } });
+    clearTimeout(timer);
+    if (!res.ok) {
+      demoCfgCache.set(upper, { cfg: null, expiresAt: now + DEMO_CFG_TTL_MS });
+      return null;
+    }
+    const text = await res.text();
+    if (text.length > DEMO_CFG_MAX_BYTES) {
+      console.warn(`[site-proxy] demo cfg too large for ${upper}: ${text.length} bytes`);
+      demoCfgCache.set(upper, { cfg: null, expiresAt: now + DEMO_CFG_TTL_MS });
+      return null;
+    }
+    let json;
+    try { json = JSON.parse(text); } catch { json = null; }
+    // Backend wraps payload in { data: { demo_code, domain, config, expires_at } }.
+    const data = json && json.data ? json.data : null;
+    const rawCfg = data && data.config ? data.config : null;
+    const cfg = sanitizeDemoCfg({ ...(rawCfg || {}), demo_code: (data && data.demo_code) || upper });
+    demoCfgCache.set(upper, { cfg, expiresAt: now + DEMO_CFG_TTL_MS });
+    return cfg;
+  } catch (err) {
+    console.warn(`[site-proxy] fetchDemoConfig(${upper}) failed: ${err.message}`);
+    return null;
+  }
+}
+
+function extractDemoCode(rawUrl) {
+  if (!rawUrl) return null;
+  const qIdx = rawUrl.indexOf('?');
+  if (qIdx < 0) return null;
+  const search = rawUrl.slice(qIdx + 1);
+  const params = new URLSearchParams(search);
+  const code = params.get('demo_code');
+  if (!code) return null;
+  if (!/^[A-Z0-9]{4,12}$/i.test(code)) return null;
+  return code.toUpperCase();
 }
 
 function injectRuntimeScript(html, domain) {
@@ -763,6 +918,17 @@ async function handle(req, res) {
         return;
       }
       visitor.currentDomain = domain;
+      // ?demo_code=XXX — pin a per-session widget config to this visitor.
+      // The code is sticky for the visitor's TTL: subsequent in-iframe
+      // navigations (which drop the query string) keep using the same cfg.
+      const code = extractDemoCode(req.url || '');
+      if (code) {
+        if (visitor.demoCode !== code || (Date.now() - visitor.demoCfgFetchedAt) > DEMO_CFG_TTL_MS) {
+          visitor.demoCode = code;
+          visitor.demoCfg = await fetchDemoConfig(code);
+          visitor.demoCfgFetchedAt = Date.now();
+        }
+      }
       const targetPath = siteMatch[2] || '/';
       return await proxyTo(req, res, visitor, visitorId, setVisitorCookie, domain, targetPath);
     }
@@ -800,7 +966,7 @@ async function proxyTo(req, res, visitor, visitorId, setVisitorCookie, domain, t
       cacheTtlMs = cat.ttlMs;
       const hit = cacheGet(cacheKey);
       if (hit) {
-        sendCachedResponse(res, hit, visitorId, setVisitorCookie);
+        sendCachedResponse(res, hit, visitor, visitorId, setVisitorCookie);
         return;
       }
     }
@@ -929,14 +1095,14 @@ async function proxyTo(req, res, visitor, visitorId, setVisitorCookie, domain, t
   attachVisitorCookie(outHeaders, visitorId, setVisitorCookie);
 
   const finalBody = injectDemoOnSend
-    ? Buffer.from(injectDemoBundle(outBody.toString('utf-8')), 'utf-8')
+    ? Buffer.from(injectDemoBundle(outBody.toString('utf-8'), visitor.demoCfg), 'utf-8')
     : outBody;
 
   res.writeHead(result.statusCode, outHeaders);
   res.end(finalBody);
 }
 
-function sendCachedResponse(res, hit, visitorId, setVisitorCookie) {
+function sendCachedResponse(res, hit, visitor, visitorId, setVisitorCookie) {
   const outHeaders = {
     'Content-Type': hit.contentType,
     'Access-Control-Allow-Origin': '*',
@@ -947,7 +1113,7 @@ function sendCachedResponse(res, hit, visitorId, setVisitorCookie) {
 
   let body = hit.body;
   if (hit.contentType.toLowerCase().includes('text/html')) {
-    body = Buffer.from(injectDemoBundle(body.toString('utf-8')), 'utf-8');
+    body = Buffer.from(injectDemoBundle(body.toString('utf-8'), visitor.demoCfg), 'utf-8');
   }
 
   res.writeHead(200, outHeaders);

@@ -44,6 +44,41 @@ export default function widgetalityPlugin(options: { site: string; modules: Modu
 // Single entry codegen
 // ---------------------------------------------------------------------------
 
+/**
+ * Slug used by the per-session config (window.__WIDGETIS_CFG__.modules[slug]):
+ * the directory name `module-foo-bar` exposed to the agent and the API as
+ * `foo-bar`. Keep this in sync with docs/agent-config-contract.md.
+ */
+function configSlugFor(moduleName: string): string {
+  return moduleName.replace(/^module-/, '');
+}
+
+/**
+ * Helper emitted once per bundle. Deep-merges the per-session override over
+ * the baked-in default config/i18n. Arrays are replaced wholesale (the
+ * common case is "swap the entire palette" or "swap segments"), objects
+ * are merged key-by-key.
+ */
+const MERGE_DEEP_HELPER = [
+  'function __wgtsMergeDeep(target, source) {',
+  '  if (source === undefined || source === null) return target;',
+  '  if (typeof source !== "object") return source;',
+  '  if (Array.isArray(source)) return source;',
+  '  var out = (target && typeof target === "object" && !Array.isArray(target)) ? Object.assign({}, target) : {};',
+  '  for (var k in source) {',
+  '    if (!Object.prototype.hasOwnProperty.call(source, k)) continue;',
+  '    var sv = source[k];',
+  '    var tv = out[k];',
+  '    if (sv && typeof sv === "object" && !Array.isArray(sv) && tv && typeof tv === "object" && !Array.isArray(tv)) {',
+  '      out[k] = __wgtsMergeDeep(tv, sv);',
+  '    } else if (sv !== undefined) {',
+  '      out[k] = sv;',
+  '    }',
+  '  }',
+  '  return out;',
+  '}',
+].join('\n');
+
 function generateEntry(modules: ModuleConfigs): string {
   const imports: string[] = [];
   const calls: string[] = [];
@@ -53,14 +88,33 @@ function generateEntry(modules: ModuleConfigs): string {
     if (!data.config.enabled) continue;
 
     const safeVar = moduleName.replace(/-/g, '_').replace(/^module_/, '');
+    const slug = configSlugFor(moduleName);
+    const slugLit = JSON.stringify(slug);
 
     imports.push(`import ${safeVar} from '@laxarevii/${moduleName}';`);
     imports.push(`import ${safeVar}Config from 'virtual:widgetality-config:${moduleName}:config';`);
     imports.push(`import ${safeVar}I18n from 'virtual:widgetality-config:${moduleName}:i18n';`);
 
+    // Per-module init wrapper:
+    //   1. Read window.__WIDGETIS_CFG__.modules[slug] (may be missing).
+    //   2. If is_enabled === false, skip the module entirely.
+    //   3. Otherwise deep-merge config/i18n overrides over the baked-in defaults.
+    // When __WIDGETIS_CFG__ is absent (vanilla demo without ?demo_code), the
+    // path collapses to the original baked-in behaviour with no overrides.
     calls.push(
-      `try { const __d${idx} = ${safeVar}(${safeVar}Config, ${safeVar}I18n); if (typeof __d${idx} === 'function') __destroyers.push(__d${idx}); }` +
-      ` catch (err) { console.error('[widgetality] ${moduleName}: ❌ error:', err); }`,
+      [
+        'try {',
+        `  var __ov${idx} = (typeof window !== "undefined" && window.__WIDGETIS_CFG__ && window.__WIDGETIS_CFG__.modules) ? window.__WIDGETIS_CFG__.modules[${slugLit}] : null;`,
+        `  if (__ov${idx} && __ov${idx}.is_enabled === false) {`,
+        `    console.log('[widgetality] ${moduleName}: skipped by per-session config');`,
+        '  } else {',
+        `    var __cfg${idx} = (__ov${idx} && __ov${idx}.config) ? __wgtsMergeDeep(${safeVar}Config, __ov${idx}.config) : ${safeVar}Config;`,
+        `    var __i18n${idx} = (__ov${idx} && __ov${idx}.i18n) ? __wgtsMergeDeep(${safeVar}I18n, __ov${idx}.i18n) : ${safeVar}I18n;`,
+        `    var __d${idx} = ${safeVar}(__cfg${idx}, __i18n${idx});`,
+        `    if (typeof __d${idx} === 'function') __destroyers.push(__d${idx});`,
+        '  }',
+        `} catch (err) { console.error('[widgetality] ${moduleName}: ❌ error:', err); }`,
+      ].join('\n'),
     );
     idx++;
   }
@@ -73,5 +127,14 @@ function generateEntry(modules: ModuleConfigs): string {
     '};',
   ];
 
-  return [...imports, '', 'const __destroyers = [];', '', ...calls, ...destroyBlock].join('\n');
+  return [
+    ...imports,
+    '',
+    MERGE_DEEP_HELPER,
+    '',
+    'const __destroyers = [];',
+    '',
+    ...calls,
+    ...destroyBlock,
+  ].join('\n');
 }

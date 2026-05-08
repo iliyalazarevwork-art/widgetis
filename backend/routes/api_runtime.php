@@ -71,6 +71,7 @@ Route::prefix('v1')->group(function () {
 
     // --- Demo sessions (public) ---
     Route::get('demo-sessions/{code}', [DemoSessionController::class, 'show'])->middleware('throttle:30,1');
+    Route::get('demo-sessions/{code}/config', [DemoSessionController::class, 'config'])->middleware('throttle:60,1');
     Route::post('demo-sessions', [DemoSessionController::class, 'store'])->middleware('throttle:10,1');
 
     // --- Profile (customer) — runtime routes only ---

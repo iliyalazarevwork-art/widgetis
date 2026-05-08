@@ -22,7 +22,7 @@ class DemoSession extends Model
 
     /** @var list<string> */
     protected $fillable = [
-        'code', 'domain', 'config', 'created_by', 'view_count', 'expires_at',
+        'code', 'domain', 'landing_path', 'config', 'created_by', 'view_count', 'expires_at',
     ];
 
     /**

@@ -8,6 +8,7 @@ import './LiveDemoModal.css'
 interface DemoSessionData {
   code: string
   domain: string
+  landing_path: string | null
   expires_at: string
 }
 
@@ -120,7 +121,17 @@ export function LiveDemoModal({ isOpen, onClose, code }: LiveDemoModalProps) {
           <div className="dm-iframe-area">
             <iframe
               className="dm-iframe"
-              src={`${(import.meta.env.VITE_PREVIEW_BASE_URL || '').replace(/\/+$/, '')}/site/${demo.domain}/?v=mobile`}
+              src={(() => {
+                const base = (import.meta.env.VITE_PREVIEW_BASE_URL || '').replace(/\/+$/, '')
+                // Trust the path: backend validates it must start with "/" and reject
+                // "//" / control chars / "..". Encode each path segment so spaces and
+                // unicode in slugs survive the URL boundary; keep "/" intact.
+                const path = (demo.landing_path && demo.landing_path.startsWith('/'))
+                  ? demo.landing_path.split('/').map(encodeURIComponent).join('/')
+                  : '/'
+                const sep = path.includes('?') ? '&' : '?'
+                return `${base}/site/${demo.domain}${path}${sep}v=mobile&demo_code=${encodeURIComponent(demo.code)}`
+              })()}
               sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
               title={`Preview of ${demo.domain}`}
             />
