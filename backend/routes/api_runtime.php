@@ -67,8 +67,11 @@ Route::prefix('v1')->group(function () {
 
         });
 
-    // Script installation ping — always 200, no auth, handles CORS itself
-    Route::post('widgets/script-ping', ScriptPingController::class)->middleware('throttle:5,60');
+    // Script installation ping — always 200, no auth, handles CORS itself.
+    // Throttle is pure DoS protection: the bundle gates the beacon on a
+    // localStorage flag, so a healthy browser hits this endpoint exactly
+    // once per (host, browser) pair.
+    Route::post('widgets/script-ping', ScriptPingController::class)->middleware('throttle:120,1');
 
     // --- Demo sessions (public) ---
     Route::get('demo-sessions/{code}', [DemoSessionController::class, 'show'])->middleware('throttle:30,1');

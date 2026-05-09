@@ -324,11 +324,17 @@ class ScriptBuilderService
         return $modules;
     }
 
+    /**
+     * Beacon snippet appended to every site bundle. The controller only ever
+     * flips a boolean once per site, so we gate the call on a localStorage
+     * flag keyed by hostname — that way one merchant's traffic doesn't hammer
+     * /script-ping for every page view forever.
+     */
     private function pingSnippet(): string
     {
         $url = rtrim((string) config('app.url'), '/') . '/api/v1/widgets/script-ping';
 
-        return "\n;(function(){if(typeof navigator!=='undefined'&&navigator.sendBeacon){navigator.sendBeacon('" . $url . "');}})();";
+        return "\n;(function(){try{var k='wty_ping_v1';var h=location.hostname;if(localStorage.getItem(k)===h)return;if(typeof navigator!=='undefined'&&navigator.sendBeacon){navigator.sendBeacon('" . $url . "');localStorage.setItem(k,h);}}catch(e){}})();";
     }
 
     /**
