@@ -1,1 +1,0 @@
-import{n as e}from"./index-DgM7aSxl.js";export{e as PricingAnimPage};
