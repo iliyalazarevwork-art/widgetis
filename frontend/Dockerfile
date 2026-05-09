@@ -8,7 +8,11 @@ COPY dist/ /usr/share/nginx/html/
 COPY analytics.production.js /usr/share/nginx/html/analytics.js
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-RUN sed -i 's#</head>#<script defer src="/analytics.js"></script></head>#' /usr/share/nginx/html/index.html
+RUN for file in /usr/share/nginx/html/index.html /usr/share/nginx/html/spa.html; do \
+      if [ -f "$file" ]; then \
+        sed -i 's#</head>#<script defer src="/analytics.js"></script></head>#' "$file"; \
+      fi; \
+    done
 
 EXPOSE 80
 

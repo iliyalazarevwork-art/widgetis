@@ -30,6 +30,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const FRONTEND_ROOT = join(__dirname, '..')
 const DIST_DIR = join(FRONTEND_ROOT, 'dist')
+const SPA_SHELL_PATH = join(DIST_DIR, 'spa.html')
 
 // ---------------------------------------------------------------------------
 // Config
@@ -437,19 +438,25 @@ async function main() {
     process.exit(1)
   }
 
-  // 3. Collect routes
+  // 3. Preserve the clean Vite SPA shell before prerender overwrites
+  // dist/index.html with the SEO version of the home page. nginx serves this
+  // file for private/dynamic routes to avoid flashing prerendered public HTML.
+  const spaShell = await readFile(join(DIST_DIR, 'index.html'), 'utf-8')
+  await writeFile(SPA_SHELL_PATH, spaShell, 'utf-8')
+
+  // 4. Collect routes
   process.stdout.write('[prerender] Collecting routes…\n')
   const routes = await getRoutes()
   process.stdout.write(`[prerender] Found ${routes.length} routes.\n`)
 
-  // 4. Boot static server
+  // 5. Boot static server
   const port = await findFreePort()
   const baseUrl = `http://127.0.0.1:${port}`
 
   _server = await bootStaticServer(DIST_DIR, port, BACKEND_URL)
   process.stdout.write(`[prerender] Static server on ${baseUrl} (proxy → ${BACKEND_URL ?? 'none'})\n`)
 
-  // 5. Launch browser
+  // 6. Launch browser
   let browser
   try {
     browser = await chromium.launch({ headless: true })
@@ -467,7 +474,7 @@ async function main() {
   }
   _browser = browser
 
-  // 6. Prerender each route
+  // 7. Prerender each route
   const globalStart = Date.now()
   let successCount = 0
   let failCount = 0
@@ -498,7 +505,7 @@ async function main() {
   const tasks = routes.map(makeTask)
   await pool(tasks, CONCURRENCY)
 
-  // 7. Summary
+  // 8. Summary
   const totalMs = Date.now() - globalStart
   const totalS = (totalMs / 1000).toFixed(1)
   const total = routes.length
@@ -508,7 +515,7 @@ async function main() {
       '\n',
   )
 
-  // 8. Cleanup
+  // 9. Cleanup
   await cleanup()
 
   if (failCount > 0) {
