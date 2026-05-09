@@ -130,6 +130,57 @@ if [ "$LOCAL" = false ]; then
   fi
   phase_end
 
+  # ── Pre-deploy: prod compose sanity check ────────────────────────────────
+  # Catches a class of silent regressions where a service's env var defaults
+  # are dev-only — the build succeeds, the container starts, but a runtime
+  # call into a sibling service hits a port that nobody is listening on.
+  # The Apr 11 FPM switchover broke `site-proxy → backend:8000` exactly this
+  # way: no error in deploy, no crash in the container, just an empty demo
+  # iframe in production for weeks.
+  #
+  # Plain YAML grep — `docker compose config` would resolve interpolations
+  # (which we don't need) but requires prod's .env locally, which we don't
+  # have. Our values here are static strings, so the raw file is enough.
+  phase "prod compose sanity check"
+  if [ -f docker-compose.prod.yml ]; then
+    SITE_PROXY_BACKEND_URL=$(
+      awk '
+        /^  site-proxy:/             { in_svc = 1; next }
+        in_svc && /^  [a-z]/         { in_svc = 0 }
+        in_svc && /BACKEND_API_URL:/ {
+          sub(/.*BACKEND_API_URL:[[:space:]]*/, "")
+          sub(/[[:space:]]*#.*$/, "")
+          gsub(/^"|"$/, "")
+          print
+          exit
+        }
+      ' docker-compose.prod.yml
+    )
+    if [ -z "$SITE_PROXY_BACKEND_URL" ]; then
+      echo "❌ site-proxy.environment.BACKEND_API_URL is not set in docker-compose.prod.yml"
+      echo "   The default (http://backend:8000) only works in dev — under prod's php-fpm"
+      echo "   the backend doesn't listen on :8000 at all, so site-proxy → backend silently 404s."
+      echo "   Set it to https://api.widgetis.com/api/v1 (or another reachable backend URL)."
+      exit 1
+    fi
+    case "$SITE_PROXY_BACKEND_URL" in
+      *backend:8000*)
+        echo "❌ site-proxy.BACKEND_API_URL points at backend:8000, dead since the FPM switchover."
+        echo "   Current value: $SITE_PROXY_BACKEND_URL"
+        echo "   Set it to https://api.widgetis.com/api/v1."
+        exit 1
+        ;;
+      http://*|https://*)
+        echo "   ✓ site-proxy.BACKEND_API_URL = $SITE_PROXY_BACKEND_URL"
+        ;;
+      *)
+        echo "❌ site-proxy.BACKEND_API_URL is not a valid http(s) URL: $SITE_PROXY_BACKEND_URL"
+        exit 1
+        ;;
+    esac
+  fi
+  phase_end
+
   # If lint:fix changed anything — commit those fixes before pushing
   if ! git diff --quiet frontend/; then
     echo "▶ Committing ESLint auto-fixes..."

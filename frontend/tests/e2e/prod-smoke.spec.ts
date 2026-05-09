@@ -213,6 +213,66 @@ test.describe('prod-smoke', () => {
     }
   })
 
+  // The actual happy path of the public demo flow: create a session, then
+  // hit site-proxy exactly the way LiveDemoModal builds the iframe URL, and
+  // confirm both the per-session config AND the obfuscated bundle are
+  // inlined into the proxied HTML. Catches the regression class where
+  // site-proxy can't reach the backend (wrong BACKEND_API_URL, dead route,
+  // FastCGI-only listen port, …): in that case `injectDemoBundle()`'s
+  // `if (!demoCfg) return html` guard returns the merchant page untouched
+  // and the iframe shows the bare site with zero widgets — a silent break
+  // that nothing else in this suite would have noticed.
+  test('preview proxy inlines the demo bundle on a /demo_code= request', async ({ request }) => {
+    if (!hasSeparateApiHost()) test.skip(true, 'only meaningful in deployed env')
+
+    // example.com is RFC 2606 reserved → never 5xx, never Cloudflare-blocked,
+    // returns plain HTML. Decouples this test from any real merchant uptime.
+    const fixtureDomain = 'example.com'
+
+    const createUrl = apiUrl('/api/v1/demo-sessions')
+    const createRes = await request.post(createUrl, {
+      data: { domain: fixtureDomain },
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    })
+    expect(createRes.status(), `POST ${createUrl} failed`).toBe(201)
+    await expectJsonContentType(createRes, createUrl)
+    const code = (await createRes.json())?.data?.code as string | undefined
+    expect(code, 'demo session response missing data.code').toMatch(/^[A-Z0-9]{4,12}$/)
+
+    // Mirrors the URL LiveDemoModal builds for the iframe `src`.
+    const proxyUrl = `${hosts().preview}/site/${fixtureDomain}/?v=mobile&demo_code=${encodeURIComponent(code!)}`
+    const proxied = await request.get(proxyUrl, { timeout: 30_000 })
+    expect(proxied.status(), `GET ${proxyUrl} returned ${proxied.status()}`).toBe(200)
+
+    const html = await proxied.text()
+
+    // <script data-widgetis-cfg> emits window.__WIDGETIS_CFG__ for the
+    // module init wrappers — only present when the proxy successfully
+    // pulled /demo-sessions/{code}/config from the backend.
+    expect(
+      html,
+      `<script data-widgetis-cfg> tag missing for code ${code}. ` +
+        `site-proxy could not load /demo-sessions/${code}/config — most likely BACKEND_API_URL ` +
+        `points at an unreachable host (the dev default http://backend:8000 stops working in prod ` +
+        `the moment the backend container switches from \`artisan serve\` to php-fpm).`,
+    ).toContain('data-widgetis-cfg')
+
+    // <script data-widgetis-demo> wraps the obfuscated bundle. Its absence
+    // means the bundle file itself is empty/missing in the deployed image
+    // (DEMO_BUNDLE_PATH wrong, build step didn't run, …).
+    expect(
+      html,
+      `<script data-widgetis-demo> tag missing — services/site-proxy/public/demo-bundle.js may be empty in the deployed image.`,
+    ).toContain('data-widgetis-demo')
+
+    // Build banner the bundle prints on every page load — sanity check
+    // that what got inlined is actually our bundle, not a placeholder.
+    expect(
+      html,
+      `'[widgetality]' build banner missing — demo bundle was not inlined or is corrupted.`,
+    ).toContain('widgetality')
+  })
+
   // ── Public pages: render + no JS errors + page-specific content ────────────
   // One test per page so a single bad route doesn't mask the others.
   //
