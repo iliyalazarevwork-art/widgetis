@@ -358,12 +358,6 @@ else
     phase_end
   fi
 
-  # ── Pre-launch test mode: wipe every non-admin user on every deploy ──────
-  # Remove this block before going live.
-  phase "purge non-admin users (test mode)"
-  $DC exec -T --user www-data backend php artisan users:purge-non-admin --force
-  phase_end
-
   # Idempotent seeders that maintain runtime invariants (e.g. admin-owned
   # test sites used by the widget Origin whitelist). Runs AFTER the backend
   # rolling restart so the new image (with any newly-added seeder classes)
