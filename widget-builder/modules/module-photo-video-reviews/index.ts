@@ -19,6 +19,8 @@ const PLAY_CLASS = 'hs-photo-review__play';
 const MOBILE_BREAKPOINT = 768;
 const OBSERVER_DEBOUNCE_MS = 150;
 const VIDEO_EXT_RE = /\.(mp4|webm|mov|m4v|ogv)(\?|#|$)/i;
+const MATCH_API_URL = 'https://api.widgetis.com/api/v1/widgets/reviews/match';
+const BODY_KEY_MAX_LEN = 200;
 
 type I18n = {
   viewPhotoLabel: string;
@@ -38,10 +40,16 @@ type I18n = {
 
 type ResolvedSettings = PhotoReviewsConfig & I18n;
 type MediaKind = 'image' | 'video';
+type MediaItem = { url: string; type?: string; mime_type?: string; size?: number };
 
 let settings: ResolvedSettings | null = null;
 let observer: MutationObserver | null = null;
 let syncTimer: number | null = null;
+
+// Per-page render-side state. Reset on activation; cleared on cleanup.
+const matchedMedia = new Map<string, MediaItem[]>();
+const queriedKeys = new Set<string>();
+let inFlight: Promise<void> | null = null;
 
 function isMobileViewport(): boolean {
   return window.innerWidth <= MOBILE_BREAKPOINT;
@@ -50,7 +58,6 @@ function isMobileViewport(): boolean {
 function shouldShowForViewport(s: ResolvedSettings): boolean {
   return isMobileViewport() ? s.showOnMobile : s.showOnDesktop;
 }
-
 
 function detectKind(url: string): MediaKind {
   return VIDEO_EXT_RE.test(url) ? 'video' : 'image';
@@ -180,40 +187,11 @@ function normalize(value: string): string {
 
 function getText(review: HTMLElement, selector: string): string {
   const el = review.querySelector<HTMLElement>(selector);
-  return normalize(el?.textContent ?? '');
+  return (el?.textContent ?? '').replace(/\s+/g, ' ').trim();
 }
 
-function getDateText(review: HTMLElement, selector: string): string {
-  const el = review.querySelector<HTMLElement>(selector);
-  if (!el) return '';
-  const datetimeAttr = el.getAttribute('datetime') ?? '';
-  const text = el.textContent ?? '';
-  return normalize(`${datetimeAttr} ${text}`);
-}
-
-function resolveUrls(
-  review: HTMLElement,
-  s: ResolvedSettings,
-): { urls: string[]; alt: string } | null {
-  const author = getText(review, s.authorSelector);
-  const body = getText(review, s.bodySelector);
-  const date = getDateText(review, s.dateSelector);
-
-  for (const entry of s.photos) {
-    const checks: boolean[] = [];
-    if (entry.author) checks.push(author.includes(normalize(entry.author)));
-    if (entry.contains) checks.push(body.includes(normalize(entry.contains)));
-    if (entry.date) checks.push(date.includes(normalize(entry.date)));
-
-    if (checks.length > 0 && checks.every(Boolean)) {
-      return { urls: entry.urls, alt: entry.alt || s.viewPhotoLabel };
-    }
-  }
-
-  if (s.fallbackUrls.length > 0) {
-    return { urls: s.fallbackUrls, alt: s.viewPhotoLabel };
-  }
-  return null;
+function buildKey(name: string, body: string): string {
+  return `${normalize(name)}|${normalize(body).slice(0, BODY_KEY_MAX_LEN)}`;
 }
 
 function buildPlayIcon(): HTMLSpanElement {
@@ -366,31 +344,145 @@ function openLightbox(urls: string[], alt: string, index: number): void {
   lb.open();
 }
 
+function attachGallery(review: HTMLElement, media: MediaItem[], s: ResolvedSettings): void {
+  const body = review.querySelector<HTMLElement>(s.bodySelector);
+  if (!body) {
+    review.setAttribute(PROCESSED_ATTR, 'skip');
+    return;
+  }
+  const urls = media.map((m) => m.url).filter((u): u is string => typeof u === 'string' && u.length > 0);
+  if (urls.length === 0) {
+    review.setAttribute(PROCESSED_ATTR, 'skip');
+    return;
+  }
+  const gallery = buildGallery(urls, s.viewPhotoLabel, s);
+  body.appendChild(gallery);
+  review.setAttribute(PROCESSED_ATTR, '1');
+}
+
+async function fetchMatches(candidates: { name: string; body: string }[]): Promise<Array<{ name: string; body: string; media: MediaItem[] }>> {
+  const response = await fetch(MATCH_API_URL, {
+    method: 'POST',
+    mode: 'cors',
+    credentials: 'omit',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({ candidates }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`match endpoint returned HTTP ${response.status}`);
+  }
+
+  const json = await response.json() as { matches?: Array<{ name?: unknown; body?: unknown; media?: unknown }> };
+  const matches = Array.isArray(json.matches) ? json.matches : [];
+
+  return matches
+    .map((m) => ({
+      name: typeof m.name === 'string' ? m.name : '',
+      body: typeof m.body === 'string' ? m.body : '',
+      media: Array.isArray(m.media)
+        ? (m.media as unknown[]).filter(
+            (item): item is MediaItem =>
+              typeof item === 'object' && item !== null && typeof (item as MediaItem).url === 'string',
+          )
+        : [],
+    }))
+    .filter((m) => m.media.length > 0);
+}
+
 function processReviews(s: ResolvedSettings): void {
   if (!shouldShowForViewport(s)) return;
 
   const reviews = Array.from(document.querySelectorAll<HTMLElement>(s.reviewSelector));
   if (reviews.length === 0) return;
 
+  const candidates = new Map<string, { name: string; body: string }>();
+
   for (const review of reviews) {
-    if (review.getAttribute(PROCESSED_ATTR) === '1') continue;
+    if (review.getAttribute(PROCESSED_ATTR)) continue;
 
-    const match = resolveUrls(review, s);
-    if (!match) {
+    const name = getText(review, s.authorSelector);
+    const body = getText(review, s.bodySelector);
+
+    if (!name && !body) {
       review.setAttribute(PROCESSED_ATTR, 'skip');
       continue;
     }
 
-    const body = review.querySelector<HTMLElement>(s.bodySelector);
-    if (!body) {
-      review.setAttribute(PROCESSED_ATTR, 'skip');
+    const key = buildKey(name, body);
+
+    // Already-resolved match → render immediately, no network call.
+    const cached = matchedMedia.get(key);
+    if (cached) {
+      attachGallery(review, cached, s);
       continue;
     }
 
-    const gallery = buildGallery(match.urls, match.alt, s);
-    body.appendChild(gallery);
-    review.setAttribute(PROCESSED_ATTR, '1');
+    // We've already asked the server about this exact name+body and either
+    // got nothing back or it's still in flight. Mark the DOM node as 'skip'
+    // for now; if a matching response arrives later, applyMatches() will
+    // unblock it because applyMatches re-queries elements with no
+    // PROCESSED_ATTR. We rely on inFlight to keep them unmarked while
+    // pending — but since we cannot know which DOM node belongs to which
+    // candidate without the key, we skip on cache miss and let the next
+    // observer tick re-evaluate after fetchMatches resolves.
+    if (queriedKeys.has(key)) {
+      continue;
+    }
+
+    if (!candidates.has(key)) {
+      candidates.set(key, { name, body });
+    }
   }
+
+  if (candidates.size === 0) return;
+
+  const batch = Array.from(candidates.values());
+  for (const c of batch) queriedKeys.add(buildKey(c.name, c.body));
+
+  inFlight = (async () => {
+    try {
+      const matches = await fetchMatches(batch);
+      for (const m of matches) {
+        matchedMedia.set(buildKey(m.name, m.body), m.media);
+      }
+      // Re-walk DOM with cache populated; matched nodes get galleries,
+      // un-matched (queried but no media) get marked 'skip'.
+      applyMatches(s);
+    } catch {
+      // Transient or terminal error — leave nodes unmarked so a future
+      // observer cycle (e.g. after the user retries via reload of the
+      // section) can take another swing. We do NOT clear queriedKeys to
+      // avoid a tight retry loop driven by the MutationObserver.
+    } finally {
+      inFlight = null;
+    }
+  })();
+}
+
+function applyMatches(s: ResolvedSettings): void {
+  if (!shouldShowForViewport(s)) return;
+
+  const reviews = document.querySelectorAll<HTMLElement>(s.reviewSelector);
+  reviews.forEach((review) => {
+    if (review.getAttribute(PROCESSED_ATTR)) return;
+
+    const name = getText(review, s.authorSelector);
+    const body = getText(review, s.bodySelector);
+    if (!name && !body) {
+      review.setAttribute(PROCESSED_ATTR, 'skip');
+      return;
+    }
+
+    const key = buildKey(name, body);
+    const media = matchedMedia.get(key);
+
+    if (media && media.length > 0) {
+      attachGallery(review, media, s);
+    } else if (queriedKeys.has(key)) {
+      review.setAttribute(PROCESSED_ATTR, 'skip');
+    }
+  });
 }
 
 function scheduleSync(): void {
@@ -441,12 +533,13 @@ export default function photoReviews(
     stopUpload = startUpload(resolvedSettings as UploadSettings);
   }
 
-  // Render (gallery) is gated only on the review-block selector itself —
-  // works on product pages, the storefront homepage carousel, the
-  // /store-reviews/ page, and any other page that exposes review markup.
   console.log('[widgetality] photo-reviews: ✅ activated');
 
   settings = resolvedSettings;
+  matchedMedia.clear();
+  queriedKeys.clear();
+  inFlight = null;
+
   ensureStyles(settings);
   ensureObserver(settings);
   processReviews(settings);
@@ -466,6 +559,14 @@ export default function photoReviews(
     removeInjected();
     document.getElementById(STYLE_ID)?.remove();
     document.getElementById(GLB_STYLE_ID)?.remove();
+    matchedMedia.clear();
+    queriedKeys.clear();
+    inFlight = null;
     settings = null;
   };
+}
+
+// Exported for testing — lets vitest await the in-flight match request.
+export function __awaitInFlight(): Promise<void> {
+  return inFlight ?? Promise.resolve();
 }

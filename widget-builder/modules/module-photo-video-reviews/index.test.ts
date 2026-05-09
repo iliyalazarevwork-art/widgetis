@@ -4,7 +4,7 @@ vi.mock('@laxarevii/core', () => ({
   getLanguage: () => 'ua',
 }));
 
-import photoReviews from './index';
+import photoReviews, { __awaitInFlight } from './index';
 import { startUpload } from './upload';
 
 // ── Shared fixtures ────────────────────────────────────────────────────────────
@@ -34,8 +34,6 @@ const config = {
   reviewSelector: '.review-item',
   bodySelector: '.review-item__body',
   authorSelector: '.review-item__name',
-  photos: [],
-  fallbackUrls: ['https://example.com/img.jpg'],
   aspectRatio: '4 / 5',
   borderRadius: 14,
   openInLightbox: false,
@@ -54,14 +52,21 @@ const uploadSettings = {
   enableUpload: true,
 };
 
-function addReviewItem(): void {
+function addReviewItem(name = 'Хтось', body = 'Текст відгуку'): HTMLElement {
   const item = document.createElement('div');
   item.className = 'review-item';
   item.innerHTML = `
-    <div class="review-item__name">Хтось</div>
-    <div class="review-item__body">Текст відгуку</div>
+    <div class="review-item__name">${name}</div>
+    <div class="review-item__body">${body}</div>
   `;
   document.body.appendChild(item);
+  return item;
+}
+
+function mockMatchResponse(matches: Array<{ name: string; body: string; media: Array<{ url: string }> }>): void {
+  globalThis.fetch = vi
+    .fn()
+    .mockResolvedValue(new Response(JSON.stringify({ matches }), { status: 200 }));
 }
 
 function addReviewForm(): HTMLFormElement {
@@ -94,35 +99,88 @@ function setInputFiles(input: HTMLInputElement, files: File[]): void {
 
 // ── Render tests ───────────────────────────────────────────────────────────────
 
-describe('photo-reviews render gating', () => {
+describe('photo-reviews render via /match API', () => {
+  let cleanup: (() => void) | undefined;
+
   beforeEach(() => {
     document.body.innerHTML = '';
     document.head.innerHTML = '';
   });
 
-  it('додає галерею, коли в DOM є review-блок (будь-яка сторінка)', () => {
-    addReviewItem();
-
-    photoReviews(config, i18n);
-
-    const gallery = document.querySelector('.hs-photo-review__gallery');
-    expect(gallery).not.toBeNull();
+  afterEach(() => {
+    cleanup?.();
+    cleanup = undefined;
+    vi.restoreAllMocks();
   });
 
-  it('нічого не рендерить, коли в DOM немає жодного review-блоку', () => {
-    photoReviews(config, i18n);
+  it('відправляє кандидатів на /match і малює галерею для тих, що повернулися з media', async () => {
+    addReviewItem('Натали', 'Дякую');
+    addReviewItem('Шатохин Владислав', 'Thanks');
+    mockMatchResponse([
+      { name: 'Натали', body: 'Дякую', media: [{ url: 'https://r2.example.com/n.jpg' }] },
+    ]);
 
-    const gallery = document.querySelector('.hs-photo-review__gallery');
-    expect(gallery).toBeNull();
+    const stop = photoReviews(config, i18n);
+    cleanup = stop ?? undefined;
+    await __awaitInFlight();
+
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    const [url, opts] = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0] as [string, RequestInit];
+    expect(url).toBe('https://api.widgetis.com/api/v1/widgets/reviews/match');
+    expect(opts.method).toBe('POST');
+    expect(JSON.parse(opts.body as string)).toEqual({
+      candidates: [
+        { name: 'Натали', body: 'Дякую' },
+        { name: 'Шатохин Владислав', body: 'Thanks' },
+      ],
+    });
+
+    const galleries = document.querySelectorAll('.hs-photo-review__gallery');
+    expect(galleries.length).toBe(1);
+    const img = galleries[0]!.querySelector('img');
+    expect(img?.getAttribute('src')).toBe('https://r2.example.com/n.jpg');
+  });
+
+  it('нічого не запитує і не рендерить, коли в DOM немає жодного review-блоку', () => {
+    globalThis.fetch = vi.fn();
+    const stop = photoReviews(config, i18n);
+    cleanup = stop ?? undefined;
+
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+    expect(document.querySelector('.hs-photo-review__gallery')).toBeNull();
   });
 
   it('пропускає, коли enabled = false', () => {
     addReviewItem();
+    globalThis.fetch = vi.fn();
 
-    photoReviews({ ...config, enabled: false }, i18n);
+    const stop = photoReviews({ ...config, enabled: false }, i18n);
+    cleanup = stop ?? undefined;
 
-    const gallery = document.querySelector('.hs-photo-review__gallery');
-    expect(gallery).toBeNull();
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+    expect(document.querySelector('.hs-photo-review__gallery')).toBeNull();
+  });
+
+  it('галерея не з\'являється для відгуку, який бекенд не знає', async () => {
+    addReviewItem('Невідомий', 'Без фото');
+    mockMatchResponse([]);
+
+    const stop = photoReviews(config, i18n);
+    cleanup = stop ?? undefined;
+    await __awaitInFlight();
+
+    expect(document.querySelector('.hs-photo-review__gallery')).toBeNull();
+  });
+
+  it('фолбек при помилці мережі — не падаємо, нічого не малюємо', async () => {
+    addReviewItem('Хтось', 'Текст');
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('network down'));
+
+    const stop = photoReviews(config, i18n);
+    cleanup = stop ?? undefined;
+    await __awaitInFlight();
+
+    expect(document.querySelector('.hs-photo-review__gallery')).toBeNull();
   });
 });
 

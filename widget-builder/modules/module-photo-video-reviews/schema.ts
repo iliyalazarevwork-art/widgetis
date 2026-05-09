@@ -1,40 +1,6 @@
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
-const urlsField = z.preprocess(
-  (v) => (typeof v === 'string' ? (v.length > 0 ? [v] : []) : v),
-  z
-    .array(z.string().min(1).describe('URL фото або відео (mp4/webm/mov → відео)'))
-    .min(1)
-    .describe('Фото та відео до відгуку'),
-);
-
-const photoEntrySchema = z
-  .object({
-    urls: urlsField,
-    alt: z.string().optional().default('').describe('Альтернативний текст (опціонально)'),
-    author: z
-      .string()
-      .optional()
-      .default('')
-      .describe('Ім\'я автора (підрядок, нечутливий до регістру)'),
-    contains: z
-      .string()
-      .optional()
-      .default('')
-      .describe('Підрядок у тексті відгуку (нечутливий до регістру)'),
-    date: z
-      .string()
-      .optional()
-      .default('')
-      .describe('Підрядок у даті відгуку (напр. "2025-10-02" або "07.03.2025"). Перевіряється як в datetime-атрибуті, так і у видимому тексті.'),
-  })
-  .refine((e) => e.urls.length > 0, { message: 'at least one photo url required' })
-  .refine(
-    (e) => Boolean(e.author || e.contains || e.date),
-    { message: 'at least one of author/contains/date is required' },
-  );
-
 export const photoReviewsSchema = z.object({
   enabled: z.boolean().default(true).describe('Увімкнути віджет'),
   showOnMobile: z.boolean().default(true).describe('Показувати на мобільних'),
@@ -52,23 +18,6 @@ export const photoReviewsSchema = z.object({
     .string()
     .default('.review-item__name, .p-review-author__name')
     .describe('CSS-селектор імені автора (стара або нова розмітка)'),
-  dateSelector: z
-    .string()
-    .default('time[datetime], [datetime], .review-item__date, .p-review-meta__time')
-    .describe('CSS-селектор дати відгуку — перевіряється і атрибут datetime, і textContent'),
-
-  photos: z
-    .array(photoEntrySchema)
-    .default([])
-    .describe('Фото/відео прив\'язані до конкретних відгуків'),
-
-  fallbackUrls: z
-    .preprocess(
-      (v) => (typeof v === 'string' ? (v.length > 0 ? [v] : []) : v),
-      z.array(z.string().min(1).describe('URL фото або відео')),
-    )
-    .default([])
-    .describe('Запасні медіа — показуються, якщо нічого не збіглось'),
 
   aspectRatio: z.string().default('4 / 5').describe('Співвідношення сторін (напр. 4 / 5)'),
   borderRadius: z.number().default(14).describe('Закруглення кутів (px)'),

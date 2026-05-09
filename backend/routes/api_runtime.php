@@ -53,6 +53,7 @@ Route::prefix('v1')->group(function () {
         ->group(function () {
             Route::post('reviews', [WidgetReviewController::class, 'store'])->middleware('throttle:30,60');
             Route::get('reviews', [WidgetReviewController::class, 'index'])->middleware('throttle:60,1');
+            Route::post('reviews/match', [WidgetReviewController::class, 'match'])->middleware('throttle:120,1');
 
             Route::get('cart-recommender/suggest', CartRecommenderSuggestController::class)
                 ->middleware('throttle:60,1');
