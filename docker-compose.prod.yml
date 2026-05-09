@@ -141,6 +141,12 @@ services:
     environment:
       NODE_ENV: production
       PORT: "3100"
+      # Where site-proxy fetches per-session demo configs from. The default
+      # ("http://backend:8000") was correct when prod ran `artisan serve`, but
+      # since the FPM switchover (commit 6194f67) port 8000 is gone — the
+      # backend container only listens on 9000 (FastCGI). We go through Caddy
+      # over the public hostname so SNI/TLS termination is handled correctly.
+      BACKEND_API_URL: https://api.widgetis.com/api/v1
     restart: always
     stop_grace_period: 30s
     healthcheck:
