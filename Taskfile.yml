@@ -346,12 +346,13 @@ tasks:
     cmds:
       - |
         echo "[prerender] start"
-        # Explicit prod-values must override frontend/.env.local (which Vite loads
-        # even during `vite build` and which sets VITE_API_BASE_URL to localhost
-        # for dev). Without this, the production bundle ships hardcoded localhost
-        # URLs and breaks on widgetis.com with CORS errors.
+        # Explicit prod-values must override frontend/.env.local (which Vite
+        # loads even during `vite build` and which sets VITE_API_BASE_URL to
+        # localhost for dev). VITE_API_BASE_URL must be the ABSOLUTE api.*
+        # subdomain — a relative `/api/v1` lands on the static SPA nginx of
+        # widgetis.com, which only serves GET, so every POST returns 405.
         (cd frontend && \
-          VITE_API_BASE_URL=/api/v1 \
+          VITE_API_BASE_URL=https://api.widgetis.com/api/v1 \
           VITE_PREVIEW_BASE_URL=https://preview.widgetis.com \
           BACKEND_URL="${PRERENDER_BACKEND_URL:-https://api.widgetis.com}" \
           npm run build:prerender)

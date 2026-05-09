@@ -99,28 +99,31 @@ if [ "$LOCAL" = false ]; then
 
   # ── Pre-deploy: lint:fix + Caddyfile validate (parallel) ─────────────────
   # Independent, both local — no reason to wait for one before the other.
+  # Stream both outputs with a [lint]/[caddy] prefix so it's obvious which
+  # job is making progress while we wait. Going silent for 30s during eslint
+  # used to look like a hang.
   phase "local pre-flight (lint:fix + Caddyfile validate, parallel)"
   (
-    cd frontend && npm run lint:fix
-  ) >/tmp/lintfix.log 2>&1 &
+    cd frontend && npm run lint:fix 2>&1 | sed 's/^/   [lint]  /'
+  ) &
   LINT_PID=$!
 
   CADDY_PID=""
   if [ -f Caddyfile ]; then
-    docker run --rm \
-      -v "$PWD/Caddyfile:/etc/caddy/Caddyfile:ro" \
-      caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile \
-      >/tmp/caddy-validate.log 2>&1 &
+    (
+      docker run --rm \
+        -v "$PWD/Caddyfile:/etc/caddy/Caddyfile:ro" \
+        caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile 2>&1 \
+        | sed 's/^/   [caddy] /'
+    ) &
     CADDY_PID=$!
   fi
 
-  # ESLint failures are non-fatal (warnings ok); we just collect output.
+  # ESLint failures are non-fatal (warnings ok). Caddy validate is fatal.
   wait "$LINT_PID" || true
-  cat /tmp/lintfix.log
   if [ -n "$CADDY_PID" ]; then
     if ! wait "$CADDY_PID"; then
-      echo "❌ Caddyfile is invalid — aborting deploy:"
-      cat /tmp/caddy-validate.log
+      echo "❌ Caddyfile is invalid — aborting deploy"
       exit 1
     fi
     echo "   ✓ Caddyfile valid"
@@ -184,31 +187,48 @@ wait_healthy() {
 
   local has_hc
   has_hc=$(docker inspect -f '{{if .State.Health}}yes{{else}}no{{end}}' "$cid" 2>/dev/null || echo "no")
+  echo "   ⏳ waiting for $svc (healthcheck=$has_hc) ..."
 
+  local last_status=""
+  local t0
+  t0=$(date +%s)
   for i in $(seq 1 60); do
     cid=$($DC ps -q "$svc" | head -n1)
     [ -z "$cid" ] && { sleep 2; continue; }
 
+    local elapsed=$(( $(date +%s) - t0 ))
     if [ "$has_hc" = "yes" ]; then
       local status
       status=$(docker inspect -f '{{.State.Health.Status}}' "$cid" 2>/dev/null || echo "unknown")
       if [ "$status" = "healthy" ]; then
-        echo "   ✓ $svc healthy"
+        echo "   ✓ $svc healthy (${elapsed}s)"
         return 0
+      fi
+      # Print a heartbeat on first observation and on every status change so
+      # the operator can see we're still alive and what's going on.
+      if [ "$status" != "$last_status" ]; then
+        echo "   … $svc status=$status (${elapsed}s)"
+        last_status=$status
+      elif [ $((i % 5)) -eq 0 ]; then
+        echo "   … $svc still $status (${elapsed}s)"
       fi
     else
       local running
       running=$(docker inspect -f '{{.State.Running}}' "$cid" 2>/dev/null || echo "false")
       if [ "$running" = "true" ]; then
-        echo "   ✓ $svc running (no healthcheck)"
+        echo "   ✓ $svc running (no healthcheck, ${elapsed}s)"
         return 0
+      fi
+      if [ $((i % 5)) -eq 0 ]; then
+        echo "   … $svc not running yet (${elapsed}s)"
       fi
     fi
     sleep 2
   done
 
-  echo "   ⚠ $svc failed to become healthy in time — check: $DC logs $svc --tail=50"
+  echo "   ⚠ $svc failed to become healthy in time — last logs:"
   $DC logs "$svc" --tail=30 || true
+  echo "   (full: $DC logs $svc --tail=200)"
   return 1
 }
 
