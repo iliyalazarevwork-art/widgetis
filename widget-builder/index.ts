@@ -159,10 +159,16 @@ export async function buildModules(request: BuildRequest): Promise<string> {
     // Encode domain as char codes so the hostname is not plainly visible in the bundle
     const charCodes = Array.from(d).map((c) => c.charCodeAt(0)).join(',');
     const checkSnippet = `(function(){var _d=String.fromCharCode(${charCodes});var _h=window.location.hostname;if(_h!==_d&&!_h.endsWith('.'+_d))throw new Error();}());`;
-    // Inject the check near the middle of the bundle, not at the end
-    const mid = Math.floor(code.length / 2);
-    const boundary = code.lastIndexOf(';', mid);
-    const insertAt = boundary > 0 ? boundary + 1 : mid;
+    // Inject right after the IIFE preamble. We used to splice at the
+    // first `;` before the bundle midpoint to make the guard harder to
+    // strip, but `;` also appears inside `for(;;)` headers and template
+    // literals — when the cut lands inside an expression the obfuscator
+    // gets syntactically broken JS and refuses the whole bundle. The
+    // snippet is its own IIFE, so it stays self-contained no matter
+    // where we drop it.
+    const preamble = "'use strict';";
+    const idx = code.indexOf(preamble);
+    const insertAt = idx >= 0 ? idx + preamble.length : 0;
     code = code.slice(0, insertAt) + checkSnippet + code.slice(insertAt);
   }
 
