@@ -337,9 +337,10 @@ tasks:
   _deploy:pre:vitest:
     internal: true
     cmds:
-      # CI=1 + --reporter=basic → строчный вывод без ANSI-перерисовки курсора;
+      # CI=1 + default reporter без summary → строчный вывод без ANSI-перерисовки курсора;
       # без этого vitest в параллельном `deps:` ломает терминал.
-      - echo "[vitest]  start" && (cd frontend && CI=1 time npm test -- --reporter=basic) && echo "[vitest]  done"
+      # NB: vitest 4 убрал `basic`; эквивалент — `default` + `reporter.summary=false`.
+      - echo "[vitest]  start" && (cd frontend && CI=1 time npm test -- --reporter=default --reporter.summary=false) && echo "[vitest]  done"
   _deploy:pre:prerender:
     internal: true
     cmds:
