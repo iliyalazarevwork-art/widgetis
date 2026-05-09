@@ -1,5 +1,11 @@
 version: '3'
 
+# Buffer parallel task output so simultaneous deps (e.g. phpstan + tsc + phpunit
+# + vitest in `_deploy:pre:check`) don't interleave their lines into one
+# unreadable mess. Each task's output is held until it completes, then printed
+# as a labelled block.
+output: group
+
 vars:
   DC: docker compose -f docker-compose.dev.yml
   EXEC: '{{.DC}} exec backend'
@@ -319,7 +325,7 @@ tasks:
   _deploy:pre:phpstan:
     internal: true
     cmds:
-      - echo "[phpstan] start" && time {{.EXEC}} ./vendor/bin/phpstan analyse --memory-limit=512M && echo "[phpstan] done"
+      - echo "[phpstan] start" && time {{.EXEC}} ./vendor/bin/phpstan analyse --memory-limit=512M --no-progress && echo "[phpstan] done"
   _deploy:pre:tsc:
     internal: true
     cmds:
@@ -331,7 +337,9 @@ tasks:
   _deploy:pre:vitest:
     internal: true
     cmds:
-      - echo "[vitest]  start" && (cd frontend && time npm test) && echo "[vitest]  done"
+      # CI=1 + --reporter=basic → строчный вывод без ANSI-перерисовки курсора;
+      # без этого vitest в параллельном `deps:` ломает терминал.
+      - echo "[vitest]  start" && (cd frontend && CI=1 time npm test -- --reporter=basic) && echo "[vitest]  done"
   _deploy:pre:prerender:
     internal: true
     cmds:
@@ -385,25 +393,20 @@ tasks:
 
   deploy:
     desc: "Полный деплой: проверки → бэкап → деплой → смоук  ·  task deploy"
+    silent: true
+    vars:
+      T0:
+        sh: date +%s
     cmds:
-      - |
-        T0=$(date +%s)
-        section() { echo ""; echo "═══ $1 ═══"; SEC_T0=$(date +%s); }
-        section_end() { echo "═══ $1: $(($(date +%s) - SEC_T0))s ═══"; }
-        section "1/4 deploy:pre"
-        task deploy:pre
-        section_end "1/4 deploy:pre"
-        section "2/4 prod:db:dump"
-        task prod:db:dump
-        section_end "2/4 prod:db:dump"
-        section "3/4 deploy.sh"
-        bash deploy.sh
-        section_end "3/4 deploy.sh"
-        section "4/4 test:smoke:prod"
-        task test:smoke:prod
-        section_end "4/4 test:smoke:prod"
-        echo ""
-        echo "✅ TOTAL deploy time: $(($(date +%s) - T0))s"
+      - echo "" && echo "═══ 1/4 deploy:pre ═══"
+      - task: deploy:pre
+      - echo "" && echo "═══ 2/4 prod:db:dump ═══"
+      - task: prod:db:dump
+      - echo "" && echo "═══ 3/4 deploy.sh ═══"
+      - bash deploy.sh
+      - echo "" && echo "═══ 4/4 test:smoke:prod ═══"
+      - task: test:smoke:prod
+      - echo "" && echo "✅ TOTAL deploy time $(($(date +%s) - {{.T0}}))s"
 
   d:
     desc: "Алиас: task d -> task deploy"

@@ -23,20 +23,39 @@ const photoEntrySchema = z
       .optional()
       .default('')
       .describe('Підрядок у тексті відгуку (нечутливий до регістру)'),
+    date: z
+      .string()
+      .optional()
+      .default('')
+      .describe('Підрядок у даті відгуку (напр. "2025-10-02" або "07.03.2025"). Перевіряється як в datetime-атрибуті, так і у видимому тексті.'),
   })
-  .refine((e) => e.urls.length > 0, { message: 'at least one photo url required' });
+  .refine((e) => e.urls.length > 0, { message: 'at least one photo url required' })
+  .refine(
+    (e) => Boolean(e.author || e.contains || e.date),
+    { message: 'at least one of author/contains/date is required' },
+  );
 
 export const photoReviewsSchema = z.object({
   enabled: z.boolean().default(true).describe('Увімкнути віджет'),
   showOnMobile: z.boolean().default(true).describe('Показувати на мобільних'),
   showOnDesktop: z.boolean().default(true).describe('Показувати на десктопі'),
 
-  reviewSelector: z.string().default('.review-item').describe('CSS-селектор блоку відгуку'),
-  bodySelector: z.string().default('.review-item__body').describe('CSS-селектор тіла відгуку'),
+  reviewSelector: z
+    .string()
+    .default('.review-item, .p-review--full')
+    .describe('CSS-селектор блоку відгуку (підтримує і стару карусель ".review-item", і нову сторінку відгуків ".p-review--full")'),
+  bodySelector: z
+    .string()
+    .default('.review-item__body, .p-review__content')
+    .describe('CSS-селектор тіла відгуку (стара або нова розмітка)'),
   authorSelector: z
     .string()
-    .default('.review-item__name')
-    .describe('CSS-селектор імені автора'),
+    .default('.review-item__name, .p-review-author__name')
+    .describe('CSS-селектор імені автора (стара або нова розмітка)'),
+  dateSelector: z
+    .string()
+    .default('time[datetime], [datetime], .review-item__date, .p-review-meta__time')
+    .describe('CSS-селектор дати відгуку — перевіряється і атрибут datetime, і textContent'),
 
   photos: z
     .array(photoEntrySchema)
@@ -133,6 +152,36 @@ export function getDefaultI18n(): PhotoReviewsI18n {
       errVideoSize: 'Відео більше 30 МБ',
       errMixed: 'Не можна додати фото та відео одночасно',
       removeLabel: 'Видалити',
+    },
+    en: {
+      viewPhotoLabel: 'Customer photo',
+      closeLabel: 'Close',
+      prevLabel: 'Previous',
+      nextLabel: 'Next',
+      addMediaLabel: 'Add photo or video',
+      mediaHint: 'Up to 5 photos (≤5 MB each) or 1 video (≤30 MB)',
+      errPhotoMime: 'Supported formats: JPG, PNG, WEBP',
+      errPhotoSize: 'Photo exceeds 5 MB',
+      errPhotoCount: 'Maximum 5 photos',
+      errVideoMime: 'Supported formats: MP4, WEBM, MOV',
+      errVideoSize: 'Video exceeds 30 MB',
+      errMixed: 'Photos and video cannot be uploaded together',
+      removeLabel: 'Remove',
+    },
+    ru: {
+      viewPhotoLabel: 'Фото от клиента',
+      closeLabel: 'Закрыть',
+      prevLabel: 'Предыдущее',
+      nextLabel: 'Следующее',
+      addMediaLabel: 'Добавить фото или видео',
+      mediaHint: 'До 5 фото (≤5 МБ каждое) или 1 видео (≤30 МБ)',
+      errPhotoMime: 'Поддерживаются JPG, PNG, WEBP',
+      errPhotoSize: 'Фото больше 5 МБ',
+      errPhotoCount: 'Максимум 5 фото',
+      errVideoMime: 'Поддерживаются MP4, WEBM, MOV',
+      errVideoSize: 'Видео больше 30 МБ',
+      errMixed: 'Нельзя добавить фото и видео одновременно',
+      removeLabel: 'Удалить',
     },
   };
 }

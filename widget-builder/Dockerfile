@@ -15,6 +15,7 @@ COPY modules/ ./modules/
 COPY index.ts ./
 COPY server.ts ./
 COPY build-demo.ts ./
+COPY validate-demo-config.ts ./
 COPY demo-config.json ./
 
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store \

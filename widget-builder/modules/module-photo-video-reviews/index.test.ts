@@ -1,10 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-let productPageOverride: boolean | null = null;
 vi.mock('@laxarevii/core', () => ({
   getLanguage: () => 'ua',
-  isHoroshopProductPage: () =>
-    productPageOverride ?? document.querySelector('.product-header, .j-product-block') !== null,
 }));
 
 import photoReviews from './index';
@@ -97,15 +94,13 @@ function setInputFiles(input: HTMLInputElement, files: File[]): void {
 
 // ── Render tests ───────────────────────────────────────────────────────────────
 
-describe('photo-reviews page-type guard', () => {
+describe('photo-reviews render gating', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
     document.head.innerHTML = '';
-    productPageOverride = null;
   });
 
-  it('активується і додає галерею на сторінці товару', () => {
-    productPageOverride = true;
+  it('додає галерею, коли в DOM є review-блок (будь-яка сторінка)', () => {
     addReviewItem();
 
     photoReviews(config, i18n);
@@ -114,18 +109,14 @@ describe('photo-reviews page-type guard', () => {
     expect(gallery).not.toBeNull();
   });
 
-  it('пропускає роботу на не-товарній сторінці (галерея не додається)', () => {
-    productPageOverride = false;
-    addReviewItem();
-
+  it('нічого не рендерить, коли в DOM немає жодного review-блоку', () => {
     photoReviews(config, i18n);
 
     const gallery = document.querySelector('.hs-photo-review__gallery');
     expect(gallery).toBeNull();
   });
 
-  it('пропускає, коли enabled = false (навіть на товарній сторінці)', () => {
-    productPageOverride = true;
+  it('пропускає, коли enabled = false', () => {
     addReviewItem();
 
     photoReviews({ ...config, enabled: false }, i18n);
@@ -143,7 +134,6 @@ describe('photo-reviews upload injection', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
     document.head.innerHTML = '';
-    productPageOverride = null;
     globalThis.fetch = vi.fn().mockResolvedValue(new Response());
   });
 
@@ -168,8 +158,6 @@ describe('photo-reviews upload injection', () => {
 
   it('form present + enableUpload: false → button NOT appended', () => {
     addReviewForm();
-    // call photoReviews with enableUpload: false (no product page needed)
-    productPageOverride = false;
     const stop = photoReviews({ ...config, enableUpload: false }, i18n);
     cleanup = stop ?? undefined;
 

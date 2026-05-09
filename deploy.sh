@@ -223,13 +223,17 @@ rolling_restart() {
 
 # ── Step 1: Build all images first (no containers touched) ────────────────────
 # COMPOSE_BAKE=true → docker buildx bake under the hood, builds all services
-# in parallel (compose v2 build is sequential by default). BUILDKIT_INLINE_CACHE
-# embeds layer cache hints into images so re-builds reuse cached layers.
+# in parallel (compose v2 build is sequential by default). BuildKit reuses
+# cached layers — Dockerfiles are structured so dependency install (apt /
+# composer / pnpm) sits above `COPY . .`, so the COPY layer (and only it)
+# invalidates when the source changes. Use --no-cache-build to force a full
+# rebuild when needed; --pull-base to re-pull base images.
 if [ "$SKIP_BUILD" = false ]; then
-  phase "docker build (parallel via bake, --no-cache, --pull)"
-  # Always a full rebuild — no layer cache, fresh base images. Guarantees
-  # prod ships exactly the source that was just pushed.
-  DOCKER_BUILDKIT=1 COMPOSE_BAKE=true $DC build --no-cache --pull
+  BUILD_FLAGS=""
+  [ "${NO_CACHE_BUILD:-false}" = true ] && BUILD_FLAGS="$BUILD_FLAGS --no-cache"
+  [ "${PULL_BASE:-false}"      = true ] && BUILD_FLAGS="$BUILD_FLAGS --pull"
+  phase "docker build (parallel via bake${BUILD_FLAGS:+,$BUILD_FLAGS})"
+  DOCKER_BUILDKIT=1 COMPOSE_BAKE=true $DC build $BUILD_FLAGS
   phase_end
 fi
 

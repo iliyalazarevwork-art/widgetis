@@ -47,7 +47,11 @@ services:
       - widgetis
 
   # ── Backend API (php-fpm, fronted by Caddy via FastCGI) ──
+  # Image is also reused by `queue-worker` and `scheduler` — same code,
+  # different command. Building it once here saves ~2/3 of the backend
+  # build time on every deploy.
   backend:
+    image: widgetis-backend:latest
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -79,10 +83,9 @@ services:
       - widgetis
 
   # ── Queue Worker ───────────────────────────────────────────
+  # Reuses the `backend` image (same code, different entrypoint).
   queue-worker:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: widgetis-backend:latest
     command: ["sh", "-c", "php artisan queue:work redis --queue=emails,default --sleep=3 --tries=3 --backoff=10 --max-time=3600"]
     env_file:
       - ./backend/.env
@@ -97,10 +100,9 @@ services:
       - widgetis
 
   # ── Scheduler (cron) ──────────────────────────────────────
+  # Reuses the `backend` image (same code, different entrypoint).
   scheduler:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: widgetis-backend:latest
     command: ["sh", "-c", "while true; do php artisan schedule:run --verbose --no-interaction; sleep 60; done"]
     env_file:
       - ./backend/.env

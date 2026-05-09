@@ -4,7 +4,7 @@ import {
   type PhotoReviewsInput,
   type PhotoReviewsConfig,
 } from './schema';
-import { getLanguage, isHoroshopProductPage } from '@laxarevii/core';
+import { getLanguage } from '@laxarevii/core';
 import GLightbox from 'glightbox';
 import glightboxCss from 'glightbox/dist/css/glightbox.min.css?inline';
 import { startUpload, type UploadSettings } from './upload';
@@ -174,9 +174,21 @@ function ensureStyles(s: ResolvedSettings): void {
   document.head.appendChild(style);
 }
 
+function normalize(value: string): string {
+  return value.replace(/\s+/g, ' ').trim().toLowerCase();
+}
+
 function getText(review: HTMLElement, selector: string): string {
   const el = review.querySelector<HTMLElement>(selector);
-  return (el?.textContent ?? '').trim().toLowerCase();
+  return normalize(el?.textContent ?? '');
+}
+
+function getDateText(review: HTMLElement, selector: string): string {
+  const el = review.querySelector<HTMLElement>(selector);
+  if (!el) return '';
+  const datetimeAttr = el.getAttribute('datetime') ?? '';
+  const text = el.textContent ?? '';
+  return normalize(`${datetimeAttr} ${text}`);
 }
 
 function resolveUrls(
@@ -185,12 +197,15 @@ function resolveUrls(
 ): { urls: string[]; alt: string } | null {
   const author = getText(review, s.authorSelector);
   const body = getText(review, s.bodySelector);
+  const date = getDateText(review, s.dateSelector);
 
   for (const entry of s.photos) {
-    if (entry.author && author.includes(entry.author.trim().toLowerCase())) {
-      return { urls: entry.urls, alt: entry.alt || s.viewPhotoLabel };
-    }
-    if (entry.contains && body.includes(entry.contains.trim().toLowerCase())) {
+    const checks: boolean[] = [];
+    if (entry.author) checks.push(author.includes(normalize(entry.author)));
+    if (entry.contains) checks.push(body.includes(normalize(entry.contains)));
+    if (entry.date) checks.push(date.includes(normalize(entry.date)));
+
+    if (checks.length > 0 && checks.every(Boolean)) {
       return { urls: entry.urls, alt: entry.alt || s.viewPhotoLabel };
     }
   }
@@ -353,7 +368,6 @@ function openLightbox(urls: string[], alt: string, index: number): void {
 
 function processReviews(s: ResolvedSettings): void {
   if (!shouldShowForViewport(s)) return;
-  if (!isHoroshopProductPage()) return;
 
   const reviews = Array.from(document.querySelectorAll<HTMLElement>(s.reviewSelector));
   if (reviews.length === 0) return;
@@ -420,22 +434,16 @@ export default function photoReviews(
 
   const resolvedSettings: ResolvedSettings = { ...config, ...i18n };
 
-  // Upload runs regardless of product-page detection — the form selector is
-  // its own strong-enough heuristic, and popup themes are unreliable to detect.
+  // Upload runs regardless of page type — the form selector is its own
+  // strong-enough heuristic, and popup themes are unreliable to detect.
   let stopUpload: (() => void) | null = null;
   if (config.enableUpload) {
     stopUpload = startUpload(resolvedSettings as UploadSettings);
   }
 
-  // Render (gallery) is gated on product-page detection.
-  if (!isHoroshopProductPage()) {
-    console.warn('[widgetality] photo-reviews: ⚠️ render skipped — not a product page');
-    // Still return cleanup so upload observer is disconnected.
-    return () => {
-      stopUpload?.();
-    };
-  }
-
+  // Render (gallery) is gated only on the review-block selector itself —
+  // works on product pages, the storefront homepage carousel, the
+  // /store-reviews/ page, and any other page that exposes review markup.
   console.log('[widgetality] photo-reviews: ✅ activated');
 
   settings = resolvedSettings;
