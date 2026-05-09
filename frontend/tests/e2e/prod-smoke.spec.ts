@@ -161,6 +161,58 @@ test.describe('prod-smoke', () => {
     ).toBe(true)
   })
 
+  // /free-demo regression guard: a build with VITE_API_BASE_URL unset bakes a
+  // relative `/api/v1` into the bundle. On widgetis.com that path falls
+  // through to the SPA's static-only nginx, which answers any non-GET with
+  // a plain-text 405 — the demo-creation flow is silently broken without any
+  // backend log entry.
+  test('POST /api/v1/demo-sessions on the API host returns JSON (not the SPA 405)', async ({ request }) => {
+    const url = apiUrl('/api/v1/demo-sessions')
+    const res = await request.post(url, {
+      data: {},
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    })
+    expect(
+      res.status(),
+      `POST ${url} returned ${res.status()}. A 405 here means nginx (SPA host) is answering — ` +
+        `Caddy is routing /api/v1/* to the wrong upstream, or the SPA bundle was published with the API host pointing at itself.`,
+    ).not.toBe(405)
+    await expectJsonContentType(res, url)
+    expect(res.status(), `expected 422 validation error from ${url}`).toBe(422)
+  })
+
+  test('/free-demo form submits to the API host, not relative to the SPA host', async ({ page }) => {
+    if (!hasSeparateApiHost()) test.skip(true, 'only meaningful when SPA + API are on different origins')
+
+    // Intercept BEFORE the request is sent so we don't actually create a demo
+    // session on prod. We only care that the URL the bundle picked is on the
+    // API origin — fulfill with a synthetic JSON response so the page state
+    // machine doesn't error out.
+    const seenUrls: string[] = []
+    await page.route(/\/api\/v1\/demo-sessions(?:[/?].*)?$/, async (route) => {
+      seenUrls.push(route.request().url())
+      await route.fulfill({
+        status: 422,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          error: { code: 'VALIDATION_ERROR', message: 'intercepted by smoke test', details: {} },
+        }),
+      })
+    })
+
+    // autoStart triggers the POST automatically with the URL from the query.
+    await page.goto('/free-demo?url=smoke-test.example.com', { waitUntil: 'networkidle' })
+
+    expect(seenUrls.length, 'demo-sessions POST never fired — autoStart flow regressed').toBeGreaterThan(0)
+    const apiHost = new URL(hosts().api).host
+    for (const u of seenUrls) {
+      expect(
+        new URL(u).host,
+        `demo-sessions POST went to ${u} — bundle is using a relative /api/v1, deploy a build with VITE_API_BASE_URL=${hosts().api}/api/v1`,
+      ).toBe(apiHost)
+    }
+  })
+
   // ── Public pages: render + no JS errors + page-specific content ────────────
   // One test per page so a single bad route doesn't mask the others.
   //
@@ -174,6 +226,7 @@ test.describe('prod-smoke', () => {
     { path: '/signup', requiredSelector: 'input[type="email"]' },
     { path: '/signup?plan=pro&billing=yearly', requiredSelector: 'input[type="email"]' },
     { path: '/demo', requiredSelector: 'iframe, [class*="demo"], input, button' },
+    { path: '/free-demo', requiredSelector: 'input.demo__input, .demo__submit' },
     { path: '/contacts', requiredSelector: '[class*="contact"], h1, h2' },
     { path: '/cases', requiredSelector: '[class*="case"], h1, h2' },
     { path: '/license', requiredSelector: 'h1, h2, p' },
