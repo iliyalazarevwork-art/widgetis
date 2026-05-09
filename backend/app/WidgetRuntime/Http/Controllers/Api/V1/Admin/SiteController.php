@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\WidgetRuntime\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Api\V1\BaseController;
+use App\WidgetRuntime\Jobs\RebuildSiteScriptJob;
 use App\WidgetRuntime\Models\Site;
 use App\WidgetRuntime\Models\SiteWidget;
-use App\WidgetRuntime\Services\Site\ScriptBuilderService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -95,12 +95,9 @@ class SiteController extends BaseController
             ->where('id', $site->user_id)
             ->first(['id', 'email', 'name']);
 
-        // Fetch widget product slugs/icons from products table
-        $productIds = $site->widgets->pluck('product_id')->all();
-        $products = DB::table('products')
-            ->whereIn('id', $productIds)
-            ->get(['id', 'slug', 'name', 'icon'])
-            ->keyBy('id');
+        $allProducts = DB::table('products')
+            ->get(['id', 'slug', 'name', 'icon']);
+        $productsById = $allProducts->keyBy('id');
 
         return $this->success([
             'data' => [
@@ -117,51 +114,29 @@ class SiteController extends BaseController
                     'script_tag' => $site->script->script_tag,
                     'is_active' => $site->script->is_active,
                 ] : null,
-                'widgets' => $site->widgets->map(function (SiteWidget $w) use ($products) {
-                    $product = $products->get($w->product_id);
+                'widgets' => $site->widgets->map(function (SiteWidget $w) use ($productsById) {
+                    $product = $productsById->get($w->product_id);
 
                     return [
                         'product_id' => $w->product_id,
+                        'slug' => $product?->slug,
                         'name' => $product?->name,
                         'icon' => $product?->icon,
                         'is_enabled' => $w->is_enabled,
                         'config' => $w->config,
                     ];
                 }),
+                'products' => $allProducts->map(fn ($p) => [
+                    'id' => $p->id,
+                    'slug' => $p->slug,
+                    'name' => $p->name,
+                    'icon' => $p->icon,
+                ])->values(),
                 'user' => $user ? [
                     'id' => $user->id,
                     'email' => $user->email,
                     'name' => $user->name,
                 ] : null,
-            ],
-        ]);
-    }
-
-    public function deploy(Request $request, string $id, ScriptBuilderService $builder): JsonResponse
-    {
-        $request->validate([
-            'modules' => ['required', 'array'],
-            'obfuscate' => ['boolean'],
-        ]);
-
-        /** @var Site $site */
-        $site = Site::with(['script'])->findOrFail($id);
-
-        /** @var array<string, array{is_enabled: bool, config: array<string, mixed>, i18n: mixed}> $modules */
-        $modules = $request->input('modules');
-        $obfuscate = $request->boolean('obfuscate', true);
-
-        try {
-            $build = $builder->buildFromModules($site, $modules, $obfuscate);
-        } catch (\Throwable $e) {
-            return $this->error('DEPLOY_FAILED', $e->getMessage(), 500);
-        }
-
-        return $this->success([
-            'data' => [
-                'url' => $build->file_url,
-                'version' => $build->version,
-                'built_at' => now()->toIso8601String(),
             ],
         ]);
     }
@@ -185,6 +160,8 @@ class SiteController extends BaseController
                 'disabled_at' => $request->input('is_enabled') === false ? now() : null,
             ], fn ($v) => $v !== null),
         );
+
+        RebuildSiteScriptJob::dispatch($site->id);
 
         return $this->success([
             'data' => [

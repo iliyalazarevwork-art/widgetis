@@ -102,8 +102,6 @@ Route::prefix('v1')->group(function () {
     Route::prefix('admin')->middleware(['auth:core', 'role:admin'])->group(function () {
         Route::get('sites', [AdminSiteController::class, 'index']);
         Route::get('sites/{id}', [AdminSiteController::class, 'show']);
-        Route::post('sites/{id}/deploy', [AdminSiteController::class, 'deploy'])
-            ->middleware('throttle:10,60');
         Route::put('sites/{siteId}/widgets/{productId}', [AdminSiteController::class, 'updateWidget']);
         Route::post('demo-sessions', [AdminDemoSessionController::class, 'store']);
         Route::get('demo-analytics', [DemoAnalyticsController::class, 'index']);

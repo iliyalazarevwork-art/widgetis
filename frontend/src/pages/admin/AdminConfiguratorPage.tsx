@@ -13,7 +13,7 @@ import {
   Globe,
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { get, post } from '../../api/client'
+import { get, post, put } from '../../api/client'
 import { ADMIN_BOTTOM_TABS } from './adminBottomTabs'
 import './configurator-mobile.css'
 
@@ -103,7 +103,13 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
 
-  const storageKey = siteContext ? `widgetis-cfg-site-${siteContext.id}` : STORAGE_KEY
+  // Per-site mode reads/writes site_widgets through the API; only the global
+  // playground (no siteContext) uses localStorage as a sandbox.
+  const storageKey = STORAGE_KEY
+  const isSiteMode = !!siteContext
+
+  const [slugToProductId, setSlugToProductId] = useState<Record<string, number>>({})
+  const [savingActive, setSavingActive] = useState(false)
 
   const [building, setBuilding] = useState(false)
   const [builtJs, setBuiltJs] = useState<string | null>(null)
@@ -113,8 +119,7 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
   const [creatingDemo, setCreatingDemo] = useState(false)
   const [demoLink, setDemoLink] = useState<string | null>(null)
   const [demoLinkCopied, setDemoLinkCopied] = useState(false)
-  const [deploying, setDeploying] = useState(false)
-  const [deployedUrl, setDeployedUrl] = useState<string | null>(siteContext?.deployedScriptUrl ?? null)
+  const [deployedUrl] = useState<string | null>(siteContext?.deployedScriptUrl ?? null)
   const [snippetCopied, setSnippetCopied] = useState(false)
 
   const [previewOpen, setPreviewOpen] = useState(false)
@@ -145,15 +150,46 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
         const ids = Object.keys(data).sort()
         setModuleIds(ids)
 
-        // Restore from localStorage or use defaults
-        const saved = loadSaved(storageKey)
+        // Per-site mode: hydrate from site_widgets (DB is the source of truth).
+        // Global mode: hydrate from localStorage sandbox.
+        const siteWidgetState: Record<string, { is_enabled: boolean; config: Record<string, unknown>; i18n: Record<string, unknown> }> = {}
+        let slugMap: Record<string, number> = {}
+
+        if (siteContext) {
+          type SiteResp = {
+            data: {
+              widgets: Array<{ product_id: number; slug: string | null; is_enabled: boolean; config: unknown }>
+              products: Array<{ id: number; slug: string }>
+            }
+          }
+          const site = await get<SiteResp>(`/admin/sites/${siteContext.id}`)
+          slugMap = Object.fromEntries(site.data.products.map(p => [p.slug, p.id]))
+          for (const w of site.data.widgets) {
+            if (!w.slug) continue
+            const moduleKey = `module-${w.slug}`
+            const stored = (w.config && typeof w.config === 'object') ? (w.config as Record<string, unknown>) : {}
+            const cfg = (stored.config && typeof stored.config === 'object') ? (stored.config as Record<string, unknown>) : {}
+            const i18n = (stored.i18n && typeof stored.i18n === 'object') ? (stored.i18n as Record<string, unknown>) : {}
+            siteWidgetState[moduleKey] = { is_enabled: w.is_enabled, config: cfg, i18n }
+          }
+        }
+        setSlugToProductId(slugMap)
+
+        const saved = isSiteMode ? null : loadSaved(storageKey)
         const states: Record<string, ModuleState> = {}
         for (const id of ids) {
-          if (saved?.moduleStates?.[id]) {
+          if (siteWidgetState[id]) {
+            // DB row exists — merge with widget-builder defaults so newly-added schema keys still appear
+            const db = siteWidgetState[id]
+            states[id] = {
+              config: { ...deepClone(data[id].defaultConfig), ...db.config, enabled: db.is_enabled },
+              i18n: Object.keys(db.i18n).length > 0 ? db.i18n : deepClone(data[id].defaultI18n),
+            }
+          } else if (saved?.moduleStates?.[id]) {
             states[id] = saved.moduleStates[id]
           } else {
             states[id] = {
-              config: deepClone(data[id].defaultConfig),
+              config: { ...deepClone(data[id].defaultConfig), enabled: false },
               i18n: deepClone(data[id].defaultI18n),
             }
           }
@@ -175,12 +211,12 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Persist on change
+  // Persist on change — sandbox only; per-site mode writes via Save button.
   useEffect(() => {
-    if (moduleIds.length > 0) {
+    if (!isSiteMode && moduleIds.length > 0) {
       saveToStorage(storageKey, moduleStates, activeModule, previewUrl)
     }
-  }, [moduleStates, activeModule, previewUrl, moduleIds, storageKey])
+  }, [moduleStates, activeModule, previewUrl, moduleIds, storageKey, isSiteMode])
 
   // ─── Convenience ───────────────────────────────────────────────────
 
@@ -438,37 +474,28 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
 
   // ─── Deploy to R2 ─────────────────────────────────────────────────
 
-  function buildModulesPayload() {
-    const { modules: rawModules, obfuscate: shouldObfuscate } = getBuildRequest()
-    const modules = Object.fromEntries(
-      Object.entries(rawModules).map(([id, m]) => {
-        const { enabled, ...config } = m.config as Record<string, unknown> & { enabled?: unknown }
-        return [id, { is_enabled: Boolean(enabled), config, i18n: m.i18n }]
-      })
-    )
-    return { modules, obfuscate: shouldObfuscate }
-  }
-
-  async function buildAndDeploy() {
-    if (!siteContext) return
-    setDeploying(true)
-    setBuildError(null)
-    setDeployedUrl(null)
+  async function saveActiveModule() {
+    if (!siteContext || !activeModule) return
+    const slug = activeModule.replace(/^module-/, '')
+    const productId = slugToProductId[slug]
+    if (!productId) {
+      toast.error(`У каталозі немає продукту з slug "${slug}"`)
+      return
+    }
+    const st = moduleStates[activeModule]
+    if (!st) return
+    const { enabled, ...configWithoutEnabled } = st.config as Record<string, unknown> & { enabled?: unknown }
+    setSavingActive(true)
     try {
-      const payload = buildModulesPayload()
-      const data = await post<{ data?: { url?: string } }>(`/admin/sites/${siteContext.id}/deploy`, payload)
-      const url = data.data?.url || `https://cdn.widgetis.com/sites/${siteContext.domain}/widget.js`
-      setDeployedUrl(url)
-      setBuiltJs(null)
-      const snippet = `<script src="${url}"></script>`
-      await navigator.clipboard.writeText(snippet).catch(() => {})
-      toast.success('Збілджено і задеплоєно! Тег <script> скопійовано.')
+      await put(`/admin/sites/${siteContext.id}/widgets/${productId}`, {
+        is_enabled: Boolean(enabled),
+        config: { config: configWithoutEnabled, i18n: st.i18n },
+      })
+      toast.success('Збережено. Скрипт пересобирається.')
     } catch (err) {
-      const msg = (err as Error).message || 'Помилка деплою'
-      setBuildError(msg)
-      toast.error(msg)
+      toast.error((err as Error).message || 'Помилка збереження')
     } finally {
-      setDeploying(false)
+      setSavingActive(false)
     }
   }
 
@@ -668,16 +695,16 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
               type="button"
               className="cfg-m__action-build"
               style={{
-                background: deploying ? '#374151' : 'linear-gradient(135deg, #0f766e 0%, #0369a1 100%)',
+                background: savingActive ? '#374151' : 'linear-gradient(135deg, #16a34a 0%, #0369a1 100%)',
                 marginTop: 6,
-                opacity: deploying ? 0.5 : 1,
-                cursor: deploying ? 'not-allowed' : 'pointer',
+                opacity: savingActive ? 0.5 : 1,
+                cursor: savingActive ? 'not-allowed' : 'pointer',
               }}
-              onClick={buildAndDeploy}
-              disabled={deploying}
+              onClick={saveActiveModule}
+              disabled={savingActive || !activeModule}
             >
-              {deploying ? <Loader size={15} strokeWidth={2} className="cfg-m__spin" /> : <Plus size={15} strokeWidth={2} />}
-              {deploying ? 'Збірка і деплой...' : 'Збілдити і задеплоїти'}
+              {savingActive ? <Loader size={15} strokeWidth={2} className="cfg-m__spin" /> : <Check size={15} strokeWidth={2} />}
+              {savingActive ? 'Збереження...' : `Зберегти ${moduleLabel(activeModule)}`}
             </button>
           )}
           {buildError && <div className="cfg-m__build-error">Помилка: {buildError}</div>}

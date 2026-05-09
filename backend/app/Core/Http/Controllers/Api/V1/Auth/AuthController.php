@@ -211,10 +211,23 @@ class AuthController extends CoreBaseController
 
         return $this->success(['data' => [
             ...$user->toArray(),
-            'role'                 => $user->roles->first()?->name ?? 'customer',
+            'role'                 => $this->resolveRole($user),
             'subscription_status'  => $status instanceof SubscriptionStatus ? $status->value : null,
             'onboarding_completed' => $user->onboarding_completed_at !== null,
         ]]);
+    }
+
+    /**
+     * Admin precedence: a user with both roles must always present as admin so the
+     * frontend RequireCustomer guard redirects them out of `/cabinet/*`. Falling back
+     * to `roles->first()` would surface whichever role was assigned earliest in the
+     * pivot, leaking admins into the customer cabinet.
+     */
+    private function resolveRole(User $user): string
+    {
+        return $user->hasRole(UserRole::Admin->value)
+            ? UserRole::Admin->value
+            : UserRole::Customer->value;
     }
 
     private function guard(): JWTGuard
@@ -244,7 +257,7 @@ class AuthController extends CoreBaseController
                 'name'   => $user->name,
                 'email'  => $user->email,
                 'locale' => $user->locale,
-                'role'   => $user->roles->first()?->name ?? 'customer',
+                'role'   => $this->resolveRole($user),
             ],
         ];
     }
