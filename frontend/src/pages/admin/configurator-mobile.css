@@ -94,6 +94,41 @@
   padding: 12px 16px 24px;
 }
 
+.cfg-m__desktop-actions {
+  display: none;
+}
+
+.cfg-m__desktop-preview-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid #3B82F640;
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+  color: #FFFFFF;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.22);
+  transition: transform 0.15s, box-shadow 0.2s, opacity 0.2s;
+}
+
+.cfg-m__desktop-preview-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.28);
+}
+
+.cfg-m__desktop-preview-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
 /* ── Site selector ── */
 .cfg-m__site-sel {
   position: relative;
@@ -1712,6 +1747,12 @@
     position: static;
     padding: 0;
     overflow: visible;
+  }
+
+  .cfg-m__desktop-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin: 0 0 12px;
   }
 
   .cfg-m__json-modal {

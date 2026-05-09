@@ -24,8 +24,8 @@ export const exitIntentPopupSchema = z.object({
   /** Радиус скругления карточки (px) — 0 = квадратный, 24 = очень мягкий */
   borderRadius: z.number().default(16),
   zIndex: z.number().default(99999),
-  /** Картинка слева (URL) — пустая = без картинки */
-  imageUrl: z.string().default(''),
+  /** Картинка слева (URL) — пустая строка отключает изображение */
+  imageUrl: z.union([z.literal(''), z.string().url()]).default(''),
   /** Скрывать на этих UTM-источниках */
   hideOnUtmSources: z.array(z.string()).default([]),
 });
