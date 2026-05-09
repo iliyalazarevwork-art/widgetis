@@ -243,6 +243,20 @@ class OtpAuthTest extends TestCase
             ->assertJsonPath('data.subscription_status', null);
     }
 
+    public function test_get_user_returns_admin_role_when_user_has_both_admin_and_customer_roles(): void
+    {
+        $user = User::factory()->create();
+        // Customer assigned first — naive `roles->first()` would return 'customer'
+        // and let the admin slip into RequireCustomer-guarded routes like /cabinet.
+        $user->assignRole(UserRole::Customer->value);
+        $user->assignRole(UserRole::Admin->value);
+
+        $this->actingAs($user, 'core')
+            ->getJson('/api/v1/auth/user')
+            ->assertOk()
+            ->assertJsonPath('data.role', 'admin');
+    }
+
     public function test_get_user_includes_subscription_status_when_set(): void
     {
         $user = User::factory()->create();
