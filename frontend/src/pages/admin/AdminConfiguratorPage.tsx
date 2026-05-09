@@ -110,6 +110,7 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
 
   const [slugToProductId, setSlugToProductId] = useState<Record<string, number>>({})
   const [savingActive, setSavingActive] = useState(false)
+  const [deployingAll, setDeployingAll] = useState(false)
 
   const [building, setBuilding] = useState(false)
   const [builtJs, setBuiltJs] = useState<string | null>(null)
@@ -499,6 +500,36 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
     }
   }
 
+  async function deployAll() {
+    if (!siteContext) return
+    const widgets = Object.entries(moduleStates)
+      .map(([moduleId, st]) => {
+        const slug = moduleId.replace(/^module-/, '')
+        const productId = slugToProductId[slug]
+        if (!productId) return null
+        const { enabled, ...configWithoutEnabled } = st.config as Record<string, unknown> & { enabled?: unknown }
+        return {
+          product_id: productId,
+          is_enabled: Boolean(enabled),
+          config: { config: configWithoutEnabled, i18n: st.i18n },
+        }
+      })
+      .filter(Boolean)
+    if (widgets.length === 0) {
+      toast.error('Немає модулів для деплою')
+      return
+    }
+    setDeployingAll(true)
+    try {
+      await post(`/admin/sites/${siteContext.id}/widgets/batch`, { widgets })
+      toast.success(`Задеплоєно ${widgets.length} модулів. Скрипт пересобирається.`)
+    } catch (err) {
+      toast.error((err as Error).message || 'Помилка деплою')
+    } finally {
+      setDeployingAll(false)
+    }
+  }
+
   async function copySnippet() {
     if (!deployedUrl) return
     const snippet = `<script src="${deployedUrl}"></script>`
@@ -691,21 +722,38 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
             </div>
           )}
           {siteContext && (
-            <button
-              type="button"
-              className="cfg-m__action-build"
-              style={{
-                background: savingActive ? '#374151' : 'linear-gradient(135deg, #16a34a 0%, #0369a1 100%)',
-                marginTop: 6,
-                opacity: savingActive ? 0.5 : 1,
-                cursor: savingActive ? 'not-allowed' : 'pointer',
-              }}
-              onClick={saveActiveModule}
-              disabled={savingActive || !activeModule}
-            >
-              {savingActive ? <Loader size={15} strokeWidth={2} className="cfg-m__spin" /> : <Check size={15} strokeWidth={2} />}
-              {savingActive ? 'Збереження...' : `Зберегти ${moduleLabel(activeModule)}`}
-            </button>
+            <>
+              <button
+                type="button"
+                className="cfg-m__action-build"
+                style={{
+                  background: savingActive ? '#374151' : 'linear-gradient(135deg, #16a34a 0%, #0369a1 100%)',
+                  marginTop: 6,
+                  opacity: savingActive ? 0.5 : 1,
+                  cursor: savingActive ? 'not-allowed' : 'pointer',
+                }}
+                onClick={saveActiveModule}
+                disabled={savingActive || !activeModule}
+              >
+                {savingActive ? <Loader size={15} strokeWidth={2} className="cfg-m__spin" /> : <Check size={15} strokeWidth={2} />}
+                {savingActive ? 'Збереження...' : `Зберегти ${moduleLabel(activeModule)}`}
+              </button>
+              <button
+                type="button"
+                className="cfg-m__action-build"
+                style={{
+                  background: deployingAll ? '#374151' : 'linear-gradient(135deg, #7c3aed 0%, #0369a1 100%)',
+                  marginTop: 6,
+                  opacity: deployingAll ? 0.5 : 1,
+                  cursor: deployingAll ? 'not-allowed' : 'pointer',
+                }}
+                onClick={deployAll}
+                disabled={deployingAll}
+              >
+                {deployingAll ? <Loader size={15} strokeWidth={2} className="cfg-m__spin" /> : <Check size={15} strokeWidth={2} />}
+                {deployingAll ? 'Деплой...' : 'Задеплоїти всі'}
+              </button>
+            </>
           )}
           {buildError && <div className="cfg-m__build-error">Помилка: {buildError}</div>}
         </div>

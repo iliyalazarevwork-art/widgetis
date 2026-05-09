@@ -103,6 +103,7 @@ Route::prefix('v1')->group(function () {
         Route::get('sites', [AdminSiteController::class, 'index']);
         Route::get('sites/{id}', [AdminSiteController::class, 'show']);
         Route::put('sites/{siteId}/widgets/{productId}', [AdminSiteController::class, 'updateWidget']);
+        Route::post('sites/{siteId}/widgets/batch', [AdminSiteController::class, 'batchUpdateWidgets']);
         Route::post('demo-sessions', [AdminDemoSessionController::class, 'store']);
         Route::get('demo-analytics', [DemoAnalyticsController::class, 'index']);
 

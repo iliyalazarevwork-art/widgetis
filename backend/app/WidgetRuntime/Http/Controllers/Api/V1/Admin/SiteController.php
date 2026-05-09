@@ -171,4 +171,34 @@ class SiteController extends BaseController
             ],
         ]);
     }
+
+    public function batchUpdateWidgets(Request $request, string $siteId): JsonResponse
+    {
+        $request->validate([
+            'widgets' => ['required', 'array', 'min:1'],
+            'widgets.*.product_id' => ['required', 'integer'],
+            'widgets.*.is_enabled' => ['sometimes', 'boolean'],
+            'widgets.*.config' => ['sometimes', 'array'],
+        ]);
+
+        /** @var Site $site */
+        $site = Site::findOrFail($siteId);
+
+        foreach ($request->input('widgets') as $widgetData) {
+            $isEnabled = $widgetData['is_enabled'] ?? null;
+            $site->widgets()->updateOrCreate(
+                ['product_id' => $widgetData['product_id']],
+                array_filter([
+                    'is_enabled' => $isEnabled,
+                    'config' => $widgetData['config'] ?? null,
+                    'enabled_at' => $isEnabled === true ? now() : null,
+                    'disabled_at' => $isEnabled === false ? now() : null,
+                ], fn ($v) => $v !== null),
+            );
+        }
+
+        RebuildSiteScriptJob::dispatch($site->id);
+
+        return $this->success(['data' => ['status' => 'queued']]);
+    }
 }
