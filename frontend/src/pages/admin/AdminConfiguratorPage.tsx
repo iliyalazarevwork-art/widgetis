@@ -35,6 +35,15 @@ interface ModuleState {
 
 type JsonPanelMode = 'export' | 'import'
 
+const HIDDEN_CONFIG_FIELDS: Record<string, string[]> = {
+  'module-cart-recommender': ['apiBaseUrl', 'mountSelector'],
+  'module-sms-otp-checkout': ['apiBaseUrl', 'siteKey'],
+}
+
+const OMITTED_CONFIG_FIELDS_ON_SUBMIT: Record<string, string[]> = {
+  'module-cart-recommender': ['apiBaseUrl', 'mountSelector'],
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function deepSet(obj: Record<string, unknown>, path: string, value: unknown): Record<string, unknown> {
@@ -51,6 +60,19 @@ function deepSet(obj: Record<string, unknown>, path: string, value: unknown): Re
 
 function deepClone<T>(obj: T): T {
   return JSON.parse(JSON.stringify(obj))
+}
+
+function sanitizeConfigForSubmit(moduleId: string, config: Record<string, unknown>): Record<string, unknown> {
+  const omittedFields = OMITTED_CONFIG_FIELDS_ON_SUBMIT[moduleId] ?? []
+  if (omittedFields.length === 0) {
+    return deepClone(config)
+  }
+
+  const next = deepClone(config)
+  for (const field of omittedFields) {
+    delete next[field]
+  }
+  return next
 }
 
 function moduleLabel(id: string): string {
@@ -125,6 +147,7 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
 
   const [previewOpen, setPreviewOpen] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string>('')
+  const [previewDemoCode, setPreviewDemoCode] = useState<string | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
   const [previewLoaded, setPreviewLoaded] = useState(false)
   const [jsonPanelMode, setJsonPanelMode] = useState<JsonPanelMode | null>(null)
@@ -132,8 +155,6 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
 
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const pendingLoadRef = useRef(false)
-  const pendingScriptRef = useRef<string | null>(null)
-  const autoInjectRef = useRef(false)
   const sheetRef = useRef<HTMLDivElement>(null)
   const dragStartY = useRef(0)
   const dragStartH = useRef(0)
@@ -224,6 +245,8 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
   const config = moduleStates[activeModule]?.config ?? {}
   const i18n = moduleStates[activeModule]?.i18n ?? {}
   const isEnabled = (config.enabled ?? true) as boolean
+  const allModulesEnabled = moduleIds.length > 0 && moduleIds.every((id) => Boolean(moduleStates[id]?.config?.enabled))
+  const allModulesDisabled = moduleIds.length > 0 && moduleIds.every((id) => !moduleStates[id]?.config?.enabled)
 
   function updateConfig(path: string, value: unknown) {
     setModuleStates(prev => ({
@@ -246,6 +269,24 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
     }))
   }
 
+  function setAllModulesEnabled(enabled: boolean) {
+    setModuleStates((prev) => {
+      const next: Record<string, ModuleState> = { ...prev }
+      for (const id of moduleIds) {
+        const state = prev[id]
+        if (!state) continue
+        next[id] = {
+          ...state,
+          config: {
+            ...state.config,
+            enabled,
+          },
+        }
+      }
+      return next
+    })
+  }
+
   // ─── Build ─────────────────────────────────────────────────────────
 
   function getBuildRequest() {
@@ -253,7 +294,7 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
     for (const id of moduleIds) {
       const st = moduleStates[id]
       if (!st) continue
-      modules[id] = { config: deepClone(st.config), i18n: deepClone(st.i18n) }
+      modules[id] = { config: sanitizeConfigForSubmit(id, st.config), i18n: deepClone(st.i18n) }
     }
     return { modules, obfuscate }
   }
@@ -281,36 +322,37 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
 
   // ─── Preview ───────────────────────────────────────────────────────
 
-  function loadPreview() {
-    if (!previewUrl.trim()) { toast.error("Введіть URL сайту"); return }
+  function loadPreview(demoCode?: string | null) {
+    if (!previewUrl.trim()) { toast.error('Введіть URL сайту'); return }
     try {
+      const nextDemoCode = demoCode ?? previewDemoCode
       const raw = previewUrl.includes('://') ? previewUrl : `https://${previewUrl}`
       const parsed = new URL(raw)
-      parsed.searchParams.set('v', 'mobile')
+      const previewBase = (import.meta.env.VITE_PREVIEW_BASE_URL as string | undefined ?? '').replace(/\/+$/, '')
+      const landingPath = `${parsed.pathname || '/'}${parsed.search}`
+      const frameUrl = new URL(`${previewBase}/site/${parsed.host}${landingPath}`)
+      frameUrl.searchParams.set('v', 'mobile')
+      if (nextDemoCode) {
+        frameUrl.searchParams.set('demo_code', nextDemoCode)
+      }
+
       setPreviewLoading(true)
       setPreviewLoaded(false)
       const frame = iframeRef.current
       if (!frame) return
-      const previewBase = (import.meta.env.VITE_PREVIEW_BASE_URL as string | undefined ?? '').replace(/\/+$/, '')
-      frame.src = `${previewBase}/site/${parsed.host}${parsed.pathname}${parsed.search}`
+      frame.src = frameUrl.toString()
       frame.onload = () => {
         setPreviewLoading(false)
         setPreviewLoaded(true)
-        const scriptToInject = pendingScriptRef.current ?? (autoInjectRef.current ? builtJs : null)
-        if (scriptToInject) {
-          try {
-            injectScript(scriptToInject)
-            toast.success('Скрипт застосовано')
-          } catch (err) { toast.error((err as Error).message) }
-          pendingScriptRef.current = null
-        }
       }
       frame.onerror = () => {
         setPreviewLoading(false)
         setPreviewLoaded(false)
         toast.error('Не вдалося завантажити')
       }
-    } catch { toast.error('Невірний URL') }
+    } catch {
+      toast.error('Невірний URL')
+    }
   }
 
   // Load preview after sheet opens (fixes race condition)
@@ -322,17 +364,43 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [previewOpen])
 
-  function injectScript(code?: string) {
-    const js = code ?? builtJs
-    if (!js) { toast.error('Спочатку зберіть скрипт'); return }
-    const doc = iframeRef.current?.contentDocument || iframeRef.current?.contentWindow?.document
-    if (!doc) throw new Error('Фрейм недоступний')
-    const prev = doc.getElementById('widgetis-injected')
-    if (prev) prev.remove()
-    const s = doc.createElement('script')
-    s.id = 'widgetis-injected'
-    s.textContent = js
-    ;(doc.body || doc.documentElement).appendChild(s)
+  async function applyPreviewConfig() {
+    if (!previewUrl.trim()) { toast.error('Введіть URL сайту'); return }
+    if (!previewLoaded) { toast.error('Спочатку завантажте сайт'); return }
+
+    try {
+      const raw = previewUrl.includes('://') ? previewUrl : `https://${previewUrl}`
+      const parsed = new URL(raw)
+      const landingPath = `${parsed.pathname || '/'}${parsed.search}`
+      const modules: Record<string, {
+        is_enabled: boolean
+        config: Record<string, unknown>
+        i18n: Record<string, unknown>
+      }> = {}
+
+      for (const id of moduleIds) {
+        const st = moduleStates[id]
+        if (!st) continue
+        modules[id] = {
+          is_enabled: Boolean(st.config?.enabled),
+          config: sanitizeConfigForSubmit(id, st.config),
+          i18n: deepClone(st.i18n),
+        }
+      }
+
+      const res = await post<{ data: { code: string } }>('/admin/demo-sessions', {
+        domain: parsed.host,
+        landing_path: landingPath,
+        config: { modules },
+      })
+
+      const code = res.data.code
+      setPreviewDemoCode(code)
+      loadPreview(code)
+      toast.success('Скрипт застосовано')
+    } catch (err) {
+      toast.error((err as Error).message || 'Помилка застосування')
+    }
   }
 
   // ─── Create demo link ──────────────────────────────────────────────
@@ -342,11 +410,19 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
     setCreatingDemo(true)
     try {
       const domain = previewUrl.replace(/^https?:\/\//, '').replace(/\/.*$/, '')
-      const modules: Record<string, { config: Record<string, unknown>; i18n: Record<string, unknown> }> = {}
+      const modules: Record<string, {
+        is_enabled: boolean
+        config: Record<string, unknown>
+        i18n: Record<string, unknown>
+      }> = {}
       for (const id of moduleIds) {
         const st = moduleStates[id]
         if (!st) continue
-        modules[id] = { config: deepClone(st.config), i18n: deepClone(st.i18n) }
+        modules[id] = {
+          is_enabled: Boolean(st.config?.enabled),
+          config: sanitizeConfigForSubmit(id, st.config),
+          i18n: deepClone(st.i18n),
+        }
       }
 
       const BASE = (import.meta.env.VITE_API_BASE_URL || '/api/v1').replace(/\/+$/, '')
@@ -486,11 +562,12 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
     const st = moduleStates[activeModule]
     if (!st) return
     const { enabled, ...configWithoutEnabled } = st.config as Record<string, unknown> & { enabled?: unknown }
+    const sanitizedConfig = sanitizeConfigForSubmit(activeModule, configWithoutEnabled)
     setSavingActive(true)
     try {
       await put(`/admin/sites/${siteContext.id}/widgets/${productId}`, {
         is_enabled: Boolean(enabled),
-        config: { config: configWithoutEnabled, i18n: st.i18n },
+        config: { config: sanitizedConfig, i18n: st.i18n },
       })
       toast.success('Збережено. Скрипт пересобирається.')
     } catch (err) {
@@ -511,7 +588,7 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
         return {
           product_id: productId,
           is_enabled: Boolean(enabled),
-          config: { config: configWithoutEnabled, i18n: st.i18n },
+          config: { config: sanitizeConfigForSubmit(moduleId, configWithoutEnabled), i18n: st.i18n },
         }
       })
       .filter(Boolean)
@@ -582,6 +659,17 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
       </header>
 
       <main className="cfg-m__body">
+        <div className="cfg-m__desktop-actions">
+          <button
+            type="button"
+            className="cfg-m__desktop-preview-btn"
+            onClick={() => setPreviewOpen(true)}
+            disabled={building}
+          >
+            <Eye size={16} strokeWidth={2} />
+            <span>Превью</span>
+          </button>
+        </div>
 
         {/* Deployed script URL banner */}
         {siteContext && deployedUrl && (
@@ -654,6 +742,46 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
               )
             })}
           </div>
+          <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+            <button
+              type="button"
+              onClick={() => setAllModulesEnabled(true)}
+              disabled={allModulesEnabled}
+              style={{
+                flex: 1,
+                minHeight: 36,
+                borderRadius: 10,
+                border: '1px solid rgba(16,185,129,0.3)',
+                background: allModulesEnabled ? 'rgba(31,41,55,0.6)' : 'rgba(16,185,129,0.14)',
+                color: allModulesEnabled ? '#9ca3af' : '#6ee7b7',
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: allModulesEnabled ? 'not-allowed' : 'pointer',
+                opacity: allModulesEnabled ? 0.7 : 1,
+              }}
+            >
+              Увімкнути всі
+            </button>
+            <button
+              type="button"
+              onClick={() => setAllModulesEnabled(false)}
+              disabled={allModulesDisabled}
+              style={{
+                flex: 1,
+                minHeight: 36,
+                borderRadius: 10,
+                border: '1px solid rgba(248,113,113,0.3)',
+                background: allModulesDisabled ? 'rgba(31,41,55,0.6)' : 'rgba(248,113,113,0.12)',
+                color: allModulesDisabled ? '#9ca3af' : '#fca5a5',
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: allModulesDisabled ? 'not-allowed' : 'pointer',
+                opacity: allModulesDisabled ? 0.7 : 1,
+              }}
+            >
+              Вимкнути всі
+            </button>
+          </div>
           <div className="cfg-m__divider" />
           <div className="cfg-m__toggle-row">
             <span>Увімкнено</span>
@@ -671,7 +799,12 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
             <Code size={15} strokeWidth={2} className="cfg-m__scard-icon" />
             <span>{moduleLabel(activeModule)} — налаштування</span>
           </div>
-          <GenericConfigForm config={config} schema={schemas?.[activeModule]?.config} onChange={updateConfig} />
+          <GenericConfigForm
+            moduleId={activeModule}
+            config={config}
+            schema={schemas?.[activeModule]?.config}
+            onChange={updateConfig}
+          />
           <div className="cfg-m__divider" style={{ margin: '10px -14px' }} />
           <div className="cfg-m__scard-head" style={{ marginTop: 4 }}>
             <Globe size={15} strokeWidth={2} className="cfg-m__scard-icon" />
@@ -820,10 +953,13 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
         <div className="cfg-m__sheet-head"><strong>Попередній перегляд</strong></div>
         <div className="cfg-m__preview-url-bar">
           <input type="text" placeholder="https://example.com" value={previewUrl}
-            onChange={(e) => setPreviewUrl(e.target.value)}
+            onChange={(e) => {
+              setPreviewUrl(e.target.value)
+              setPreviewDemoCode(null)
+            }}
             onKeyDown={(e) => { if (e.key === 'Enter') loadPreview() }}
             className="cfg-m__preview-url-input" />
-          <button type="button" className="cfg-m__preview-url-btn" onClick={loadPreview} disabled={previewLoading}>
+          <button type="button" className="cfg-m__preview-url-btn" onClick={() => loadPreview()} disabled={previewLoading}>
             {previewLoading ? <Loader size={14} strokeWidth={2} className="cfg-m__spin" /> : 'Завантажити'}
           </button>
         </div>
@@ -842,15 +978,7 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
         </div>
         <div className="cfg-m__sheet-actions">
           <button type="button" className="cfg-m__sheet-close" onClick={() => setPreviewOpen(false)}>Закрити</button>
-          <button type="button" className="cfg-m__sheet-apply" onClick={() => {
-            if (!builtJs) { toast.error('Спочатку зберіть скрипт'); return }
-            if (!previewLoaded) { toast.error('Спочатку завантажте сайт'); return }
-            try {
-              injectScript()
-              autoInjectRef.current = true
-              toast.success('Скрипт застосовано (авто-інжект увімкнено)')
-            } catch (err) { toast.error((err as Error).message) }
-          }}>
+          <button type="button" className="cfg-m__sheet-apply" onClick={() => { void applyPreviewConfig() }}>
             Застосувати скрипт
           </button>
         </div>
@@ -944,14 +1072,19 @@ function buildDefaultFromSchema(schema: Record<string, unknown>): Record<string,
 
 // ─── Generic Config Form (schema-driven, like old configurator) ───────────────
 
-function GenericConfigForm({ config, schema, onChange }: {
+function GenericConfigForm({ moduleId, config, schema, onChange }: {
+  moduleId: string
   config: Record<string, unknown>
   schema: Record<string, unknown> | undefined
   onChange: (path: string, val: unknown) => void
 }) {
   if (!schema) return null
   const resolved = deepResolve(schema, schema)
-  const properties = resolved.properties as Record<string, Record<string, unknown>> | undefined
+  const hiddenFields = new Set(HIDDEN_CONFIG_FIELDS[moduleId] ?? [])
+  const properties = Object.fromEntries(
+    Object.entries((resolved.properties as Record<string, Record<string, unknown>> | undefined) ?? {})
+      .filter(([key]) => !hiddenFields.has(key)),
+  ) as Record<string, Record<string, unknown>>
   if (!properties) return null
 
   const booleans: [string, Record<string, unknown>][] = []

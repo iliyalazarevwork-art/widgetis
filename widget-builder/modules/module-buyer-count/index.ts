@@ -2,9 +2,8 @@ import { socialProofSchema, socialProofI18nSchema, type SocialProofInput } from 
 import { getLanguage, isHoroshopProductPage } from '@laxarevii/core';
 import { injectStyles } from './styles';
 import { createBadge, insertElement, removeExisting, updateCount } from './dom';
-import { calculateRange, pickNextTarget, nextInterval } from './generator';
+import { calculateRange, pickInitialCount, pickNextTarget, nextInterval } from './generator';
 import { loadState, saveState, type ProofState } from './state';
-import { clamp } from './random';
 
 export default function socialProof(
   rawConfig: SocialProofInput,
@@ -31,11 +30,7 @@ export default function socialProof(
 
   let state = loadState(location.pathname);
   if (!state) {
-    const initial = clamp(
-      range.mean + Math.round(range.rnd() * 10 - 5),
-      range.min,
-      range.max,
-    );
+    const initial = pickInitialCount(range);
     state = {
       current: initial,
       target: pickNextTarget(initial, range),
@@ -96,9 +91,9 @@ function startUpdates(
     }
 
     if (state.current < state.target) {
-      state.current = Math.min(state.current + 1, state.target, state.max);
+      state.current = Math.min(state.current + 5, state.target, state.max);
     } else if (state.current > state.target) {
-      state.current = Math.max(state.current - 1, state.target, state.min);
+      state.current = Math.max(state.current - 5, state.target, state.min);
     }
 
     for (const badge of badges) {

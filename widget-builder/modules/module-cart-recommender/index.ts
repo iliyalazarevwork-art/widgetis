@@ -12,8 +12,7 @@ const LOG = '[widgetality] cart-recommender:';
 interface AjaxCartAppendProduct {
   (
     product: { type: string; id: number; quantity?: number },
-    related: unknown,
-    isCallCart?: boolean,
+    related: unknown[],
   ): void;
 }
 
@@ -29,6 +28,12 @@ interface AjaxCartStatic {
 declare global {
   interface Window {
     AjaxCart?: AjaxCartStatic;
+    __WIDGETIS_CFG__?: {
+      apiBaseUrl?: string;
+      api_base_url?: string;
+      backendBaseUrl?: string;
+      backend_base_url?: string;
+    };
   }
 }
 
@@ -50,6 +55,48 @@ interface ApiResponse {
   data: ApiProduct[];
 }
 
+function normalizeApiBaseUrl(value: string | undefined | null): string {
+  return String(value ?? '')
+    .trim()
+    .replace(/\/api\/v1\/?$/i, '')
+    .replace(/\/+$/, '');
+}
+
+function resolveApiBaseUrl(explicitValue: string | undefined): string {
+  const fromConfig = normalizeApiBaseUrl(explicitValue);
+  if (fromConfig) return fromConfig;
+
+  const fromGlobal = normalizeApiBaseUrl(
+    window.__WIDGETIS_CFG__?.apiBaseUrl ??
+    window.__WIDGETIS_CFG__?.api_base_url ??
+    window.__WIDGETIS_CFG__?.backendBaseUrl ??
+    window.__WIDGETIS_CFG__?.backend_base_url,
+  );
+  if (fromGlobal) return fromGlobal;
+
+  const { protocol, hostname, origin } = window.location;
+  const host = hostname.toLowerCase();
+
+  if (host === 'localhost' || host === '127.0.0.1') {
+    return origin.replace(/\/+$/, '');
+  }
+
+  const siblingApiHost = (() => {
+    if (host === 'widgetis.com') return `api.${host}`;
+    if (host.startsWith('www.')) return `api.${host.slice(4)}`;
+    if (host.startsWith('preview.')) return `api.${host.slice(8)}`;
+    if (host.startsWith('manage.')) return `api.${host.slice(7)}`;
+    if (host.startsWith('api.')) return host;
+    return null;
+  })();
+
+  if (siblingApiHost) {
+    return `${protocol}//${siblingApiHost}`;
+  }
+
+  return 'https://api.widgetis.com';
+}
+
 function extractAlias(pathname: string): string | null {
   const segments = pathname.split('/').filter((s) => s.length > 0);
   if (segments.length === 0) return null;
@@ -58,6 +105,10 @@ function extractAlias(pathname: string): string | null {
 }
 
 function buildProductFetchUrl(productUrl: string): string {
+  if (/^\/site\/[^/]+\//.test(productUrl)) {
+    return `${window.location.origin}${productUrl}`;
+  }
+
   const segments = window.location.pathname.split('/').filter((s) => s.length > 0);
   const cleanPath = productUrl.replace(/^\//, '');
   if (segments[0] === 'site' && segments.length >= 2) {
@@ -113,7 +164,8 @@ export default function cartRecommender(
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 10000);
-  const apiUrl = `${config.apiBaseUrl}/api/v1/widgets/cart-recommender/suggest?alias=${encodeURIComponent(alias)}`;
+  const apiBaseUrl = resolveApiBaseUrl(config.apiBaseUrl);
+  const apiUrl = `${apiBaseUrl}/api/v1/widgets/cart-recommender/suggest?alias=${encodeURIComponent(alias)}`;
   console.log(LOG, 'prefetching', apiUrl);
 
   let cachedProducts: Product[] | null = null;
@@ -186,7 +238,8 @@ export default function cartRecommender(
 
       try {
         const ac = window.AjaxCart?.getInstance();
-        ac?.appendProduct({ type: 'product', id: horoshopId }, undefined, true);
+        ac?.appendProduct({ type: 'product', id: horoshopId, quantity: 1 }, []);
+        ac?.reloadHtml?.();
         console.log(LOG, 'appendProduct called: type=product, id=' + horoshopId + ', sku=' + (product.sku ?? 'n/a'));
       } catch (e) {
         console.error(LOG, 'appendProduct failed', e);

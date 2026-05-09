@@ -69,6 +69,10 @@ const SCHEMAS: Record<string, SchemaPair> = {
   'video-preview':       { config: productVideoPreviewSchema, i18n: productVideoPreviewI18nSchema },
 };
 
+function normalizeModuleSlug(slug: string): string {
+  return slug.startsWith('module-') ? slug.slice('module-'.length) : slug;
+}
+
 interface ValidationError {
   slug: string;
   field: 'config' | 'i18n';
@@ -82,6 +86,23 @@ interface Result {
   ok: boolean;
   validated_modules: string[];
   errors: ValidationError[];
+}
+
+function isModuleEnabled(entry: { is_enabled?: unknown; config?: unknown }): boolean {
+  if (entry.is_enabled === false) {
+    return false;
+  }
+  if (
+    entry.config
+    && typeof entry.config === 'object'
+    && !Array.isArray(entry.config)
+    && 'enabled' in entry.config
+    && (entry.config as { enabled?: unknown }).enabled === false
+  ) {
+    return false;
+  }
+
+  return true;
 }
 
 function readStdin(): string {
@@ -121,7 +142,8 @@ export function validateDemoPayload(payload: unknown): Result {
   const result: Result = { ok: true, validated_modules: [], errors: [] };
 
   for (const [slug, raw] of Object.entries(modules)) {
-    const pair = SCHEMAS[slug];
+    const normalizedSlug = normalizeModuleSlug(slug);
+    const pair = SCHEMAS[normalizedSlug];
     if (!pair) {
       result.ok = false;
       result.errors.push({
@@ -139,9 +161,9 @@ export function validateDemoPayload(payload: unknown): Result {
       continue;
     }
     const entry = raw as { is_enabled?: unknown; config?: unknown; i18n?: unknown };
-    if (entry.is_enabled === false) continue; // disabled — config does not run
+    if (!isModuleEnabled(entry)) continue; // disabled — config does not run
 
-    result.validated_modules.push(slug);
+    result.validated_modules.push(normalizedSlug);
 
     if (entry.config !== undefined && entry.config !== null) {
       const partialSchema = (pair.config as unknown as { deepPartial?: () => ZodTypeAny }).deepPartial?.()

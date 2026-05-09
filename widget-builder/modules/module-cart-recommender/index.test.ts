@@ -34,6 +34,8 @@ const DEFAULT_I18N = {
   en: { buttonAddToCart: 'Add to cart', heading: 'Often bought together' },
 };
 
+const DEFAULT_LOCATION = window.location;
+
 const SAMPLE_PRODUCTS = [
   {
     id: 101,
@@ -197,6 +199,12 @@ describe('cartRecommender', () => {
     vi.unstubAllGlobals();
     document.body.innerHTML = '';
     clearAjaxCart();
+    Object.defineProperty(window, 'location', {
+      value: DEFAULT_LOCATION,
+      writable: true,
+      configurable: true,
+    });
+    delete (window as unknown as { __WIDGETIS_CFG__?: unknown }).__WIDGETIS_CFG__;
   });
 
   // ── guards ────────────────────────────────────────────────────────────────
@@ -249,6 +257,58 @@ describe('cartRecommender', () => {
     await vi.waitFor(() => {
       expect(vi.mocked(fetch)).toHaveBeenCalledWith(
         'http://localhost:9001/api/v1/widgets/cart-recommender/suggest?alias=postilna-bilizna-satin-z-ryushami',
+        expect.objectContaining({ credentials: 'omit' }),
+      );
+    });
+  });
+
+  it('uses same-origin API base on localhost when config.apiBaseUrl is empty', async () => {
+    setPathname('/postilna-bilizna-satin-z-ryushami/');
+    Object.defineProperty(window, 'location', {
+      value: { ...window.location, pathname: '/postilna-bilizna-satin-z-ryushami/', origin: 'http://127.0.0.1:3100', hostname: '127.0.0.1', protocol: 'http:' },
+      writable: true,
+      configurable: true,
+    });
+    mockFetchProducts();
+    cartRecommender({ ...DEFAULT_CONFIG, apiBaseUrl: '' }, DEFAULT_I18N);
+
+    await vi.waitFor(() => {
+      expect(vi.mocked(fetch)).toHaveBeenCalledWith(
+        'http://127.0.0.1:3100/api/v1/widgets/cart-recommender/suggest?alias=postilna-bilizna-satin-z-ryushami',
+        expect.objectContaining({ credentials: 'omit' }),
+      );
+    });
+  });
+
+  it('derives deployed API host from preview/widgetis domain when config.apiBaseUrl is empty', async () => {
+    setPathname('/postilna-bilizna-satin-z-ryushami/');
+    Object.defineProperty(window, 'location', {
+      value: { ...window.location, pathname: '/postilna-bilizna-satin-z-ryushami/', origin: 'https://preview.widgetis.com', hostname: 'preview.widgetis.com', protocol: 'https:' },
+      writable: true,
+      configurable: true,
+    });
+    mockFetchProducts();
+    cartRecommender({ ...DEFAULT_CONFIG, apiBaseUrl: '' }, DEFAULT_I18N);
+
+    await vi.waitFor(() => {
+      expect(vi.mocked(fetch)).toHaveBeenCalledWith(
+        'https://api.widgetis.com/api/v1/widgets/cart-recommender/suggest?alias=postilna-bilizna-satin-z-ryushami',
+        expect.objectContaining({ credentials: 'omit' }),
+      );
+    });
+  });
+
+  it('prefers runtime global API base when config.apiBaseUrl is empty', async () => {
+    setPathname('/postilna-bilizna-satin-z-ryushami/');
+    (window as unknown as { __WIDGETIS_CFG__?: { apiBaseUrl?: string } }).__WIDGETIS_CFG__ = {
+      apiBaseUrl: 'https://api.staging.widgetis.com/api/v1',
+    };
+    mockFetchProducts();
+    cartRecommender({ ...DEFAULT_CONFIG, apiBaseUrl: '' }, DEFAULT_I18N);
+
+    await vi.waitFor(() => {
+      expect(vi.mocked(fetch)).toHaveBeenCalledWith(
+        'https://api.staging.widgetis.com/api/v1/widgets/cart-recommender/suggest?alias=postilna-bilizna-satin-z-ryushami',
         expect.objectContaining({ credentials: 'omit' }),
       );
     });
@@ -349,6 +409,11 @@ describe('cartRecommender', () => {
       expect(appendCalls.length).toBeGreaterThan(callsBefore);
     });
 
+    await vi.waitFor(() => {
+      expect(addBtn.getAttribute('data-state')).toBe('done');
+      expect(addBtn.textContent).toBe('✓');
+    });
+
     const lastCall = appendCalls[appendCalls.length - 1];
     expect(lastCall.product).toEqual({
       type: 'product',
@@ -396,6 +461,112 @@ describe('cartRecommender', () => {
     const lastCall = appendCalls[appendCalls.length - 1];
     expect(lastCall.product).toEqual({ type: 'product', quantity: 1, id: 9999 });
     expect(lastCall.related).toEqual([]);
+  });
+
+  it('does not duplicate /site/<host>/ prefix when scraping horoshop_id from product url', async () => {
+    setPathname('/site/benihome.com.ua/postilna-bilizna-varena-bavovna-cloud-polutorniy/');
+    const proxyPathProduct = [
+      {
+        ...SAMPLE_PRODUCTS[0],
+        horoshop_id: null,
+        url: '/site/benihome.com.ua/home/2122/',
+      },
+    ];
+    const fetchMock = vi.fn().mockImplementation((url: string) => {
+      if (url.includes('/api/v1/widgets/cart-recommender/suggest')) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({ data: proxyPathProduct, meta: { live: true } }),
+        });
+      }
+
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        text: () => Promise.resolve('<button id="j-buy-button-counter-9999" />'),
+      });
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    const { appendCalls, triggerAdd } = setupAjaxCart();
+
+    cartRecommender({ ...DEFAULT_CONFIG, maxItems: 1 }, DEFAULT_I18N);
+    await vi.waitFor(() => {
+      expect(fetchMock).toHaveBeenCalled();
+    });
+    await flush();
+
+    triggerAdd();
+    await vi.waitFor(() => {
+      expect(document.querySelector('.wgts-popup__add')).not.toBeNull();
+    });
+
+    const addBtn = document.querySelector<HTMLButtonElement>('.wgts-popup__add')!;
+    addBtn.click();
+
+    await vi.waitFor(() => {
+      expect(appendCalls.length).toBeGreaterThan(1);
+    });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://example.com/site/benihome.com.ua/home/2122/',
+      expect.objectContaining({ credentials: 'include' }),
+    );
+
+    const lastCall = appendCalls[appendCalls.length - 1];
+    expect(lastCall.product).toEqual({ type: 'product', quantity: 1, id: 9999 });
+  });
+
+  it('logs error and resets button without showing a cross when add fails', async () => {
+    setPathname('/some-product/');
+    const productsNoId = [
+      {
+        ...SAMPLE_PRODUCTS[0],
+        horoshop_id: null,
+      },
+    ];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockImplementation((url: string) => {
+        if (url.includes('/api/v1/widgets/cart-recommender/suggest')) {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            json: () => Promise.resolve({ data: productsNoId, meta: { live: true } }),
+          });
+        }
+
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          text: () => Promise.resolve('<html></html>'),
+        });
+      }),
+    );
+    const { triggerAdd } = setupAjaxCart();
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    cartRecommender({ ...DEFAULT_CONFIG, maxItems: 1 }, DEFAULT_I18N);
+    await vi.waitFor(() => {
+      expect(vi.mocked(fetch)).toHaveBeenCalled();
+    });
+    await flush();
+
+    triggerAdd();
+    await vi.waitFor(() => {
+      expect(document.querySelector('.wgts-popup__add')).not.toBeNull();
+    });
+
+    const addBtn = document.querySelector<HTMLButtonElement>('.wgts-popup__add')!;
+    addBtn.click();
+
+    await vi.waitFor(() => {
+      expect(addBtn.getAttribute('data-state')).toBe('idle');
+      expect(addBtn.textContent).toBe('');
+      expect(addBtn.disabled).toBe(false);
+    });
+
+    expect(consoleErrorSpy).toHaveBeenCalled();
   });
 
   // ── popup close ───────────────────────────────────────────────────────────

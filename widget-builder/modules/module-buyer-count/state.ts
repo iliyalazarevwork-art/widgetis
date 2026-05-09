@@ -1,4 +1,5 @@
 const STORAGE_PREFIX = 'hsp_social_proof_';
+const STORAGE_VERSION = 2;
 
 export type ProofState = {
   current: number;
@@ -8,6 +9,7 @@ export type ProofState = {
   date: string;
   lastUpdate: number;
   nextTargetAt: number;
+  version?: number;
 };
 
 function todayString(): string {
@@ -21,6 +23,11 @@ export function loadState(path: string): ProofState | null {
     if (!raw) return null;
 
     const state: ProofState = JSON.parse(raw);
+    if (state.version !== STORAGE_VERSION) {
+      localStorage.removeItem(STORAGE_PREFIX + path);
+      return null;
+    }
+
     if (state.date !== todayString()) {
       localStorage.removeItem(STORAGE_PREFIX + path);
       return null;
@@ -36,7 +43,12 @@ export function saveState(state: ProofState, path: string = location.pathname): 
   try {
     localStorage.setItem(
       STORAGE_PREFIX + path,
-      JSON.stringify({ ...state, date: todayString(), lastUpdate: Date.now() }),
+      JSON.stringify({
+        ...state,
+        version: STORAGE_VERSION,
+        date: todayString(),
+        lastUpdate: Date.now(),
+      }),
     );
   } catch {
     // storage full or unavailable

@@ -31,6 +31,33 @@ class DemoSessionController extends BaseController
     private const MAX_CONFIG_BYTES = 64 * 1024;
 
     /**
+     * @param array<string, mixed> $modules
+     * @return array<string, mixed>
+     */
+    private function enabledModules(array $modules): array
+    {
+        return array_filter(
+            $modules,
+            function (mixed $module): bool {
+                if (! is_array($module)) {
+                    return false;
+                }
+
+                if (($module['is_enabled'] ?? null) === false) {
+                    return false;
+                }
+
+                $config = $module['config'] ?? null;
+                if (is_array($config) && array_key_exists('enabled', $config) && $config['enabled'] === false) {
+                    return false;
+                }
+
+                return true;
+            },
+        );
+    }
+
+    /**
      * POST /api/v1/admin/demo-sessions
      * Create a demo session from the admin Configurator.
      */
@@ -110,7 +137,7 @@ class DemoSessionController extends BaseController
         $frontendUrl = rtrim((string) config('app.frontend_url', config('app.url')), '/');
         $link = "{$frontendUrl}/live-demo?code={$session->code}";
 
-        $widgetIds = collect($session->config['modules'] ?? [])
+        $widgetIds = collect($this->enabledModules($session->config['modules'] ?? []))
             ->keys()
             ->map(fn (string $id): string => str_replace('module-', '', $id))
             ->values()

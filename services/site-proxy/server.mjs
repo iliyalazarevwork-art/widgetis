@@ -412,6 +412,7 @@ function escapeForInlineScript(s) {
 function sanitizeDemoCfg(cfg) {
   if (!cfg || typeof cfg !== 'object' || Array.isArray(cfg)) return null;
   const out = {};
+  const normalizeModuleSlug = (slug) => slug.startsWith('module-') ? slug.slice('module-'.length) : slug;
 
   if (typeof cfg.demo_code === 'string' && /^[A-Z0-9]{4,12}$/.test(cfg.demo_code)) {
     out.demo_code = cfg.demo_code;
@@ -430,13 +431,15 @@ function sanitizeDemoCfg(cfg) {
   if (cfg.modules && typeof cfg.modules === 'object' && !Array.isArray(cfg.modules)) {
     const modules = {};
     for (const [slug, raw] of Object.entries(cfg.modules)) {
-      if (typeof slug !== 'string' || !/^[a-z0-9-]{1,64}$/.test(slug)) continue;
+      if (typeof slug !== 'string') continue;
+      const normalizedSlug = normalizeModuleSlug(slug);
+      if (!/^[a-z0-9-]{1,64}$/.test(normalizedSlug)) continue;
       if (!raw || typeof raw !== 'object' || Array.isArray(raw)) continue;
       const m = {};
       if (typeof raw.is_enabled === 'boolean') m.is_enabled = raw.is_enabled;
       if (raw.config && typeof raw.config === 'object' && !Array.isArray(raw.config)) m.config = raw.config;
       if (raw.i18n && typeof raw.i18n === 'object' && !Array.isArray(raw.i18n)) m.i18n = raw.i18n;
-      if (Object.keys(m).length > 0) modules[slug] = m;
+      if (Object.keys(m).length > 0) modules[normalizedSlug] = m;
     }
     out.modules = modules;
   } else {

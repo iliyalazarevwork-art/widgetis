@@ -97,15 +97,20 @@ function generateEntry(modules: ModuleConfigs): string {
 
     // Per-module init wrapper:
     //   1. Read window.__WIDGETIS_CFG__.modules[slug] (may be missing).
-    //   2. If is_enabled === false, skip the module entirely.
-    //   3. Otherwise deep-merge config/i18n overrides over the baked-in defaults.
+    //   2. In per-session demo mode (demo_code present), treat the map as a
+    //      strict whitelist: a missing slug means "do not run this module".
+    //   3. If is_enabled === false, skip the module entirely.
+    //   4. Otherwise deep-merge config/i18n overrides over the baked-in defaults.
     // When __WIDGETIS_CFG__ is absent (vanilla demo without ?demo_code), the
     // path collapses to the original baked-in behaviour with no overrides.
     calls.push(
       [
         'try {',
+        `  var __hasDemoCfg${idx} = !!(typeof window !== "undefined" && window.__WIDGETIS_CFG__ && window.__WIDGETIS_CFG__.demo_code);`,
         `  var __ov${idx} = (typeof window !== "undefined" && window.__WIDGETIS_CFG__ && window.__WIDGETIS_CFG__.modules) ? window.__WIDGETIS_CFG__.modules[${slugLit}] : null;`,
-        `  if (__ov${idx} && __ov${idx}.is_enabled === false) {`,
+        `  if (__hasDemoCfg${idx} && !__ov${idx}) {`,
+        `    console.log('[widgetality] ${moduleName}: skipped — not present in per-session config');`,
+        `  } else if (__ov${idx} && __ov${idx}.is_enabled === false) {`,
         `    console.log('[widgetality] ${moduleName}: skipped by per-session config');`,
         '  } else {',
         `    var __cfg${idx} = (__ov${idx} && __ov${idx}.config) ? __wgtsMergeDeep(${safeVar}Config, __ov${idx}.config) : ${safeVar}Config;`,

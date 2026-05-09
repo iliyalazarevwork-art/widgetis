@@ -51,7 +51,7 @@ function buildStyles(c: PopupColors): string {
 .wgts-popup__body{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
 .wgts-popup__name{font-size:13px;line-height:1.3;color:${c.textColor};display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .wgts-popup__price{font-size:12px;color:${c.priceColor}}
-.wgts-popup__add{width:36px;height:36px;background:${c.accentColor};color:${c.accentTextColor};border:0;border-radius:999px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative;transition:background 200ms ease,transform 100ms ease}.wgts-popup__add:active{transform:scale(.9)}.wgts-popup__add::before,.wgts-popup__add::after{content:'';position:absolute;background:${c.accentTextColor};border-radius:2px}.wgts-popup__add::before{width:14px;height:2px}.wgts-popup__add::after{width:2px;height:14px}.wgts-popup__add--done{background:${c.doneColor};font-size:16px;font-weight:600}.wgts-popup__add--done::before,.wgts-popup__add--done::after{display:none}
+.wgts-popup__add{width:36px;height:36px;background:${c.accentColor};color:${c.accentTextColor};border:0;border-radius:999px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative;transition:background 200ms ease,transform 100ms ease,opacity 200ms ease;appearance:none;-webkit-appearance:none;-webkit-tap-highlight-color:transparent}.wgts-popup__add:active{transform:scale(.9)}.wgts-popup__add::before,.wgts-popup__add::after{content:'';position:absolute;background:${c.accentTextColor};border-radius:2px}.wgts-popup__add::before{width:14px;height:2px}.wgts-popup__add::after{width:2px;height:14px}.wgts-popup__add[data-state="loading"]{opacity:.5;pointer-events:none}.wgts-popup__add[data-state="done"]{background:${c.doneColor};font-size:16px;font-weight:600}.wgts-popup__add[data-state="error"]{background:${c.accentColor};font-size:16px;font-weight:600}.wgts-popup__add[data-state="loading"]::before,.wgts-popup__add[data-state="loading"]::after,.wgts-popup__add[data-state="done"]::before,.wgts-popup__add[data-state="done"]::after,.wgts-popup__add[data-state="error"]::before,.wgts-popup__add[data-state="error"]::after{display:none}
 .wgts-popup__cta{width:100%;padding:14px;border-radius:999px;background:${c.ctaBackground};color:${c.ctaTextColor};font-size:14px;font-weight:600;border:0;cursor:pointer;font-family:inherit}`;
 }
 
@@ -130,6 +130,7 @@ export function buildPopup(
     const addBtn = document.createElement('button');
     addBtn.className = 'wgts-popup__add';
     addBtn.type = 'button';
+    addBtn.setAttribute('data-state', 'idle');
     addBtn.setAttribute('data-wdg-rec-add', String(product.id));
     if (product.sku) addBtn.setAttribute('data-wdg-rec-sku', product.sku);
 
@@ -137,22 +138,19 @@ export function buildPopup(
       e.stopPropagation();
       if (addBtn.disabled) return;
       addBtn.disabled = true;
-      addBtn.style.opacity = '0.5';
+      addBtn.setAttribute('data-state', 'loading');
 
       void onAddToCart(product).then(() => {
         // Sticky success: button stays green with ✓ until popup closes.
         // We don't re-enable it — the user already added this item, no
         // reason to let them double-add from the same popup card.
         addBtn.textContent = '✓';
-        addBtn.style.opacity = '';
-        addBtn.classList.add('wgts-popup__add--done');
-      }).catch(() => {
-        addBtn.textContent = '✗';
-        addBtn.style.opacity = '';
-        setTimeout(() => {
-          addBtn.textContent = '';
-          addBtn.disabled = false;
-        }, 1500);
+        addBtn.setAttribute('data-state', 'done');
+      }).catch((error: unknown) => {
+        console.error('[widgetality] cart-recommender: add-to-cart action failed', error);
+        addBtn.textContent = '';
+        addBtn.disabled = false;
+        addBtn.setAttribute('data-state', 'idle');
       });
     });
 

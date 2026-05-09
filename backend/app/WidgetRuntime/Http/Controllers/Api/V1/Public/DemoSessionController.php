@@ -14,6 +14,41 @@ use Illuminate\Support\Str;
 
 class DemoSessionController extends BaseController
 {
+    private function normalizeModuleSlug(string $slug): string
+    {
+        return str_starts_with($slug, 'module-')
+            ? substr($slug, strlen('module-'))
+            : $slug;
+    }
+
+    /**
+     * @param array<string, mixed> $modules
+     * @return array<string, mixed>
+     */
+    private function enabledModules(array $modules): array
+    {
+        $enabled = [];
+
+        foreach ($modules as $slug => $module) {
+            if (! is_string($slug) || ! is_array($module)) {
+                continue;
+            }
+
+            if (($module['is_enabled'] ?? null) === false) {
+                continue;
+            }
+
+            $config = $module['config'] ?? null;
+            if (is_array($config) && array_key_exists('enabled', $config) && $config['enabled'] === false) {
+                continue;
+            }
+
+            $enabled[$this->normalizeModuleSlug($slug)] = $module;
+        }
+
+        return $enabled;
+    }
+
     /**
      * GET /api/v1/demo-sessions/{code}
      * Fetch an active demo session by its code.
@@ -64,11 +99,16 @@ class DemoSessionController extends BaseController
             return $this->error('DEMO_NOT_FOUND', 'Demo session not found or expired.', 404);
         }
 
+        /** @var array<string, mixed> $config */
+        $config = is_array($session->config) ? $session->config : [];
+        $modules = isset($config['modules']) && is_array($config['modules']) ? $config['modules'] : [];
+        $config['modules'] = $this->enabledModules($modules);
+
         return $this->success([
             'data' => [
                 'demo_code' => $session->code,
                 'domain' => $session->domain,
-                'config' => $session->config ?? ['modules' => []],
+                'config' => $config,
                 'expires_at' => $session->expires_at?->toIso8601String(),
             ],
         ]);
