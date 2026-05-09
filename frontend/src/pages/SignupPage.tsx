@@ -206,7 +206,7 @@ export function SignupPage() {
     yearlyMonthly: apiPlan ? Math.round(apiPlan.price_yearly / 12) : basePlan.yearlyMonthly,
     widgets: apiPlan?.max_widgets ?? basePlan.widgets,
     sites: apiPlan?.max_sites ?? basePlan.sites,
-    trialDays: apiPlan?.trial_days ?? 0,
+    trialDays: apiPlan?.trial_days ?? basePlan.trialDays,
   }
 
   const Icon = plan.icon

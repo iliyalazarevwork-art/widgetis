@@ -20,6 +20,7 @@ export interface PlanDef {
   yearlyMonthly: number
   widgets: number
   sites: number
+  trialDays: number
   badge: string | null
   highlighted: boolean
   features: Array<{ label: string; slug?: string }>
@@ -38,6 +39,7 @@ export const PLANS: PlanDef[] = [
     yearlyMonthly: 0,
     widgets: 12,
     sites: 1,
+    trialDays: 0,
     badge: null,
     highlighted: false,
     features: [
@@ -59,6 +61,7 @@ export const PLANS: PlanDef[] = [
     yearlyMonthly: 416,
     widgets: 12,
     sites: 3,
+    trialDays: 14,
     badge: 'Обирає 73% клієнтів',
     highlighted: true,
     features: [
@@ -82,6 +85,7 @@ export const PLANS: PlanDef[] = [
     yearlyMonthly: 583,
     widgets: 20,
     sites: 5,
+    trialDays: 14,
     badge: null,
     highlighted: false,
     features: [
