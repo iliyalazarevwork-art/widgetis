@@ -88,6 +88,9 @@ services:
     environment:
       LOG_LEVEL: info
       TZ: Europe/Kiev
+      # Increase browser timeout for ARM (Apple Silicon) dev machines where
+      # Chrome runs under x86 emulation and CF challenge solving is slower.
+      PLAYWRIGHT_TIMEOUT: "120000"
     ports:
       - "8191:8191"
     networks:

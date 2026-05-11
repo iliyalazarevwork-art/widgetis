@@ -22,7 +22,7 @@ const CACHE_MAX_ENTRIES = 5000;
 // Optional FlareSolverr sidecar for Cloudflare-protected sites.
 // Set FLARESOLVERR_URL=http://flaresolverr:8191 to enable.
 const FLARESOLVERR_URL = (process.env.FLARESOLVERR_URL || '').replace(/\/+$/, '');
-const FLARESOLVERR_TIMEOUT_MS = 60_000;
+const FLARESOLVERR_TIMEOUT_MS = 120_000;
 // cf_clearance cookie lifetime — CF invalidates it after ~30 min.
 const CF_CLEARANCE_TTL_MS = 25 * 60 * 1000;
 
@@ -141,38 +141,91 @@ function isAllowedDomain(domain) {
   return true;
 }
 
-// ── Cloudflare clearance cache ─────────────────────────────────────
-// Keyed by domain. Stores cf_clearance cookie + matching User-Agent so
-// subsequent node-fetch requests to CF-protected domains pass through.
-// Entries expire after CF_CLEARANCE_TTL_MS (25 min) because Cloudflare
-// invalidates cf_clearance ~30 min after issuance.
-const cfClearanceCache = new Map(); // domain → { clearance, userAgent, expiresAt }
+// ── Cloudflare session cache ────────────────────────────────────────
+// cf_clearance is bound to the TLS fingerprint of the browser that solved
+// the challenge. Node.js has a different TLS fingerprint so reusing the
+// cookie for direct node-fetch calls still gets blocked. Solution: keep a
+// persistent FlareSolverr browser session per domain and route ALL HTML
+// page requests for CF-protected domains through that session.
+// Non-HTML assets (CSS / JS / images) typically aren't JS-challenged and
+// are fetched directly via node https.
+const cfSessionCache = new Map(); // domain → { sessionId, userAgent, expiresAt }
 
-function getCfClearance(domain) {
-  const entry = cfClearanceCache.get(domain);
+function getCfSession(domain) {
+  const entry = cfSessionCache.get(domain);
   if (!entry || entry.expiresAt < Date.now()) {
-    cfClearanceCache.delete(domain);
+    if (entry) destroyCfSession(domain, entry.sessionId);
+    cfSessionCache.delete(domain);
     return null;
   }
   return entry;
 }
 
-function setCfClearance(domain, clearance, userAgent) {
-  cfClearanceCache.set(domain, {
-    clearance,
+function setCfSession(domain, sessionId, userAgent) {
+  cfSessionCache.set(domain, {
+    sessionId,
     userAgent,
     expiresAt: Date.now() + CF_CLEARANCE_TTL_MS,
   });
 }
 
+async function destroyCfSession(domain, sessionId) {
+  if (!FLARESOLVERR_URL || !sessionId) return;
+  try {
+    await fetch(`${FLARESOLVERR_URL}/v1`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cmd: 'sessions.destroy', session: sessionId }),
+    });
+    console.log(`[site-proxy] FlareSolverr session destroyed for ${domain}`);
+  } catch { /* ignore */ }
+}
+
+// GC expired CF sessions periodically
+setInterval(() => {
+  const now = Date.now();
+  for (const [domain, entry] of cfSessionCache) {
+    if (entry.expiresAt < now) {
+      destroyCfSession(domain, entry.sessionId);
+      cfSessionCache.delete(domain);
+    }
+  }
+}, 5 * 60 * 1000).unref();
+
 /**
- * Call FlareSolverr to bypass a Cloudflare challenge for the given URL.
- * Returns { html, cookies, userAgent } on success, null on failure/disabled.
- * cookies is an array of { name, value } objects from FlareSolverr.
+ * Fetch a URL through a FlareSolverr browser session.
+ * If sessionId is provided, reuses the existing session (fast path —
+ * CF challenge already solved). Otherwise creates a new session first.
+ * Returns { html, sessionId, userAgent } on success, null on failure.
  */
-async function fetchViaFlaresolverr(targetUrl) {
+async function fetchViaFlaresolverr(targetUrl, sessionId = null) {
   if (!FLARESOLVERR_URL) return null;
   try {
+    let sid = sessionId;
+
+    // Create a new session if we don't have one yet
+    if (!sid) {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 10_000);
+      const createResp = await fetch(`${FLARESOLVERR_URL}/v1`, {
+        method: 'POST',
+        signal: ctrl.signal,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cmd: 'sessions.create' }),
+      });
+      clearTimeout(timer);
+      if (!createResp.ok) {
+        console.warn(`[site-proxy] FlareSolverr sessions.create HTTP ${createResp.status}`);
+        return null;
+      }
+      const createJson = await createResp.json();
+      sid = createJson.session;
+      if (!sid) {
+        console.warn('[site-proxy] FlareSolverr sessions.create: no session id returned');
+        return null;
+      }
+    }
+
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), FLARESOLVERR_TIMEOUT_MS + 5_000);
     const resp = await fetch(`${FLARESOLVERR_URL}/v1`, {
@@ -182,21 +235,23 @@ async function fetchViaFlaresolverr(targetUrl) {
       body: JSON.stringify({
         cmd: 'request.get',
         url: targetUrl,
+        session: sid,
         maxTimeout: FLARESOLVERR_TIMEOUT_MS,
       }),
     });
     clearTimeout(timer);
+
     if (!resp.ok) {
       console.warn(`[site-proxy] FlareSolverr HTTP ${resp.status} for ${targetUrl}`);
       return null;
     }
     const json = await resp.json();
     if (json.status !== 'ok' || !json.solution) {
-      console.warn(`[site-proxy] FlareSolverr non-ok status for ${targetUrl}:`, json.message);
+      console.warn(`[site-proxy] FlareSolverr non-ok for ${targetUrl}:`, json.message);
       return null;
     }
-    const { response: html, cookies, userAgent } = json.solution;
-    return { html: html || '', cookies: cookies || [], userAgent: userAgent || '' };
+    const { response: html, userAgent } = json.solution;
+    return { html: html || '', sessionId: sid, userAgent: userAgent || '' };
   } catch (err) {
     console.warn(`[site-proxy] FlareSolverr error for ${targetUrl}: ${err.message}`);
     return null;
@@ -1219,16 +1274,47 @@ async function proxyTo(req, res, visitor, visitorId, setVisitorCookie, domain, t
     }
   }
 
-  // Build upstream request headers
+  // ── Cloudflare fast-path ──────────────────────────────────────────
+  // If this domain has an active FlareSolverr session, route HTML page
+  // requests directly through it (skipping the wasted node-fetch 403).
+  // Assets (CSS / JS / images) go through normal node-fetch because CF
+  // doesn't challenge them with the JS challenge.
+  // HTML requests: no extension, .html, .htm — classifyCacheForGet returns
+  // { ttlMs: HTML_TTL_MS } for them, or null for unknown extensions.
+  // Binary/text assets return { ttlMs: BINARY_ASSET_TTL_MS/TEXT_ASSET_TTL_MS }.
+  const _cat = classifyCacheForGet(targetPath);
+  const isHtmlRequest = method === 'GET' &&
+    (_cat === null || _cat.ttlMs === HTML_TTL_MS);
+  const existingSession = getCfSession(domain);
+  if (existingSession && isHtmlRequest) {
+    console.log(`[site-proxy] CF session hit for ${domain}, routing via FlareSolverr`);
+    const solved = await fetchViaFlaresolverr(targetUrl, existingSession.sessionId);
+    if (solved) {
+      let html = solved.html;
+      html = rewriteHtml(html, domain);
+      html = injectRuntimeScript(html, domain);
+      html = injectDemoBundle(html, visitor.demoCfg);
+      const cfOutHeaders = {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Access-Control-Allow-Origin': '*',
+        'Cache-Control': 'no-store',
+      };
+      attachVisitorCookie(cfOutHeaders, visitorId, setVisitorCookie);
+      res.writeHead(200, cfOutHeaders);
+      res.end(Buffer.from(html, 'utf-8'));
+      return;
+    }
+    // Session expired or broken — clear it and fall through to normal fetch
+    cfSessionCache.delete(domain);
+    console.warn(`[site-proxy] CF session broken for ${domain}, clearing and retrying`);
+  }
+
+  // ── Normal upstream fetch ─────────────────────────────────────────
   const headers = {};
   const jarCookie = getJarCookieString(visitor, domain);
   const browserCookie = stripVisitorCookie(req.headers.cookie || '');
-  // Include cached cf_clearance cookie for Cloudflare-protected domains.
-  const cfEntry = getCfClearance(domain);
-  const cfCookie = cfEntry ? `cf_clearance=${cfEntry.clearance}` : '';
-  const mergedCookie = mergeCookies([jarCookie, browserCookie, cfCookie]);
+  const mergedCookie = mergeCookies([jarCookie, browserCookie]);
   if (mergedCookie) headers.Cookie = mergedCookie;
-  if (cfEntry) headers['User-Agent'] = cfEntry.userAgent;
 
   if (method !== 'GET' && method !== 'HEAD') {
     if (req.headers['content-type']) headers['Content-Type'] = req.headers['content-type'];
@@ -1287,26 +1373,20 @@ async function proxyTo(req, res, visitor, visitorId, setVisitorCookie, domain, t
     }
   }
 
-  // Cloudflare / blocked — try FlareSolverr bypass before giving up
+  // ── Cloudflare blocked — create session and bypass ────────────────
   if (result.statusCode === 403 || result.statusCode === 503) {
     const bodyStr = result.buffer.toString('utf-8').toLowerCase();
     const isCf = bodyStr.includes('just a moment') || bodyStr.includes('cf-mitigated') ||
       bodyStr.includes('cloudflare') || bodyStr.includes('cf-ray');
 
     if (isCf && FLARESOLVERR_URL) {
-      console.log(`[site-proxy] CF detected for ${domain}, trying FlareSolverr…`);
-      const solved = await fetchViaFlaresolverr(targetUrl);
+      console.log(`[site-proxy] CF detected for ${domain}, creating FlareSolverr session…`);
+      // fetchViaFlaresolverr with no sessionId creates a new persistent
+      // browser session: same TLS fingerprint across all page loads.
+      const solved = await fetchViaFlaresolverr(targetUrl, null);
       if (solved) {
-        // Cache cf_clearance for subsequent requests to this domain
-        const cfClearanceCookie = solved.cookies.find((c) => c.name === 'cf_clearance');
-        if (cfClearanceCookie) {
-          setCfClearance(domain, cfClearanceCookie.value, solved.userAgent);
-          // Also store all returned cookies in the visitor's jar
-          const setCookieHeaders = solved.cookies.map((c) => `${c.name}=${c.value}; Path=/`);
-          storeSetCookies(visitor, domain, setCookieHeaders);
-          console.log(`[site-proxy] FlareSolverr: cf_clearance cached for ${domain}`);
-        }
-        // Rewrite and serve the HTML FlareSolverr fetched
+        setCfSession(domain, solved.sessionId, solved.userAgent);
+        console.log(`[site-proxy] CF session created for ${domain} (id: ${solved.sessionId})`);
         let html = solved.html;
         html = rewriteHtml(html, domain);
         html = injectRuntimeScript(html, domain);
@@ -1321,10 +1401,12 @@ async function proxyTo(req, res, visitor, visitorId, setVisitorCookie, domain, t
         res.end(Buffer.from(html, 'utf-8'));
         return;
       }
-      console.warn(`[site-proxy] FlareSolverr failed for ${domain}, returning blocked page`);
+      console.warn(`[site-proxy] FlareSolverr failed for ${domain}, showing blocked page`);
     }
 
-    const html = blockedHtml(domain, result.statusCode, isCf);
+    const isCfFinal = result.buffer.toString('utf-8').toLowerCase().includes('just a moment') ||
+      result.buffer.toString('utf-8').toLowerCase().includes('cf-mitigated');
+    const html = blockedHtml(domain, result.statusCode, isCfFinal || (result.statusCode === 403));
     res.writeHead(200, {
       'Content-Type': 'text/html; charset=utf-8',
       'Access-Control-Allow-Origin': '*',
