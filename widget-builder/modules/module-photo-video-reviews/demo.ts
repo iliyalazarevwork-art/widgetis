@@ -53,38 +53,44 @@ function wrapText(raw: string, maxChars: number, maxLines: number): string[] {
 
 // ─── Placeholder generators ──────────────────────────────────────────────────
 
-const PHOTO_BG     = ['#F8F9FA', '#FFF8F5', '#F5F8FF'] as const;
-const PHOTO_STROKE = ['#DEE2E6', '#F0D9D0', '#D0DCF0'] as const;
-const PHOTO_ICON   = ['#CED4DA', '#D4B8B0', '#B0BED4'] as const;
+// Variant palette: [bg-gradient-from, bg-gradient-to, border, icon-circle, icon-stroke]
+const PHOTO_PALETTE = [
+  ['#EEF2FF', '#F3E8FF', '#A78BFA', '#7C3AED', '#fff'],  // purple
+  ['#FFF7ED', '#FEF3C7', '#FCD34D', '#D97706', '#fff'],  // amber
+  ['#F0FDF4', '#ECFDF5', '#6EE7B7', '#059669', '#fff'],  // emerald
+] as const;
 
 const FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif";
 
 function makePhotoPh(variant: number, reviewText: string): string {
-  const bg = PHOTO_BG[variant % 3];
-  const st = PHOTO_STROKE[variant % 3];
-  const ic = PHOTO_ICON[variant % 3];
+  const [bgA, bgB, border, iconBg, iconFg] = PHOTO_PALETTE[variant % 3];
 
   const lines = wrapText(reviewText, 25, 3);
-  const lineH = 21;
-  const textY = 225;
+  const lineH = 22;
+  const textY = 234;
   const textNodes = lines
     .map((l, i) =>
       `<text x="150" y="${textY + i * lineH}" ` +
-      `font-family="${FONT}" font-size="13" fill="#9CA3AF" text-anchor="middle">${svgEscape(l)}</text>`,
+      `font-family="${FONT}" font-size="14" font-weight="600" fill="#1F2937" text-anchor="middle">${svgEscape(l)}</text>`,
     )
     .join('');
 
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 375" width="300" height="375">` +
-    `<rect width="300" height="375" fill="${bg}"/>` +
-    `<rect x="14" y="14" width="272" height="347" rx="12" fill="none" stroke="${st}" stroke-width="1.5" stroke-dasharray="7 5"/>` +
-    // Camera icon: Lucide 24×24 scaled ×2.5, centered at (150,155)
-    `<g transform="translate(120,130) scale(2.5)" fill="none" stroke="${ic}" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">` +
+    `<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">` +
+    `<stop offset="0%" stop-color="${bgA}"/><stop offset="100%" stop-color="${bgB}"/>` +
+    `</linearGradient></defs>` +
+    `<rect width="300" height="375" rx="14" fill="url(#g)"/>` +
+    `<rect x="14" y="14" width="272" height="347" rx="10" fill="none" stroke="${border}" stroke-width="2" stroke-dasharray="7 5"/>` +
+    // Colored circle behind camera icon
+    `<circle cx="150" cy="155" r="40" fill="${iconBg}"/>` +
+    // Camera icon: Lucide 24×24 scaled ×2, centered at (150,155)
+    `<g transform="translate(126,131) scale(2)" fill="none" stroke="${iconFg}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">` +
     `<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3L14.5 4z"/>` +
     `<circle cx="12" cy="13" r="3.5"/>` +
     `</g>` +
     textNodes +
-    `<text x="150" y="358" font-family="${FONT}" font-size="10" fill="${st}" text-anchor="middle">widgetis</text>` +
+    `<text x="150" y="360" font-family="${FONT}" font-size="10" fill="${border}" text-anchor="middle">widgetis</text>` +
     `</svg>`;
 
   return 'data:image/svg+xml,' + encodeURIComponent(svg);
@@ -92,23 +98,27 @@ function makePhotoPh(variant: number, reviewText: string): string {
 
 function makeVideoPh(reviewText: string): string {
   const lines = wrapText(reviewText, 25, 3);
-  const lineH = 21;
-  const textY = 238;
+  const lineH = 22;
+  const textY = 248;
   const textNodes = lines
     .map((l, i) =>
       `<text x="150" y="${textY + i * lineH}" ` +
-      `font-family="${FONT}" font-size="13" fill="rgba(255,255,255,0.45)" text-anchor="middle">${svgEscape(l)}</text>`,
+      `font-family="${FONT}" font-size="14" font-weight="600" fill="rgba(255,255,255,0.85)" text-anchor="middle">${svgEscape(l)}</text>`,
     )
     .join('');
 
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 375" width="300" height="375">` +
-    `<rect width="300" height="375" fill="#111827"/>` +
-    `<rect x="14" y="14" width="272" height="347" rx="12" fill="none" stroke="#374151" stroke-width="1.5" stroke-dasharray="7 5"/>` +
-    `<circle cx="150" cy="168" r="38" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>` +
-    `<polygon points="143,155 143,181 170,168" fill="rgba(255,255,255,0.75)"/>` +
+    `<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">` +
+    `<stop offset="0%" stop-color="#0F172A"/><stop offset="100%" stop-color="#1E1B4B"/>` +
+    `</linearGradient></defs>` +
+    `<rect width="300" height="375" rx="14" fill="url(#g)"/>` +
+    `<rect x="14" y="14" width="272" height="347" rx="10" fill="none" stroke="#6366F1" stroke-width="2" stroke-dasharray="7 5"/>` +
+    // Play circle
+    `<circle cx="150" cy="168" r="42" fill="#4F46E5"/>` +
+    `<polygon points="144,154 144,182 172,168" fill="#fff"/>` +
     textNodes +
-    `<text x="150" y="358" font-family="${FONT}" font-size="10" fill="rgba(255,255,255,0.12)" text-anchor="middle">widgetis</text>` +
+    `<text x="150" y="360" font-family="${FONT}" font-size="10" fill="#6366F1" text-anchor="middle">widgetis</text>` +
     `</svg>`;
 
   return 'data:image/svg+xml,' + encodeURIComponent(svg);
