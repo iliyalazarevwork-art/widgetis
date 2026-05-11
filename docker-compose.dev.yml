@@ -83,6 +83,16 @@ services:
     networks:
       - widgetis
 
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    environment:
+      LOG_LEVEL: info
+      TZ: Europe/Kiev
+    ports:
+      - "8191:8191"
+    networks:
+      - widgetis
+
   site-proxy:
     build:
       context: ./services/site-proxy
@@ -96,7 +106,10 @@ services:
       NODE_ENV: development
       PORT: "3100"
       DEMO_BUNDLE_PATH: /app/public/demo-bundle.js
+      FLARESOLVERR_URL: http://flaresolverr:8191
     command: ["node", "--watch", "server.mjs"]
+    depends_on:
+      - flaresolverr
     networks:
       - widgetis
 

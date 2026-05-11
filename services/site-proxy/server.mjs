@@ -19,6 +19,13 @@ const TEXT_ASSET_TTL_MS = 60 * 60 * 1000;        // 1h
 const BINARY_ASSET_TTL_MS = 24 * 60 * 60 * 1000; // 24h
 const CACHE_MAX_ENTRIES = 5000;
 
+// Optional FlareSolverr sidecar for Cloudflare-protected sites.
+// Set FLARESOLVERR_URL=http://flaresolverr:8191 to enable.
+const FLARESOLVERR_URL = (process.env.FLARESOLVERR_URL || '').replace(/\/+$/, '');
+const FLARESOLVERR_TIMEOUT_MS = 60_000;
+// cf_clearance cookie lifetime — CF invalidates it after ~30 min.
+const CF_CLEARANCE_TTL_MS = 25 * 60 * 1000;
+
 // Backend base used to resolve per-session demo configs. Defaults to the dev
 // docker-compose service-to-service URL (backend container exposes 8000
 // inside the `widgetis` bridge network — see docker-compose.dev.yml).
@@ -132,6 +139,68 @@ function isAllowedDomain(domain) {
   }
   if (lower.startsWith('169.254.') || lower === 'metadata.google.internal') return false;
   return true;
+}
+
+// ── Cloudflare clearance cache ─────────────────────────────────────
+// Keyed by domain. Stores cf_clearance cookie + matching User-Agent so
+// subsequent node-fetch requests to CF-protected domains pass through.
+// Entries expire after CF_CLEARANCE_TTL_MS (25 min) because Cloudflare
+// invalidates cf_clearance ~30 min after issuance.
+const cfClearanceCache = new Map(); // domain → { clearance, userAgent, expiresAt }
+
+function getCfClearance(domain) {
+  const entry = cfClearanceCache.get(domain);
+  if (!entry || entry.expiresAt < Date.now()) {
+    cfClearanceCache.delete(domain);
+    return null;
+  }
+  return entry;
+}
+
+function setCfClearance(domain, clearance, userAgent) {
+  cfClearanceCache.set(domain, {
+    clearance,
+    userAgent,
+    expiresAt: Date.now() + CF_CLEARANCE_TTL_MS,
+  });
+}
+
+/**
+ * Call FlareSolverr to bypass a Cloudflare challenge for the given URL.
+ * Returns { html, cookies, userAgent } on success, null on failure/disabled.
+ * cookies is an array of { name, value } objects from FlareSolverr.
+ */
+async function fetchViaFlaresolverr(targetUrl) {
+  if (!FLARESOLVERR_URL) return null;
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), FLARESOLVERR_TIMEOUT_MS + 5_000);
+    const resp = await fetch(`${FLARESOLVERR_URL}/v1`, {
+      method: 'POST',
+      signal: ctrl.signal,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        cmd: 'request.get',
+        url: targetUrl,
+        maxTimeout: FLARESOLVERR_TIMEOUT_MS,
+      }),
+    });
+    clearTimeout(timer);
+    if (!resp.ok) {
+      console.warn(`[site-proxy] FlareSolverr HTTP ${resp.status} for ${targetUrl}`);
+      return null;
+    }
+    const json = await resp.json();
+    if (json.status !== 'ok' || !json.solution) {
+      console.warn(`[site-proxy] FlareSolverr non-ok status for ${targetUrl}:`, json.message);
+      return null;
+    }
+    const { response: html, cookies, userAgent } = json.solution;
+    return { html: html || '', cookies: cookies || [], userAgent: userAgent || '' };
+  } catch (err) {
+    console.warn(`[site-proxy] FlareSolverr error for ${targetUrl}: ${err.message}`);
+    return null;
+  }
 }
 
 // ── Cookie jar helpers ──────────────────────────────────────────────
@@ -1154,8 +1223,12 @@ async function proxyTo(req, res, visitor, visitorId, setVisitorCookie, domain, t
   const headers = {};
   const jarCookie = getJarCookieString(visitor, domain);
   const browserCookie = stripVisitorCookie(req.headers.cookie || '');
-  const mergedCookie = mergeCookies([jarCookie, browserCookie]);
+  // Include cached cf_clearance cookie for Cloudflare-protected domains.
+  const cfEntry = getCfClearance(domain);
+  const cfCookie = cfEntry ? `cf_clearance=${cfEntry.clearance}` : '';
+  const mergedCookie = mergeCookies([jarCookie, browserCookie, cfCookie]);
   if (mergedCookie) headers.Cookie = mergedCookie;
+  if (cfEntry) headers['User-Agent'] = cfEntry.userAgent;
 
   if (method !== 'GET' && method !== 'HEAD') {
     if (req.headers['content-type']) headers['Content-Type'] = req.headers['content-type'];
@@ -1214,10 +1287,43 @@ async function proxyTo(req, res, visitor, visitorId, setVisitorCookie, domain, t
     }
   }
 
-  // Cloudflare / blocked
+  // Cloudflare / blocked — try FlareSolverr bypass before giving up
   if (result.statusCode === 403 || result.statusCode === 503) {
     const bodyStr = result.buffer.toString('utf-8').toLowerCase();
-    const isCf = bodyStr.includes('just a moment') || bodyStr.includes('cf-mitigated');
+    const isCf = bodyStr.includes('just a moment') || bodyStr.includes('cf-mitigated') ||
+      bodyStr.includes('cloudflare') || bodyStr.includes('cf-ray');
+
+    if (isCf && FLARESOLVERR_URL) {
+      console.log(`[site-proxy] CF detected for ${domain}, trying FlareSolverr…`);
+      const solved = await fetchViaFlaresolverr(targetUrl);
+      if (solved) {
+        // Cache cf_clearance for subsequent requests to this domain
+        const cfClearanceCookie = solved.cookies.find((c) => c.name === 'cf_clearance');
+        if (cfClearanceCookie) {
+          setCfClearance(domain, cfClearanceCookie.value, solved.userAgent);
+          // Also store all returned cookies in the visitor's jar
+          const setCookieHeaders = solved.cookies.map((c) => `${c.name}=${c.value}; Path=/`);
+          storeSetCookies(visitor, domain, setCookieHeaders);
+          console.log(`[site-proxy] FlareSolverr: cf_clearance cached for ${domain}`);
+        }
+        // Rewrite and serve the HTML FlareSolverr fetched
+        let html = solved.html;
+        html = rewriteHtml(html, domain);
+        html = injectRuntimeScript(html, domain);
+        html = injectDemoBundle(html, visitor.demoCfg);
+        const cfOutHeaders = {
+          'Content-Type': 'text/html; charset=utf-8',
+          'Access-Control-Allow-Origin': '*',
+          'Cache-Control': 'no-store',
+        };
+        attachVisitorCookie(cfOutHeaders, visitorId, setVisitorCookie);
+        res.writeHead(200, cfOutHeaders);
+        res.end(Buffer.from(html, 'utf-8'));
+        return;
+      }
+      console.warn(`[site-proxy] FlareSolverr failed for ${domain}, returning blocked page`);
+    }
+
     const html = blockedHtml(domain, result.statusCode, isCf);
     res.writeHead(200, {
       'Content-Type': 'text/html; charset=utf-8',

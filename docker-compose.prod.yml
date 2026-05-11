@@ -133,6 +133,19 @@ services:
     networks:
       - widgetis
 
+  # ── FlareSolverr (Cloudflare bypass for live-demo proxy) ──
+  # Handles JS-challenge and Bot-Management protected sites.
+  # Uses a headless Chromium to solve the challenge, then returns
+  # the rendered HTML + cf_clearance cookie to site-proxy.
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    environment:
+      LOG_LEVEL: info
+      TZ: Europe/Kiev
+    restart: always
+    networks:
+      - widgetis
+
   # ── Site Proxy (live-demo iframe preview) ─────────────────
   site-proxy:
     build:
@@ -147,6 +160,9 @@ services:
       # backend container only listens on 9000 (FastCGI). We go through Caddy
       # over the public hostname so SNI/TLS termination is handled correctly.
       BACKEND_API_URL: https://api.widgetis.com/api/v1
+      FLARESOLVERR_URL: http://flaresolverr:8191
+    depends_on:
+      - flaresolverr
     restart: always
     stop_grace_period: 30s
     healthcheck:
