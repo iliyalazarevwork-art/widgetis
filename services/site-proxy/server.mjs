@@ -1399,28 +1399,34 @@ async function proxyTo(req, res, visitor, visitorId, setVisitorCookie, domain, t
   const _cat = classifyCacheForGet(targetPath);
   const isHtmlRequest = method === 'GET' &&
     (_cat === null || _cat.ttlMs === HTML_TTL_MS);
+  // For known CF domains: HTML → always iframe (browser loads site directly,
+  // assets load from real domain without going through our proxy = no 502s).
+  // Asset requests on CF domains → route through FlareSolverr session so CF
+  // doesn't block them (covers legacy proxy-served pages with URL rewriting).
   const existingSession = getCfSession(domain);
   if (existingSession && isHtmlRequest) {
-    console.log(`[site-proxy] CF session hit for ${domain}, routing via FlareSolverr`);
-    const solved = await fetchViaFlaresolverr(targetUrl, existingSession.sessionId);
-    if (solved) {
-      let html = solved.html;
-      html = rewriteHtml(html, domain);
-      html = injectRuntimeScript(html, domain);
-      html = injectDemoBundle(html, visitor.demoCfg);
-      const cfOutHeaders = {
-        'Content-Type': 'text/html; charset=utf-8',
-        'Access-Control-Allow-Origin': '*',
-        'Cache-Control': 'no-store',
-      };
-      attachVisitorCookie(cfOutHeaders, visitorId, setVisitorCookie);
-      res.writeHead(200, cfOutHeaders);
-      res.end(Buffer.from(html, 'utf-8'));
+    console.log(`[site-proxy] CF domain known — iframe bypass for ${domain}`);
+    const cfOutHeaders = {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Access-Control-Allow-Origin': '*',
+      'Cache-Control': 'no-store',
+    };
+    attachVisitorCookie(cfOutHeaders, visitorId, setVisitorCookie);
+    res.writeHead(200, cfOutHeaders);
+    res.end(Buffer.from(buildCfIframePage(domain, visitor.demoCfg), 'utf-8'));
+    return;
+  }
+  if (existingSession?.sessionId && !isHtmlRequest && method === 'GET') {
+    // Asset going through the proxy for a CF-protected domain — use session
+    const assetResult = await fetchViaFlaresolverr(targetUrl, existingSession.sessionId);
+    if (assetResult) {
+      const outHeaders = { 'Content-Type': 'application/octet-stream', 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'public, max-age=3600' };
+      attachVisitorCookie(outHeaders, visitorId, setVisitorCookie);
+      res.writeHead(200, outHeaders);
+      res.end(Buffer.from(assetResult.html, 'utf-8'));
       return;
     }
-    // Session expired or broken — clear it and fall through to normal fetch
     cfSessionCache.delete(domain);
-    console.warn(`[site-proxy] CF session broken for ${domain}, clearing and retrying`);
   }
 
   // ── Normal upstream fetch ─────────────────────────────────────────
