@@ -97,18 +97,20 @@ function generateEntry(modules: ModuleConfigs): string {
 
     // Per-module init wrapper:
     //   1. Read window.__WIDGETIS_CFG__.modules[slug] (may be missing).
-    //   2. In per-session demo mode (demo_code present), treat the map as a
-    //      strict whitelist: a missing slug means "do not run this module".
+    //   2. Whitelist mode activates only when demo_code is present AND modules
+    //      is a non-empty object (admin-crafted session). A public session has
+    //      modules:{} — that means "show everything with defaults", not "hide all".
     //   3. If is_enabled === false, skip the module entirely.
     //   4. Otherwise deep-merge config/i18n overrides over the baked-in defaults.
-    // When __WIDGETIS_CFG__ is absent (vanilla demo without ?demo_code), the
-    // path collapses to the original baked-in behaviour with no overrides.
+    // When __WIDGETIS_CFG__ is absent or modules is empty, the path collapses
+    // to the original baked-in behaviour with no overrides.
     calls.push(
       [
         'try {',
-        `  var __hasDemoCfg${idx} = !!(typeof window !== "undefined" && window.__WIDGETIS_CFG__ && window.__WIDGETIS_CFG__.demo_code);`,
-        `  var __ov${idx} = (typeof window !== "undefined" && window.__WIDGETIS_CFG__ && window.__WIDGETIS_CFG__.modules) ? window.__WIDGETIS_CFG__.modules[${slugLit}] : null;`,
-        `  if (__hasDemoCfg${idx} && !__ov${idx}) {`,
+        `  var __mods${idx} = (typeof window !== "undefined" && window.__WIDGETIS_CFG__ && window.__WIDGETIS_CFG__.modules) ? window.__WIDGETIS_CFG__.modules : null;`,
+        `  var __hasWhitelist${idx} = !!(__mods${idx} && Object.keys(__mods${idx}).length > 0);`,
+        `  var __ov${idx} = __mods${idx} ? __mods${idx}[${slugLit}] : null;`,
+        `  if (__hasWhitelist${idx} && !__ov${idx}) {`,
         `    console.log('[widgetality] ${moduleName}: skipped — not present in per-session config');`,
         `  } else if (__ov${idx} && __ov${idx}.is_enabled === false) {`,
         `    console.log('[widgetality] ${moduleName}: skipped by per-session config');`,
