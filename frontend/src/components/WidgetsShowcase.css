@@ -174,7 +174,7 @@
   width: 260px;
   display: flex;
   flex-direction: column;
-  transition: transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   will-change: transform;
   z-index: 1;
 }
@@ -464,32 +464,77 @@
   text-align: center;
   padding: 10px 14px;
   border-radius: 10px;
+  transform: scale(1);
 }
 
-.wss__ph-buybtn--tap {
-  animation: wss-ph-buy-boom 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 1540ms both;
+.wss__ph-buybtn--hover {
+  animation: wss-ph-buy-hover 1460ms ease 1 both;
 }
 
-@keyframes wss-ph-buy-boom {
-  0%   { transform: scale(1);    box-shadow: none; }
-  22%  { transform: scale(0.84); box-shadow: none; }
-  52%  { transform: scale(1.13); box-shadow: 0 0 0 8px rgba(17,17,17,0.18); }
-  70%  { transform: scale(0.97); box-shadow: 0 0 0 14px rgba(17,17,17,0); }
-  85%  { transform: scale(1.03); }
-  100% { transform: scale(1);    box-shadow: none; }
+@keyframes wss-ph-buy-hover {
+  0%, 54% {
+    background: #111111;
+    transform: scale(1);
+    box-shadow: none;
+  }
+  64%, 76% {
+    background: #2A2A2A;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(17,17,17,0);
+  }
+  82% {
+    background: #202020;
+    transform: scale(0.965);
+    box-shadow: inset 0 2px 4px rgba(255,255,255,0.06);
+  }
+  89% {
+    background: #303030;
+    transform: scale(1.02);
+    box-shadow: 0 8px 18px rgba(17,17,17,0.16);
+  }
+  100% {
+    background: #2A2A2A;
+    transform: scale(1);
+    box-shadow: 0 4px 12px rgba(17,17,17,0.1);
+  }
 }
 
 /* ── Trust row ── */
 
 .wss__ph-trust {
   flex-shrink: 0;
-  padding: 8px 14px;
-  background: #F8F5F0;
+  padding: 10px 14px 0;
   display: flex;
-  justify-content: space-between;
-  font-family: var(--font-body);
-  font-size: 9px;
-  color: #AAAAAA;
+  gap: 8px;
+}
+
+.wss__ph-trust-card {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 6px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.94) 0%, rgba(242,236,229,0.94) 100%);
+  border: 1px solid rgba(187, 174, 161, 0.32);
+  border-radius: 14px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.75),
+    0 10px 24px rgba(47, 35, 24, 0.07);
+}
+
+.wss__ph-trust-icon {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1A1A1A;
+  background: rgba(255,255,255,0.9);
+  border: 1px solid rgba(17,17,17,0.06);
+  border-radius: 999px;
+  box-shadow: 0 6px 14px rgba(17,17,17,0.08);
 }
 
 /* ── Dim overlay ── */
@@ -515,7 +560,7 @@
   z-index: 20;
   display: flex;
   flex-direction: column;
-  transition: transform 0.48s cubic-bezier(0.32, 0.72, 0, 1);
+  transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
   will-change: transform;
 }
 
@@ -617,7 +662,15 @@
   justify-content: center;
   border: none;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition:
+    background 0.3s ease,
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.wss__ph-shadd--hover {
+  transform: translateY(-1px) scale(1.08);
+  box-shadow: 0 10px 18px rgba(192,144,96,0.34);
 }
 
 .wss__ph-shadd--done {
@@ -663,40 +716,31 @@
 /* Phase 0: page scrolls by itself — cursor stays hidden */
 .wss__ph-cursor--p0 { opacity: 0; }
 
-/* Phase 1: cursor appears near "Купити" after scroll settles → clicks
-   Buy button centre ≈ screen (130, 468). Tip offset ≈ (5, 4).
-   translate = (125, 464). Glides in from y=452 (just above). */
+/* Phase 1: cursor glides to "Купити" and stays in hover state. */
 .wss__ph-cursor--p1 {
-  animation: wss-ph-cur1 2200ms ease 1 forwards;
+  animation: wss-ph-cur1 1460ms ease 1 forwards;
 }
 
 @keyframes wss-ph-cur1 {
   0%   { opacity: 0;   transform: translate(125px, 452px) scale(1); }
   40%  { opacity: 0;   transform: translate(125px, 452px) scale(1); }
-  51%  { opacity: 1;   transform: translate(125px, 464px) scale(1); }
-  63%  { opacity: 1;   transform: translate(125px, 464px) scale(1); }
-  70%  { opacity: 1;   transform: translate(125px, 464px) scale(0.66); }
-  79%  { opacity: 1;   transform: translate(125px, 464px) scale(1.12); }
-  85%  { opacity: 1;   transform: translate(125px, 464px) scale(1); }
+  55%  { opacity: 1;   transform: translate(125px, 464px) scale(1) rotate(-2deg); }
+  82%  { opacity: 1;   transform: translate(125px, 464px) scale(1.04) rotate(-4deg); }
   95%  { opacity: 0;   transform: translate(125px, 464px) scale(1); }
   100% { opacity: 0;   transform: translate(125px, 464px) scale(1); }
 }
 
-/* Phase 2: sheet opens → cursor appears ON sheet header → glides to "+" → clicks
-   Sheet header area ≈ screen y=280. "+" button ≈ (230, 342).
-   Start translate (135, 276). End translate (225, 338). */
+/* Phase 2: sheet opens → cursor glides to "+" and holds hover state. */
 .wss__ph-cursor--p2 {
-  animation: wss-ph-cur2 2000ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 1 forwards;
+  animation: wss-ph-cur2 1330ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 1 forwards;
 }
 
 @keyframes wss-ph-cur2 {
   0%   { opacity: 0;   transform: translate(135px, 276px) scale(1); }
   10%  { opacity: 0;   transform: translate(135px, 276px) scale(1); }
   18%  { opacity: 1;   transform: translate(135px, 276px) scale(1); }
-  55%  { opacity: 1;   transform: translate(225px, 338px) scale(1); }
-  78%  { opacity: 1;   transform: translate(225px, 338px) scale(0.66); }
-  98%  { opacity: 1;   transform: translate(225px, 338px) scale(1.12); }
-  100% { opacity: 1;   transform: translate(225px, 338px) scale(1.12); }
+  55%  { opacity: 1;   transform: translate(225px, 338px) scale(1) rotate(0deg); }
+  100% { opacity: 1;   transform: translate(225px, 338px) scale(1.05) rotate(-3deg); }
 }
 
 /* Phase 3: green check — cursor hidden */

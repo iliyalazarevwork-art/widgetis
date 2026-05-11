@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build && node scripts/generate-sitemap.mjs",
     "build:prerender": "tsc -b && vite build && node scripts/generate-sitemap.mjs && node scripts/prerender.mjs",
+    "build:prod": "npm run build:prerender",
     "prerender": "node scripts/prerender.mjs",
     "sitemap": "node scripts/generate-sitemap.mjs",
     "test": "vitest run",

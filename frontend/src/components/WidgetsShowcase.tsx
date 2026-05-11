@@ -1,5 +1,16 @@
 import { useState, useEffect } from 'react'
-import { Sparkles, Zap, ShoppingBag, Eye, Check, Plus, X } from 'lucide-react'
+import {
+  Sparkles,
+  Zap,
+  ShoppingBag,
+  Eye,
+  Check,
+  Plus,
+  X,
+  ShieldCheck,
+  RotateCcw,
+  Truck,
+} from 'lucide-react'
 import { useVisible } from '../hooks/useVisible'
 import './WidgetsShowcase.css'
 
@@ -27,10 +38,10 @@ function useLocalTime() {
 type Phase = 0 | 1 | 2 | 3
 
 const PHASE_DURATIONS: Record<Phase, number> = {
-  0: 2400,  // scroll gesture
-  1: 2200,  // scroll settles + cursor glides to buy button + clicks
-  2: 2000,  // sheet opens + cursor from center → "+" → clicks
-  3: 1800,  // green check holds, then reset
+  0: 1600,  // scroll gesture
+  1: 1460,  // scroll settles + cursor glides to buy button + clicks
+  2: 1330,  // sheet opens + cursor from center → "+" → clicks
+  3: 320,   // green check flashes on open sheet, then cycle resets
 }
 
 function MarqueeItems() {
@@ -49,6 +60,18 @@ function MarqueeItems() {
     </>
   )
 }
+
+const trustItems = [
+  {
+    icon: ShieldCheck,
+  },
+  {
+    icon: RotateCcw,
+  },
+  {
+    icon: Truck,
+  },
+]
 
 function SlideModo() {
   const { ref, active } = useVisible<HTMLDivElement>()
@@ -69,7 +92,7 @@ function SlideModo() {
 
   const scrolled = phase >= 1
   const sheetOpen = phase >= 2
-  const itemAdded = phase >= 3
+  const itemAdded = phase === 3
 
   return (
     <div className="wss__ph-wrap" ref={ref} data-anim={active ? 'play' : 'pause'}>
@@ -146,8 +169,8 @@ function SlideModo() {
                   <span className="wss__ph-sz">XL</span>
                 </div>
                 <div
-                  key={phase >= 1 ? 'tapped' : 'idle'}
-                  className={`wss__ph-buybtn${phase === 1 ? ' wss__ph-buybtn--tap' : ''}`}
+                  key={phase >= 1 ? 'hovered' : 'idle'}
+                  className={`wss__ph-buybtn${phase === 1 ? ' wss__ph-buybtn--hover' : ''}`}
                 >
                   Купити
                 </div>
@@ -155,9 +178,13 @@ function SlideModo() {
 
               {/* Trust row */}
               <div className="wss__ph-trust">
-                <span>🛡 Захист</span>
-                <span>↩ Повернення</span>
-                <span>🚚 Доставка</span>
+                {trustItems.map(({ icon: Icon }, index) => (
+                  <div key={index} className="wss__ph-trust-card" aria-hidden="true">
+                    <div className="wss__ph-trust-icon">
+                      <Icon size={13} strokeWidth={2.2} />
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -204,7 +231,7 @@ function SlideModo() {
                   </div>
                   <button
                     key={itemAdded ? 'done' : 'add'}
-                    className={`wss__ph-shadd${itemAdded ? ' wss__ph-shadd--done' : ''}`}
+                    className={`wss__ph-shadd${phase === 2 ? ' wss__ph-shadd--hover' : ''}${itemAdded ? ' wss__ph-shadd--done' : ''}`}
                   >
                     {itemAdded
                       ? <Check size={14} color="#fff" strokeWidth={2.5} />
