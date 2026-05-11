@@ -1,307 +1,257 @@
-import { useState, useEffect, useRef } from 'react'
-import { Eye, ShoppingCart, Leaf, Gift, Star, Sparkles, Flame, Zap, Truck, Briefcase, PartyPopper, Timer } from 'lucide-react'
-import NP_LOGO from '../assets/nova-poshta-logo'
+import { useState, useEffect } from 'react'
+import { Sparkles, Zap, ShoppingBag, Eye, Check, Plus, X } from 'lucide-react'
 import { useVisible } from '../hooks/useVisible'
 import './WidgetsShowcase.css'
 
-
-const MONTHS_UK = ['січня','лютого','березня','квітня','травня','червня','липня','серпня','вересня','жовтня','листопада','грудня']
-function getTomorrow() {
-  const d = new Date(); d.setDate(d.getDate() + 1)
-  return `${d.getDate()} ${MONTHS_UK[d.getMonth()]}`
-}
-
-// ─── Shared: browser chrome ───────────────────────────────────────────────────
-
-function BrowserChrome({ url }: { url: string }) {
-  return (
-    <div className="wss__browser">
-      <div className="wss__dots"><span /><span /><span /></div>
-      <div className="wss__url">{url}</div>
-    </div>
-  )
-}
-
-// ─── Slide 1: Ptashkin Sad ────────────────────────────────────────────────────
-
-const PTASHKIN_PRICE = 1195
-const PTASHKIN_THRESHOLD = 3000
-const PTASHKIN_STEPS = [PTASHKIN_PRICE, PTASHKIN_PRICE * 2, PTASHKIN_PRICE * 3]
-
-function SlidePtashkin() {
-  const { ref, active } = useVisible<HTMLDivElement>()
-  const [stepIdx, setStepIdx] = useState(0)
-  const cart = PTASHKIN_STEPS[stepIdx]
-  const achieved = cart >= PTASHKIN_THRESHOLD
-
+function useLocalTime() {
+  const [time, setTime] = useState(() => {
+    const d = new Date()
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+  })
   useEffect(() => {
-    if (!active) return
-    const delay = achieved ? 2800 : 1600
-    const t = setTimeout(() => {
-      setStepIdx((i) => (i + 1) % PTASHKIN_STEPS.length)
-    }, delay)
-    return () => clearTimeout(t)
-  }, [stepIdx, achieved, active])
-
-  const cartCount = stepIdx + 1
-
-  return (
-    <div className="wss__card wss__card--ptashkin" ref={ref} data-anim={active ? 'play' : 'pause'}>
-      <BrowserChrome url="ptashkinsad.com" />
-      <div className="wss__marquee wss__marquee--ptashkin">
-        <div className="wss__marquee-track">
-          <span><Leaf size={11} strokeWidth={2.25} /> Безкоштовна доставка від 3000 грн</span>
-          <span><Gift size={11} strokeWidth={2.25} /> -10% при першій покупці</span>
-          <span><Star size={11} strokeWidth={2.25} /> 52 відгуки на Pure крем</span>
-          <span><Leaf size={11} strokeWidth={2.25} /> Безкоштовна доставка від 3000 грн</span>
-        </div>
-      </div>
-      <div className="wss__body">
-        <div className="wss__store-header wss__store-header--ptashkin">
-          <span className="wss__store-logo wss__store-logo--ptashkin">ptashkin sad</span>
-          <div className="wss__cart-indicator">
-            <ShoppingCart size={15} strokeWidth={1.5} />
-            <span key={cartCount} className="wss__cart-count">{cartCount}</span>
-          </div>
-        </div>
-        <div className="wss__product">
-          <div className="wss__product-img wss__product-img--ptashkin">
-            <img src="/showcase/ptashkin-pure@220.webp" alt="Pure крем" className="wss__product-photo" loading="lazy" decoding="async" width="220" height="220" />
-          </div>
-          <div className="wss__product-info">
-            <p className="wss__product-title wss__product-title--ptashkin">Крем-бустер Pure</p>
-            <span className="wss__product-variant">35 ml</span>
-            <div className="wss__prices">
-              <span className="wss__price wss__price--ptashkin">1 195 грн</span>
-            </div>
-            <div className="wss__dd">
-              <img src={NP_LOGO} className="wss__dd-logo" alt="Нова Пошта" loading="lazy" decoding="async" width="40" height="40" />
-              <span className="wss__dd-text--ptashkin">Завтра, <strong>{getTomorrow()}</strong></span>
-            </div>
-            <button
-              key={stepIdx}
-              className="wss__btn wss__btn--ptashkin wss__btn--pulsed"
-            >
-              Купити
-            </button>
-          </div>
-        </div>
-        <CartGoalWidget cart={cart} threshold={PTASHKIN_THRESHOLD} achieved={achieved} />
-      </div>
-    </div>
-  )
+    const t = setInterval(() => {
+      const d = new Date()
+      setTime(`${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`)
+    }, 10_000)
+    return () => clearInterval(t)
+  }, [])
+  return time
 }
 
-function CartGoalWidget({
-  cart,
-  threshold,
-  achieved,
-}: {
-  cart: number
-  threshold: number
-  achieved: boolean
-}) {
-  const remaining = Math.max(0, threshold - cart)
-  const progressPct = Math.min(100, (cart / threshold) * 100)
+// ─── Phone animation: MODO store + One-Plus-One widget ────────────────────────
 
+// phase 0: product page (idle, marquee running)
+// phase 1: page scrolled down (buy button more prominent)
+// phase 2: dim + bottom sheet slides up ("Часто беруть разом")
+// phase 3: first item added (green checkmark)
+type Phase = 0 | 1 | 2 | 3
+
+const PHASE_DURATIONS: Record<Phase, number> = {
+  0: 2400,  // scroll gesture
+  1: 2200,  // scroll settles + cursor glides to buy button + clicks
+  2: 2000,  // sheet opens + cursor from center → "+" → clicks
+  3: 1800,  // green check holds, then reset
+}
+
+function MarqueeItems() {
   return (
-    <div className={`wss__goal ${achieved ? 'wss__goal--achieved' : 'wss__goal--ptashkin'}`}>
-      <span className="wss__goal-emoji">
-        {achieved
-          ? <PartyPopper size={22} strokeWidth={2.25} />
-          : <Gift size={22} strokeWidth={2.25} />}
+    <>
+      <span className="wss__ph-mq-item">
+        <Sparkles size={9} strokeWidth={2} /> Нова колекція SS26
       </span>
-      <div className="wss__goal-content">
-        {achieved ? (
-          <span>
-            <strong>У вас безкоштовна доставка!</strong>
-          </span>
-        ) : (
-          <span>
-            До безкоштовної доставки залишилось <strong>{remaining} грн</strong>
-          </span>
-        )}
-        <div className="wss__goal-bar">
-          <div
-            className={`wss__goal-fill ${achieved ? 'wss__goal-fill--achieved' : 'wss__goal-fill--ptashkin'}`}
-            style={{ transform: `scaleX(${progressPct / 100})` }}
-          />
-        </div>
-      </div>
-    </div>
+      <span className="wss__ph-mq-sep">·</span>
+      <span className="wss__ph-mq-item">FREE доставка від 1500 грн</span>
+      <span className="wss__ph-mq-sep">·</span>
+      <span className="wss__ph-mq-item wss__ph-mq-item--promo">
+        <Zap size={9} strokeWidth={2} /> -15% на все
+      </span>
+      <span className="wss__ph-mq-sep">·</span>
+    </>
   )
 }
 
-// ─── Slide 2: Beni Home ───────────────────────────────────────────────────────
-
-function SlideBeniHome() {
+function SlideModo() {
   const { ref, active } = useVisible<HTMLDivElement>()
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const [count, setCount] = useState(12)
+  const [phase, setPhase] = useState<Phase>(0)
+  const time = useLocalTime()
+
   useEffect(() => {
-    if (!active) return
-    const t = setInterval(() => setCount(c => Math.max(6, c + (Math.random() > 0.5 ? 1 : -1))), 2200)
-    return () => clearInterval(t)
-  }, [active])
-  useEffect(() => {
-    const video = videoRef.current
-    if (!video) return
-    if (active) {
-      video.play().catch(() => {})
-    } else {
-      video.pause()
+    if (!active) {
+      setPhase(0)
+      return
     }
-  }, [active])
+    const t = setTimeout(
+      () => setPhase((p) => ((p + 1) % 4) as Phase),
+      PHASE_DURATIONS[phase],
+    )
+    return () => clearTimeout(t)
+  }, [phase, active])
+
+  const scrolled = phase >= 1
+  const sheetOpen = phase >= 2
+  const itemAdded = phase >= 3
+
   return (
-    <div className="wss__card wss__card--beni" ref={ref} data-anim={active ? 'play' : 'pause'}>
-      <BrowserChrome url="benihome.com.ua" />
-      <div className="wss__marquee wss__marquee--beni">
-        <div className="wss__marquee-track">
-          <span><Gift size={11} strokeWidth={2.25} /> -30% на сатинову колекцію</span>
-          <span><Truck size={11} strokeWidth={2.25} /> Безкоштовна доставка від 3000 грн</span>
-          <span><Sparkles size={11} strokeWidth={2.25} /> Новинки Весна 2026</span>
-          <span><Gift size={11} strokeWidth={2.25} /> -30% на сатинову колекцію</span>
-        </div>
-      </div>
-      <div className="wss__body">
-        <div className="wss__store-header wss__store-header--beni">
-          <span className="wss__store-logo wss__store-logo--beni">Beni Home</span>
-          <ShoppingCart size={15} strokeWidth={1.5} />
-        </div>
-        <div className="wss__product">
-          <div className="wss__product-img wss__product-img--beni">
-            <img src="/showcase/beni-satin@220.webp" alt="Постільна білизна" className="wss__product-photo" loading="lazy" decoding="async" width="220" height="330" />
-            <span className="wss__badge-discount">-30%</span>
-          </div>
-          <div className="wss__product-info">
-            <p className="wss__product-title wss__product-title--beni">Постільна білизна Сатин</p>
-            <span className="wss__product-variant">Полуторний · Ivory</span>
-            <div className="wss__prices">
-              <span className="wss__price wss__price--beni">4 340 грн</span>
-              <span className="wss__price-old">6 200 грн</span>
+    <div className="wss__ph-wrap" ref={ref} data-anim={active ? 'play' : 'pause'}>
+      <div className="wss__ph">
+        <div className="wss__ph-frame">
+          {/* Volume / power buttons */}
+          <div className="wss__ph-btn wss__ph-btn--volu" />
+          <div className="wss__ph-btn wss__ph-btn--vold" />
+          <div className="wss__ph-btn wss__ph-btn--pwr" />
+
+          {/* ── Screen ── */}
+          <div className="wss__ph-screen">
+
+            {/* Main scrollable content */}
+            <div
+              className="wss__ph-mc"
+              style={{ transform: scrolled ? 'translateY(-85px)' : 'translateY(0)' }}
+            >
+              {/* Status bar */}
+              <div className="wss__ph-sb">
+                <span className="wss__ph-time">{time}</span>
+                <div className="wss__ph-sbr">
+                  <span className="wss__ph-bat-pct">100%</span>
+                  <div className="wss__ph-bat" />
+                </div>
+              </div>
+
+              {/* Marquee */}
+              <div className="wss__ph-mq">
+                <div className="wss__ph-mq-track">
+                  <MarqueeItems />
+                  <MarqueeItems />
+                </div>
+              </div>
+
+              {/* Store header */}
+              <div className="wss__ph-storeheader">
+                <span className="wss__ph-storename">MODO</span>
+                <ShoppingBag size={17} color="#fff" strokeWidth={1.5} />
+              </div>
+
+              {/* Product image */}
+              <div className="wss__ph-prodimg">
+                <img src="/showcase/modo-tshirt.png" alt="Футболка Oversized Graphic" loading="lazy" />
+              </div>
+
+              {/* Badges */}
+              <div className="wss__ph-badges">
+                <div className="wss__ph-stock">
+                  <span className="wss__ph-stock-dot" />
+                  <span>Залишилось 2 шт</span>
+                </div>
+                <div className="wss__ph-viewers">
+                  <Eye size={10} color="#888" strokeWidth={2} />
+                  <span>8 дивляться зараз</span>
+                </div>
+              </div>
+
+              {/* Product info */}
+              <div className="wss__ph-pinfo">
+                <div className="wss__ph-brand-row">
+                  <span className="wss__ph-brand">MODO STUDIO</span>
+                  <span className="wss__ph-rating">★ 4.8</span>
+                </div>
+                <div className="wss__ph-ptitle">Футболка Oversized Graphic</div>
+                <div className="wss__ph-pricerow">
+                  <span className="wss__ph-price">1 190 грн</span>
+                  <span className="wss__ph-price-old">1 490 грн</span>
+                </div>
+                <div className="wss__ph-sizes">
+                  <span className="wss__ph-sz wss__ph-sz--active">M</span>
+                  <span className="wss__ph-sz">S</span>
+                  <span className="wss__ph-sz">L</span>
+                  <span className="wss__ph-sz">XL</span>
+                </div>
+                <div
+                  key={phase >= 1 ? 'tapped' : 'idle'}
+                  className={`wss__ph-buybtn${phase === 1 ? ' wss__ph-buybtn--tap' : ''}`}
+                >
+                  Купити
+                </div>
+              </div>
+
+              {/* Trust row */}
+              <div className="wss__ph-trust">
+                <span>🛡 Захист</span>
+                <span>↩ Повернення</span>
+                <span>🚚 Доставка</span>
+              </div>
             </div>
-            <div className="wss__viewers-inline">
-              <span className="wss__viewers-dot" />
-              <Eye size={10} strokeWidth={2} />
-              <span><strong>{count}</strong> дивляться зараз</span>
+
+            {/* Cursor */}
+            <div key={phase} className={`wss__ph-cursor wss__ph-cursor--p${phase}`}>
+              <svg width="26" height="32" viewBox="0 0 24 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 2 L4 24 L12 19 L20 24 Z"
+                  fill="white"
+                  stroke="#111111"
+                  strokeWidth="2"
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                  transform="rotate(-30 12 15)"
+                />
+              </svg>
             </div>
-            <button className="wss__btn wss__btn--beni">Замовити</button>
+
+            {/* Dim overlay */}
+            <div
+              className="wss__ph-dim"
+              style={{ opacity: sheetOpen ? 1 : 0, pointerEvents: sheetOpen ? 'auto' : 'none' }}
+            />
+
+            {/* Bottom sheet */}
+            <div
+              className="wss__ph-sheet"
+              style={{ transform: sheetOpen ? 'translateY(0)' : 'translateY(100%)' }}
+            >
+              <div className="wss__ph-shhandle" />
+              <div className="wss__ph-shhead">
+                <span className="wss__ph-shtitle">Часто беруть разом</span>
+                <X size={15} color="#bbb" strokeWidth={2} />
+              </div>
+              <div className="wss__ph-shdivider" />
+
+              <div className="wss__ph-shitems">
+                {/* Item 1 */}
+                <div className="wss__ph-shitem">
+                  <img className="wss__ph-shimg" src="/showcase/modo-socks.png" alt="Носки" loading="lazy" />
+                  <div className="wss__ph-shtxt">
+                    <div className="wss__ph-shname">Носки Cotton White Pack</div>
+                    <div className="wss__ph-shprice">149 грн</div>
+                  </div>
+                  <button
+                    key={itemAdded ? 'done' : 'add'}
+                    className={`wss__ph-shadd${itemAdded ? ' wss__ph-shadd--done' : ''}`}
+                  >
+                    {itemAdded
+                      ? <Check size={14} color="#fff" strokeWidth={2.5} />
+                      : <Plus size={14} color="#fff" strokeWidth={2.5} />}
+                  </button>
+                </div>
+
+                <div className="wss__ph-shdivider" />
+
+                {/* Item 2 */}
+                <div className="wss__ph-shitem">
+                  <img className="wss__ph-shimg" src="/showcase/modo-cap.png" alt="Кепка" loading="lazy" />
+                  <div className="wss__ph-shtxt">
+                    <div className="wss__ph-shname">Кепка Five Panel Black</div>
+                    <div className="wss__ph-shprice">490 грн</div>
+                  </div>
+                  <button className="wss__ph-shadd">
+                    <Plus size={14} color="#fff" strokeWidth={2.5} />
+                  </button>
+                </div>
+
+                <div className="wss__ph-shdivider" />
+
+                {/* Item 3 */}
+                <div className="wss__ph-shitem">
+                  <img className="wss__ph-shimg" src="/showcase/modo-shorts.png" alt="Шорти" loading="lazy" />
+                  <div className="wss__ph-shtxt">
+                    <div className="wss__ph-shname">Шорти Cargo Flow Beige</div>
+                    <div className="wss__ph-shprice">890 грн</div>
+                  </div>
+                  <button className="wss__ph-shadd">
+                    <Plus size={14} color="#fff" strokeWidth={2.5} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="wss__ph-shcta">
+                <div className="wss__ph-shctabtn">Оформити замовлення</div>
+              </div>
+            </div>
+
           </div>
-        </div>
-      </div>
-      <div className="wss__video-widget">
-        <div className="wss__video-label">
-          <span className="wss__video-label-dot" />
-          ВІДЕО ТОВАРУ
-        </div>
-        <div className="wss__video-circle wss__video-circle--beni">
-          <video
-            ref={videoRef}
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            aria-label="Демонстрація товару BENI — постільна білизна"
-          >
-            <source src="/showcase/beni-video.webm" type="video/webm" />
-            <source src="/showcase/beni-video.mp4" type="video/mp4" />
-            <track kind="captions" src="/showcase/beni-video.vtt" srcLang="uk" label="Без субтитрів" default />
-          </video>
-          <div className="wss__video-pulse" />
         </div>
       </div>
     </div>
   )
 }
-
-// ─── Slide 3: Ballistic ───────────────────────────────────────────────────────
-
-function SlideBallistic() {
-  const { ref, active } = useVisible<HTMLDivElement>()
-  const [seconds, setSeconds] = useState(4 * 3600 + 27 * 60 + 13)
-  useEffect(() => {
-    if (!active) return
-    const t = setInterval(() => setSeconds(s => s > 0 ? s - 1 : 0), 1000)
-    return () => clearInterval(t)
-  }, [active])
-  const hh = String(Math.floor(seconds / 3600)).padStart(2, '0')
-  const mm = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0')
-  const ss = String(seconds % 60).padStart(2, '0')
-
-  return (
-    <div className="wss__card wss__card--ballistic" ref={ref} data-anim={active ? 'play' : 'pause'}>
-      <BrowserChrome url="ballistic.com.ua" />
-      <div className="wss__marquee wss__marquee--ballistic">
-        <div className="wss__marquee-track">
-          <span><Flame size={11} strokeWidth={2.25} /> Дропшипінг без клопотів</span>
-          <span><Zap size={11} strokeWidth={2.25} /> Доставка по всій Україні</span>
-          <span><Briefcase size={11} strokeWidth={2.25} /> Опт і роздріб — вигідно</span>
-          <span><Flame size={11} strokeWidth={2.25} /> Дропшипінг без клопотів</span>
-        </div>
-      </div>
-      <div className="wss__body">
-        <div className="wss__store-header wss__store-header--ballistic">
-          <span className="wss__store-logo wss__store-logo--ballistic">BALLISTIC</span>
-          <ShoppingCart size={15} strokeWidth={2} />
-        </div>
-        <div className="wss__product">
-          <div className="wss__product-img wss__product-img--ballistic">
-            <img src="/showcase/ballistic-jacket@220.webp" alt="Куртка ECWCS" className="wss__product-photo" loading="lazy" decoding="async" width="220" height="220" />
-          </div>
-          <div className="wss__product-info">
-            <p className="wss__product-title wss__product-title--ballistic">Куртка ECWCS L5 Soft Shell</p>
-            <span className="wss__product-variant">Medium Regular · ACU</span>
-            <div className="wss__prices">
-              <span className="wss__price wss__price--ballistic">5 175 грн</span>
-              <span className="wss__hot-inline"><Flame size={10} strokeWidth={2.5} /> 10 купили</span>
-            </div>
-            <div className="wss__stock wss__stock--ballistic">
-              <span className="wss__stock-dot" />
-              Залишилось <strong>2 шт</strong>
-            </div>
-            <button className="wss__btn wss__btn--ballistic">Купити</button>
-          </div>
-        </div>
-        <div className="wss__countdown">
-          <span className="wss__countdown-label"><Timer size={11} strokeWidth={2.5} /> Замов сьогодні — отримай завтра</span>
-          <div className="wss__countdown-timer">
-            <span className="wss__countdown-cell">{hh}</span>
-            <span className="wss__countdown-sep">:</span>
-            <span className="wss__countdown-cell">{mm}</span>
-            <span className="wss__countdown-sep">:</span>
-            <span className="wss__countdown-cell">{ss}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ─── Packages config ──────────────────────────────────────────────────────────
-
-const PACKAGES = [
-  {
-    id: 'basic',
-    tier: 'BASIC',
-    label: 'Доставка та кошик',
-    sub: 'Бігуча стрічка · Дата доставки · Ціль кошика',
-    component: SlidePtashkin,
-  },
-  {
-    id: 'pro',
-    tier: 'PRO',
-    label: 'Відео та перегляди',
-    sub: 'Бігуча стрічка · Відео-прев\'ю · Лічильник переглядів',
-    component: SlideBeniHome,
-  },
-  {
-    id: 'max',
-    tier: 'MAX',
-    label: 'Терміновість та дефіцит',
-    sub: 'Бігуча стрічка · Таймер · Дефіцит товару',
-    component: SlideBallistic,
-  },
-]
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
@@ -318,23 +268,7 @@ export function WidgetsShowcase() {
         </p>
       </div>
 
-      <div className="wss__list">
-        {PACKAGES.map((pkg) => {
-          const Comp = pkg.component
-          return (
-            <div key={pkg.id} className="wss__item">
-              <div className="wss__item-meta">
-                <span className={`wss__tier wss__tier--${pkg.tier.toLowerCase()}`}>{pkg.tier}</span>
-                <h3 className="wss__item-label">{pkg.label}</h3>
-                <p className="wss__item-sub">{pkg.sub}</p>
-              </div>
-              <div className="wss__item-card">
-                <Comp />
-              </div>
-            </div>
-          )
-        })}
-      </div>
+      <SlideModo />
     </section>
   )
 }

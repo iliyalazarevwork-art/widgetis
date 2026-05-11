@@ -88,6 +88,24 @@ interface Result {
   errors: ValidationError[];
 }
 
+function stripNulls<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => stripNulls(item))
+      .filter((item) => item !== null) as T;
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value)
+        .map(([key, item]) => [key, stripNulls(item)])
+        .filter(([, item]) => item !== null),
+    ) as T;
+  }
+
+  return value;
+}
+
 function isModuleEnabled(entry: { is_enabled?: unknown; config?: unknown }): boolean {
   if (entry.is_enabled === false) {
     return false;
@@ -165,11 +183,18 @@ export function validateDemoPayload(payload: unknown): Result {
 
     result.validated_modules.push(normalizedSlug);
 
-    if (entry.config !== undefined && entry.config !== null) {
+    const configOverride = entry.config !== undefined && entry.config !== null
+      ? stripNulls(entry.config)
+      : undefined;
+    const i18nOverride = entry.i18n !== undefined && entry.i18n !== null
+      ? stripNulls(entry.i18n)
+      : undefined;
+
+    if (configOverride !== undefined) {
       const partialSchema = (pair.config as unknown as { deepPartial?: () => ZodTypeAny }).deepPartial?.()
         ?? (pair.config as unknown as { partial?: () => ZodTypeAny }).partial?.()
         ?? pair.config;
-      const parsed = partialSchema.safeParse(entry.config);
+      const parsed = partialSchema.safeParse(configOverride);
       if (!parsed.success) {
         for (const issue of parsed.error.issues) {
           result.ok = false;
@@ -185,11 +210,11 @@ export function validateDemoPayload(payload: unknown): Result {
       }
     }
 
-    if (entry.i18n !== undefined && entry.i18n !== null && pair.i18n) {
+    if (i18nOverride !== undefined && pair.i18n) {
       const i18nPartial = (pair.i18n as unknown as { deepPartial?: () => ZodTypeAny }).deepPartial?.()
         ?? (pair.i18n as unknown as { partial?: () => ZodTypeAny }).partial?.()
         ?? pair.i18n;
-      const parsed = i18nPartial.safeParse(entry.i18n);
+      const parsed = i18nPartial.safeParse(i18nOverride);
       if (!parsed.success) {
         for (const issue of parsed.error.issues) {
           result.ok = false;

@@ -86,4 +86,70 @@ class AdminDemoSessionTest extends TestCase
             ->assertJsonPath('data.config.modules.buyer-count.is_enabled', true)
             ->assertJsonMissingPath('data.config.modules.cart-goal');
     }
+
+    public function test_admin_demo_session_strips_null_config_values_before_validation_and_persistence(): void
+    {
+        $capture = new class () {
+            public ?array $payload = null;
+        };
+
+        $this->app->instance(WidgetConfigValidatorInterface::class, new class ($capture) implements WidgetConfigValidatorInterface {
+            public function __construct(private object $capture)
+            {
+            }
+
+            public function validate(array $payload): WidgetConfigValidationResult
+            {
+                $this->capture->payload = $payload;
+
+                return new WidgetConfigValidationResult(true, ['last-chance-popup'], []);
+            }
+        });
+
+        $admin = $this->admin();
+
+        $response = $this->actingAs($admin, 'core')
+            ->postJson('/api/v1/admin/demo-sessions', [
+                'domain' => 'benihome.com.ua',
+                'config' => [
+                    'modules' => [
+                        'module-last-chance-popup' => [
+                            'config' => [
+                                'promoCode' => 'SAVE10',
+                                'imageUrl' => null,
+                            ],
+                            'i18n' => [
+                                'en' => [
+                                    'title' => 'Wait',
+                                    'subtitle' => 'Save now',
+                                    'emailPlaceholder' => 'Email',
+                                    'ctaButton' => 'Go',
+                                    'copyButton' => 'Copy',
+                                    'copiedLabel' => 'Copied',
+                                    'promoLabel' => 'Promo',
+                                    'noThanks' => 'No thanks',
+                                    'successTitle' => 'Done',
+                                    'successText' => 'Applied',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ])
+            ->assertCreated();
+
+        $this->assertIsArray($capture->payload);
+        $this->assertSame('SAVE10', $capture->payload['modules']['module-last-chance-popup']['config']['promoCode']);
+        $this->assertArrayNotHasKey('imageUrl', $capture->payload['modules']['module-last-chance-popup']['config']);
+
+        $code = $response->json('data.code');
+        $this->assertIsString($code);
+
+        $storedConfig = \App\WidgetRuntime\Models\DemoSession::query()
+            ->where('code', $code)
+            ->value('config');
+
+        $this->assertIsArray($storedConfig);
+        $this->assertArrayNotHasKey('imageUrl', $storedConfig['modules']['module-last-chance-popup']['config']);
+    }
 }

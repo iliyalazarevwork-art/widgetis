@@ -110,7 +110,7 @@ Route::prefix('v1')->group(function () {
         // Widget-builder proxy — widget-builder itself is not exposed publicly.
         Route::get('widget-builder/modules', [WidgetBuilderController::class, 'modules']);
         Route::post('widget-builder/build', [WidgetBuilderController::class, 'build'])
-            ->middleware('throttle:30,60');
+            ->middleware('throttle:120,60');
 
         // 1+1=3 promos CRUD
         Route::get('one-plus-one-promos', [OnePlusOnePromoController::class, 'index']);

@@ -30,6 +30,28 @@ class DemoSessionController extends BaseController
      */
     private const MAX_CONFIG_BYTES = 64 * 1024;
 
+    private function stripNulls(mixed $value): mixed
+    {
+        if (! is_array($value)) {
+            return $value;
+        }
+
+        $isList = array_is_list($value);
+        $sanitized = [];
+
+        foreach ($value as $key => $item) {
+            $clean = $this->stripNulls($item);
+
+            if ($clean === null) {
+                continue;
+            }
+
+            $sanitized[$key] = $clean;
+        }
+
+        return $isList ? array_values($sanitized) : $sanitized;
+    }
+
     /**
      * @param array<string, mixed> $modules
      * @return array<string, mixed>
@@ -82,7 +104,10 @@ class DemoSessionController extends BaseController
             'expires_hours' => 'sometimes|integer|min:1|max:720',
         ]);
 
-        $configJson = json_encode($validated['config']);
+        /** @var array<string, mixed> $config */
+        $config = $this->stripNulls($validated['config']);
+
+        $configJson = json_encode($config);
         if ($configJson === false || strlen($configJson) > self::MAX_CONFIG_BYTES) {
             return $this->error('CONFIG_TOO_LARGE', 'Demo config exceeds size limit.', 422);
         }
@@ -94,7 +119,7 @@ class DemoSessionController extends BaseController
         // merchant's browser. Fail-closed: if widget-builder is down, we
         // 503 rather than persist an unvalidated payload.
         try {
-            $validation = $this->configValidator->validate($validated['config']);
+            $validation = $this->configValidator->validate($config);
         } catch (WidgetConfigValidatorUnavailableException $e) {
             Log::error('demo-session validator unavailable', ['message' => $e->getMessage()]);
 
@@ -123,7 +148,7 @@ class DemoSessionController extends BaseController
             'code' => DemoSession::generateCode(),
             'domain' => $domain,
             'landing_path' => $validated['landing_path'] ?? null,
-            'config' => $validated['config'],
+            'config' => $config,
             'created_by' => auth('core')->id(),
             'expires_at' => now()->addHours($expiresHours),
         ]);
