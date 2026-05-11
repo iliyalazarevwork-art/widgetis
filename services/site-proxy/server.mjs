@@ -861,7 +861,121 @@ function injectRuntimeScript(html, domain) {
   return html + runtime;
 }
 
-// ── Blocked / cloudflare fallback ──────────────────────────────────
+// ── Cloudflare iframe bypass page ─────────────────────────────────
+// Strategy: load the real site directly in the visitor's browser via
+// <iframe>. The visitor's own cf_clearance cookie (set on previous visits)
+// lets CF skip the challenge, so the real site loads instantly. Demo widgets
+// run in the parent frame as position:fixed overlays on top of the iframe.
+//
+// If the visitor has no cf_clearance (first-time visitor), the CF challenge
+// page blocks the iframe (X-Frame-Options: SAMEORIGIN on the challenge page).
+// In that case we detect the failure client-side and fall back to a message.
+// FlareSolverr remains as a server-side fallback for the HTML (see proxyTo).
+function buildCfIframePage(domain, demoCfg) {
+  const realUrl = `https://${domain}/`;
+  const bundleCode = demoCfg ? loadDemoBundle() : '';
+  const cfgScript = demoCfg
+    ? `<script data-widgetis-cfg>window.__WIDGETIS_CFG__=${escapeForInlineScript(JSON.stringify(demoCfg))};</script>`
+    : '';
+  const widgetScript = bundleCode
+    ? `${cfgScript}
+<script data-widgetis-demo>
+(function(){
+  // Widgets run in parent frame as position:fixed overlays
+  window.addEventListener('load', function(){
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){
+      ${escapeForInlineScript(bundleCode)}
+    });});
+  });
+})();
+</script>`
+    : '';
+
+  return `<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden}
+#site-frame{position:fixed;inset:0;width:100%;height:100%;border:none;z-index:1}
+#status{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;background:#f8f9fa;font-family:system-ui,sans-serif;
+  color:#64748b;text-align:center;padding:32px;z-index:0}
+#status.hidden{display:none}
+.spinner{width:36px;height:36px;border:3px solid #e2e8f0;border-top-color:#6366f1;
+  border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+h2{font-size:16px;font-weight:700;color:#1e293b;margin-bottom:6px}
+p{font-size:13px;line-height:1.5;max-width:280px}
+</style>
+</head>
+<body>
+<div id="status">
+  <div class="spinner"></div>
+  <h2>Завантажуємо сайт…</h2>
+  <p>Браузер завантажує <strong>${domain}</strong> напряму.<br>Зазвичай займає 1–3 секунди.</p>
+</div>
+<iframe id="site-frame" src="${realUrl}" title="Preview" allow="*"></iframe>
+${widgetScript}
+<script>
+(function(){
+  var iframe = document.getElementById('site-frame');
+  var status = document.getElementById('status');
+  var resolved = false;
+
+  function onSuccess(){
+    if(resolved) return;
+    resolved = true;
+    status.classList.add('hidden');
+  }
+
+  function onFail(){
+    if(resolved) return;
+    resolved = true;
+    status.innerHTML =
+      '<div style="font-size:40px;margin-bottom:16px">!</div>' +
+      '<h2>Preview unavailable</h2>' +
+      '<p>Цей сайт блокує вбудовування через Cloudflare.<br>' +
+      '<strong>${domain}</strong></p>';
+    window.parent.postMessage({type:'site-proxy-error',reason:'cloudflare',domain:'${domain}'},'*');
+  }
+
+  // After iframe load event, try to detect if it actually rendered content
+  // or was blocked by X-Frame-Options. Cross-origin success = SecurityError
+  // when accessing contentDocument; X-Frame-Options block = frame empty but
+  // load event still fires. We use a two-step check:
+  //  1. If load fires and we get SecurityError → cross-origin success ✅
+  //  2. If load fires but no SecurityError within 300ms → likely blocked ❌
+  iframe.addEventListener('load', function(){
+    try {
+      // eslint-disable-next-line no-unused-vars
+      var _ = iframe.contentDocument; // throws SecurityError if cross-origin
+      // If we reach here: same-origin (won't happen in production) or about:blank
+      // Don't mark as fail immediately — could be a redirect in progress
+      setTimeout(function(){
+        if(!resolved) onFail();
+      }, 3000);
+    } catch(e) {
+      if(e.name === 'SecurityError') {
+        // Cross-origin frame loaded → real site is in the iframe ✅
+        onSuccess();
+      } else {
+        setTimeout(function(){ if(!resolved) onFail(); }, 3000);
+      }
+    }
+  });
+
+  // Hard timeout: if nothing happens in 20s the site or challenge is stuck
+  setTimeout(function(){ if(!resolved) onFail(); }, 20000);
+})();
+</script>
+</body>
+</html>`;
+}
+
+// ── Plain blocked fallback (non-CF or FlareSolverr also failed) ────
 function blockedHtml(domain, status, isCloudflare) {
   const reason = isCloudflare ? 'cloudflare' : 'blocked';
   const message = isCloudflare
@@ -1373,40 +1487,45 @@ async function proxyTo(req, res, visitor, visitorId, setVisitorCookie, domain, t
     }
   }
 
-  // ── Cloudflare blocked — create session and bypass ────────────────
+  // ── Cloudflare blocked ────────────────────────────────────────────
   if (result.statusCode === 403 || result.statusCode === 503) {
     const bodyStr = result.buffer.toString('utf-8').toLowerCase();
     const isCf = bodyStr.includes('just a moment') || bodyStr.includes('cf-mitigated') ||
       bodyStr.includes('cloudflare') || bodyStr.includes('cf-ray');
 
-    if (isCf && FLARESOLVERR_URL) {
-      console.log(`[site-proxy] CF detected for ${domain}, creating FlareSolverr session…`);
-      // fetchViaFlaresolverr with no sessionId creates a new persistent
-      // browser session: same TLS fingerprint across all page loads.
-      const solved = await fetchViaFlaresolverr(targetUrl, null);
-      if (solved) {
-        setCfSession(domain, solved.sessionId, solved.userAgent);
-        console.log(`[site-proxy] CF session created for ${domain} (id: ${solved.sessionId})`);
-        let html = solved.html;
-        html = rewriteHtml(html, domain);
-        html = injectRuntimeScript(html, domain);
-        html = injectDemoBundle(html, visitor.demoCfg);
-        const cfOutHeaders = {
-          'Content-Type': 'text/html; charset=utf-8',
-          'Access-Control-Allow-Origin': '*',
-          'Cache-Control': 'no-store',
-        };
-        attachVisitorCookie(cfOutHeaders, visitorId, setVisitorCookie);
-        res.writeHead(200, cfOutHeaders);
-        res.end(Buffer.from(html, 'utf-8'));
-        return;
+    if (isCf) {
+      // PRIMARY: return an iframe page immediately — the visitor's own browser
+      // loads the real site directly (bypasses CF with their existing cookies).
+      // If the visitor has cf_clearance already (they run this store), it works
+      // instantly. If not, the iframe detects failure and shows a message.
+      //
+      // BACKGROUND: trigger FlareSolverr async so subsequent navigations inside
+      // the iframe (which come through our proxy) are served from a real session.
+      if (FLARESOLVERR_URL && !getCfSession(domain)) {
+        // Fire-and-forget: warm up a FlareSolverr session in the background
+        // so that sub-page requests from the iframe work without a challenge.
+        fetchViaFlaresolverr(targetUrl, null).then((solved) => {
+          if (solved) {
+            setCfSession(domain, solved.sessionId, solved.userAgent);
+            console.log(`[site-proxy] CF background session ready for ${domain} (${solved.sessionId})`);
+          }
+        }).catch(() => {});
       }
-      console.warn(`[site-proxy] FlareSolverr failed for ${domain}, showing blocked page`);
+
+      console.log(`[site-proxy] CF detected for ${domain} — serving iframe bypass page`);
+      const iframePage = buildCfIframePage(domain, visitor.demoCfg);
+      const cfOutHeaders = {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Access-Control-Allow-Origin': '*',
+        'Cache-Control': 'no-store',
+      };
+      attachVisitorCookie(cfOutHeaders, visitorId, setVisitorCookie);
+      res.writeHead(200, cfOutHeaders);
+      res.end(Buffer.from(iframePage, 'utf-8'));
+      return;
     }
 
-    const isCfFinal = result.buffer.toString('utf-8').toLowerCase().includes('just a moment') ||
-      result.buffer.toString('utf-8').toLowerCase().includes('cf-mitigated');
-    const html = blockedHtml(domain, result.statusCode, isCfFinal || (result.statusCode === 403));
+    const html = blockedHtml(domain, result.statusCode, false);
     res.writeHead(200, {
       'Content-Type': 'text/html; charset=utf-8',
       'Access-Control-Allow-Origin': '*',
