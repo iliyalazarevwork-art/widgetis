@@ -12,14 +12,19 @@
                 "aspectRatio": "4 / 5",
                 "borderRadius": 14,
                 "openInLightbox": true,
-                "$fallbackUrlsComment": "Product review photos (Unsplash) + 1 video review (demo-unboxing.mp4 served by site-proxy). The video URL uses the dev proxy host — override via DEMO_BUNDLE_PATH env or replace before production build.",
+                "$fallbackUrlsComment": "Neutral 'Lorem Ipsum' media pool — lifestyle/unboxing photos that look like real customer shots for any product category. The video URL uses the dev proxy host and is rewritten to DEMO_PROXY_PUBLIC_URL at build time (task build:demo). To update: edit this list, run task build:demo.",
                 "fallbackUrls": [
-                    "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&h=750&fit=crop&q=80",
-                    "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&h=750&fit=crop&q=80",
+                    "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&h=750&fit=crop&q=80",
+                    "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=600&h=750&fit=crop&q=80",
                     "http://localhost:3100/demo-unboxing.mp4",
-                    "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=600&h=750&fit=crop&q=80"
-                ],
-                "photos": []
+                    "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&h=750&fit=crop&q=80",
+                    "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=750&fit=crop&q=80",
+                    "https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=600&h=750&fit=crop&q=80",
+                    "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&h=750&fit=crop&q=80",
+                    "https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=600&h=750&fit=crop&q=80",
+                    "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=600&h=750&fit=crop&q=80",
+                    "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=600&h=750&fit=crop&q=80"
+                ]
             },
             "i18n": {
                 "ua": {

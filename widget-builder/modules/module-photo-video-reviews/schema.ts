@@ -25,6 +25,14 @@ export const photoReviewsSchema = z.object({
 
   observeDom: z.boolean().default(true).describe('Слідкувати за AJAX-завантаженням відгуків'),
 
+  // Demo-only: neutral placeholder media injected on every review when no
+  // real match data is available. Images and videos (mp4/webm) are both
+  // supported. Populated in demo-config.json; ignored in production builds.
+  fallbackUrls: z
+    .array(z.string().url())
+    .default([])
+    .describe('URL-заглушки для демо (фото + відео). Ігноруються у продакшн-збірці.'),
+
   // Upload form injection
   enableUpload: z.boolean().default(true).describe('Увімкнути форму завантаження фото/відео'),
   uploadFormSelector: z
