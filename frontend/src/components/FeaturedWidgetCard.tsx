@@ -75,18 +75,16 @@ export function FeaturedWidgetCard({
   const accent = TAG_ACCENT[widget.tag?.slug as TagSlug] ?? '#10B981'
   const usedIn = WIDGET_CASES[widget.slug] ?? []
   const ref = useRef<HTMLElement>(null)
-  const [visible, setVisible] = useState(eager)
+  const [intersected, setIntersected] = useState(false)
+  const visible = eager || intersected
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (eager) {
-      setVisible(true)
-      return
-    }
+    if (eager) return
     const el = ref.current
     if (!el) return
     const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect() } },
+      ([entry]) => { if (entry.isIntersecting) { setIntersected(true); obs.disconnect() } },
       { threshold: 0.08 },
     )
     obs.observe(el)

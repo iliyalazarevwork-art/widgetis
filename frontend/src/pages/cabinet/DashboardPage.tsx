@@ -6,7 +6,8 @@ import { useAuth } from '../../context/AuthContext'
 import type { DashboardData } from '../../types'
 import { toast } from 'sonner'
 import { PageLoader } from '../../components/PageLoader'
-import { MaxUpsellBanner, shouldShowMaxUpsellBanner, dismissMaxUpsellBanner } from '../../components/MaxUpsellBanner'
+import { MaxUpsellBanner } from '../../components/MaxUpsellBanner'
+import { shouldShowMaxUpsellBanner, dismissMaxUpsellBanner } from '../../components/maxUpsellBannerStorage'
 import './styles/dashboard.css'
 
 export default function DashboardPage() {
@@ -16,7 +17,8 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [moreOpen, setMoreOpen] = useState(true)
   const [searchParams, setSearchParams] = useSearchParams()
-  const [maxBannerVisible, setMaxBannerVisible] = useState(false)
+  const [maxBannerEligible] = useState(() => shouldShowMaxUpsellBanner())
+  const [maxBannerDismissed, setMaxBannerDismissed] = useState(false)
 
   useEffect(() => {
     get<{ data: DashboardData }>('/profile/dashboard')
@@ -34,12 +36,6 @@ export default function DashboardPage() {
     }
   }, [searchParams, setSearchParams])
 
-  useEffect(() => {
-    if (data?.plan?.slug === 'pro' && shouldShowMaxUpsellBanner()) {
-      setMaxBannerVisible(true)
-    }
-  }, [data])
-
   if (loading) return <PageLoader />
   if (!data) return <PageLoader label="Не вдалося завантажити дані" />
   if (!data.plan && !data.subscription_status) return <Navigate to="/cabinet/choose-plan" replace />
@@ -49,10 +45,11 @@ export default function DashboardPage() {
   const planColor = getPlanColor(planSlug)
   const firstName = user?.name?.trim().split(/\s+/)[0]
   const greeting = firstName ? `Привіт, ${firstName}!` : 'Привіт!'
+  const maxBannerVisible = !maxBannerDismissed && maxBannerEligible && planSlug === 'pro'
 
   const handleMaxBannerDismiss = () => {
     dismissMaxUpsellBanner()
-    setMaxBannerVisible(false)
+    setMaxBannerDismissed(true)
   }
 
   const handleMaxBannerUpgrade = () => {

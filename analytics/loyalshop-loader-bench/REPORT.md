@@ -102,7 +102,7 @@ node -e 'const s=require("./data/openapi.json"); for(const [p,m] of Object.entri
 # crt.sh
 curl -sS "https://crt.sh/?q=%25.loyalshop.app&output=json" -o /tmp/crt.json
 
-# certspotter
+# certspotter РАБОЧИЙ 
 curl -sS "https://api.certspotter.com/v1/issuances?domain=loyalshop.app&include_subdomains=true&expand=dns_names" -o /tmp/cs.json
 ```
 

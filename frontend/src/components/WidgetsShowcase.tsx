@@ -75,14 +75,20 @@ const trustItems = [
 
 function SlideModo() {
   const { ref, active } = useVisible<HTMLDivElement>()
-  const [phase, setPhase] = useState<Phase>(0)
   const time = useLocalTime()
 
+  return (
+    <div className="wss__ph-wrap" ref={ref} data-anim={active ? 'play' : 'pause'}>
+      <SlideModoScene key={active ? 'active' : 'inactive'} active={active} time={time} />
+    </div>
+  )
+}
+
+function SlideModoScene({ active, time }: { active: boolean; time: string }) {
+  const [phase, setPhase] = useState<Phase>(0)
+
   useEffect(() => {
-    if (!active) {
-      setPhase(0)
-      return
-    }
+    if (!active) return
     const t = setTimeout(
       () => setPhase((p) => ((p + 1) % 4) as Phase),
       PHASE_DURATIONS[phase],
@@ -95,9 +101,8 @@ function SlideModo() {
   const itemAdded = phase === 3
 
   return (
-    <div className="wss__ph-wrap" ref={ref} data-anim={active ? 'play' : 'pause'}>
-      <div className="wss__ph">
-        <div className="wss__ph-frame">
+    <div className="wss__ph">
+      <div className="wss__ph-frame">
           {/* Volume / power buttons */}
           <div className="wss__ph-btn wss__ph-btn--volu" />
           <div className="wss__ph-btn wss__ph-btn--vold" />
@@ -274,7 +279,6 @@ function SlideModo() {
             </div>
 
           </div>
-        </div>
       </div>
     </div>
   )
