@@ -383,9 +383,21 @@ tasks:
       - _deploy:pre:phpunit
       - _deploy:pre:vitest
 
+  _deploy:pre:ensure:
+    internal: true
+    cmds:
+      - |
+        if {{.DC}} ps --status running --services 2>/dev/null | grep -qx backend; then
+          echo "▶ Dev Docker stack is already running"
+        else
+          echo "▶ Dev Docker stack is not running, starting task up"
+          task up
+        fi
+
   deploy:pre:
     desc: "Предеплойные проверки: pint+eslint → phpstan+tsc+phpunit+vitest → SEO-prerender"
     cmds:
+      - task: _deploy:pre:ensure
       - echo "▶ Phase A — auto-fixes (pint + eslint, parallel)"
       - task: _deploy:pre:fix
       - echo "▶ Phase B — checks + tests (phpstan + tsc + phpunit + vitest, parallel)"

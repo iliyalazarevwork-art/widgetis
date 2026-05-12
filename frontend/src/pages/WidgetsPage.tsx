@@ -45,7 +45,7 @@ const FEATURED_CASES = [
 
 export function WidgetsPage() {
   const [activeTag, setActiveTag] = useState<TagSlug | 'all'>('all')
-  const { widgets, loading: widgetsLoading } = useWidgets()
+  const { widgets, loading: widgetsLoading } = useWidgets({ sort: 'widgets-page' })
   const { tags } = useWidgetTags()
 
   const tagCounts: Record<string, number> = {}
@@ -57,7 +57,9 @@ export function WidgetsPage() {
   for (const t of tags) tagLabelsMap[t.slug] = t.name
 
   const filtered =
-    activeTag === 'all' ? widgets : widgets.filter((w) => w.tag?.slug === activeTag)
+    activeTag === 'all'
+      ? widgets
+      : widgets.filter((w) => w.tag?.slug === activeTag)
 
   return (
     <div className="wp">

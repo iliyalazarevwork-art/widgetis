@@ -56,18 +56,33 @@ interface SingleResponse<T> {
   data: T
 }
 
+interface FetchWidgetsOptions {
+  per_page?: number
+  sort?: 'default' | 'popular' | 'new' | 'widgets-page'
+}
+
 let widgetsCache: Promise<ApiWidget[]> | null = null
 let tagsCache: Promise<ApiWidgetTag[]> | null = null
 let plansCache: Promise<ApiPlan[]> | null = null
 const widgetBySlugCache = new Map<string, Promise<ApiWidget>>()
 
-export function fetchWidgets(): Promise<ApiWidget[]> {
-  if (!widgetsCache) {
+export function fetchWidgets(options: FetchWidgetsOptions = {}): Promise<ApiWidget[]> {
+  const perPage = options.per_page ?? 50
+  const sort = options.sort ?? 'default'
+
+  if (sort === 'default' && perPage === 50 && !widgetsCache) {
     widgetsCache = get<PaginatedResponse<ApiWidget>>('/products', { per_page: 50 }).then(
       (res) => res.data,
     )
   }
-  return widgetsCache
+
+  if (sort === 'default' && perPage === 50) {
+    return widgetsCache!
+  }
+
+  return get<PaginatedResponse<ApiWidget>>('/products', { per_page: perPage, sort }).then(
+    (res) => res.data,
+  )
 }
 
 export function fetchWidget(slug: string): Promise<ApiWidget> {

@@ -10,18 +10,25 @@ import {
 } from '../api/widgets'
 import { TAG_PRIORITY } from '../data/widgetTags'
 
-export function useWidgets(): { widgets: ApiWidget[]; loading: boolean; error: string | null } {
+interface UseWidgetsOptions {
+  sort?: 'default' | 'popular' | 'new' | 'widgets-page'
+}
+
+export function useWidgets(
+  options: UseWidgetsOptions = {},
+): { widgets: ApiWidget[]; loading: boolean; error: string | null } {
   const [widgets, setWidgets] = useState<ApiWidget[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const sort = options.sort ?? 'default'
 
   useEffect(() => {
     let cancelled = false
-    fetchWidgets()
+    fetchWidgets({ sort })
       .then((data) => { if (!cancelled) { setWidgets(data); setLoading(false) } })
       .catch((err: Error) => { if (!cancelled) { setError(err.message); setLoading(false) } })
     return () => { cancelled = true }
-  }, [])
+  }, [sort])
 
   return { widgets, loading, error }
 }

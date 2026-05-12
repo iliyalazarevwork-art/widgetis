@@ -143,6 +143,39 @@ class PublicApiTest extends TestCase
         $this->assertCount(2, $response->json('data'));
     }
 
+    public function test_products_index_supports_widgets_page_sort_preset(): void
+    {
+        Product::factory()->create(['slug' => 'stock-left', 'sort_order' => 1]);
+        Product::factory()->create(['slug' => 'promo-line', 'sort_order' => 2]);
+        Product::factory()->create(['slug' => 'cart-recommender', 'sort_order' => 3]);
+        Product::factory()->create(['slug' => 'sticky-buy-button', 'sort_order' => 4]);
+        Product::factory()->create(['slug' => 'photo-video-reviews', 'sort_order' => 5]);
+        Product::factory()->create(['slug' => 'video-preview', 'sort_order' => 6]);
+        Product::factory()->create(['slug' => 'progressive-discount', 'sort_order' => 7]);
+        Product::factory()->create(['slug' => 'delivery-date', 'sort_order' => 8]);
+        Product::factory()->create(['slug' => 'trust-badges', 'sort_order' => 9]);
+        Product::factory()->create(['slug' => 'one-plus-one', 'sort_order' => 10]);
+
+        $response = $this->getJson('/api/v1/products?sort=widgets-page');
+
+        $response->assertStatus(200);
+
+        $slugs = array_column($response->json('data'), 'slug');
+
+        $this->assertSame([
+            'photo-video-reviews',
+            'cart-recommender',
+            'progressive-discount',
+            'video-preview',
+            'sticky-buy-button',
+            'delivery-date',
+            'promo-line',
+            'one-plus-one',
+            'stock-left',
+            'trust-badges',
+        ], $slugs);
+    }
+
     public function test_products_show_returns_detail_for_existing_slug(): void
     {
         $product = Product::factory()->create(['slug' => 'progress-bar']);
