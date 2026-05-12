@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Star, BadgeCheck, ExternalLink, Box } from 'lucide-react'
+import { Star, BadgeCheck, ExternalLink, Box, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useVisible } from '../hooks/useVisible'
 import { PLANS, type PlanSlug } from '../data/plans'
 import './Testimonials.css'
@@ -155,8 +155,9 @@ export function Testimonials() {
   const { ref: sectionRef, active } = useVisible<HTMLElement>()
   const [current, setCurrent] = useState(0)
   const [paused, setPaused] = useState(false)
-  const touchStartX = useRef<number | null>(null)
-  const touchDeltaX = useRef(0)
+  const dragStartX = useRef<number | null>(null)
+  const dragDeltaX = useRef(0)
+  const dragged = useRef(false)
 
   useEffect(() => {
     if (paused || !active) return
@@ -167,25 +168,42 @@ export function Testimonials() {
     return () => clearInterval(t)
   }, [paused, active])
 
-  function onTouchStart(e: React.TouchEvent) {
-    touchStartX.current = e.touches[0].clientX
-    touchDeltaX.current = 0
+  function goToPrev() {
     setPaused(true)
+    setCurrent((c) => (c - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)
   }
 
-  function onTouchMove(e: React.TouchEvent) {
-    if (touchStartX.current === null) return
-    touchDeltaX.current = e.touches[0].clientX - touchStartX.current
+  function goToNext() {
+    setPaused(true)
+    setCurrent((c) => (c + 1) % TESTIMONIALS.length)
   }
 
-  function onTouchEnd() {
-    const dx = touchDeltaX.current
+  function onPointerDown(e: React.PointerEvent<HTMLDivElement>) {
+    if (e.pointerType === 'mouse' && e.button !== 0) return
+    dragStartX.current = e.clientX
+    dragDeltaX.current = 0
+    dragged.current = false
+    setPaused(true)
+    e.currentTarget.setPointerCapture(e.pointerId)
+  }
+
+  function onPointerMove(e: React.PointerEvent<HTMLDivElement>) {
+    if (dragStartX.current === null) return
+    dragDeltaX.current = e.clientX - dragStartX.current
+    if (Math.abs(dragDeltaX.current) > 8) dragged.current = true
+  }
+
+  function onPointerEnd() {
+    const dx = dragDeltaX.current
     if (Math.abs(dx) > 40) {
-      if (dx < 0) setCurrent((c) => (c + 1) % TESTIMONIALS.length)
-      else setCurrent((c) => (c - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)
+      if (dx < 0) goToNext()
+      else goToPrev()
     }
-    touchStartX.current = null
-    touchDeltaX.current = 0
+    dragStartX.current = null
+    dragDeltaX.current = 0
+    window.setTimeout(() => {
+      dragged.current = false
+    }, 0)
   }
 
   return (
@@ -204,10 +222,20 @@ export function Testimonials() {
 
       <div
         className="tst__viewport"
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerEnd}
+        onPointerCancel={onPointerEnd}
       >
+        <button
+          type="button"
+          className="tst__arrow tst__arrow--prev"
+          onClick={goToPrev}
+          aria-label="Попередній відгук"
+        >
+          <ChevronLeft size={20} strokeWidth={2.5} />
+        </button>
+
         <div className="tst__track">
           {TESTIMONIALS.map((t, i) => {
             const offset = i - current
@@ -230,7 +258,13 @@ export function Testimonials() {
                   zIndex: isActive ? 2 : 1,
                   pointerEvents: isActive ? 'auto' : 'none',
                 }}
-                onClick={() => !isActive && isNeighbor && setCurrent(i)}
+                onClick={() => {
+                  if (dragged.current) return
+                  if (!isActive && isNeighbor) {
+                    setPaused(true)
+                    setCurrent(i)
+                  }
+                }}
               >
                 <PurchaseBadge purchase={t.purchase} plan={t.plan} />
 
@@ -294,6 +328,15 @@ export function Testimonials() {
             )
           })}
         </div>
+
+        <button
+          type="button"
+          className="tst__arrow tst__arrow--next"
+          onClick={goToNext}
+          aria-label="Наступний відгук"
+        >
+          <ChevronRight size={20} strokeWidth={2.5} />
+        </button>
       </div>
 
       <div className="tst__dots-nav">
