@@ -1,1 +1,0 @@
-import{t as e}from"./AdminConfiguratorPage-CbCv5Qxq.js";export{e as AdminConfiguratorPage};
