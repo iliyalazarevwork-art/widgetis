@@ -63,14 +63,26 @@ function WidgetMockup({ id }: { id: string }) {
   )
 }
 
-export function FeaturedWidgetCard({ widget, index = 0 }: { widget: ApiWidget; index?: number }) {
+export function FeaturedWidgetCard({
+  widget,
+  index = 0,
+  eager = false,
+}: {
+  widget: ApiWidget
+  index?: number
+  eager?: boolean
+}) {
   const accent = TAG_ACCENT[widget.tag?.slug as TagSlug] ?? '#10B981'
   const usedIn = WIDGET_CASES[widget.slug] ?? []
   const ref = useRef<HTMLElement>(null)
-  const [visible, setVisible] = useState(false)
+  const [visible, setVisible] = useState(eager)
   const navigate = useNavigate()
 
   useEffect(() => {
+    if (eager) {
+      setVisible(true)
+      return
+    }
     const el = ref.current
     if (!el) return
     const obs = new IntersectionObserver(
@@ -79,7 +91,7 @@ export function FeaturedWidgetCard({ widget, index = 0 }: { widget: ApiWidget; i
     )
     obs.observe(el)
     return () => obs.disconnect()
-  }, [])
+  }, [eager])
 
   return (
     <article

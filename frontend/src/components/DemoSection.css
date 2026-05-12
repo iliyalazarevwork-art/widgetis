@@ -228,6 +228,28 @@
   align-items: center;
 }
 
+@media (max-width: 768px) {
+  .demo {
+    padding: 56px 0 40px;
+  }
+
+  .demo__container {
+    padding: 0 14px;
+  }
+
+  .demo__card {
+    padding: 28px 18px 22px;
+  }
+
+  .demo__badge {
+    margin-bottom: 14px;
+  }
+
+  .demo__instruction {
+    margin-bottom: 16px;
+  }
+}
+
 .demo__placeholder:hover {
   pointer-events: auto;
   cursor: text;

@@ -2,11 +2,11 @@
 
 .tst {
   background: var(--bg-primary);
-  padding: 72px 0 64px;
+  padding: 48px 0 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 28px;
+  gap: 20px;
   overflow: hidden;
   position: relative;
 }
@@ -111,19 +111,17 @@
   gap: 6px;
   align-self: flex-start;
   padding: 5px 10px 5px 8px;
-  background: rgba(245, 245, 244, 0.06);
-  border: 1px solid rgba(245, 245, 244, 0.14);
+  background: rgba(245, 245, 244, 0.04);
+  border: 1px solid transparent;
   border-radius: 999px;
   font-family: var(--font-display);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.3px;
-  color: #d4d4d4;
   text-transform: uppercase;
 }
 
 .tst__purchase svg {
-  color: var(--accent);
   flex-shrink: 0;
 }
 

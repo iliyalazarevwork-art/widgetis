@@ -24,10 +24,10 @@ export function WidgetsList() {
           </p>
         </header>
 
-        <div className="wp__grid">
+        <div className="wl__grid">
           {loading
             ? FEATURED_SLUGS.map((slug) => <div key={slug} className="wc wc--skeleton" style={{ height: 260 }} />)
-            : featured.map((w, i) => <FeaturedWidgetCard key={w.slug} widget={w} index={i} />)
+            : featured.map((w, i) => <FeaturedWidgetCard key={w.slug} widget={w} index={i} eager />)
           }
         </div>
 

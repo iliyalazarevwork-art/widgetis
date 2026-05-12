@@ -2,15 +2,15 @@
 
 .wl {
   background: var(--bg-primary);
-  padding: 80px 20px;
+  padding: 56px 16px 40px;
 }
 
 .wl__container {
-  max-width: 900px;
+  max-width: 420px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 52px;
+  gap: 28px;
 }
 
 /* ── Header ── */
@@ -57,9 +57,8 @@
 }
 
 @media (min-width: 1024px) {
-  .wl { padding: 96px 24px; }
-  .wl__container { max-width: 1200px; gap: 64px; }
-  .wl__grid { grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .wl { padding: 72px 24px 48px; }
+  .wl__container { max-width: 1200px; gap: 36px; }
 }
 
 /* ── Card ── */
@@ -151,4 +150,18 @@
   background: var(--accent);
   color: var(--bg-deep);
   box-shadow: 0 0 28px var(--accent-glow);
+}
+
+@media (max-width: 768px) {
+  .wl {
+    padding: 40px 16px 28px;
+  }
+
+  .wl__container {
+    gap: 20px;
+  }
+
+  .wl__title {
+    margin-bottom: 10px;
+  }
 }

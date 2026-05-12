@@ -1,7 +1,7 @@
 /* ===== HOW IT WORKS — sticky stepper + scroll-driven steps ===== */
 
 .how {
-  padding: 96px 0 64px;
+  padding: 64px 0 40px;
   background: var(--bg-primary);
   position: relative;
 }
@@ -14,7 +14,7 @@
 
 .how__header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 28px;
 }
 
 .how__eyebrow {
@@ -48,7 +48,7 @@
   position: sticky;
   top: calc(var(--promo-strip-h, 0px) + 64px + 12px);
   z-index: 10;
-  margin: 0 -8px 24px;
+  margin: 0 -8px 16px;
   padding: 0 8px;
 }
 
@@ -173,15 +173,15 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 12px;
 }
 
 .how__panel {
-  min-height: 50vh;
+  min-height: 30vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px 0;
+  padding: 16px 0;
 }
 
 .how__panel-inner {
@@ -259,14 +259,14 @@
 
 @media (max-width: 768px) {
   .how {
-    padding: 72px 0 48px;
+    padding: 48px 0 24px;
   }
   .how__title {
     font-size: 30px;
   }
   .how__stepper-wrap {
     top: calc(var(--promo-strip-h, 0px) + 64px + 8px);
-    margin-bottom: 16px;
+    margin-bottom: 12px;
   }
   .how__stepper {
     padding: 12px 14px 12px;
@@ -291,7 +291,7 @@
   }
   .how__panel {
     min-height: auto;
-    padding: 20px 0;
+    padding: 8px 0;
   }
   .how__panel-inner {
     padding: 28px 22px;

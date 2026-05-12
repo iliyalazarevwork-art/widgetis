@@ -215,6 +215,20 @@
   cursor: default;
 }
 
+@media (max-width: 768px) {
+  .install {
+    padding: 48px 14px 40px;
+  }
+
+  .install__inner {
+    gap: 28px;
+  }
+
+  .install__step {
+    padding: 22px 12px 24px;
+  }
+}
+
 /* ── Desktop ── */
 
 @media (min-width: 768px) {

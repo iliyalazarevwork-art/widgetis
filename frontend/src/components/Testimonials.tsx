@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
-import { Star, BadgeCheck, ExternalLink, Package } from 'lucide-react'
+import { Star, BadgeCheck, ExternalLink, Box } from 'lucide-react'
 import { useVisible } from '../hooks/useVisible'
+import { PLANS, type PlanSlug } from '../data/plans'
 import './Testimonials.css'
 
 // Parse "+2 130 ₴" → { prefix: "+", num: 2130, suffix: " ₴" }
@@ -71,7 +72,8 @@ interface Testimonial {
   rating: number
   store: string
   storeUrl: string
-  purchase: string // "Комплект Pro" / "Комплект Max" / "1 віджет" тощо
+  purchase: string
+  plan?: PlanSlug
   metrics: Metric[]
 }
 
@@ -84,7 +86,8 @@ const TESTIMONIALS: Testimonial[] = [
     rating: 5,
     store: 'ballistic.com.ua',
     storeUrl: 'https://ballistic.com.ua/',
-    purchase: 'Комплект Pro',
+    purchase: 'Тариф Pro',
+    plan: 'pro',
     metrics: [
       { value: '+9%', label: 'конверсія', type: 'traffic' },
       { value: '+2 131 ₴', label: 'середній чек', type: 'revenue' },
@@ -98,7 +101,8 @@ const TESTIMONIALS: Testimonial[] = [
     rating: 5,
     store: 'ptashkinsad.com',
     storeUrl: 'https://ptashkinsad.com/',
-    purchase: 'Комплект Max',
+    purchase: 'Тариф Max',
+    plan: 'max',
     metrics: [
       { value: '+11%', label: 'до кошика', type: 'traffic' },
       { value: '+379 ₴', label: 'середній чек', type: 'revenue' },
@@ -112,7 +116,8 @@ const TESTIMONIALS: Testimonial[] = [
     rating: 5,
     store: 'shop.aquamyrgorod.com.ua',
     storeUrl: 'https://shop.aquamyrgorod.com.ua/',
-    purchase: 'Комплект Start',
+    purchase: 'Тариф Free',
+    plan: 'free',
     metrics: [
       { value: '+14%', label: 'конверсія', type: 'traffic' },
       { value: '+419 ₴', label: 'середній чек', type: 'revenue' },
@@ -133,6 +138,18 @@ const TESTIMONIALS: Testimonial[] = [
     ],
   },
 ]
+
+function PurchaseBadge({ purchase, plan }: { purchase: string; plan?: PlanSlug }) {
+  const planDef = plan ? PLANS.find(p => p.id === plan) : null
+  const Icon = planDef ? planDef.icon : Box
+  const color = planDef ? planDef.color : '#888888'
+  return (
+    <div className="tst__purchase" style={{ borderColor: `${color}33`, color }}>
+      <Icon size={12} strokeWidth={2.5} color={color} />
+      <span>{purchase}</span>
+    </div>
+  )
+}
 
 export function Testimonials() {
   const { ref: sectionRef, active } = useVisible<HTMLElement>()
@@ -215,10 +232,7 @@ export function Testimonials() {
                 }}
                 onClick={() => !isActive && isNeighbor && setCurrent(i)}
               >
-                <div className="tst__purchase">
-                  <Package size={12} strokeWidth={2.5} />
-                  <span>{t.purchase}</span>
-                </div>
+                <PurchaseBadge purchase={t.purchase} plan={t.plan} />
 
                 <div className="tst__stars">
                   {Array.from({ length: 5 }).map((_, j) => (

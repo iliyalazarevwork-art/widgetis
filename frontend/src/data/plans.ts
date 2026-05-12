@@ -47,6 +47,8 @@ export const PLANS: PlanDef[] = [
       { label: '1 сайт' },
       { label: 'Тільки українська' },
       { label: 'Telegram-підтримка' },
+      { label: 'Без кредитної картки' },
+      { label: 'Встановлення за 3 хвилини' },
     ],
   },
   {
