@@ -1,0 +1,2 @@
+import{n as e}from"./client-DAt7RASP.js";var t=null,n=null,r=null,i=new Map;function a(n={}){let r=n.per_page??50,i=n.sort??`default`;return i===`default`&&r===50&&!t&&(t=e(`/products`,{per_page:50}).then(e=>e.data)),i===`default`&&r===50?t:e(`/products`,{per_page:r,sort:i}).then(e=>e.data)}function o(t){return i.has(t)||i.set(t,e(`/products/${t}`).then(e=>e.data)),i.get(t)}function s(){return n||(n=e(`/tags`).then(e=>e.data)),n}function c(){return r||(r=e(`/plans`).then(e=>e.data)),r}export{a as i,o as n,s as r,c as t};
+//# sourceMappingURL=widgets-BfDHC-wN.js.map
