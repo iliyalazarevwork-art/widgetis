@@ -1,1 +1,0 @@
-import{s as e}from"./index-CrjnOYnT.js";export{e as PricingAnimPage};
