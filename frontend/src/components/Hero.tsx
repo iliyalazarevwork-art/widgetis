@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Calendar, Star, Timer, Truck } from 'lucide-react'
+import { ArrowRight, Calendar, ShoppingBag, Star, Timer, Truck } from 'lucide-react'
 import { trackCtaClick } from '../lib/analytics'
 import './Hero.css'
 
@@ -8,13 +8,14 @@ const DELIVERY_DATES = ['Пн, 14 квітня', 'Вт, 15 квітня', 'Ср,
 
 type HeroWidget = {
   id: string
-  kind: 'shipping' | 'delivery' | 'sale'
+  kind: 'shipping' | 'delivery' | 'sale' | 'purchase'
 }
 
 const HERO_WIDGETS: HeroWidget[] = [
   { id: 'shipping', kind: 'shipping' },
   { id: 'delivery-date', kind: 'delivery' },
   { id: 'sale-countdown', kind: 'sale' },
+  { id: 'purchase-counter', kind: 'purchase' },
 ]
 
 function getWidgetSlots(viewportHeight: number, viewportWidth: number): number {
@@ -34,12 +35,13 @@ function formatTime(totalSeconds: number): string {
 export function Hero() {
   const heroRef = useRef<HTMLElement | null>(null)
   const nextWidgetCursorRef = useRef(0)
+  const nextSlotCursorRef = useRef(0)
   const swapTimersRef = useRef<number[]>([])
   const scheduleTimersRef = useRef<number[]>([])
 
   const [visible, setVisible] = useState(false)
   const [slots, setSlots] = useState(3)
-  const [displayedWidgets, setDisplayedWidgets] = useState<HeroWidget[]>(HERO_WIDGETS)
+  const [displayedWidgets, setDisplayedWidgets] = useState<HeroWidget[]>(HERO_WIDGETS.slice(0, 3))
   const [animatingSlot, setAnimatingSlot] = useState<number | null>(null)
   const [animStage, setAnimStage] = useState<'out' | 'in' | null>(null)
   const [inView, setInView] = useState(false)
@@ -50,6 +52,7 @@ export function Hero() {
   const [deliverySeconds, setDeliverySeconds] = useState(135)
   const [saleSeconds, setSaleSeconds] = useState(8143)
   const [cartDone, setCartDone] = useState(false)
+  const [purchaseCount, setPurchaseCount] = useState(47)
 
   const clearSwapTimers = useCallback(() => {
     swapTimersRef.current.forEach((timerId) => window.clearTimeout(timerId))
@@ -97,15 +100,19 @@ export function Hero() {
           setAnimatingSlot(null)
         }, 260)
         swapTimersRef.current.push(inTimer)
-      }, 220)
+      }, 320)
 
       swapTimersRef.current.push(outTimer)
       return current
     })
   }, [])
 
-  const scheduleSlot = useCallback((slot: number, firstDelayMs: number, periodMs: number) => {
+  const scheduleWidgetRotation = useCallback((slotCount: number, firstDelayMs: number, periodMs: number) => {
+    const slotOrder = slotCount >= 3 ? [2, 1, 0] : slotCount === 2 ? [1, 0] : [0]
+
     const tick = () => {
+      const slot = slotOrder[nextSlotCursorRef.current % slotOrder.length]
+      nextSlotCursorRef.current = (nextSlotCursorRef.current + 1) % slotOrder.length
       runSlotSwap(slot)
       const nextTimer = window.setTimeout(tick, periodMs)
       scheduleTimersRef.current.push(nextTimer)
@@ -150,6 +157,7 @@ export function Hero() {
       setAnimatingSlot(null)
       setAnimStage(null)
       nextWidgetCursorRef.current = count % HERO_WIDGETS.length
+      nextSlotCursorRef.current = 0
     }, 0)
 
     return () => window.clearTimeout(timer)
@@ -162,20 +170,15 @@ export function Hero() {
 
   useEffect(() => {
     clearScheduleTimers()
-    if (!inView || !tabActive || slots >= HERO_WIDGETS.length) return
+    if (!inView || !tabActive) return
 
-    if (slots === 1) {
-      scheduleSlot(0, 2600, 3200)
-    } else {
-      scheduleSlot(1, 3000, 6200)
-      scheduleSlot(0, 6100, 6200)
-    }
+    scheduleWidgetRotation(slots, 5200, 6200)
 
     return () => {
       clearSwapTimers()
       clearScheduleTimers()
     }
-  }, [inView, tabActive, slots, clearScheduleTimers, clearSwapTimers, scheduleSlot])
+  }, [inView, tabActive, slots, clearScheduleTimers, clearSwapTimers, scheduleWidgetRotation])
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -194,6 +197,14 @@ export function Hero() {
 
       setSaleSeconds((current) => (current > 0 ? current - 1 : 8143))
     }, 1000)
+
+    return () => window.clearInterval(timer)
+  }, [])
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setPurchaseCount((current) => (current >= 53 ? 47 : current + 1))
+    }, 1800)
 
     return () => window.clearInterval(timer)
   }, [])
@@ -269,21 +280,39 @@ export function Hero() {
                 )
               }
 
+              if (widget.kind === 'sale') {
+                return (
+                  <article className={`hero-mini hero-mini--sale${swapClass}`} key={`${widget.id}-${idx}`}>
+                    <span className="hero-mini__icon hero-mini__icon--red" aria-hidden="true">
+                      <Timer size={18} strokeWidth={2.25} />
+                    </span>
+                    <div className="hero-mini__copy">
+                      <strong className="hero-mini__title">Акція закінчується!</strong>
+                      <span className="hero-mini__sub">Знижка 20% — тільки сьогодні</span>
+                    </div>
+                    <div className="hero-mini__countdown" aria-label={`До кінця акції ${formatTime(saleSeconds)}`}>
+                      {saleParts.map((part, index) => (
+                        <span className="hero-mini__count-part" key={index}>
+                          {part}
+                        </span>
+                      ))}
+                    </div>
+                  </article>
+                )
+              }
+
               return (
-                <article className={`hero-mini hero-mini--sale${swapClass}`} key={`${widget.id}-${idx}`}>
-                  <span className="hero-mini__icon hero-mini__icon--red" aria-hidden="true">
-                    <Timer size={18} strokeWidth={2.25} />
+                <article className={`hero-mini hero-mini--purchase${swapClass}`} key={`${widget.id}-${idx}`}>
+                  <span className="hero-mini__icon hero-mini__icon--orange" aria-hidden="true">
+                    <ShoppingBag size={18} strokeWidth={2.25} />
                   </span>
                   <div className="hero-mini__copy">
-                    <strong className="hero-mini__title">Акція закінчується!</strong>
-                    <span className="hero-mini__sub">Знижка 20% — тільки сьогодні</span>
+                    <strong className="hero-mini__title">Покупки в реальному часі</strong>
+                    <span className="hero-mini__sub">Хтось щойно оформив замовлення</span>
                   </div>
-                  <div className="hero-mini__countdown" aria-label={`До кінця акції ${formatTime(saleSeconds)}`}>
-                    {saleParts.map((part, index) => (
-                      <span className="hero-mini__count-part" key={index}>
-                        {part}
-                      </span>
-                    ))}
+                  <div className="hero-mini__metric" aria-label={`${purchaseCount} покупок сьогодні`}>
+                    <span className="hero-mini__pulse" aria-hidden="true" />
+                    +{purchaseCount}
                   </div>
                 </article>
               )
