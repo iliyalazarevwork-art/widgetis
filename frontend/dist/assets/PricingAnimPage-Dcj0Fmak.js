@@ -1,1 +1,0 @@
-import{s as e}from"./index-5MqYEblm.js";export{e as PricingAnimPage};
