@@ -1468,6 +1468,12 @@
 
 /* ── Responsive scale ── */
 
+@media (max-width: 768px) {
+  .wss {
+    padding: 40px 0;
+  }
+}
+
 @media (max-width: 340px) {
   .wss__ph-frame {
     transform: scale(0.78);
