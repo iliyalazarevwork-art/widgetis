@@ -1,17 +1,14 @@
 import { Link } from 'react-router-dom'
 import { useWidgets } from '../hooks/useWidgets'
 import { FeaturedWidgetCard } from './FeaturedWidgetCard'
-import { WidgetSlug } from '../data/widget-slugs'
 import './WidgetsList.css'
 
-const FEATURED_SLUGS = [WidgetSlug.DeliveryDate, WidgetSlug.CartGoal, WidgetSlug.PromoLine, WidgetSlug.PhotoVideoReviews]
+const FEATURED_WIDGETS_COUNT = 4
 
 export function WidgetsList() {
-  const { widgets, loading } = useWidgets()
+  const { widgets, loading } = useWidgets({ sort: 'widgets-page' })
 
-  const featured = loading
-    ? []
-    : FEATURED_SLUGS.map((slug) => widgets.find((w) => w.slug === slug)).filter(Boolean) as typeof widgets
+  const featured = loading ? [] : widgets.slice(0, FEATURED_WIDGETS_COUNT)
 
   return (
     <section className="wl">
@@ -26,7 +23,9 @@ export function WidgetsList() {
 
         <div className="wl__grid">
           {loading
-            ? FEATURED_SLUGS.map((slug) => <div key={slug} className="wc wc--skeleton" style={{ height: 260 }} />)
+            ? Array.from({ length: FEATURED_WIDGETS_COUNT }, (_, i) => (
+                <div key={i} className="wc wc--skeleton" style={{ height: 260 }} />
+              ))
             : featured.map((w, i) => <FeaturedWidgetCard key={w.slug} widget={w} index={i} eager />)
           }
         </div>
