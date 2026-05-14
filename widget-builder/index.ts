@@ -81,15 +81,28 @@ export async function getModuleSchemas(): Promise<
 }
 
 export async function buildModules(request: BuildRequest): Promise<string> {
-  // Fix PHP empty array serialization: [] → {} for z.record() compatibility
+  // Fix PHP empty array serialization: PHP encodes {} as [] when the array is empty.
+  // Top-level config and i18n are always objects — coerce before fixPhpNulls descends.
+  // Inner array fields (palette, selectors, hideOnUtmSources…) are kept as-is.
   for (const data of Object.values(request.modules)) {
+    if (Array.isArray(data.config)) data.config = {};
+    if (Array.isArray(data.i18n)) data.i18n = {};
     data.config = fixPhpNulls(data.config) as Record<string, unknown>;
     data.i18n = fixPhpNulls(data.i18n) as Record<string, unknown>;
   }
 
+  const schemas = await getModuleSchemas();
+
   for (const [moduleName, data] of Object.entries(request.modules)) {
     if (data.config.enabled) {
-      await validateModule(moduleName, data.config, data.i18n);
+      // When i18n is empty the bundle falls back to its baked-in defaults at runtime.
+      // Validate against the module's default i18n so schemas that require ≥1 language
+      // don't reject an otherwise valid build request.
+      const name = moduleName.startsWith('module-') ? moduleName : `module-${moduleName}`;
+      const effectiveI18n = Object.keys(data.i18n).length === 0
+        ? ((schemas[name]?.defaultI18n as Record<string, unknown>) ?? data.i18n)
+        : data.i18n;
+      await validateModule(moduleName, data.config, effectiveI18n);
     }
   }
 

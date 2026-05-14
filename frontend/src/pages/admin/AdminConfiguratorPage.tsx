@@ -33,7 +33,7 @@ interface ModuleState {
   i18n: Record<string, unknown>
 }
 
-type JsonPanelMode = 'export' | 'import'
+type JsonPanelMode = 'export' | 'import' | 'demo-import'
 
 const HIDDEN_CONFIG_FIELDS: Record<string, string[]> = {
   'module-cart-recommender': ['apiBaseUrl', 'mountSelector'],
@@ -152,6 +152,8 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
   const [previewLoaded, setPreviewLoaded] = useState(false)
   const [jsonPanelMode, setJsonPanelMode] = useState<JsonPanelMode | null>(null)
   const [jsonText, setJsonText] = useState('')
+  const [demoCodeInput, setDemoCodeInput] = useState('')
+  const [demoImporting, setDemoImporting] = useState(false)
 
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const pendingLoadRef = useRef(false)
@@ -505,24 +507,85 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
     }
   }
 
+  async function downloadJson() {
+    const blob = new Blob([jsonText], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'widgetis-config.json'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  // Merge imported module states: preserve existing default i18n when the import has none.
+  // Some modules (promo-line, spin-the-wheel) require ≥1 language in i18n — demo sessions
+  // often omit i18n entirely, which would break the widget builder validation.
+  function mergeImportedStates(
+    prev: Record<string, ModuleState>,
+    incoming: Record<string, ModuleState>,
+  ): Record<string, ModuleState> {
+    const next = { ...prev }
+    for (const id of moduleIds) {
+      const imp = incoming[id]
+      if (!imp) continue
+      const hasI18n = imp.i18n && Object.keys(imp.i18n).length > 0
+      next[id] = {
+        config: imp.config,
+        i18n: hasI18n ? imp.i18n : (prev[id]?.i18n ?? {}),
+      }
+    }
+    return next
+  }
+
   function applyImportFromText() {
     try {
       const data = JSON.parse(jsonText)
       if (!data.moduleStates || typeof data.moduleStates !== 'object') {
-        toast.error('Невірний формат')
+        toast.error('Невірний формат — очікується { "moduleStates": { "module-xxx": { config, i18n } } }')
         return
       }
-      setModuleStates((prev) => {
-        const next = { ...prev }
-        for (const id of moduleIds) {
-          if (data.moduleStates[id]) next[id] = data.moduleStates[id]
-        }
-        return next
-      })
-        toast.success('Імпортовано!')
+      setModuleStates((prev) => mergeImportedStates(prev, data.moduleStates as Record<string, ModuleState>))
+      toast.success('Імпортовано!')
       closeJsonPanel()
     } catch (err) {
       toast.error('Помилка: ' + (err as Error).message)
+    }
+  }
+
+  function apiConfigToModuleStates(
+    modules: Record<string, { is_enabled?: boolean; config?: Record<string, unknown>; i18n?: Record<string, unknown> }>,
+  ): Record<string, ModuleState> {
+    const result: Record<string, ModuleState> = {}
+    for (const [slug, entry] of Object.entries(modules)) {
+      const key = slug.startsWith('module-') ? slug : `module-${slug}`
+      result[key] = {
+        config: { ...(entry.config ?? {}), enabled: entry.is_enabled ?? false },
+        i18n: entry.i18n ?? {},
+      }
+    }
+    return result
+  }
+
+  async function importFromDemoCode() {
+    const code = demoCodeInput.trim().toUpperCase()
+    if (!code) { toast.error('Введіть код демо'); return }
+    setDemoImporting(true)
+    try {
+      const BASE = (import.meta.env.VITE_API_BASE_URL || '/api/v1').replace(/\/+$/, '')
+      const res = await fetch(`${BASE}/demo-sessions/${code}/config`)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const json = await res.json() as { data: { config: { modules?: Record<string, { is_enabled?: boolean; config?: Record<string, unknown>; i18n?: Record<string, unknown> }> } } }
+      const modules = json.data?.config?.modules
+      if (!modules || typeof modules !== 'object') throw new Error('Немає modules у відповіді')
+      const normalized = apiConfigToModuleStates(modules)
+      setModuleStates((prev) => mergeImportedStates(prev, normalized))
+      toast.success(`Імпортовано з демо ${code}!`)
+      setDemoCodeInput('')
+      closeJsonPanel()
+    } catch (err) {
+      toast.error('Помилка: ' + (err as Error).message)
+    } finally {
+      setDemoImporting(false)
     }
   }
 
@@ -712,7 +775,12 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
         <div className="cfg-m__qa">
           <div className="cfg-m__qa-row">
             <button type="button" className="cfg-m__qa-btn cfg-m__qa-btn--teal" onClick={exportConfig}>Експорт</button>
-            <button type="button" className="cfg-m__qa-btn cfg-m__qa-btn--indigo" onClick={openImportPanel}>Імпорт</button>
+            <button type="button" className="cfg-m__qa-btn cfg-m__qa-btn--indigo" onClick={openImportPanel}>Імпорт JSON</button>
+          </div>
+          <div className="cfg-m__qa-row">
+            <button type="button" className="cfg-m__qa-btn cfg-m__qa-btn--indigo" style={{ flex: 1 }} onClick={() => { setJsonPanelMode('demo-import'); setDemoCodeInput('') }}>
+              Імпорт з demo code
+            </button>
           </div>
           <div className="cfg-m__qa-row">
             <button type="button" className="cfg-m__qa-btn cfg-m__qa-btn--dteal" onClick={() => buildWidget()} disabled={building}>
@@ -989,31 +1057,66 @@ export function AdminConfiguratorPage({ siteContext }: { siteContext?: SiteConte
           <div className="cfg-m__json-overlay" role="presentation" onClick={closeJsonPanel} />
           <div className="cfg-m__json-modal" role="dialog" aria-modal="true" aria-label="JSON налаштувань">
             <div className="cfg-m__json-head">
-              <strong>{jsonPanelMode === 'export' ? 'JSON налаштувань (експорт)' : 'JSON налаштувань (імпорт)'}</strong>
+              <strong>
+                {jsonPanelMode === 'export' ? 'Експорт JSON' : jsonPanelMode === 'import' ? 'Імпорт JSON' : 'Імпорт з demo code'}
+              </strong>
               <button type="button" onClick={closeJsonPanel} aria-label="Закрити">×</button>
             </div>
-            <textarea
-              className="cfg-m__json-textarea"
-              value={jsonText}
-              onChange={(e) => setJsonText(e.target.value)}
-              placeholder={jsonPanelMode === 'import' ? 'Вставте JSON тут...' : undefined}
-              readOnly={jsonPanelMode === 'export'}
-              spellCheck={false}
-            />
-            <div className="cfg-m__json-actions">
-              <button type="button" className="cfg-m__json-btn cfg-m__json-btn--muted" onClick={closeJsonPanel}>
-                Закрити
-              </button>
-              {jsonPanelMode === 'export' ? (
-                <button type="button" className="cfg-m__json-btn cfg-m__json-btn--primary" onClick={copyJsonText}>
-                  Скопіювати JSON
-                </button>
-              ) : (
-                <button type="button" className="cfg-m__json-btn cfg-m__json-btn--primary" onClick={applyImportFromText}>
-                  Застосувати
-                </button>
-              )}
-            </div>
+
+            {jsonPanelMode === 'demo-import' ? (
+              <>
+                <div style={{ padding: '12px 0 4px', fontSize: 13, color: '#9ca3af' }}>
+                  Введіть код демо-сесії (наприклад, <code style={{ color: '#e2e8f0' }}>SF8BYX</code>) — конфіг завантажиться і застосується автоматично.
+                </div>
+                <input
+                  type="text"
+                  className="cfg-m__preview-url-input"
+                  style={{ marginTop: 10, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700, fontSize: 18, textAlign: 'center' }}
+                  placeholder="XXXXXX"
+                  value={demoCodeInput}
+                  maxLength={8}
+                  onChange={(e) => setDemoCodeInput(e.target.value.toUpperCase())}
+                  onKeyDown={(e) => { if (e.key === 'Enter') void importFromDemoCode() }}
+                  autoFocus
+                />
+                <div className="cfg-m__json-actions">
+                  <button type="button" className="cfg-m__json-btn cfg-m__json-btn--muted" onClick={closeJsonPanel}>Скасувати</button>
+                  <button type="button" className="cfg-m__json-btn cfg-m__json-btn--primary" onClick={() => void importFromDemoCode()} disabled={demoImporting}>
+                    {demoImporting ? 'Завантаження...' : 'Імпортувати'}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <textarea
+                  className="cfg-m__json-textarea"
+                  value={jsonText}
+                  onChange={(e) => setJsonText(e.target.value)}
+                  placeholder={jsonPanelMode === 'import' ? 'Вставте JSON тут...\n\nФормат: { "moduleStates": { "module-cart-goal": { "config": { "enabled": true, ... }, "i18n": {} }, ... } }' : undefined}
+                  readOnly={jsonPanelMode === 'export'}
+                  spellCheck={false}
+                />
+                <div className="cfg-m__json-actions">
+                  <button type="button" className="cfg-m__json-btn cfg-m__json-btn--muted" onClick={closeJsonPanel}>
+                    Закрити
+                  </button>
+                  {jsonPanelMode === 'export' ? (
+                    <>
+                      <button type="button" className="cfg-m__json-btn cfg-m__json-btn--muted" onClick={() => void downloadJson()}>
+                        Скачати .json
+                      </button>
+                      <button type="button" className="cfg-m__json-btn cfg-m__json-btn--primary" onClick={copyJsonText}>
+                        Скопіювати JSON
+                      </button>
+                    </>
+                  ) : (
+                    <button type="button" className="cfg-m__json-btn cfg-m__json-btn--primary" onClick={applyImportFromText}>
+                      Застосувати
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </>
       )}

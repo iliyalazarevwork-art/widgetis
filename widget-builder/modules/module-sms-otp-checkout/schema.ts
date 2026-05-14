@@ -7,7 +7,7 @@ export const smsOtpCheckoutSchema = z.object({
     .string()
     .default('https://api.widgetis.com/api/v1')
     .describe('Базовий URL API Widgetis'),
-  siteKey: z.string().describe('Ключ сайту (встановлюється конфігуратором)'),
+  siteKey: z.string().default('').describe('Ключ сайту (встановлюється конфігуратором)'),
   triggerSources: z
     .array(z.enum(['google', 'facebook', 'direct', 'all']))
     .default(['google', 'facebook'])
