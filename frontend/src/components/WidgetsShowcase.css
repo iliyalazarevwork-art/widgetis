@@ -751,6 +751,721 @@
   animation-play-state: paused;
 }
 
+/* ══════════════════════════════════════════════════════
+   REVIEWS ANIMATION
+   ══════════════════════════════════════════════════════ */
+
+/* White screen variant */
+.wss__ph-screen--wh {
+  background: #FFFFFF;
+}
+
+/* Reviews scroll animation */
+.wss__rv-mc {
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* White status bar */
+.wss__rv-sb {
+  background: #FFFFFF;
+}
+
+/* ── Page content ── */
+
+.wss__rv-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  background: #FFFFFF;
+}
+
+.wss__rv-pagetitle {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 800;
+  color: #111111;
+  margin: 0;
+}
+
+/* ── Rating summary ── */
+
+.wss__rv-summary {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.wss__rv-star-main {
+  color: #F5A623;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.wss__rv-sep {
+  color: #CCCCCC;
+  font-size: 12px;
+}
+
+.wss__rv-score {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  color: #111111;
+}
+
+.wss__rv-count {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: #888888;
+}
+
+/* ── Filter chips above carousel ── */
+
+.wss__rv-filters {
+  display: flex;
+  gap: 6px;
+  overflow: hidden;
+}
+
+.wss__rv-chip {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 11px;
+  height: 26px;
+  border: 1px solid #E5E0DA;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 500;
+  color: #555555;
+  background: #FFFFFF;
+}
+
+.wss__rv-chip--active {
+  background: #1C1510;
+  border-color: #1C1510;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+/* ── Carousel (3 slots, 4 positions: above / top / bottom / below) ── */
+
+.wss__rv-list {
+  position: relative;
+  width: 100%;
+  /* 2 visible slots * slot height (290) + vertical spacing (12) */
+  height: 592px;
+  overflow: hidden;
+}
+
+.wss__rv-slot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 290px;
+  transition: transform 0.6s cubic-bezier(0.34, 1.1, 0.64, 1) 0.35s;
+  will-change: transform;
+}
+
+.wss__rv-slot[data-no-trans="true"] {
+  transition: none;
+}
+
+/* Positions are absolute pixel offsets so the long "below → above" reset
+   teleports the slot through 0 px — but only when noTrans is set, so the
+   intermediate visible area is never traversed with a running transition. */
+.wss__rv-slot[data-pos="above"]  { transform: translateY(-302px); }
+.wss__rv-slot[data-pos="top"]    { transform: translateY(0); }
+.wss__rv-slot[data-pos="bottom"] { transform: translateY(302px); }
+.wss__rv-slot[data-pos="below"]  { transform: translateY(604px); }
+
+.wss__ph-wrap[data-anim="pause"] .wss__rv-slot {
+  transition: none;
+}
+
+/* ── Review item ── */
+
+.wss__rv-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wss__rv-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wss__rv-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 700;
+  color: #FFFFFF;
+  flex-shrink: 0;
+}
+
+.wss__rv-avatar--gray { background: #C8C0B8; }
+.wss__rv-avatar--b    { background: #E07840; }
+.wss__rv-avatar--new  { background: #7B9BAD; }
+.wss__rv-avatar--new2 { background: #A87C6B; }
+.wss__rv-avatar--new3 { background: #6B8E7F; }
+.wss__rv-avatar--new4 { background: #9B7AAE; }
+.wss__rv-avatar--new5 { background: #C8945B; }
+
+.wss__rv-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.wss__rv-name {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  color: #222222;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wss__rv-date {
+  font-family: var(--font-body);
+  font-size: 9px;
+  color: #999999;
+}
+
+.wss__rv-irating {
+  font-size: 9px;
+  color: #F5A623;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+
+.wss__rv-text {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 500;
+  color: #444444;
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* ── Review photos — big horizontal gallery, second photo clipped by edge ── */
+
+.wss__rv-photos {
+  display: flex;
+  gap: 8px;
+  overflow: hidden;
+  /* container = page content width minus padding — photos overflow to the right */
+  width: 100%;
+}
+
+.wss__rv-photo {
+  flex-shrink: 0;
+  width: 170px;
+  height: 200px;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  background: #E8E0D8;
+}
+
+.wss__rv-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.wss__rv-photo-badge {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 8px;
+  background: rgba(28, 21, 16, 0.78);
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 500;
+  border-radius: 5px;
+  white-space: nowrap;
+  backdrop-filter: blur(2px);
+}
+
+.wss__rv-reply {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 4px;
+  font-family: var(--font-body);
+  font-size: 10.5px;
+  font-weight: 500;
+  color: #888888;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-start;
+}
+
+/* ── Write review button ── */
+
+.wss__rv-write {
+  width: 100%;
+  padding: 11px 0;
+  border: 1px solid #1C1510;
+  border-radius: 12px;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  color: #1C1510;
+  cursor: pointer;
+  transform: scale(1);
+  margin-top: 4px;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.wss__rv-write--hover {
+  animation: wss-rv-write-hover 1100ms ease 1 both;
+}
+
+@keyframes wss-rv-write-hover {
+  0%, 48% {
+    background: transparent;
+    transform: scale(1);
+    box-shadow: none;
+  }
+  60%, 72% {
+    background: rgba(28,21,16,0.06);
+    transform: scale(1);
+  }
+  80% {
+    background: rgba(28,21,16,0.04);
+    transform: scale(0.975);
+  }
+  88% {
+    background: rgba(28,21,16,0.08);
+    transform: scale(1.01);
+    box-shadow: 0 4px 12px rgba(28,21,16,0.12);
+  }
+  100% {
+    background: rgba(28,21,16,0.04);
+    transform: scale(1);
+    box-shadow: none;
+  }
+}
+
+.wss__ph-wrap[data-anim="pause"] .wss__rv-write--hover {
+  animation-play-state: paused;
+}
+
+/* ── "Дивитися всі N відгуків" link ── */
+
+.wss__rv-allreviews {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  padding: 10px 0;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  color: #1C1510;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.wss__rv-allreviews span {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+/* ── Related products ── */
+
+.wss__rv-related {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wss__rv-related-title {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  color: #111111;
+  margin: 0;
+}
+
+.wss__rv-related-row {
+  display: flex;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.wss__rv-related-card {
+  flex-shrink: 0;
+  width: 110px;
+  display: flex;
+  flex-direction: column;
+}
+
+.wss__rv-related-img {
+  width: 110px;
+  height: 110px;
+  background: #E8E0D8;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.wss__rv-related-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.wss__rv-related-name {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 500;
+  color: #1A1A1A;
+  line-height: 1.3;
+  margin-bottom: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wss__rv-related-price {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  color: #C09060;
+}
+
+/* ── Store card ── */
+
+.wss__rv-storecard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: #F8F5F0;
+  border: 1px solid #EFE9E0;
+  border-radius: 12px;
+}
+
+.wss__rv-storecard-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #1C1510;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 800;
+  flex-shrink: 0;
+  letter-spacing: 0;
+}
+
+.wss__rv-storecard-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wss__rv-storecard-title {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  color: #111111;
+  letter-spacing: 0.5px;
+}
+
+.wss__rv-storecard-desc {
+  font-family: var(--font-body);
+  font-size: 9.5px;
+  color: #888888;
+  line-height: 1.3;
+}
+
+/* ── Review form sheet — iq6W0 ── */
+
+.wss__rv-sheet {
+  height: 380px;
+}
+
+.wss__rv-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 14px 14px;
+}
+
+.wss__rv-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.wss__rv-form-title {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  color: #111111;
+  margin: 0;
+}
+
+/* ── Form fields ── */
+
+.wss__rv-form-field,
+.wss__rv-form-textarea {
+  width: 100%;
+  border: 1px solid #E5E0DA;
+  border-radius: 10px;
+  background: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: #444444;
+  box-sizing: border-box;
+}
+
+.wss__rv-form-field {
+  padding: 9px 12px;
+}
+
+.wss__rv-form-field--ph,
+.wss__rv-form-textarea--ph {
+  color: #BBBBBB;
+}
+
+.wss__rv-form-field--filled,
+.wss__rv-form-textarea--filled {
+  color: #1A1A1A;
+  font-weight: 500;
+  border-color: #D8D1C8;
+}
+
+.wss__rv-form-textarea {
+  padding: 9px 12px;
+  height: 44px;
+  display: flex;
+  align-items: flex-start;
+  line-height: 1.4;
+}
+
+/* ── Attached photos row ── */
+
+.wss__rv-form-photos {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.wss__rv-form-photos-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.wss__rv-form-photo {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #EFE9E0;
+  flex-shrink: 0;
+  border: 1px solid #DCD3C7;
+  opacity: 0;
+  transform: scale(0.55);
+  animation: wss-rv-photo-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.wss__rv-form-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.wss__rv-form-photo-remove {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #111111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.wss__rv-form-hint {
+  font-family: var(--font-body);
+  font-size: 8.5px;
+  font-weight: 500;
+  color: #8E877F;
+  line-height: 1.3;
+}
+
+@keyframes wss-rv-photo-pop {
+  0%   { opacity: 0; transform: scale(0.55); }
+  60%  { opacity: 1; transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.wss__ph-wrap[data-anim="pause"] .wss__rv-form-photo {
+  animation-play-state: paused;
+}
+
+/* ── Star rating row ── */
+
+.wss__rv-form-rate {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wss__rv-form-rate-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  color: #555555;
+}
+
+.wss__rv-form-stars {
+  display: flex;
+  gap: 3px;
+}
+
+.wss__rv-form-star {
+  font-size: 17px;
+  color: #DDDDDD;
+  line-height: 1;
+}
+
+.wss__rv-form-star--filled {
+  color: #C09060;
+}
+
+/* ── Buttons ── */
+
+.wss__rv-form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.wss__rv-form-send {
+  flex: 1;
+  padding: 11px 0;
+  background: #1C1510;
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transform: scale(1);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.wss__rv-form-send--glow {
+  animation: wss-rv-send-glow 0.6s ease 1 both;
+}
+
+@keyframes wss-rv-send-glow {
+  0%   { transform: scale(1);    box-shadow: none; }
+  40%  { transform: scale(1.04); box-shadow: 0 6px 22px rgba(28,21,16,0.35); }
+  100% { transform: scale(1);    box-shadow: 0 4px 12px rgba(28,21,16,0.15); }
+}
+
+.wss__rv-form-cancel {
+  flex: 1;
+  padding: 10px 0;
+  background: #FFFFFF;
+  color: #1C1510;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid #1C1510;
+  border-radius: 12px;
+  cursor: default;
+}
+
+/* ── Cursor animations for reviews ── */
+
+.wss__rv-cursor--p0 { opacity: 0; }
+
+/* Phase 1: glide to "Написати відгук" (visible after scroll ~y450) */
+.wss__rv-cursor--p1 {
+  animation: wss-rv-cur1 1100ms ease 1 forwards;
+}
+
+@keyframes wss-rv-cur1 {
+  0%   { opacity: 0; transform: translate(40px, 260px); }
+  18%  { opacity: 1; transform: translate(80px, 350px); }
+  55%  { opacity: 1; transform: translate(125px, 436px); }
+  72%  { opacity: 1; transform: translate(125px, 436px) scale(1.05) rotate(-3deg); }
+  85%  { opacity: 1; transform: translate(125px, 436px) scale(1); }
+  100% { opacity: 0; transform: translate(125px, 446px); }
+}
+
+/* Phase 2: sheet opens, photos auto-pop, cursor reappears and lands on "Надіслати" */
+.wss__rv-cursor--p2 {
+  animation: wss-rv-cur2 1800ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 1 forwards;
+}
+
+@keyframes wss-rv-cur2 {
+  0%, 65% { opacity: 0; transform: translate(125px, 420px); }
+  78%     { opacity: 1; transform: translate(100px, 500px); }
+  92%     { opacity: 1; transform: translate(72px, 558px); }
+  100%    { opacity: 1; transform: translate(72px, 558px) scale(1.04) rotate(-2deg); }
+}
+
+.wss__rv-cursor--p3 { opacity: 0; }
+
+.wss__ph-wrap[data-anim="pause"] .wss__rv-cursor--p1,
+.wss__ph-wrap[data-anim="pause"] .wss__rv-cursor--p2 {
+  animation-play-state: paused;
+}
+
 /* ── Responsive scale ── */
 
 @media (max-width: 340px) {
