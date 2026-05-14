@@ -1476,20 +1476,30 @@
 
 @media (max-width: 340px) {
   .wss__ph-frame {
-    transform: scale(0.78);
+    transform: scale(0.9);
     transform-origin: top center;
   }
   .wss__ph {
-    height: 490px;
+    height: 565px;
   }
 }
 
 @media (min-width: 341px) and (max-width: 480px) {
   .wss__ph-frame {
-    transform: scale(0.88);
+    transform: scale(1.2);
     transform-origin: top center;
   }
   .wss__ph {
-    height: 553px;
+    height: 754px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .wss__ph-frame {
+    transform: scale(1.1);
+    transform-origin: top center;
+  }
+  .wss__ph {
+    height: 691px;
   }
 }
