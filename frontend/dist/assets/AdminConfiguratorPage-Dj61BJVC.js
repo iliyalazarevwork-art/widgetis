@@ -1,0 +1,1 @@
+import{t as e}from"./AdminConfiguratorPage-H2hxHGQL.js";export{e as AdminConfiguratorPage};

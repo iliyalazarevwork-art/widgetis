@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import { trackCtaClick } from '../lib/analytics'
-import { PreviewCartGoal, PreviewCountdown, PreviewDelivery } from './WidgetPreviews'
+import { PreviewPhotoReviews, PreviewProgressiveDiscount } from './WidgetPreviews'
 import './Hero.css'
 
 export function Hero() {
@@ -36,36 +36,31 @@ export function Hero() {
           </div>
         </div>
 
-        <div className="hero__bottom-group">
-          <div className="hero__widgets" aria-label="Міні-версії готових віджетів">
-            <article className="hero__widget-card hero__widget-card--preview">
-              <PreviewCartGoal />
-            </article>
-            <article className="hero__widget-card hero__widget-card--preview">
-              <PreviewDelivery />
-            </article>
-            <article className="hero__widget-card hero__widget-card--preview">
-              <PreviewCountdown />
-            </article>
-          </div>
+        <div className="hero__widgets" aria-label="Міні-версії готових віджетів">
+          <article className="hero__widget-card hero__widget-card--reviews">
+            <PreviewPhotoReviews />
+          </article>
+          <article className="hero__widget-card hero__widget-card--pd">
+            <PreviewProgressiveDiscount />
+          </article>
+        </div>
 
-          <div className="hero__ctas">
-            <Link
-              to="/pricing"
-              className="hero__cta hero__cta--primary"
-              onClick={() => trackCtaClick('hero__cta')}
-            >
-              Спробувати безкоштовно
-            </Link>
-            <Link
-              to="/demo"
-              className="hero__cta hero__cta--secondary"
-              onClick={() => trackCtaClick('hero__cta')}
-            >
-              Подивитися демо
-              <ArrowRight size={18} strokeWidth={2} />
-            </Link>
-          </div>
+        <div className="hero__ctas">
+          <Link
+            to="/pricing"
+            className="hero__cta hero__cta--primary"
+            onClick={() => trackCtaClick('hero__cta')}
+          >
+            Спробувати безкоштовно
+          </Link>
+          <Link
+            to="/demo"
+            className="hero__cta hero__cta--secondary"
+            onClick={() => trackCtaClick('hero__cta')}
+          >
+            Подивитися демо
+            <ArrowRight size={18} strokeWidth={2} />
+          </Link>
         </div>
       </div>
     </section>

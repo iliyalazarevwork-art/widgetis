@@ -1089,6 +1089,128 @@ export function PreviewSmartSearchDetail() {
   )
 }
 
+// ─── Hero widget cards (match design node heroWidgets / 2eqFV) ───────────────
+
+const GOAL_STAGES = [
+  { pct: 33, remaining: 607 },
+  { pct: 67, remaining: 303 },
+  { pct: 100, remaining: 0 },
+]
+
+export function HeroCartGoalCard() {
+  const { ref, active } = useVisible<HTMLDivElement>()
+  const [stage, setStage] = useState(0)
+  const current = GOAL_STAGES[stage]!
+
+  useEffect(() => {
+    if (!active) return
+    const delay = stage === 2 ? 2500 : 1400
+    const t = setTimeout(() => setStage(s => (s + 1) % GOAL_STAGES.length), delay)
+    return () => clearTimeout(t)
+  }, [stage, active])
+
+  const done = current.pct === 100
+
+  return (
+    <div className="hwc hwc--vertical" ref={ref}>
+      <div className="hwc__row">
+        <div className={`hwc__icon ${done ? 'hwc__icon--green' : 'hwc__icon--amber'}`}>
+          <Truck size={18} strokeWidth={2} />
+        </div>
+        <span className="hwc__title">
+          {done
+            ? 'Безкоштовна доставка!'
+            : `До безкоштовної доставки: ${current.remaining} грн`}
+        </span>
+      </div>
+      <div className="hwc__bar-track">
+        <div
+          className="hwc__bar-fill"
+          style={{
+            width: `${current.pct}%`,
+            background: done ? '#22C55E' : 'linear-gradient(90deg,#F97316,#FB923C)',
+          }}
+        />
+      </div>
+    </div>
+  )
+}
+
+
+export function HeroPhotoReviewsCard() {
+  const { ref, active } = useVisible<HTMLDivElement>()
+  const [visible, setVisible] = useState(0)
+
+  useEffect(() => {
+    if (!active) return
+    if (visible >= 4) {
+      const t = setTimeout(() => setVisible(0), 2200)
+      return () => clearTimeout(t)
+    }
+    const t = setTimeout(() => setVisible(v => v + 1), 520)
+    return () => clearTimeout(t)
+  }, [visible, active])
+
+  return (
+    <div className="hwc hwc--row" ref={ref}>
+      <div className="hwc__icon hwc__icon--amber">
+        <Star size={18} strokeWidth={2} />
+      </div>
+      <div className="hwc__text">
+        <div className="hwc__pr-row">
+          <span className="hwc__pr-stars">★★★★★</span>
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className={`hwc__pr-thumb hwc__pr-thumb--${i}${visible >= i ? ' hwc__pr-thumb--in' : ''}`} />
+          ))}
+          <span className="hwc__sub">+43</span>
+        </div>
+        <span className="hwc__sub">47 фото-відгуків</span>
+      </div>
+    </div>
+  )
+}
+
+const PD_HERO_STEPS = [
+  { pct: 34, label: '2+ товари', discount: '5%' },
+  { pct: 67, label: '3+ товари', discount: '10%' },
+  { pct: 100, label: '5+ товарів', discount: '15%' },
+]
+
+export function HeroProgressiveDiscountCard() {
+  const { ref, active } = useVisible<HTMLDivElement>()
+  const [step, setStep] = useState(0)
+  const current = PD_HERO_STEPS[step]!
+
+  useEffect(() => {
+    if (!active) return
+    const delay = step === 2 ? 2200 : 1400
+    const t = setTimeout(() => setStep(s => (s + 1) % PD_HERO_STEPS.length), delay)
+    return () => clearTimeout(t)
+  }, [step, active])
+
+  return (
+    <div className="hwc hwc--vertical" ref={ref}>
+      <div className="hwc__row">
+        <div className="hwc__icon hwc__icon--purple">
+          <Ticket size={18} strokeWidth={2} />
+        </div>
+        <div className="hwc__text">
+          <span className="hwc__title">Прогресивна знижка</span>
+          <span className="hwc__sub">
+            {current.label} — <span className="hwc__sub-accent hwc__sub-accent--purple">{current.discount}</span>
+          </span>
+        </div>
+      </div>
+      <div className="hwc__bar-track">
+        <div
+          className="hwc__bar-fill"
+          style={{ width: `${current.pct}%`, background: 'linear-gradient(90deg,#7C3AED,#A855F7)' }}
+        />
+      </div>
+    </div>
+  )
+}
+
 // ─── Map: widget id → preview component ──────────────────────────────────────
 
 // eslint-disable-next-line react-refresh/only-export-components
