@@ -89,6 +89,44 @@ function cacheSet(key, body, contentType, ttlMs) {
   });
 }
 
+// ── Domain protocol cache ──────────────────────────────────────────
+// Some Horoshop subdomains (e.g. shop353226.horoshop.ua) have no HTTPS
+// vhost — :443 falls through to the default nginx and returns a tiny
+// 404 page with no charset, while :80 serves the real shop. We detect
+// this on first hit and remember the working protocol per domain.
+const DOMAIN_PROTOCOL_TTL_MS = 60 * 60 * 1000;
+const domainProtocolCache = new Map(); // domain → { proto: 'https'|'http', expiresAt }
+
+function getDomainProtocol(domain) {
+  const entry = domainProtocolCache.get(domain);
+  if (!entry) return 'https';
+  if (entry.expiresAt < Date.now()) {
+    domainProtocolCache.delete(domain);
+    return 'https';
+  }
+  return entry.proto;
+}
+
+function rememberDomainProtocol(domain, proto) {
+  domainProtocolCache.set(domain, {
+    proto,
+    expiresAt: Date.now() + DOMAIN_PROTOCOL_TTL_MS,
+  });
+}
+
+// Default-nginx-404 detector: a default vhost 404 has no charset, is
+// tiny (<512 B), and contains the literal "nginx" footer. Real Horoshop
+// 404 pages are full-page HTML with charset and many KB of branding.
+function isDefaultNginxNotFound(result) {
+  if (result.statusCode !== 404) return false;
+  if (result.buffer.length > 512) return false;
+  const ct = (result.contentType || '').toLowerCase();
+  if (!ct.includes('text/html')) return false;
+  if (ct.includes('charset=')) return false;
+  const body = result.buffer.toString('utf-8');
+  return /404 Not Found/i.test(body) && /nginx/i.test(body);
+}
+
 // ── Visitor state (cookie jar + current preview domain) ────────────
 const visitors = new Map(); // visitorId -> { currentDomain, jars: Map<domain, Map<name,value>>, touchedAt }
 
@@ -886,7 +924,7 @@ function injectRuntimeScript(html, domain) {
 // In that case we detect the failure client-side and fall back to a message.
 // FlareSolverr remains as a server-side fallback for the HTML (see proxyTo).
 function buildCfIframePage(domain, demoCfg) {
-  const realUrl = `https://${domain}/`;
+  const realUrl = `${getDomainProtocol(domain)}://${domain}/`;
   const bundleCode = demoCfg ? loadDemoBundle() : '';
   const cfgScript = demoCfg
     ? `<script data-widgetis-cfg>window.__WIDGETIS_CFG__=${escapeForInlineScript(JSON.stringify(demoCfg))};</script>`
@@ -1383,7 +1421,9 @@ async function handle(req, res) {
 }
 
 async function proxyTo(req, res, visitor, visitorId, setVisitorCookie, domain, targetPath) {
-  const targetUrl = `https://${domain}${targetPath.startsWith('/') ? '' : '/'}${targetPath}`;
+  const normalizedPath = `${targetPath.startsWith('/') ? '' : '/'}${targetPath}`;
+  let upstreamProto = getDomainProtocol(domain);
+  let targetUrl = `${upstreamProto}://${domain}${normalizedPath}`;
   const method = (req.method || 'GET').toUpperCase();
 
   // Fast path: cache hit for idempotent GETs
@@ -1454,8 +1494,8 @@ async function proxyTo(req, res, visitor, visitorId, setVisitorCookie, domain, t
     if (req.headers['content-type']) headers['Content-Type'] = req.headers['content-type'];
     if (req.headers['x-requested-with']) headers['X-Requested-With'] = req.headers['x-requested-with'];
     if (req.headers['x-csrf-token']) headers['X-CSRF-Token'] = req.headers['x-csrf-token'];
-    headers.Referer = `https://${domain}/`;
-    headers.Origin = `https://${domain}`;
+    headers.Referer = `${upstreamProto}://${domain}/`;
+    headers.Origin = `${upstreamProto}://${domain}`;
   }
 
   let body;
@@ -1471,6 +1511,30 @@ async function proxyTo(req, res, visitor, visitorId, setVisitorCookie, domain, t
     res.writeHead(502, { 'Content-Type': 'text/plain' });
     res.end('Upstream error');
     return;
+  }
+
+  // Protocol auto-detect: if https returned a default-nginx 404 (vhost
+  // missing on :443), retry on http and remember the choice for this
+  // domain so subsequent requests skip the round-trip.
+  if (upstreamProto === 'https' && isDefaultNginxNotFound(result)) {
+    console.log(`[site-proxy] ${domain} has no HTTPS vhost — retrying via HTTP`);
+    upstreamProto = 'http';
+    targetUrl = `http://${domain}${normalizedPath}`;
+    if (headers.Referer) headers.Referer = `http://${domain}/`;
+    if (headers.Origin) headers.Origin = `http://${domain}`;
+    try {
+      result = await fetchUpstream(targetUrl, { method, headers, body });
+      rememberDomainProtocol(domain, 'http');
+    } catch (err) {
+      console.error('[site-proxy] http fallback failed:', targetUrl, err.message);
+      res.writeHead(502, { 'Content-Type': 'text/plain' });
+      res.end('Upstream error');
+      return;
+    }
+  } else if (upstreamProto === 'https' && result.statusCode < 500) {
+    // First successful HTTPS response — pin the protocol so we don't
+    // keep probing on every request.
+    rememberDomainProtocol(domain, 'https');
   }
 
   if (result.setCookies.length) storeSetCookies(visitor, domain, result.setCookies);
