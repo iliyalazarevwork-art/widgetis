@@ -6,6 +6,7 @@ import {
 } from './schema';
 import { getLanguage } from '@laxarevii/core';
 import { buildPopup, animateOut, type Product } from './dom';
+import { scrapeFallbackProducts } from './scrape';
 
 const LOG = '[widgetality] cart-recommender:';
 
@@ -187,7 +188,6 @@ export default function cartRecommender(
       return res.json().then((json: ApiResponse) => {
         const products = Array.isArray(json.data) ? json.data : [];
         const limited = products.slice(0, config.maxItems) as Product[];
-        cachedProducts = limited;
         console.log(LOG, 'prefetch received', limited.length, 'products');
         return limited;
       });
@@ -200,6 +200,17 @@ export default function cartRecommender(
         console.error(LOG, 'fetch failed', err);
       }
       return [] as Product[];
+    })
+    .then(async (apiProducts) => {
+      if (apiProducts.length > 0) return apiProducts;
+      console.log(LOG, 'API returned no products — trying DOM/home-page scrape fallback');
+      const scraped = await scrapeFallbackProducts(config.maxItems);
+      console.log(LOG, 'scrape fallback produced', scraped.length, 'products');
+      return scraped;
+    })
+    .then((finalProducts) => {
+      cachedProducts = finalProducts;
+      return finalProducts;
     })
     .finally(() => {
       fetchSettled = true;

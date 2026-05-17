@@ -46,6 +46,12 @@ const httpsAgent = new https.Agent({
   maxSockets: 64,
   maxFreeSockets: 32,
   scheduling: 'fifo',
+  // Horoshop's shopNNNNNN.horoshop.ua subdomains serve a self-signed wildcard
+  // cert (issuer O=Horoshop, CN=*.horoshop.ua); the proxy only renders public
+  // pages in a demo iframe and never sends secrets upstream, so cert trust is
+  // not load-bearing — disable verification to keep demos working for stores
+  // that haven't connected a custom domain yet.
+  rejectUnauthorized: false,
 });
 const httpAgent = new http.Agent({
   keepAlive: true,
@@ -309,6 +315,14 @@ function fetchUpstream(targetUrl, { method = 'GET', headers = {}, body, maxRedir
       delete finalHeaders['Content-Length'];
     }
 
+    if (process.env.DEBUG_UPSTREAM === '1') {
+      console.log('[DEBUG fetchUpstream]', JSON.stringify({
+        targetUrl,
+        method,
+        path: parsed.pathname + parsed.search,
+        finalHeaders,
+      }));
+    }
     const req = client.request(
       {
         hostname: parsed.hostname,
