@@ -39,14 +39,12 @@ final class WidgetBuilderController extends BaseController
     {
         $request->validate([
             'modules' => ['required', 'array'],
-            'obfuscate' => ['sometimes', 'boolean'],
             'site' => ['sometimes', 'string', 'max:253'],
         ]);
 
         try {
             $response = Http::timeout(120)->post("{$this->builderUrl()}/build", [
                 'modules' => $request->input('modules'),
-                'obfuscate' => $request->boolean('obfuscate', false),
             ]);
         } catch (ConnectionException $e) {
             return $this->error('WIDGET_BUILDER_UNAVAILABLE', "Connection error: {$e->getMessage()}", 502);

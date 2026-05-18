@@ -137,7 +137,6 @@ class DemoCodeToBuildTest extends TestCase
         $buildResp = $this->actingAs($admin, 'core')
             ->postJson('/api/v1/admin/widget-builder/build', [
                 'modules' => $modules,
-                'obfuscate' => false,
             ])
             ->assertOk()
             ->assertJsonStructure(['data' => ['js', 'size']]);
@@ -309,7 +308,6 @@ class DemoCodeToBuildTest extends TestCase
         $buildResp = $this->actingAs($admin, 'core')
             ->postJson('/api/v1/admin/widget-builder/build', [
                 'modules' => $modules,
-                'obfuscate' => false,
             ])
             ->assertOk()
             ->assertJsonStructure(['data' => ['js', 'size']]);
@@ -318,8 +316,7 @@ class DemoCodeToBuildTest extends TestCase
 
         Http::assertSent(function ($request) use ($modules) {
             return str_ends_with($request->url(), '/build')
-                && $request['modules'] === $modules
-                && $request['obfuscate'] === false;
+                && $request['modules'] === $modules;
         });
     }
 
@@ -343,7 +340,6 @@ class DemoCodeToBuildTest extends TestCase
         $this->actingAs($admin, 'core')
             ->postJson('/api/v1/admin/widget-builder/build', [
                 'modules' => $modulesFromConfigEndpoint,
-                'obfuscate' => false,
             ])
             ->assertOk()
             ->assertJsonPath('data.js', '(()=>{})();');

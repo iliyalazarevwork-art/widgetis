@@ -232,8 +232,8 @@ server.listen(PORT, HOST, () => {
   }
   console.log('');
   console.log(`  GET  /modules    — JSON schemas for all modules`);
-  console.log(`  POST /build      — { modules, obfuscate? } → production.js`);
-  console.log(`  POST /deploy     — { site, modules, obfuscate? } → upload to R2, returns { url }`);
+  console.log(`  POST /build      — { modules } → production.js`);
+  console.log(`  POST /deploy     — { site, modules } → upload to R2, returns { url }`);
   console.log(`  POST /build-demo — { modules: ["promo-line", ...] } → production.js (default configs)`);
   console.log(`  POST /validate   — { config: {...} } | { modules, ... } → { ok, validated_modules, errors }`);
 });

@@ -19,7 +19,7 @@ class ScriptBuilderService
      *
      * Flow:
      *   1. Collect all enabled widgets with their config + i18n
-     *   2. Call widget-builder service → returns obfuscated JS
+     *   2. Call widget-builder service → returns JS bundle
      *   3. Upload to R2: sites/{domain}/{token}.js (token is an unguessable 5-char random)
      *   4. Create SiteScriptBuild record
      */
@@ -29,7 +29,7 @@ class ScriptBuilderService
 
         $modules = $this->collectModules($site, $this->fetchModuleDefaults());
 
-        return $this->buildAndDeploy($site, $modules, obfuscate: true);
+        return $this->buildAndDeploy($site, $modules);
     }
 
     /**
@@ -65,7 +65,7 @@ class ScriptBuilderService
      *
      * @param array<string, array{is_enabled: bool, config: array<string, mixed>, i18n: mixed}> $modules
      */
-    public function buildFromModules(Site $site, array $modules, bool $obfuscate = true): SiteScriptBuild
+    public function buildFromModules(Site $site, array $modules): SiteScriptBuild
     {
         $site->loadMissing(['script']);
 
@@ -84,7 +84,7 @@ class ScriptBuilderService
             ];
         }
 
-        return $this->buildAndDeploy($site, $builderModules, $obfuscate);
+        return $this->buildAndDeploy($site, $builderModules);
     }
 
     /**
@@ -92,7 +92,7 @@ class ScriptBuilderService
      *
      * @param array<string, array{config: array<string, mixed>, i18n: mixed}> $modules
      */
-    private function buildAndDeploy(Site $site, array $modules, bool $obfuscate): SiteScriptBuild
+    private function buildAndDeploy(Site $site, array $modules): SiteScriptBuild
     {
         $script = $site->script;
 
@@ -100,7 +100,7 @@ class ScriptBuilderService
             throw new \RuntimeException("Site {$site->id} has no script token.");
         }
 
-        $js = $this->buildJsFromModules($site, $modules, $obfuscate);
+        $js = $this->buildJsFromModules($site, $modules);
 
         if (! $site->script_installed) {
             $js .= $this->pingSnippet();
@@ -151,7 +151,7 @@ class ScriptBuilderService
      *
      * @param array<string, array{config: array<string, mixed>, i18n: mixed}> $modules
      */
-    private function buildJsFromModules(Site $site, array $modules, bool $obfuscate = true): string
+    private function buildJsFromModules(Site $site, array $modules): string
     {
         $now = now()->toRfc7231String();
         $version = now()->format('Y.m.d.His');
@@ -192,7 +192,6 @@ class ScriptBuilderService
 
         $payload = (string) json_encode([
             'modules' => $modules,
-            'obfuscate' => $obfuscate,
             'allowedDomain' => $site->domain,
             'comment' => $comment,
         ], JSON_UNESCAPED_UNICODE);

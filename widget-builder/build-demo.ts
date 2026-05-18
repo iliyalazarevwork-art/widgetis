@@ -244,6 +244,10 @@ async function main(): Promise<void> {
   const obfuscate = !/^(0|false|no|off)$/i.test(process.env.OBFUSCATE ?? '1');
   process.stderr.write(`[build-demo] obfuscate: ${obfuscate}\n`);
 
+  const obfuscator = obfuscate
+    ? (await import('javascript-obfuscator')).default
+    : null;
+
   for (const pageType of PAGE_TYPES) {
     const subset = modulesForPage(modules, pageType);
     const names = Object.keys(subset);
@@ -252,13 +256,25 @@ async function main(): Promise<void> {
       continue;
     }
     process.stderr.write(`[build-demo] building chunk "${pageType}" (${names.length} modules)\n`);
-    const js = await buildModules({
+    let js = await buildModules({
       modules: subset,
-      obfuscate,
       site: `demo/${pageType}`,
       comment,
       demo: true,
     });
+    if (obfuscator) {
+      js = obfuscator.obfuscate(js, {
+        compact: true,
+        controlFlowFlattening: false,
+        deadCodeInjection: false,
+        identifierNamesGenerator: 'hexadecimal',
+        renameGlobals: false,
+        stringArray: false,
+        selfDefending: false,
+        disableConsoleOutput: false,
+        target: 'browser',
+      }).getObfuscatedCode();
+    }
     chunks[pageType] = js;
   }
 

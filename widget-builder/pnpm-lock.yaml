@@ -73,12 +73,6 @@ importers:
         specifier: workspace:*
         version: link:../../packages/core
 
-  modules/module-floating-messengers:
-    dependencies:
-      '@laxarevii/core':
-        specifier: workspace:*
-        version: link:../../packages/core
-
   modules/module-last-chance-popup:
     dependencies:
       '@laxarevii/core':
@@ -131,18 +125,6 @@ importers:
         version: link:../../packages/core
 
   modules/module-promo-line:
-    dependencies:
-      '@laxarevii/core':
-        specifier: workspace:*
-        version: link:../../packages/core
-
-  modules/module-recently-viewed:
-    dependencies:
-      '@laxarevii/core':
-        specifier: workspace:*
-        version: link:../../packages/core
-
-  modules/module-smart-search:
     dependencies:
       '@laxarevii/core':
         specifier: workspace:*

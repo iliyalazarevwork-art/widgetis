@@ -11,7 +11,6 @@ export type { ModuleConfigs };
 
 export type BuildRequest = {
   modules: ModuleConfigs;
-  obfuscate?: boolean;
   allowedDomain?: string;
   site?: string;
   comment?: string;
@@ -214,22 +213,6 @@ export async function buildModules(request: BuildRequest): Promise<string> {
   // bundles around 1 MB. The body of the bundle is an IIFE — wrapping it in a
   // named function turns auto-execution into deferred-on-demand execution.
   code = `function __wgts_init(){\n${code}\n}\nif(document.readyState==='complete')__wgts_init();else addEventListener('load',__wgts_init);`;
-
-  if (request.obfuscate) {
-    const { default: JavaScriptObfuscator } = await import('javascript-obfuscator');
-    const obfuscated = JavaScriptObfuscator.obfuscate(code, {
-      compact: true,
-      controlFlowFlattening: false,
-      deadCodeInjection: false,
-      identifierNamesGenerator: 'hexadecimal',
-      renameGlobals: false,
-      stringArray: false,
-      selfDefending: false,
-      disableConsoleOutput: false,
-      target: 'browser',
-    });
-    code = obfuscated.getObfuscatedCode();
-  }
 
   const comment = request.comment ?? buildAutoComment(request.allowedDomain ?? request.site);
   code = comment + '\n' + code;
