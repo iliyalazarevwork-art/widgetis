@@ -1,5 +1,8 @@
-import { cartGoalSchema, cartGoalI18nSchema, type CartGoalConfig, type CartGoalInput } from './schema';
+import type { CartGoalConfig, CartGoalI18n } from './schema';
+import type { PageType } from '@laxarevii/core';
 import { getLanguage, resolveCurrency, type CurrencyContext } from '@laxarevii/core';
+
+export const pages: PageType[] = ['home', 'category', 'product', 'cart'];
 import { injectStyles } from './styles';
 import { findTotalInfo, setupCartInterception, type CartTotalInfo } from './cart';
 import { shouldHideByUtmSource } from './utm';
@@ -221,13 +224,11 @@ function scheduleUpdate(config: CartGoalConfig, i18n: I18nEntry): void {
 }
 
 export default function cartGoal(
-  rawConfig: CartGoalInput,
-  rawI18n: Record<string, { text: string; achieved: string }>,
+  config: CartGoalConfig,
+  i18nMap: CartGoalI18n,
 ): (() => void) | void {
   if (typeof document === 'undefined') return;
 
-  const config = cartGoalSchema.parse(rawConfig);
-  const i18nMap = cartGoalI18nSchema.parse(rawI18n);
   if (!config.enabled) { console.warn('[widgetality] cart-goal: ⚠️ disabled'); return; }
   if (shouldHideByUtmSource(config.hideOnUtmSources)) { console.warn('[widgetality] cart-goal: ⚠️ hidden by UTM source'); return; }
   if (state.initialized) { console.log('[widgetality] cart-goal: already initialized'); return; }

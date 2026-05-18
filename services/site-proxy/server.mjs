@@ -1370,6 +1370,24 @@ async function handle(req, res) {
         const mime = { mp4: 'video/mp4', webm: 'video/webm', js: 'application/javascript', css: 'text/css', json: 'application/json', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', svg: 'image/svg+xml', webp: 'image/webp' };
         const contentType = mime[ext] || 'application/octet-stream';
         const { size } = statSync(staticAbsPath);
+        const rangeHeader = req.headers['range'];
+        if (rangeHeader) {
+          const match = /^bytes=(\d*)-(\d*)$/.exec(rangeHeader);
+          if (match) {
+            const start = match[1] ? parseInt(match[1], 10) : 0;
+            const end = match[2] ? parseInt(match[2], 10) : size - 1;
+            const chunkSize = end - start + 1;
+            res.writeHead(206, {
+              'Content-Type': contentType,
+              'Content-Length': chunkSize,
+              'Content-Range': `bytes ${start}-${end}/${size}`,
+              'Accept-Ranges': 'bytes',
+              'Cache-Control': 'public, max-age=86400',
+            });
+            createReadStream(staticAbsPath, { start, end }).pipe(res);
+            return;
+          }
+        }
         res.writeHead(200, { 'Content-Type': contentType, 'Content-Length': size, 'Cache-Control': 'public, max-age=86400', 'Accept-Ranges': 'bytes' });
         createReadStream(staticAbsPath).pipe(res);
         return;

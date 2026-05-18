@@ -1,10 +1,8 @@
-import {
-  photoReviewsSchema,
-  photoReviewsI18nSchema,
-  type PhotoReviewsInput,
-  type PhotoReviewsConfig,
-} from './schema';
+import type { PhotoReviewsConfig, PhotoReviewsI18n } from './schema';
+import type { PageType } from '@laxarevii/core';
 import { getLanguage } from '@laxarevii/core';
+
+export const pages: PageType[] = ['product'];
 import GLightbox from 'glightbox';
 import glightboxCss from 'glightbox/dist/css/glightbox.min.css?inline';
 import { startUpload, type UploadSettings } from './upload';
@@ -509,13 +507,11 @@ function removeInjected(): void {
 }
 
 export default function photoReviews(
-  rawConfig: PhotoReviewsInput,
-  rawI18n: Record<string, I18n>,
+  config: PhotoReviewsConfig,
+  i18nMap: PhotoReviewsI18n,
 ): (() => void) | void {
   if (typeof document === 'undefined') return;
 
-  const config = photoReviewsSchema.parse(rawConfig);
-  const i18nMap = photoReviewsI18nSchema.parse(rawI18n);
   if (!config.enabled) {
     console.warn('[widgetality] photo-reviews: ⚠️ disabled');
     return;

@@ -12,7 +12,7 @@ export default defineConfig({
 
   webServer: {
     command: 'pnpm vite serve --config tests/fixtures/vite.config.ts --port 5174',
-    url: 'http://localhost:5174',
+    url: 'http://localhost:5174/tests/fixtures/product-page.html',
     reuseExistingServer: !process.env.CI,
     timeout: 30_000,
   },

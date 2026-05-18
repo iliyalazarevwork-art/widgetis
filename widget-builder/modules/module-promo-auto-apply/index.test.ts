@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import promoAutoApply from './index';
-import { getDefaultI18n } from './schema';
+import { getDefaultConfig, getDefaultI18n } from './schema';
 
 const i18n = getDefaultI18n();
 
@@ -22,13 +22,13 @@ describe('promoAutoApply', () => {
     });
     window.localStorage.setItem('wty_active_prize', JSON.stringify({ code: 'SPIN10' }));
     document.body.innerHTML = '<button class="j-coupon-add">Add</button>';
-    const result = promoAutoApply({}, i18n);
+    const result = promoAutoApply(getDefaultConfig(), i18n);
     expect(result).toBeUndefined();
   });
 
   it('does nothing when no active prize is present', () => {
     document.body.innerHTML = '<button class="j-coupon-add">Add</button>';
-    const result = promoAutoApply({}, i18n);
+    const result = promoAutoApply(getDefaultConfig(), i18n);
     expect(result).toBeUndefined();
   });
 
@@ -38,7 +38,7 @@ describe('promoAutoApply', () => {
       JSON.stringify({ code: 'SPIN10', expiresAt: Date.now() - 1000 }),
     );
     document.body.innerHTML = '<button class="j-coupon-add">Add</button>';
-    const result = promoAutoApply({}, i18n);
+    const result = promoAutoApply(getDefaultConfig(), i18n);
     expect(result).toBeUndefined();
     expect(window.localStorage.getItem('wty_active_prize')).toBeNull();
   });
@@ -51,21 +51,21 @@ describe('promoAutoApply', () => {
     btn.className = 'j-coupon-add';
     btn.addEventListener('click', click);
     document.body.appendChild(btn);
-    promoAutoApply({}, i18n);
+    promoAutoApply(getDefaultConfig(), i18n);
     expect(click).not.toHaveBeenCalled();
   });
 
   it('does nothing when the coupon is already applied (marker present)', () => {
     window.localStorage.setItem('wty_active_prize', JSON.stringify({ code: 'SPIN10' }));
     document.body.innerHTML = '<div class="j-coupon-remove"></div>';
-    const result = promoAutoApply({}, i18n);
+    const result = promoAutoApply(getDefaultConfig(), i18n);
     // Returns a stop function but the form won't be triggered
     expect(typeof result === 'function' || result === undefined).toBe(true);
   });
 
   it('returns disabled marker when enabled=false', () => {
     window.localStorage.setItem('wty_active_prize', JSON.stringify({ code: 'SPIN10' }));
-    const result = promoAutoApply({ enabled: false }, i18n);
+    const result = promoAutoApply({ ...getDefaultConfig(), enabled: false }, i18n);
     expect(result).toBeUndefined();
   });
 
@@ -86,7 +86,7 @@ describe('promoAutoApply', () => {
 
     document.body.append(addBtn, input, submit);
 
-    promoAutoApply({ showToast: false }, i18n);
+    promoAutoApply({ ...getDefaultConfig(), showToast: false }, i18n);
 
     await new Promise((r) => setTimeout(r, 50));
 

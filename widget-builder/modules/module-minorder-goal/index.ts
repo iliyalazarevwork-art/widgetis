@@ -1,5 +1,8 @@
-import { minOrderSchema, minOrderI18nSchema, type MinOrderConfig, type MinOrderInput } from './schema';
+import type { MinOrderConfig, MinOrderI18n } from './schema';
+import type { PageType } from '@laxarevii/core';
 import { getLanguage, resolveCurrency } from '@laxarevii/core';
+
+export const pages: PageType[] = ['cart', 'checkout'];
 import { injectStyles } from './styles';
 import { findTotalInfo, setupCartInterception } from './cart';
 import {
@@ -190,13 +193,11 @@ function scheduleUpdate(config: MinOrderConfig, i18n: I18nEntry): void {
 }
 
 export default function minOrder(
-  rawConfig: MinOrderInput,
-  rawI18n: Record<string, { text: string; achieved: string }>,
+  config: MinOrderConfig,
+  i18nMap: MinOrderI18n,
 ): (() => void) | void {
   if (typeof document === 'undefined') return;
 
-  const config = minOrderSchema.parse(rawConfig);
-  const i18nMap = minOrderI18nSchema.parse(rawI18n);
   if (!config.enabled) { console.warn('[widgetality] min-order: disabled'); return; }
   if (state.initialized) { console.log('[widgetality] min-order: already initialized'); return; }
   state.initialized = true;

@@ -29,6 +29,13 @@ export const stickyBuyButtonI18nSchema = z
 
 export type StickyBuyButtonI18n = z.infer<typeof stickyBuyButtonI18nSchema>;
 
+export function parse(config: unknown, i18n: unknown): { config: StickyBuyButtonConfig; i18n: StickyBuyButtonI18n } {
+  return {
+    config: stickyBuyButtonSchema.parse(config),
+    i18n: stickyBuyButtonI18nSchema.parse(i18n),
+  };
+}
+
 export function getJsonSchema() {
   return {
     config: zodToJsonSchema(stickyBuyButtonSchema, 'StickyBuyButtonConfig'),

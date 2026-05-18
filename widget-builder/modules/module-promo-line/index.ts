@@ -1,5 +1,8 @@
-import { marqueeSchema, marqueeI18nSchema, type MarqueeInput } from './schema';
+import type { MarqueeConfig, MarqueeI18n } from './schema';
+import type { PageType } from '@laxarevii/core';
 import { getLanguage } from '@laxarevii/core';
+
+export const pages: PageType[] = ['home', 'category', 'product', 'cart'];
 import { buildCSS } from './styles';
 import { isClosed, persistClosed } from './storage';
 import { setPageOffset, setHeaderOffset, clearPageOffset } from './offset';
@@ -19,9 +22,7 @@ function injectStyles(): void {
   document.head.appendChild(el);
 }
 
-export default function marquee(rawConfig: MarqueeInput, rawI18n: Record<string, string[]>): (() => void) | void {
-  const config = marqueeSchema.parse(rawConfig);
-  const i18n = marqueeI18nSchema.parse(rawI18n);
+export default function marquee(config: MarqueeConfig, i18n: MarqueeI18n): (() => void) | void {
   if (!config.enabled) { console.warn('[widgetality] marquee: ⚠️ disabled'); return; }
   if (isClosed()) { console.log('[widgetality] marquee: closed by user (TTL not expired)'); return; }
   console.log('[widgetality] marquee: ✅ activated');

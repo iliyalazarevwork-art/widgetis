@@ -1,11 +1,12 @@
+import type { PageType } from '@laxarevii/core';
 import { getLanguage } from '@laxarevii/core';
-import {
-  progressiveDiscountSchema,
-  progressiveDiscountI18nSchema,
-  type ProgressiveDiscountConfig,
-  type ProgressiveDiscountInput,
-  type DiscountTier,
-  type I18nEntry,
+
+export const pages: PageType[] = ['cart', 'product'];
+import type {
+  ProgressiveDiscountConfig,
+  ProgressiveDiscountI18n,
+  DiscountTier,
+  I18nEntry,
 } from './schema';
 import { getCartItemCount, setupCartInterception, hookAjaxCart } from './cart';
 import { applyCoupon, clearCoupon } from './coupon';
@@ -101,13 +102,10 @@ function scheduleUpdate(config: ProgressiveDiscountConfig, i18n: I18nEntry): voi
 }
 
 export default function progressiveDiscount(
-  rawConfig: ProgressiveDiscountInput,
-  rawI18n: Record<string, I18nEntry>,
+  config: ProgressiveDiscountConfig,
+  i18nMap: ProgressiveDiscountI18n,
 ): (() => void) | void {
   if (typeof document === 'undefined') return;
-
-  const config = progressiveDiscountSchema.parse(rawConfig);
-  const i18nMap = progressiveDiscountI18nSchema.parse(rawI18n);
 
   if (!config.enabled) {
     console.warn('[widgetality] progressive-discount: ⚠️ disabled');

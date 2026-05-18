@@ -1,17 +1,17 @@
-import { stockLeftSchema, stockLeftI18nSchema, type StockLeftInput } from './schema';
+import type { StockLeftConfig, StockLeftI18n } from './schema';
+import type { PageType } from '@laxarevii/core';
 import { getLanguage, isHoroshopProductPage } from '@laxarevii/core';
+
+export const pages: PageType[] = ['product'];
 import { injectStyles } from './styles';
 import { createBadge, insertElement, removeExisting, updateCount } from './dom';
 import { loadState, saveState, type StockState } from './state';
 
 export default function stockLeft(
-  rawConfig: StockLeftInput,
-  rawI18n: Record<string, { label: string; unit?: string }>,
+  config: StockLeftConfig,
+  i18nMap: StockLeftI18n,
 ): (() => void) | void {
   if (typeof document === 'undefined') return;
-
-  const config = stockLeftSchema.parse(rawConfig);
-  const i18nMap = stockLeftI18nSchema.parse(rawI18n);
 
   if (!config.enabled) {
     console.warn('[widgetality] stock-left: ⚠️ disabled');
@@ -114,7 +114,7 @@ function seedFromPath(path: string): number {
 }
 
 function createInitialState(
-  config: ReturnType<typeof stockLeftSchema.parse>,
+  config: StockLeftConfig,
   path: string,
 ): StockState {
   const rnd = seededRandom(seedFromPath(path));
@@ -138,7 +138,7 @@ function nextInterval(baseSeconds: number): number {
 
 function startUpdates(
   state: StockState,
-  config: ReturnType<typeof stockLeftSchema.parse>,
+  config: StockLeftConfig,
   badge: HTMLElement,
   path: string,
 ): () => void {

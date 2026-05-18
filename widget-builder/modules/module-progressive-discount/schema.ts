@@ -44,6 +44,13 @@ export const progressiveDiscountI18nSchema = z
 export type ProgressiveDiscountI18n = z.infer<typeof progressiveDiscountI18nSchema>;
 export type I18nEntry = z.infer<typeof i18nEntrySchema>;
 
+export function parse(config: unknown, i18n: unknown): { config: ProgressiveDiscountConfig; i18n: ProgressiveDiscountI18n } {
+  return {
+    config: progressiveDiscountSchema.parse(config),
+    i18n: progressiveDiscountI18nSchema.parse(i18n),
+  };
+}
+
 export function getJsonSchema() {
   return {
     config: zodToJsonSchema(progressiveDiscountSchema, 'ProgressiveDiscountConfig'),

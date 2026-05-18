@@ -36,10 +36,14 @@ export const productVideoPreviewI18nSchema = z
 
 export type ProductVideoPreviewI18n = z.infer<typeof productVideoPreviewI18nSchema>;
 
-export function validate(config: unknown, i18n: unknown): void {
-  productVideoPreviewSchema.parse(config);
-  productVideoPreviewI18nSchema.parse(i18n);
+export function parse(config: unknown, i18n: unknown): { config: ProductVideoPreviewConfig; i18n: ProductVideoPreviewI18n } {
+  return {
+    config: productVideoPreviewSchema.parse(config),
+    i18n: productVideoPreviewI18nSchema.parse(i18n),
+  };
 }
+
+export function validate(config: unknown, i18n: unknown): void { parse(config, i18n); }
 
 export function getJsonSchema() {
   return {

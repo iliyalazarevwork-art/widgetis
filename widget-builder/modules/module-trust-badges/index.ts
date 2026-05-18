@@ -1,5 +1,8 @@
-import { trustBadgesSchema, trustBadgesI18nSchema, type TrustBadgesConfig, type TrustBadgesInput } from './schema';
+import type { TrustBadgesConfig, TrustBadgesI18n } from './schema';
+import type { PageType } from '@laxarevii/core';
 import { getLanguage, isHoroshopProductPage } from '@laxarevii/core';
+
+export const pages: PageType[] = ['product'];
 import { ICONS } from './icons';
 
 const ROOT_CLASS = 'wdg-trust';
@@ -8,13 +11,10 @@ const STYLES_ID = 'wdg-trust-styles';
 type I18nEntry = { titles: Record<string, string> };
 
 export default function trustBadges(
-  rawConfig: TrustBadgesInput,
-  rawI18n: Record<string, I18nEntry>,
+  config: TrustBadgesConfig,
+  i18nMap: TrustBadgesI18n,
 ): (() => void) | void {
   if (typeof document === 'undefined') return;
-
-  const config = trustBadgesSchema.parse(rawConfig);
-  const i18nMap = trustBadgesI18nSchema.parse(rawI18n);
 
   if (!config.enabled) {
     console.warn('[widgetality] trust-badges: ⚠️ disabled');

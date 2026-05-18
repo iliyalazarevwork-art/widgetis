@@ -37,10 +37,14 @@ export const prizeBannerI18nSchema = z
 export type PrizeBannerI18nEntry = z.infer<typeof i18nEntrySchema>;
 export type PrizeBannerI18n = z.infer<typeof prizeBannerI18nSchema>;
 
-export function validate(config: unknown, i18n: unknown): void {
-  prizeBannerSchema.parse(config);
-  prizeBannerI18nSchema.parse(i18n);
+export function parse(config: unknown, i18n: unknown): { config: PrizeBannerConfig; i18n: PrizeBannerI18n } {
+  return {
+    config: prizeBannerSchema.parse(config),
+    i18n: prizeBannerI18nSchema.parse(i18n),
+  };
 }
+
+export function validate(config: unknown, i18n: unknown): void { parse(config, i18n); }
 
 export function getJsonSchema() {
   return {

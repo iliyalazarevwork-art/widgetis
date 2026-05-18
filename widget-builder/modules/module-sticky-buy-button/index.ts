@@ -1,21 +1,17 @@
-import {
-  stickyBuyButtonSchema,
-  stickyBuyButtonI18nSchema,
-  type StickyBuyButtonConfig,
-} from './schema';
+import type { StickyBuyButtonConfig, StickyBuyButtonI18n } from './schema';
+import type { PageType } from '@laxarevii/core';
 import { getLanguage, isHoroshopProductPage } from '@laxarevii/core';
+
+export const pages: PageType[] = ['product'];
 
 const WIDGET_ID = 'wdg-sticky-buy';
 const SPACER_ID = 'wdg-sticky-buy-spacer';
 const STYLES_ID = 'wdg-sticky-buy-styles';
 
 export default function stickyBuyButton(
-  rawConfig: unknown,
-  rawI18n: Record<string, unknown>,
+  config: StickyBuyButtonConfig,
+  i18nMap: StickyBuyButtonI18n,
 ): (() => void) | void {
-  const config = stickyBuyButtonSchema.parse(rawConfig);
-  const i18nMap = stickyBuyButtonI18nSchema.parse(rawI18n);
-
   if (!config.enabled) return;
 
   const lang = getLanguage();

@@ -39,10 +39,14 @@ export type CartRecommenderI18n = z.infer<typeof cartRecommenderI18nSchema>;
 
 // ─── Exports ──────────────────────────────────────────────────
 
-export function validate(config: unknown, i18n: unknown): void {
-  cartRecommenderSchema.parse(config);
-  cartRecommenderI18nSchema.parse(i18n);
+export function parse(config: unknown, i18n: unknown): { config: CartRecommenderConfig; i18n: CartRecommenderI18n } {
+  return {
+    config: cartRecommenderSchema.parse(config),
+    i18n: cartRecommenderI18nSchema.parse(i18n),
+  };
 }
+
+export function validate(config: unknown, i18n: unknown): void { parse(config, i18n); }
 
 export function getJsonSchema() {
   return {

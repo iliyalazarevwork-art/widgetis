@@ -1,11 +1,12 @@
 import type { Plugin } from 'vite';
+import type { PageType } from '@laxarevii/core';
 
 const VIRTUAL_MODULE_ID = 'virtual:widgetality-entry';
 const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 
 export type ModuleConfigs = Record<
   string,
-  { config: Record<string, unknown>; i18n: Record<string, unknown> }
+  { config: Record<string, unknown>; i18n: Record<string, unknown>; pages?: PageType[] | 'all' }
 >;
 
 export default function widgetalityPlugin(options: { site: string; modules: ModuleConfigs }): Plugin {
@@ -83,6 +84,9 @@ function generateEntry(modules: ModuleConfigs): string {
   const imports: string[] = [];
   const calls: string[] = [];
 
+  // Only emit the matchesPage import when at least one module has a pages array
+  let needsPageGuard = false;
+
   let idx = 0;
   for (const [moduleName, data] of Object.entries(modules)) {
     if (!data.config.enabled) continue;
@@ -95,6 +99,11 @@ function generateEntry(modules: ModuleConfigs): string {
     imports.push(`import ${safeVar}Config from 'virtual:widgetality-config:${moduleName}:config';`);
     imports.push(`import ${safeVar}I18n from 'virtual:widgetality-config:${moduleName}:i18n';`);
 
+    // Determine page guard for this module
+    const pagesValue = data.pages;
+    const hasPageGuard = Array.isArray(pagesValue) && pagesValue.length > 0;
+    if (hasPageGuard) needsPageGuard = true;
+
     // Per-module init wrapper:
     //   1. Read window.__WIDGETIS_CFG__.modules[slug] (may be missing).
     //   2. Whitelist mode activates only when demo_code is present AND modules
@@ -104,27 +113,49 @@ function generateEntry(modules: ModuleConfigs): string {
     //   4. Otherwise deep-merge config/i18n overrides over the baked-in defaults.
     // When __WIDGETIS_CFG__ is absent or modules is empty, the path collapses
     // to the original baked-in behaviour with no overrides.
-    calls.push(
-      [
+    const innerLines = [
+      `  var __mods${idx} = (typeof window !== "undefined" && window.__WIDGETIS_CFG__ && window.__WIDGETIS_CFG__.modules) ? window.__WIDGETIS_CFG__.modules : null;`,
+      `  var __hasWhitelist${idx} = !!(__mods${idx} && Object.keys(__mods${idx}).length > 0);`,
+      `  var __ov${idx} = __mods${idx} ? __mods${idx}[${slugLit}] : null;`,
+      `  if (__hasWhitelist${idx} && !__ov${idx}) {`,
+      `    console.log('[widgetality] ${moduleName}: skipped — not present in per-session config');`,
+      `  } else if (__ov${idx} && __ov${idx}.is_enabled === false) {`,
+      `    console.log('[widgetality] ${moduleName}: skipped by per-session config');`,
+      '  } else {',
+      `    var __cfg${idx} = (__ov${idx} && __ov${idx}.config) ? __wgtsMergeDeep(${safeVar}Config, __ov${idx}.config) : ${safeVar}Config;`,
+      `    var __i18n${idx} = (__ov${idx} && __ov${idx}.i18n) ? __wgtsMergeDeep(${safeVar}I18n, __ov${idx}.i18n) : ${safeVar}I18n;`,
+      `    var __d${idx} = ${safeVar}(__cfg${idx}, __i18n${idx});`,
+      `    if (typeof __d${idx} === 'function') __destroyers.push(__d${idx});`,
+      '  }',
+    ];
+
+    let callBlock: string[];
+    if (hasPageGuard) {
+      const pagesLit = JSON.stringify(pagesValue);
+      callBlock = [
         'try {',
-        `  var __mods${idx} = (typeof window !== "undefined" && window.__WIDGETIS_CFG__ && window.__WIDGETIS_CFG__.modules) ? window.__WIDGETIS_CFG__.modules : null;`,
-        `  var __hasWhitelist${idx} = !!(__mods${idx} && Object.keys(__mods${idx}).length > 0);`,
-        `  var __ov${idx} = __mods${idx} ? __mods${idx}[${slugLit}] : null;`,
-        `  if (__hasWhitelist${idx} && !__ov${idx}) {`,
-        `    console.log('[widgetality] ${moduleName}: skipped — not present in per-session config');`,
-        `  } else if (__ov${idx} && __ov${idx}.is_enabled === false) {`,
-        `    console.log('[widgetality] ${moduleName}: skipped by per-session config');`,
+        `  if (__wgtsMatchesPage(${pagesLit})) {`,
+        ...innerLines.map((l) => '  ' + l),
         '  } else {',
-        `    var __cfg${idx} = (__ov${idx} && __ov${idx}.config) ? __wgtsMergeDeep(${safeVar}Config, __ov${idx}.config) : ${safeVar}Config;`,
-        `    var __i18n${idx} = (__ov${idx} && __ov${idx}.i18n) ? __wgtsMergeDeep(${safeVar}I18n, __ov${idx}.i18n) : ${safeVar}I18n;`,
-        `    var __d${idx} = ${safeVar}(__cfg${idx}, __i18n${idx});`,
-        `    if (typeof __d${idx} === 'function') __destroyers.push(__d${idx});`,
+        `    console.log('[widgetality] ${moduleName}: skipped — wrong page type');`,
         '  }',
         `} catch (err) { console.error('[widgetality] ${moduleName}: ❌ error:', err); }`,
-      ].join('\n'),
-    );
+      ];
+    } else {
+      callBlock = [
+        'try {',
+        ...innerLines,
+        `} catch (err) { console.error('[widgetality] ${moduleName}: ❌ error:', err); }`,
+      ];
+    }
+
+    calls.push(callBlock.join('\n'));
     idx++;
   }
+
+  const pageGuardImport = needsPageGuard
+    ? ["import { matchesPage as __wgtsMatchesPage } from '@laxarevii/core';"]
+    : [];
 
   const destroyBlock = [
     '',
@@ -135,6 +166,7 @@ function generateEntry(modules: ModuleConfigs): string {
   ];
 
   return [
+    ...pageGuardImport,
     ...imports,
     '',
     MERGE_DEEP_HELPER,

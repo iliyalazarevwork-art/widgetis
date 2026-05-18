@@ -112,7 +112,7 @@ class ScriptBuilderService
 
         Storage::disk('r2')->put($path, $js, [
             'ContentType' => 'application/javascript',
-            'CacheControl' => 'no-cache, no-store, must-revalidate',
+            'CacheControl' => 'public, max-age=300',
         ]);
 
         $publicUrl = rtrim((string) config('services.r2.public_url', 'https://cdn.widgetis.com'), '/');

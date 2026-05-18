@@ -48,10 +48,14 @@ export const deliveryDateI18nSchema = z
 
 export type DeliveryDateI18n = z.infer<typeof deliveryDateI18nSchema>;
 
-export function validate(config: unknown, i18n: unknown): void {
-  deliveryDateSchema.parse(config);
-  deliveryDateI18nSchema.parse(i18n);
+export function parse(config: unknown, i18n: unknown): { config: DeliveryDateConfig; i18n: DeliveryDateI18n } {
+  return {
+    config: deliveryDateSchema.parse(config),
+    i18n: deliveryDateI18nSchema.parse(i18n),
+  };
 }
+
+export function validate(config: unknown, i18n: unknown): void { parse(config, i18n); }
 
 export function getJsonSchema() {
   return {

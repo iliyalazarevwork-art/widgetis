@@ -1,5 +1,8 @@
-import { phoneMaskSchema, phoneMaskI18nSchema, type PhoneMaskInput, type PhoneMaskI18n, type PhoneMaskConfig } from './schema';
+import type { PhoneMaskConfig, PhoneMaskI18n } from './schema';
+import type { PageType } from '@laxarevii/core';
 import { getLanguage } from '@laxarevii/core';
+
+export const pages: PageType[] = ['cart', 'checkout'];
 import { COUNTRIES, getCountry, listCountries, type Country, type CountryNames } from './countries';
 import {
   buildEditingTemplate,
@@ -344,11 +347,9 @@ function attachInstance(input: HTMLInputElement, config: PhoneMaskConfig, i18nMa
 
 const allInstances: Instance[] = [];
 
-export default function phoneMask(rawConfig: PhoneMaskInput, rawI18n: Record<string, I18nEntry>): (() => void) | void {
+export default function phoneMask(config: PhoneMaskConfig, i18n: PhoneMaskI18n): (() => void) | void {
   if (typeof document === 'undefined') return;
 
-  const config = phoneMaskSchema.parse(rawConfig);
-  const i18n = phoneMaskI18nSchema.parse(rawI18n);
   if (!config.enabled) { console.warn('[widgetality] phone-mask: disabled'); return; }
   if (!COUNTRIES[config.defaultCountry]) {
     console.warn(`[widgetality] phone-mask: unknown defaultCountry "${config.defaultCountry}", falling back to UA`);

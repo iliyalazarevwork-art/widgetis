@@ -1,11 +1,8 @@
-import {
-  promoAutoApplySchema,
-  promoAutoApplyI18nSchema,
-  type PromoAutoApplyConfig,
-  type PromoAutoApplyInput,
-  type PromoAutoApplyI18nEntry,
-} from './schema';
+import type { PromoAutoApplyConfig, PromoAutoApplyI18n, PromoAutoApplyI18nEntry } from './schema';
+import type { PageType } from '@laxarevii/core';
 import { getLanguage } from '@laxarevii/core';
+
+export const pages: PageType[] = ['cart', 'checkout'];
 
 const SESSION_APPLIED_PREFIX = 'wty_promo_auto_applied_';
 
@@ -16,13 +13,10 @@ type ActivePrize = {
 };
 
 export default function promoAutoApply(
-  rawConfig: PromoAutoApplyInput,
-  rawI18n: Record<string, PromoAutoApplyI18nEntry>,
+  config: PromoAutoApplyConfig,
+  i18nMap: PromoAutoApplyI18n,
 ): (() => void) | void {
   if (typeof document === 'undefined') return;
-
-  const config = promoAutoApplySchema.parse(rawConfig);
-  const i18nMap = promoAutoApplyI18nSchema.parse(rawI18n);
 
   if (!config.enabled) {
     console.warn('[widgetality] promo-auto-apply: ⚠️ disabled');

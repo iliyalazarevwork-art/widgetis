@@ -1,17 +1,18 @@
-import { deliveryDateSchema, deliveryDateI18nSchema, type DeliveryDateInput, type DeliveryDateI18n } from './schema';
+import type { DeliveryDateConfig, DeliveryDateI18n } from './schema';
+import type { PageType } from '@laxarevii/core';
 import { getLanguage, isHoroshopProductPage } from '@laxarevii/core';
+
+export const pages: PageType[] = ['product'];
 import { injectStyles } from './styles';
 import { createBadge, insertElement, removeExistingBadges } from './dom';
 import { computeDeliveryDate, formatDate } from './date';
 
 export default function deliveryDate(
-  rawConfig: DeliveryDateInput,
-  rawI18n: DeliveryDateI18n,
+  config: DeliveryDateConfig,
+  i18nMap: DeliveryDateI18n,
 ): (() => void) | void {
   if (typeof document === 'undefined') return;
 
-  const config = deliveryDateSchema.parse(rawConfig);
-  const i18nMap = deliveryDateI18nSchema.parse(rawI18n);
   if (!config.enabled) { console.warn('[widgetality] delivery-date: ⚠️ disabled'); return; }
   if (config.selectors.length === 0) { console.warn('[widgetality] delivery-date: ⚠️ no selectors configured — widget skipped'); return; }
   if (!isHoroshopProductPage()) { console.warn('[widgetality] delivery-date: ⚠️ skipped — not a product page'); return; }

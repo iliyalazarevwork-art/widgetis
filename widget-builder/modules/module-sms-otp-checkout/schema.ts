@@ -60,10 +60,14 @@ export const smsOtpCheckoutI18nSchema = z.record(
 export type SmsOtpCheckoutI18n = z.infer<typeof smsOtpCheckoutI18nSchema>;
 export type SmsOtpI18nEntry = SmsOtpCheckoutI18n[string];
 
-export function validate(config: unknown, i18n: unknown): void {
-  smsOtpCheckoutSchema.parse(config);
-  smsOtpCheckoutI18nSchema.parse(i18n);
+export function parse(config: unknown, i18n: unknown): { config: SmsOtpCheckoutConfig; i18n: SmsOtpCheckoutI18n } {
+  return {
+    config: smsOtpCheckoutSchema.parse(config),
+    i18n: smsOtpCheckoutI18nSchema.parse(i18n),
+  };
 }
+
+export function validate(config: unknown, i18n: unknown): void { parse(config, i18n); }
 
 export function getJsonSchema() {
   return {

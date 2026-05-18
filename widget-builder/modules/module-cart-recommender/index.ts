@@ -1,10 +1,8 @@
-import {
-  cartRecommenderSchema,
-  cartRecommenderI18nSchema,
-  type CartRecommenderInput,
-  type CartRecommenderI18n,
-} from './schema';
+import type { CartRecommenderConfig, CartRecommenderI18n } from './schema';
+import type { PageType } from '@laxarevii/core';
 import { getLanguage } from '@laxarevii/core';
+
+export const pages: PageType[] = ['cart'];
 import { buildPopup, animateOut, type Product } from './dom';
 import { scrapeFallbackProducts } from './scrape';
 
@@ -129,12 +127,9 @@ async function fetchHoroshopProductId(productUrl: string): Promise<number | null
 }
 
 export default function cartRecommender(
-  rawConfig: CartRecommenderInput,
-  rawI18n: Record<string, CartRecommenderI18n[string]>,
+  config: CartRecommenderConfig,
+  i18n: CartRecommenderI18n,
 ): (() => void) | void {
-  const config = cartRecommenderSchema.parse(rawConfig);
-  const i18n = cartRecommenderI18nSchema.parse(rawI18n);
-
   console.log(LOG, 'init');
 
   if (!config.enabled) {

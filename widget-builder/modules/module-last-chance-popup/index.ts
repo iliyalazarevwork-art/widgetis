@@ -1,10 +1,8 @@
-import {
-  exitIntentPopupSchema,
-  exitIntentPopupI18nSchema,
-  type ExitIntentPopupConfig,
-  type ExitIntentPopupInput,
-} from './schema';
+import type { ExitIntentPopupConfig, ExitIntentPopupI18n } from './schema';
+import type { PageType } from '@laxarevii/core';
 import { getLanguage } from '@laxarevii/core';
+
+export const pages: PageType[] = ['home', 'category', 'product'];
 
 const ROOT_ID = 'wdg-exit-intent';
 const STYLES_ID = 'wdg-exit-intent-styles';
@@ -25,13 +23,10 @@ type I18nEntry = {
 };
 
 export default function exitIntentPopup(
-  rawConfig: ExitIntentPopupInput,
-  rawI18n: Record<string, I18nEntry>,
+  config: ExitIntentPopupConfig,
+  i18nMap: ExitIntentPopupI18n,
 ): (() => void) | void {
   if (typeof document === 'undefined') return;
-
-  const config = exitIntentPopupSchema.parse(rawConfig);
-  const i18nMap = exitIntentPopupI18nSchema.parse(rawI18n);
 
   if (!config.enabled) {
     console.warn('[widgetality] exit-intent: ⚠️ disabled');

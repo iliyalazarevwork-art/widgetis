@@ -1,10 +1,8 @@
-import {
-  productVideoPreviewSchema,
-  productVideoPreviewI18nSchema,
-  type ProductVideoPreviewInput,
-  type ProductVideoPreviewConfig,
-} from './schema';
+import type { ProductVideoPreviewConfig, ProductVideoPreviewI18n } from './schema';
+import type { PageType } from '@laxarevii/core';
 import { getLanguage } from '@laxarevii/core';
+
+export const pages: PageType[] = ['product'];
 import interact from 'interactjs';
 
 const STYLE_ID = 'hs-product-video-preview-styles';
@@ -982,13 +980,11 @@ function ensureObservers(settings: ResolvedSettings): void {
 // --- Entry point ---
 
 export default function productVideoPreview(
-  rawConfig: ProductVideoPreviewInput,
-  rawI18n: Record<string, { tooltipText: string; actionButtonText: string; sizeGuideText: string; closeLabel: string }>,
+  config: ProductVideoPreviewConfig,
+  i18nMap: ProductVideoPreviewI18n,
 ): (() => void) | void {
   if (typeof document === 'undefined') return;
 
-  const config = productVideoPreviewSchema.parse(rawConfig);
-  const i18nMap = productVideoPreviewI18nSchema.parse(rawI18n);
   if (!config.enabled) { console.warn('[widgetality] product-video-preview: ⚠️ disabled'); return; }
   console.log('[widgetality] product-video-preview: ✅ activated');
 

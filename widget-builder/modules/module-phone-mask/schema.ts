@@ -56,6 +56,13 @@ export const phoneMaskI18nSchema = z
 
 export type PhoneMaskI18n = z.infer<typeof phoneMaskI18nSchema>;
 
+export function parse(config: unknown, i18n: unknown): { config: PhoneMaskConfig; i18n: PhoneMaskI18n } {
+  return {
+    config: phoneMaskSchema.parse(config),
+    i18n: phoneMaskI18nSchema.parse(i18n),
+  };
+}
+
 export function getJsonSchema() {
   return {
     config: zodToJsonSchema(phoneMaskSchema, 'PhoneMaskConfig'),

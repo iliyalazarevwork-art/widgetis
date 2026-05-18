@@ -1,13 +1,14 @@
-import {
-  spinTheWheelSchema,
-  spinTheWheelI18nSchema,
-  type SpinTheWheelConfig,
-  type SpinTheWheelI18nEntry,
-  type SpinTheWheelInput,
-  type SpinSegment,
+import type {
+  SpinTheWheelConfig,
+  SpinTheWheelI18n,
+  SpinTheWheelI18nEntry,
+  SpinSegment,
 } from './schema';
+import type { PageType } from '@laxarevii/core';
 import { ICONS, centeredIconSvg, pickContrastColor, type IconType } from './icons';
 import { getLanguage } from '@laxarevii/core';
+
+export const pages: PageType[] = ['home', 'category', 'product'];
 // @ts-ignore — lucky-canvas ships TypeScript declarations but the import path needs ts-ignore
 import { LuckyWheel } from 'lucky-canvas';
 
@@ -46,13 +47,10 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // ---------------------------------------------------------------------------
 
 export default function spinTheWheel(
-  rawConfig: SpinTheWheelInput,
-  rawI18n: Record<string, SpinTheWheelI18nEntry>,
+  config: SpinTheWheelConfig,
+  i18nMap: SpinTheWheelI18n,
 ): (() => void) | void {
   if (typeof document === 'undefined') return;
-
-  const config = spinTheWheelSchema.parse(rawConfig);
-  const i18nMap = spinTheWheelI18nSchema.parse(rawI18n);
 
   if (!config.enabled) {
     console.warn('[widgetality] spin-the-wheel: ⚠️ disabled');

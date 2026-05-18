@@ -1,18 +1,19 @@
-import { socialProofSchema, socialProofI18nSchema, type SocialProofInput } from './schema';
+import type { SocialProofConfig, SocialProofI18n } from './schema';
+import type { PageType } from '@laxarevii/core';
 import { getLanguage, isHoroshopProductPage } from '@laxarevii/core';
+
+export const pages: PageType[] = ['product'];
 import { injectStyles } from './styles';
 import { createBadge, insertElement, removeExisting, updateCount } from './dom';
 import { calculateRange, pickInitialCount, pickNextTarget, nextInterval } from './generator';
 import { loadState, saveState, type ProofState } from './state';
 
 export default function socialProof(
-  rawConfig: SocialProofInput,
-  rawI18n: Record<string, { label: string }>,
+  config: SocialProofConfig,
+  i18nMap: SocialProofI18n,
 ): (() => void) | void {
   if (typeof document === 'undefined') return;
 
-  const config = socialProofSchema.parse(rawConfig);
-  const i18nMap = socialProofI18nSchema.parse(rawI18n);
   if (!config.enabled) { console.warn('[widgetality] social-proof: ⚠️ disabled'); return; }
   if (config.selectors.length === 0) { console.warn('[widgetality] social-proof: ⚠️ no selectors configured — widget skipped'); return; }
   if (!isHoroshopProductPage()) { console.warn('[widgetality] social-proof: ⚠️ skipped — not a product page'); return; }

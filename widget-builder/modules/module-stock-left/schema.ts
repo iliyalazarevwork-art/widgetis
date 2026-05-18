@@ -52,10 +52,14 @@ export const stockLeftI18nSchema = z
 
 export type StockLeftI18n = z.infer<typeof stockLeftI18nSchema>;
 
-export function validate(config: unknown, i18n: unknown): void {
-  stockLeftSchema.parse(config);
-  stockLeftI18nSchema.parse(i18n);
+export function parse(config: unknown, i18n: unknown): { config: StockLeftConfig; i18n: StockLeftI18n } {
+  return {
+    config: stockLeftSchema.parse(config),
+    i18n: stockLeftI18nSchema.parse(i18n),
+  };
 }
+
+export function validate(config: unknown, i18n: unknown): void { parse(config, i18n); }
 
 export function getJsonSchema() {
   return {

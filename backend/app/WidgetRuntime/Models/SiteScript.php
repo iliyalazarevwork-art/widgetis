@@ -62,7 +62,15 @@ class SiteScript extends Model
             return null;
         }
 
-        return sprintf('<script src="%s" async></script>', $url);
+        $origin = parse_url($url, PHP_URL_SCHEME) . '://' . parse_url($url, PHP_URL_HOST);
+
+        return sprintf(
+            '<link rel="dns-prefetch" href="%1$s">'
+            . '<link rel="preconnect" href="%1$s" crossorigin>'
+            . '<script src="%2$s" defer></script>',
+            $origin,
+            $url,
+        );
     }
 
     public function getScriptUrlAttribute(): ?string

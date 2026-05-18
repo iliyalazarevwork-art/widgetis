@@ -39,6 +39,13 @@ export const minOrderI18nSchema = z
 
 export type MinOrderI18n = z.infer<typeof minOrderI18nSchema>;
 
+export function parse(config: unknown, i18n: unknown): { config: MinOrderConfig; i18n: MinOrderI18n } {
+  return {
+    config: minOrderSchema.parse(config),
+    i18n: minOrderI18nSchema.parse(i18n),
+  };
+}
+
 export function getJsonSchema() {
   return {
     config: zodToJsonSchema(minOrderSchema, 'MinOrderConfig'),

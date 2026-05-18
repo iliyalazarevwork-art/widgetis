@@ -38,10 +38,14 @@ export const promoAutoApplyI18nSchema = z
 export type PromoAutoApplyI18nEntry = z.infer<typeof i18nEntrySchema>;
 export type PromoAutoApplyI18n = z.infer<typeof promoAutoApplyI18nSchema>;
 
-export function validate(config: unknown, i18n: unknown): void {
-  promoAutoApplySchema.parse(config);
-  promoAutoApplyI18nSchema.parse(i18n);
+export function parse(config: unknown, i18n: unknown): { config: PromoAutoApplyConfig; i18n: PromoAutoApplyI18n } {
+  return {
+    config: promoAutoApplySchema.parse(config),
+    i18n: promoAutoApplyI18nSchema.parse(i18n),
+  };
 }
+
+export function validate(config: unknown, i18n: unknown): void { parse(config, i18n); }
 
 export function getJsonSchema() {
   return {

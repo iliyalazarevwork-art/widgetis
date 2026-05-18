@@ -1,10 +1,8 @@
-import {
-  smsOtpCheckoutSchema,
-  smsOtpCheckoutI18nSchema,
-  type SmsOtpCheckoutConfig,
-  type SmsOtpI18nEntry,
-} from './schema';
+import type { SmsOtpCheckoutConfig, SmsOtpCheckoutI18n, SmsOtpI18nEntry } from './schema';
+import type { PageType } from '@laxarevii/core';
 import { getLanguage } from '@laxarevii/core';
+
+export const pages: PageType[] = ['checkout'];
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
@@ -544,20 +542,10 @@ function buildVerifiedView(i18n: SmsOtpI18nEntry): HTMLElement {
 // ─── Main widget ─────────────────────────────────────────────────────────────
 
 export default function smsOtpCheckout(
-  rawConfig: unknown,
-  rawI18n: Record<string, unknown>,
+  config: SmsOtpCheckoutConfig,
+  i18nMap: SmsOtpCheckoutI18n,
 ): (() => void) | void {
   if (typeof document === 'undefined') return;
-
-  let config: SmsOtpCheckoutConfig;
-  let i18nMap: ReturnType<typeof smsOtpCheckoutI18nSchema.parse>;
-  try {
-    config = smsOtpCheckoutSchema.parse(rawConfig);
-    i18nMap = smsOtpCheckoutI18nSchema.parse(rawI18n);
-  } catch (err) {
-    warn('invalid config or i18n, widget disabled', err);
-    return;
-  }
 
   if (!config.enabled) {
     log('disabled via config');

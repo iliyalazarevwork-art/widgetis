@@ -32,6 +32,7 @@ export const trustBadgesSchema = z.object({
   /** Куда вставлять полосу — несколько селекторов, до первого попадания */
   selectors: z.array(selectorSchema).default([
     { selector: '.product-card__order--normal', insert: 'after' },
+    { selector: '.j-buy-button-add', insert: 'after' },
     { selector: '.cart-buttons--full', insert: 'after' },
     { selector: '.cart-buttons', insert: 'after' },
     { selector: '.product-card__price-box', insert: 'after' },
@@ -67,10 +68,14 @@ export const trustBadgesI18nSchema = z
 
 export type TrustBadgesI18n = z.infer<typeof trustBadgesI18nSchema>;
 
-export function validate(config: unknown, i18n: unknown): void {
-  trustBadgesSchema.parse(config);
-  trustBadgesI18nSchema.parse(i18n);
+export function parse(config: unknown, i18n: unknown): { config: TrustBadgesConfig; i18n: TrustBadgesI18n } {
+  return {
+    config: trustBadgesSchema.parse(config),
+    i18n: trustBadgesI18nSchema.parse(i18n),
+  };
 }
+
+export function validate(config: unknown, i18n: unknown): void { parse(config, i18n); }
 
 export function getJsonSchema() {
   return {

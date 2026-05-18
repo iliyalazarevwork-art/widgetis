@@ -3,7 +3,7 @@
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import progressiveDiscount from './index';
-import { progressiveDiscountSchema, getDefaultI18n } from './schema';
+import { progressiveDiscountSchema, getDefaultConfig, getDefaultI18n } from './schema';
 
 describe('module-progressive-discount', () => {
   beforeEach(() => {
@@ -23,7 +23,7 @@ describe('module-progressive-discount', () => {
   });
 
   it('does nothing when cart is empty (no banner)', () => {
-    const dispose = progressiveDiscount({}, getDefaultI18n());
+    const dispose = progressiveDiscount(getDefaultConfig(), getDefaultI18n());
     expect(document.getElementById('pd-banner')).toBeNull();
     if (typeof dispose === 'function') dispose();
   });
@@ -49,7 +49,7 @@ describe('module-progressive-discount', () => {
     const submitClick = vi.fn();
     document.querySelector<HTMLElement>('.j-coupon-submit')!.addEventListener('click', submitClick);
 
-    const dispose = progressiveDiscount({}, getDefaultI18n());
+    const dispose = progressiveDiscount(getDefaultConfig(), getDefaultI18n());
 
     return new Promise<void>((resolve) => {
       setTimeout(() => {
@@ -86,7 +86,7 @@ describe('module-progressive-discount', () => {
       }),
     };
 
-    const dispose = progressiveDiscount({}, getDefaultI18n());
+    const dispose = progressiveDiscount(getDefaultConfig(), getDefaultI18n());
 
     return new Promise<void>((resolve) => {
       setTimeout(() => {

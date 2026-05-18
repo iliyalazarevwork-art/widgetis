@@ -55,10 +55,14 @@ export const exitIntentPopupI18nSchema = z
 
 export type ExitIntentPopupI18n = z.infer<typeof exitIntentPopupI18nSchema>;
 
-export function validate(config: unknown, i18n: unknown): void {
-  exitIntentPopupSchema.parse(config);
-  exitIntentPopupI18nSchema.parse(i18n);
+export function parse(config: unknown, i18n: unknown): { config: ExitIntentPopupConfig; i18n: ExitIntentPopupI18n } {
+  return {
+    config: exitIntentPopupSchema.parse(config),
+    i18n: exitIntentPopupI18nSchema.parse(i18n),
+  };
 }
+
+export function validate(config: unknown, i18n: unknown): void { parse(config, i18n); }
 
 export function getJsonSchema() {
   return {

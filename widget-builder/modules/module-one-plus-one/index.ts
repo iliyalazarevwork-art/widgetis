@@ -1,5 +1,8 @@
-import { onePlusOneSchema, onePlusOneI18nSchema, type OnePlusOneInput, type OnePlusOneI18n } from './schema';
+import type { OnePlusOneConfig, OnePlusOneI18n } from './schema';
+import type { PageType } from '@laxarevii/core';
 import { getLanguage } from '@laxarevii/core';
+
+export const pages: PageType[] = ['product', 'cart'];
 import { getAjaxCart, getCartProducts, type AjaxCartInstance, type CartProduct } from './cart';
 
 const LOG = '[widgetality] 1+1=3:';
@@ -40,12 +43,9 @@ type Op =
 // ─── Main ───────────────────────────────────────────────────
 
 export default function onePlusOne(
-  rawConfig: OnePlusOneInput,
-  rawI18n: Record<string, OnePlusOneI18n[string]>,
+  config: OnePlusOneConfig,
+  i18n: OnePlusOneI18n,
 ): (() => void) | void {
-  const config = onePlusOneSchema.parse(rawConfig);
-  const i18n = onePlusOneI18nSchema.parse(rawI18n);
-
   if (!config.enabled || !config.apiUrl) return;
 
   const lang = getLanguage();

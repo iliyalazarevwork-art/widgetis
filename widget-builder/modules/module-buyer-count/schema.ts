@@ -37,10 +37,14 @@ export const socialProofI18nSchema = z
 
 export type SocialProofI18n = z.infer<typeof socialProofI18nSchema>;
 
-export function validate(config: unknown, i18n: unknown): void {
-  socialProofSchema.parse(config);
-  socialProofI18nSchema.parse(i18n);
+export function parse(config: unknown, i18n: unknown): { config: SocialProofConfig; i18n: SocialProofI18n } {
+  return {
+    config: socialProofSchema.parse(config),
+    i18n: socialProofI18nSchema.parse(i18n),
+  };
 }
+
+export function validate(config: unknown, i18n: unknown): void { parse(config, i18n); }
 
 export function getJsonSchema() {
   return {

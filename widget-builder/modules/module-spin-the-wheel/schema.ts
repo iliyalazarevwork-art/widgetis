@@ -128,10 +128,14 @@ export type SpinTheWheelI18n = z.infer<typeof spinTheWheelI18nSchema>;
 // Helpers
 // ---------------------------------------------------------------------------
 
-export function validate(config: unknown, i18n: unknown): void {
-  spinTheWheelSchema.parse(config);
-  spinTheWheelI18nSchema.parse(i18n);
+export function parse(config: unknown, i18n: unknown): { config: SpinTheWheelConfig; i18n: SpinTheWheelI18n } {
+  return {
+    config: spinTheWheelSchema.parse(config),
+    i18n: spinTheWheelI18nSchema.parse(i18n),
+  };
 }
+
+export function validate(config: unknown, i18n: unknown): void { parse(config, i18n); }
 
 export function getJsonSchema() {
   return {
@@ -163,6 +167,9 @@ export function getDefaultI18n(): SpinTheWheelI18n {
       closeLabel: 'Закрити',
       errorEmptyEmail: 'Будь ласка, введіть e-mail',
       errorInvalidEmail: 'Перевірте формат e-mail',
+      tabLabel: 'Промокод',
+      tabAriaLabel: 'Відкрити колесо фортуни',
+      tabCloseAriaLabel: 'Сховати на цій сесії',
     },
     ru: {
       title: 'Крутите колесо и выиграйте!',
@@ -181,6 +188,9 @@ export function getDefaultI18n(): SpinTheWheelI18n {
       closeLabel: 'Закрыть',
       errorEmptyEmail: 'Пожалуйста, введите e-mail',
       errorInvalidEmail: 'Проверьте формат e-mail',
+      tabLabel: 'Промокод',
+      tabAriaLabel: 'Открыть колесо фортуны',
+      tabCloseAriaLabel: 'Скрыть на этой сессии',
     },
     en: {
       title: 'Spin the wheel and win!',
@@ -199,6 +209,9 @@ export function getDefaultI18n(): SpinTheWheelI18n {
       closeLabel: 'Close',
       errorEmptyEmail: 'Please enter your email',
       errorInvalidEmail: 'Please enter a valid email',
+      tabLabel: 'Promo code',
+      tabAriaLabel: 'Open spin the wheel',
+      tabCloseAriaLabel: 'Hide for this session',
     },
   };
 }

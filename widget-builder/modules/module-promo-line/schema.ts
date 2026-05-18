@@ -46,10 +46,14 @@ export const marqueeI18nSchema = z.record(z.string(), z.array(z.string()).min(1)
 
 export type MarqueeI18n = z.infer<typeof marqueeI18nSchema>;
 
-export function validate(config: unknown, i18n: unknown): void {
-  marqueeSchema.parse(config);
-  marqueeI18nSchema.parse(i18n);
+export function parse(config: unknown, i18n: unknown): { config: MarqueeConfig; i18n: MarqueeI18n } {
+  return {
+    config: marqueeSchema.parse(config),
+    i18n: marqueeI18nSchema.parse(i18n),
+  };
 }
+
+export function validate(config: unknown, i18n: unknown): void { parse(config, i18n); }
 
 export function getJsonSchema() {
   return {

@@ -77,10 +77,14 @@ export const photoReviewsI18nSchema = z
 
 export type PhotoReviewsI18n = z.infer<typeof photoReviewsI18nSchema>;
 
-export function validate(config: unknown, i18n: unknown): void {
-  photoReviewsSchema.parse(config);
-  photoReviewsI18nSchema.parse(i18n);
+export function parse(config: unknown, i18n: unknown): { config: PhotoReviewsConfig; i18n: PhotoReviewsI18n } {
+  return {
+    config: photoReviewsSchema.parse(config),
+    i18n: photoReviewsI18nSchema.parse(i18n),
+  };
 }
+
+export function validate(config: unknown, i18n: unknown): void { parse(config, i18n); }
 
 export function getJsonSchema() {
   return {

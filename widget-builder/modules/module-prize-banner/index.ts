@@ -1,11 +1,8 @@
-import {
-  prizeBannerSchema,
-  prizeBannerI18nSchema,
-  type PrizeBannerConfig,
-  type PrizeBannerInput,
-  type PrizeBannerI18nEntry,
-} from './schema';
+import type { PrizeBannerConfig, PrizeBannerI18n, PrizeBannerI18nEntry } from './schema';
+import type { PageType } from '@laxarevii/core';
 import { getLanguage } from '@laxarevii/core';
+
+export const pages: PageType[] = ['home', 'category', 'product'];
 
 const HOST_ID = 'wdg-prize-banner-host';
 const SESSION_DISMISS_KEY = 'wty_prize_banner_dismissed_session';
@@ -20,13 +17,10 @@ type ActivePrize = {
 };
 
 export default function prizeBanner(
-  rawConfig: PrizeBannerInput,
-  rawI18n: Record<string, PrizeBannerI18nEntry>,
+  config: PrizeBannerConfig,
+  i18nMap: PrizeBannerI18n,
 ): (() => void) | void {
   if (typeof document === 'undefined') return;
-
-  const config = prizeBannerSchema.parse(rawConfig);
-  const i18nMap = prizeBannerI18nSchema.parse(rawI18n);
 
   if (!config.enabled) {
     console.warn('[widgetality] prize-banner: ⚠️ disabled');

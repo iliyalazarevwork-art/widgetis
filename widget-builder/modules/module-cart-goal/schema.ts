@@ -42,6 +42,13 @@ export const cartGoalI18nSchema = z
 
 export type CartGoalI18n = z.infer<typeof cartGoalI18nSchema>;
 
+export function parse(config: unknown, i18n: unknown): { config: CartGoalConfig; i18n: CartGoalI18n } {
+  return {
+    config: cartGoalSchema.parse(config),
+    i18n: cartGoalI18nSchema.parse(i18n),
+  };
+}
+
 export function getJsonSchema() {
   return {
     config: zodToJsonSchema(cartGoalSchema, 'CartGoalConfig'),

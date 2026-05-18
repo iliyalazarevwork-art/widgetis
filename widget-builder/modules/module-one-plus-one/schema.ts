@@ -21,10 +21,14 @@ export const onePlusOneI18nSchema = z.record(z.string(), z.object({
 
 export type OnePlusOneI18n = z.infer<typeof onePlusOneI18nSchema>;
 
-export function validate(config: unknown, i18n: unknown): void {
-  onePlusOneSchema.parse(config);
-  onePlusOneI18nSchema.parse(i18n);
+export function parse(config: unknown, i18n: unknown): { config: OnePlusOneConfig; i18n: OnePlusOneI18n } {
+  return {
+    config: onePlusOneSchema.parse(config),
+    i18n: onePlusOneI18nSchema.parse(i18n),
+  };
 }
+
+export function validate(config: unknown, i18n: unknown): void { parse(config, i18n); }
 
 export function getJsonSchema() {
   return {
