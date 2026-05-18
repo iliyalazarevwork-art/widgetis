@@ -1,7 +1,7 @@
 (function(){
 try{
-var BID="1779134916329";
-var BUILT="2026-05-18T20:08:47.602Z";
+var BID="1779135368454";
+var BUILT="2026-05-18T20:16:20.959Z";
 var BASE="/wgts-chunks";
 var detect=function(doc){
     var og=(doc.querySelector('meta[property="og:type"]')||{}).content;

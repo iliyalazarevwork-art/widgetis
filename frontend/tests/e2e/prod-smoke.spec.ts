@@ -61,7 +61,12 @@ async function assertPageOk(page: Page, path: string, requiredSelector?: string)
     }
   })
 
-  const response = await page.goto(path, { waitUntil: 'networkidle' })
+  // `load` (not `networkidle`) because prod pages have persistent background
+  // traffic — analytics beacons, chat widgets, etc. — that never let the
+  // network fall silent for 500 ms, so `networkidle` hits the 30 s timeout.
+  // `load` fires once HTML + sync assets are in; React mount is verified by
+  // the `#root` non-empty assertion below.
+  const response = await page.goto(path, { waitUntil: 'load' })
   expect(response?.status(), `${path} returned ${response?.status()}`).toBeLessThan(400)
 
   // React must have mounted *something* — root div should not be empty.
