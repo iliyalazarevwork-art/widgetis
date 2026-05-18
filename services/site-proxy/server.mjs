@@ -526,25 +526,14 @@ function injectDemoBundle(html, demoCfg) {
     escapeForInlineScript(JSON.stringify(demoCfg))
   };</script>`;
 
-  // Wrap in load + double-rAF so the bundle runs only after:
-  //   1. The page and all site scripts have fully loaded
-  //   2. The browser has completed at least one paint cycle
-  // This guarantees getBoundingClientRect() returns real dimensions (not 0)
-  // when the bundle mounts and measures the marquee element.
+  // Inline the loader as early as possible — it runs synchronously, detects
+  // page type, then injects <script src="/wgts-chunks/{type}.js" async>.
+  // Each chunk's own IIFE is wrapped in addEventListener('load', …) inside
+  // buildModules (widget-builder/index.ts), so the heavy widget code still
+  // waits for window.load — only the lightweight page-type probe happens early.
   const tag = `${cfgScript}<script data-widgetis-demo>
-console.log('[wgts] script tag executed');
-window.addEventListener('load', function(){
-  console.log('[wgts] load fired');
-  requestAnimationFrame(function(){
-    requestAnimationFrame(function(){
-      var byId = document.getElementById('header');
-      var byClass = document.querySelector('.header');
-      console.log('[wgts] #header =', byId ? 'ЕСТb: ' + byId.tagName + '#' + byId.id : 'НЕТ');
-      console.log('[wgts] .header =', byClass ? 'ЕСТb: ' + byClass.tagName + '.' + byClass.className : 'НЕТ');
-      ${safe}
-    });
-  });
-});
+console.log('[wgts] loader script tag executed');
+${safe}
 </script>`;
   return html + tag;
 }

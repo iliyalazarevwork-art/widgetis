@@ -54,7 +54,7 @@ export default function smartSearch(
   const i18nMap = smartSearchI18nSchema.parse(rawI18n);
 
   if (!config.enabled) {
-    console.warn('[widgetality] smart-search: ⚠️ disabled');
+    console.warn('[widgetis] smart-search: ⚠️ disabled');
     return;
   }
 
@@ -73,7 +73,7 @@ export default function smartSearch(
 
   const apiLang = resolveApiLang(detectedLang);
 
-  console.log('[widgetality] smart-search: ✅ activated');
+  console.log('[widgetis] smart-search: ✅ activated');
 
   injectStyles(config.accentColor, config.theme);
 

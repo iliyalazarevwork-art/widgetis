@@ -13,7 +13,7 @@
  */
 import phoneMask from './index';
 
-const LOG = '[widgetality] phone-mask (demo):';
+const LOG = '[widgetis] phone-mask (demo):';
 const GEOIP_HINTS = ['ipapi.co', 'ipinfo.io', 'geoip', '/country', 'ip-api.com'];
 
 function looksLikeGeoip(url: string, configuredUrl: string | undefined): boolean {

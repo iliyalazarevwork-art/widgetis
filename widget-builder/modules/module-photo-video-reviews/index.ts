@@ -2,7 +2,7 @@ import type { PhotoReviewsConfig, PhotoReviewsI18n } from './schema';
 import type { PageType } from '@laxarevii/core';
 import { getLanguage } from '@laxarevii/core';
 
-export const pages: PageType[] = ['product'];
+export const pages: PageType[] = ['home', 'product'];
 import GLightbox from 'glightbox';
 import glightboxCss from 'glightbox/dist/css/glightbox.min.css?inline';
 import { startUpload, type UploadSettings } from './upload';
@@ -513,7 +513,7 @@ export default function photoReviews(
   if (typeof document === 'undefined') return;
 
   if (!config.enabled) {
-    console.warn('[widgetality] photo-reviews: ⚠️ disabled');
+    console.warn('[widgetis] photo-reviews: ⚠️ disabled');
     return;
   }
 
@@ -529,7 +529,7 @@ export default function photoReviews(
     stopUpload = startUpload(resolvedSettings as UploadSettings);
   }
 
-  console.log('[widgetality] photo-reviews: ✅ activated');
+  console.log('[widgetis] photo-reviews: ✅ activated');
 
   settings = resolvedSettings;
   matchedMedia.clear();

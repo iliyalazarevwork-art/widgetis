@@ -2,11 +2,11 @@ import type { CartRecommenderConfig, CartRecommenderI18n } from './schema';
 import type { PageType } from '@laxarevii/core';
 import { getLanguage } from '@laxarevii/core';
 
-export const pages: PageType[] = ['cart'];
+export const pages: PageType[] = ['home', 'category', 'product', 'cart', 'checkout'];
 import { buildPopup, animateOut, type Product } from './dom';
 import { scrapeFallbackProducts } from './scrape';
 
-const LOG = '[widgetality] cart-recommender:';
+const LOG = '[widgetis] cart-recommender:';
 
 interface AjaxCartAppendProduct {
   (

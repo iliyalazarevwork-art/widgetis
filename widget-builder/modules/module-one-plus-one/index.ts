@@ -2,10 +2,10 @@ import type { OnePlusOneConfig, OnePlusOneI18n } from './schema';
 import type { PageType } from '@laxarevii/core';
 import { getLanguage } from '@laxarevii/core';
 
-export const pages: PageType[] = ['product', 'cart'];
+export const pages: PageType[] = ['home', 'category', 'product', 'cart'];
 import { getAjaxCart, getCartProducts, type AjaxCartInstance, type CartProduct } from './cart';
 
-const LOG = '[widgetality] 1+1=3:';
+const LOG = '[widgetis] 1+1=3:';
 
 // ─── Types ──────────────────────────────────────────────────
 

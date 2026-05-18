@@ -23,11 +23,11 @@ export default function prizeBanner(
   if (typeof document === 'undefined') return;
 
   if (!config.enabled) {
-    console.warn('[widgetality] prize-banner: ⚠️ disabled');
+    console.warn('[widgetis] prize-banner: ⚠️ disabled');
     return;
   }
 
-  console.log('[widgetality] prize-banner: ✅ activated');
+  console.log('[widgetis] prize-banner: ✅ activated');
 
   const lang = getLanguage();
   const i18n = i18nMap[lang] ?? i18nMap.ua ?? i18nMap.ru ?? Object.values(i18nMap)[0]!;

@@ -1,0 +1,3782 @@
+<!DOCTYPE html>
+<html
+    prefix="og: https://ogp.me/ns#"
+    lang="uk"
+>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Купити рюкзаки, чоловічі сумки, ремені та ділові папки | SUPERSUMKA</title>
+<meta name="robots" content="all">
+<meta name="description" content="SUPERSUMKA — інтернет-магазин рюкзаків, чоловічих сумок, ременів, валіз та ділових папок. Реальні фото товарів, швидка відправка зі складу та доставка по Україні.">
+<link rel="canonical" href="https://supersumka.net/">
+<link rel="alternate" hreflang="uk" href="https://supersumka.net/">
+<link rel="alternate" hreflang="ru" href="https://supersumka.net/ru/">
+<meta property="og:locale" content="ua_UA">
+<meta property="og:site_name" content="Supersumka - Сумки, валізи та рюкзаки">
+<meta property="og:title" content="Головна">
+<meta property="og:url" content="https://supersumka.net/">
+<meta property="og:description" content="">
+<meta property="og:image" content="https://supersumka.net/content/images/2/1500x1000l90nn0/96927355089440.jpg">
+<meta property="og:type" content="website">
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org/",
+    "@type": "WebSite",
+    "url": "https://supersumka.net/",
+    "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://supersumka.net/kataloh/search/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+    }
+}
+</script>
+    <meta name="author" content="Horoshop">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel='preload' as='image' href='/content/images/28/1440x576e90nn0/98877725824087.jpg' imagesrcset='/content/images/28/360x144e90nn0/98877725824087.jpg 360w, /content/images/28/480x192e90nn0/98877725824087.jpg 480w, /content/images/28/720x288e90nn0/98877725824087.jpg 720w, /content/images/28/960x384e90nn0/98877725824087.jpg 960w' imagesizes='100vw'>    <meta name="format-detection" content="telephone=no">
+                <!-- Chrome, Firefox OS, Opera -->
+        <meta name="theme-color" content="rgb(13,13,13)">
+        <link rel="shortcut icon" href="/assets/favicon.ico" type="image/x-icon">
+    <link rel="manifest" href="/manifest.json">
+    
+<script>
+(function (w) {
+    w.GLOBAL = {
+        SYSTEM_LANGUAGE: 3,
+        FIRST_LANGUAGE: 3,
+        DOMAIN: "supersumka.net",
+        SITE_NAME: "SUPERSUMKA",
+        URI_PREFIX: "/",
+        URI_SUFFIX: "/",
+        theme: "horoshop_mobile",
+        currency: {"id":"1","i18n_language":"0","title":"UAH","abbr":" грн","position":"2","sortorder":"1","iso":"UAH","abbr_penny":"коп.","enabled_in_front":"1","sign":"₴"},
+        round_to: "0",
+        isGuest: true,
+        USER_ID: null,
+        open_cart_on_add: true,
+        cart_animation: false,
+        phone_mask: "+38 (099) 999-99-99",
+        use_countries: false,
+        enable_phone_mask_on_input: true,
+        marketingEvents: {"cart_creation":[function (model, eventId) {
+            try {
+                var products = model.Cart.products,
+    ids = [],
+    totalPrice = model.Cart.total.sum;
+
+for (key in products) {
+    ids.push(products[key].article + '');
+}
+
+gtag('event', 'Создание корзины', {
+    'event_category'  : 'Корзина',
+    'event_label'     : 'GLOBAL.DOMAIN',
+    'ecomm_prodid'    : ids,
+    'ecomm_pagetype'  : 'cart',
+    'ecomm_totalvalue': totalPrice
+});
+            } catch(e) {
+                console.error(e);
+            }
+        }],"cart_product_add":[function (model, eventId) {
+            try {
+                (function () {
+    var products = null;
+    
+    fbq('track', 'AddToCart', {
+            contents: [
+                {
+                    'id': model.article,
+                    'quantity': model.quantity * 1,
+                    'item_price': model.price * 1
+                }
+            ],
+            content_type: 'product',
+            currency: GLOBAL.currency.iso,
+            value: model.quantity * model.price 
+        },
+        {eventID: eventId}
+   );
+})();
+            } catch(e) {
+                console.error(e);
+            }
+        },function (model, eventId) {
+            try {
+                dataLayer.push({ ecommerce: null });
+dataLayer.push({
+    "event": "add_to_cart",
+    "ecommerce": {
+        "items": [
+            {
+                "item_id": model.article + "",
+                "item_name": model.title + " (артикул: " + model.article_for_display + ")",
+                "price": model.price * 1,
+                "currency": GLOBAL.currency.iso,
+                "quantity": model.quantity
+            }
+        ]
+    }
+});
+            } catch(e) {
+                console.error(e);
+            }
+        },function (model, eventId) {
+            try {
+                var products = model.Cart.products,
+    ids = [],
+    totalPrice = model.Cart.total.sum;
+
+for (key in products) {
+    ids.push(products[key].article + '');
+}
+
+gtag('event', 'add_to_cart', {
+    'currency': GLOBAL.currency.iso,
+    'value': totalPrice,
+    'items': [
+        {
+            'item_id': model.article + '',
+            'item_name': model.title,
+            'quantity': model.quantity * 1,
+            'price': model.price * 1
+        }
+    ],
+    'ecomm_prodid': ids,
+    'ecomm_pagetype': 'cart',
+    'ecomm_totalvalue': totalPrice
+});
+            } catch(e) {
+                console.error(e);
+            }
+        }],"cart_product_update":[],"cart_product_remove":[function (model, eventId) {
+            try {
+                dataLayer.push({ ecommerce: null });
+dataLayer.push({
+    "event": "remove_from_cart",
+    "ecommerce": {
+        "items": [
+            {
+                "item_id": model.article + "",
+                "item_name": model.title + " (артикул: " + model.article_for_display + ")",
+                "price": model.price * 1,
+                "currency": GLOBAL.currency.iso,
+                "quantity": model.quantity
+            }
+        ]
+    }
+});
+            } catch(e) {
+                console.error(e);
+            }
+        },function (model, eventId) {
+            try {
+                var products = model.Cart.products,
+    ids = [],
+    totalPrice = model.Cart.total.sum;
+
+for (key in products) {
+    ids.push(products[key].article + '');
+}
+
+gtag('event', 'remove_from_cart', {
+    'currency': GLOBAL.currency.iso,
+    'value': totalPrice,
+    'items': [
+        {
+            'item_id': model.article + '',
+            'item_name': model.title,
+            'quantity': model.quantity * 1,
+            'price': model.price * 1
+        }
+    ],
+    'ecomm_prodid': ids,
+    'ecomm_pagetype': 'cart',
+    'ecomm_totalvalue': totalPrice
+});
+            } catch(e) {
+                console.error(e);
+            }
+        }],"quick_search":[],"checkout_success":[function (order_id, cart, name, email, phone, eventId) {
+            try {
+                var products = cart.products, contents = [];
+
+for (var i = 0, l = products.length; i < l; ++i) {
+    var product = products[i];
+    contents.push({
+        'id': product.article,
+        'quantity': product.quantity * 1,
+        'item_price': product.price * 1
+    });
+}
+
+fbq('track', 'Purchase', {
+    contents: contents,
+    content_type: 'product',
+    value: cart.total.total.sum,
+    currency: GLOBAL.currency.iso},
+    {eventID: eventId}
+);
+            } catch(e) {
+                console.error(e);
+            }
+        },function (order_id, cart, name, email, phone, eventId) {
+            try {
+                var products = cart.products;
+var dataLayerProducts = [];
+
+for (var i = 0, l = products.length; i < l; ++i) {
+    var product = products[i];
+    dataLayerProducts.push({
+      "item_id": product.article + "",
+      "item_name": product.title + " (артикул: " + product.article_for_display + ")",
+      "price": product.price * 1,
+      "quantity": product.quantity * 1
+    });
+};
+dataLayer.push({ ecommerce: null });
+dataLayer.push({
+    "event": "purchase",
+    "ecommerce": {
+        "transaction_id" : order_id,
+        "value" : cart.total.total.sum,
+        "currency": GLOBAL.currency.iso,
+        "coupon" : cart.total.coupon_data.code,
+        "items": dataLayerProducts
+    }
+});
+            } catch(e) {
+                console.error(e);
+            }
+        },function (order_id, cart, name, email, phone, eventId) {
+            try {
+                var items = [],
+    products = cart.products,
+    ids = [];
+
+for (var i = 0, l = products.length; i < l; ++i) {
+    var product = products[i];
+
+    items.push({
+        'item_id': product.article,
+        'item_name': product.title + ' (артикул: ' + product.article_for_display + ')',
+        'quantity': product.quantity * 1,
+        'price': product.price * 1
+    });
+
+    ids.push(product.article);
+}
+
+gtag('event', 'purchase', {
+    'transaction_id': order_id,
+    'affiliation': GLOBAL.SITE_NAME,
+    'value': cart.total.total.sum,
+    'currency': GLOBAL.currency.iso,
+    'tax': 0,
+    'shipping': cart.delivery_price,
+    'coupon': cart.total.coupon_data.code,
+    'items': items,
+    'ecomm_prodid': ids,
+    'ecomm_pagetype': 'purchase',
+    'ecomm_totalvalue': cart.total.total.sum
+});
+            } catch(e) {
+                console.error(e);
+            }
+        }],"newsletter_subscription":[function (model, eventId) {
+            try {
+                fbq('track', 'Lead');
+            } catch(e) {
+                console.error(e);
+            }
+        },function (model, eventId) {
+            try {
+                gtag('event', 'Подписка на рассылку', {
+        'event_category': 'Рассылка',
+        'event_label'   : 'GLOBAL.DOMAIN'
+    });
+            } catch(e) {
+                console.error(e);
+            }
+        }],"callback_submit":[function (model, eventId) {
+            try {
+                fbq('track', 'Lead', {}, {eventID: eventId});
+            } catch(e) {
+                console.error(e);
+            }
+        },function (model, eventId) {
+            try {
+                gtag('event', 'Запрос обратного звонка', {
+        'event_category': 'Обратный звонок',
+        'event_label'   : 'GLOBAL.DOMAIN'
+    });
+            } catch(e) {
+                console.error(e);
+            }
+        },function (model, eventId) {
+            try {
+                dataLayer.push({'event': 'callbackRequest'})
+            } catch(e) {
+                console.error(e);
+            }
+        }],"registration_success":[function (model, eventId) {
+            try {
+                fbq('track', 'CompleteRegistration', {}, {eventID: eventId});
+            } catch(e) {
+                console.error(e);
+            }
+        }],"authorization_success":[],"ajax_page_view":[function (model, eventId) {
+            try {
+                gtag('config', 'G-PY04FKE0JL', {
+  'page_path': model
+});
+            } catch(e) {
+                console.error(e);
+            }
+        }],"add_to_wishlist":[function (model, eventId) {
+            try {
+                fbq('track', 'AddToWishlist', {
+content_ids: [model.article],
+content_type: 'product',
+currency: GLOBAL.currency.iso,
+value: model.price
+},
+{eventID: eventId}
+);
+            } catch(e) {
+                console.error(e);
+            }
+        }],"hover_phones":[function (model, eventId) {
+            try {
+                gtag('event', 'hover_phones');
+            } catch(e) {
+                console.error(e);
+            }
+        }],"call_phones":[function (model, eventId) {
+            try {
+                gtag('event', 'call_phones');
+            } catch(e) {
+                console.error(e);
+            }
+        }]},
+        content_copy_protection: false,
+        GLOBAL_CSRF_TOKEN: '7ab94149df4ba372c471927a2fff2276de912083',
+        isMobile: true    };
+    w.dataLayer = w.dataLayer || [];
+})(window);
+</script><link href='/assets/mobile/production/styles.7c5a591ab6c8ae26d3252cce65aab847.css' type='text/css' rel='stylesheet'>
+<link href='/assets/mobile/production/client.31d6cfe0d16ae931b73c59d7e0c089c0.css' type='text/css' rel='stylesheet'>
+    <script src="/globals.js/?version=f4e5eec83318e9de79a2a4a4063246dd"></script>
+<script src='/assets/cache/horoshop_mobile_head.js?1770375281'></script>
+    <script>
+  (function (window, document) {
+    'use strict';
+
+    const file = '/frontend/themes/horoshop_mobile/layout/img/icons-default.svg';
+    const revision = 'a1dd66388efee478feca551760db426a';
+    const isLocalStorage = 'localStorage' in window && window['localStorage'] !== null;
+
+    let cachedData;
+
+    const insertSVG = () => {
+      const template = document.createElement('template');
+      template.innerHTML = cachedData;
+      document.body.prepend(template.content.firstChild);
+    };
+
+    const insert = () => {
+      if (document.body) {
+        insertSVG();
+      } else {
+        document.addEventListener('DOMContentLoaded', insertSVG);
+      }
+    };
+
+    const updateCache = (svgData) => {
+      if (isLocalStorage) {
+        localStorage.setItem('inlineSVGdata', svgData);
+        localStorage.setItem('inlineSVGrev', revision);
+      }
+    };
+
+    const loadSVG = async () => {
+      try {
+        const response = await fetch(file);
+        if (!response.ok) {
+          console.error('Error loading SVG:', response.status);
+          if (cachedData) insert();
+
+          return;
+        }
+        
+        const serverData = await response.text();
+        
+        if (cachedData !== serverData) {
+          cachedData = serverData;
+          insert();
+          updateCache(cachedData);
+        } else {
+          insert();
+        }
+      } catch (error) {
+        console.error('Error loading SVG:', error);
+        if (cachedData) insert();
+        
+        return;
+      }
+    };
+
+    const init = async () => {
+      if (isLocalStorage) {
+        const cachedRev = localStorage.getItem('inlineSVGrev');
+        if (cachedRev === revision) {
+          cachedData = localStorage.getItem('inlineSVGdata');
+          insert();
+          
+          return;
+        }
+      }
+      
+      await loadSVG();
+    };
+
+    if (document.body) {
+      init();
+    } else {
+      document.addEventListener('DOMContentLoaded', init);
+    }
+
+  }(window, document));
+</script>    <!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-THZ89HVW');</script>
+<!-- End Google Tag Manager --><!-- Facebook Pixel Code -->
+<script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.agent='plhoroshop';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,"script",
+  "https://connect.facebook.net/en_US/fbevents.js");
+  fbq('init', "1180029173335770");
+  fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=1180029173335770&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Facebook Pixel Code --><!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src='https://www.googletagmanager.com/gtag/js?id=G-PY04FKE0JL'></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-PY04FKE0JL');
+ gtag('config', 'AW-16486521437');
+</script>    <meta name="facebook-domain-verification" content="c0r6j90x3xdm9mqof5dt05n1i0oy8s" /></head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-THZ89HVW"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) --><div class="session-messages" id="j-sm" style="display:none;"></div>
+<div class="notifications__container" id="notifications"></div>
+<header class="header" id="header">
+    <div class="header__left">
+                                    <div class="header__button">
+    <a href="#menu" data-panel="" class="btn btn--block btn--clear">
+                <span class="btn__icon">
+                  <svg class="icon icon--menu">
+                      <use xlink:href="#icon-menu"></use>
+                  </svg>
+                </span>
+    </a>
+</div>                            <div class="header__logo">
+                    <img alt='Supersumka - Сумки, валізи та рюкзаки'  class='header__logo-img' width='66' height='44' src='/content/images/2/66x44l90nn0/91785126649971.jpg'  srcset="/content/images/2/66x44l90nn0/91785126649971.jpg 1x, /content/images/2/132x88l90nn0/91785126649971.jpg 2x">            </div>                        </div>
+    <div class="header__center">
+            </div>
+    <div class="header__right">
+                                    <div class="header__button">
+    <a
+        href="#search-results"
+        data-button-action="search-toggle"
+        class="btn btn--clear btn--icon"
+    >
+        <span class="btn__icon">
+            <svg class="icon icon--search">
+                <use xlink:href="#icon-search"></use>
+            </svg>
+        </span>
+    </a>
+</div>
+<div class="search search--closed">
+    <div class="search__toggle">
+        <div class="btn btn--clear btn--icon">
+            <span class="btn__icon">
+                <svg class="icon icon--search">
+                    <use xlink:href="#icon-search"></use>
+                </svg>
+            </span>
+        </div>
+    </div>
+    <div class="search__bar">
+        <div class="search__inner">
+            <div class="search__field">
+                <form method="get" data-action="/kataloh/search/">
+                    <button type="submit" style="position: absolute; height: 0; width: 0;"></button>
+                    <div class="form-item form-item--search">
+                        <div class="form-item__content">
+                            <input
+                                id="search-input"
+                                type="text"
+                                placeholder="пошук в каталозі"
+                                value=""
+                                tabindex="-1"
+                                class="input input--clear"
+                                name="q"
+                                autocomplete="off"
+                                maxlength="100"
+                            >
+                        </div>
+                        <div class="form-item__button form-item__button--right">
+                            <button
+                                data-button-action="search-clear"
+                                class="btn btn--clear btn--icon"
+                            >
+                                <span class="btn__icon">
+                                    <svg class="icon icon--cross">
+                                        <use xlink:href="#icon-cross"></use>
+                                    </svg>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+    <div class="search-results">
+        <div class="search-results__body">
+            <div class="search-results__blocker" data-button-action="search-close"></div>
+            <div class="loading-bar j-quick-search-loader" style="display: none"></div>
+            <div class="search-results__content" id="search-results"></div>
+        </div>
+    </div>                            <div class="header__button header__button--favorites">
+    <a 
+    href="/profile/favorites/"
+    class="btn btn--block btn--clear  is-disabled j-favorite-link"
+>
+    <span class="btn__icon">
+        <svg class="icon icon--favorites">
+            <use xlink:href="#icon-favorites"></use>
+        </svg>
+    </span>
+</a>
+<div class="header__count-badge j-favorite-count is-hidden">0</div>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const link = document.querySelector('.j-favorite-link');
+      const count = document.querySelector('.j-favorite-count');
+
+      w.FavoritesList.attachEventHandlers({
+        onChange: function () {
+          if (Number(this.count) === 0) {
+            link.classList.add('is-disabled');
+            count.classList.add('is-hidden');
+          } else {
+            link.classList.remove('is-disabled');
+            count.classList.remove('is-hidden');
+          }
+          count.innerHTML = String(this.count);
+        }
+      });
+    }, w.ComparisonList);
+  })(window);
+</script></div>                            <div
+    class="header__button header__button--cart"
+    data-widget="mini_cart"
+    data-skin="mobile"
+    data-icon="cart"
+>
+    <a href="#cart-drawer" data-panel="" class="btn btn--block btn--clear">
+        <span class="btn__text j-mini-cart-total">
+            </span>
+        <span class="btn__icon">
+            <svg class="icon icon--cart">
+                <use xlink:href="#icon-cart"></use>
+            </svg>
+        </span>
+    </a>
+    <div
+        class="header__count-badge j-mini-cart-quantity"
+        style="display: none;">0    </div>
+</div><div id="cart-drawer" class="cart">
+    <div class="cart__block mm-panel">
+        <div class="cart__header mm-navbar">
+            <button data-panel-close class="btn btn--clear btn--icon mm-btn mm-prev">
+                <svg class="icon"><use xlink:href="#icon-arrow-left"></use></svg>
+            </button>
+            <div class="cart__title mm-title">Кошик</div>
+        </div>
+        <div class="cart__body mm-body j-cart-body">
+            <div class="mm-viewport">
+                <div class="mm-wrapper">
+                    <div
+    id="cart"
+    class="cart__container"
+>
+            <div class="cart__content">
+            <div class="empty-list">
+                <div class="empty-list__icon">
+                    <svg class="icon"><use xlink:href="#icon-cart"></use></svg>
+                </div>
+                <div class="empty-list__text">
+                    Немає товарів                </div>
+            </div>
+            <button class="btn btn--block" data-panel-close>
+                <span class="btn__icon">
+                    <svg class="icon icon--arrow-left">
+                         <use xlink:href="#icon-arrow-left"></use>
+                    </svg>
+                </span>
+                <span class="btn__text">Повернутись до покупок</span>
+            </button>
+        </div>
+    </div>
+    <script>
+      (function(w) {
+        w.INIT.add(function() {
+          var ajaxCart = w.AjaxCart.getInstance();
+
+          ajaxCart.remove_product_on_zero = true;
+          ajaxCart.skin = "mobile";
+          w.initCartEvents();
+          w.initMarketingCartEvents();
+        }, w.AjaxCart);
+      })(window);
+    </script>                </div>
+            </div>
+        </div>
+    </div>
+</div>
+                        </div>
+</header>
+<div id="page" class="page">
+    <div class="page__loader loading-bar j-loader-main"></div>
+    <!-- Main-->
+    <main class="main">
+                    <div class="catalog-navigation wrapper">
+    <button
+        class="btn btn--catalog-nav btn--block"
+        data-panel="catalog-navigation"
+    >
+        <span class="btn__icon">
+            <svg class="icon icon--catalog"><use xlink:href="#icon-catalog"></use></svg>
+        </span>
+        <span class="btn__text">Каталог товарів</span>
+    </button>
+</div>
+<div id="catalog-navigation">
+    <div class="mm-panel">
+        <div class="mm-navbar">
+            <div class="mm-title">Каталог</div>
+            <button class="btn btn--clear btn--icon mm-btn" data-panel-close>
+                <span class="icon">
+                    <svg class="icon icon--close">
+                        <use xlink:href="#icon-close"></use>
+                    </svg>
+                </span>
+            </button>
+        </div>
+        <div class="mm-body">
+            <div class="mm-viewport">
+                <div
+                class="menu__section menu__section--catalog"
+                data-panel-content
+            >
+                                    <ul
+            class="main-nav main-nav--catalog-with-icon"
+            data-menu-content
+            data-panel-content
+        >
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <div class="main-nav__link" data-href="/riukzaky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Рюкзаки' title=''  class='image__src lazyload' src=''  data-src="/content/images/48/33x36l80nn0/46614217751151.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/48/33x36l80nn0/46614217751151.jpg 32w,
+                    /content/images/48/274x300l85nn0/46614217751151.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Рюкзаки                        </div>
+                        <ul
+            class="main-nav main-nav--catalog-with-icon"
+            data-menu-content
+            data-panel-content
+        >
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/riukzaky-sportyvni-miski/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Рюкзаки спортивні, міські                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/dytiachi-riukzaky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Дитячі рюкзаки' title=''  class='image__src lazyload' src=''  data-src="/content/images/6/33x40l80nn0/27635790116908.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/6/33x40l80nn0/27635790116908.jpg 32w,
+                    /content/images/6/247x300l85nn0/27635790116908.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Дитячі рюкзаки                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/turystychni-riukzaky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Туристичні Рюкзаки' title=''  class='image__src lazyload' src=''  data-src="/content/images/12/33x45l80nn0/97531012619873.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/12/33x45l80nn0/97531012619873.jpg 32w,
+                    /content/images/12/219x300l85nn0/97531012619873.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Туристичні Рюкзаки                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/taktychni-viiskovi-riukzaky-sumky-pidsumky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Тактичні, військові рюкзаки, сумки, підсумки' title=''  class='image__src lazyload' src=''  data-src="/content/images/48/29x46l80nn0/83124518008892.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/48/29x46l80nn0/83124518008892.jpg 32w,
+                    /content/images/48/188x300l85nn0/83124518008892.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Тактичні, військові рюкзаки, сумки, підсумки                        </a>
+                                    </li>
+                    </ul>                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <div class="main-nav__link" data-href="/sumky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Сумки' title=''  class='image__src lazyload' src=''  data-src="/content/images/38/33x38l80nn0/69644013813576.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/38/33x38l80nn0/69644013813576.jpg 32w,
+                    /content/images/38/263x300l85nn0/69644013813576.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Сумки                        </div>
+                        <ul
+            class="main-nav main-nav--catalog-with-icon"
+            data-menu-content
+            data-panel-content
+        >
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <div class="main-nav__link" data-href="/sumky-cholovichi/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Сумки чоловічі' title=''  class='image__src lazyload' src=''  data-src="/content/images/38/33x27l80nn0/55232909380260.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/38/33x27l80nn0/55232909380260.jpg 32w,
+                    /content/images/38/300x250l85nn0/55232909380260.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Сумки чоловічі                        </div>
+                        <ul
+            class="main-nav main-nav--catalog-with-icon"
+            data-menu-content
+            data-panel-content
+        >
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/povsiakdenni-cholovichi-sumky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Повсякденні чоловічі сумки                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/portfeli-cholovichi/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Портфелі чоловічі' title=''  class='image__src lazyload' src=''  data-src="/content/images/21/33x37l80nn0/54696266473957.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/21/33x37l80nn0/54696266473957.jpg 32w,
+                    /content/images/21/268x300l85nn0/54696266473957.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Портфелі чоловічі                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <div class="main-nav__link" data-href="/papky-dilovi/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Папки ділові                        </div>
+                        <ul
+            class="main-nav main-nav--catalog-with-icon"
+            data-menu-content
+            data-panel-content
+        >
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/papky-dlia-dokumentiv-a4/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Папки для документів A4                        </a>
+                                    </li>
+                    </ul>                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/klatchi/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Клатчі                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/barsetky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Барсетки                        </a>
+                                    </li>
+                    </ul>                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <div class="main-nav__link" data-href="/zhinochi-sumky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Жіночі сумки' title=''  class='image__src lazyload' src=''  data-src="/content/images/47/33x35l80nn0/91711459908799.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/47/33x35l80nn0/91711459908799.jpg 32w,
+                    /content/images/47/284x300l85nn0/91711459908799.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Жіночі сумки                        </div>
+                        <ul
+            class="main-nav main-nav--catalog-with-icon"
+            data-menu-content
+            data-panel-content
+        >
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/povsiakdenni-zhinochi-sumky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Повсякденні жіночі сумки                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/dilovi-zhinochi-sumky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Ділові жіночі сумки                        </a>
+                                    </li>
+                    </ul>                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/sumky-dorozhni-sportyvni/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Сумки дорожні, спортивні' title=''  class='image__src lazyload' src=''  data-src="/content/images/18/33x26l80nn0/47735481892588.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/18/33x26l80nn0/47735481892588.jpg 32w,
+                    /content/images/18/300x233l85nn0/47735481892588.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Сумки дорожні, спортивні                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/sumky-dytiachi/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Сумки дитячі                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/sumky-dlia-tsyfrovoho-obladnannia/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Сумки для цифрового обладнання' title=''  class='image__src lazyload' src=''  data-src="/content/images/20/33x37l80nn0/15186492642308.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/20/33x37l80nn0/15186492642308.jpg 32w,
+                    /content/images/20/270x300l85nn0/15186492642308.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Сумки для цифрового обладнання                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/sumky-na-poias/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Сумки на пояс                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/velosumky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Велосумки                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/termosumky-lanch-boksy/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Термосумки, ланч-бокси' title=''  class='image__src lazyload' src=''  data-src="/content/images/5/33x33l80nn0/77585926217706.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/5/33x33l80nn0/77585926217706.jpg 32w,
+                    /content/images/5/300x300l85nn0/77585926217706.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Термосумки, ланч-бокси                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/dorozhni-kosmetychky-biuti-keisy-orhanaizery-nesessery/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Дорожні косметички, б&#039;юті кейси, органайзери, несессери' title=''  class='image__src lazyload' src=''  data-src="/content/images/48/33x33l80nn0/98666572695875.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/48/33x33l80nn0/98666572695875.jpg 32w,
+                    /content/images/48/300x297l85nn0/98666572695875.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Дорожні косметички, б'юті кейси, органайзери, несессери                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/dlia-tvaryn/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Сумки для тварин, переноски                        </a>
+                                    </li>
+                    </ul>                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <div class="main-nav__link" data-href="/na-kolesakh-sumky-valizy/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='На колесах: сумки та валізи' title=''  class='image__src lazyload' src=''  data-src="/content/images/9/33x41l80nn0/90268021208119.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/9/33x41l80nn0/90268021208119.jpg 32w,
+                    /content/images/9/240x300l85nn0/90268021208119.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        На колесах: сумки та валізи                        </div>
+                        <ul
+            class="main-nav main-nav--catalog-with-icon"
+            data-menu-content
+            data-panel-content
+        >
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/valizy/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Валізи' title=''  class='image__src lazyload' src=''  data-src="/content/images/14/33x22l80nn0/22418993536684.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/14/33x22l80nn0/22418993536684.jpg 32w,
+                    /content/images/14/300x200l85nn0/22418993536684.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Валізи                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/sumky-na-kolesakh/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Сумки на колесах' title=''  class='image__src lazyload' src=''  data-src="/content/images/10/33x25l80nn0/80034918382468.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/10/33x25l80nn0/80034918382468.jpg 32w,
+                    /content/images/10/300x223l85nn0/80034918382468.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Сумки на колесах                        </a>
+                                    </li>
+                    </ul>                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <div class="main-nav__link" data-href="/aksesuary/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Аксесуари' title=''  class='image__src lazyload' src=''  data-src="/content/images/7/33x26l80nn0/13340457354648.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/7/33x26l80nn0/13340457354648.jpg 32w,
+                    /content/images/7/300x240l85nn0/13340457354648.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Аксесуари                        </div>
+                        <ul
+            class="main-nav main-nav--catalog-with-icon"
+            data-menu-content
+            data-panel-content
+        >
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <div class="main-nav__link" data-href="/remeni-poiasy/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Ремені, пояси' title=''  class='image__src lazyload' src=''  data-src="/content/images/7/33x21l80nn0/76173376418494.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/7/33x21l80nn0/76173376418494.jpg 32w,
+                    /content/images/7/300x190l85nn0/76173376418494.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Ремені, пояси                        </div>
+                        <ul
+            class="main-nav main-nav--catalog-with-icon"
+            data-menu-content
+            data-panel-content
+        >
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/remeni-cholovichi/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Ремені чоловічі                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/remeni-zhinochi/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Ремені жіночі                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/pidtiazhky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Підтяжки                        </a>
+                                    </li>
+                    </ul>                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/hamantsi-portmone/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Гаманці, портмоне' title=''  class='image__src lazyload' src=''  data-src="/content/images/20/33x39l80nn0/93711458087869.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/20/33x39l80nn0/93711458087869.jpg 32w,
+                    /content/images/20/254x300l85nn0/93711458087869.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Гаманці, портмоне                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/statuetky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Статуетки                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/bizhuteriia/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Біжутерія                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/obkladynky-dlia-dokumentiv/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Обкладинки для документів                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/remintsi-dlia-hodynnykiv/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Ремінці для годинників' title=''  class='image__src lazyload' src=''  data-src="/content/images/15/33x16l80nn0/48792685872185.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/15/33x16l80nn0/48792685872185.jpg 32w,
+                    /content/images/15/300x148l85nn0/48792685872185.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Ремінці для годинників                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/kliuchnytsi/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Ключниці' title=''  class='image__src lazyload' src=''  data-src="/content/images/21/33x26l80nn0/74853509168357.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/21/33x26l80nn0/74853509168357.jpg 32w,
+                    /content/images/21/300x240l85nn0/74853509168357.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Ключниці                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/parasoli-cholovichi-zhinochi/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Парасолі чоловічі, жіночі' title=''  class='image__src lazyload' src=''  data-src="/content/images/19/33x33l80nn0/17212564393606.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/19/33x33l80nn0/17212564393606.jpg 32w,
+                    /content/images/19/298x300l85nn0/17212564393606.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Парасолі чоловічі, жіночі                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/avtopiatky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Автоп'ятки                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/futliary-dlia-okuliariv/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Футляри для окулярів                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/sharfy/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Шарфи' title=''  class='image__src lazyload' src=''  data-src="/content/images/34/33x23l80nn0/87121089849440.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/34/33x23l80nn0/87121089849440.jpg 32w,
+                    /content/images/34/300x213l85nn0/87121089849440.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Шарфи                        </a>
+                                    </li>
+                    </ul>                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <div class="main-nav__link" data-href="/tovary-dlia-turyzmu-ta-domu/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Товари для туризму та дому' title=''  class='image__src lazyload' src=''  data-src="/content/images/14/33x26l80nn0/97703350159000.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/14/33x26l80nn0/97703350159000.jpg 32w,
+                    /content/images/14/300x238l85nn0/97703350159000.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Товари для туризму та дому                        </div>
+                        <ul
+            class="main-nav main-nav--catalog-with-icon"
+            data-menu-content
+            data-panel-content
+        >
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/likhtari/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Ліхтарі' title=''  class='image__src lazyload' src=''  data-src="/content/images/15/33x38l80nn0/61766327228144.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/15/33x38l80nn0/61766327228144.jpg 32w,
+                    /content/images/15/260x300l85nn0/61766327228144.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Ліхтарі                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/spalni-mishky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Спальні мішки' title=''  class='image__src lazyload' src=''  data-src="/content/images/16/33x34l80nn0/88029499915809.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/16/33x34l80nn0/88029499915809.jpg 32w,
+                    /content/images/16/295x300l85nn0/88029499915809.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Спальні мішки                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/hermomishky-doshchovyky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Гермомішки, дощовики                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/aksesuary-dlia-vidpochynku-ta-sportu/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Аксесуари для відпочинку та спорту                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/kylymky-v-sanvuzol/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Килимки в санвузол                        </a>
+                                    </li>
+                    </ul>                                    </li>
+                    </ul>                            </div>            </div>
+        </div>
+    </div>
+</div>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      const menuId = 'catalog-navigation';
+      w.App.mmenu.initPanel(menuId, {
+        navbar: {
+          showTitle: true,
+          titleLink: 'anchor'
+        },
+        offCanvas: {
+          position: 'bottom',
+          zposition: 'front',
+        }
+      });
+      w.App.mmenu.bindFirstOpenEvent(menuId, function () {
+        w.App.MenuExpander.batchCreate([
+          '#' + menuId + ' .j-catalog-inner-nav',
+          '#' + menuId + ' .j-catalog-nav'
+        ]);
+        w.App.SlideToggle.create('#' + menuId + ' .j-toggle-menu');
+      });
+    }, w.App && w.App.mmenu);
+  })(window);
+</script>
+    <section class="categories">
+        <div class="categories__wrap">
+                        <div class="carousel">
+                <div class="carousel__wrapper">
+                                            <div class="carousel__item">
+                            <div class="catalog-card catalog-card--xsmall catalog-card--category">
+                                <a href="/riukzaky/" class="catalog-card__link link link--touch">
+                                    <div class="catalog-card__image">
+                                        <div class="image">
+                                            <div class="image__box">
+                                                                                                                                                        <img alt='Рюкзаки' title=''  class='image__src lazyload' src=''  data-src="/content/images/48/274x300l85nn0/46614217751151.jpg"
+                                                        sizes="(min-width: 680px) 160px, calc(26vw - 16px)"
+                                                        data-srcset="/content/images/48/274x300l85nn0/46614217751151.jpg 274w,
+                                                    /content/images/48/328x360l85nn0/46614217751151.jpg 328w,
+                                                    /content/images/48/365x400l80nn0/46614217751151.jpg 365w"
+                                                        >                                                                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="catalog-card__title"><span class="link">Рюкзаки</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                                            <div class="carousel__item">
+                            <div class="catalog-card catalog-card--xsmall catalog-card--category">
+                                <a href="/sumky/" class="catalog-card__link link link--touch">
+                                    <div class="catalog-card__image">
+                                        <div class="image">
+                                            <div class="image__box">
+                                                                                                                                                        <img alt='Сумки' title=''  class='image__src lazyload' src=''  data-src="/content/images/38/263x300l85nn0/69644013813576.jpg"
+                                                        sizes="(min-width: 680px) 160px, calc(26vw - 16px)"
+                                                        data-srcset="/content/images/38/263x300l85nn0/69644013813576.jpg 263w,
+                                                    /content/images/38/316x360l85nn0/69644013813576.jpg 316w,
+                                                    /content/images/38/351x400l80nn0/69644013813576.jpg 351w"
+                                                        >                                                                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="catalog-card__title"><span class="link">Сумки</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                                            <div class="carousel__item">
+                            <div class="catalog-card catalog-card--xsmall catalog-card--category">
+                                <a href="/na-kolesakh-sumky-valizy/" class="catalog-card__link link link--touch">
+                                    <div class="catalog-card__image">
+                                        <div class="image">
+                                            <div class="image__box">
+                                                                                                                                                        <img alt='На колесах: сумки та валізи' title=''  class='image__src lazyload' src=''  data-src="/content/images/9/240x300l85nn0/90268021208119.jpg"
+                                                        sizes="(min-width: 680px) 160px, calc(26vw - 16px)"
+                                                        data-srcset="/content/images/9/240x300l85nn0/90268021208119.jpg 240w,
+                                                    /content/images/9/288x360l85nn0/90268021208119.jpg 288w,
+                                                    /content/images/9/320x400l80nn0/90268021208119.jpg 320w"
+                                                        >                                                                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="catalog-card__title"><span class="link">На колесах: сумки та валізи</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                                            <div class="carousel__item">
+                            <div class="catalog-card catalog-card--xsmall catalog-card--category">
+                                <a href="/aksesuary/" class="catalog-card__link link link--touch">
+                                    <div class="catalog-card__image">
+                                        <div class="image">
+                                            <div class="image__box">
+                                                                                                                                                        <img alt='Аксесуари' title=''  class='image__src lazyload' src=''  data-src="/content/images/7/300x240l85nn0/13340457354648.jpg"
+                                                        sizes="(min-width: 680px) 160px, calc(26vw - 16px)"
+                                                        data-srcset="/content/images/7/300x240l85nn0/13340457354648.jpg 300w,
+                                                    /content/images/7/360x288l85nn0/13340457354648.jpg 360w,
+                                                    /content/images/7/400x320l80nn0/13340457354648.jpg 400w"
+                                                        >                                                                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="catalog-card__title"><span class="link">Аксесуари</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                                            <div class="carousel__item">
+                            <div class="catalog-card catalog-card--xsmall catalog-card--category">
+                                <a href="/tovary-dlia-turyzmu-ta-domu/" class="catalog-card__link link link--touch">
+                                    <div class="catalog-card__image">
+                                        <div class="image">
+                                            <div class="image__box">
+                                                                                                                                                        <img alt='Товари для туризму та дому' title=''  class='image__src lazyload' src=''  data-src="/content/images/14/300x238l85nn0/97703350159000.jpg"
+                                                        sizes="(min-width: 680px) 160px, calc(26vw - 16px)"
+                                                        data-srcset="/content/images/14/300x238l85nn0/97703350159000.jpg 300w,
+                                                    /content/images/14/360x286l85nn0/97703350159000.jpg 360w,
+                                                    /content/images/14/400x318l80nn0/97703350159000.jpg 400w"
+                                                        >                                                                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="catalog-card__title"><span class="link">Товари для туризму та дому</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                                    </div>
+            </div>
+        </div>
+    </section>        <!-- Storefront-->
+    <section class="storefront" id="special_offers_homepage-showcase-mobile-4">
+        <div class="storefront__wrap">
+            <div class="tabs">
+                                    <div class="tabs__nav">
+                        <div class="tabs__nav-wrap">
+                                                                                                                                                                                                                                <a href="#special_offers_homepage-showcase-mobile-4" class="tabs__item j-special-offers-tab is-active" rel="hits">
+                                    <span class="tabs__item-text">Хіти</span></a>
+                                                                                                                                                            <a href="#special_offers_homepage-showcase-mobile-4" class="tabs__item j-special-offers-tab" rel="novelties">
+                                    <span class="tabs__item-text">Новинки</span></a>
+                                                    </div>
+                    </div>
+                                <div class="tabs__body j-special-offers-content">
+                    <div class="tabs__content">
+    <div class="carousel">
+        <div class="carousel__wrapper">
+                            <div class="carousel__item">
+                    <div class="catalog-card catalog-card--promo">
+        <div class="catalog-card__view">
+            <a href='/p902635408-papka-delovaya-ruchkoj.html/' class="catalog-card__image link link--touch">
+                <div class="image">
+                    <div class="image__box">
+                                                    <img alt='Папка ділова з ручкою зі шкірозамінника JPB Польща AK-07N чорна AK-07N фото' title='Папка ділова з ручкою зі шкірозамінника JPB Польща AK-07N чорна AK-07N фото'  class='image__src lazyload' width='160' height='128' src='/content/images/48/160x128l80nn0/52314642786279.jpg'  
+    sizes="(min-width: 480px) 160px, calc(40vw - 16px)"
+    srcset="/content/images/48/160x128l80nn0/52314642786279.jpg 160w,
+/content/images/48/356x285l85nn0/52314642786279.jpg 356w,
+/content/images/48/536x428l50nn0/52314642786279.jpg 536w"
+    >                                            </div>
+                </div>
+                                                                </a>
+                            <div class="product-sticker product-sticker--bookmark j-product-stickers">
+                    <div
+            class="product-sticker__item product-sticker__item--new"
+                        style="color: #3da5ca"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Новинка                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>                    <div
+            class="product-sticker__item product-sticker__item--popular"
+                        style="color: #7baf35"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Хіт                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>            </div>                    </div>
+        <div class="catalog-card__content">
+            <div class="catalog-card__title">
+                <a
+                    href='/p902635408-papka-delovaya-ruchkoj.html/'                    class="link"
+                >
+                    Папка ділова з ручкою зі шкірозамінника JPB Польща AK-07N чорна                </a>
+            </div>
+            <div class="catalog-card__prices">
+                    <div class="catalog-card__price">
+                2 395 грн            </div>
+                    </div>            <div class="catalog-card__purchase">
+        <div class="catalog-card__buy-button">
+            <a
+            href="javascript:void(0);"
+            id="j-buy-button-widget-897"
+            class="j-buy-button-add btn btn--small btn--primary btn--block"
+            data-skin="catalog_mobile"
+            data-gift="0"
+            data-cartProductType="product"
+        >Купити</a>        </div>
+    </div>        </div>
+    </div>                </div>
+                            <div class="carousel__item">
+                    <div class="catalog-card catalog-card--promo">
+        <div class="catalog-card__view">
+            <a href='/p1703483646-ryukzak-turisticheskij-vozmozhnostyu.html/' class="catalog-card__image link link--touch">
+                <div class="image">
+                    <div class="image__box">
+                                                    <img alt='Рюкзак туристичний із можливістю збільшення 40L Caslon S9802 чорний із синім S9802 black blue фото' title='Рюкзак туристичний із можливістю збільшення 40L Caslon S9802 чорний із синім S9802 black blue фото'  class='image__src lazyload' width='94' height='160' src='/content/images/22/94x160l80nn0/68237534948222.jpg'  
+    sizes="(min-width: 480px) 160px, calc(40vw - 16px)"
+    srcset="/content/images/22/94x160l80nn0/68237534948222.jpg 94w,
+/content/images/22/210x356l85nn0/68237534948222.jpg 210w,
+/content/images/22/316x536l50nn0/68237534948222.jpg 316w"
+    >                                            </div>
+                </div>
+                                                                </a>
+                            <div class="product-sticker product-sticker--bookmark j-product-stickers">
+                    <div
+            class="product-sticker__item product-sticker__item--popular"
+                        style="color: #7baf35"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Хіт                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>            </div>                    </div>
+        <div class="catalog-card__content">
+            <div class="catalog-card__title">
+                <a
+                    href='/p1703483646-ryukzak-turisticheskij-vozmozhnostyu.html/'                    class="link"
+                >
+                    Рюкзак туристичний із можливістю збільшення 40L Caslon S9802 чорний із синім                </a>
+            </div>
+            <div class="catalog-card__prices">
+                    <div class="catalog-card__price">
+                980 грн            </div>
+                    </div>            <div class="catalog-card__purchase">
+        <div class="catalog-card__buy-button">
+            <a
+            href="javascript:void(0);"
+            id="j-buy-button-widget-2071"
+            class="j-buy-button-add btn btn--small btn--primary btn--block"
+            data-skin="catalog_mobile"
+            data-gift="0"
+            data-cartProductType="product"
+        >Купити</a>        </div>
+    </div>        </div>
+    </div>                </div>
+                            <div class="carousel__item">
+                    <div class="catalog-card catalog-card--promo">
+        <div class="catalog-card__view">
+            <a href='/p1816749921-bolshaya-kozhanaya-sumka.html/' class="catalog-card__image link link--touch">
+                <div class="image">
+                    <div class="image__box">
+                                                    <img alt='Шкіряна сумка на пояс Mykhail Ikhtyar, Україна синя 80041 blue фото' title='Шкіряна сумка на пояс Mykhail Ikhtyar, Україна синя 80041 blue фото'  class='image__src lazyload' width='160' height='105' src='/content/images/42/160x105l80nn0/89591552695848.jpg'  
+    sizes="(min-width: 480px) 160px, calc(40vw - 16px)"
+    srcset="/content/images/42/160x105l80nn0/89591552695848.jpg 160w,
+/content/images/42/356x234l85nn0/89591552695848.jpg 356w,
+/content/images/42/536x353l50nn0/89591552695848.jpg 536w"
+    >                                            </div>
+                </div>
+                                                                </a>
+                            <div class="product-sticker product-sticker--bookmark j-product-stickers">
+                    <div
+            class="product-sticker__item product-sticker__item--popular"
+                        style="color: #7baf35"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Хіт                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>            </div>                    </div>
+        <div class="catalog-card__content">
+            <div class="catalog-card__title">
+                <a
+                    href='/p1816749921-bolshaya-kozhanaya-sumka.html/'                    class="link"
+                >
+                    Шкіряна сумка на пояс Mykhail Ikhtyar, Україна синя                </a>
+            </div>
+            <div class="catalog-card__prices">
+                    <div class="catalog-card__price">
+                1 595 грн            </div>
+                    </div>            <div class="catalog-card__purchase">
+        <div class="catalog-card__buy-button">
+            <a
+            href="javascript:void(0);"
+            id="j-buy-button-widget-2341"
+            class="j-buy-button-add btn btn--small btn--primary btn--block"
+            data-skin="catalog_mobile"
+            data-gift="0"
+            data-cartProductType="product"
+        >Купити</a>        </div>
+    </div>        </div>
+    </div>                </div>
+                            <div class="carousel__item">
+                    <div class="catalog-card catalog-card--promo">
+        <div class="catalog-card__view">
+            <a href='/p1603290380-muzhskoj-tkanevyj-remen.html/' class="catalog-card__image link link--touch">
+                <div class="image">
+                    <div class="image__box">
+                                                    <img alt='Чоловічий тканинний ремінь Mustang MG2067B03 white фото' title='Чоловічий тканинний ремінь Mustang MG2067B03 white фото'  class='image__src lazyload' width='92' height='160' src='/content/images/22/92x160l80nn0/15281902570029.jpg'  
+    sizes="(min-width: 480px) 160px, calc(40vw - 16px)"
+    srcset="/content/images/22/92x160l80nn0/15281902570029.jpg 92w,
+/content/images/22/205x356l85nn0/15281902570029.jpg 205w,
+/content/images/22/308x536l50nn0/15281902570029.jpg 308w"
+    >                                            </div>
+                </div>
+                                                                </a>
+                            <div class="product-sticker product-sticker--bookmark j-product-stickers">
+                    <div
+            class="product-sticker__item product-sticker__item--new"
+                        style="color: #3da5ca"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Новинка                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>                    <div
+            class="product-sticker__item product-sticker__item--popular"
+                        style="color: #7baf35"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Хіт                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>            </div>                    </div>
+        <div class="catalog-card__content">
+            <div class="catalog-card__title">
+                <a
+                    href='/p1603290380-muzhskoj-tkanevyj-remen.html/'                    class="link"
+                >
+                    Чоловічий тканинний ремінь Mustang                </a>
+            </div>
+            <div class="catalog-card__prices">
+                    <div class="catalog-card__price">
+                295 грн            </div>
+                    </div>            <div class="catalog-card__purchase">
+        <div class="catalog-card__buy-button">
+            <a
+            href="javascript:void(0);"
+            id="j-buy-button-widget-1821"
+            class="j-buy-button-add btn btn--small btn--primary btn--block"
+            data-skin="catalog_mobile"
+            data-gift="0"
+            data-cartProductType="product"
+        >Купити</a>        </div>
+    </div>        </div>
+    </div>                </div>
+                            <div class="carousel__item">
+                    <div class="catalog-card catalog-card--promo">
+        <div class="catalog-card__view">
+            <a href='/p1813607508-kozhanaya-muzhskaya-sumka.html/' class="catalog-card__image link link--touch">
+                <div class="image">
+                    <div class="image__box">
+                                                    <img alt='Шкіряна чоловіча сумка, планшетка Mykhail Ikhtyar, Україна чорна 45032 black фото' title='Шкіряна чоловіча сумка, планшетка Mykhail Ikhtyar, Україна чорна 45032 black фото'  class='image__src lazyload' width='160' height='118' src='/content/images/29/160x118l80nn0/62799045807706.jpg'  
+    sizes="(min-width: 480px) 160px, calc(40vw - 16px)"
+    srcset="/content/images/29/160x118l80nn0/62799045807706.jpg 160w,
+/content/images/29/356x263l85nn0/62799045807706.jpg 356w,
+/content/images/29/536x396l50nn0/62799045807706.jpg 536w"
+    >                                            </div>
+                </div>
+                                                                </a>
+                            <div class="product-sticker product-sticker--bookmark j-product-stickers">
+                    <div
+            class="product-sticker__item product-sticker__item--new"
+                        style="color: #3da5ca"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Новинка                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>                    <div
+            class="product-sticker__item product-sticker__item--popular"
+                        style="color: #7baf35"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Хіт                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>                    <div
+            class="product-sticker__item product-sticker__item--video"
+                        style="color: #4c626e"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Відео                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>            </div>                    </div>
+        <div class="catalog-card__content">
+            <div class="catalog-card__title">
+                <a
+                    href='/p1813607508-kozhanaya-muzhskaya-sumka.html/'                    class="link"
+                >
+                    Шкіряна чоловіча сумка, планшетка Mykhail Ikhtyar, Україна чорна                </a>
+            </div>
+            <div class="catalog-card__prices">
+                    <div class="catalog-card__price">
+                1 995 грн            </div>
+                    </div>            <div class="catalog-card__purchase">
+        <div class="catalog-card__buy-button">
+            <a
+            href="javascript:void(0);"
+            id="j-buy-button-widget-2328"
+            class="j-buy-button-add btn btn--small btn--primary btn--block"
+            data-skin="catalog_mobile"
+            data-gift="0"
+            data-cartProductType="product"
+        >Купити</a>        </div>
+    </div>        </div>
+    </div>                </div>
+                            <div class="carousel__item">
+                    <div class="catalog-card catalog-card--promo">
+        <div class="catalog-card__view">
+            <a href='/riukzaky-sportyvni-miski/3837/' class="catalog-card__image link link--touch">
+                <div class="image">
+                    <div class="image__box">
+                                                    <img alt='Рюкзак молодіжний 17L Roll-top Royal Sporting House помаранчевий S44113 orange фото' title='Рюкзак молодіжний 17L Roll-top Royal Sporting House помаранчевий S44113 orange фото'  class='image__src lazyload' width='128' height='160' src='/content/images/38/128x160l80nn0/56174545441604.jpg'  
+    sizes="(min-width: 480px) 160px, calc(40vw - 16px)"
+    srcset="/content/images/38/128x160l80nn0/56174545441604.jpg 128w,
+/content/images/38/286x356l85nn0/56174545441604.jpg 286w,
+/content/images/38/430x536l50nn0/56174545441604.jpg 430w"
+    >                                            </div>
+                </div>
+                                                                </a>
+                            <div class="product-sticker product-sticker--bookmark j-product-stickers">
+                    <div
+            class="product-sticker__item product-sticker__item--new"
+                        style="color: #3da5ca"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Новинка                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>                    <div
+            class="product-sticker__item product-sticker__item--popular"
+                        style="color: #7baf35"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Хіт                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>            </div>                    </div>
+        <div class="catalog-card__content">
+            <div class="catalog-card__title">
+                <a
+                    href='/riukzaky-sportyvni-miski/3837/'                    class="link"
+                >
+                    Рюкзак молодіжний 17L Roll-top Royal Sporting House помаранчевий                </a>
+            </div>
+            <div class="catalog-card__prices">
+                    <div class="catalog-card__price">
+                995 грн            </div>
+                    </div>            <div class="catalog-card__purchase">
+        <div class="catalog-card__buy-button">
+            <a
+            href="javascript:void(0);"
+            id="j-buy-button-widget-3837"
+            class="j-buy-button-add btn btn--small btn--primary btn--block"
+            data-skin="catalog_mobile"
+            data-gift="0"
+            data-cartProductType="product"
+        >Купити</a>        </div>
+    </div>        </div>
+    </div>                </div>
+                            <div class="carousel__item">
+                    <div class="catalog-card catalog-card--promo">
+        <div class="catalog-card__view">
+            <a href='/p1583044162-ryukzak-antivor-rfid.html/' class="catalog-card__image link link--touch">
+                <div class="image">
+                    <div class="image__box">
+                                                    <img alt='Рюкзак міський з Rfid Topmove IAN352250 сірий на 12л IAN352250 blue фото' title='Рюкзак міський з Rfid Topmove IAN352250 сірий на 12л IAN352250 blue фото'  class='image__src lazyload' width='132' height='160' src='/content/images/15/132x160l80nn0/98693474352569.jpg'  
+    sizes="(min-width: 480px) 160px, calc(40vw - 16px)"
+    srcset="/content/images/15/132x160l80nn0/98693474352569.jpg 132w,
+/content/images/15/293x356l85nn0/98693474352569.jpg 293w,
+/content/images/15/441x536l50nn0/98693474352569.jpg 441w"
+    >                                            </div>
+                </div>
+                                                                </a>
+                            <div class="product-sticker product-sticker--bookmark j-product-stickers">
+                    <div
+            class="product-sticker__item product-sticker__item--new"
+                        style="color: #3da5ca"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Новинка                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>                    <div
+            class="product-sticker__item product-sticker__item--popular"
+                        style="color: #7baf35"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Хіт                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>                    <div
+            class="product-sticker__item product-sticker__item--discount"
+                        style="color: #e93f11"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    −16%                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>            </div>                    </div>
+        <div class="catalog-card__content">
+            <div class="catalog-card__title">
+                <a
+                    href='/p1583044162-ryukzak-antivor-rfid.html/'                    class="link"
+                >
+                    Рюкзак міський з Rfid Topmove IAN352250 сірий на 12л                </a>
+            </div>
+            <div class="catalog-card__prices">
+                                    <div class="catalog-card__price catalog-card__price--new">
+                    925 грн                </div>
+                <div class="catalog-card__old-price">
+                    1 095 грн                </div>
+                                </div>            <div class="catalog-card__purchase">
+        <div class="catalog-card__buy-button">
+            <a
+            href="javascript:void(0);"
+            id="j-buy-button-widget-1814"
+            class="j-buy-button-add btn btn--small btn--primary btn--block"
+            data-skin="catalog_mobile"
+            data-gift="0"
+            data-cartProductType="product"
+        >Купити</a>        </div>
+    </div>        </div>
+    </div>                </div>
+                            <div class="carousel__item">
+                    <div class="catalog-card catalog-card--promo">
+        <div class="catalog-card__view">
+            <a href='/p1392247127-bolshaya-skladnaya-sumka.html/' class="catalog-card__image link link--touch">
+                <div class="image">
+                    <div class="image__box">
+                                                    <img alt='Дорожня сумка Wallaby чорна на 105л 28270 фото' title='Дорожня сумка Wallaby чорна на 105л 28270 фото'  class='image__src lazyload' width='160' height='107' src='/content/images/22/160x107l80nn0/56139309543000.jpg'  
+    sizes="(min-width: 480px) 160px, calc(40vw - 16px)"
+    srcset="/content/images/22/160x107l80nn0/56139309543000.jpg 160w,
+/content/images/22/356x238l85nn0/56139309543000.jpg 356w,
+/content/images/22/536x359l50nn0/56139309543000.jpg 536w"
+    >                                            </div>
+                </div>
+                                                                </a>
+                            <div class="product-sticker product-sticker--bookmark j-product-stickers">
+                    <div
+            class="product-sticker__item product-sticker__item--new"
+                        style="color: #3da5ca"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Новинка                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>                    <div
+            class="product-sticker__item product-sticker__item--popular"
+                        style="color: #7baf35"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Хіт                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>            </div>                    </div>
+        <div class="catalog-card__content">
+            <div class="catalog-card__title">
+                <a
+                    href='/p1392247127-bolshaya-skladnaya-sumka.html/'                    class="link"
+                >
+                    Дорожня сумка Wallaby чорна на 105л                </a>
+            </div>
+            <div class="catalog-card__prices">
+                    <div class="catalog-card__price">
+                395 грн            </div>
+                    </div>            <div class="catalog-card__purchase">
+        <div class="catalog-card__buy-button">
+            <a
+            href="javascript:void(0);"
+            id="j-buy-button-widget-1521"
+            class="j-buy-button-add btn btn--small btn--primary btn--block"
+            data-skin="catalog_mobile"
+            data-gift="0"
+            data-cartProductType="product"
+        >Купити</a>        </div>
+    </div>        </div>
+    </div>                </div>
+                            <div class="carousel__item">
+                    <div class="catalog-card catalog-card--promo">
+        <div class="catalog-card__view">
+            <a href='/p1515607602-bolshaya-skladnaya-dorozhnaya.html/' class="catalog-card__image link link--touch">
+                <div class="image">
+                    <div class="image__box">
+                                                    <img alt='Дорожня сумка Wallaby чорна на 105л 28274-1 фото' title='Дорожня сумка Wallaby чорна на 105л 28274-1 фото'  class='image__src lazyload' width='160' height='100' src='/content/images/19/160x100l80nn0/22604101821738.jpg'  
+    sizes="(min-width: 480px) 160px, calc(40vw - 16px)"
+    srcset="/content/images/19/160x100l80nn0/22604101821738.jpg 160w,
+/content/images/19/356x222l85nn0/22604101821738.jpg 356w,
+/content/images/19/536x335l50nn0/22604101821738.jpg 536w"
+    >                                            </div>
+                </div>
+                                                                </a>
+                            <div class="product-sticker product-sticker--bookmark j-product-stickers">
+                    <div
+            class="product-sticker__item product-sticker__item--new"
+                        style="color: #3da5ca"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Новинка                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>                    <div
+            class="product-sticker__item product-sticker__item--popular"
+                        style="color: #7baf35"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Хіт                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>            </div>                    </div>
+        <div class="catalog-card__content">
+            <div class="catalog-card__title">
+                <a
+                    href='/p1515607602-bolshaya-skladnaya-dorozhnaya.html/'                    class="link"
+                >
+                    Дорожня сумка Wallaby чорна на 105л                </a>
+            </div>
+            <div class="catalog-card__prices">
+                    <div class="catalog-card__price">
+                840 грн            </div>
+                    </div>            <div class="catalog-card__purchase">
+        <div class="catalog-card__buy-button">
+            <a
+            href="javascript:void(0);"
+            id="j-buy-button-widget-1768"
+            class="j-buy-button-add btn btn--small btn--primary btn--block"
+            data-skin="catalog_mobile"
+            data-gift="0"
+            data-cartProductType="product"
+        >Купити</a>        </div>
+    </div>        </div>
+    </div>                </div>
+                            <div class="carousel__item">
+                    <div class="catalog-card catalog-card--promo">
+        <div class="catalog-card__view">
+            <a href='/p1682581045-vodonepronitsaemyj-ryukzak-20l.html/' class="catalog-card__image link link--touch">
+                <div class="image">
+                    <div class="image__box">
+                                                    <img alt='Водонепроникний рюкзак 20L A-Lab Model A Waterproof Backpack Rolltop чорний 629999038424 фото' title='Водонепроникний рюкзак 20L A-Lab Model A Waterproof Backpack Rolltop чорний 629999038424 фото'  class='image__src lazyload' width='160' height='160' src='/content/images/44/160x160l80nn0/13486036901208.jpg'  
+    sizes="(min-width: 480px) 160px, calc(40vw - 16px)"
+    srcset="/content/images/44/160x160l80nn0/13486036901208.jpg 160w,
+/content/images/44/356x356l85nn0/13486036901208.jpg 356w,
+/content/images/44/536x536l50nn0/13486036901208.jpg 536w"
+    >                                            </div>
+                </div>
+                                                                </a>
+                            <div class="product-sticker product-sticker--bookmark j-product-stickers">
+                    <div
+            class="product-sticker__item product-sticker__item--new"
+                        style="color: #3da5ca"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Новинка                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>                    <div
+            class="product-sticker__item product-sticker__item--popular"
+                        style="color: #7baf35"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Хіт                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>            </div>                    </div>
+        <div class="catalog-card__content">
+            <div class="catalog-card__title">
+                <a
+                    href='/p1682581045-vodonepronitsaemyj-ryukzak-20l.html/'                    class="link"
+                >
+                    Водонепроникний рюкзак 20L A-Lab Model A Waterproof Backpack Rolltop чорний                </a>
+            </div>
+            <div class="catalog-card__prices">
+                    <div class="catalog-card__price">
+                1 795 грн            </div>
+                    </div>            <div class="catalog-card__purchase">
+        <div class="catalog-card__buy-button">
+            <a
+            href="javascript:void(0);"
+            id="j-buy-button-widget-1993"
+            class="j-buy-button-add btn btn--small btn--primary btn--block"
+            data-skin="catalog_mobile"
+            data-gift="0"
+            data-cartProductType="product"
+        >Купити</a>        </div>
+    </div>        </div>
+    </div>                </div>
+                            <div class="carousel__item">
+                    <div class="catalog-card catalog-card--promo">
+        <div class="catalog-card__view">
+            <a href='/p1834775272-sumka-chehol-dlya.html/' class="catalog-card__image link link--touch">
+                <div class="image">
+                    <div class="image__box">
+                                                    <img alt='Сумка, чохол для смартфона на руку для бігу Crivit рожева IAN297343 pink фото' title='Сумка, чохол для смартфона на руку для бігу Crivit рожева IAN297343 pink фото'  class='image__src lazyload' width='149' height='160' src='/content/images/47/149x160l80nn0/22988486068885.jpg'  
+    sizes="(min-width: 480px) 160px, calc(40vw - 16px)"
+    srcset="/content/images/47/149x160l80nn0/22988486068885.jpg 149w,
+/content/images/47/332x356l85nn0/22988486068885.jpg 332w,
+/content/images/47/500x536l50nn0/22988486068885.jpg 500w"
+    >                                            </div>
+                </div>
+                                                                </a>
+                            <div class="product-sticker product-sticker--bookmark j-product-stickers">
+                    <div
+            class="product-sticker__item product-sticker__item--new"
+                        style="color: #3da5ca"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Новинка                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>                    <div
+            class="product-sticker__item product-sticker__item--popular"
+                        style="color: #7baf35"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Хіт                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>            </div>                    </div>
+        <div class="catalog-card__content">
+            <div class="catalog-card__title">
+                <a
+                    href='/p1834775272-sumka-chehol-dlya.html/'                    class="link"
+                >
+                    Сумка, чохол для смартфона на руку для бігу Crivit рожева                </a>
+            </div>
+            <div class="catalog-card__prices">
+                    <div class="catalog-card__price">
+                175 грн            </div>
+                    </div>            <div class="catalog-card__purchase">
+        <div class="catalog-card__buy-button">
+            <a
+            href="javascript:void(0);"
+            id="j-buy-button-widget-2396"
+            class="j-buy-button-add btn btn--small btn--primary btn--block"
+            data-skin="catalog_mobile"
+            data-gift="0"
+            data-cartProductType="product"
+        >Купити</a>        </div>
+    </div>        </div>
+    </div>                </div>
+                            <div class="carousel__item">
+                    <div class="catalog-card catalog-card--promo">
+        <div class="catalog-card__view">
+            <a href='/p796755772-delovaya-papka-iskusstvennoj.html/' class="catalog-card__image link link--touch">
+                <div class="image">
+                    <div class="image__box">
+                                                    <img alt='Ділова папка зі штучної шкіри AMO SSBW05 чорна SSBW05 black фото' title='Ділова папка зі штучної шкіри AMO SSBW05 чорна SSBW05 black фото'  class='image__src lazyload' width='160' height='81' src='/content/images/32/160x81l80nn0/18055054507127.jpg'  
+    sizes="(min-width: 480px) 160px, calc(40vw - 16px)"
+    srcset="/content/images/32/160x81l80nn0/18055054507127.jpg 160w,
+/content/images/32/356x179l85nn0/18055054507127.jpg 356w,
+/content/images/32/536x270l50nn0/18055054507127.jpg 536w"
+    >                                            </div>
+                </div>
+                                                                </a>
+                            <div class="product-sticker product-sticker--bookmark j-product-stickers">
+                    <div
+            class="product-sticker__item product-sticker__item--new"
+                        style="color: #3da5ca"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Новинка                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>                    <div
+            class="product-sticker__item product-sticker__item--popular"
+                        style="color: #7baf35"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Хіт                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>            </div>                    </div>
+        <div class="catalog-card__content">
+            <div class="catalog-card__title">
+                <a
+                    href='/p796755772-delovaya-papka-iskusstvennoj.html/'                    class="link"
+                >
+                    Ділова папка зі штучної шкіри AMO SSBW05 чорна                </a>
+            </div>
+            <div class="catalog-card__prices">
+                    <div class="catalog-card__price">
+                1 670 грн            </div>
+                    </div>            <div class="catalog-card__purchase">
+        <div class="catalog-card__buy-button">
+            <a
+            href="javascript:void(0);"
+            id="j-buy-button-widget-831"
+            class="j-buy-button-add btn btn--small btn--primary btn--block"
+            data-skin="catalog_mobile"
+            data-gift="0"
+            data-cartProductType="product"
+        >Купити</a>        </div>
+    </div>        </div>
+    </div>                </div>
+                            <div class="carousel__item">
+                    <div class="catalog-card catalog-card--promo">
+        <div class="catalog-card__view">
+            <a href='/copy_zhinocha-kosmetychka-iz-eko-shkiry-edibazzar-temno-korychneva/' class="catalog-card__image link link--touch">
+                <div class="image">
+                    <div class="image__box">
+                                                    <img alt='Прогумована косметичка, пенал Ronadinho чорна vc-260 фото' title='Прогумована косметичка, пенал Ronadinho чорна vc-260 фото'  class='image__src lazyload' width='160' height='114' src='/content/images/3/160x114l80nn0/copy_zhinocha-kosmetychka-iz-eko-shkiry-edibazzar-temno-korychneva-66210931804247.jpg'  
+    sizes="(min-width: 480px) 160px, calc(40vw - 16px)"
+    srcset="/content/images/3/160x114l80nn0/copy_zhinocha-kosmetychka-iz-eko-shkiry-edibazzar-temno-korychneva-66210931804247.jpg 160w,
+/content/images/3/356x254l85nn0/copy_zhinocha-kosmetychka-iz-eko-shkiry-edibazzar-temno-korychneva-66210931804247.jpg 356w,
+/content/images/3/536x382l50nn0/copy_zhinocha-kosmetychka-iz-eko-shkiry-edibazzar-temno-korychneva-66210931804247.jpg 536w"
+    >                                            </div>
+                </div>
+                                                                </a>
+                            <div class="product-sticker product-sticker--bookmark j-product-stickers">
+                    <div
+            class="product-sticker__item product-sticker__item--new"
+                        style="color: #3da5ca"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Новинка                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>                    <div
+            class="product-sticker__item product-sticker__item--popular"
+                        style="color: #7baf35"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Хіт                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>            </div>                    </div>
+        <div class="catalog-card__content">
+            <div class="catalog-card__title">
+                <a
+                    href='/copy_zhinocha-kosmetychka-iz-eko-shkiry-edibazzar-temno-korychneva/'                    class="link"
+                >
+                    Прогумована косметичка, пенал Ronadinho чорна                </a>
+            </div>
+            <div class="catalog-card__prices">
+                    <div class="catalog-card__price">
+                330 грн            </div>
+                    </div>            <div class="catalog-card__purchase">
+        <div class="catalog-card__buy-button">
+            <a
+            href="javascript:void(0);"
+            id="j-buy-button-widget-3852"
+            class="j-buy-button-add btn btn--small btn--primary btn--block"
+            data-skin="catalog_mobile"
+            data-gift="0"
+            data-cartProductType="product"
+        >Купити</a>        </div>
+    </div>        </div>
+    </div>                </div>
+                            <div class="carousel__item">
+                    <div class="catalog-card catalog-card--promo">
+        <div class="catalog-card__view">
+            <a href='/p2039241742-dorozhno-sportivnaya-sumka.html/' class="catalog-card__image link link--touch">
+                <div class="image">
+                    <div class="image__box">
+                                                    <img alt='Дорожньо-спортивна сумка 30L Fashion Sport чорна 3050677366791 фото' title='Дорожньо-спортивна сумка 30L Fashion Sport чорна 3050677366791 фото'  class='image__src lazyload' width='160' height='109' src='/content/images/26/160x109l80nn0/33060432149166.jpg'  
+    sizes="(min-width: 480px) 160px, calc(40vw - 16px)"
+    srcset="/content/images/26/160x109l80nn0/33060432149166.jpg 160w,
+/content/images/26/356x243l85nn0/33060432149166.jpg 356w,
+/content/images/26/536x366l50nn0/33060432149166.jpg 536w"
+    >                                            </div>
+                </div>
+                                                                </a>
+                            <div class="product-sticker product-sticker--bookmark j-product-stickers">
+                    <div
+            class="product-sticker__item product-sticker__item--new"
+                        style="color: #3da5ca"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Новинка                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>                    <div
+            class="product-sticker__item product-sticker__item--popular"
+                        style="color: #7baf35"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Хіт                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>            </div>                    </div>
+        <div class="catalog-card__content">
+            <div class="catalog-card__title">
+                <a
+                    href='/p2039241742-dorozhno-sportivnaya-sumka.html/'                    class="link"
+                >
+                    Дорожньо-спортивна сумка 30L Fashion Sport чорна                </a>
+            </div>
+            <div class="catalog-card__prices">
+                    <div class="catalog-card__price">
+                625 грн            </div>
+                    </div>            <div class="catalog-card__purchase">
+        <div class="catalog-card__buy-button">
+            <a
+            href="javascript:void(0);"
+            id="j-buy-button-widget-2925"
+            class="j-buy-button-add btn btn--small btn--primary btn--block"
+            data-skin="catalog_mobile"
+            data-gift="0"
+            data-cartProductType="product"
+        >Купити</a>        </div>
+    </div>        </div>
+    </div>                </div>
+                            <div class="carousel__item">
+                    <div class="catalog-card catalog-card--promo">
+        <div class="catalog-card__view">
+            <a href='/p1756163607-sportivnaya-sumka-37l.html/' class="catalog-card__image link link--touch">
+                <div class="image">
+                    <div class="image__box">
+                                                    <img alt='Спортивна сумка 37L Zagatto On the Move чорна ZG756 black фото' title='Спортивна сумка 37L Zagatto On the Move чорна ZG756 black фото'  class='image__src lazyload' width='160' height='133' src='/content/images/49/160x133l80nn0/89748997786419.jpg'  
+    sizes="(min-width: 480px) 160px, calc(40vw - 16px)"
+    srcset="/content/images/49/160x133l80nn0/89748997786419.jpg 160w,
+/content/images/49/356x297l85nn0/89748997786419.jpg 356w,
+/content/images/49/536x447l50nn0/89748997786419.jpg 536w"
+    >                                            </div>
+                </div>
+                                                                </a>
+                            <div class="product-sticker product-sticker--bookmark j-product-stickers">
+                    <div
+            class="product-sticker__item product-sticker__item--new"
+                        style="color: #3da5ca"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Новинка                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>                    <div
+            class="product-sticker__item product-sticker__item--popular"
+                        style="color: #7baf35"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Хіт                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>            </div>                    </div>
+        <div class="catalog-card__content">
+            <div class="catalog-card__title">
+                <a
+                    href='/p1756163607-sportivnaya-sumka-37l.html/'                    class="link"
+                >
+                    Спортивна сумка 37L Zagatto On the Move чорна                </a>
+            </div>
+            <div class="catalog-card__prices">
+                    <div class="catalog-card__price">
+                1 095 грн            </div>
+                    </div>            <div class="catalog-card__purchase">
+        <div class="catalog-card__buy-button">
+            <a
+            href="javascript:void(0);"
+            id="j-buy-button-widget-2148"
+            class="j-buy-button-add btn btn--small btn--primary btn--block"
+            data-skin="catalog_mobile"
+            data-gift="0"
+            data-cartProductType="product"
+        >Купити</a>        </div>
+    </div>        </div>
+    </div>                </div>
+                            <div class="carousel__item">
+                    <div class="catalog-card catalog-card--promo">
+        <div class="catalog-card__view">
+            <a href='/dorozhni-kosmetychky-biuti-keisy-orhanaizery-nesessery/3818/' class="catalog-card__image link link--touch">
+                <div class="image">
+                    <div class="image__box">
+                                                    <img alt='Жіноча косметичка із еко шкіри Edibazzar темно-коричнева 5905884022467 фото' title='Жіноча косметичка із еко шкіри Edibazzar темно-коричнева 5905884022467 фото'  class='image__src lazyload' width='160' height='131' src='/content/images/19/160x131l80nn0/57590367519089.jpg'  
+    sizes="(min-width: 480px) 160px, calc(40vw - 16px)"
+    srcset="/content/images/19/160x131l80nn0/57590367519089.jpg 160w,
+/content/images/19/356x292l85nn0/57590367519089.jpg 356w,
+/content/images/19/536x440l50nn0/57590367519089.jpg 536w"
+    >                                            </div>
+                </div>
+                                                                </a>
+                            <div class="product-sticker product-sticker--bookmark j-product-stickers">
+                    <div
+            class="product-sticker__item product-sticker__item--new"
+                        style="color: #3da5ca"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Новинка                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>                    <div
+            class="product-sticker__item product-sticker__item--popular"
+                        style="color: #7baf35"        >
+            <div class="product-sticker__container">
+                <div class="product-sticker__content"
+                    style="color: #fff"                >
+                    Хіт                </div>
+            </div>
+                    </div>
+    <div class="product-sticker__separator"></div>            </div>                    </div>
+        <div class="catalog-card__content">
+            <div class="catalog-card__title">
+                <a
+                    href='/dorozhni-kosmetychky-biuti-keisy-orhanaizery-nesessery/3818/'                    class="link"
+                >
+                    Жіноча косметичка із еко шкіри Edibazzar темно-коричнева                </a>
+            </div>
+            <div class="catalog-card__prices">
+                    <div class="catalog-card__price">
+                495 грн            </div>
+                    </div>            <div class="catalog-card__purchase">
+        <div class="catalog-card__buy-button">
+            <a
+            href="javascript:void(0);"
+            id="j-buy-button-widget-3818"
+            class="j-buy-button-add btn btn--small btn--primary btn--block"
+            data-skin="catalog_mobile"
+            data-gift="0"
+            data-cartProductType="product"
+        >Купити</a>        </div>
+    </div>        </div>
+    </div>                </div>
+                    </div>
+    </div>
+</div>                </div>
+            </div>
+        </div>
+    </section>
+            <script>
+            (function (w) {
+                w.INIT.add(function () {
+                    w.SpecialOffers.init({"name":"special_offers","token":"homepage-showcase-mobile-4","activeBlock":"hits","activeClass":"is-active","settingsStorage":{"type":"cache","keyPrefix":"pages\/1"}});
+                }, w.SpecialOffers)
+            })(window);
+        </script>        <section class="about">
+        <div class="about__wrap">
+                        <div class="about__text js-about-text">
+                <div class="text"><h2>SUPERSUMKA &ndash; інтернет-магазин рюкзаків, сумок та ременів</h2>
+
+<p>SUPERSUMKA &mdash; інтернет-магазин практичних товарів для повсякденного використання, роботи, навчання та подорожей. У каталозі представлені <a href="https://supersumka.net/riukzaky/">рюкзаки</a>, чоловічі та жіночі сумки, шкіряні ремені, валізи, дорожні сумки, ділові папки та аксесуари.</p>
+
+<p>Ми працюємо в Україні понад 10 років та робимо акцент не на &ldquo;віртуальному асортименті&rdquo;, а на товарах, які реально є в наявності на складі. Завдяки цьому більшість замовлень відправляються по Україні у день оформлення.</p>
+
+<p>Одні з найпопулярніших категорій магазину &mdash; міські та спортивні рюкзаки, повсякденні чоловічі сумки Wallaby, шкіряні ремені та ділові папки для документів A4. У каталозі можна підібрати як компактні моделі для щоденного використання, так і місткі сумки та рюкзаки для роботи, поїздок і подорожей.</p>
+
+<p>Перед відправкою товар перевіряється, а для більшості позицій використовуються фото реальних виробів. Це дозволяє покупцю краще оцінити зовнішній вигляд, матеріал та особливості моделі перед покупкою.</p>
+
+<p>В інтернет-магазині SUPERSUMKA ви можете купити:</p>
+
+<ul>
+	<li>міські, спортивні, туристичні та дитячі рюкзаки;</li>
+	<li>чоловічі та жіночі сумки для повсякденного використання;</li>
+	<li><a href="https://supersumka.net/povsiakdenni-cholovichi-sumky/filter/brand=1/">чоловічі сумки Wallaby</a>;</li>
+	<li>шкіряні <a href="https://supersumka.net/remeni-poiasy/">ремені </a>та пояси;</li>
+	<li>дорожні сумки та валізи;</li>
+	<li>ділові <a href="https://supersumka.net/papky-dilovi/">папки </a>та аксесуари для документів.</li>
+</ul>
+
+<p>SUPERSUMKA &mdash; це великий вибір практичних товарів, реальна наявність на складі, швидка відправка та доставка по всій Україні.</p>
+</div>
+                                    <div id="about-full" class="text-panel"
+                         data-button-text='{"show":"Читати повністю"}'>
+                        <div class="mm-panel text-panel__block">
+                            <div class="mm-navbar text-panel__header">
+                                <div class="mm-title text-panel__title"></div>
+                                <div class="mm-btn text-panel__close">
+                                    <button data-panel-close="" class="btn btn--clear btn--icon mm-close">
+                                        <span class="icon">
+                                            <svg class="icon icon--close">
+                                                <use xlink:href="#icon-close"></use>
+                                            </svg>
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mm-body">
+                                <div class="mm-viewport">
+                                    <div class="mm-wrapper">
+                                        <div class="mm-content"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                            </div>
+        </div>
+    </section>
+    </main>
+    <footer class="footer">
+    <div class="footer__base">
+        <!-- Contacts-->
+<div class="phones phones--inline">
+            <div class="phones__item">
+            <a data-fake-href="tel:%2B380+93+389+01+09" class="phones__link j-phone-item" data-index="1">
+                +380 93 389 01 09            </a>
+        </div>
+    </div>        <div class="footer-links">
+                                        <div class="footer-links__item"><a class="link" href="/kontaktna-informatsiya/">Контактна інформація</a></div>
+
+                        <div class="footer-links__item"><a class="link" rel="nofollow" href="https://supersumka.net/.?v=pc">Повна версія сайту</a></div>
+                    </div>
+        <div class="footer__copyright">
+            © 2026 SUPERSUMKA        </div>
+                    <div class="footer__langs">
+                <div class="lang-switcher lang-switcher--inline" data-widget="lang_menu" data-skin="mobile_footer">
+        <div class="lang-switcher__body">
+                                                <span class="lang-switcher__link is-active">
+                    Укр                </span>
+                                                                <a
+                        class="lang-switcher__link link"
+                                                href="/ru/"
+                    >
+                        Рус                    </a>
+                                    </div>
+    </div>            </div>
+            </div>
+
+            <div class="footer__bottom" style="display: flex !important;">
+    <a href="https://horoshop.ua/ua/" class="footer__dev-h link link--touch" target="_blank">
+        Працює на платформі Хорошоп    </a>
+    <div class="footer__dev-logo">
+        <i class="footer__icon">
+            <svg class="icon icon--logo" role="img">
+                <use xlink:href="#icon-horoshop"></use>
+            </svg>
+        </i>
+    </div>
+</div>    </footer></div>
+    <div id="menu" class="menu">
+        <div id="start" class="menu__block mm-panel">
+            <div class="menu__header mm-navbar">
+                <div class="menu__close mm-btn">
+                    <button data-panel-close="" class="btn btn--clear btn--icon">
+                        <span class="btn__icon">
+                            <svg class="icon"><use xlink:href="#icon-arrow-left"></use></svg>
+                        </span>
+                    </button>
+                </div>
+                <div class="menu__logo mm-title" data-panel-title="Меню">
+                                            <div class="mm-title-text">SUPERSUMKA</div>
+                                    </div>
+            </div>
+            <div class="mm-body">
+                <div class="mm-viewport">
+                                            <div class="menu__section menu__section--catalog">
+                            <ul
+                    class="main-nav main-nav--catalog-with-icon"
+                    data-panel-content=""
+                >
+                    <li class="main-nav__item main-nav__item--basic">
+                    <span
+                        class="main-nav__link"
+                        data-href="/kataloh/"                    >
+                        <span class="main-nav__icon">
+                            <svg class="icon icon--catalog"><use xlink:href="#icon-catalog"></use></svg>
+                        </span>
+                        Каталог                    </span>
+                        <ul
+            class="main-nav main-nav--catalog-with-icon"
+            data-menu-content
+            data-panel-content
+        >
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <div class="main-nav__link" data-href="/riukzaky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Рюкзаки' title=''  class='image__src lazyload' src=''  data-src="/content/images/48/33x36l80nn0/46614217751151.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/48/33x36l80nn0/46614217751151.jpg 32w,
+                    /content/images/48/274x300l85nn0/46614217751151.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Рюкзаки                        </div>
+                        <ul
+            class="main-nav main-nav--catalog-with-icon"
+            data-menu-content
+            data-panel-content
+        >
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/riukzaky-sportyvni-miski/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Рюкзаки спортивні, міські                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/dytiachi-riukzaky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Дитячі рюкзаки' title=''  class='image__src lazyload' src=''  data-src="/content/images/6/33x40l80nn0/27635790116908.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/6/33x40l80nn0/27635790116908.jpg 32w,
+                    /content/images/6/247x300l85nn0/27635790116908.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Дитячі рюкзаки                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/turystychni-riukzaky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Туристичні Рюкзаки' title=''  class='image__src lazyload' src=''  data-src="/content/images/12/33x45l80nn0/97531012619873.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/12/33x45l80nn0/97531012619873.jpg 32w,
+                    /content/images/12/219x300l85nn0/97531012619873.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Туристичні Рюкзаки                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/taktychni-viiskovi-riukzaky-sumky-pidsumky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Тактичні, військові рюкзаки, сумки, підсумки' title=''  class='image__src lazyload' src=''  data-src="/content/images/48/29x46l80nn0/83124518008892.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/48/29x46l80nn0/83124518008892.jpg 32w,
+                    /content/images/48/188x300l85nn0/83124518008892.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Тактичні, військові рюкзаки, сумки, підсумки                        </a>
+                                    </li>
+                    </ul>                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <div class="main-nav__link" data-href="/sumky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Сумки' title=''  class='image__src lazyload' src=''  data-src="/content/images/38/33x38l80nn0/69644013813576.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/38/33x38l80nn0/69644013813576.jpg 32w,
+                    /content/images/38/263x300l85nn0/69644013813576.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Сумки                        </div>
+                        <ul
+            class="main-nav main-nav--catalog-with-icon"
+            data-menu-content
+            data-panel-content
+        >
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <div class="main-nav__link" data-href="/sumky-cholovichi/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Сумки чоловічі' title=''  class='image__src lazyload' src=''  data-src="/content/images/38/33x27l80nn0/55232909380260.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/38/33x27l80nn0/55232909380260.jpg 32w,
+                    /content/images/38/300x250l85nn0/55232909380260.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Сумки чоловічі                        </div>
+                        <ul
+            class="main-nav main-nav--catalog-with-icon"
+            data-menu-content
+            data-panel-content
+        >
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/povsiakdenni-cholovichi-sumky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Повсякденні чоловічі сумки                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/portfeli-cholovichi/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Портфелі чоловічі' title=''  class='image__src lazyload' src=''  data-src="/content/images/21/33x37l80nn0/54696266473957.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/21/33x37l80nn0/54696266473957.jpg 32w,
+                    /content/images/21/268x300l85nn0/54696266473957.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Портфелі чоловічі                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <div class="main-nav__link" data-href="/papky-dilovi/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Папки ділові                        </div>
+                        <ul
+            class="main-nav main-nav--catalog-with-icon"
+            data-menu-content
+            data-panel-content
+        >
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/papky-dlia-dokumentiv-a4/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Папки для документів A4                        </a>
+                                    </li>
+                    </ul>                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/klatchi/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Клатчі                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/barsetky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Барсетки                        </a>
+                                    </li>
+                    </ul>                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <div class="main-nav__link" data-href="/zhinochi-sumky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Жіночі сумки' title=''  class='image__src lazyload' src=''  data-src="/content/images/47/33x35l80nn0/91711459908799.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/47/33x35l80nn0/91711459908799.jpg 32w,
+                    /content/images/47/284x300l85nn0/91711459908799.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Жіночі сумки                        </div>
+                        <ul
+            class="main-nav main-nav--catalog-with-icon"
+            data-menu-content
+            data-panel-content
+        >
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/povsiakdenni-zhinochi-sumky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Повсякденні жіночі сумки                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/dilovi-zhinochi-sumky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Ділові жіночі сумки                        </a>
+                                    </li>
+                    </ul>                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/sumky-dorozhni-sportyvni/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Сумки дорожні, спортивні' title=''  class='image__src lazyload' src=''  data-src="/content/images/18/33x26l80nn0/47735481892588.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/18/33x26l80nn0/47735481892588.jpg 32w,
+                    /content/images/18/300x233l85nn0/47735481892588.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Сумки дорожні, спортивні                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/sumky-dytiachi/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Сумки дитячі                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/sumky-dlia-tsyfrovoho-obladnannia/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Сумки для цифрового обладнання' title=''  class='image__src lazyload' src=''  data-src="/content/images/20/33x37l80nn0/15186492642308.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/20/33x37l80nn0/15186492642308.jpg 32w,
+                    /content/images/20/270x300l85nn0/15186492642308.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Сумки для цифрового обладнання                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/sumky-na-poias/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Сумки на пояс                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/velosumky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Велосумки                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/termosumky-lanch-boksy/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Термосумки, ланч-бокси' title=''  class='image__src lazyload' src=''  data-src="/content/images/5/33x33l80nn0/77585926217706.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/5/33x33l80nn0/77585926217706.jpg 32w,
+                    /content/images/5/300x300l85nn0/77585926217706.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Термосумки, ланч-бокси                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/dorozhni-kosmetychky-biuti-keisy-orhanaizery-nesessery/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Дорожні косметички, б&#039;юті кейси, органайзери, несессери' title=''  class='image__src lazyload' src=''  data-src="/content/images/48/33x33l80nn0/98666572695875.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/48/33x33l80nn0/98666572695875.jpg 32w,
+                    /content/images/48/300x297l85nn0/98666572695875.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Дорожні косметички, б'юті кейси, органайзери, несессери                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/dlia-tvaryn/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Сумки для тварин, переноски                        </a>
+                                    </li>
+                    </ul>                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <div class="main-nav__link" data-href="/na-kolesakh-sumky-valizy/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='На колесах: сумки та валізи' title=''  class='image__src lazyload' src=''  data-src="/content/images/9/33x41l80nn0/90268021208119.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/9/33x41l80nn0/90268021208119.jpg 32w,
+                    /content/images/9/240x300l85nn0/90268021208119.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        На колесах: сумки та валізи                        </div>
+                        <ul
+            class="main-nav main-nav--catalog-with-icon"
+            data-menu-content
+            data-panel-content
+        >
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/valizy/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Валізи' title=''  class='image__src lazyload' src=''  data-src="/content/images/14/33x22l80nn0/22418993536684.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/14/33x22l80nn0/22418993536684.jpg 32w,
+                    /content/images/14/300x200l85nn0/22418993536684.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Валізи                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/sumky-na-kolesakh/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Сумки на колесах' title=''  class='image__src lazyload' src=''  data-src="/content/images/10/33x25l80nn0/80034918382468.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/10/33x25l80nn0/80034918382468.jpg 32w,
+                    /content/images/10/300x223l85nn0/80034918382468.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Сумки на колесах                        </a>
+                                    </li>
+                    </ul>                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <div class="main-nav__link" data-href="/aksesuary/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Аксесуари' title=''  class='image__src lazyload' src=''  data-src="/content/images/7/33x26l80nn0/13340457354648.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/7/33x26l80nn0/13340457354648.jpg 32w,
+                    /content/images/7/300x240l85nn0/13340457354648.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Аксесуари                        </div>
+                        <ul
+            class="main-nav main-nav--catalog-with-icon"
+            data-menu-content
+            data-panel-content
+        >
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <div class="main-nav__link" data-href="/remeni-poiasy/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Ремені, пояси' title=''  class='image__src lazyload' src=''  data-src="/content/images/7/33x21l80nn0/76173376418494.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/7/33x21l80nn0/76173376418494.jpg 32w,
+                    /content/images/7/300x190l85nn0/76173376418494.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Ремені, пояси                        </div>
+                        <ul
+            class="main-nav main-nav--catalog-with-icon"
+            data-menu-content
+            data-panel-content
+        >
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/remeni-cholovichi/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Ремені чоловічі                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/remeni-zhinochi/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Ремені жіночі                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/pidtiazhky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Підтяжки                        </a>
+                                    </li>
+                    </ul>                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/hamantsi-portmone/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Гаманці, портмоне' title=''  class='image__src lazyload' src=''  data-src="/content/images/20/33x39l80nn0/93711458087869.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/20/33x39l80nn0/93711458087869.jpg 32w,
+                    /content/images/20/254x300l85nn0/93711458087869.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Гаманці, портмоне                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/statuetky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Статуетки                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/bizhuteriia/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Біжутерія                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/obkladynky-dlia-dokumentiv/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Обкладинки для документів                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/remintsi-dlia-hodynnykiv/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Ремінці для годинників' title=''  class='image__src lazyload' src=''  data-src="/content/images/15/33x16l80nn0/48792685872185.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/15/33x16l80nn0/48792685872185.jpg 32w,
+                    /content/images/15/300x148l85nn0/48792685872185.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Ремінці для годинників                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/kliuchnytsi/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Ключниці' title=''  class='image__src lazyload' src=''  data-src="/content/images/21/33x26l80nn0/74853509168357.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/21/33x26l80nn0/74853509168357.jpg 32w,
+                    /content/images/21/300x240l85nn0/74853509168357.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Ключниці                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/parasoli-cholovichi-zhinochi/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Парасолі чоловічі, жіночі' title=''  class='image__src lazyload' src=''  data-src="/content/images/19/33x33l80nn0/17212564393606.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/19/33x33l80nn0/17212564393606.jpg 32w,
+                    /content/images/19/298x300l85nn0/17212564393606.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Парасолі чоловічі, жіночі                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/avtopiatky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Автоп'ятки                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/futliary-dlia-okuliariv/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Футляри для окулярів                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/sharfy/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Шарфи' title=''  class='image__src lazyload' src=''  data-src="/content/images/34/33x23l80nn0/87121089849440.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/34/33x23l80nn0/87121089849440.jpg 32w,
+                    /content/images/34/300x213l85nn0/87121089849440.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Шарфи                        </a>
+                                    </li>
+                    </ul>                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <div class="main-nav__link" data-href="/tovary-dlia-turyzmu-ta-domu/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Товари для туризму та дому' title=''  class='image__src lazyload' src=''  data-src="/content/images/14/33x26l80nn0/97703350159000.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/14/33x26l80nn0/97703350159000.jpg 32w,
+                    /content/images/14/300x238l85nn0/97703350159000.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Товари для туризму та дому                        </div>
+                        <ul
+            class="main-nav main-nav--catalog-with-icon"
+            data-menu-content
+            data-panel-content
+        >
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/likhtari/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Ліхтарі' title=''  class='image__src lazyload' src=''  data-src="/content/images/15/33x38l80nn0/61766327228144.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/15/33x38l80nn0/61766327228144.jpg 32w,
+                    /content/images/15/260x300l85nn0/61766327228144.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Ліхтарі                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/spalni-mishky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                            <img alt='Спальні мішки' title=''  class='image__src lazyload' src=''  data-src="/content/images/16/33x34l80nn0/88029499915809.jpg"
+                    sizes="32px" data-srcset="
+                    /content/images/16/33x34l80nn0/88029499915809.jpg 32w,
+                    /content/images/16/295x300l85nn0/88029499915809.jpg 64w
+                    ">                    </div>
+    </div>
+</div>                                                        Спальні мішки                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/hermomishky-doshchovyky/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Гермомішки, дощовики                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/aksesuary-dlia-vidpochynku-ta-sportu/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Аксесуари для відпочинку та спорту                        </a>
+                                    </li>
+                            <li
+                    class="main-nav__item"
+                    data-menu-item
+                >
+                                            <a class="main-nav__link" href="/kylymky-v-sanvuzol/">
+                                                            <div class="main-nav__icon">
+    <div class="image">
+        <div class="image__box">
+                    </div>
+    </div>
+</div>                                                        Килимки в санвузол                        </a>
+                                    </li>
+                    </ul>                                    </li>
+                    </ul>                    </li>
+                </ul>
+                    </div>                                            <!-- Site Menu-->
+    <div class="menu__section">
+        <ul class="main-nav" data-panel-content="">
+                                                <li class="main-nav__item">
+                        <a href="/aktsiini-tovary/" class="main-nav__link">Акційні товари</a>
+                    </li>
+                                                                <li class="main-nav__item">
+                        <a href="/pro-nas/" class="main-nav__link">Про нас</a>
+                    </li>
+                                                                <li class="main-nav__item">
+                        <a href="/oplata-i-dostavka/" class="main-nav__link">Оплата і доставка</a>
+                    </li>
+                                                                <li class="main-nav__item">
+                        <a href="/obmin-ta-povernennya/" class="main-nav__link">Обмін та повернення</a>
+                    </li>
+                                                                <li class="main-nav__item">
+                        <a href="/kontaktna-informatsiya/" class="main-nav__link">Контактна інформація</a>
+                    </li>
+                                                                <li class="main-nav__item">
+                        <a href="/optova-spivpratsia/" class="main-nav__link">Оптова співпраця</a>
+                    </li>
+                                    </ul>
+    </div>                                            <div class="menu__section">
+    <ul class="main-nav">
+        <li class="main-nav__item">
+            <a
+                href="/comparison/"
+                class="main-nav__link"
+            >
+                <span class="main-nav__icon">
+                    <svg class="icon icon--comparison">
+                        <use xlink:href="#icon-comparison"></use>
+                    </svg>
+                </span>
+                Порівняння товарів            </a>
+        </li>
+    </ul>
+</div>
+                                            <div class="menu__section">
+        <!-- User Menu-->
+<ul class="main-nav">
+            <li class="main-nav__item">
+            <a href="#login" data-panel data-menu="auth" class="main-nav__link">
+                <span class="main-nav__icon">
+                    <svg class="icon icon--profile">
+                        <use xlink:href="#icon-profile"></use>
+                    </svg>
+                </span>
+                Вхід для клієнтів            </a>
+        </li>
+    </ul>    
+</div>
+                                            <div class="menu__section menu__section--contacts">
+    <ul class="main-nav">
+                                    <li class="main-nav__item">
+                    <div
+                        class="main-nav__link-container"
+                    >
+                        <div class="main-nav__icon">
+                                                                                                <svg class="icon icon--life">
+                                        <use xlink:href="#icon-life"></use>
+                                    </svg>
+                                                                                    </div>
+                        <a
+                            data-fake-href="tel:+380 93 389 01 09"
+                            class="main-nav__link j-phone-item"
+                            data-index="1"
+                        >
+                            +380 93 389 01 09                        </a>
+
+                    </a>
+                </li>
+                                                                        <li class="main-nav__item">
+                <div class="main-nav__link">
+                    <a
+                        href="#callback-form"
+                        class="btn btn--small"
+                        data-panel
+                        data-menu="callback"
+                    >
+                        Замовити дзвінок                    </a>
+                </div>
+            </li>
+            </ul>
+</div>                                            <div class="menu__section">
+        <div class="menu__section-icon">
+        <svg class="icon icon--timetable"><use xlink:href="#icon-timetable"></use></svg>
+    </div>
+    <div class="menu__section-content">
+        <div class="timetable">
+    <div class="timetable__text"><p><strong><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Будні:</font></font></strong><font style="vertical-align: inherit;"><font style="vertical-align: inherit;"> 10:00&ndash;18:00</font></font></p>
+
+<div id="gtx-trans" style="position: absolute; left: -174px; top: 34px;">
+<div class="gtx-trans-icon">&nbsp;</div>
+</div>
+</div>
+</div>    </div>
+</div>
+                                            <div class="menu__section">
+    <div class="menu__section-icon">
+        <svg class="icon icon--lang">
+            <use xlink:href="#icon-lang"></use>
+        </svg>
+    </div>
+    <div class="menu__section-title">Сайт іншими мовами</div>
+    <div class="menu__section-content">
+        <div class="localization-menu">
+                                    <span class="localization-menu__item is-active">
+                    Укр                </span>
+                                                <a
+                    class="localization-menu__item"
+                                        href="/ru/"
+                >
+                    Рус                </a>
+                        </div>    </div>
+</div>                                                                                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+      (function (w) {
+        w.INIT.add(function () {
+          const menuId = 'menu';
+          w.App.mmenu.initPanel('menu', {
+            navbar: {
+              showTitle: true,
+              titleLink: 'anchor'
+            },
+            offCanvas: {
+              addHash: false,
+              zposition: 'front'
+            }
+          });
+          w.App.mmenu.bindFirstOpenEvent(menuId, function () {
+            w.App.MenuExpander.batchCreate([
+              '#' + menuId + ' .j-catalog-inner-nav',
+              '#' + menuId + ' .j-catalog-nav'
+            ]);
+            w.App.SlideToggle.create('#' + menuId + ' .j-toggle-menu');
+
+            w.FakeHrefDirector.init();
+          });
+        }, w.App && w.App.mmenu);
+      })(window);
+    </script>
+<div id="auth" class="login">
+    <div id="login" class="menu__block mm-panel">
+        <div class="login__header mm-navbar mm-navbar--offset-left">
+            <div class="tabs__nav-wrap mm-title">
+                <a href="#sign-in" class="tabs__item is-active j-login-tab">
+                    <span class="tabs__item-text">Вхід</span>
+                </a>
+                <a href="#sign-up" class="tabs__item j-login-tab">
+                    <span class="tabs__item-text">Реєстрація</span>
+                </a>
+            </div>
+            <div class="login__close mm-btn mm-close">
+                <button data-panel-close="" class="btn btn--clear btn--icon">
+                    <span class="btn__icon">
+                        <svg class="icon icon--close">
+                            <use xlink:href="#icon-close"></use>
+                        </svg>
+                    </span>
+                </button>
+            </div>
+        </div>
+        <div class="mm-body">
+            <div class="mm-viewport">
+                <div class="menu__tabs mm-wrapper">
+                    <div id="sign-in" class="is-active login__tab">
+                        <div class="login">
+                            <div class="login__heading is-hidden j-auth-heading"></div>
+                            <div class="login__form">
+                                <form id="login_form_mobile" class="form j-login-form" method="post"
+      data-action="/security/login/">
+    <div class="form-item">
+        <div class="form-item__content">
+            <input
+                placeholder="Ел. пошта"
+                type="email"
+                autocapitalize="off"
+                name="user[email]"
+                tabindex="1"
+                class="input"
+            />
+        </div>
+    </div>
+    <div class="form-item">
+        <div class="form-item__content">
+            <input placeholder="Пароль" type="password" name="user[pass]" tabindex="2" class="input"/>
+        </div>
+    </div>
+    <div class="form-item">
+        <button class="btn btn--block btn--primary" type="submit">Увійти</button>
+    </div>
+    <script>(function(w) {w.INIT.add(function() {(function ($) {var i=$('<input>').attr({name:"CSRFToken",type:'hidden'}).val("6b0f8dbddfed1b66d976abc4b6e6229f961b4039");$("#login_form_mobile").append(i);})(jQuery)}, 'jQuery' in window)})(window)</script></form>                            </div>
+                            <div class="login__pass-recover">
+                                <a
+                                    href="#password-recovery"
+                                    class="btn btn--block btn--clear"
+                                >Забули пароль?</a>
+                            </div>
+                            <div class="login__social">
+            <div class="login__social-button">
+            <a
+                rel="nofollow"
+                href="/security/OAuthRedirect/?soc=facebook&back=%2F"
+                class="btn btn--block btn--icon-left"
+            >
+                <span class="btn__icon">
+                    <svg class="icon icon--fb icon--size-xl">
+                        <use xlink:href="#icon-fb"></use>
+                    </svg>
+                </span>
+                <span class="btn__text">Увійти через Facebook</span>
+            </a>
+        </div>
+                <div class="login__social-button">
+            <a
+                rel="nofollow"
+                href="/security/OAuthRedirect/?soc=google&back=%2F"
+                class="btn btn--block btn--icon-left"
+            >
+                <span class="btn__icon">
+                    <svg class="icon icon--gp icon--size-xl">
+                        <use xlink:href="#icon-gp"></use>
+                    </svg>
+                </span>
+                <span class="btn__text">Увійти через Google</span>
+            </a>
+        </div>
+        </div>
+                        </div>
+                    </div>
+                    <div id="sign-up" class="login__tab">
+                        <div class="login">
+                            <div class="login__heading is-hidden j-auth-heading"></div>
+                            <form class="form j-signup-form" id="signup-form-mobile" method="post" action="/security/sign_up/" novalidate>
+    <div class="form-item">
+        <div class="form-item__content">
+            <input placeholder="Ім'я та прізвище" name="user[title]" type="text" tabindex="1" class="input">
+        </div>
+    </div>
+    <div class="form-item">
+        <div class="form-item__content">
+            <input
+                placeholder="Ел. пошта"
+                name="user[email]"
+                type="text"
+                autocapitalize="off"
+                tabindex="1"
+                class="input"
+            >
+        </div>
+    </div>
+        <div class="form-item">
+        <div class="form-item__content">
+            <input placeholder="Пароль" name="user[pass]" type="password" tabindex="2" class="input"/>
+        </div>
+    </div>
+                <div class="form-item">
+        <button
+            class="btn btn--block btn--primary j-submit "
+            type="submit"
+        >Зареєструватись</button>
+    </div>
+                    <script>(function(w) {w.INIT.add(function() {(function ($) {var i=$('<input>').attr({name:"CSRFToken",type:'hidden'}).val("46566df515a978fa1f62a97b80852ee16e827eb2");$("#signup-form-mobile").append(i);})(jQuery)}, 'jQuery' in window)})(window)</script></form>
+
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+          }, w.Face)
+  })(window);
+</script>
+                            <div class="login__social">
+            <div class="login__social-button">
+            <a
+                rel="nofollow"
+                href="/security/OAuthRedirect/?soc=facebook&back=%2F"
+                class="btn btn--block btn--icon-left"
+            >
+                <span class="btn__icon">
+                    <svg class="icon icon--fb icon--size-xl">
+                        <use xlink:href="#icon-fb"></use>
+                    </svg>
+                </span>
+                <span class="btn__text">Увійти через Facebook</span>
+            </a>
+        </div>
+                <div class="login__social-button">
+            <a
+                rel="nofollow"
+                href="/security/OAuthRedirect/?soc=google&back=%2F"
+                class="btn btn--block btn--icon-left"
+            >
+                <span class="btn__icon">
+                    <svg class="icon icon--gp icon--size-xl">
+                        <use xlink:href="#icon-gp"></use>
+                    </svg>
+                </span>
+                <span class="btn__text">Увійти через Google</span>
+            </a>
+        </div>
+        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password recovery-->
+    <div id="password-recovery" class="menu__block mm-panel">
+        <div class="menu__header mm-navbar">
+            <a href="#login" class="btn btn--clear btn--icon mm-btn mm-prev">
+                <svg class="icon"><use xlink:href="#icon-arrow-left"></use></svg>
+            </a>
+            <div class="mm-title">Відновлення пароля</div>
+        </div>
+        <div class="mm-body">
+            <div class="mm-viewport">
+                <div class="login mm-wrapper">
+                    <div class="login__password">
+                        <div class="login__text j-recovery-text">Введіть адресу електронної пошти, яку ви вказували при реєстрації. Ми надішлемо лист з інформацією для відновлення пароля.</div>
+                        <form class="form" method="post" id="password-recovery-form-mobile" action="/security/password-recovery/">
+    <div class="form-item">
+        <div class="form-item__content">
+            <input
+                placeholder="Ел. пошта"
+                type="email"
+                autocapitalize="off"
+                class="input"
+                name="user[email]"
+            >
+        </div>
+    </div>
+    <div class="form__form-item">
+        <button class="btn btn--block btn--primary" type="submit">Відновити</button>
+    </div>
+    <script>(function(w) {w.INIT.add(function() {(function ($) {var i=$('<input>').attr({name:"CSRFToken",type:'hidden'}).val("ce6dafcb3ba935731dc6cc6b6014da636a635788");$("#password-recovery-form-mobile").append(i);})(jQuery)}, 'jQuery' in window)})(window)</script></form>                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div id="callback" class="callback">
+    <div id="callback-form" class="callback__block mm-panel">
+        <div class="callback__header mm-navbar">
+            <div class="mm-title">Замовити дзвінок</div>
+            <div class="login__close mm-btn mm-close">
+                <button data-panel-close="" class="btn btn--clear btn--icon">
+                    <span class="btn__icon">
+                        <svg class="icon icon--close">
+                            <use xlink:href="#icon-close"></use>
+                        </svg>
+                    </span>
+                </button>
+            </div>
+        </div>
+        <div class="mm-body">
+            <div class="mm-viewport">
+                <div class="mm-wrapper">
+                    <div class="login__text j-callback-message">Вкажіть ваш номер телефону та ім'я. Ми зателефонуємо вам найближчим часом.</div>
+                    <form class="form" method="post" data-action="/contacts/submit-callback/">
+                        <div class="form-item">
+                            <div class="form-item__content">
+                                <input
+                                    placeholder="Ім'я та прізвище"
+                                    name="form[title]"
+                                    type="text"
+                                    tabindex="1"
+                                    class="input"
+                                    value=""
+                                >
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <div class="form-item__content">
+                                <input
+                                    placeholder="Телефон"
+                                    name="form[phone]"
+                                    type="tel"
+                                    tabindex="2"
+                                    class="input j-phone"
+                                    value=""
+                                >
+                            </div>
+                            <input type="hidden" value="/" name="form[url]">
+                        </div>
+                        <div class="form__form-item">
+                            <button class="btn btn--block btn--primary" type="submit">Надіслати</button>
+                        </div>
+                        <script>(function(w) {w.INIT.add(function() {(function ($) {var i=$('<input>').attr({name:"CSRFToken",type:'hidden'}).val("363eea55abe96ac2c52e32c0f9d930c30ff2dd55");$("#callback-form form").append(i);})(jQuery)}, 'jQuery' in window)})(window)</script>                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+  (function (w) {
+    w.INIT.add(function () {
+      ActiveForm.init($('#callback-form').find('form'), {
+        beforeAjax: function () {
+          const isValid = validateAuthForm(this.form);
+
+          if (isValid) {
+            this.form.find('[type="submit"]').addClass('is-loading');
+          }
+
+          return isValid;
+        },
+        afterAjax: function () {
+          this.form.find('[type="submit"]').removeClass('is-loading');
+        },
+        submitSuccess : function (response) {
+          $('#callback-form').find('.j-callback-message').html(response.message);
+
+          triggerMarketingEvent('callback_submit', [null, response.eventId]);
+          this.form.remove();
+        }
+      }, 'form');
+    }, w.ActiveForm)
+  })(window);
+</script>
+
+<script src='/bundles/mobile/production/main-1b08af27.54b390e8173f083e64f8.js'></script>
+<script src='/bundles/mobile/production/runtime.f0832d917ef76f9476f6.js'></script>
+<script src='/bundles/mobile/production/npm.inputmask.711c890d9833df84dc83.js'></script>
+<script src='/bundles/mobile/production/npm.jquery-13d81934.3f02b0283ddee7920906.js'></script>
+<script src='/bundles/mobile/production/npm.sourcebuster.190de06c3cb5f9541d9a.js'></script>
+<script src='/bundles/mobile/production/npm.regenerator-runtime.bad938086def8a00000b.js'></script>
+<script src='/bundles/mobile/production/npm.lazysizes.2a98c4b6358896f562a6.js'></script>
+<script src='/bundles/mobile/production/npm.hammerjs.be2299514699d56743ec.js'></script>
+<script src='/bundles/mobile/production/npm.horoshop.547e29850f08ee21ece5.js'></script>
+<script src='/bundles/mobile/production/main-44867c3a.8364ddf8261767dd1ec7.js'></script>
+<script src='/bundles/mobile/production/main-e498c03b.29e90bd188df160e7d82.js'></script>
+<script src='/bundles/mobile/production/main-6db91f50.ae482983607f83abc8c9.js'></script>
+<script src='/bundles/mobile/production/main-6fca8c1b.1577b70e4dc3e8e33d5b.js'></script>
+<script src='/bundles/mobile/production/main-90a6ce32.21c37c5df61576f4868b.js'></script>
+<script src='/bundles/mobile/production/npm.jquery-b59a2ec2.c32010b03ac8c4e981f5.js'></script>
+<script>
+    (function (w) {
+      w.INIT.execute();
+    })(window)
+</script>
+</body>
+<!-- Memory: 4 МБ -->
+</html><!-- 0.39s -->

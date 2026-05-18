@@ -17,24 +17,24 @@ export default function trustBadges(
   if (typeof document === 'undefined') return;
 
   if (!config.enabled) {
-    console.warn('[widgetality] trust-badges: ⚠️ disabled');
+    console.warn('[widgetis] trust-badges: ⚠️ disabled');
     return;
   }
 
   if (config.badges.length === 0 || config.selectors.length === 0) {
-    console.warn('[widgetality] trust-badges: ⚠️ no badges/selectors configured');
+    console.warn('[widgetis] trust-badges: ⚠️ no badges/selectors configured');
     return;
   }
 
   if (!isHoroshopProductPage()) {
-    console.warn('[widgetality] trust-badges: ⚠️ skipped — not a product page');
+    console.warn('[widgetis] trust-badges: ⚠️ skipped — not a product page');
     return;
   }
 
   const lang = getLanguage();
   const i18n = i18nMap[lang] ?? i18nMap.ua ?? i18nMap.ru ?? Object.values(i18nMap)[0]!;
 
-  console.log('[widgetality] trust-badges: ✅ activated');
+  console.log('[widgetis] trust-badges: ✅ activated');
 
   injectStyles(config);
 

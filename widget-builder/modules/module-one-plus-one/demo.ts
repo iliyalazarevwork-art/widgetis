@@ -11,7 +11,7 @@
  */
 import onePlusOne from './index';
 
-const LOG = '[widgetality] 1+1=3 (demo):';
+const LOG = '[widgetis] 1+1=3 (demo):';
 const ENDPOINT = '/api/v1/widgets/one-plus-one/evaluate';
 
 interface CartItem {

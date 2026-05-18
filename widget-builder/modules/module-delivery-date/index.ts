@@ -13,10 +13,10 @@ export default function deliveryDate(
 ): (() => void) | void {
   if (typeof document === 'undefined') return;
 
-  if (!config.enabled) { console.warn('[widgetality] delivery-date: ⚠️ disabled'); return; }
-  if (config.selectors.length === 0) { console.warn('[widgetality] delivery-date: ⚠️ no selectors configured — widget skipped'); return; }
-  if (!isHoroshopProductPage()) { console.warn('[widgetality] delivery-date: ⚠️ skipped — not a product page'); return; }
-  console.log('[widgetality] delivery-date: ✅ activated');
+  if (!config.enabled) { console.warn('[widgetis] delivery-date: ⚠️ disabled'); return; }
+  if (config.selectors.length === 0) { console.warn('[widgetis] delivery-date: ⚠️ no selectors configured — widget skipped'); return; }
+  if (!isHoroshopProductPage()) { console.warn('[widgetis] delivery-date: ⚠️ skipped — not a product page'); return; }
+  console.log('[widgetis] delivery-date: ✅ activated');
 
   const lang = getLanguage();
   const i18n = i18nMap[lang] ?? i18nMap.ua ?? i18nMap.ru ?? Object.values(i18nMap)[0]!;

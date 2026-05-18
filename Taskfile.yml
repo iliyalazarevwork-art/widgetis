@@ -282,23 +282,24 @@ tasks:
         cd widget-builder && node_modules/.bin/jiti apply-theme.ts {{if .THEME}}--theme {{.THEME}}{{end}}
 
   build:demo:
-    desc: "Собрать обфусцированный demo-bundle.js из widget-builder/demo-config.json  ·  task build:demo"
+    desc: "Собрать обфусцированные demo-чанки + loader из demo-config.json  ·  task build:demo"
     cmds:
-      - mkdir -p services/site-proxy/public
+      - mkdir -p services/site-proxy/public/wgts-chunks
       # `run --rm` — каждый билд в свежем эфемерном контейнере с актуальной
-      # compose-конфигурацией (volume-mounts из docker-compose.dev.yml).
-      # Не зависит от состояния работающего widget-builder.
-      # -e DEMO_PROXY_PUBLIC_URL forwards from host: prod-deploy sets it to
-      # https://preview.widgetis.com so absolute asset URLs (testVideoUrl etc.)
-      # point at the prod site-proxy host, not localhost:3100.
-      - '{{.DC}} run --rm --no-deps -T -e DEMO_PROXY_PUBLIC_URL widget-builder jiti build-demo.ts > services/site-proxy/public/demo-bundle.js'
+      # compose-конфигурацией. -e DEMO_PROXY_PUBLIC_URL forwards from host.
+      # Output: JSON envelope { loader, chunks } → /tmp/wgts-envelope.json.
+      # Then split-demo-chunks.mjs writes loader + per-page chunks under
+      # services/site-proxy/public/. Container has no RW mount on the public
+      # dir (compose mounts it :ro on site-proxy), so the JSON envelope is
+      # the simplest way to ship multiple files out of one build run.
+      - '{{.DC}} run --rm --no-deps -T -e DEMO_PROXY_PUBLIC_URL -e OBFUSCATE widget-builder jiti build-demo.ts > /tmp/wgts-envelope.json'
       - |
-        if [ ! -s services/site-proxy/public/demo-bundle.js ]; then
-          echo "❌ demo-bundle.js is empty — build failed"
-          rm -f services/site-proxy/public/demo-bundle.js
+        if [ ! -s /tmp/wgts-envelope.json ]; then
+          echo "❌ envelope is empty — build failed"
           exit 1
         fi
-      - echo "✅ demo-bundle.js written ($(wc -c < services/site-proxy/public/demo-bundle.js) bytes)"
+      - node scripts/split-demo-chunks.mjs /tmp/wgts-envelope.json services/site-proxy/public/
+      - rm -f /tmp/wgts-envelope.json
 
   # ── Frontend ───────────────────────────────────────────
   front:dev:

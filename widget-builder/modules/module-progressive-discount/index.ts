@@ -1,7 +1,7 @@
 import type { PageType } from '@laxarevii/core';
 import { getLanguage } from '@laxarevii/core';
 
-export const pages: PageType[] = ['cart', 'product'];
+export const pages: PageType[] = ['home', 'category', 'product', 'cart', 'checkout'];
 import type {
   ProgressiveDiscountConfig,
   ProgressiveDiscountI18n,
@@ -108,19 +108,19 @@ export default function progressiveDiscount(
   if (typeof document === 'undefined') return;
 
   if (!config.enabled) {
-    console.warn('[widgetality] progressive-discount: ⚠️ disabled');
+    console.warn('[widgetis] progressive-discount: ⚠️ disabled');
     return;
   }
   if (shouldHideByUtm(config.hideOnUtmSources)) {
-    console.warn('[widgetality] progressive-discount: ⚠️ hidden by UTM source');
+    console.warn('[widgetis] progressive-discount: ⚠️ hidden by UTM source');
     return;
   }
   if (state.initialized) {
-    console.log('[widgetality] progressive-discount: already initialized');
+    console.log('[widgetis] progressive-discount: already initialized');
     return;
   }
   state.initialized = true;
-  console.log('[widgetality] progressive-discount: ✅ activated');
+  console.log('[widgetis] progressive-discount: ✅ activated');
 
   const lang = getLanguage();
   const i18n: I18nEntry = i18nMap[lang] ?? i18nMap.ua ?? Object.values(i18nMap)[0]!;

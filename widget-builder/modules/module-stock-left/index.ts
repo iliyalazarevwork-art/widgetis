@@ -14,15 +14,15 @@ export default function stockLeft(
   if (typeof document === 'undefined') return;
 
   if (!config.enabled) {
-    console.warn('[widgetality] stock-left: ⚠️ disabled');
+    console.warn('[widgetis] stock-left: ⚠️ disabled');
     return;
   }
   if (config.selectors.length === 0) {
-    console.warn('[widgetality] stock-left: ⚠️ no selectors configured — widget skipped');
+    console.warn('[widgetis] stock-left: ⚠️ no selectors configured — widget skipped');
     return;
   }
   if (!isHoroshopProductPage()) {
-    console.warn('[widgetality] stock-left: ⚠️ skipped — not a product page');
+    console.warn('[widgetis] stock-left: ⚠️ skipped — not a product page');
     return;
   }
   if (!config.showForOutOfStock) {
@@ -32,7 +32,7 @@ export default function stockLeft(
     if (outOfStock) return;
   }
 
-  console.log('[widgetality] stock-left: ✅ activated');
+  console.log('[widgetis] stock-left: ✅ activated');
 
   const lang = getLanguage();
   const i18n =

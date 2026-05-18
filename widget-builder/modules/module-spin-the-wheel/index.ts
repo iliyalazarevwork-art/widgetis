@@ -53,17 +53,17 @@ export default function spinTheWheel(
   if (typeof document === 'undefined') return;
 
   if (!config.enabled) {
-    console.warn('[widgetality] spin-the-wheel: ⚠️ disabled');
+    console.warn('[widgetis] spin-the-wheel: ⚠️ disabled');
     return;
   }
 
   if (isSuppressedByCooldown(config.cooldownHours)) {
-    console.warn('[widgetality] spin-the-wheel: ⏳ cooldown active, skipping');
+    console.warn('[widgetis] spin-the-wheel: ⏳ cooldown active, skipping');
     return;
   }
 
   if (isHiddenByUtm(config.hideOnUtmSources)) {
-    console.warn('[widgetality] spin-the-wheel: 🚫 hidden by UTM source');
+    console.warn('[widgetis] spin-the-wheel: 🚫 hidden by UTM source');
     return;
   }
 
@@ -71,7 +71,7 @@ export default function spinTheWheel(
   const i18n =
     i18nMap[lang] ?? i18nMap.ua ?? i18nMap.ru ?? Object.values(i18nMap)[0]!;
 
-  console.log('[widgetality] spin-the-wheel: ✅ activated');
+  console.log('[widgetis] spin-the-wheel: ✅ activated');
 
   // ── Shadow DOM host ──────────────────────────────────────────────────────
   const hostEl = document.createElement('div');
@@ -89,7 +89,7 @@ export default function spinTheWheel(
 
   // If user previously dismissed the modal, mount only the side tab (no auto-trigger).
   if (isDismissed()) {
-    console.warn('[widgetality] spin-the-wheel: 🚫 dismissed by user, showing tab only');
+    console.warn('[widgetis] spin-the-wheel: 🚫 dismissed by user, showing tab only');
     renderModal(shadow, hostEl, config, i18n);
     document.body.appendChild(hostEl);
     hostEl.classList.add('stw--minimized');

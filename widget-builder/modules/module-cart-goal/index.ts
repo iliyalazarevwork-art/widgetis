@@ -2,7 +2,7 @@ import type { CartGoalConfig, CartGoalI18n } from './schema';
 import type { PageType } from '@laxarevii/core';
 import { getLanguage, resolveCurrency, type CurrencyContext } from '@laxarevii/core';
 
-export const pages: PageType[] = ['home', 'category', 'product', 'cart'];
+export const pages: PageType[] = ['home', 'category', 'product', 'cart', 'checkout'];
 import { injectStyles } from './styles';
 import { findTotalInfo, setupCartInterception, type CartTotalInfo } from './cart';
 import { shouldHideByUtmSource } from './utm';
@@ -172,7 +172,7 @@ function updateWidget(config: CartGoalConfig, i18n: I18nEntry): void {
     if (state.floating?.container.isConnected) state.floating.container.remove();
     state.main = null;
     state.floating = null;
-    console.warn('[widgetality] cart-goal: ⚠️ threshold not configured — widget hidden');
+    console.warn('[widgetis] cart-goal: ⚠️ threshold not configured — widget hidden');
     return;
   }
 
@@ -229,11 +229,11 @@ export default function cartGoal(
 ): (() => void) | void {
   if (typeof document === 'undefined') return;
 
-  if (!config.enabled) { console.warn('[widgetality] cart-goal: ⚠️ disabled'); return; }
-  if (shouldHideByUtmSource(config.hideOnUtmSources)) { console.warn('[widgetality] cart-goal: ⚠️ hidden by UTM source'); return; }
-  if (state.initialized) { console.log('[widgetality] cart-goal: already initialized'); return; }
+  if (!config.enabled) { console.warn('[widgetis] cart-goal: ⚠️ disabled'); return; }
+  if (shouldHideByUtmSource(config.hideOnUtmSources)) { console.warn('[widgetis] cart-goal: ⚠️ hidden by UTM source'); return; }
+  if (state.initialized) { console.log('[widgetis] cart-goal: already initialized'); return; }
   state.initialized = true;
-  console.log('[widgetality] cart-goal: ✅ activated');
+  console.log('[widgetis] cart-goal: ✅ activated');
 
   const lang = getLanguage();
   const i18n: I18nEntry = i18nMap[lang] ?? i18nMap.ua ?? i18nMap.ru ?? Object.values(i18nMap)[0]!;

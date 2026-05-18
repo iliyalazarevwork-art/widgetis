@@ -118,9 +118,9 @@ function generateEntry(modules: ModuleConfigs): string {
       `  var __hasWhitelist${idx} = !!(__mods${idx} && Object.keys(__mods${idx}).length > 0);`,
       `  var __ov${idx} = __mods${idx} ? __mods${idx}[${slugLit}] : null;`,
       `  if (__hasWhitelist${idx} && !__ov${idx}) {`,
-      `    console.log('[widgetality] ${moduleName}: skipped — not present in per-session config');`,
+      `    console.log('[widgetis] ${moduleName}: skipped — not present in per-session config');`,
       `  } else if (__ov${idx} && __ov${idx}.is_enabled === false) {`,
-      `    console.log('[widgetality] ${moduleName}: skipped by per-session config');`,
+      `    console.log('[widgetis] ${moduleName}: skipped by per-session config');`,
       '  } else {',
       `    var __cfg${idx} = (__ov${idx} && __ov${idx}.config) ? __wgtsMergeDeep(${safeVar}Config, __ov${idx}.config) : ${safeVar}Config;`,
       `    var __i18n${idx} = (__ov${idx} && __ov${idx}.i18n) ? __wgtsMergeDeep(${safeVar}I18n, __ov${idx}.i18n) : ${safeVar}I18n;`,
@@ -137,15 +137,15 @@ function generateEntry(modules: ModuleConfigs): string {
         `  if (__wgtsMatchesPage(${pagesLit})) {`,
         ...innerLines.map((l) => '  ' + l),
         '  } else {',
-        `    console.log('[widgetality] ${moduleName}: skipped — wrong page type');`,
+        `    console.log('[widgetis] ${moduleName}: skipped — wrong page type');`,
         '  }',
-        `} catch (err) { console.error('[widgetality] ${moduleName}: ❌ error:', err); }`,
+        `} catch (err) { console.error('[widgetis] ${moduleName}: ❌ error:', err); }`,
       ];
     } else {
       callBlock = [
         'try {',
         ...innerLines,
-        `} catch (err) { console.error('[widgetality] ${moduleName}: ❌ error:', err); }`,
+        `} catch (err) { console.error('[widgetis] ${moduleName}: ❌ error:', err); }`,
       ];
     }
 
@@ -160,7 +160,7 @@ function generateEntry(modules: ModuleConfigs): string {
   const destroyBlock = [
     '',
     'window.__widgetality_destroy = function() {',
-    '  for (const fn of __destroyers) { try { fn(); } catch(e) { console.error("[widgetality] destroy error:", e); } }',
+    '  for (const fn of __destroyers) { try { fn(); } catch(e) { console.error("[widgetis] destroy error:", e); } }',
     '  __destroyers.length = 0;',
     '};',
   ];

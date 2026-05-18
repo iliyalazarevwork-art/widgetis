@@ -2,7 +2,7 @@ import type { PromoAutoApplyConfig, PromoAutoApplyI18n, PromoAutoApplyI18nEntry 
 import type { PageType } from '@laxarevii/core';
 import { getLanguage } from '@laxarevii/core';
 
-export const pages: PageType[] = ['cart', 'checkout'];
+export const pages: PageType[] = ['home', 'category', 'product', 'cart', 'checkout'];
 
 const SESSION_APPLIED_PREFIX = 'wty_promo_auto_applied_';
 
@@ -19,7 +19,7 @@ export default function promoAutoApply(
   if (typeof document === 'undefined') return;
 
   if (!config.enabled) {
-    console.warn('[widgetality] promo-auto-apply: ⚠️ disabled');
+    console.warn('[widgetis] promo-auto-apply: ⚠️ disabled');
     return;
   }
 
@@ -29,23 +29,23 @@ export default function promoAutoApply(
   if (!prize) return;
 
   if (isAppliedThisSession(prize.code)) {
-    console.log('[widgetality] promo-auto-apply: ⏭️ code already applied this session', prize.code);
+    console.log('[widgetis] promo-auto-apply: ⏭️ code already applied this session', prize.code);
     return;
   }
 
   const lang = getLanguage();
   const i18n = i18nMap[lang] ?? i18nMap.ua ?? i18nMap.ru ?? Object.values(i18nMap)[0]!;
 
-  console.log('[widgetality] promo-auto-apply: 🎯 watching for coupon form, code=', prize.code);
+  console.log('[widgetis] promo-auto-apply: 🎯 watching for coupon form, code=', prize.code);
 
   const stopWatch = watchForCouponForm(config.watchTimeoutMs, () => {
     applyCoupon(prize.code).then((ok) => {
       if (!ok) {
-        console.warn('[widgetality] promo-auto-apply: ❌ failed to apply', prize.code);
+        console.warn('[widgetis] promo-auto-apply: ❌ failed to apply', prize.code);
         return;
       }
       rememberAppliedThisSession(prize.code);
-      console.log('[widgetality] promo-auto-apply: ✅ applied', prize.code);
+      console.log('[widgetis] promo-auto-apply: ✅ applied', prize.code);
       if (config.showToast) {
         showToast(config, i18n.appliedMessage.replace('{code}', prize.code));
       }
@@ -166,7 +166,7 @@ function watchForCouponForm(timeoutMs: number, onReady: () => void): () => void 
 
   timer = window.setTimeout(() => {
     finish();
-    console.warn('[widgetality] promo-auto-apply: ⏱️ coupon form not found within', timeoutMs, 'ms');
+    console.warn('[widgetis] promo-auto-apply: ⏱️ coupon form not found within', timeoutMs, 'ms');
   }, timeoutMs);
 
   return finish;

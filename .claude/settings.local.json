@@ -7,7 +7,9 @@
       "Bash(unzip -q -o /Users/iliya/Documents/work/phpStormProjects/iliya/widgetis/.xxx/budget_2025.xlsx)",
       "Bash(xargs -I{} echo \"final: {} pages\")",
       "Bash(mkdir -p /Users/iliya/Documents/work/phpStormProjects/iliya/widgetis/.claude/agents/cold-messages-refs)",
-      "Bash(cp -R /Users/iliya/Documents/work/phpStormProjects/iliya/widgetis/.xxx/p/. /Users/iliya/Documents/work/phpStormProjects/iliya/widgetis/.claude/agents/cold-messages-refs/)"
+      "Bash(cp -R /Users/iliya/Documents/work/phpStormProjects/iliya/widgetis/.xxx/p/. /Users/iliya/Documents/work/phpStormProjects/iliya/widgetis/.claude/agents/cold-messages-refs/)",
+      "Bash(rm -rf widget-builder/packages/core/__fixtures__/horoshop/*)",
+      "Bash(node scripts/fetch-horoshop-fixtures.mjs --limit=15)"
     ]
   },
   "hooks": {

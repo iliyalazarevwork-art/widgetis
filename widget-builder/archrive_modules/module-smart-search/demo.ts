@@ -14,7 +14,7 @@
 import smartSearch from './index';
 import type { FeedIndex } from './feed';
 
-const LOG = '[widgetality] smart-search (demo):';
+const LOG = '[widgetis] smart-search (demo):';
 const FEED_URL_FRAGMENT = '/widgets/smart-search/feed';
 
 const CURRENCY = 'грн';

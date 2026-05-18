@@ -350,11 +350,11 @@ const allInstances: Instance[] = [];
 export default function phoneMask(config: PhoneMaskConfig, i18n: PhoneMaskI18n): (() => void) | void {
   if (typeof document === 'undefined') return;
 
-  if (!config.enabled) { console.warn('[widgetality] phone-mask: disabled'); return; }
+  if (!config.enabled) { console.warn('[widgetis] phone-mask: disabled'); return; }
   if (!COUNTRIES[config.defaultCountry]) {
-    console.warn(`[widgetality] phone-mask: unknown defaultCountry "${config.defaultCountry}", falling back to UA`);
+    console.warn(`[widgetis] phone-mask: unknown defaultCountry "${config.defaultCountry}", falling back to UA`);
   }
-  console.log('[widgetality] phone-mask: activated');
+  console.log('[widgetis] phone-mask: activated');
 
   injectStyles();
 

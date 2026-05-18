@@ -14,10 +14,10 @@ export default function socialProof(
 ): (() => void) | void {
   if (typeof document === 'undefined') return;
 
-  if (!config.enabled) { console.warn('[widgetality] social-proof: ⚠️ disabled'); return; }
-  if (config.selectors.length === 0) { console.warn('[widgetality] social-proof: ⚠️ no selectors configured — widget skipped'); return; }
-  if (!isHoroshopProductPage()) { console.warn('[widgetality] social-proof: ⚠️ skipped — not a product page'); return; }
-  console.log('[widgetality] social-proof: ✅ activated');
+  if (!config.enabled) { console.warn('[widgetis] social-proof: ⚠️ disabled'); return; }
+  if (config.selectors.length === 0) { console.warn('[widgetis] social-proof: ⚠️ no selectors configured — widget skipped'); return; }
+  if (!isHoroshopProductPage()) { console.warn('[widgetis] social-proof: ⚠️ skipped — not a product page'); return; }
+  console.log('[widgetis] social-proof: ✅ activated');
 
   if (!config.showForOutOfStock) {
     const outOfStock = document.querySelector('.product__not-available, .out-of-stock, [data-product-not-available]');

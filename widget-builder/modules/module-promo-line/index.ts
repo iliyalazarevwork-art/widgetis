@@ -2,7 +2,7 @@ import type { MarqueeConfig, MarqueeI18n } from './schema';
 import type { PageType } from '@laxarevii/core';
 import { getLanguage } from '@laxarevii/core';
 
-export const pages: PageType[] = ['home', 'category', 'product', 'cart'];
+export const pages: PageType[] = ['home', 'category', 'product', 'cart', 'checkout'];
 import { buildCSS } from './styles';
 import { isClosed, persistClosed } from './storage';
 import { setPageOffset, setHeaderOffset, clearPageOffset } from './offset';
@@ -23,9 +23,9 @@ function injectStyles(): void {
 }
 
 export default function marquee(config: MarqueeConfig, i18n: MarqueeI18n): (() => void) | void {
-  if (!config.enabled) { console.warn('[widgetality] marquee: ⚠️ disabled'); return; }
-  if (isClosed()) { console.log('[widgetality] marquee: closed by user (TTL not expired)'); return; }
-  console.log('[widgetality] marquee: ✅ activated');
+  if (!config.enabled) { console.warn('[widgetis] marquee: ⚠️ disabled'); return; }
+  if (isClosed()) { console.log('[widgetis] marquee: closed by user (TTL not expired)'); return; }
+  console.log('[widgetis] marquee: ✅ activated');
 
   const lang = getLanguage();
   const messages = i18n[lang] ?? i18n.ua ?? i18n.ru ?? Object.values(i18n)[0];

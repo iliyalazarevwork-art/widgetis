@@ -2,7 +2,7 @@ import type { ExitIntentPopupConfig, ExitIntentPopupI18n } from './schema';
 import type { PageType } from '@laxarevii/core';
 import { getLanguage } from '@laxarevii/core';
 
-export const pages: PageType[] = ['home', 'category', 'product'];
+export const pages: PageType[] = ['home', 'category', 'product', 'cart', 'checkout'];
 
 const ROOT_ID = 'wdg-exit-intent';
 const STYLES_ID = 'wdg-exit-intent-styles';
@@ -29,24 +29,24 @@ export default function exitIntentPopup(
   if (typeof document === 'undefined') return;
 
   if (!config.enabled) {
-    console.warn('[widgetality] exit-intent: ⚠️ disabled');
+    console.warn('[widgetis] exit-intent: ⚠️ disabled');
     return;
   }
 
   if (isSuppressedByCooldown(config.cooldownHours)) {
-    console.warn('[widgetality] exit-intent: ⏳ cooldown active, skipping');
+    console.warn('[widgetis] exit-intent: ⏳ cooldown active, skipping');
     return;
   }
 
   if (isHiddenByUtm(config.hideOnUtmSources)) {
-    console.warn('[widgetality] exit-intent: 🚫 hidden by UTM source');
+    console.warn('[widgetis] exit-intent: 🚫 hidden by UTM source');
     return;
   }
 
   const lang = getLanguage();
   const i18n = i18nMap[lang] ?? i18nMap.ua ?? i18nMap.ru ?? Object.values(i18nMap)[0]!;
 
-  console.log('[widgetality] exit-intent: ✅ activated');
+  console.log('[widgetis] exit-intent: ✅ activated');
 
   injectStyles(config);
 

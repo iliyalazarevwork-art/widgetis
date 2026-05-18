@@ -909,7 +909,7 @@ function syncWidget(): void {
     widget && widget.pageKey === pageKey ? resolvedVideoSrc || widget.videoSrc : resolvedVideoSrc;
   if (!videoSrc) {
     destroyWidget();
-    console.warn('[widgetality] product-video-preview: ⚠️ no video found on this page (selector:', settings.mp4Selector, ')');
+    console.warn('[widgetis] product-video-preview: ⚠️ no video found on this page (selector:', settings.mp4Selector, ')');
     return;
   }
 
@@ -985,8 +985,8 @@ export default function productVideoPreview(
 ): (() => void) | void {
   if (typeof document === 'undefined') return;
 
-  if (!config.enabled) { console.warn('[widgetality] product-video-preview: ⚠️ disabled'); return; }
-  console.log('[widgetality] product-video-preview: ✅ activated');
+  if (!config.enabled) { console.warn('[widgetis] product-video-preview: ⚠️ disabled'); return; }
+  console.log('[widgetis] product-video-preview: ✅ activated');
 
   const lang = getLanguage();
   const i18n = i18nMap[lang] ?? i18nMap.ua ?? i18nMap.ru ?? Object.values(i18nMap)[0]!;

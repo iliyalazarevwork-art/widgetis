@@ -147,7 +147,7 @@ export function buildPopup(
         addBtn.textContent = '✓';
         addBtn.setAttribute('data-state', 'done');
       }).catch((error: unknown) => {
-        console.error('[widgetality] cart-recommender: add-to-cart action failed', error);
+        console.error('[widgetis] cart-recommender: add-to-cart action failed', error);
         addBtn.textContent = '';
         addBtn.disabled = false;
         addBtn.setAttribute('data-state', 'idle');

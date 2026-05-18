@@ -9,7 +9,7 @@
  */
 import photoReviews from './index';
 
-const LOG = '[widgetality] photo-reviews (demo):';
+const LOG = '[widgetis] photo-reviews (demo):';
 const MATCH_URL_FRAGMENT = '/api/v1/widgets/reviews/match';
 const UPLOAD_URL_FRAGMENT = '/api/v1/widgets/reviews';
 

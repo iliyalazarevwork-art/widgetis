@@ -12,7 +12,7 @@
  */
 import smsOtpCheckout from './index';
 
-const LOG = '[widgetality] sms-otp-checkout (demo):';
+const LOG = '[widgetis] sms-otp-checkout (demo):';
 const DEMO_TOKEN = 'demo-token';
 const DEMO_REQUEST_ID = 'demo-req-1';
 

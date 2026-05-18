@@ -3,133 +3,124 @@ import { detectPageType, matchesPage } from './page-type';
 
 const CACHE_KEY = '__WIDGETIS_PAGE_TYPE__';
 
-function makeWin(pathname: string): Window {
-  return {
-    location: { pathname },
-  } as unknown as Window;
+function makeWin(): Window {
+  return {} as unknown as Window;
 }
 
-function makeDoc(headHtml = '', bodyHtml = ''): Document {
+function makeDoc(headHtml = '', bodyHtml = '', bodyClass = ''): Document {
   const doc = document.implementation.createHTMLDocument('test');
   doc.head.innerHTML = headHtml;
   doc.body.innerHTML = bodyHtml;
+  if (bodyClass) doc.body.className = bodyClass;
   return doc;
 }
 
 beforeEach(() => {
-  // Clear cache between tests
   delete (window as any)[CACHE_KEY];
 });
 
 // ---------------------------------------------------------------------------
-// URL-based detection
+// og:type
 // ---------------------------------------------------------------------------
 
-describe('detectPageType — URL product', () => {
-  it('detects /p123-abc as product', () => {
-    expect(detectPageType(undefined, makeWin('/p123-abc'))).toBe('product');
-  });
-
-  it('detects /p999-foo-bar as product', () => {
-    expect(detectPageType(undefined, makeWin('/p999-foo-bar'))).toBe('product');
-  });
-
-  it('detects /p42 (no slug) as product', () => {
-    expect(detectPageType(undefined, makeWin('/p42'))).toBe('product');
-  });
-});
-
-describe('detectPageType — URL category', () => {
-  it('detects /g14001473-divany as category', () => {
-    expect(detectPageType(undefined, makeWin('/g14001473-divany'))).toBe('category');
-  });
-
-  it('detects /g5 (no slug) as category', () => {
-    expect(detectPageType(undefined, makeWin('/g5'))).toBe('category');
-  });
-});
-
-describe('detectPageType — URL cart', () => {
-  it('detects /cart as cart', () => {
-    expect(detectPageType(undefined, makeWin('/cart'))).toBe('cart');
-  });
-
-  it('does NOT detect /cart-something as cart', () => {
-    const result = detectPageType(makeDoc(), makeWin('/cart-something'));
-    expect(result).not.toBe('cart');
-  });
-
-  it('does NOT detect /cart/checkout as cart', () => {
-    const result = detectPageType(makeDoc(), makeWin('/cart/checkout'));
-    // /cart/checkout matches checkout rule (has /checkout)
-    expect(result).toBe('checkout');
-  });
-});
-
-describe('detectPageType — URL checkout', () => {
-  it('detects /checkout as checkout', () => {
-    expect(detectPageType(undefined, makeWin('/checkout'))).toBe('checkout');
-  });
-
-  it('detects /order as checkout', () => {
-    expect(detectPageType(undefined, makeWin('/order'))).toBe('checkout');
-  });
-
-  it('detects /checkout/payment as checkout', () => {
-    expect(detectPageType(undefined, makeWin('/checkout/payment'))).toBe('checkout');
-  });
-});
-
-describe('detectPageType — URL home', () => {
-  it('detects / as home', () => {
-    expect(detectPageType(undefined, makeWin('/'))).toBe('home');
-  });
-});
-
-describe('detectPageType — URL other', () => {
-  it('detects /about as other (falls back to DOM, empty DOM → other)', () => {
-    expect(detectPageType(makeDoc(), makeWin('/about'))).toBe('other');
-  });
-
-  it('detects /blog/post-1 as other', () => {
-    expect(detectPageType(makeDoc(), makeWin('/blog/post-1'))).toBe('other');
-  });
-});
-
-// ---------------------------------------------------------------------------
-// DOM fallback (when URL doesn't match a known pattern)
-// ---------------------------------------------------------------------------
-
-describe('detectPageType — DOM fallback', () => {
-  it('returns product for og:type=product without matching URL', () => {
-    const doc = makeDoc('<meta property="og:type" content="product">');
-    const win = makeWin('/about');
-    expect(detectPageType(doc, win)).toBe('product');
+describe('detectPageType — og:type', () => {
+  it('returns product for og:type=product', () => {
+    expect(
+      detectPageType(makeDoc('<meta property="og:type" content="product">'), makeWin()),
+    ).toBe('product');
   });
 
   it('returns category for og:type=product.group', () => {
-    const doc = makeDoc('<meta property="og:type" content="product.group">');
-    const win = makeWin('/about');
-    expect(detectPageType(doc, win)).toBe('category');
+    expect(
+      detectPageType(makeDoc('<meta property="og:type" content="product.group">'), makeWin()),
+    ).toBe('category');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// DOM selectors — generic
+// ---------------------------------------------------------------------------
+
+describe('detectPageType — generic DOM', () => {
+  it('returns cart for body.cart', () => {
+    expect(detectPageType(makeDoc('', '', 'cart'), makeWin())).toBe('cart');
   });
 
-  it('returns cart for body.cart class without matching URL', () => {
-    const doc = makeDoc('', '');
-    doc.body.className = 'cart';
-    const win = makeWin('/some-other-path');
-    expect(detectPageType(doc, win)).toBe('cart');
+  it('returns checkout for #checkout-form', () => {
+    expect(detectPageType(makeDoc('', '<form id="checkout-form"></form>'), makeWin())).toBe(
+      'checkout',
+    );
   });
 
-  it('returns product for .product-header selector without matching URL', () => {
-    const doc = makeDoc('', '<div class="product-header"></div>');
-    const win = makeWin('/some-other-path');
-    expect(detectPageType(doc, win)).toBe('product');
+  it('returns category for .catalog__products', () => {
+    expect(
+      detectPageType(makeDoc('', '<div class="catalog__products"></div>'), makeWin()),
+    ).toBe('category');
   });
 
-  it('returns category for .catalog__products without matching URL', () => {
-    const doc = makeDoc('', '<div class="catalog__products"></div>');
-    const win = makeWin('/some-other-path');
-    expect(detectPageType(doc, win)).toBe('category');
+  it('returns product for .product-header', () => {
+    expect(detectPageType(makeDoc('', '<div class="product-header"></div>'), makeWin())).toBe(
+      'product',
+    );
+  });
+
+  it('returns home for body.home', () => {
+    expect(detectPageType(makeDoc('', '', 'home'), makeWin())).toBe('home');
+  });
+
+  it('returns other when no signals match', () => {
+    expect(detectPageType(makeDoc(), makeWin())).toBe('other');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// DOM selectors — Horoshop
+// ---------------------------------------------------------------------------
+
+describe('detectPageType — Horoshop DOM', () => {
+  it('returns home for body.main-page', () => {
+    expect(detectPageType(makeDoc('', '', 'main-page'), makeWin())).toBe('home');
+  });
+
+  it('returns home for body.b-main', () => {
+    expect(detectPageType(makeDoc('', '', 'b-main'), makeWin())).toBe('home');
+  });
+
+  it('returns product for body.b-product', () => {
+    expect(detectPageType(makeDoc('', '', 'b-product'), makeWin())).toBe('product');
+  });
+
+  it('returns category for body.b-category', () => {
+    expect(detectPageType(makeDoc('', '', 'b-category'), makeWin())).toBe('category');
+  });
+
+  it('returns cart for body.b-cart', () => {
+    expect(detectPageType(makeDoc('', '', 'b-cart'), makeWin())).toBe('cart');
+  });
+
+  it('returns checkout for body.b-checkout', () => {
+    expect(detectPageType(makeDoc('', '', 'b-checkout'), makeWin())).toBe('checkout');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Priority — og:type beats selectors; checkout beats cart, etc.
+// ---------------------------------------------------------------------------
+
+describe('detectPageType — priority', () => {
+  it('og:type=product wins over body.home', () => {
+    expect(
+      detectPageType(
+        makeDoc('<meta property="og:type" content="product">', '', 'home'),
+        makeWin(),
+      ),
+    ).toBe('product');
+  });
+
+  it('checkout selector wins over cart selector', () => {
+    expect(
+      detectPageType(makeDoc('', '<form id="checkout-form"></form>', 'cart'), makeWin()),
+    ).toBe('checkout');
   });
 });
 
@@ -138,26 +129,24 @@ describe('detectPageType — DOM fallback', () => {
 // ---------------------------------------------------------------------------
 
 describe('detectPageType — caching', () => {
-  it('returns cached value on second call even if URL would differ', () => {
-    const win = makeWin('/p123-product') as any;
-    const first = detectPageType(undefined, win);
-    expect(first).toBe('product');
+  it('caches the first detected value on window', () => {
+    const win = makeWin() as any;
+    const doc = makeDoc('', '<div class="product-header"></div>');
+    expect(detectPageType(doc, win)).toBe('product');
     expect(win[CACHE_KEY]).toBe('product');
 
-    // Simulate a different URL — but cache should win
-    win.location.pathname = '/';
-    const second = detectPageType(undefined, win);
-    expect(second).toBe('product');
+    // Even if the DOM changes, cache wins.
+    const doc2 = makeDoc();
+    expect(detectPageType(doc2, win)).toBe('product');
   });
 
-  it('clears and redetects when cache key is deleted between tests', () => {
-    const win = makeWin('/p123-product') as any;
-    detectPageType(undefined, win);
+  it('redetects after the cache key is cleared', () => {
+    const win = makeWin() as any;
+    detectPageType(makeDoc('', '<div class="product-header"></div>'), win);
     expect(win[CACHE_KEY]).toBe('product');
 
     delete win[CACHE_KEY];
-    win.location.pathname = '/';
-    expect(detectPageType(undefined, win)).toBe('home');
+    expect(detectPageType(makeDoc('', '', 'cart'), win)).toBe('cart');
   });
 });
 
@@ -180,10 +169,5 @@ describe('matchesPage', () => {
 
   it('returns false for empty allowed array', () => {
     expect(matchesPage([], 'product')).toBe(false);
-  });
-
-  it('returns true when current is undefined and uses detectPageType fallback', () => {
-    // With happy-dom the window has no location.pathname that matches, DOM empty → 'other'
-    expect(matchesPage('all')).toBe(true);
   });
 });

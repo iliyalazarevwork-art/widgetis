@@ -105,7 +105,7 @@ export function applyCoupon(code: string): boolean {
   if (ok) {
     lastApplied = code;
     writeStored(code);
-    console.log('[widgetality] progressive-discount: ✅ applied', code);
+    console.log('[widgetis] progressive-discount: ✅ applied', code);
   }
   return ok;
 }

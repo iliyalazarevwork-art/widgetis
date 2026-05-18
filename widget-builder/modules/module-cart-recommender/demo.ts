@@ -13,7 +13,7 @@ import type { CartRecommenderInput, CartRecommenderI18n } from './schema';
 import type { Product } from './dom';
 import cartRecommender from './index';
 
-const LOG = '[widgetality] cart-recommender (demo):';
+const LOG = '[widgetis] cart-recommender (demo):';
 const SUGGEST_PATH = '/api/v1/widgets/cart-recommender/suggest';
 
 interface ScrapedSticker {

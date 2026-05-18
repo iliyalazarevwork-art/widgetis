@@ -20,7 +20,7 @@
  */
 import type { Product } from './dom';
 
-const LOG = '[widgetality] cart-recommender (scrape):';
+const LOG = '[widgetis] cart-recommender (scrape):';
 
 export interface ScrapedSticker {
   url: string;

@@ -2,7 +2,7 @@ import type { MinOrderConfig, MinOrderI18n } from './schema';
 import type { PageType } from '@laxarevii/core';
 import { getLanguage, resolveCurrency } from '@laxarevii/core';
 
-export const pages: PageType[] = ['cart', 'checkout'];
+export const pages: PageType[] = ['home', 'category', 'product', 'cart', 'checkout'];
 import { injectStyles } from './styles';
 import { findTotalInfo, setupCartInterception } from './cart';
 import {
@@ -198,10 +198,10 @@ export default function minOrder(
 ): (() => void) | void {
   if (typeof document === 'undefined') return;
 
-  if (!config.enabled) { console.warn('[widgetality] min-order: disabled'); return; }
-  if (state.initialized) { console.log('[widgetality] min-order: already initialized'); return; }
+  if (!config.enabled) { console.warn('[widgetis] min-order: disabled'); return; }
+  if (state.initialized) { console.log('[widgetis] min-order: already initialized'); return; }
   state.initialized = true;
-  console.log('[widgetality] min-order: activated');
+  console.log('[widgetis] min-order: activated');
 
   const lang = getLanguage();
   const i18n: I18nEntry = i18nMap[lang] ?? i18nMap.ua ?? i18nMap.ru ?? Object.values(i18nMap)[0]!;
