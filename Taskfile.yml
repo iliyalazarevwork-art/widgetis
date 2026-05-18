@@ -115,10 +115,29 @@ tasks:
       - cd widget-builder && pnpm exec playwright test --config tests/e2e/playwright.config.ts
 
   test:smoke:prod:
-    desc: "Прод-смоук Playwright против https://widgetis.com (после деплоя)"
-    dir: frontend
+    desc: "Прод-смоук Playwright на сервере (preview.widgetis.com резолвится только там)"
     cmds:
-      - E2E_BASE_URL=https://widgetis.com npm run e2e
+      - |
+        ssh {{.SERVER}} '
+          set -e
+          cd {{.REMOTE_DIR}}/frontend
+          docker volume create widgetis-e2e-nm >/dev/null 2>&1 || true
+          docker run --rm \
+            --network host \
+            --ipc=host \
+            -v "$(pwd):/work" \
+            -v widgetis-e2e-nm:/work/node_modules \
+            -w /work \
+            -e CI=true \
+            -e E2E_BASE_URL=https://widgetis.com \
+            mcr.microsoft.com/playwright:v1.59.1-noble \
+            bash -c "npm install --prefer-offline 2>&1 | tail -3 && npx playwright test --project=chromium"
+        '
+
+  prod:e2e:setup:
+    desc: "Однократная настройка: скачать Playwright Docker image на сервер  ·  task prod:e2e:setup"
+    cmds:
+      - ssh {{.SERVER}} 'docker pull mcr.microsoft.com/playwright:v1.59.1-noble'
 
   test:all:
     desc: "Полный прогон: pint + stan + backend phpunit + frontend vitest + локальный e2e"
