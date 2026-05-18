@@ -343,6 +343,19 @@ tasks:
     internal: true
     cmds:
       - echo "[eslint]  start" && (cd frontend && time npx eslint --fix 'src/**/*.{ts,tsx}') || true; echo "[eslint]  done"
+
+  _deploy:pre:commit-fixes:
+    internal: true
+    desc: "Закоммитить авто-фиксы pint+eslint, чтобы working tree остался чистым"
+    cmds:
+      - |
+        if git diff --quiet; then
+          echo "[autocommit] no changes from pint/eslint — skipping"
+        else
+          git add -A
+          git commit -m "chore: auto-fix pint+eslint before deploy"
+          echo "[autocommit] committed pint+eslint auto-fixes"
+        fi
   _deploy:pre:phpstan:
     internal: true
     cmds:
@@ -421,6 +434,7 @@ tasks:
       - task: _deploy:pre:ensure
       - echo "▶ Phase A — auto-fixes (pint + eslint, parallel)"
       - task: _deploy:pre:fix
+      - task: _deploy:pre:commit-fixes
       - echo "▶ Phase B — checks + tests (phpstan + tsc + phpunit + vitest, parallel)"
       - task: _deploy:pre:check
       - echo "▶ Phase C — frontend SEO-prerender + sitemap"
