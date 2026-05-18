@@ -2,6 +2,23 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { get, post, setToken, getToken } from '../api/client'
 import type { User } from '../types'
 
+declare global {
+  interface Window {
+    __wtyBlockClarity?: () => void
+  }
+}
+
+function applyAdminClarityBlock(user: User | null) {
+  try {
+    if (user?.role === 'admin') {
+      localStorage.setItem('wty_is_admin', '1')
+      window.__wtyBlockClarity?.()
+    } else {
+      localStorage.removeItem('wty_is_admin')
+    }
+  } catch { /* storage blocked */ }
+}
+
 interface AuthState {
   user: User | null
   isLoading: boolean
