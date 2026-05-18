@@ -265,12 +265,15 @@ test.describe('prod-smoke', () => {
       `<script data-widgetis-demo> tag missing — services/site-proxy/public/demo-bundle.js may be empty in the deployed image.`,
     ).toContain('data-widgetis-demo')
 
-    // Build banner the bundle prints on every page load — sanity check
+    // Build banner the loader prints on every page load — sanity check
     // that what got inlined is actually our bundle, not a placeholder.
+    // The lazy chunks (which carry the `widgetality` marker) are fetched
+    // by a separate `<script src=...>` and never appear inline, so we
+    // assert on the loader's own banner instead.
     expect(
       html,
-      `'[widgetality]' build banner missing — demo bundle was not inlined or is corrupted.`,
-    ).toContain('widgetality')
+      `'[widgetis] loader build=' banner missing — demo bundle was not inlined or is corrupted.`,
+    ).toContain('[widgetis] loader build=')
   })
 
   // ── Public pages: render + no JS errors + page-specific content ────────────
