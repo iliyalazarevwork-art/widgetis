@@ -112,7 +112,12 @@ class ScriptBuilderService
 
         Storage::disk('r2')->put($path, $js, [
             'ContentType' => 'application/javascript',
-            'CacheControl' => 'public, max-age=300',
+            // no-cache = "cache it, but always revalidate with origin via ETag before use".
+            // R2 sets an ETag automatically from the object hash; rebuilds change the hash,
+            // so browsers get a fresh 151 KB body when the bundle changes, and a ~300 B
+            // 304 Not Modified the rest of the time. Result: zero staleness for merchants
+            // after a redeploy, without giving up cache savings on repeat visits.
+            'CacheControl' => 'public, no-cache',
         ]);
 
         $publicUrl = rtrim((string) config('services.r2.public_url', 'https://cdn.widgetis.com'), '/');

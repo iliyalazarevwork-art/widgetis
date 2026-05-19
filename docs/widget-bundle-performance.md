@@ -6,6 +6,31 @@
 
 ---
 
+## 0. Канонический сниппет установки на сайт мерчанта
+
+Вставляется в админке Horoshop → **«Скрипти всередині тегу `<head>`»**, первым в этом окне:
+
+```html
+<link rel="dns-prefetch" href="https://cdn.widgetis.com">
+<link rel="preconnect" href="https://cdn.widgetis.com" crossorigin>
+<script src="https://cdn.widgetis.com/sites/{domain}/{token}.js" defer></script>
+```
+
+`{domain}` и `{token}` подставляются автоматически методом `SiteScript::getScriptTagAttribute()` (`backend/app/WidgetRuntime/Models/SiteScript.php`).
+
+**Почему именно так:**
+- `dns-prefetch` + `preconnect` обязаны быть в `<head>` — в `<body>` браузер их игнорирует или применяет с опозданием.
+- `defer` не блокирует парсинг и не конкурирует с LCP-изображением за bandwidth (в отличие от `async`).
+- Сниппет ставится **первым** в окне «всередині `<head>`», чтобы preconnect сработал до того, как браузер начнёт качать swiper/прочие сторонние ресурсы.
+
+**Что НЕ делать:**
+- ❌ Не использовать `async` — он крадёт bandwidth у LCP-картинки на Slow 4G.
+- ❌ Не вставлять в «після `<body>`» или «перед `</body>`» — там preconnect/dns-prefetch теряют эффект.
+- ❌ Не добавлять `<link rel="preload">` для bundle — отнимет приоритет у LCP-картинки.
+- ❌ Не дублировать тег в нескольких слотах.
+
+---
+
 ## 1. TL;DR
 
 После включения widgetis-скрипта на benihome.com.ua Lighthouse-метрики мобильной версии деградируют:

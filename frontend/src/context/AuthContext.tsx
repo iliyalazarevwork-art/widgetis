@@ -37,6 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback((token: string, userData: User) => {
     setToken(token)
     setUser(userData)
+    applyAdminClarityBlock(userData)
   }, [])
 
   const logout = useCallback(async () => {
@@ -47,15 +48,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     setToken(null)
     setUser(null)
+    applyAdminClarityBlock(null)
   }, [])
 
   const refreshUser = useCallback(async () => {
     try {
       const res = await get<{ data: User }>('/auth/user')
       setUser(res.data)
+      applyAdminClarityBlock(res.data)
     } catch {
       setToken(null)
       setUser(null)
+      applyAdminClarityBlock(null)
     }
   }, [])
 
@@ -65,10 +69,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoading(true)
     get<{ data: User }>('/auth/user')
-      .then((res) => setUser(res.data))
+      .then((res) => {
+        setUser(res.data)
+        applyAdminClarityBlock(res.data)
+      })
       .catch(() => {
         setToken(null)
         setUser(null)
+        applyAdminClarityBlock(null)
       })
       .finally(() => setIsLoading(false))
   }, [])
