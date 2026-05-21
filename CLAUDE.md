@@ -5,32 +5,17 @@
 Widgetis — a widget marketplace for e-commerce stores on Horoshop.
 This is the backend API built with Laravel 12 + JWT auth. Admin UI is the React `/admin` SPA in `frontend/`.
 
-Business model: subscription plans (Free / Basic / Pro / Max).
-No one-time payments. No cart. Subscriptions only.
+Business model: subscription plans (Free / Pro / Max). Founding customers: Pro at 299₴ lifetime (first 20). Pro mainstream price 499₴. No one-time payments. No cart. Subscriptions only.
 
-## How to build this project
+Admin panel: **only** the React `/admin` SPA in `frontend/`. Filament has been removed — do **not** reintroduce Filament packages or a `manage.widgetis.com` block.
 
-### Step 1: Read the guide
+## Reference docs
 
-Open `docs/ai-dev-guide/00-overview.md` — it has the full table of contents.
-Execute each step file **in order** (01 → 18). **Do NOT skip steps.**
-
-Each step has:
-- **Goal** — what must work after this step
-- **Prerequisites** — what must be done before
-- **Actions** — exact code to write, with full file contents
-- **How to Verify** — commands to confirm it works
-- **Commit** — commit message to use
-
-### Step 2: Reference the full plan
-
-`docs/v2-backend-plan.md` is the comprehensive backend plan with:
-- All 80+ API endpoints with request/response schemas
-- Full database schema (26 tables)
-- Service architecture (15 services)
-- Email templates, cron jobs, middleware
-
-Use it as a reference when the step guide says "follow the same pattern."
+- `docs/v2-backend-plan.md` — comprehensive backend plan (endpoints, DB schema, services, cron jobs).
+- `docs/openapi.yaml` — API contract.
+- `docs/widget-bundle-performance.md` — widget runtime bundle architecture (Zod is build-time only; not in runtime).
+- `docs/widgets/` — per-widget docs.
+- `frontend/DESIGN-STANDARDS.md` — frontend design standards (mandatory).
 
 ## Step workflow
 
@@ -253,24 +238,39 @@ Use standard Laravel logger. Separate channels for auth and payments:
 - `Log::channel('payments')->info(...)` for payment/subscription events
 - `Log::error(...)` for unexpected errors
 
-## Tech stack (verified, 0 conflicts)
+## Tech stack
+
+Backend (`backend/composer.json`):
 
 | Package | Version |
 |---------|---------|
-| `laravel/framework` | 12.x |
-| `tymon/jwt-auth` | 2.3.x |
-| `spatie/laravel-permission` | 7.x |
-| `spatie/laravel-settings` | 3.7.x |
-| `spatie/laravel-translatable` | 6.x |
-| `spatie/laravel-data` | 4.x |
-| `laravel/socialite` | 5.x |
-| `resend/resend-laravel` | 1.3.x |
-| `laravel/vonage-notification-channel` | 3.x |
-| `predis/predis` | 3.4.x |
-| `league/flysystem-aws-s3-v3` | 3.x |
-| `ensi/laravel-openapi-server-generator` | 4.x (dev) |
-| PostgreSQL | 15 |
+| PHP | ^8.2 |
+| `laravel/framework` | ^12.0 |
+| `tymon/jwt-auth` | ^2.3 |
+| `spatie/laravel-permission` | ^7.0 |
+| `spatie/laravel-settings` | ^3.7 |
+| `spatie/laravel-translatable` | ^6.0 |
+| `laravel/socialite` | ^5.26 |
+| `resend/resend-laravel` | ^1.3 |
+| `predis/predis` | ^3.4 |
+| `league/flysystem-aws-s3-v3` | ^3.0 |
+| `wayforpay/php-sdk` | ^1.0 |
+| `aratkruglik/monobank-laravel` | ^1.1 |
+| `giggsey/libphonenumber-for-php` | ^9.0 |
+| `openspout/openspout` | ^5.6 |
+| `pgvector/pgvector` | ^0.2.2 |
+| `larastan/larastan` (dev) | ^3.0 |
+| `qossmic/deptrac` (dev) | ^2 |
+| PostgreSQL | 15 (with pgvector) |
 | Redis | 7 |
+
+Frontend (`frontend/`): React SPA + Vite, customer cabinet and `/admin` panel.
+
+Services (`services/`):
+- `site-proxy` — Node.js proxy for live demos (see below).
+- `catalog-crawler` — Horoshop catalog crawler.
+
+Widget runtime (`widget-builder/`): pnpm workspace, TS modules, esbuild/obfuscator pipeline.
 
 ## Widget modules — where they live
 
@@ -284,15 +284,18 @@ This is a pnpm workspace (`widget-builder/pnpm-workspace.yaml`); each module is 
 ```
 widget-builder/modules/module-{name}/
 ├── package.json     # name: "@laxarevii/module-{name}", dep: "@laxarevii/core: workspace:*"
-├── schema.ts        # Zod schema for config + i18n; exports {Name}Config type
+├── schema.ts        # Zod schema — used at BUILD time only (parsed and stripped from runtime bundle)
 ├── index.ts         # export default function {name}(config, i18n): void | (() => void)
+│                    #   plus: export const pages: PageType[] (page-type detector lives in core/page-type.ts)
 ├── index.test.ts    # Vitest
 └── (optional) styles.ts, dom.ts, storage.ts, animation.ts, etc.
 ```
 
+Runtime bundle currently ~520 KB raw / ~121 KB brotli (Zod removed from runtime — see `docs/widget-bundle-performance.md`).
+
 **Per-site configuration** lives in `widget-builder/sites/{site}/modules/module-{name}/{config,i18n}.ts`.
 
-**Existing modules** (April 2026): `module-cart-goal`, `module-delivery-date`, `module-marquee`, `module-min-order`, `module-one-plus-one`, `module-photo-reviews`, `module-product-video-preview`, `module-sms-otp-checkout`, `module-social-proof`, `module-sticky-buy-button`.
+**Existing modules** (May 2026, 19 total): `module-buyer-count`, `module-cart-goal`, `module-cart-recommender`, `module-delivery-date`, `module-last-chance-popup`, `module-minorder-goal`, `module-one-plus-one`, `module-phone-mask`, `module-photo-video-reviews`, `module-prize-banner`, `module-progressive-discount`, `module-promo-auto-apply`, `module-promo-line`, `module-sms-otp-checkout`, `module-spin-the-wheel`, `module-sticky-buy-button`, `module-stock-left`, `module-trust-badges`, `module-video-preview`.
 
 **To add a new module** see `widget-builder/modules/README.md`.
 

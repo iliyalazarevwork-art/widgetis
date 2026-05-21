@@ -1,6 +1,7 @@
 .hero {
   position: relative;
-  min-height: 100svh;
+  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -54,6 +55,8 @@
 /* ── Content (title + pill) ── */
 
 .hero__content {
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -61,6 +64,13 @@
   gap: 14px;
   text-align: center;
   padding: 12px 0 0;
+}
+
+.hero__title-wrap {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .hero__title {
@@ -83,6 +93,149 @@
 .hero--visible .hero__title {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* ── Floating stickers ── */
+
+.hero__stickers {
+  position: absolute;
+  inset: -40px -40px 20px -40px;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.hero__title,
+.hero__pill {
+  position: relative;
+  z-index: 2;
+}
+
+.hero__sticker {
+  --stream-up: 240px;
+  position: absolute;
+  bottom: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 999px;
+  font-family: var(--font-body, 'Inter');
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.38);
+  opacity: 0;
+  transform: rotate(var(--rot, 0deg)) translateY(40px) scale(0.75);
+  will-change: transform, opacity;
+}
+
+.hero__sticker svg {
+  display: block;
+  flex-shrink: 0;
+}
+
+.hero--visible .hero__sticker {
+  animation: hero-sticker-stream 8s linear var(--in-delay, 0s) infinite both;
+}
+
+/* Left lane — 3 stickers, staggered through the cycle */
+.hero__sticker--rate {
+  --rot: -8deg;
+  --in-delay: 0s;
+  left: 0;
+  padding: 7px 12px;
+  font-size: 14px;
+  color: #f0f0f0;
+  background: #161616;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+}
+
+.hero__sticker--cart {
+  --rot: -6deg;
+  --in-delay: 2.7s;
+  left: 8px;
+  padding: 5px 10px;
+  font-size: 11px;
+  color: #f0f0f0;
+  background: #161616;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+}
+
+.hero__sticker--cart svg {
+  color: #10b981;
+}
+
+.hero__sticker--time {
+  --rot: 5deg;
+  --in-delay: 5.3s;
+  left: 0;
+  padding: 5px 10px;
+  font-size: 11px;
+  color: #f0f0f0;
+  background: #161616;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+}
+
+.hero__sticker--time svg {
+  color: #a855f7;
+}
+
+/* Right lane — 2 stickers, staggered through the cycle */
+.hero__sticker--grow {
+  --rot: 6deg;
+  --in-delay: 1.4s;
+  right: 0;
+  padding: 7px 12px;
+  font-size: 14px;
+  color: #10b981;
+  background: #0f2b1e;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.hero__sticker--grow svg {
+  color: #10b981;
+}
+
+.hero__sticker--pro {
+  --rot: -5deg;
+  --in-delay: 4.6s;
+  right: 4px;
+  padding: 5px 10px;
+  font-size: 11px;
+  color: #ffffff;
+  background: #3b82f6;
+  box-shadow: 0 4px 18px rgba(59, 130, 246, 0.45);
+}
+
+@keyframes hero-sticker-stream {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--rot, 0deg)) translateY(40px) scale(0.75);
+  }
+  15% {
+    opacity: 0.42;
+    transform: rotate(var(--rot, 0deg)) translateY(0) scale(1);
+  }
+  50% {
+    opacity: 0.42;
+    transform: rotate(var(--rot, 0deg)) translateY(calc(var(--stream-up, 240px) * -0.5)) scale(1);
+  }
+  85% {
+    opacity: 0.42;
+    transform: rotate(var(--rot, 0deg)) translateY(calc(var(--stream-up, 240px) * -1)) scale(0.95);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--rot, 0deg)) translateY(calc(var(--stream-up, 240px) * -1.15)) scale(0.85);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero--visible .hero__sticker {
+    animation: none;
+    opacity: 1;
+    transform: rotate(var(--rot, 0deg));
+  }
 }
 
 .hero__title-accent {
@@ -121,27 +274,140 @@
   line-height: 1;
 }
 
-/* ── Widgets list ── */
+/* ── Three widgets card (browser-like preview) ── */
+
+.hero__three-widgets {
+  margin-top: auto;
+  border-radius: 16px;
+  background: #0a0f18;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 500ms ease 300ms, transform 500ms ease 300ms;
+}
+
+.hero--visible .hero__three-widgets {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hero__slider {
+  overflow: hidden;
+  width: 100%;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.hero__slider-track {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  transition: transform 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hero__slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.hero__addr-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #0f1520;
+}
+
+.hero__addr-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #c8cbd2;
+  font-family: var(--font-body, 'Inter');
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.hero__addr-favicon {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  object-fit: contain;
+  background: #ffffff;
+  padding: 1px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  display: block;
+}
+
+.hero__addr-favicon--fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: #1f2937;
+}
+
+.hero__addr-favicon--fallback svg {
+  display: block;
+}
+
+.hero__addr-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #22c55e;
+  font-family: var(--font-body, 'Inter');
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.hero__live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+}
+
+/* ── Widgets list inside the preview card ── */
 
 .hero__widgets {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 4px;
+  padding: 10px 12px;
+  font-family: var(--font-body, 'Inter'), -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* ── Widget card base ── */
+.hero__widgets,
+.hero__widgets * {
+  font-family: inherit;
+}
+
+/* ── Widget slot — fixed 80px height so every preview reads the same ── */
 
 .hero__widget-card {
   width: 100%;
-  padding: 14px 16px;
-  border-radius: 16px;
-  background: linear-gradient(180deg, #161a22 0%, #11151c 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  height: 80px;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
   opacity: 0;
-  transform: translateY(12px);
+  transform: translateY(8px);
   transition: opacity 500ms ease, transform 500ms ease;
+}
+
+.hero__widget-card > * {
+  width: 100%;
+  max-height: 100%;
+  box-sizing: border-box;
 }
 
 .hero--visible .hero__widget-card {
@@ -149,31 +415,39 @@
   transform: translateY(0);
 }
 
-.hero--visible .hero__widget-card:nth-child(1) { transition-delay: 340ms; }
-.hero--visible .hero__widget-card:nth-child(2) { transition-delay: 440ms; }
+.hero--visible .hero__widget-card:nth-child(1) { transition-delay: 380ms; }
+.hero--visible .hero__widget-card:nth-child(2) { transition-delay: 480ms; }
 
-/* Photo reviews card — larger thumbnails matching widget detail page design */
+/* Photo reviews — IqKQb layout (stars + photos + quote) packed into the
+   shared 80px slot. */
+.hero__widget-card--reviews .wpr__reviews {
+  gap: 4px;
+}
+
 .hero__widget-card--reviews .wpr__photo {
-  width: 56px;
-  height: 56px;
+  width: 44px;
+  height: 44px;
   border-radius: 8px;
 }
 
 .hero__widget-card--reviews .wpr__stars-row {
-  font-size: 15px;
+  font-size: 12px;
+  justify-content: space-between;
 }
 
-/* Progressive discount card — strip wpr__pd's own bg/padding/radius */
-.hero__widget-card--pd {
-  padding: 0;
+.hero__widget-card--reviews .wpr__photos-row {
+  justify-content: space-between;
 }
 
-.hero__widget-card--pd .wpr__pd {
-  background: transparent !important;
-  border-radius: 0;
-  padding: 12px 14px;
-  opacity: 1 !important;
-  transform: none !important;
+.hero__widget-card--reviews .wpr__photos-more {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 600;
+  color: #9ca3af;
+}
+
+.hero__widget-card--reviews .wpr__review-quote {
+  display: none;
 }
 
 /* ── CTA buttons ── */
@@ -182,6 +456,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  padding-bottom: env(safe-area-inset-bottom, 0);
   opacity: 0;
   transform: translateY(12px);
   transition: opacity 600ms ease 420ms, transform 600ms ease 420ms;
@@ -222,14 +497,14 @@
 }
 
 .hero__cta--secondary {
-  background: #0f1a13;
-  color: #6ee787;
-  border: 2px solid #6ee787;
-  box-shadow: 0 0 16px rgba(110, 231, 135, 0.2);
+  background: rgba(255, 255, 255, 0.03);
+  color: #e8e8e8;
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .hero__cta--secondary:hover {
-  box-shadow: 0 0 28px rgba(110, 231, 135, 0.3);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.22);
 }
 
 .hero__cta--secondary svg {
@@ -245,6 +520,18 @@
 
   .hero__title {
     font-size: 34px;
+  }
+}
+
+/* ── Short screens (iPhone SE etc.) — hide secondary widget card to fit ── */
+
+@media (max-height: 700px) {
+  .hero__widget-card--pd {
+    display: none;
+  }
+
+  .hero__widgets {
+    min-height: 0;
   }
 }
 
@@ -265,7 +552,8 @@
 @media (min-width: 1024px) {
   .hero {
     padding: calc(80px + 48px) 60px 64px;
-    min-height: 100svh;
+    min-height: 100vh;
+  height: 100vh;
   }
 
   .hero__wrap {
@@ -289,10 +577,14 @@
     padding: 0;
   }
 
-  .hero__widgets {
+  .hero__three-widgets {
     grid-area: widgets;
     align-self: center;
-    gap: 14px;
+    margin-top: 0;
+  }
+
+  .hero__widgets {
+    gap: 10px;
   }
 
   .hero__ctas {
@@ -300,12 +592,27 @@
     flex-direction: row;
     align-items: center;
     gap: 16px;
+    margin-top: 0;
+    padding-bottom: 0;
+  }
+
+  .hero__title-wrap {
+    justify-content: flex-start;
+    width: fit-content;
   }
 
   .hero__title {
     align-items: flex-start;
     font-size: clamp(52px, 5vw, 76px);
     line-height: 1.05;
+  }
+
+  .hero__stickers {
+    inset: -48px -32px 30px -32px;
+  }
+
+  .hero__sticker {
+    --stream-up: 340px;
   }
 
   .hero__pill {
